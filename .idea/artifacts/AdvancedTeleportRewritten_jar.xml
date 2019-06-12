@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact name="AdvancedTeleportRewritten:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/AdvancedTeleportRewritten_jar</output-path>
+    <root id="root">
+      <element id="archive" name="AdvancedTeleportRewritten.jar">
+        <element id="module-output" name="AdvancedTeleportRewritten" />
+      </element>
+    </root>
+  </artifact>
+</component>

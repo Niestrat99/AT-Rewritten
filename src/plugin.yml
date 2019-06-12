@@ -1,0 +1,14 @@
+main: io.github.at.main
+name: AdvancedTeleport
+version: 5.0.0
+description: A plugin which allows players to request a teleport to other players. Type /tphelp to get a list of commands.
+authors: [Niestrat99,Thatsmusic99]
+softdepend: [Vault]
+
+
+commands:
+  athelp:
+  tpr:
+  tpa:
+  tpon:
+  tpoff:
