@@ -32,6 +32,7 @@ public class CustomMessages {
         Config.addDefault("Error.neverBlocked", "&cThis player was never blocked!");
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
+        Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}");
 
         Config.options().copyDefaults(true);
         save();
