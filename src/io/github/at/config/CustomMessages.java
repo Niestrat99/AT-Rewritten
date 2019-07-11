@@ -23,8 +23,8 @@ public class CustomMessages {
         Config.addDefault("Error.noPermission", "&cYou do not have permissions to use this command!");
         Config.addDefault("Error.featureDisabled", "&cThis feature has been disabled!");
         Config.addDefault("Error.noRequests", "&cYou do not have any pending requests!");
-        Config.addDefault("Error.requestSendFail", "&cCould not send Request to &e{player}!");
-        Config.addDefault("Error.tpOff", "&e{player} &chas their Teleportations disabled!");
+        Config.addDefault("Error.requestSendFail", "&cCould not send request to &e{player}!");
+        Config.addDefault("Error.tpOff", "&e{player} &chas their teleportation disabled!");
         Config.addDefault("Error.tpBlock", "&cThis player has blocked you from sending requests to them!");
         Config.addDefault("Error.alreadyOn", "&cYour teleport requests are already enabled!");
         Config.addDefault("Error.alreadyOff", "&cYour teleport requests are already disabled!");
