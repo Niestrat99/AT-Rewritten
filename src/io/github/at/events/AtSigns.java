@@ -25,7 +25,12 @@ public class AtSigns implements Listener {
                 org.bukkit.block.Sign sign = (Sign) state;
                 String line1 = sign.getLine(0);
                 if (ChatColor.stripColor(line1).equalsIgnoreCase("[RandomTP]")){
-                    player.performCommand("tpr");
+                    if (!sign.getLine(1).isEmpty()) {
+                        player.performCommand("tpr " + sign.getLine(1));
+                    } else {
+                        player.performCommand("tpr");
+                    }
+
                 } else if (ChatColor.stripColor(line1).equalsIgnoreCase("[Warp]") && Warps.getWarps().containsKey(sign.getLine(1))){
                     player.performCommand("warp " + sign.getLine(1));
                 } else if (ChatColor.stripColor(line1).equalsIgnoreCase("[Spawn]")) {

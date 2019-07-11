@@ -7,10 +7,7 @@ import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.RandomCoords;
 import net.milkbowl.vault.economy.EconomyResponse;
-import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -28,8 +25,21 @@ public class Tpr implements CommandExecutor {
             Player player = (Player)sender;
             if (Config.featRTP()) {
                 if (sender.hasPermission("at.member.tpr")) {
+                    World world = player.getWorld();
+                    if (args.length > 0) {
+                        if (sender.hasPermission("at.member.tpr.other")) {
+                            World otherWorld = Bukkit.getWorld(args[0]);
+                            if (otherWorld != null) {
+                                world = otherWorld;
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "The world " + args[0] + " doesn't exist!");
+                                return false;
+                            }
+                        }
+
+                    }
                     if (CooldownManager.getCooldown().containsKey(player)) {
-                        sender.sendMessage(ChatColor.RED + "This command has a CooldownManager.getCooldown() of " + Config.commandCooldown() + " seconds each use - Please wait!");
+                        sender.sendMessage(ChatColor.RED + "This command has a cooldown of " + Config.commandCooldown() + " seconds each use - Please wait!");
                         return false;
                     }
                     if (Config.EXPPayment()){
@@ -46,7 +56,7 @@ public class Tpr implements CommandExecutor {
                             return false;
                         }
                     }
-                    Location location = generateCoords(player);
+                    Location location = generateCoords(player, world);
                     player.sendMessage(ChatColor.GREEN + "Searching for a location...");
                     boolean validLocation = false;
                     while (!validLocation) {
@@ -56,7 +66,7 @@ public class Tpr implements CommandExecutor {
                         boolean b = true;
                         for (String Material: Config.avoidBlocks()) {
                             if (location.getBlock().getType().name().equalsIgnoreCase(Material)){
-                                location = RandomCoords.generateCoords(player);
+                                location = RandomCoords.generateCoords(player, world);
                                 b = false;
                                 break;
                             }
