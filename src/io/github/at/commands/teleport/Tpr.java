@@ -1,4 +1,4 @@
-package io.github.at.commands;
+package io.github.at.commands.teleport;
 
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
