@@ -1,6 +1,10 @@
 package io.github.at.main;
 
 import io.github.at.commands.*;
+import io.github.at.commands.teleport.TpOff;
+import io.github.at.commands.teleport.TpOn;
+import io.github.at.commands.teleport.Tpa;
+import io.github.at.commands.teleport.Tpr;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.WorldBorder;
 import org.bukkit.plugin.RegisteredServiceProvider;
