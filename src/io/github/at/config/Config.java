@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Config {
 
-    public static File configFile = new File("plugins/AdvancedTeleport","Config.yml");
+    public static File configFile = new File("plugins/AdvancedTeleport","config.yml");
     public static FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
     public static void save() throws IOException {
@@ -44,7 +44,24 @@ public class Config {
         *  For example, ./home <Home name> may cost $200 whereas /tpa <Player name> costs 2 EXP levels.
         */
 
-        config.addDefault("payments.");
+        // TPA
+        config.addDefault("payments.vault.tpa.price", "default");
+        config.addDefault("payments.vault.tpa.enabled", "default");
+        config.addDefault("payments.exp.tpa.price", "default");
+        config.addDefault("payments.exp.tpa.enabled", "default");
+
+        // TPAHere
+        config.addDefault("payments.vault.tpahere.price", "default");
+        config.addDefault("payments.vault.tpahere.enabled", "default");
+        config.addDefault("payments.exp.tpahere.price", "default");
+        config.addDefault("payments.exp.tpahere.enabled", "default");
+
+        // TPR
+        config.addDefault("payments.vault.tpr.price", "default");
+        config.addDefault("payments.vault.tpr.enabled", "default");
+        config.addDefault("payments.exp.tpr.price", "default");
+        config.addDefault("payments.exp.tpr.enabled", "default");
+
         // TPR options
         config.addDefault("tpr.maximum-x", 10000);
         config.addDefault("tpr.minimum-x", -10000);

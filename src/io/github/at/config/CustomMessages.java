@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class CustomMessages {
 
-    public static File ConfigFile = new File("plugins/AdvancedTeleport","CustomMessages.yml");
+    public static File ConfigFile = new File("plugins/AdvancedTeleport","custom-messages.yml");
     public static FileConfiguration Config = YamlConfiguration.loadConfiguration(ConfigFile);
 
     public static void save() throws IOException {
