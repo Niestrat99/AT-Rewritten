@@ -10,5 +10,6 @@
     <orderEntry type="library" name="spigot-1.12.2-R0.1-SNAPSHOT-b1648" level="project" />
     <orderEntry type="library" name="WorldBorder" level="project" />
     <orderEntry type="library" name="Vault" level="project" />
+    <orderEntry type="library" name="WorldBorder_v1.8.7" level="project" />
   </component>
 </module>
