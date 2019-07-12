@@ -1,10 +1,14 @@
 package io.github.at.main;
 
 import io.github.at.commands.*;
-import io.github.at.commands.teleport.TpOff;
-import io.github.at.commands.teleport.TpOn;
-import io.github.at.commands.teleport.Tpa;
-import io.github.at.commands.teleport.Tpr;
+import io.github.at.commands.home.DelHome;
+import io.github.at.commands.home.Home;
+import io.github.at.commands.home.SetHome;
+import io.github.at.commands.spawn.SetSpawn;
+import io.github.at.commands.spawn.SpawnCommand;
+import io.github.at.commands.teleport.*;
+import io.github.at.commands.warp.Warp;
+import io.github.at.commands.warp.WarpsCommand;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.WorldBorder;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -15,8 +19,16 @@ public class Main extends JavaPlugin {
 
     // TODO SUGGESTIONS THAT HAVE BEEN MADE
     // Back command
-    //
+    // /rtp <World name> (done)
+    // Custom messages (doing)
+    // Payment for more than just /tpa and /tpahere
+    // Payment using items (maybe???)
+    // MySQL compatibility (AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
 
+    // Back command:
+    // - Will have to listen to teleport or death events
+    // - Will have to store previous locations (HashMap?)
+    // - Teleport to last saved location
     private static Economy Vault;
     public static WorldBorder worldBorder;
     private static Main Instance;
@@ -48,16 +60,41 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         System.out.println("Advanced Teleport is now enabling...");
-
+        registerCommands();
         Instance = this;
     }
 
     // Separate method for registering commands
     private void registerCommands() {
+
+        // Main commands
         getCommand("athelp").setExecutor(new AtHelp());
+        getCommand("atreload").setExecutor(new AtReload());
+
+        // TP commands
         getCommand("tpa").setExecutor(new Tpa());
         getCommand("tpr").setExecutor(new Tpr());
         getCommand("tpoff").setExecutor(new TpOff());
         getCommand("tpon").setExecutor(new TpOn());
+        getCommand("tpblock").setExecutor(new TpBlockCommand());
+        getCommand("tpcancel").setExecutor(new TpCancel());
+        getCommand("tpno").setExecutor(new TpNo());
+        getCommand("tpo").setExecutor(new Tpo());
+        getCommand("tpohere").setExecutor(new TpoHere());
+        getCommand("tpunblock").setExecutor(new TpUnblock());
+        getCommand("tpyes").setExecutor(new TpYes());
+
+        // Home commands
+        getCommand("home").setExecutor(new Home());
+        getCommand("sethome").setExecutor(new SetHome());
+        getCommand("delhome").setExecutor(new DelHome());
+
+        // Warp commands
+        getCommand("warp").setExecutor(new Warp());
+        getCommand("warps").setExecutor(new WarpsCommand());
+
+        // Spawn commands
+        getCommand("spawn").setExecutor(new SpawnCommand());
+        getCommand("setspawn").setExecutor(new SetSpawn());
     }
 }
