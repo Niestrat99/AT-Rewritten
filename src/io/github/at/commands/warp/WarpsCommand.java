@@ -10,7 +10,7 @@ import org.bukkit.command.CommandSender;
 public class WarpsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (Config.featWarps()) {
+        if (Config.isFeatureEnabled("warps")) {
             if (commandSender.hasPermission("tbh.tp.member.warps")){
                 StringBuilder wList = new StringBuilder();
                 wList.append(ChatColor.AQUA + "" + ChatColor.BOLD + "WarpsCommand: " + ChatColor.YELLOW);

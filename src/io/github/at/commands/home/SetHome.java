@@ -15,7 +15,7 @@ import java.io.IOException;
 public class SetHome implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (Config.featHomes()) {
+        if (Config.isFeatureEnabled("homes")) {
             if (sender instanceof Player) {
                 Player player = (Player)sender;
                 if (sender.hasPermission("tbh.tp.member.sethome")) {

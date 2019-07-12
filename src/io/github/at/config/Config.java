@@ -62,6 +62,24 @@ public class Config {
         config.addDefault("payments.exp.tpr.price", "default");
         config.addDefault("payments.exp.tpr.enabled", "default");
 
+        // Warp
+        config.addDefault("payments.vault.warp.price", "default");
+        config.addDefault("payments.vault.warp.enabled", "default");
+        config.addDefault("payments.exp.warp.price", "default");
+        config.addDefault("payments.exp.warp.enabled", "default");
+
+        // Spawn
+        config.addDefault("payments.vault.warp.price", "default");
+        config.addDefault("payments.vault.warp.enabled", "default");
+        config.addDefault("payments.exp.warp.price", "default");
+        config.addDefault("payments.exp.warp.enabled", "default");
+
+        // Home
+        config.addDefault("payments.vault.home.price", "default");
+        config.addDefault("payments.vault.home.enabled", "default");
+        config.addDefault("payments.exp.home.price", "default");
+        config.addDefault("payments.exp.home.enabled", "default");
+
         // TPR options
         config.addDefault("tpr.maximum-x", 10000);
         config.addDefault("tpr.minimum-x", -10000);
@@ -81,9 +99,50 @@ public class Config {
     public static int requestLifetime(){
         return config.getInt("timers.requestLifetime");
     }
+
+    /* Used to check if a specific command is using vault for payments.
+     * e.g: Config.isUsingVault("home") - returns true if the home command is using payments through Vault.
+     */
+    public static boolean isUsingVault(String command) {
+        if (config.get("payments.vault." + command + ".enabled") instanceof String) {
+            return config.getBoolean("booleans.useVault");
+        } else {
+            return config.getBoolean("payments.vault." + command + ".enabled");
+        }
+    }
+
+    @Deprecated
     public static boolean useVault() {return config.getBoolean("booleans.useVault");}
+
+    /* Used to get the amount that is paid for the specific command.
+     * e.g: Config.getTeleportPrice("home") - returns a price (e.g $10) for how much the home command costs.
+     */
+    public static double getTeleportPrice(String command) {
+        if (config.get("payments.vault." + command + ".price") instanceof String) {
+            return config.getDouble("payments.vault.teleportPrice");
+        } else {
+            return config.getDouble("payments.vault." + command + ".price");
+        }
+    }
+
+    @Deprecated
     public static double teleportPrice() {return config.getDouble("payments.vault.teleportPrice");}
+
+    /* Used to check if a specific command is using EXP for payments.
+     * e.g: Config.isUsingEXPPayment("home") - returns true if the home command is using payments through experience.
+     */
+    public static boolean isUsingEXPPayment(String command) {
+        if (config.get("payments.exp." + command + ".enabled") instanceof String) {
+            return config.getBoolean("booleans.EXPPayment");
+        } else {
+            return config.getBoolean("payments.exp." + command + ".enabled");
+        }
+    }
+
+    @Deprecated
     public static boolean EXPPayment() {return config.getBoolean("booleans.EXPPayment");}
+
+
     public static int EXPTeleportPrice() {return config.getInt("payments.exp.EXPTeleportPrice");}
     public static int vaultTPRCost() {return config.getInt("payments.vault.vaultTPRCost");}
     public static int EXPTPRCost() {return config.getInt("payments.exp.EXPTPRCost");}
@@ -93,11 +152,28 @@ public class Config {
     public static int maxZ() {return config.getInt("tpr.maximum-z");}
     public static int minZ() {return config.getInt("tpr.minimum-z");}
     public static List<String> avoidBlocks() {return config.getStringList("tpr.avoidBlocks");}
+
+    /* This method is used as a replacement for featTP, featWarps, etc. to make checking if the feature is enabled easier.
+     * For example:
+     * Config.isFeatureEnabled("teleport") - checks if teleports are enabled.
+     * Config.isFeatureEnabled("warps") - checks if warps are enabled.
+     * Config.isFeatureEnabled("randomTP") - checks if RTP is enabled.
+     * Config.isFeatureEnabled("homes") - checks if homes are enabled.
+     * Config.isFeatureEnabled("spawn") - checks if the spawn feature is enabled.
+     */
+    public static boolean isFeatureEnabled(String feature) { return config.getBoolean("features." + feature); }
+
+    @Deprecated
     public static boolean featTP() {return config.getBoolean("features.teleport");}
+    @Deprecated
     public static boolean featWarps() {return config.getBoolean("features.warps");}
+    @Deprecated
     public static boolean featSpawn() {return config.getBoolean("features.spawn");}
+    @Deprecated
     public static boolean featRTP() {return config.getBoolean("features.randomTP");}
+    @Deprecated
     public static boolean featHomes() {return config.getBoolean("features.homes");}
+
     public static boolean cancelOnRotate() {return config.getBoolean("timers.cancel-on-rotate");}
 
     public static void reloadConfig() throws IOException {

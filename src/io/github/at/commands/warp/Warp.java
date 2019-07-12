@@ -14,7 +14,7 @@ import java.io.IOException;
 public class Warp implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (Config.featWarps()) {
+        if (Config.isFeatureEnabled("warps")) {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase("set")) {
                     if (sender.hasPermission("tbh.tp.admin.warpset")) {

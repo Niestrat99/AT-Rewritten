@@ -15,7 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class SetSpawn implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (Config.featSpawn()) {
+        if (Config.isFeatureEnabled("spawn")) {
             if (commandSender.hasPermission("tbh.tp.member.spawn")){
                 if (commandSender instanceof Player) {
                     Player player = (Player) commandSender;

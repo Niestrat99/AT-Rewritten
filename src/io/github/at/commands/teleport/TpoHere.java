@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 public class TpoHere implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (Config.featTP()) {
+        if (Config.isFeatureEnabled("teleport")) {
             if (sender.hasPermission("tbh.tp.admin.tpohere")){
                 if (sender instanceof Player){
                     Player player = (Player)sender;

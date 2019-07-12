@@ -23,7 +23,7 @@ public class Tpr implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player)sender;
-            if (Config.featRTP()) {
+            if (Config.isFeatureEnabled("randomTP")) {
                 if (sender.hasPermission("at.member.tpr")) {
                     World world = player.getWorld();
                     if (args.length > 0) {

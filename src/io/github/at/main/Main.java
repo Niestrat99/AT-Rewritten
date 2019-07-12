@@ -9,6 +9,7 @@ import io.github.at.commands.spawn.SpawnCommand;
 import io.github.at.commands.teleport.*;
 import io.github.at.commands.warp.Warp;
 import io.github.at.commands.warp.WarpsCommand;
+import io.github.at.events.AtSigns;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.WorldBorder;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -25,10 +26,6 @@ public class Main extends JavaPlugin {
     // Payment using items (maybe???)
     // MySQL compatibility (AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
 
-    // Back command:
-    // - Will have to listen to teleport or death events
-    // - Will have to store previous locations (HashMap?)
-    // - Teleport to last saved location
     private static Economy Vault;
     public static WorldBorder worldBorder;
     private static Main Instance;
@@ -61,6 +58,8 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         System.out.println("Advanced Teleport is now enabling...");
         registerCommands();
+        registerEvents();
+        setupEconomy();
         Instance = this;
     }
 
@@ -96,5 +95,10 @@ public class Main extends JavaPlugin {
         // Spawn commands
         getCommand("spawn").setExecutor(new SpawnCommand());
         getCommand("setspawn").setExecutor(new SetSpawn());
+    }
+
+    // Lonely event :c
+    private void registerEvents() {
+        getServer().getPluginManager().registerEvents(new AtSigns(), this);
     }
 }

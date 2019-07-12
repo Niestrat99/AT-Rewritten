@@ -23,7 +23,7 @@ public class TpOff implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (Config.featTP()) {
+            if (Config.isFeatureEnabled("teleport")) {
                 if (sender.hasPermission("at.member.off")) {
                     if (!tpoff.contains(player)) {
                         tpoff.add(player);

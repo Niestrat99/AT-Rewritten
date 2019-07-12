@@ -46,9 +46,8 @@ public class AtSigns implements Listener {
         BlockState state = placeBlock.getState();
         Player placer = Place.getPlayer();
         if (state instanceof Sign) {
-            Sign sign = (Sign) state;
             if (Place.getLine(0).equalsIgnoreCase("[RandomTP]")) {
-                if (Config.featRTP()) {
+                if (Config.isFeatureEnabled("randomTP")) {
                     if (!placer.hasPermission("tbh.tp.admin.tprsign")){
                         Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[RandomTP]");
                         placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to make this sign!");
@@ -56,7 +55,12 @@ public class AtSigns implements Listener {
                     } else {
 
                         Place.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[RandomTP]");
-                        Place.setLine(1, ChatColor.ITALIC + "Click me!");
+                        if (Place.getLine(1).isEmpty()) {
+                            Place.setLine(1, ChatColor.ITALIC + "Click me!");
+                        } else {
+                            Place.setLine(2, ChatColor.ITALIC + "Click me!");
+                        }
+
                         placer.sendMessage(ChatColor.GREEN + "Successfully created the RandomTP sign!");
                     }
                 } else {
@@ -65,7 +69,7 @@ public class AtSigns implements Listener {
                     Place.setCancelled(true);
                 }
             } else if (Place.getLine(0).equalsIgnoreCase("[Warp]")) {
-                if (Config.featWarps()) {
+                if (Config.isFeatureEnabled("warps")) {
                     if (!placer.hasPermission("tbh.tp.admin.warpsign")){
                         Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Warp]");
                         placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to make this sign!");
@@ -88,13 +92,16 @@ public class AtSigns implements Listener {
                             }
                         }
                     }
-                } else {
-                    placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Warps " + ChatColor.RED + "is disabled!");
-                    Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Warp]");
-                    Place.setCancelled(true);
                 }
+                // Let's assume that if we disable the warps feature that it's to avoid plugin conflicts.
+
+                // else {
+                //    placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Warps " + ChatColor.RED + "is disabled!");
+                //    Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Warp]");
+                //    Place.setCancelled(true);
+                // }
             } else if (Place.getLine(0).equalsIgnoreCase("[Spawn]")) {
-                if (Config.featSpawn()) {
+                if (Config.isFeatureEnabled("spawn")) {
                     if (!placer.hasPermission("tbh.tp.admin.spawnsign")) {
                         Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Spawn]");
                         placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to make this sign!");
@@ -103,11 +110,11 @@ public class AtSigns implements Listener {
                         Place.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Spawn]");
                         placer.sendMessage(ChatColor.GREEN + "Successfully created the Spawn sign!");
                     }
-                } else {
-                    placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Spawn " + ChatColor.RED + "is disabled!");
-                    Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Spawn]");
-                    Place.setCancelled(true);
-                }
+                } //else {
+                 //   placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Spawn " + ChatColor.RED + "is disabled!");
+                 //   Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Spawn]");
+                 //   Place.setCancelled(true);
+              //  }
             }
         }
     }

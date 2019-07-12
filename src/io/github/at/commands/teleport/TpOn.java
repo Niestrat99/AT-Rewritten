@@ -12,7 +12,7 @@ public class TpOn implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player)sender;
-            if (Config.featTP()) {
+            if (Config.isFeatureEnabled("teleport")) {
                 if (sender.hasPermission("tbh.tp.member.on")) {
                     if (TpOff.getTpOff().contains(player)) {
                         TpOff.getTpOff().remove(player);

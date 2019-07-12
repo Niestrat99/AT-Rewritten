@@ -18,24 +18,24 @@ public class AtHelp implements CommandExecutor {
                     sender.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "AdvancedTeleport Help");
                     sender.sendMessage(ChatColor.GOLD + "Please type " + ChatColor.AQUA + "/athelp <category>" + ChatColor.GOLD + " to get a command list of one of these categories.");
                     sender.sendMessage(ChatColor.AQUA + "--[" + ChatColor.GOLD + "Categories" + ChatColor.AQUA + "]--");
-                    if (Config.featTP()) {
+                    if (Config.isFeatureEnabled("teleport")) {
                         sender.sendMessage(ChatColor.GOLD + "- Teleport");
                     }
-                    if (Config.featWarps()) {
+                    if (Config.isFeatureEnabled("warps")) {
                         sender.sendMessage(ChatColor.GOLD + "- Warps");
                     }
-                    if (Config.featSpawn()) {
+                    if (Config.isFeatureEnabled("spawn")) {
                         sender.sendMessage(ChatColor.GOLD + "- Spawn");
                     }
-                    if (Config.featRTP()) {
+                    if (Config.isFeatureEnabled("randomTP")) {
                         sender.sendMessage(ChatColor.GOLD + "- RandomTP");
                     }
-                    if (Config.featHomes()) {
+                    if (Config.isFeatureEnabled("homes")) {
                         sender.sendMessage(ChatColor.GOLD + "- Homes");
                     }
                     return false;
                 } else if (args[0].equalsIgnoreCase("teleport")) {
-                    if (Config.featTP()) {
+                    if (Config.isFeatureEnabled("teleport")) {
                         sender.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Teleport help");
                         sender.sendMessage(ChatColor.GOLD + "- /tpa <player> - Sends a request to teleport to the player.");
                         sender.sendMessage(ChatColor.GOLD + "- /tpahere <player> - Sends a request to the player to teleport to you");
@@ -57,7 +57,7 @@ public class AtHelp implements CommandExecutor {
                         return false;
                     }
                 } else if (args[0].equalsIgnoreCase("warps")) {
-                    if (Config.featWarps()) {
+                    if (Config.isFeatureEnabled("warps")) {
                         sender.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Warps help");
                         sender.sendMessage(ChatColor.GOLD + "- /warp <warp name> - Teleports you to an existing warp point.");
                         sender.sendMessage(ChatColor.GOLD + "- /warps - Gives you a list of warps.");
@@ -71,7 +71,7 @@ public class AtHelp implements CommandExecutor {
                         return false;
                     }
                 } else if (args[0].equalsIgnoreCase("Spawn")) {
-                    if (Config.featSpawn()) {
+                    if (Config.isFeatureEnabled("spawn")) {
                         sender.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Spawn help");
                         sender.sendMessage(ChatColor.GOLD + "- /spawn - Teleports you to the spawn point.");
                         if (sender.hasPermission("tbh.tp.admin.help")) {
@@ -83,7 +83,7 @@ public class AtHelp implements CommandExecutor {
                         return false;
                     }
                 } else if (args[0].equalsIgnoreCase("RandomTP")) {
-                    if (Config.featRTP()) {
+                    if (Config.isFeatureEnabled("randomTP")) {
                         sender.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "RandomTP help");
                         sender.sendMessage(ChatColor.GOLD + "- /rtp - Teleports you to a random location.");
                         return false;
@@ -92,7 +92,7 @@ public class AtHelp implements CommandExecutor {
                         return false;
                     }
                 } else if (args[0].equalsIgnoreCase("Homes")) {
-                    if (Config.featHomes()) {
+                    if (Config.isFeatureEnabled("homes")) {
                         sender.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Homes help");
                         sender.sendMessage(ChatColor.GOLD + "- /sethome <home name> - Sets a home point at your location.");
                         sender.sendMessage(ChatColor.GOLD + "- /delhome <home name> - Deletes a home point you've set.");

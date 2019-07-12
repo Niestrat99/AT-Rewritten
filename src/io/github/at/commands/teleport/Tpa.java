@@ -18,7 +18,7 @@ public class Tpa implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (Config.featTP()) {
+            if (Config.isFeatureEnabled("teleport")) {
                 if (sender.hasPermission("tbh.tp.member.tpa")) {
                     if (CooldownManager.getCooldown().containsKey(player)) {
                         sender.sendMessage(ChatColor.RED + "This command has a cooldown of " + Config.commandCooldown() + " seconds each use - Please wait!");

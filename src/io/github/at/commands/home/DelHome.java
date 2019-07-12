@@ -14,7 +14,7 @@ import java.io.IOException;
 public class DelHome implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (Config.featHomes()) {
+        if (Config.isFeatureEnabled("homes")) {
             if (sender instanceof Player) {
                 Player player = (Player)sender;
                 if (sender.hasPermission("tbh.tp.member.delhome")) {

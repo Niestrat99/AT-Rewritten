@@ -18,7 +18,7 @@ public class Home implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (Config.featHomes()) {
+        if (Config.isFeatureEnabled("homes")) {
             if (sender.hasPermission("tbh.tp.member.home")) {
                 if (sender instanceof Player) {
                     Player player = (Player)sender;
@@ -33,6 +33,13 @@ public class Home implements CommandExecutor {
                                             player.teleport(tlocation);
                                             sender.sendMessage(ChatColor.GREEN + "Successfully teleported you to " + ChatColor.GOLD + args[0] + ChatColor.GREEN + "'s home!");
                                             return false;
+                                        } else if (args[1].equalsIgnoreCase("bed")) {
+                                            Location location = player.getBedSpawnLocation();
+                                            if (location == null) {
+                                                player.sendMessage(ChatColor.RED + "This player doesn't have any bed spawn set!");
+                                                return false;
+                                            }
+
                                         } else {
                                             sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "This home does not exist!");
                                             return false;
@@ -52,34 +59,23 @@ public class Home implements CommandExecutor {
                         try {
                             if (Homes.getHomes(player).containsKey(args[0])) {
                                 Location location = Homes.getHomes(player).get(args[0]);
-                                BukkitRunnable movementtimer = new BukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        player.teleport(location);
-                                        MovementManager.getMovement().remove(player);
-                                        sender.sendMessage(ChatColor.GREEN + "Successfully teleported to your home!");
-                                    }
-                                };
-                                MovementManager.getMovement().put(player, movementtimer);
-                                movementtimer.runTaskLater(Main.getInstance(), Config.teleportTimer() * 20);
-                                player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.teleportTimer())));
+                                teleport(player, location);
                                 return false;
+                            } else if (args[0].equalsIgnoreCase("bed")) {
+                                Location location = player.getBedSpawnLocation();
+                                if (location == null) {
+                                    player.sendMessage(ChatColor.RED + "You don't have any bed spawn set!");
+                                    return false;
+                                }
+                                teleport(player, location);
+                                return false;
+
                             } else {
                                 sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "This home does not exist!");
                             }
                         } catch (NullPointerException ex) {
                             Location location = Homes.getHomes(player).get(args[0]);
-                            BukkitRunnable movementtimer = new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    player.teleport(location);
-                                    MovementManager.getMovement().remove(player);
-                                    sender.sendMessage(ChatColor.GREEN + "Successfully teleported to your home!");
-                                }
-                            };
-                            MovementManager.getMovement().put(player, movementtimer);
-                            movementtimer.runTaskLater(Main.getInstance(), Config.teleportTimer() * 20);
-                            player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.teleportTimer())));
+                            teleport(player, location);
                             return false;
                         }
                     } else {
@@ -94,4 +90,20 @@ public class Home implements CommandExecutor {
         }
         return false;
     }
+
+    private void teleport(Player player, Location loc) {
+        BukkitRunnable movementtimer = new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.teleport(loc);
+                MovementManager.getMovement().remove(player);
+                player.sendMessage(ChatColor.GREEN + "Successfully teleported to your home!");
+            }
+        };
+        MovementManager.getMovement().put(player, movementtimer);
+        movementtimer.runTaskLater(Main.getInstance(), Config.teleportTimer() * 20);
+        player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.teleportTimer())));
+
+    }
+
 }
