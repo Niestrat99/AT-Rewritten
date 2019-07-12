@@ -11,11 +11,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class AcceptRequest {
 
-    private void acceptRequest(TpRequest Request) {
+    private void acceptRequest(TPRequest Request) {
         Player player = Request.getResponder();
         Request.getRequester().sendMessage(ChatColor.YELLOW + "" + player.getName() + ChatColor.GREEN + " has accepted your teleport Request!");
         player.sendMessage(ChatColor.GREEN + "You've accepted the teleport Request!");
-        if (Request.getType() == TpRequest.TeleportType.TPA_HERE) {
+        if (Request.getType() == TPRequest.TeleportType.TPA_HERE) {
             BukkitRunnable movementtimer = new BukkitRunnable() {
                 @Override
                 public void run() {

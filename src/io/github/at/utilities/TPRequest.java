@@ -6,15 +6,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TpRequest {
+public class TPRequest {
 
-    private static List<TpRequest> requestList = new ArrayList<>();
+    private static List<TPRequest> requestList = new ArrayList<>();
     private Player requester; // The player sending the request.
     private Player responder; // The player receiving it.
     private BukkitRunnable timer;
     private TeleportType type;
 
-    public TpRequest(Player requester, Player responder, BukkitRunnable timer, TeleportType type) {
+    public TPRequest(Player requester, Player responder, BukkitRunnable timer, TeleportType type) {
         this.requester = requester;
         this.responder = responder;
         this.timer = timer;
@@ -42,9 +42,9 @@ public class TpRequest {
         TPA_NORMAL
     }
 
-    public static List<TpRequest> getRequests(Player responder) {
-        List<TpRequest> requests = new ArrayList<>();
-        for (TpRequest request : requestList) {
+    public static List<TPRequest> getRequests(Player responder) {
+        List<TPRequest> requests = new ArrayList<>();
+        for (TPRequest request : requestList) {
             if (request.responder == responder) {
                 requests.add(request);
             }
@@ -52,9 +52,9 @@ public class TpRequest {
         return requests;
     }
 
-    public static List<TpRequest> getRequestsByRequester(Player requester) {
-        List<TpRequest> requests = new ArrayList<>(); // Requests that the requester has pending
-        for (TpRequest request : requestList) {
+    public static List<TPRequest> getRequestsByRequester(Player requester) {
+        List<TPRequest> requests = new ArrayList<>(); // Requests that the requester has pending
+        for (TPRequest request : requestList) {
             if (request.getRequester() == requester) {
                 requests.add(request);
             }
@@ -62,8 +62,8 @@ public class TpRequest {
         return requests;
     }
 
-    public static TpRequest getRequestByReqAndResponder(Player responder, Player requester) {
-        for (TpRequest request : requestList) {
+    public static TPRequest getRequestByReqAndResponder(Player responder, Player requester) {
+        for (TPRequest request : requestList) {
             if (request.getRequester() == requester && request.getResponder() == responder) {
                 return request;
             }
@@ -71,11 +71,11 @@ public class TpRequest {
         return null;
     }
 
-    public static void addRequest(TpRequest request) {
+    public static void addRequest(TPRequest request) {
         requestList.add(request);
     }
 
-    public static void removeRequest(TpRequest request) {
+    public static void removeRequest(TPRequest request) {
         requestList.remove(request);
     }
 

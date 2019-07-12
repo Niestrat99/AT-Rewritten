@@ -4,7 +4,7 @@ import io.github.at.config.Config;
 import io.github.at.config.TpBlock;
 import io.github.at.events.CooldownManager;
 import io.github.at.main.Main;
-import io.github.at.utilities.TpRequest;
+import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -42,7 +42,7 @@ public class Tpa implements CommandExecutor {
                                 sender.sendMessage(ChatColor.RED + "You can not teleport to " + ChatColor.YELLOW + target.getName() + ChatColor.RED + "!");
                                 return false;
                             }
-                            if (TpRequest.getRequestByReqAndResponder(target, player) != null) {
+                            if (TPRequest.getRequestByReqAndResponder(target, player) != null) {
                                 sender.sendMessage(ChatColor.RED + "You already have sent a teleport request to " + ChatColor.YELLOW + target.getName() + ChatColor.RED + "!");
                                 return false;
                             }
@@ -70,12 +70,12 @@ public class Tpa implements CommandExecutor {
                                 @Override
                                 public void run() {
                                     sender.sendMessage(ChatColor.GREEN + "Your teleport request to " + ChatColor.AQUA + target.getName() + ChatColor.GREEN + " has expired!");
-                                    TpRequest.removeRequest(TpRequest.getRequestByReqAndResponder(target, player));
+                                    TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
                                 }
                             };
                             run.runTaskLater(Main.getInstance(), Config.requestLifetime()*20); // 60 seconds
-                            TpRequest request = new TpRequest(player, target, run, TpRequest.TeleportType.TPA_NORMAL); // Creates a new teleport request.
-                            TpRequest.addRequest(request);
+                            TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA_NORMAL); // Creates a new teleport request.
+                            TPRequest.addRequest(request);
                             BukkitRunnable cooldowntimer = new BukkitRunnable() {
                                 @Override
                                 public void run() {
