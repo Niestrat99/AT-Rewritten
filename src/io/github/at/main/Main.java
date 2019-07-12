@@ -12,6 +12,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
+
+    // TODO SUGGESTIONS THAT HAVE BEEN MADE
+    // Back command
+    //
+
     private static Economy Vault;
     public static WorldBorder worldBorder;
     private static Main Instance;
@@ -42,12 +47,17 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        System.out.println("Advanced Teleport is now enabled.");
+        System.out.println("Advanced Teleport is now enabling...");
+
+        Instance = this;
+    }
+
+    // Separate method for registering commands
+    private void registerCommands() {
         getCommand("athelp").setExecutor(new AtHelp());
         getCommand("tpa").setExecutor(new Tpa());
         getCommand("tpr").setExecutor(new Tpr());
         getCommand("tpoff").setExecutor(new TpOff());
         getCommand("tpon").setExecutor(new TpOn());
-        Instance = this;
     }
 }
