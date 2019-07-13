@@ -2,6 +2,7 @@ package io.github.at.commands.teleport;
 
 import fanciful.FancyMessage;
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import io.github.at.utilities.PagedLists;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
@@ -27,16 +28,16 @@ public class TpCancel implements CommandExecutor {
                                 Player target = Bukkit.getPlayer(args[0]);
                                 // Player is offline
                                 if (target == null) {
-                                    sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " Either the player is currently offline or doesn't exist.");
+                                    sender.sendMessage(CustomMessages.getString("Errors.noSuchPlayer"));
                                     return false;
                                 } else {
                                     TPRequest request = TPRequest.getRequestByReqAndResponder(player, target);
                                     if (request == null) {
-                                        sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + "You don't have any pending requests for " + ChatColor.YELLOW + target.getName() + ChatColor.RED + "!");
+                                        sender.sendMessage(CustomMessages.getString("Error.noRequestsFromPlayer").replaceAll("\\{player}", target.getName()));
                                         return false;
                                     } else {
-                                        player.sendMessage(ChatColor.GREEN + "You have canceled your teleport request.");
-                                        request.getResponder().sendMessage(ChatColor.YELLOW + "" + sender.getName() + ChatColor.RED + " has canceled their teleport request.");
+                                        player.sendMessage(CustomMessages.getString("Info.tpCancel"));
+                                        request.getResponder().sendMessage(CustomMessages.getString("Info.tpCancelResponder").replaceAll("\\{player}", player.getName()));
                                         request.destroy();
                                         return false;
                                     }
@@ -60,19 +61,19 @@ public class TpCancel implements CommandExecutor {
                             }
                         } else {
                             TPRequest request = TPRequest.getRequestsByRequester(player).get(0);
-                            request.getResponder().sendMessage(ChatColor.YELLOW + "" + player.getName() + ChatColor.GREEN + " has cancelled teleport request!");
-                            player.sendMessage(ChatColor.GREEN + "You've cancelled the teleport request!");
+                            request.getResponder().sendMessage(CustomMessages.getString("Info.tpCancelResponder").replaceAll("\\{player}", player.getName()));
+                            player.sendMessage(CustomMessages.getString("Info.tpCancel"));
                             request.destroy();
                             return false;
                         }
                     } else {
-                        sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You don't have any pending requests!");
+                        sender.sendMessage(CustomMessages.getString("Error.noRequests"));
                         return false;
                     }
                 }
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Teleport " + ChatColor.RED + "is disabled!");
+            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
             return false;
         }
         return false;

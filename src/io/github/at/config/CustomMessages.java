@@ -23,16 +23,37 @@ public class CustomMessages {
         Config.addDefault("Error.noPermission", "&cYou do not have permissions to use this command!");
         Config.addDefault("Error.featureDisabled", "&cThis feature has been disabled!");
         Config.addDefault("Error.noRequests", "&cYou do not have any pending requests!");
-        Config.addDefault("Error.requestSendFail", "&cCould not send Request to &e{player}!");
-        Config.addDefault("Error.tpOff", "&e{player} &chas their Teleportations disabled!");
-        Config.addDefault("Error.tpBlock", "&cThis player has blocked you from sending requests to them!");
+    //    Config.addDefault("Error.requestSendFail", "&cCould not send request to &e{player}!");
+        Config.addDefault("Error.tpOff", "&e{player} &chas their teleportation disabled!");
+        Config.addDefault("Error.tpBlock", "&c{player} has blocked you from sending requests to them!");
         Config.addDefault("Error.alreadyOn", "&cYour teleport requests are already enabled!");
         Config.addDefault("Error.alreadyOff", "&cYour teleport requests are already disabled!");
         Config.addDefault("Error.alreadyBlocked", "&cThis player is already blocked!");
         Config.addDefault("Error.neverBlocked", "&cThis player was never blocked!");
+        Config.addDefault("Error.onCooldown", "&cThis command has a cooldown of {time} seconds each use - Please wait!");
+        Config.addDefault("Error.requestSentToSelf", "&cYou can't send a request to yourself!");
+        Config.addDefault("Error.noSuchPlayer", "&cThe player is either currently offline or doesn't exist!");
+        Config.addDefault("Error.alreadySentRequest", "&cYou've already sent a request to {player}!");
+        Config.addDefault("Error.notEnoughEXP", "&cYou do not have enough EXP Levels to send a teleport request to someone else!" +
+                "\n&cYou need at least &e{levels} &cEXP levels!");
+        Config.addDefault("Error.notEnoughMoney", "&cYou do not have enough money to send a teleport request to someone else!" +
+                "\n&cYou need at least &e${amount}&c!");
+        Config.addDefault("Error.requestExpired", "&cYour teleport request to &e{player} &chas expired!");
+        Config.addDefault("Error.noPlayerInput", "&cYou must include a player name!");
+        Config.addDefault("Error.blockSelf", "&cYou can't block yourself!");
+        Config.addDefault("Error.noRequestsFromPlayer", "&cYou don't have any pending requests from &a{player}&e!");
+        Config.addDefault("Error.noRequests", "&cYou don't have any pending requests!");
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
-        Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}");
+        Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}&a!" +
+                "\n&aThey've got &e{lifetime} &ato respond!" +
+                "\n&aTo cancel the request use &e/tpcancel &ato cancel it.");
+        Config.addDefault("Info.tpaRequestReceived", "&aThe player &e{player} &awants to teleport to you!" +
+                "\n&aIf you want to accept it, use &e/tpayes&a, but if not, use &e/tpano&a." +
+                "\n&aYou've got &e{lifetime} &ato respond to it!");
+        Config.addDefault("Info.blockPlayer", "&e{player} &ahas been blocked.");
+        Config.addDefault("Info.tpCancel", "&aYou have cancelled your teleport request.");
+        Config.addDefault("Info.tpCancelResponder", "&e{player} &ahas cancelled their teleport request.");
 
         Config.options().copyDefaults(true);
         save();
