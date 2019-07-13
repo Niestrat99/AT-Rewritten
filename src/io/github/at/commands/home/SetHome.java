@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.io.IOException;
 
@@ -22,6 +23,7 @@ public class SetHome implements CommandExecutor {
                     if (args.length>0) {
                         if (Bukkit.getPlayer(args[0]) != null) {
                             if (sender.hasPermission("tbh.tp.admin.sethome")) {
+                                // We'll just assume that the admin command overrides the homes limit.
                                 if (args.length>1) {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
                                     setHome(target, args[1]);
@@ -31,7 +33,13 @@ public class SetHome implements CommandExecutor {
                                 }
                             }
                         }
-                        setHome(player, args[0]);
+                        // If the number of homes a player has is smaller than or equal to the homes limit
+                        if (Homes.getHomes(player).size() <= getHomesLimit(player) || player.hasPermission("at.admin.sethome.bypass")) {
+                            setHome(player, args[0]);
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You can't set any more homes!");
+                        }
+
                     } else {
                         sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You have to include the home name!");
                         return false;
@@ -69,5 +77,20 @@ public class SetHome implements CommandExecutor {
                 e.getStackTrace();
             }
         }
+    }
+
+    // Used to get the permission for how many homes a player can have.
+    // If there is no permission, then it's assumed that the number of homes they can have is limitless (-1).
+    // E.g.: at.member.homes.5
+    // at.member.homes.40
+    // at.member.homes.100000
+    private int getHomesLimit(Player player) {
+        for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
+            if (permission.getPermission().startsWith("at.member.homes.")) {
+                String perm = permission.getPermission();
+                return Integer.parseInt(perm.substring(perm.lastIndexOf(".") + 1));
+            }
+        }
+        return -1;
     }
 }
