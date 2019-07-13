@@ -46,17 +46,17 @@ public class Tpa implements CommandExecutor {
                                 sender.sendMessage(ChatColor.RED + "You already have sent a teleport request to " + ChatColor.YELLOW + target.getName() + ChatColor.RED + "!");
                                 return false;
                             }
-                            if (Config.EXPPayment()){
-                                if (player.getLevel()<Config.EXPTeleportPrice()){
+                            if (Config.isUsingEXPPayment("tpa")){
+                                if (player.getLevel()<Config.getEXPTeleportPrice("tpa")){
                                     player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + "You do not have enough EXP Levels to send a teleport request to someone else!");
-                                    player.sendMessage(ChatColor.RED + "You need at least " + ChatColor.YELLOW + Config.EXPTeleportPrice() + ChatColor.RED + " EXP Levels!");
+                                    player.sendMessage(ChatColor.RED + "You need at least " + ChatColor.YELLOW + Config.getEXPTeleportPrice("tpa") + ChatColor.RED + " EXP Levels!");
                                     return false;
                                 }
                             }
-                            if (Main.getVault() != null && Config.useVault()) {
-                                if (Main.getVault().getBalance(player)<Config.teleportPrice()){
+                            if (Main.getVault() != null && Config.isUsingVault("tpa")) {
+                                if (Main.getVault().getBalance(player)<Config.getTeleportPrice("tpa")){
                                     player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + "You do not have enough money to send a teleport request to someone else!");
-                                    player.sendMessage(ChatColor.RED + "You need at least $" + ChatColor.YELLOW + Config.teleportPrice() + ChatColor.RED + "!");
+                                    player.sendMessage(ChatColor.RED + "You need at least $" + ChatColor.YELLOW + Config.getTeleportPrice("tpa") + ChatColor.RED + "!");
                                     return false;
                                 }
                             }

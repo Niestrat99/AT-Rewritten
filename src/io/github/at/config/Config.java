@@ -142,10 +142,28 @@ public class Config {
     @Deprecated
     public static boolean EXPPayment() {return config.getBoolean("booleans.EXPPayment");}
 
+    /* Used to get the levels that are paid for the specific command.
+     * e.g: Config.getEXPTeleportPrice("home") - returns the level that is required to use the home command.
+     */
+    public static int getEXPTeleportPrice(String command) {
+        if (config.get("payments.exp." + command + ".price") instanceof String) {
+            return config.getInt("payments.exp.teleportPrice");
+        } else {
+            return config.getInt("payments.exp." + command + ".price");
+        }
+    }
 
+    @Deprecated
     public static int EXPTeleportPrice() {return config.getInt("payments.exp.EXPTeleportPrice");}
+
+    // Replaced with Config.getTeleportPrice("tpr")
+    @Deprecated
     public static int vaultTPRCost() {return config.getInt("payments.vault.vaultTPRCost");}
+
+    // Replaced with Config.getEXPTeleportPrice("tpr")
+    @Deprecated
     public static int EXPTPRCost() {return config.getInt("payments.exp.EXPTPRCost");}
+
     public static boolean useWorldBorder() {return config.getBoolean("tpr.useWorldBorder");}
     public static int maxX() {return config.getInt("tpr.maximum-x");}
     public static int minX() {return config.getInt("tpr.minimum-x");}

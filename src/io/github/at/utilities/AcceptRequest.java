@@ -22,18 +22,18 @@ public class AcceptRequest {
                     player.teleport(request.getRequester());
                     MovementManager.getMovement().remove(player);
                     player.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
-                    if (Config.EXPPayment()) {
-                        if (request.getRequester().getLevel()>Config.EXPTeleportPrice()){
+                    if (Config.isUsingEXPPayment("tpahere")) {
+                        if (request.getRequester().getLevel()>Config.getEXPTeleportPrice("tpahere")){
                             int currentLevel = request.getRequester().getLevel();
-                            request.getRequester().setLevel(currentLevel - Config.EXPTeleportPrice());
-                            request.getRequester().sendMessage(ChatColor.GREEN + "You have paid " + ChatColor.AQUA + Config.EXPTeleportPrice() + ChatColor.GREEN + " EXP Levels for your teleportation Request. You now have " + ChatColor.AQUA + request.getRequester().getLevel() + ChatColor.GREEN + " EXP Levels!");
+                            request.getRequester().setLevel(currentLevel - Config.getEXPTeleportPrice("tpahere"));
+                            request.getRequester().sendMessage(ChatColor.GREEN + "You have paid " + ChatColor.AQUA + Config.getTeleportPrice("tpahere") + ChatColor.GREEN + " EXP Levels for your teleportation Request. You now have " + ChatColor.AQUA + request.getRequester().getLevel() + ChatColor.GREEN + " EXP Levels!");
                         }
                     }
-                    if  (Main.getVault() != null && Config.useVault()) {
-                        if (Main.getVault().getBalance(request.getRequester())>Config.teleportPrice()){
-                            EconomyResponse payment = Main.getVault().withdrawPlayer(request.getRequester() , Config.teleportPrice());
+                    if  (Main.getVault() != null && Config.isUsingVault("tpahere")) {
+                        if (Main.getVault().getBalance(request.getRequester())>Config.getTeleportPrice("tpahere")){
+                            EconomyResponse payment = Main.getVault().withdrawPlayer(request.getRequester() , Config.getTeleportPrice("tpahere"));
                             if (payment.transactionSuccess()){
-                                request.getRequester().sendMessage(ChatColor.GREEN + "You have paid $" + ChatColor.AQUA + Config.teleportPrice() + ChatColor.GREEN + " for your teleportation Request. You now have $" + ChatColor.AQUA + Main.getVault().getBalance(request.getRequester()) + ChatColor.GREEN + "!");
+                                request.getRequester().sendMessage(ChatColor.GREEN + "You have paid $" + ChatColor.AQUA + Config.getTeleportPrice("tpahere") + ChatColor.GREEN + " for your teleportation Request. You now have $" + ChatColor.AQUA + Main.getVault().getBalance(request.getRequester()) + ChatColor.GREEN + "!");
                             }
                         }
                     }
@@ -50,18 +50,18 @@ public class AcceptRequest {
                     request.getRequester().teleport(player);
                     MovementManager.getMovement().remove(request.getRequester());
                     request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
-                    if (Config.EXPPayment()) {
-                        if (request.getRequester().getLevel()>Config.EXPTeleportPrice()){
+                    if (Config.isUsingEXPPayment("tpa")) {
+                        if (request.getRequester().getLevel()>Config.getEXPTeleportPrice("tpa")){
                             int currentLevel = request.getRequester().getLevel();
-                            request.getRequester().setLevel(currentLevel - Config.EXPTeleportPrice());
-                            request.getRequester().sendMessage(ChatColor.GREEN + "You have paid " + ChatColor.AQUA + Config.EXPTeleportPrice() + ChatColor.GREEN + " EXP Levels for your teleportation Request. You now have " + ChatColor.AQUA + request.getRequester().getLevel() + ChatColor.GREEN + " EXP Levels!");
+                            request.getRequester().setLevel(currentLevel - Config.getEXPTeleportPrice("tpa"));
+                            request.getRequester().sendMessage(ChatColor.GREEN + "You have paid " + ChatColor.AQUA + Config.getEXPTeleportPrice("tpa") + ChatColor.GREEN + " EXP Levels for your teleportation Request. You now have " + ChatColor.AQUA + request.getRequester().getLevel() + ChatColor.GREEN + " EXP Levels!");
                         }
                     }
-                    if  (Main.getVault() != null && Config.useVault()) {
-                        if (Main.getVault().getBalance(request.getRequester())>=Config.teleportPrice()){
-                            EconomyResponse payment = Main.getVault().withdrawPlayer(request.getRequester() , Config.teleportPrice());
+                    if  (Main.getVault() != null && Config.isUsingVault("tpa")) {
+                        if (Main.getVault().getBalance(request.getRequester())>=Config.getTeleportPrice("tpa")){
+                            EconomyResponse payment = Main.getVault().withdrawPlayer(request.getRequester() , Config.getTeleportPrice("tpa"));
                             if (payment.transactionSuccess()){
-                                request.getRequester().sendMessage(ChatColor.GREEN + "You have paid $" + ChatColor.AQUA + Config.teleportPrice() + ChatColor.GREEN + " for your teleportation Request. You now have $" + ChatColor.AQUA + Main.getVault().getBalance(request.getRequester()) + ChatColor.GREEN + "!");
+                                request.getRequester().sendMessage(ChatColor.GREEN + "You have paid $" + ChatColor.AQUA + Config.getTeleportPrice("tpa") + ChatColor.GREEN + " for your teleportation Request. You now have $" + ChatColor.AQUA + Main.getVault().getBalance(request.getRequester()) + ChatColor.GREEN + "!");
                             } else {
                                 request.getRequester().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + payment.errorMessage);
                             }

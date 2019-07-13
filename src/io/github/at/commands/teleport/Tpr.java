@@ -42,17 +42,17 @@ public class Tpr implements CommandExecutor {
                         sender.sendMessage(ChatColor.RED + "This command has a cooldown of " + Config.commandCooldown() + " seconds each use - Please wait!");
                         return false;
                     }
-                    if (Config.EXPPayment()){
-                        if (player.getLevel()<Config.EXPTPRCost()){
+                    if (Config.isUsingEXPPayment("tpr")){
+                        if (player.getLevel()<Config.getEXPTeleportPrice("tpr")){
                             player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + "You do not have enough EXP Levels to use /tpr!");
-                            player.sendMessage(ChatColor.RED + "You need at least " + ChatColor.YELLOW + Config.EXPTPRCost() + ChatColor.RED + " EXP Levels!");
+                            player.sendMessage(ChatColor.RED + "You need at least " + ChatColor.YELLOW + Config.getEXPTeleportPrice("tpr") + ChatColor.RED + " EXP Levels!");
                             return false;
                         }
                     }
-                    if (Main.getVault() != null && Config.useVault()) {
-                        if (Main.getVault().getBalance(player)<Config.vaultTPRCost()){
+                    if (Main.getVault() != null && Config.isUsingVault("tpr")) {
+                        if (Main.getVault().getBalance(player)<Config.getTeleportPrice("tpr")){
                             player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + "You do not have enough money to use /tpr!");
-                            player.sendMessage(ChatColor.RED + "You need at least $" + ChatColor.YELLOW + Config.vaultTPRCost() + ChatColor.RED + "!");
+                            player.sendMessage(ChatColor.RED + "You need at least $" + ChatColor.YELLOW + Config.getTeleportPrice("tpr") + ChatColor.RED + "!");
                             return false;
                         }
                     }
@@ -93,18 +93,18 @@ public class Tpr implements CommandExecutor {
                             player.teleport(loc);
                             MovementManager.getMovement().remove(player);
                             sender.sendMessage(ChatColor.GREEN + "You've been teleported to a random place!");
-                            if (Config.EXPPayment()) {
-                                if (player.getLevel()>Config.EXPTeleportPrice()){
+                            if (Config.isUsingEXPPayment("tpr")) {
+                                if (player.getLevel()>Config.getEXPTeleportPrice("tpr")){
                                     int currentLevel = player.getLevel();
-                                    player.setLevel(currentLevel - Config.EXPTeleportPrice());
-                                    player.sendMessage(ChatColor.GREEN + "You have paid " + ChatColor.AQUA + Config.EXPTPRCost() + ChatColor.GREEN + " EXP Levels for your teleportation request. You now have " + ChatColor.AQUA + player.getLevel() + ChatColor.GREEN + " EXP Levels!");
+                                    player.setLevel(currentLevel - Config.getEXPTeleportPrice("tpr"));
+                                    player.sendMessage(ChatColor.GREEN + "You have paid " + ChatColor.AQUA + Config.getEXPTeleportPrice("tpr") + ChatColor.GREEN + " EXP Levels for your teleportation request. You now have " + ChatColor.AQUA + player.getLevel() + ChatColor.GREEN + " EXP Levels!");
                                 }
                             }
-                            if  (Main.getVault() != null && Config.useVault()) {
-                                if (Main.getVault().getBalance(player)>Config.teleportPrice()){
-                                    EconomyResponse payment = Main.getVault().withdrawPlayer(player , Config.vaultTPRCost());
+                            if  (Main.getVault() != null && Config.isUsingVault("tpr")) {
+                                if (Main.getVault().getBalance(player)>Config.getTeleportPrice("tpr")){
+                                    EconomyResponse payment = Main.getVault().withdrawPlayer(player , Config.getTeleportPrice("tpr"));
                                     if (payment.transactionSuccess()){
-                                        player.sendMessage(ChatColor.GREEN + "You have paid $" + ChatColor.AQUA + Config.vaultTPRCost() + ChatColor.GREEN + " for your teleportation request. You now have $" + ChatColor.AQUA + Main.getVault().getBalance(player) + ChatColor.GREEN + "!");
+                                        player.sendMessage(ChatColor.GREEN + "You have paid $" + ChatColor.AQUA + Config.getTeleportPrice("tpr") + ChatColor.GREEN + " for your teleportation request. You now have $" + ChatColor.AQUA + Main.getVault().getBalance(player) + ChatColor.GREEN + "!");
                                     }
                                 }
                             }
