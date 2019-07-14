@@ -43,6 +43,7 @@ public class CustomMessages {
         Config.addDefault("Error.blockSelf", "&cYou can't block yourself!");
         Config.addDefault("Error.noRequestsFromPlayer", "&cYou don't have any pending requests from &a{player}&e!");
         Config.addDefault("Error.noRequests", "&cYou don't have any pending requests!");
+        Config.addDefault("Error.invalidPageNo", "&cYou've inserted an invalid page number!");
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
         Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}&a!" +
@@ -54,7 +55,13 @@ public class CustomMessages {
         Config.addDefault("Info.blockPlayer", "&e{player} &ahas been blocked.");
         Config.addDefault("Info.tpCancel", "&aYou have cancelled your teleport request.");
         Config.addDefault("Info.tpCancelResponder", "&e{player} &ahas cancelled their teleport request.");
-
+        Config.addDefault("Info.multipleRequestsCancel", "&aYou have multiple teleport requests pending! Click one of the following to cancel:");
+        Config.addDefault("Info.multipleRequestsIndex", "&b> {player}");
+        Config.addDefault("Info.multipleRequestsList", "&aDo /tpalist <Page Number> To check other requests.");
+        Config.addDefault("Info.multipleRequestAccept", "&aYou have multiple teleport requests pending! Click one of the following to accept:");
+        Config.addDefault("Info.requestDeclined", "&aYou've declined the teleport request!");
+        Config.addDefault("Info.requestDeclinedResponder", "&e{player} &ahas declined your teleport request!");
+        Config.addDefault("Info.teleporting", "&aTeleporting to &e{player}&a!");
         Config.options().copyDefaults(true);
         save();
     }

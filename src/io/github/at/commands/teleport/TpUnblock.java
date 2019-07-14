@@ -1,6 +1,7 @@
 package io.github.at.commands.teleport;
 
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,17 +17,17 @@ public class TpUnblock implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (Config.isFeatureEnabled("teleport")) {
-            if (sender.hasPermission("tbh.tp.member.unblock")) {
+            if (sender.hasPermission("at.member.unblock")) {
                 if (sender instanceof Player){
                     Player player = (Player)sender;
                     if (args.length>0){
                         if (args[0].equalsIgnoreCase(player.getName())){
-                            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You've never blocked yourself.");
+                            sender.sendMessage(CustomMessages.getString("Error.blockSelf"));
                             return false;
                         }
                         OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
                         if (target == null){
-                            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " The player doesn't exist.");
+                            sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                             return false;
                         } else {
                             if (TpBlock.getBlockedPlayers(player).contains(target.getPlayer())){
@@ -40,13 +41,13 @@ public class TpUnblock implements CommandExecutor {
                             }
                         }
                     } else {
-                        sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You must include a player name!");
+                        sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
                         return false;
                     }
                 }
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Teleport " + ChatColor.RED + "is disabled!");
+            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
             return false;
         }
         return false;

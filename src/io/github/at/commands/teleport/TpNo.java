@@ -1,6 +1,7 @@
 package io.github.at.commands.teleport;
 
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,15 +29,15 @@ public class TpNo implements CommandExecutor {
 
                         // Again, not null
                         TPRequest request = TPRequest.getRequestByReqAndResponder(player, target);
-                        request.getRequester().sendMessage(ChatColor.YELLOW + "" + player.getName() + ChatColor.GREEN + " has declined your teleport request!");
-                        player.sendMessage(ChatColor.GREEN + "You've declined the teleport request!");
+                        request.getRequester().sendMessage(CustomMessages.getString("Info.requestDeclinedResponder").replaceAll("\\{player}", player.getName()));
+                        player.sendMessage(CustomMessages.getString("Info.requestDeclined"));
                         request.destroy();
                         return false;
                     }
                 }
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Teleport " + ChatColor.RED + "is disabled!");
+            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
             return false;
         }
         return false;

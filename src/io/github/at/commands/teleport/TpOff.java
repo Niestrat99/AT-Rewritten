@@ -1,6 +1,7 @@
 package io.github.at.commands.teleport;
 
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,9 +28,7 @@ public class TpOff implements CommandExecutor {
                 if (sender.hasPermission("at.member.off")) {
                     if (!tpoff.contains(player)) {
                         tpoff.add(player);
-                        sender.sendMessage(ChatColor.GREEN + "Successfully disabled teleport requests!");
-                        sender.sendMessage(ChatColor.GREEN + "You can no longer receive any teleport requests.");
-                        sender.sendMessage(ChatColor.AQUA + "If you want to receive teleport requests type " + ChatColor.YELLOW + "/tpon " + ChatColor.AQUA + "to enable it.");
+                        sender.sendMessage(CustomMessages.getString("Info.tpOff"));
                     }
                     return false;
                 }

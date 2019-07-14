@@ -1,6 +1,7 @@
 package io.github.at.commands.teleport;
 
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -17,12 +18,12 @@ public class TpoHere implements CommandExecutor {
                     Player player = (Player)sender;
                     if (args.length>0){
                         if (args[0].equalsIgnoreCase(player.getName())){
-                            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You cannot teleport to yourself!");
+                            sender.sendMessage(CustomMessages.getString("Error.requestSentToSelf"));
                             return false;
                         }
                         Player target = Bukkit.getPlayer(args[0]);
                         if (target == null){
-                            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " Either the player is currently offline or doesn't exist.");
+                            sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                             return false;
                         } else {
                             sender.sendMessage(ChatColor.GREEN + "Teleporting " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + " to you!");
@@ -31,16 +32,16 @@ public class TpoHere implements CommandExecutor {
                             return false;
                         }
                     } else {
-                        sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You must include a player name!");
+                        sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
                         return false;
                     }
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to use this command!");
+                sender.sendMessage(CustomMessages.getString("Error.noPermission"));
                 return false;
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Teleport " + ChatColor.RED + "is disabled!");
+            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
             return false;
         }
         return false;
