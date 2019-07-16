@@ -1,6 +1,7 @@
 package io.github.at.commands.home;
 
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -24,20 +25,20 @@ public class DelHome implements CommandExecutor {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
                                     delHome(target, args[1]);
                                 } else {
-                                    sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You have to include the home name!");
+                                    sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
                                     return false;
                                 }
                             }
                         }
                         delHome(player, args[0]);
                     } else {
-                        sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You have to include the home name!");
+                        sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
                         return false;
                     }
                 }
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Homes " + ChatColor.RED + "is disabled!");
+            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
             return false;
         }
         return false;
@@ -48,17 +49,17 @@ public class DelHome implements CommandExecutor {
             if (Homes.getHomes(player).containsKey(name)) {
                 try {
                     Homes.delHome(player, name);
-                    player.sendMessage(ChatColor.GREEN + "Successfully deleted the home " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+                    player.sendMessage(CustomMessages.getString("Info.deletedHome").replaceAll("\\{home}", name));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
-                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "This home does not exist!");
+                player.sendMessage(CustomMessages.getString("Error.noSuchHome"));
             }
         } catch (NullPointerException ex) {
             try {
                 Homes.delHome(player, name);
-                player.sendMessage(ChatColor.GREEN + "Successfully deleted the home " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+                player.sendMessage(CustomMessages.getString("Info.deletedHome").replaceAll("\\{home}", name));
             } catch (IOException e) {
                 e.printStackTrace();
             }

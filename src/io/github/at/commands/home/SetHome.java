@@ -1,6 +1,7 @@
 package io.github.at.commands.home;
 
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,26 +29,31 @@ public class SetHome implements CommandExecutor {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
                                     setHome(target, args[1]);
                                 } else {
-                                    sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You have to include the home name!");
+                                    sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
                                     return false;
                                 }
                             }
                         }
-                        // If the number of homes a player has is smaller than or equal to the homes limit
-                        if (Homes.getHomes(player).size() <= getHomesLimit(player) || player.hasPermission("at.admin.sethome.bypass")) {
+                        // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
+                        int limit = getHomesLimit(player);
+
+                        // If the number of homes a player has is smaller than or equal to the homes limit, or they have a bypass permission
+                        if (Homes.getHomes(player).size() <= limit
+                                || player.hasPermission("at.admin.sethome.bypass")
+                                || limit == -1) {
                             setHome(player, args[0]);
                         } else {
-                            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You can't set any more homes!");
+                            sender.sendMessage(CustomMessages.getString("Error.reachedHomeLimit"));
                         }
 
                     } else {
-                        sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You have to include the home name!");
+                        sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
                         return false;
                     }
                 }
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Homes " + ChatColor.RED + "is disabled!");
+            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
             return false;
         }
         return false;
@@ -60,7 +66,7 @@ public class SetHome implements CommandExecutor {
         Location home = player.getLocation();
         try {
             if (Homes.getHomes(player).containsKey(name)) {
-                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You already have a home named " + ChatColor.GOLD + name + ChatColor.RED + "!");
+                player.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replaceAll("\\{home}", name));
             } else {
                 try {
                     Homes.setHome(player, name, home);

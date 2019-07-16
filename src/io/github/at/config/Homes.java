@@ -1,5 +1,6 @@
 package io.github.at.config;
 
+import io.github.at.main.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 
 public class Homes {
 
-    public static File HomesFile = new File("plugins/AdvancedTeleport","homes.yml");
+    public static File HomesFile = new File(Main.getInstance().getDataFolder(),"homes.yml");
     public static FileConfiguration homes = YamlConfiguration.loadConfiguration(HomesFile);
 
     public static void save() throws IOException {

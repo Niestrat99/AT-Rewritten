@@ -1,5 +1,6 @@
 package io.github.at.config;
 
+import io.github.at.main.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 
 public class TpBlock {
-    public static File ConfigFile = new File("plugins/TBH_Teleport","Blocklist.yml");
+    public static File ConfigFile = new File(Main.getInstance().getDataFolder(),"blocklist.yml");
 
     public static FileConfiguration Config = YamlConfiguration.loadConfiguration(ConfigFile);
 

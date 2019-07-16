@@ -31,27 +31,30 @@ public class Home implements CommandExecutor {
                                         if (Homes.getHomes(target).containsKey(args[1])) {
                                             Location tlocation = Homes.getHomes(target).get(args[1]);
                                             player.teleport(tlocation);
-                                            sender.sendMessage(ChatColor.GREEN + "Successfully teleported you to " + ChatColor.GOLD + args[0] + ChatColor.GREEN + "'s home!");
+                                            sender.sendMessage(CustomMessages.getString("Info.teleportingToHomeOther")
+                                                    .replaceAll("\\{player}", target.getName())
+                                                    .replaceAll("\\{home}", args[1]));
                                             return false;
                                         } else if (args[1].equalsIgnoreCase("bed")) {
                                             Location location = player.getBedSpawnLocation();
                                             if (location == null) {
-                                                player.sendMessage(ChatColor.RED + "This player doesn't have any bed spawn set!");
+                                                player.sendMessage(CustomMessages.getString("Error.noBedHomeOther").replaceAll("\\{player}", target.getName()));
                                                 return false;
                                             }
 
                                         } else {
-                                            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "This home does not exist!");
+                                            sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
                                             return false;
                                         }
                                     } catch (NullPointerException ex) {
                                         Location tlocation = Homes.getHomes(target).get(args[1]);
                                         player.teleport(tlocation);
-                                        sender.sendMessage(ChatColor.GREEN + "Successfully teleported you to " + ChatColor.GOLD + args[0] + ChatColor.GREEN + "'s home!");
+                                        sender.sendMessage(CustomMessages.getString("Info.teleportingToHomeOther")
+                                                .replaceAll("\\{player}", target.getName().replaceAll("\\{home}", args[1])));
                                         return false;
                                     }
                                 } else {
-                                    sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You have to include the home name!");
+                                    sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
                                     return false;
                                 }
                             }
@@ -71,7 +74,7 @@ public class Home implements CommandExecutor {
                                 return false;
 
                             } else {
-                                sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "This home does not exist!");
+                                sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
                             }
                         } catch (NullPointerException ex) {
                             Location location = Homes.getHomes(player).get(args[0]);
@@ -79,13 +82,13 @@ public class Home implements CommandExecutor {
                             return false;
                         }
                     } else {
-                        sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "You have to include the home name!");
+                        sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
                         return false;
                     }
                 }
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Homes " + ChatColor.RED + "is disabled!");
+            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
             return false;
         }
         return false;

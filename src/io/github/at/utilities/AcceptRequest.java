@@ -4,7 +4,6 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
-import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -16,64 +15,45 @@ public class AcceptRequest {
         request.getRequester().sendMessage(ChatColor.YELLOW + "" + player.getName() + ChatColor.GREEN + " has accepted your teleport Request!");
         player.sendMessage(ChatColor.GREEN + "You've accepted the teleport Request!");
         if (request.getType() == TPRequest.TeleportType.TPA_HERE) {
-            BukkitRunnable movementtimer = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    player.teleport(request.getRequester());
-                    MovementManager.getMovement().remove(player);
-                    player.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
-                    if (Config.isUsingEXPPayment("tpahere")) {
-                        if (request.getRequester().getLevel()>Config.getEXPTeleportPrice("tpahere")){
-                            int currentLevel = request.getRequester().getLevel();
-                            request.getRequester().setLevel(currentLevel - Config.getEXPTeleportPrice("tpahere"));
-                            request.getRequester().sendMessage(ChatColor.GREEN + "You have paid " + ChatColor.AQUA + Config.getTeleportPrice("tpahere") + ChatColor.GREEN + " EXP Levels for your teleportation Request. You now have " + ChatColor.AQUA + request.getRequester().getLevel() + ChatColor.GREEN + " EXP Levels!");
-                        }
-                    }
-                    if  (Main.getVault() != null && Config.isUsingVault("tpahere")) {
-                        if (Main.getVault().getBalance(request.getRequester())>Config.getTeleportPrice("tpahere")){
-                            EconomyResponse payment = Main.getVault().withdrawPlayer(request.getRequester() , Config.getTeleportPrice("tpahere"));
-                            if (payment.transactionSuccess()){
-                                request.getRequester().sendMessage(ChatColor.GREEN + "You have paid $" + ChatColor.AQUA + Config.getTeleportPrice("tpahere") + ChatColor.GREEN + " for your teleportation Request. You now have $" + ChatColor.AQUA + Main.getVault().getBalance(request.getRequester()) + ChatColor.GREEN + "!");
-                            }
-                        }
-                    }
+            if (Config.getTeleportTimer("tpahere") > 0) {
+                BukkitRunnable movementtimer = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.teleport(request.getRequester());
+                        MovementManager.getMovement().remove(player);
+                        player.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
+                        PaymentManager.withdraw("tpahere", request.getRequester());
 
-                }
-            };
-            MovementManager.getMovement().put(player, movementtimer);
-            movementtimer.runTaskLater(Main.getInstance(), Config.teleportTimer()*20);
-            player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.teleportTimer())));
+                    }
+                };
+                MovementManager.getMovement().put(player, movementtimer);
+                movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpahere")*20);
+                player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpahere"))));
+            } else {
+                player.teleport(request.getRequester());
+                player.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
+                PaymentManager.withdraw("tpahere", request.getRequester());
+            }
         } else {
-            BukkitRunnable movementtimer = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    request.getRequester().teleport(player);
-                    MovementManager.getMovement().remove(request.getRequester());
-                    request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
-                    if (Config.isUsingEXPPayment("tpa")) {
-                        if (request.getRequester().getLevel()>Config.getEXPTeleportPrice("tpa")){
-                            int currentLevel = request.getRequester().getLevel();
-                            request.getRequester().setLevel(currentLevel - Config.getEXPTeleportPrice("tpa"));
-                            request.getRequester().sendMessage(ChatColor.GREEN + "You have paid " + ChatColor.AQUA + Config.getEXPTeleportPrice("tpa") + ChatColor.GREEN + " EXP Levels for your teleportation Request. You now have " + ChatColor.AQUA + request.getRequester().getLevel() + ChatColor.GREEN + " EXP Levels!");
-                        }
+            if (Config.getTeleportTimer("tpa") > 0) {
+                BukkitRunnable movementtimer = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        request.getRequester().teleport(player);
+                        MovementManager.getMovement().remove(request.getRequester());
+                        request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
+                        PaymentManager.withdraw("tpa", request.getRequester());
                     }
-                    if  (Main.getVault() != null && Config.isUsingVault("tpa")) {
-                        if (Main.getVault().getBalance(request.getRequester())>=Config.getTeleportPrice("tpa")){
-                            EconomyResponse payment = Main.getVault().withdrawPlayer(request.getRequester() , Config.getTeleportPrice("tpa"));
-                            if (payment.transactionSuccess()){
-                                request.getRequester().sendMessage(ChatColor.GREEN + "You have paid $" + ChatColor.AQUA + Config.getTeleportPrice("tpa") + ChatColor.GREEN + " for your teleportation Request. You now have $" + ChatColor.AQUA + Main.getVault().getBalance(request.getRequester()) + ChatColor.GREEN + "!");
-                            } else {
-                                request.getRequester().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + payment.errorMessage);
-                            }
-                        }
+                };
+                MovementManager.getMovement().put(request.getRequester(), movementtimer);
+                movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpa")*20);
+                request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpa"))));
 
-
-                    }
-                }
-            };
-            MovementManager.getMovement().put(request.getRequester(), movementtimer);
-            movementtimer.runTaskLater(Main.getInstance(), Config.teleportTimer()*20);
-            request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.teleportTimer())));
+            } else {
+                request.getRequester().teleport(player);
+                request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
+                PaymentManager.withdraw("tpa", request.getRequester());
+            }
         }
         request.destroy();
     }

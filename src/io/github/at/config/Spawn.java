@@ -1,5 +1,6 @@
 package io.github.at.config;
 
+import io.github.at.main.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -10,7 +11,7 @@ import java.io.IOException;
 
 public class Spawn {
 
-    public static File Spawn = new File("plugins/AdvancedTeleport", "Spawn.yml");
+    public static File Spawn = new File(Main.getInstance().getDataFolder(), "spawn.yml");
     public static FileConfiguration SpawnPoint = YamlConfiguration.loadConfiguration(Spawn);
 
     public static void setSpawn(Location location) throws IOException {

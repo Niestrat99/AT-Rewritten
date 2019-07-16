@@ -1,5 +1,6 @@
 package io.github.at.config;
 
+import io.github.at.main.Main;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class Config {
 
-    public static File configFile = new File("plugins/AdvancedTeleport","config.yml");
+    public static File configFile = new File(Main.getInstance().getDataFolder(),"config.yml");
     public static FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
     public static void save() throws IOException {
@@ -28,6 +29,12 @@ public class Config {
         // Timers
         config.addDefault("timers.commandCooldown",5);
         config.addDefault("timers.teleportTimer",3);
+        config.addDefault("timers.teleportTimer.tpa", "default");
+        config.addDefault("timers.teleportTimer.tpahere", "default");
+        config.addDefault("timers.teleportTimer.tpr", "default");
+        config.addDefault("timers.teleportTimer.warp", "default");
+        config.addDefault("timers.teleportTimer.spawn", "default");
+        config.addDefault("timers.teleportTimer.home", "default");
         config.addDefault("timers.requestLifetime",60);
         config.addDefault("timers.cancel-on-rotate", false);
         // Booleans
@@ -93,6 +100,16 @@ public class Config {
     public static int commandCooldown(){
         return config.getInt("timers.commandCooldown");
     }
+
+    public static int getTeleportTimer(String command) {
+        if (config.get("timers.teleportTimer." + command) instanceof String) {
+            return config.getInt("timers.teleportTimer");
+        } else {
+            return config.getInt("timers.teleportTimer." + command);
+        }
+    }
+
+    @Deprecated
     public static int teleportTimer(){
         return config.getInt("timers.teleportTimer");
     }

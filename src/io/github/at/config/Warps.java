@@ -1,5 +1,6 @@
 package io.github.at.config;
 
+import io.github.at.main.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 
 public class Warps {
 
-    public static File Warp = new File("plugins/AdvancedTeleport", "Warps.yml");
+    public static File Warp = new File(Main.getInstance().getDataFolder(), "Warps.yml");
     public static FileConfiguration Warps = YamlConfiguration.loadConfiguration(Warp);
 
     public static void save() throws IOException {

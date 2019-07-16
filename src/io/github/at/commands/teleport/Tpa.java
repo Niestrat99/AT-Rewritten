@@ -5,9 +5,9 @@ import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
 import io.github.at.events.CooldownManager;
 import io.github.at.main.Main;
+import io.github.at.utilities.PaymentManager;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -47,43 +47,34 @@ public class Tpa implements CommandExecutor {
                                 sender.sendMessage(CustomMessages.getString("Error.alreadySentRequest").replaceAll("\\{player}", target.getName()));
                                 return false;
                             }
-                            if (Config.isUsingEXPPayment("tpa")){
-                                if (player.getLevel()<Config.getEXPTeleportPrice("tpa")){
-                                    player.sendMessage(CustomMessages.getString("Error.notEnoughEXP").replaceAll("\\{levels}", String.valueOf(Config.getEXPTeleportPrice("tpa"))));
-                                    return false;
-                                }
+                            if (PaymentManager.canPay("tpa", player)) {
+                                sender.sendMessage(CustomMessages.getString("Info.requestSent")
+                                        .replaceAll("\\{player}", target.getName())
+                                        .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                target.sendMessage(CustomMessages.getString("Info.tpaRequestReceived")
+                                        .replaceAll("\\{player}", target.getName())
+                                        .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                BukkitRunnable run = new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        sender.sendMessage(CustomMessages.getString("Error.requestExpired").replaceAll("\\{player}", target.getName()));
+                                        TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
+                                    }
+                                };
+                                run.runTaskLater(Main.getInstance(), Config.requestLifetime()*20); // 60 seconds
+                                TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA_NORMAL); // Creates a new teleport request.
+                                TPRequest.addRequest(request);
+                                BukkitRunnable cooldowntimer = new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        CooldownManager.getCooldown().remove(player);
+                                    }
+                                };
+                                CooldownManager.getCooldown().put(player, cooldowntimer);
+                                cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown()*20); // 20 ticks = 1 second
+                                return false;
                             }
-                            if (Main.getVault() != null && Config.isUsingVault("tpa")) {
-                                if (Main.getVault().getBalance(player)<Config.getTeleportPrice("tpa")){
-                                    player.sendMessage(CustomMessages.getString("Error.notEnoughMoney").replaceAll("\\{amount}", String.valueOf(Config.getTeleportPrice("tpa"))));
-                                    return false;
-                                }
-                            }
-                            sender.sendMessage(CustomMessages.getString("Info.requestSent")
-                                    .replaceAll("\\{player}", target.getName())
-                                    .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
-                            target.sendMessage(CustomMessages.getString("Info.tpaRequestReceived")
-                                    .replaceAll("\\{player}", target.getName())
-                                    .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
-                            BukkitRunnable run = new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    sender.sendMessage(CustomMessages.getString("Error.requestExpired").replaceAll("\\{player}", target.getName()));
-                                    TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
-                                }
-                            };
-                            run.runTaskLater(Main.getInstance(), Config.requestLifetime()*20); // 60 seconds
-                            TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA_NORMAL); // Creates a new teleport request.
-                            TPRequest.addRequest(request);
-                            BukkitRunnable cooldowntimer = new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    CooldownManager.getCooldown().remove(player);
-                                }
-                            };
-                            CooldownManager.getCooldown().put(player, cooldowntimer);
-                            cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown()*20); // 20 ticks = 1 second
-                            return false;
+
                         }
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
