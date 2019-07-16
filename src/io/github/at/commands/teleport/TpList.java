@@ -14,7 +14,7 @@ public class TpList implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (Config.isFeatureEnabled("teleport")) {
-            if (sender.hasPermission("tbh.tp.member.list")) {
+            if (sender.hasPermission("at.member.list")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
                     // If there are actually any pending teleport requests.

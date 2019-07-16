@@ -17,7 +17,7 @@ public class Warp implements CommandExecutor {
         if (Config.isFeatureEnabled("warps")) {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase("set")) {
-                    if (sender.hasPermission("tbh.tp.admin.warpset")) {
+                    if (sender.hasPermission("at.admin.warpset")) {
                         if (sender instanceof Player) {
                             Player player = (Player) sender;
                             Location warp = player.getLocation();
@@ -39,7 +39,7 @@ public class Warp implements CommandExecutor {
                         return false;
                     }
                 } else if (args[0].equalsIgnoreCase("delete")) {
-                    if (sender.hasPermission("tbh.tp.admin.warpdel")) {
+                    if (sender.hasPermission("at.admin.warpdel")) {
                         if (args.length > 1) {
                             if (Warps.getWarps().containsKey(args[1])) {
                                 try {
@@ -59,7 +59,7 @@ public class Warp implements CommandExecutor {
                         sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to use this command!");
                         return false;
                     }
-                } else if (sender.hasPermission("tbh.tp.member.warp")) {
+                } else if (sender.hasPermission("at.member.warp")) {
                     if (sender instanceof Player) {
                         Player player = (Player) sender;
                         if (Warps.getWarps().containsKey(args[0])) {

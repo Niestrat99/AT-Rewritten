@@ -5,8 +5,8 @@ import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
 import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
+import io.github.at.utilities.PaymentManager;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,12 +19,12 @@ public class Home implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (Config.isFeatureEnabled("homes")) {
-            if (sender.hasPermission("tbh.tp.member.home")) {
+            if (sender.hasPermission("at.member.home")) {
                 if (sender instanceof Player) {
                     Player player = (Player)sender;
                     if (args.length>0) {
                         if (Bukkit.getPlayer(args[0]) != null) {
-                            if (sender.hasPermission("tbh.tp.admin.home")) {
+                            if (sender.hasPermission("at.admin.home")) {
                                 if (args.length > 1) {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
                                     try {
@@ -64,7 +64,7 @@ public class Home implements CommandExecutor {
                             } else if (args[0].equalsIgnoreCase("bed")) {
                                 Location location = player.getBedSpawnLocation();
                                 if (location == null) {
-                                    player.sendMessage(ChatColor.RED + "You don't have any bed spawn set!");
+                                    player.sendMessage(CustomMessages.getString("Error.noBedHome"));
                                     return false;
                                 }
                                 teleport(player, location);
@@ -92,17 +92,27 @@ public class Home implements CommandExecutor {
     }
 
     private void teleport(Player player, Location loc) {
-        BukkitRunnable movementtimer = new BukkitRunnable() {
-            @Override
-            public void run() {
+        if (PaymentManager.canPay("home", player)) {
+            if (Config.getTeleportTimer("home") > 0) {
+                BukkitRunnable movementtimer = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.sendMessage(CustomMessages.getString("Info.teleportingToHome"));
+                        player.teleport(loc);
+                        MovementManager.getMovement().remove(player);
+                        PaymentManager.withdraw("home", player);
+                    }
+                };
+                MovementManager.getMovement().put(player, movementtimer);
+                movementtimer.runTaskLater(Main.getInstance(), Config.teleportTimer() * 20);
+                player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.teleportTimer())));
+
+            } else {
+                player.sendMessage(CustomMessages.getString("Info.teleportingToHome"));
                 player.teleport(loc);
-                MovementManager.getMovement().remove(player);
-                player.sendMessage(ChatColor.GREEN + "Successfully teleported to your home!");
+                PaymentManager.withdraw("home", player);
             }
-        };
-        MovementManager.getMovement().put(player, movementtimer);
-        movementtimer.runTaskLater(Main.getInstance(), Config.teleportTimer() * 20);
-        player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.teleportTimer())));
+        }
 
     }
 

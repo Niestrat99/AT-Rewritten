@@ -6,7 +6,6 @@ import io.github.at.config.CustomMessages;
 import io.github.at.utilities.PagedLists;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,7 +15,7 @@ public class TpCancel implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (Config.isFeatureEnabled("teleport")) {
-            if (sender.hasPermission("tbh.tp.member.cancel")) {
+            if (sender.hasPermission("at.member.cancel")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
                     // Checks if any players have sent a request at all.

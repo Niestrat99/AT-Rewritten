@@ -3,7 +3,6 @@ package io.github.at.commands.home;
 import io.github.at.config.Config;
 import io.github.at.config.Homes;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,10 +16,10 @@ public class DelHome implements CommandExecutor {
         if (Config.isFeatureEnabled("homes")) {
             if (sender instanceof Player) {
                 Player player = (Player)sender;
-                if (sender.hasPermission("tbh.tp.member.delhome")) {
+                if (sender.hasPermission("at.member.delhome")) {
                     if (args.length>0) {
                         if (Bukkit.getPlayer(args[0]) != null) {
-                            if (sender.hasPermission("tbh.tp.admin.delhome")) {
+                            if (sender.hasPermission("at.admin.delhome")) {
                                 if (args.length>1) {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
                                     delHome(target, args[1]);
