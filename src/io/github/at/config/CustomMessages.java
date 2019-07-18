@@ -68,6 +68,8 @@ public class CustomMessages {
         Config.addDefault("Error.noSuchWorld", "&cThat world doesn't exist!");
         Config.addDefault("Error.noLocation", "&cYou don't have any location to teleport back to!");
         Config.addDefault("Error.notAPlayer", "&cYou must be a player to run this command!");
+        Config.addDefault("Error.noHomes", "&cYou haven't got any homes!");
+        Config.addDefault("Error.noHomesOtherPlayer", "&e{player} &chasn't got any homes!");
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
         Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}&a!" +
@@ -98,6 +100,11 @@ public class CustomMessages {
         Config.addDefault("Info.unblockPlayer", "&aSuccessfully unblocked &e{player}&a!");
         Config.addDefault("Info.reloadingConfig", "&aReloading &bAdvancedTeleport&a's config...");
         Config.addDefault("Info.reloadedConfig", "&aFinished reloading the config!");
+        Config.addDefault("Info.warps", "&b&lWarps: &r");
+        Config.addDefault("Info.homes", "&b&lHomes: &r");
+        Config.addDefault("Info.homesOther", "&b&l{player}'s homes: &r");
+        Config.addDefault("Info.requestAccepted", "&aYou've accepted the teleport request!");
+        Config.addDefault("Info.requestAcceptedResponder", "&e{player} &ahas accepted the teleport request!");
         Config.addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
                 "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
                 "&6--[ &bCategories &6]--",
@@ -105,7 +112,7 @@ public class CustomMessages {
                 "&6- Warps",
                 "&6- Spawn",
                 "&6- RandomTP",
-                "&6- Homes")));
+                "&6- HomesCommand")));
         Config.addDefault("Help.mainHelpAdmin", new ArrayList<>(Collections.singletonList("&6- Admin")));
         Config.addDefault("Help.teleport", new ArrayList<>(Arrays.asList("&b&lTeleport help",
                 "&6- /tpa <player> - Sends a request to teleport to the player.",
@@ -154,5 +161,14 @@ public class CustomMessages {
         str = str.replaceAll("'$", "");
         str = ChatColor.translateAlternateColorCodes('&', str);
         return str;
+    }
+
+    public static void reloadConfig() throws IOException {
+        if (ConfigFile == null) {
+            ConfigFile = new File(Main.getInstance().getDataFolder(), "custom-messages.yml");
+        }
+        Config = YamlConfiguration.loadConfiguration(ConfigFile);
+        setDefaults();
+        save();
     }
 }

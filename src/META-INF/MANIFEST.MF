@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: spigot-1.12.2.jar WorldBorder_v1.8.7.jar Vault.jar
-

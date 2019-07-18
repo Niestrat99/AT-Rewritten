@@ -12,8 +12,8 @@ public class AcceptRequest {
 
     public static void acceptRequest(TPRequest request) {
         Player player = request.getResponder();
-        request.getRequester().sendMessage(ChatColor.YELLOW + "" + player.getName() + ChatColor.GREEN + " has accepted your teleport Request!");
-        player.sendMessage(ChatColor.GREEN + "You've accepted the teleport Request!");
+        request.getRequester().sendMessage(CustomMessages.getString("Info.requestAcceptedResponder").replaceAll("\\{player}", player.getName()));
+        player.sendMessage(CustomMessages.getString("Info.requestAccepted"));
         // Check again
         if (PaymentManager.canPay(request.getType().name().toLowerCase().replaceAll("_", ""), request.getRequester())) {
             if (request.getType() == TPRequest.TeleportType.TPA_HERE) {

@@ -29,12 +29,12 @@ public class Config {
         // Timers
         config.addDefault("timers.commandCooldown",5);
         config.addDefault("timers.teleportTimer",3);
-        config.addDefault("timers.teleportTimer.tpa", "default");
-        config.addDefault("timers.teleportTimer.tpahere", "default");
-        config.addDefault("timers.teleportTimer.tpr", "default");
-        config.addDefault("timers.teleportTimer.warp", "default");
-        config.addDefault("timers.teleportTimer.spawn", "default");
-        config.addDefault("timers.teleportTimer.home", "default");
+        config.addDefault("timers.teleportTimers.tpa", "default");
+        config.addDefault("timers.teleportTimers.tpahere", "default");
+        config.addDefault("timers.teleportTimers.tpr", "default");
+        config.addDefault("timers.teleportTimers.warp", "default");
+        config.addDefault("timers.teleportTimers.spawn", "default");
+        config.addDefault("timers.teleportTimers.home", "default");
         config.addDefault("timers.requestLifetime",60);
         config.addDefault("timers.cancel-on-rotate", false);
         // Booleans
@@ -212,7 +212,11 @@ public class Config {
     public static boolean cancelOnRotate() {return config.getBoolean("timers.cancel-on-rotate");}
 
     public static void reloadConfig() throws IOException {
+        if (configFile == null) {
+            configFile = new File(Main.getInstance().getDataFolder(), "custom-messages.yml");
+        }
         config = YamlConfiguration.loadConfiguration(configFile);
+        setDefaults();
         save();
     }
 }

@@ -18,6 +18,7 @@ public class AtReload implements CommandExecutor {
             sender.sendMessage(CustomMessages.getString("Info.reloadingConfig"));
             try {
                 Config.reloadConfig();
+                CustomMessages.reloadConfig();
                 // TODO reload custom-messages.yml
             } catch (IOException e) {
                 e.printStackTrace();

@@ -14,7 +14,7 @@ public class WarpsCommand implements CommandExecutor {
         if (Config.isFeatureEnabled("warps")) {
             if (commandSender.hasPermission("at.member.warps")){
                 StringBuilder wList = new StringBuilder();
-                wList.append(ChatColor.AQUA + "" + ChatColor.BOLD + "Warps: " + ChatColor.YELLOW);
+                wList.append(CustomMessages.getString("Info.warps"));
                 for (String warp: Warps.getWarps().keySet()) {
                     wList.append(warp + ", ");
                 }

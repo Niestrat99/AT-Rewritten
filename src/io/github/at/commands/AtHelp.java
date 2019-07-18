@@ -78,7 +78,7 @@ public class AtHelp implements CommandExecutor {
                     sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
                     return false;
                 }
-            } else if (args[0].equalsIgnoreCase("Homes")) {
+            } else if (args[0].equalsIgnoreCase("HomesCommand")) {
                 if (Config.isFeatureEnabled("homes")) {
                     for (String str : CustomMessages.Config.getStringList("Help.homes")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
