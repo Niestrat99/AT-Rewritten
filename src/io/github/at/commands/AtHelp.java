@@ -19,6 +19,11 @@ public class AtHelp implements CommandExecutor {
                     for (String str : CustomMessages.Config.getStringList("Help.mainHelp")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
+                    if (player.hasPermission("at.admin.help")) {
+                        for (String str : CustomMessages.Config.getStringList("Help.mainHelpAdmin")) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
+                        }
+                    }
                     return false;
                 } else if (args[0].equalsIgnoreCase("teleport")) {
                     if (Config.isFeatureEnabled("teleport")) {
@@ -86,6 +91,9 @@ public class AtHelp implements CommandExecutor {
                             }
                             return false;
                         }
+                    } else {
+                        sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+                        return false;
                     }
                 } else if (args[0].equalsIgnoreCase("Admin")) {
                     if (sender.hasPermission("at.admin.help")) {
@@ -94,12 +102,7 @@ public class AtHelp implements CommandExecutor {
                         }
                     }
                     return false;
-
-                } else {
-                    sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-                    return false;
                 }
-
             }
         } return false;
 

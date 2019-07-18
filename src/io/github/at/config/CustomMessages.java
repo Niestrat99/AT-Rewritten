@@ -106,8 +106,8 @@ public class CustomMessages {
                 "&6- Warps",
                 "&6- Spawn",
                 "&6- RandomTP",
-                "&6- Homes",
-                "&6- Admin")));
+                "&6- Homes")));
+        Config.addDefault("Help.mainHelpAdmin", new ArrayList<>(Collections.singletonList("&6- Admin")));
         Config.addDefault("Help.teleport", new ArrayList<>(Arrays.asList("&b&lTeleport help",
                 "&6- /tpa <player> - Sends a request to teleport to the player.",
                 "&6- /tpahere <player> - Sends a request to the player to teleport to you",
