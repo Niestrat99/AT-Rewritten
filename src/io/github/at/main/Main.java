@@ -61,6 +61,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Instance = this;
         System.out.println("Advanced Teleport is now enabling...");
         registerCommands();
         registerEvents();
@@ -74,9 +75,7 @@ public class Main extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         setupEconomy();
-        Instance = this;
     }
 
     @Override
