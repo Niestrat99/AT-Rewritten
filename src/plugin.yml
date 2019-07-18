@@ -7,8 +7,129 @@ softdepend: [Vault]
 
 
 commands:
-  athelp:
+
+  warps:
+    description: Gives you a list of warps.
+    permission: tbh.tp.member.warps
+  warp:
+    description: Gives you a list of sub commands from this command.
+    permission: tbh.tp.member.warp
   tpr:
-  tpa:
-  tpon:
+    description: Teleports you to a random place.
+    permission: at.member.tpr
+    aliases: rtp
+  tpohere:
+    description: (ADMIN ONLY COMMAND) Instantly teleports a player to you.
+    permission: at.admin.tpohere
+  tpaall:
+    description: (ADMIN ONLY COMMAND) Sends a "TPAHere"-request to every online player.
+    permission: at.admin.all
+    aliases: tpall
   tpoff:
+    description: Stops you from receiving teleport requests.
+    permission: at.member.off
+  tpon:
+    description: Allows you to receive teleport requests.
+    permission: at.member.on
+  tpcancel:
+    description: Cancels a teleport request you've sent.
+    permission: at.member.cancel
+  tpunblock:
+    description: Unblocks a player.
+    permission: at.member.unblock
+  tpblock:
+    description: Blocks and prevents a player to send a teleport request to you.
+    permission: at.member.block
+  tpdeny:
+    description: Declines a teleport request someone sent you.
+    permission: at.member.no
+    aliases: [tpano , tpno]
+  tpaccept:
+    description: Accepts a teleport request someone sent you.
+    permission: at.member.yes
+    aliases: [tpayes , tpyes]
+  tpo:
+    description: (ADMIN ONLY COMMAND) Instantly teleports you to another player.
+    permission: at.admin.tpo
+  tpahere:
+    description: Sends the targeted player a teleport requests to where you are.
+    permission: at.member.here
+  tpa:
+    description: Sends the targeted player a teleport request to where they are.
+    permission: at.member.tpa
+  athelp:
+    description: Sends you a list of commands.
+    permission: at.member.help
+  tpalist:
+    description: Lists your teleport requests.
+    permission: at.member.list
+  spawn:
+    description: Teleports you to the spawn location.
+    permission: at.member.spawn
+  setspawn:
+    description: Sets a spawn at your location.
+    permission: at.admin.setspawn
+  atreload:
+    description: Reloads the Config.
+    permission: at.admin.reload
+  sethome:
+    description: Sets a home point at your location.
+    permission: at.member.sethome
+  delhome:
+    description: Deletes a home point you've set.
+    permission: at.member.delhome
+  home:
+    description: Sends you to your home point.
+    permission: at.member.home
+  homes:
+    description: Gives a list of homes you've set.
+    permission: at.member.homes
+  back:
+    description: Teleports you to your last location.
+    permission: at.member.back
+
+permissions:
+  # Allows all member permissions
+  at.member.*:
+    default: true
+    description: Allows access to member-based commands of the plugin.
+    children:
+      # All of these are "sub-permissions" of tbh.tp.member.*.
+      at.member.tpr: true
+      at.member.off: true
+      at.member.on: true
+      at.member.cancel: true
+      at.member.unblock: true
+      at.member.block: true
+      at.member.no: true
+      at.member.yes: true
+      at.member.here: true
+      at.member.help: true
+      at.member.list: true
+      at.member.warp: true
+      at.member.warps: true
+      at.member.spawn: true
+      at.member.sethome: true
+      at.member.delhome: true
+      at.member.home: true
+      at.member.homes: true
+      at.member.tpa: true
+  at.admin.*:
+    default: op
+    description: Allows access to admin-based commands of the plugin.
+    children:
+      at.admin.tpohere: true
+      at.admin.all: true
+      at.admin.tpo: true
+      at.admin.help: true
+      at.admin.rtpsign: trueat
+      at.admin.warpset: true
+      at.admin.warpdel: true
+      at.admin.warpsign: true
+      at.admin.setspawn: true
+      at.admin.spawnsign: true
+      at.admin.reload: true
+      at.admin.sethome: true
+      at.admin.delhome: true
+      at.admin.homes: true
+      at.admin.home: true
