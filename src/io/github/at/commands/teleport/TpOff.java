@@ -2,7 +2,6 @@ package io.github.at.commands.teleport;
 
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

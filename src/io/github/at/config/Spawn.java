@@ -28,11 +28,9 @@ public class Spawn {
 
     public static Location getSpawn() {
         try {
-            Location location = new Location(Bukkit.getWorld(SpawnPoint.getString( "spawnpoint.world")), SpawnPoint.getInt(  "spawnpoint.x"), SpawnPoint.getInt("spawnpoint.y"), SpawnPoint.getInt("spawnpoint.z"));
-            return location;
+            return new Location(Bukkit.getWorld(SpawnPoint.getString( "spawnpoint.world")), SpawnPoint.getInt(  "spawnpoint.x"), SpawnPoint.getInt("spawnpoint.y"), SpawnPoint.getInt("spawnpoint.z"));
         } catch (NullPointerException | IllegalArgumentException ex) {
             return null;
         }
-
     }
 }

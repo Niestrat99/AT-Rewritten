@@ -1,6 +1,5 @@
 package io.github.at.config;
 
-import com.mysql.fabric.xmlrpc.base.Array;
 import io.github.at.main.Main;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;

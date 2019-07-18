@@ -8,7 +8,6 @@ import io.github.at.main.Main;
 import io.github.at.utilities.PaymentManager;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
