@@ -4,7 +4,6 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,7 +16,7 @@ public class TpBlockCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (Config.isFeatureEnabled("teleport")) {
-            if (sender.hasPermission("tbh.tp.member.block")) {
+            if (sender.hasPermission("at.member.block")) {
                 if (sender instanceof Player){
                     Player player = (Player)sender;
                     if (args.length>0){
@@ -47,6 +46,8 @@ public class TpBlockCommand implements CommandExecutor {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
                         return false;
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             }
         } else {

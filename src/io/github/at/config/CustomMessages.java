@@ -1,5 +1,6 @@
 package io.github.at.config;
 
+import com.mysql.fabric.xmlrpc.base.Array;
 import io.github.at.main.Main;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -7,6 +8,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class CustomMessages {
 
@@ -27,6 +31,9 @@ public class CustomMessages {
         Config.addDefault("Teleport.teleportingToHomeOther", "&aTeleporting to &e{player}&a's home, &e{home}&a!");
         Config.addDefault("Teleport.teleportingToWarp", "&aTeleporting you to &e{warp}&a!");
         Config.addDefault("Teleport.teleportingPlayerToSelf", "&aTeleporting &e{player} &ato you!");
+        Config.addDefault("Teleport.teleportingSelfToPlayer", "&aTeleporting you to &e{player}&a!");
+        Config.addDefault("Teleport.teleportingToRandomPlace", "&aTeleporting you to a random place!");
+        Config.addDefault("Teleport.teleportingToLastLoc", "&aTeleporting to your last location!");
         Config.addDefault("Error.noPermission", "&cYou do not have permissions to use this command!");
         Config.addDefault("Error.featureDisabled", "&cThis feature has been disabled!");
         Config.addDefault("Error.noRequests", "&cYou do not have any pending requests!");
@@ -59,6 +66,9 @@ public class CustomMessages {
         Config.addDefault("Error.homeAlreadySet", "&cYou already have a home called &e{home}&c!");
         Config.addDefault("Error.noWarpInput", "&cYou have to include the warp's name!");
         Config.addDefault("Error.noSuchWarp", "&cThat warp doesn't exist!");
+        Config.addDefault("Error.noSuchWorld", "&cThat world doesn't exist!");
+        Config.addDefault("Error.noLocation", "&cYou don't have any location to teleport back to!");
+        Config.addDefault("Error.notAPlayer", "&cYou must be a player to run this command!");
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
         Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}&a!" +
@@ -80,6 +90,52 @@ public class CustomMessages {
         Config.addDefault("Info.deletedHome", "&aSuccessfully deleted the home &e{home}&a!");
         Config.addDefault("Info.setHome", "&aSuccessfully set the home &e{home}&a!");
         Config.addDefault("Info.setSpawn", "&aSuccessfully set the spawnpoint!");
+        Config.addDefault("Info.setWarp", "&aSuccessfully set the warp &e{warp}&a!");
+        Config.addDefault("Info.deletedWarp", "&aSuccessfully deleted the warp &e{warp}&a!");
+        Config.addDefault("Info.searching", "&aSearching for a location...");
+        Config.addDefault("Info.unblockPlayer", "&aSuccessfully unblocked &e{player}&a!");
+        Config.addDefault("Info.reloadingConfig", "&aReloading &bAdvancedTeleport&a's config...");
+        Config.addDefault("Info.reloadedConfig", "&aFinished reloading the config!");
+        Config.addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
+                "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
+                "&6--[ &bCategories &6]--",
+                "&6- Teleport",
+                "&6- Warps",
+                "&6- Spawn",
+                "&6- RandomTP",
+                "&6- Homes")));
+        Config.addDefault("Help.teleport", new ArrayList<>(Arrays.asList("&b&lTeleport help",
+                "&6- /tpa <player> - Sends a request to teleport to the player.",
+                "&6- /tpahere <player> - Sends a request to the player to teleport to you",
+                "&6- /tpaccept - Accepts a player's teleport request.",
+                "&6- /tpdeny - Declines a player's teleport request.",
+                "&6- /tpcancel - Lets you cancel the request you have sent to a player.",
+                "&6- /tpon - Enables teleport requests to you.",
+                "&6- /tpoff - Disables teleport requests to you.",
+                "&6- /tpblock <player> - Blocks the player so that they cannot send you teleport requests anymore.",
+                "&6- /tpunblock <player> - Unblocks the player so that they can send you teleport requests.")));
+        Config.addDefault("Help.teleportAdmin", new ArrayList<>(Arrays.asList("&6- /tpo <player> - Instantly teleports you to the player.",
+                "&6- /tpohere <player> - Instantly teleports the player to you.",
+                "&6- /tpall - Sends a teleport request to every online player to teleport to you.")));
+        Config.addDefault("Help.warps", new ArrayList<>(Arrays.asList("&b&lWarps help",
+                "&6- /warp <warp name> - Teleports you to an existing warp point.",
+                "&6- /warps - Gives you a list of warps.")));
+        Config.addDefault("Help.warpsAdmin", new ArrayList<>(Arrays.asList("&6- /warp set <warp name> - Sets a warp point at your location.",
+                "&6- /warp delete <warp name> - Deletes an existing warp point.")));
+        Config.addDefault("Help.spawn", new ArrayList<>(Arrays.asList("&b&lSpawn help",
+                "- /spawn - Teleports you to the spawn point.")));
+        Config.addDefault("Help.spawnAdmin", new ArrayList<>(Collections.singletonList("&6- /setspawn - Sets a spawn point at your location.")));
+        Config.addDefault("Help.randomTP", new ArrayList<>(Arrays.asList("&b&lRandomTP help",
+                "&6- /rtp - Teleports you to a random location.")));
+        Config.addDefault("Help.homes", new ArrayList<>(Arrays.asList("&b&lHomes help",
+                "&6- /sethome <home name> - Sets a home point at your location.",
+                "&6- /delhome <home name> - Deletes a home point you've set.",
+                "&6- /home <home name> - Teleports you to your home.",
+                "&6- /homes - Gives you a list of homes you've set.")));
+        Config.addDefault("Help.homesAdmin", new ArrayList<>(Arrays.asList("&6- /sethome <player> <home name> - Sets a home point at your location for the player.",
+                "&6- /delhome <player> <home name> - Deletes a home point of a player.",
+                "&6- /home <player> <home name> - Teleports you to a home point a player has set.",
+                "&6- /homes <player> - Gives you a list of homes of a player.")));
         Config.options().copyDefaults(true);
         save();
     }

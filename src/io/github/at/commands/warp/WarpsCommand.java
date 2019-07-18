@@ -12,7 +12,7 @@ public class WarpsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("warps")) {
-            if (commandSender.hasPermission("tbh.tp.member.warps")){
+            if (commandSender.hasPermission("at.member.warps")){
                 StringBuilder wList = new StringBuilder();
                 wList.append(ChatColor.AQUA + "" + ChatColor.BOLD + "Warps: " + ChatColor.YELLOW);
                 for (String warp: Warps.getWarps().keySet()) {

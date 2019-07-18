@@ -20,7 +20,7 @@ public class Tpa implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (Config.isFeatureEnabled("teleport")) {
-                if (sender.hasPermission("tbh.tp.member.tpa")) {
+                if (sender.hasPermission("at.member.tpa")) {
                     if (CooldownManager.getCooldown().containsKey(player)) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
                         return false;
@@ -83,6 +83,9 @@ public class Tpa implements CommandExecutor {
                 }
                 return false;
             }
-        } return false;
+        } else {
+            sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+        }
+        return false;
     }
 }

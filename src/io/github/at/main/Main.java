@@ -9,11 +9,16 @@ import io.github.at.commands.spawn.SpawnCommand;
 import io.github.at.commands.teleport.*;
 import io.github.at.commands.warp.Warp;
 import io.github.at.commands.warp.WarpsCommand;
+import io.github.at.config.*;
 import io.github.at.events.AtSigns;
+import io.github.at.events.MovementManager;
+import io.github.at.events.TeleportTrackingManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.WorldBorder;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.IOException;
 
 public class Main extends JavaPlugin {
 
@@ -59,8 +64,24 @@ public class Main extends JavaPlugin {
         System.out.println("Advanced Teleport is now enabling...");
         registerCommands();
         registerEvents();
+        try {
+            Config.setDefaults();
+            CustomMessages.setDefaults();
+            Homes.save();
+            LastLocations.save();
+            Warps.save();
+            Spawn.save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         setupEconomy();
         Instance = this;
+    }
+
+    @Override
+    public void onDisable() {
+        LastLocations.saveLocations();
     }
 
     // Separate method for registering commands
@@ -71,6 +92,7 @@ public class Main extends JavaPlugin {
         getCommand("atreload").setExecutor(new AtReload());
 
         // TP commands
+        getCommand("back").setExecutor(new Back());
         getCommand("tpa").setExecutor(new Tpa());
         getCommand("tpr").setExecutor(new Tpr());
         getCommand("tpoff").setExecutor(new TpOff());
@@ -97,8 +119,9 @@ public class Main extends JavaPlugin {
         getCommand("setspawn").setExecutor(new SetSpawn());
     }
 
-    // Lonely event :c
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new AtSigns(), this);
+        getServer().getPluginManager().registerEvents(new TeleportTrackingManager(), this);
+        getServer().getPluginManager().registerEvents(new MovementManager(), this);
     }
 }

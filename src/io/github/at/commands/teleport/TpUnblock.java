@@ -4,7 +4,6 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -36,7 +35,7 @@ public class TpUnblock implements CommandExecutor {
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
-                                sender.sendMessage(ChatColor.GREEN + "Successfully unblocked " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + " .");
+                                sender.sendMessage(CustomMessages.getString("Info.unblockPlayer").replaceAll("\\{player}", args[0]));
                                 return false;
                             }
                         }
@@ -44,6 +43,8 @@ public class TpUnblock implements CommandExecutor {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
                         return false;
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             }
         } else {

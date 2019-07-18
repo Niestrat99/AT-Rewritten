@@ -3,7 +3,6 @@ package io.github.at.commands.teleport;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -26,8 +25,8 @@ public class TpoHere implements CommandExecutor {
                             sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                             return false;
                         } else {
-                            sender.sendMessage(ChatColor.GREEN + "Teleporting " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + " to you!");
-                            target.sendMessage(ChatColor.GREEN + "You have been teleported to " + ChatColor.YELLOW + sender.getName() + ChatColor.GREEN + "!");
+                            sender.sendMessage(CustomMessages.getString("Teleport.teleportingPlayerToSelf").replaceAll("\\{player}", target.getName()));
+                            target.sendMessage(CustomMessages.getString("Teleport.teleportingSelfToPlayer").replaceAll("\\{player}", sender.getName()));
                             target.teleport(player);
                             return false;
                         }
@@ -35,6 +34,8 @@ public class TpoHere implements CommandExecutor {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
                         return false;
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.noPermission"));

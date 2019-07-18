@@ -1,5 +1,6 @@
 package io.github.at.commands.teleport;
 
+import io.github.at.config.CustomMessages;
 import io.github.at.utilities.AcceptRequest;
 import io.github.at.utilities.TPRequest;
 import io.github.at.utilities.TeleportTests;
@@ -12,7 +13,7 @@ import org.bukkit.entity.Player;
 public class TpYes implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (sender.hasPermission("tbh.tp.member.yes")) {
+        if (sender.hasPermission("at.member.yes")) {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
                 if (TeleportTests.teleportTests(player, args, "tpayes")) {
@@ -30,6 +31,8 @@ public class TpYes implements CommandExecutor {
                     AcceptRequest.acceptRequest(request);
                     return false;
                 }
+            } else {
+                sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
             }
         }
         return false;

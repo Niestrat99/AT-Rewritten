@@ -6,7 +6,6 @@ import io.github.at.config.Warps;
 import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.PaymentManager;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,13 +28,13 @@ public class Warp implements CommandExecutor {
                             if (args.length > 1) {
                                 try {
                                     Warps.setWarp(args[1], warp);
-                                    sender.sendMessage(ChatColor.GREEN + "Successfully created the warp " + ChatColor.YELLOW + args[1] + ChatColor.GREEN + "!");
+                                    sender.sendMessage(CustomMessages.getString("Info.setWarp").replaceAll("\\{warp}", args[1]));
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
 
                             } else {
-                                sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + "You have to give this warp a name!");
+                                sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
                                 return false;
                             }
                         }
@@ -48,8 +47,8 @@ public class Warp implements CommandExecutor {
                         if (args.length > 1) {
                             if (Warps.getWarps().containsKey(args[1])) {
                                 try {
-                                    sender.sendMessage(ChatColor.GREEN + "Successfully deleted the warp " + ChatColor.YELLOW + args[1] + ChatColor.GREEN + "!");
                                     Warps.delWarp(args[1]);
+                                    sender.sendMessage(CustomMessages.getString("Info.deletedWarp").replaceAll("\\{warp}", args[1]));
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -95,6 +94,8 @@ public class Warp implements CommandExecutor {
                             sender.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
                             return false;
                         }
+                    } else {
+                        sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.noPermission"));

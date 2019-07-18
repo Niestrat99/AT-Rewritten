@@ -16,7 +16,7 @@ public class TpNo implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (Config.isFeatureEnabled("teleport")) {
-            if (sender.hasPermission("tbh.tp.member.no")) {
+            if (sender.hasPermission("at.member.no")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
                     if (teleportTests(player, args, "tpano")) {
@@ -34,6 +34,8 @@ public class TpNo implements CommandExecutor {
                         request.destroy();
                         return false;
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             }
         } else {

@@ -34,7 +34,8 @@ public class TpList implements CommandExecutor {
                                     for (TPRequest request : requests.getContentsInPage(page)) {
                                         new FancyMessage()
                                                 .command("/tpayes " + request.getRequester().getName())
-                                                .text(CustomMessages.getString("Info.multipleRequestsIndex"))
+                                                .text(CustomMessages.getString("Info.multipleRequestsIndex")
+                                                        .replaceAll("\\{player}", request.getRequester().getName()))
                                                 .send(player);
                                     }
                                 } catch (IllegalArgumentException ex) {
@@ -51,7 +52,8 @@ public class TpList implements CommandExecutor {
                             for (TPRequest request : requests.getContentsInPage(1)) {
                                 new FancyMessage()
                                         .command("/tpayes " + request.getRequester().getName())
-                                        .text(CustomMessages.getString("Info.multipleRequestsIndex"))
+                                        .text(CustomMessages.getString("Info.multipleRequestsIndex")
+                                                .replaceAll("\\{player}", request.getRequester().getName()))
                                         .send(player);
                             }
                             return false;
@@ -61,6 +63,8 @@ public class TpList implements CommandExecutor {
                         return false;
                     }
 
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             }
         } else {

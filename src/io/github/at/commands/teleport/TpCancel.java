@@ -49,7 +49,8 @@ public class TpCancel implements CommandExecutor {
                                 for (TPRequest request : requests.getContentsInPage(1)) {
                                     new FancyMessage()
                                             .command("/tpacancel " + request.getRequester().getName())
-                                            .text(CustomMessages.getString("Info.multipleRequestsIndex"))
+                                            .text(CustomMessages.getString("Info.multipleRequestsIndex")
+                                                    .replaceAll("\\{player}", request.getRequester().getName()))
                                             .send(player);
                                 }
                                 if (requests.getTotalPages() > 1) {
@@ -68,6 +69,8 @@ public class TpCancel implements CommandExecutor {
                         sender.sendMessage(CustomMessages.getString("Error.noRequests"));
                         return false;
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             }
         } else {

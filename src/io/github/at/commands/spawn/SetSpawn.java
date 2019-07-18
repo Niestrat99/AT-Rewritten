@@ -14,25 +14,27 @@ import java.io.IOException;
 
 public class SetSpawn implements CommandExecutor {
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("spawn")) {
-            if (commandSender.hasPermission("at.admin.setspawn")){
-                if (commandSender instanceof Player) {
-                    Player player = (Player) commandSender;
+            if (sender.hasPermission("at.admin.setspawn")){
+                if (sender instanceof Player) {
+                    Player player = (Player) sender;
                     Location spawn = player.getLocation();
                     try {
                         Spawn.setSpawn(spawn);
-                        commandSender.sendMessage(ChatColor.GREEN + "Successfully set the spawn location!");
+                        sender.sendMessage(CustomMessages.getString("Info.setSpawn"));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             } else {
-                commandSender.sendMessage(CustomMessages.getString("Error.noPermission"));
+                sender.sendMessage(CustomMessages.getString("Error.noPermission"));
                 return false;
             }
         } else {
-            commandSender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Spawn " + ChatColor.RED + "is disabled!");
+            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
             return false;
         }
         return false;

@@ -14,11 +14,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class SpawnCommand implements CommandExecutor {
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("spawn")) {
-            if (commandSender.hasPermission("at.member.spawn")){
-                if (commandSender instanceof Player) {
-                    Player player = (Player) commandSender;
+            if (sender.hasPermission("at.member.spawn")){
+                if (sender instanceof Player) {
+                    Player player = (Player) sender;
                     if (PaymentManager.canPay("spawn", player)) {
                         if (Config.getTeleportTimer("spawn") > 0) {
                             BukkitRunnable movementtimer = new BukkitRunnable() {
@@ -29,13 +29,13 @@ public class SpawnCommand implements CommandExecutor {
                                     } else {
                                         player.teleport(player.getWorld().getSpawnLocation());
                                     }
-                                    commandSender.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
+                                    sender.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
                                     MovementManager.getMovement().remove(player);
                                 }
                             };
                             MovementManager.getMovement().put(player, movementtimer);
                             movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("spawn") * 20);
-                            commandSender.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.teleportTimer())));
+                            sender.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.teleportTimer())));
                             return false;
 
                         } else {
@@ -45,13 +45,15 @@ public class SpawnCommand implements CommandExecutor {
                             } else {
                                 player.teleport(player.getWorld().getSpawnLocation());
                             }
-                            commandSender.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
+                            sender.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
                         }
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             }
         } else {
-            commandSender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
             return false;
         }
         return false;

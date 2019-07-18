@@ -48,7 +48,7 @@ public class AtSigns implements Listener {
         if (state instanceof Sign) {
             if (Place.getLine(0).equalsIgnoreCase("[RandomTP]")) {
                 if (Config.isFeatureEnabled("randomTP")) {
-                    if (!placer.hasPermission("tbh.tp.admin.tprsign")){
+                    if (!placer.hasPermission("at.admin.tprsign")){
                         Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[RandomTP]");
                         placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to make this sign!");
                         Place.setCancelled(true);
@@ -70,7 +70,7 @@ public class AtSigns implements Listener {
                 }
             } else if (Place.getLine(0).equalsIgnoreCase("[Warp]")) {
                 if (Config.isFeatureEnabled("warps")) {
-                    if (!placer.hasPermission("tbh.tp.admin.warpsign")){
+                    if (!placer.hasPermission("at.admin.warpsign")){
                         Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Warp]");
                         placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to make this sign!");
                         Place.setCancelled(true);
@@ -102,7 +102,7 @@ public class AtSigns implements Listener {
                 // }
             } else if (Place.getLine(0).equalsIgnoreCase("[Spawn]")) {
                 if (Config.isFeatureEnabled("spawn")) {
-                    if (!placer.hasPermission("tbh.tp.admin.spawnsign")) {
+                    if (!placer.hasPermission("at.admin.spawnsign")) {
                         Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Spawn]");
                         placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to make this sign!");
                         Place.setCancelled(true);

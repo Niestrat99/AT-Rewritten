@@ -85,6 +85,8 @@ public class Home implements CommandExecutor {
                         sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
                         return false;
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             }
         } else {
@@ -107,8 +109,8 @@ public class Home implements CommandExecutor {
                     }
                 };
                 MovementManager.getMovement().put(player, movementtimer);
-                movementtimer.runTaskLater(Main.getInstance(), Config.teleportTimer() * 20);
-                player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.teleportTimer())));
+                movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("home") * 20);
+                player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("home"))));
 
             } else {
                 player.sendMessage(CustomMessages.getString("Info.teleportingToHome"));

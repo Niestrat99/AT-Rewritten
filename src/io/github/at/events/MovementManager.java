@@ -1,6 +1,7 @@
 package io.github.at.events;
 
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,7 +29,7 @@ public class MovementManager implements Listener {
         if (movement.containsKey(event.getPlayer())) {
             BukkitRunnable timer = movement.get(event.getPlayer());
             timer.cancel();
-            event.getPlayer().sendMessage(Config.eventMovement());
+            event.getPlayer().sendMessage(CustomMessages.getString("Teleport.eventMovement"));
             movement.remove(event.getPlayer());
         }
     }

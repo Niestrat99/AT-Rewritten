@@ -33,6 +33,9 @@ public class TpOff implements CommandExecutor {
                     return false;
                 }
             }
-        } return false;
+        } else {
+            sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+        }
+        return false;
     }
 }

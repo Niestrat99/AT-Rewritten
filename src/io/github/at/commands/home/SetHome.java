@@ -20,7 +20,7 @@ public class SetHome implements CommandExecutor {
         if (Config.isFeatureEnabled("homes")) {
             if (sender instanceof Player) {
                 Player player = (Player)sender;
-                if (sender.hasPermission("tbh.tp.member.sethome")) {
+                if (sender.hasPermission("at.member.sethome")) {
                     if (args.length>0) {
                         if (Bukkit.getPlayer(args[0]) != null) {
                             if (sender.hasPermission("tbh.tp.admin.sethome")) {
@@ -51,6 +51,8 @@ public class SetHome implements CommandExecutor {
                         return false;
                     }
                 }
+            } else {
+                sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
@@ -70,7 +72,7 @@ public class SetHome implements CommandExecutor {
             } else {
                 try {
                     Homes.setHome(player, name, home);
-                    player.sendMessage(ChatColor.GREEN + "Successfully set the home " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+                    player.sendMessage(CustomMessages.getString("Info.setHome").replaceAll("\\{home}", name));
                 } catch (IOException e) {
                     e.getStackTrace();
                 }
@@ -78,7 +80,7 @@ public class SetHome implements CommandExecutor {
         } catch (NullPointerException ex) {
             try {
                 Homes.setHome(player, name,home);
-                player.sendMessage(ChatColor.GREEN + "Successfully set the home " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+                player.sendMessage(CustomMessages.getString("Info.setHome").replaceAll("\\{home}", name));
             } catch (IOException e) {
                 e.getStackTrace();
             }

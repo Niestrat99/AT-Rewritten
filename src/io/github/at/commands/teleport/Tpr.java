@@ -7,7 +7,6 @@ import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.PaymentManager;
 import io.github.at.utilities.RandomCoords;
-import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,19 +32,19 @@ public class Tpr implements CommandExecutor {
                             if (otherWorld != null) {
                                 world = otherWorld;
                             } else {
-                                sender.sendMessage(ChatColor.RED + "The world " + args[0] + " doesn't exist!");
+                                sender.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
                                 return false;
                             }
                         }
 
                     }
                     if (CooldownManager.getCooldown().containsKey(player)) {
-                        sender.sendMessage(ChatColor.RED + "This command has a cooldown of " + Config.commandCooldown() + " seconds each use - Please wait!");
+                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
                         return false;
                     }
                     if (!PaymentManager.canPay("tpr", player)) return false;
                     Location location = generateCoords(player, world);
-                    player.sendMessage(ChatColor.GREEN + "Searching for a location...");
+                    player.sendMessage(CustomMessages.getString("Info.searching"));
                     boolean validLocation = false;
                     while (!validLocation) {
                         while (location.getBlock().getType() == Material.AIR) {
@@ -75,21 +74,30 @@ public class Tpr implements CommandExecutor {
                     CooldownManager.getCooldown().put(player, cooldowntimer);
                     cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
                     Location loc = location;
-                    BukkitRunnable movementtimer = new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            player.teleport(loc);
-                            MovementManager.getMovement().remove(player);
-                            sender.sendMessage(ChatColor.GREEN + "You've been teleported to a random place!");
-                            PaymentManager.withdraw("tpr", player);
-                        }
-                    };
-                    MovementManager.getMovement().put(player, movementtimer);
-                    movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpr") * 20);
-                    player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
-                    return false;
+                    if (Config.getTeleportTimer("tpr") > 0) {
+                        BukkitRunnable movementtimer = new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                player.teleport(loc);
+                                MovementManager.getMovement().remove(player);
+                                sender.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
+                                PaymentManager.withdraw("tpr", player);
+                            }
+                        };
+                        MovementManager.getMovement().put(player, movementtimer);
+                        movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpr") * 20);
+                        player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
+                        return false;
+
+                    } else {
+                        player.teleport(loc);
+                        sender.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
+                        PaymentManager.withdraw("tpr", player);
+                    }
                 }
             }
+        } else {
+            sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
         }
         return false;
     }

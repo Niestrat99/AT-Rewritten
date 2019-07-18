@@ -22,7 +22,7 @@ public class Spawn {
         save();
     }
 
-    private static void save() throws IOException {
+    public static void save() throws IOException {
         SpawnPoint.save(Spawn);
     }
 

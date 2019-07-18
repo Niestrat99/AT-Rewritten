@@ -12,7 +12,7 @@ public class Tpo implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (Config.isFeatureEnabled("teleport")) {
-            if (sender.hasPermission("tbh.tp.admin.tpo")) {
+            if (sender.hasPermission("at.admin.tpo")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
                     if (args.length > 0) {
@@ -33,6 +33,8 @@ public class Tpo implements CommandExecutor {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
                         return false;
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.noPermission"));

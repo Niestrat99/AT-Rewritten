@@ -36,6 +36,8 @@ public class DelHome implements CommandExecutor {
                         return false;
                     }
                 }
+            } else {
+                sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
