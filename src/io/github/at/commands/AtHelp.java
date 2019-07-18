@@ -12,13 +12,12 @@ public class AtHelp implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        Player player = (Player) sender;
-        if (player.hasPermission("at.member.help")) {
+        if (sender.hasPermission("at.member.help")) {
             if (args.length == 0) {
                 for (String str : CustomMessages.Config.getStringList("Help.mainHelp")) {
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                 }
-                if (player.hasPermission("at.admin.help")) {
+                if (sender.hasPermission("at.admin.help")) {
                     for (String str : CustomMessages.Config.getStringList("Help.mainHelpAdmin")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
