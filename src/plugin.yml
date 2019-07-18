@@ -87,6 +87,9 @@ commands:
   back:
     description: Teleports you to your last location.
     permission: at.member.back
+  atinfo:
+    description: Shows informations about this plugin.
+    permission: at.admin.info
 
 permissions:
   # Allows all member permissions
@@ -122,7 +125,7 @@ permissions:
       at.admin.all: true
       at.admin.tpo: true
       at.admin.help: true
-      at.admin.rtpsign: trueat
+      at.admin.rtpsign: true
       at.admin.warpset: true
       at.admin.warpdel: true
       at.admin.warpsign: true
@@ -133,3 +136,4 @@ permissions:
       at.admin.delhome: true
       at.admin.homes: true
       at.admin.home: true
+      at.admin.info: true

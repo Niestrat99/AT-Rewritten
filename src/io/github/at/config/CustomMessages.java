@@ -77,6 +77,9 @@ public class CustomMessages {
         Config.addDefault("Info.tpaRequestReceived", "&aThe player &e{player} &awants to teleport to you!" +
                 "\n&aIf you want to accept it, use &e/tpayes&a, but if not, use &e/tpano&a." +
                 "\n&aYou've got &e{lifetime} &ato respond to it!");
+        Config.addDefault("Info.getRequestHere", "&aThe player &e{player} &awants to teleport you to them!" +
+                "\n&aIf you want to accept it, use &e/tpayes&a, but if not, use &e/tpano&a." +
+                "\n&aYou've got &e{lifetime} &ato respond to it!");
         Config.addDefault("Info.blockPlayer", "&e{player} &ahas been blocked.");
         Config.addDefault("Info.tpCancel", "&aYou have cancelled your teleport request.");
         Config.addDefault("Info.tpCancelResponder", "&e{player} &ahas cancelled their teleport request.");
@@ -103,7 +106,8 @@ public class CustomMessages {
                 "&6- Warps",
                 "&6- Spawn",
                 "&6- RandomTP",
-                "&6- Homes")));
+                "&6- Homes",
+                "&6- Admin")));
         Config.addDefault("Help.teleport", new ArrayList<>(Arrays.asList("&b&lTeleport help",
                 "&6- /tpa <player> - Sends a request to teleport to the player.",
                 "&6- /tpahere <player> - Sends a request to the player to teleport to you",
@@ -137,6 +141,9 @@ public class CustomMessages {
                 "&6- /delhome <player> <home name> - Deletes a home point of a player.",
                 "&6- /home <player> <home name> - Teleports you to a home point a player has set.",
                 "&6- /homes <player> - Gives you a list of homes of a player.")));
+        Config.addDefault("Help.admin", new ArrayList<>(Arrays.asList("&b&lAdmin help",
+                "&6- /atinfo - Shows informations about this plugin.",
+                "&6- /atreload - Reloads all configuration files of this plugin.")));
         Config.options().copyDefaults(true);
         save();
     }

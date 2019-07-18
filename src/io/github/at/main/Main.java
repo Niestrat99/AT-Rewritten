@@ -117,6 +117,7 @@ public class Main extends JavaPlugin {
         // Spawn commands
         getCommand("spawn").setExecutor(new SpawnCommand());
         getCommand("setspawn").setExecutor(new SetSpawn());
+        getCommand("atinfo").setExecutor(new AtInfo());
     }
 
     private void registerEvents() {

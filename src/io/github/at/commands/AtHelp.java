@@ -87,6 +87,14 @@ public class AtHelp implements CommandExecutor {
                             return false;
                         }
                     }
+                } else if (args[0].equalsIgnoreCase("Admin")) {
+                    if (sender.hasPermission("at.admin.help")) {
+                        for (String str : CustomMessages.Config.getStringList("Help.admin")) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
+                        }
+                    }
+                    return false;
+
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
                     return false;
