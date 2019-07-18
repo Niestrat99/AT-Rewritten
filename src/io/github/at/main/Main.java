@@ -3,6 +3,7 @@ package io.github.at.main;
 import io.github.at.commands.*;
 import io.github.at.commands.home.DelHome;
 import io.github.at.commands.home.Home;
+import io.github.at.commands.home.HomesCommand;
 import io.github.at.commands.home.SetHome;
 import io.github.at.commands.spawn.SetSpawn;
 import io.github.at.commands.spawn.SpawnCommand;
@@ -109,6 +110,7 @@ public class Main extends JavaPlugin {
         getCommand("home").setExecutor(new Home());
         getCommand("sethome").setExecutor(new SetHome());
         getCommand("delhome").setExecutor(new DelHome());
+        getCommand("homes").setExecutor(new HomesCommand());
 
         // Warp commands
         getCommand("warp").setExecutor(new Warp());
