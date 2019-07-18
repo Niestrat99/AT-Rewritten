@@ -89,6 +89,7 @@ public class Main extends JavaPlugin {
         // Main commands
         getCommand("athelp").setExecutor(new AtHelp());
         getCommand("atreload").setExecutor(new AtReload());
+        getCommand("atinfo").setExecutor(new AtInfo());
 
         // TP commands
         getCommand("back").setExecutor(new Back());
@@ -116,7 +117,6 @@ public class Main extends JavaPlugin {
         // Spawn commands
         getCommand("spawn").setExecutor(new SpawnCommand());
         getCommand("setspawn").setExecutor(new SetSpawn());
-        getCommand("atinfo").setExecutor(new AtInfo());
     }
 
     private void registerEvents() {
