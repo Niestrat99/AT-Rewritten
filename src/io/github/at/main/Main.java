@@ -1,6 +1,8 @@
 package io.github.at.main;
 
-import io.github.at.commands.*;
+import io.github.at.commands.AtHelp;
+import io.github.at.commands.AtInfo;
+import io.github.at.commands.AtReload;
 import io.github.at.commands.home.DelHome;
 import io.github.at.commands.home.Home;
 import io.github.at.commands.home.HomesCommand;
@@ -106,6 +108,9 @@ public class Main extends JavaPlugin {
         getCommand("tpohere").setExecutor(new TpoHere());
         getCommand("tpunblock").setExecutor(new TpUnblock());
         getCommand("tpyes").setExecutor(new TpYes());
+        getCommand("tpahere").setExecutor(new TpaHere());
+        getCommand("tpall").setExecutor(new TpAll());
+        getCommand("tpalist").setExecutor(new TpList());
 
         // Home commands
         getCommand("home").setExecutor(new Home());
