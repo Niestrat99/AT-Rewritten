@@ -24,11 +24,11 @@ public class LastLocations {
             Location loc = TeleportTrackingManager.getLastLocation(player);
             // Format: player-uuid: x.y.z.yaw.pitch.world
             config.addDefault(player.getUniqueId().toString(),
-                    + loc.getX() + "."
-                    + loc.getY() + "."
-                    + loc.getZ() + "."
-                    + loc.getYaw() + "."
-                    + loc.getPitch() + "."
+                    + loc.getX() + ":"
+                    + loc.getY() + ":"
+                    + loc.getZ() + ":"
+                    + loc.getYaw() + ":"
+                    + loc.getPitch() + ":"
                     + loc.getWorld().getName());
         }
         config.options().copyDefaults(true);
@@ -41,7 +41,7 @@ public class LastLocations {
 
     public static Location getLocation(Player player) {
         try {
-            String[] loc = config.getString(player.getUniqueId().toString()).split("\\.");
+            String[] loc = config.getString(player.getUniqueId().toString()).split(":");
             return new Location(Bukkit.getWorld(loc[5]), Double.valueOf(loc[0]), Double.valueOf(loc[1]), Double.valueOf(loc[2]), Float.valueOf(loc[3]), Float.valueOf(loc[4]));
         } catch (Exception e) {
             return null;
