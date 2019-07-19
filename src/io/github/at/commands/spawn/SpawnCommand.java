@@ -34,7 +34,7 @@ public class SpawnCommand implements CommandExecutor {
     }
 
     public static void spawn(Player player) {
-        if (!DistanceLimiter.canTeleport(player.getLocation(), Spawn.getSpawn() != null ? Spawn.getSpawn() : player.getWorld().getSpawnLocation()) && !player.hasPermission("at.admin.bypass.distance-limit")) {
+        if (!DistanceLimiter.canTeleport(player.getLocation(), Spawn.getSpawn() != null ? Spawn.getSpawn() : player.getWorld().getSpawnLocation(), "spawn") && !player.hasPermission("at.admin.bypass.distance-limit")) {
             player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
             return;
         }

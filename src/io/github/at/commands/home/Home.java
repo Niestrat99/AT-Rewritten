@@ -141,7 +141,7 @@ public class Home implements CommandExecutor {
     }
 
     private void teleport(Player player, Location loc, String name) {
-        if (!DistanceLimiter.canTeleport(player.getLocation(), loc) || player.hasPermission("at.admin.bypass.distance-limit")) {
+        if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "home") || player.hasPermission("at.admin.bypass.distance-limit")) {
             player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
             return;
         }

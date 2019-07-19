@@ -48,7 +48,7 @@ public class TpaHere implements CommandExecutor {
                                 sender.sendMessage(CustomMessages.getString("Error.alreadySentRequest").replaceAll("\\{player}", target.getName()));
                                 return false;
                             }
-                            if (!DistanceLimiter.canTeleport(player.getLocation(), target.getLocation()) && !target.hasPermission("at.admin.bypass.distance-limit")) {
+                            if (!DistanceLimiter.canTeleport(player.getLocation(), target.getLocation(), "tpahere") && !target.hasPermission("at.admin.bypass.distance-limit")) {
                                 player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
                                 return false;
                             }

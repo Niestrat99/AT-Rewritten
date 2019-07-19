@@ -30,7 +30,7 @@ public class Back implements CommandExecutor {
                     while (loc.getBlock().getType() != Material.AIR && loc.getBlock().getType() != Material.WATER) {
                         loc.add(0.0, 1.0, 0.0);
                     }
-                    if (!DistanceLimiter.canTeleport(player.getLocation(), loc) && !player.hasPermission("at.admin.bypass.distance-limit")) {
+                    if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back") && !player.hasPermission("at.admin.bypass.distance-limit")) {
                         player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
                         return false;
                     }

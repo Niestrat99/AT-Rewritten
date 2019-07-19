@@ -69,7 +69,7 @@ public class Tpr implements CommandExecutor {
                     break;
                 }
             }
-            if (!DistanceLimiter.canTeleport(player.getLocation(), location) && !player.hasPermission("at.admin.bypass.distance-limit")) {
+            if (!DistanceLimiter.canTeleport(player.getLocation(), location, "tpr") && !player.hasPermission("at.admin.bypass.distance-limit")) {
                 b = false;
             }
             if (b) {

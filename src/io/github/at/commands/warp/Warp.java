@@ -95,7 +95,7 @@ public class Warp implements CommandExecutor {
     }
 
     public static void warp(Location loc, Player player, String name) {
-        if (!DistanceLimiter.canTeleport(player.getLocation(), loc) && !player.hasPermission("at.admin.bypass.distance-limit")) {
+        if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "warp") && !player.hasPermission("at.admin.bypass.distance-limit")) {
             player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
             return;
         }

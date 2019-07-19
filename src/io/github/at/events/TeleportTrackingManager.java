@@ -33,7 +33,7 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler
     public void onTeleport(PlayerTeleportEvent e) {
         if (Config.hasStrictDistanceMonitor()) {
-            if (!DistanceLimiter.canTeleport(e.getTo(), e.getFrom())) {
+            if (!DistanceLimiter.canTeleport(e.getTo(), e.getFrom(), null)) {
                 e.setCancelled(true);
                 return;
             }
