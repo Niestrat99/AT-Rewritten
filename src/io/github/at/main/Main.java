@@ -77,6 +77,7 @@ public class Main extends JavaPlugin {
             e.printStackTrace();
         }
         setupEconomy();
+        new Metrics(this);
     }
 
     @Override

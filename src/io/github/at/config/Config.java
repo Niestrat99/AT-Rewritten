@@ -102,10 +102,10 @@ public class Config {
     }
 
     public static int getTeleportTimer(String command) {
-        if (config.get("timers.teleportTimer." + command) instanceof String) {
+        if (config.get("timers.teleportTimers." + command) instanceof String) {
             return config.getInt("timers.teleportTimer");
         } else {
-            return config.getInt("timers.teleportTimer." + command);
+            return config.getInt("timers.teleportTimers." + command);
         }
     }
 
