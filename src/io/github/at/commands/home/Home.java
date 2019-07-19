@@ -5,6 +5,7 @@ import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
 import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
+import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -140,6 +141,10 @@ public class Home implements CommandExecutor {
     }
 
     private void teleport(Player player, Location loc, String name) {
+        if (!DistanceLimiter.canTeleport(player.getLocation(), loc) || player.hasPermission("at.admin.bypass.distance-limit")) {
+            player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
+            return;
+        }
         if (PaymentManager.canPay("home", player)) {
             if (Config.getTeleportTimer("home") > 0) {
                 BukkitRunnable movementtimer = new BukkitRunnable() {

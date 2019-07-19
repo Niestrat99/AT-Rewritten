@@ -94,6 +94,10 @@ public class Config {
         config.addDefault("tpr.minimum-z", -10000);
         config.addDefault("tpr.useWorldBorder", true);
         config.addDefault("tpr.avoidBlocks", new ArrayList<>(Arrays.asList("WATER","LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")));
+
+        config.addDefault("distance-limiter.enabled", false);
+        config.addDefault("distance-limiter.distance-limit", 1000);
+        config.addDefault("distance-limiter.monitor-all-teleports", false);
         config.options().copyDefaults(true);
         save();
     }
@@ -218,5 +222,17 @@ public class Config {
         config = YamlConfiguration.loadConfiguration(configFile);
         setDefaults();
         save();
+    }
+
+    public static boolean isDistanceLimiterEnabled() {
+        return config.getBoolean("distance-limiter.enabled");
+    }
+
+    public static double getDistanceLimit() {
+        return config.getDouble("distance-limiter.distance-limit");
+    }
+
+    public static boolean hasStrictDistanceMonitor() {
+        return config.getBoolean("distance-limiter.monitor-all-teleports");
     }
 }

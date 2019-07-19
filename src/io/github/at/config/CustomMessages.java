@@ -34,6 +34,7 @@ public class CustomMessages {
         Config.addDefault("Teleport.teleportingToRandomPlace", "&aTeleporting you to a random place!");
         Config.addDefault("Teleport.teleportingToLastLoc", "&aTeleporting to your last location!");
         Config.addDefault("Error.noPermission", "&cYou do not have permissions to use this command!");
+        Config.addDefault("Error.noPermissionSign", "&cYou do not have permission to make this sign!");
         Config.addDefault("Error.featureDisabled", "&cThis feature has been disabled!");
         Config.addDefault("Error.noRequests", "&cYou do not have any pending requests!");
     //    Config.addDefault("Error.requestSendFail", "&cCould not send request to &e{player}!");
@@ -70,6 +71,7 @@ public class CustomMessages {
         Config.addDefault("Error.notAPlayer", "&cYou must be a player to run this command!");
         Config.addDefault("Error.noHomes", "&cYou haven't got any homes!");
         Config.addDefault("Error.noHomesOtherPlayer", "&e{player} &chasn't got any homes!");
+        Config.addDefault("Error.tooFarAway", "&cThe teleport destination is too far away so you can not teleport there!");
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
         Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}&a!" +
@@ -107,6 +109,9 @@ public class CustomMessages {
         Config.addDefault("Info.requestAcceptedResponder", "&e{player} &ahas accepted the teleport request!");
         Config.addDefault("Info.paymentVault", "&aYou have paid &e${amount} &aand now have &e${balance}&a!");
         Config.addDefault("Info.paymentEXP", "&aYou have paid &e{amount} EXP Levels &aand now have &e{levels}&a!");
+        Config.addDefault("Info.createdWarpSign", "&aSuccessfully created the warp sign!");
+        Config.addDefault("Info.createdRTPSign", "&aSuccessfully created the RandomTP sign!");
+        Config.addDefault("Info.createdSpawnSign", "&aSuccessfully created the spawn sign!");
         Config.addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
                 "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
                 "&6--[ &bCategories &6]--",

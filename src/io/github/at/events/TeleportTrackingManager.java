@@ -3,6 +3,7 @@ package io.github.at.events;
 import io.github.at.config.Config;
 import io.github.at.config.LastLocations;
 import io.github.at.main.Main;
+import io.github.at.utilities.DistanceLimiter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,6 +32,12 @@ public class TeleportTrackingManager implements Listener {
     }
     @EventHandler
     public void onTeleport(PlayerTeleportEvent e) {
+        if (Config.hasStrictDistanceMonitor()) {
+            if (!DistanceLimiter.canTeleport(e.getTo(), e.getFrom())) {
+                e.setCancelled(true);
+                return;
+            }
+        }
         if (Config.isFeatureEnabled("teleport")) {
             lastLocations.put(e.getPlayer(), e.getFrom());
         }

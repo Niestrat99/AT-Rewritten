@@ -5,6 +5,7 @@ import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
 import io.github.at.events.CooldownManager;
 import io.github.at.main.Main;
+import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,10 +29,14 @@ public class TpAll implements CommandExecutor {
                     for (Player target : Bukkit.getOnlinePlayers()) {
                         if (target != player) {
                             if (TpOff.getTpOff().contains(target)) {
-                                sender.sendMessage(CustomMessages.getString("Error.tpOff").replaceAll("\\{player}", target.getName()));
+                                continue;
                             }
                             if (TpBlock.getBlockedPlayers(target).contains(player)) {
-                                sender.sendMessage(CustomMessages.getString("Error.tpBlock").replaceAll("\\{player}", target.getName()));
+                                continue;
+                            }
+                            if (!DistanceLimiter.canTeleport(player.getLocation(), target.getLocation()) && !target.hasPermission("at.admin.bypass.distance-limit")) {
+                                player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
+                                continue;
                             }
                             target.sendMessage(CustomMessages.getString("Info.tpaRequestHere")
                                     .replaceAll("\\{player}", target.getName())

@@ -5,6 +5,7 @@ import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
 import io.github.at.events.CooldownManager;
 import io.github.at.main.Main;
+import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
@@ -45,6 +46,10 @@ public class Tpa implements CommandExecutor {
                             }
                             if (TPRequest.getRequestByReqAndResponder(target, player) != null) {
                                 sender.sendMessage(CustomMessages.getString("Error.alreadySentRequest").replaceAll("\\{player}", target.getName()));
+                                return false;
+                            }
+                            if (!DistanceLimiter.canTeleport(player.getLocation(), target.getLocation()) && !player.hasPermission("at.admin.bypass.distance-limit")) {
+                                player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
                                 return false;
                             }
                             if (PaymentManager.canPay("tpa", player)) {
