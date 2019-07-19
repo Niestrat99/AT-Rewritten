@@ -117,6 +117,10 @@ permissions:
       at.member.home: true
       at.member.homes: true
       at.member.tpa: true
+      at.member.back: true
+      at.member.spawn.use-sign: true
+      at.member.tpr.use-sign: true
+      at.member.warp.use-sign: true
   at.admin.*:
     default: op
     description: Allows access to admin-based commands of the plugin.
@@ -137,3 +141,4 @@ permissions:
       at.admin.homes: true
       at.admin.home: true
       at.admin.info: true
+      at.admin.bypass.distance-limit: true

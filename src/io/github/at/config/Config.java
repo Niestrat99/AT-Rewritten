@@ -35,6 +35,7 @@ public class Config {
         config.addDefault("timers.teleportTimers.warp", "default");
         config.addDefault("timers.teleportTimers.spawn", "default");
         config.addDefault("timers.teleportTimers.home", "default");
+        config.addDefault("timers.teleportTimers.back", "default");
         config.addDefault("timers.requestLifetime",60);
         config.addDefault("timers.cancel-on-rotate", false);
         // Booleans
@@ -87,6 +88,12 @@ public class Config {
         config.addDefault("payments.exp.home.price", "default");
         config.addDefault("payments.exp.home.enabled", "default");
 
+        // Back
+        config.addDefault("payments.vault.back.price", "default");
+        config.addDefault("payments.vault.back.enabled", "default");
+        config.addDefault("payments.exp.back.price", "default");
+        config.addDefault("payments.exp.back.enabled", "default");
+
         // TPR options
         config.addDefault("tpr.maximum-x", 10000);
         config.addDefault("tpr.minimum-x", -10000);
@@ -98,6 +105,12 @@ public class Config {
         config.addDefault("distance-limiter.enabled", false);
         config.addDefault("distance-limiter.distance-limit", 1000);
         config.addDefault("distance-limiter.monitor-all-teleports", false);
+        config.addDefault("distance-limiter.per-command.tpa", true);
+        config.addDefault("distance-limiter.per-command.tpahere", true);
+        config.addDefault("distance-limiter.per-command.tpr", true);
+        config.addDefault("distance-limiter.per-command.warp", true);
+        config.addDefault("distance-limiter.per-command.spawn", true);
+        config.addDefault("distance-limiter.per-command.back", true);
         config.options().copyDefaults(true);
         save();
     }
@@ -226,6 +239,10 @@ public class Config {
 
     public static boolean isDistanceLimiterEnabled() {
         return config.getBoolean("distance-limiter.enabled");
+    }
+
+    public static boolean isDistanceLimiterEnabledForCmd(String command) {
+        return config.getBoolean("distance-limiter.per-command." + command);
     }
 
     public static double getDistanceLimit() {
