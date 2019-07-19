@@ -105,6 +105,8 @@ public class CustomMessages {
         Config.addDefault("Info.homesOther", "&b&l{player}'s homes: &r");
         Config.addDefault("Info.requestAccepted", "&aYou've accepted the teleport request!");
         Config.addDefault("Info.requestAcceptedResponder", "&e{player} &ahas accepted the teleport request!");
+        Config.addDefault("Info.paymentVault", "&aYou have paid &e${amount} &aand now have &e${balance}&a!");
+        Config.addDefault("Info.paymentEXP", "&aYou have paid &e{amount} EXP Levels &aand now have &e{levels}&a!");
         Config.addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
                 "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
                 "&6--[ &bCategories &6]--",

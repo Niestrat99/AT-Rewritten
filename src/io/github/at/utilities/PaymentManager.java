@@ -4,7 +4,6 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.main.Main;
 import net.milkbowl.vault.economy.EconomyResponse;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class PaymentManager {
@@ -33,14 +32,18 @@ public class PaymentManager {
             if (player.getLevel()>Config.getEXPTeleportPrice(command)){
                 int currentLevel = player.getLevel();
                 player.setLevel(currentLevel - Config.getEXPTeleportPrice(command));
-                player.sendMessage(ChatColor.GREEN + "You have paid " + ChatColor.AQUA + Config.getTeleportPrice(command) + ChatColor.GREEN + " EXP Levels for your teleportation Request. You now have " + ChatColor.AQUA + player.getLevel() + ChatColor.GREEN + " EXP Levels!");
+                player.sendMessage(CustomMessages.getString("Info.paymentEXP")
+                        .replaceAll("\\{amount}", String.valueOf(Config.getEXPTeleportPrice(command))
+                        .replaceAll("\\{levels}", String.valueOf(player.getLevel()))));
             }
         }
         if  (Main.getVault() != null && Config.isUsingVault(command)) {
             if (Main.getVault().getBalance(player)>Config.getTeleportPrice(command)){
                 EconomyResponse payment = Main.getVault().withdrawPlayer(player, Config.getTeleportPrice(command));
                 if (payment.transactionSuccess()){
-                    player.sendMessage(ChatColor.GREEN + "You have paid $" + ChatColor.AQUA + Config.getTeleportPrice(command) + ChatColor.GREEN + " for your teleportation Request. You now have $" + ChatColor.AQUA + Main.getVault().getBalance(player) + ChatColor.GREEN + "!");
+                    player.sendMessage(CustomMessages.getString("Info.paymentVault")
+                            .replaceAll("\\{amount}", String.valueOf(Config.getTeleportPrice(command))
+                            .replaceAll("\\{balance}", String.valueOf(Main.getVault().getBalance(player)))));
                 }
             }
         }
