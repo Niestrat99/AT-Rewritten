@@ -37,7 +37,7 @@ public class SetHome implements CommandExecutor {
                         int limit = getHomesLimit(player);
 
                         // If the number of homes a player has is smaller than or equal to the homes limit, or they have a bypass permission
-                        if (Homes.getHomes(player).size() <= limit
+                        if (Homes.getHomes(player).size() < limit
                                 || player.hasPermission("at.admin.sethome.bypass")
                                 || limit == -1) {
                             setHome(player, args[0]);
