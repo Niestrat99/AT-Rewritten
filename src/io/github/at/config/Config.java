@@ -107,7 +107,7 @@ public class Config {
         config.addDefault("distance-limiter.monitor-all-teleports", false);
         config.addDefault("distance-limiter.per-command.tpa", true);
         config.addDefault("distance-limiter.per-command.tpahere", true);
-        config.addDefault("distance-limiter.per-command.tpr", true);
+        config.addDefault("distance-limiter.per-command.tpr", false);
         config.addDefault("distance-limiter.per-command.warp", true);
         config.addDefault("distance-limiter.per-command.spawn", true);
         config.addDefault("distance-limiter.per-command.back", true);
