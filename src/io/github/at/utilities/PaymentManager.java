@@ -42,8 +42,8 @@ public class PaymentManager {
                 EconomyResponse payment = Main.getVault().withdrawPlayer(player, Config.getTeleportPrice(command));
                 if (payment.transactionSuccess()){
                     player.sendMessage(CustomMessages.getString("Info.paymentVault")
-                            .replaceAll("\\{amount}", String.valueOf(Config.getTeleportPrice(command))
-                            .replaceAll("\\{balance}", String.valueOf(Main.getVault().getBalance(player)))));
+                            .replaceAll("\\{amount}", String.valueOf(Config.getTeleportPrice(command)))
+                            .replaceAll("\\{balance}", String.valueOf(Main.getVault().getBalance(player))));
                 }
             }
         }

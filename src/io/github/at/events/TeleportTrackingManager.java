@@ -1,6 +1,7 @@
 package io.github.at.events;
 
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import io.github.at.config.LastLocations;
 import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
@@ -33,7 +34,8 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler
     public void onTeleport(PlayerTeleportEvent e) {
         if (Config.hasStrictDistanceMonitor()) {
-            if (!DistanceLimiter.canTeleport(e.getTo(), e.getFrom(), null)) {
+            if (!DistanceLimiter.canTeleport(e.getTo(), e.getFrom(), null) && !e.getPlayer().hasPermission("at.admin.bypass.distance-limit")) {
+                e.getPlayer().sendMessage(CustomMessages.getString("Error.tooFarAway"));
                 e.setCancelled(true);
                 return;
             }
