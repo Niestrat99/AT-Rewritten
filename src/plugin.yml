@@ -142,3 +142,4 @@ permissions:
       at.admin.home: true
       at.admin.info: true
       at.admin.bypass.distance-limit: true
+      at.admin.sethome.bypass: true
