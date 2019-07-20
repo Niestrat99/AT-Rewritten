@@ -33,7 +33,7 @@ public class CustomMessages {
         Config.addDefault("Teleport.teleportingSelfToPlayer", "&aTeleporting you to &e{player}&a!");
         Config.addDefault("Teleport.teleportingToRandomPlace", "&aTeleporting you to a random place!");
         Config.addDefault("Teleport.teleportingToLastLoc", "&aTeleporting to your last location!");
-        Config.addDefault("Error.noPermission", "&cYou do not have permissions to use this command!");
+        Config.addDefault("Error.noPermission", "&cYou do not have permission to use this command!");
         Config.addDefault("Error.noPermissionSign", "&cYou do not have permission to make this sign!");
         Config.addDefault("Error.featureDisabled", "&cThis feature has been disabled!");
         Config.addDefault("Error.noRequests", "&cYou do not have any pending requests!");
@@ -48,9 +48,9 @@ public class CustomMessages {
         Config.addDefault("Error.requestSentToSelf", "&cYou can't send a request to yourself!");
         Config.addDefault("Error.noSuchPlayer", "&cThe player is either currently offline or doesn't exist!");
         Config.addDefault("Error.alreadySentRequest", "&cYou've already sent a request to &e{player}&c!");
-        Config.addDefault("Error.notEnoughEXP", "&cYou do not have enough EXP Levels to send a teleport request to someone else!" +
+        Config.addDefault("Error.notEnoughEXP", "&cYou do not have enough EXP Levels to teleport there!" +
                 "\n&cYou need at least &e{levels} &cEXP levels!");
-        Config.addDefault("Error.notEnoughMoney", "&cYou do not have enough money to send a teleport request to someone else!" +
+        Config.addDefault("Error.notEnoughMoney", "&cYou do not have enough money to teleport there!" +
                 "\n&cYou need at least &e${amount}&c!");
         Config.addDefault("Error.requestExpired", "&cYour teleport request to &e{player} &chas expired!");
         Config.addDefault("Error.noPlayerInput", "&cYou must include a player name!");
@@ -72,6 +72,7 @@ public class CustomMessages {
         Config.addDefault("Error.noHomes", "&cYou haven't got any homes!");
         Config.addDefault("Error.noHomesOtherPlayer", "&e{player} &chasn't got any homes!");
         Config.addDefault("Error.tooFarAway", "&cThe teleport destination is too far away so you can not teleport there!");
+        Config.addDefault("Error.noRequestsSent", "&cCouldn't send a request to anyone :(");
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
         Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}&a!" +
@@ -80,7 +81,7 @@ public class CustomMessages {
         Config.addDefault("Info.tpaRequestReceived", "&aThe player &e{player} &awants to teleport to you!" +
                 "\n&aIf you want to accept it, use &e/tpayes&a, but if not, use &e/tpano&a." +
                 "\n&aYou've got &e{lifetime} &ato respond to it!");
-        Config.addDefault("Info.getRequestHere", "&aThe player &e{player} &awants to teleport you to them!" +
+        Config.addDefault("Info.tpaRequestHere", "&aThe player &e{player} &awants to teleport you to them!" +
                 "\n&aIf you want to accept it, use &e/tpayes&a, but if not, use &e/tpano&a." +
                 "\n&aYou've got &e{lifetime} &ato respond to it!");
         Config.addDefault("Info.blockPlayer", "&e{player} &ahas been blocked.");
@@ -112,6 +113,7 @@ public class CustomMessages {
         Config.addDefault("Info.createdWarpSign", "&aSuccessfully created the warp sign!");
         Config.addDefault("Info.createdRTPSign", "&aSuccessfully created the RandomTP sign!");
         Config.addDefault("Info.createdSpawnSign", "&aSuccessfully created the spawn sign!");
+        Config.addDefault("Info.tpallRequestSent", "&aSuccessfully sent a teleport request to &e{amount} &aplayer(s)!");
         Config.addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
                 "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
                 "&6--[ &bCategories &6]--",

@@ -73,7 +73,7 @@ public class Home implements CommandExecutor {
                                     } catch (NullPointerException ex) {
                                         Location tlocation = Homes.getHomes(target).get(args[1]);
                                         player.teleport(tlocation);
-                                        sender.sendMessage(CustomMessages.getString("Info.teleportingToHomeOther")
+                                        sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
                                                 .replaceAll("\\{player}", target.getName().replaceAll("\\{home}", args[1])));
                                         return false;
                                     }
@@ -150,7 +150,7 @@ public class Home implements CommandExecutor {
                 BukkitRunnable movementtimer = new BukkitRunnable() {
                     @Override
                     public void run() {
-                        player.sendMessage(CustomMessages.getString("Info.teleportingToHome").replaceAll("\\{home}",name));
+                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
                         player.teleport(loc);
                         MovementManager.getMovement().remove(player);
                         PaymentManager.withdraw("home", player);
@@ -161,7 +161,7 @@ public class Home implements CommandExecutor {
                 player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("home"))));
 
             } else {
-                player.sendMessage(CustomMessages.getString("Info.teleportingToHome").replaceAll("\\{home}",name));
+                player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
                 player.teleport(loc);
                 PaymentManager.withdraw("home", player);
             }

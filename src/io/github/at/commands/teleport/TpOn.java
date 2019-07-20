@@ -17,6 +17,8 @@ public class TpOn implements CommandExecutor {
                     if (TpOff.getTpOff().contains(player)) {
                         TpOff.getTpOff().remove(player);
                         sender.sendMessage(CustomMessages.getString("Info.tpOn"));
+                    } else {
+                        sender.sendMessage(CustomMessages.getString("Error.alreadyOn"));
                     }
                 }
             } else {

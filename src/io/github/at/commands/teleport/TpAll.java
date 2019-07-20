@@ -26,6 +26,7 @@ public class TpAll implements CommandExecutor {
                         sender.sendMessage(ChatColor.RED + "This command has a cooldown of " + Config.commandCooldown() + " seconds each use - Please wait!");
                         return false;
                     }
+                    int players = 0;
                     for (Player target : Bukkit.getOnlinePlayers()) {
                         if (target != player) {
                             if (TpOff.getTpOff().contains(target)) {
@@ -35,9 +36,9 @@ public class TpAll implements CommandExecutor {
                                 continue;
                             }
                             if (!DistanceLimiter.canTeleport(player.getLocation(), target.getLocation(), "tpahere") && !target.hasPermission("at.admin.bypass.distance-limit")) {
-                                player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
                                 continue;
                             }
+                            players++;
                             target.sendMessage(CustomMessages.getString("Info.tpaRequestHere")
                                     .replaceAll("\\{player}", target.getName())
                                     .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
@@ -59,6 +60,11 @@ public class TpAll implements CommandExecutor {
                             CooldownManager.getCooldown().put(player, cooldowntimer);
                             cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
                         }
+                    }
+                    if (players > 0) {
+                        player.sendMessage(CustomMessages.getString("Info.tpallRequestSent").replaceAll("\\{amount}", String.valueOf(players)));
+                    } else {
+                        player.sendMessage(CustomMessages.getString("Error.noRequestsSent"));
                     }
                 }
 

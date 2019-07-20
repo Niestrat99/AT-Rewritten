@@ -28,6 +28,8 @@ public class TpOff implements CommandExecutor {
                     if (!tpoff.contains(player)) {
                         tpoff.add(player);
                         sender.sendMessage(CustomMessages.getString("Info.tpOff"));
+                    } else {
+                        sender.sendMessage(CustomMessages.getString("Error.alreadyOff"));
                     }
                     return false;
                 }
