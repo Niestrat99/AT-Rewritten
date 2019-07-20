@@ -57,7 +57,7 @@ public class Tpa implements CommandExecutor {
                                         .replaceAll("\\{player}", target.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
                                 target.sendMessage(CustomMessages.getString("Info.tpaRequestReceived")
-                                        .replaceAll("\\{player}", target.getName())
+                                        .replaceAll("\\{player}", sender.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
                                 BukkitRunnable run = new BukkitRunnable() {
                                     @Override
