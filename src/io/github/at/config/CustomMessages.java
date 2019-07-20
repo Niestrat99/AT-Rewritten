@@ -133,7 +133,8 @@ public class CustomMessages {
                 "&6- /tpoff - Disables teleport requests to you.",
                 "&6- /tpblock <player> - Blocks the player so that they cannot send you teleport requests anymore.",
                 "&6- /tpunblock <player> - Unblocks the player so that they can send you teleport requests.",
-                "&6- /back - Teleports you to your last location.")));
+                "&6- /back - Teleports you to your last location.",
+                "&6- /tpalist - Lists your teleport requests.")));
         Config.addDefault("Help.teleportAdmin", new ArrayList<>(Arrays.asList("&6- /tpo <player> - Instantly teleports you to the player.",
                 "&6- /tpohere <player> - Instantly teleports the player to you.",
                 "&6- /tpall - Sends a teleport request to every online player to teleport to you.")));
