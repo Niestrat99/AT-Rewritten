@@ -6,7 +6,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class AtHelp implements CommandExecutor {
 
@@ -78,7 +77,7 @@ public class AtHelp implements CommandExecutor {
                     sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
                     return false;
                 }
-            } else if (args[0].equalsIgnoreCase("HomesCommand")) {
+            } else if (args[0].equalsIgnoreCase("homes")) {
                 if (Config.isFeatureEnabled("homes")) {
                     for (String str : CustomMessages.Config.getStringList("Help.homes")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
