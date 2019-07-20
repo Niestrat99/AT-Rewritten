@@ -3,6 +3,7 @@ package io.github.at.utilities;
 import com.wimbli.WorldBorder.BorderData;
 import io.github.at.config.Config;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.Random;
@@ -16,11 +17,11 @@ public class RandomCoords {
         return r.nextInt((int)Math.round(max - min)+1)+min ;
     }
 
-    public static Location generateCoords(Player player) {
+    public static Location generateCoords(Player player, World world) {
         double x = getRandomCoords(Config.minX(), Config.maxX());
         double z = getRandomCoords(Config.minZ(), Config.maxZ());
         if (Config.useWorldBorder() && worldBorder != null) {
-            BorderData border = com.wimbli.WorldBorder.Config.Border(player.getWorld().getName());
+            BorderData border = com.wimbli.WorldBorder.Config.Border(world.getName());
             // If a border has been set
             if (border != null) {
                 x = getRandomCoords(border.getX() - border.getRadiusX(), border.getX() + border.getRadiusX());
@@ -29,7 +30,7 @@ public class RandomCoords {
         }
 
         int y = 256;
-        return new Location(player.getWorld(), x, y, z);
+        return new Location(world, x, y, z);
     }
 
 }

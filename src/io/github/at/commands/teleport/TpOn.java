@@ -1,7 +1,7 @@
-package io.github.at.commands;
+package io.github.at.commands.teleport;
 
 import io.github.at.config.Config;
-import org.bukkit.ChatColor;
+import io.github.at.config.CustomMessages;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,18 +12,21 @@ public class TpOn implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player)sender;
-            if (Config.featTP()) {
-                if (sender.hasPermission("tbh.tp.member.on")) {
+            if (Config.isFeatureEnabled("teleport")) {
+                if (sender.hasPermission("at.member.on")) {
                     if (TpOff.getTpOff().contains(player)) {
                         TpOff.getTpOff().remove(player);
-                        sender.sendMessage(ChatColor.GREEN + "Successfully enabled teleport requests!");
-                        sender.sendMessage(ChatColor.GREEN + "You can now receive teleport requests.");
+                        sender.sendMessage(CustomMessages.getString("Info.tpOn"));
+                    } else {
+                        sender.sendMessage(CustomMessages.getString("Error.alreadyOn"));
                     }
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Teleport " + ChatColor.RED + "is disabled!");
+                sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
                 return false;
             }
+        } else {
+            sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
         }
         return false;
     }

@@ -1,8 +1,14 @@
 package io.github.at.events;
 
+import io.github.at.commands.spawn.SpawnCommand;
+import io.github.at.commands.teleport.Tpr;
+import io.github.at.commands.warp.Warp;
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import io.github.at.config.Warps;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -25,11 +31,38 @@ public class AtSigns implements Listener {
                 org.bukkit.block.Sign sign = (Sign) state;
                 String line1 = sign.getLine(0);
                 if (ChatColor.stripColor(line1).equalsIgnoreCase("[RandomTP]")){
-                    player.performCommand("tpr");
+                    if (Config.isFeatureEnabled("randomTP")) {
+                        if (player.hasPermission("at.member.tpr.use-sign")) {
+                            if (!sign.getLine(1).isEmpty()) {
+                                World otherWorld = Bukkit.getWorld(sign.getLine(1));
+                                if (otherWorld != null) {
+                                    Tpr.randomTeleport(player, otherWorld);
+                                } else {
+                                    player.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
+                                }
+                            } else {
+                                Tpr.randomTeleport(player, player.getWorld());
+                            }
+                        } else {
+                            player.sendMessage(CustomMessages.getString("Error.noPermission"));
+                        }
+                    }
                 } else if (ChatColor.stripColor(line1).equalsIgnoreCase("[Warp]") && Warps.getWarps().containsKey(sign.getLine(1))){
-                    player.performCommand("warp " + sign.getLine(1));
+                    if (Config.isFeatureEnabled("warps")) {
+                        if (player.hasPermission("at.member.warp.use-sign")) {
+                            Warp.warp(Warps.getWarps().get(sign.getLine(1)), player, sign.getLine(1));
+                        } else {
+                            player.sendMessage(CustomMessages.getString("Error.noPermission"));
+                        }
+                    }
                 } else if (ChatColor.stripColor(line1).equalsIgnoreCase("[Spawn]")) {
-                    player.performCommand("spawn");
+                    if (Config.isFeatureEnabled("spawn")) {
+                        if (player.hasPermission("at.member.spawn.use-sign")) {
+                            SpawnCommand.spawn(player);
+                        } else {
+                            player.sendMessage(CustomMessages.getString("Error.noPermission"));
+                        }
+                    }
                 }
             }
         }
@@ -41,68 +74,59 @@ public class AtSigns implements Listener {
         BlockState state = placeBlock.getState();
         Player placer = Place.getPlayer();
         if (state instanceof Sign) {
-            Sign sign = (Sign) state;
             if (Place.getLine(0).equalsIgnoreCase("[RandomTP]")) {
-                if (Config.featRTP()) {
-                    if (!placer.hasPermission("tbh.tp.admin.tprsign")){
-                        Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[RandomTP]");
-                        placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to make this sign!");
+                if (Config.isFeatureEnabled("randomTP")) {
+                    if (!placer.hasPermission("at.admin.tprsign")){
+                        placer.sendMessage(CustomMessages.getString("Error.noPermissionSign"));
                         Place.setCancelled(true);
                     } else {
-
                         Place.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[RandomTP]");
-                        Place.setLine(1, ChatColor.ITALIC + "Click me!");
-                        placer.sendMessage(ChatColor.GREEN + "Successfully created the RandomTP sign!");
+                        placer.sendMessage(CustomMessages.getString("Info.createdRTPSign"));
                     }
-                } else {
-                    placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "RandomTP " + ChatColor.RED + "is disabled!");
-                    Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[RandomTP]");
-                    Place.setCancelled(true);
                 }
             } else if (Place.getLine(0).equalsIgnoreCase("[Warp]")) {
-                if (Config.featWarps()) {
-                    if (!placer.hasPermission("tbh.tp.admin.warpsign")){
-                        Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Warp]");
-                        placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to make this sign!");
+                if (Config.isFeatureEnabled("warps")) {
+                    if (!placer.hasPermission("at.admin.warpsign")){
+                        placer.sendMessage(CustomMessages.getString("Error.noPermissionSign"));
                         Place.setCancelled(true);
                     } else {
                         if (Place.getLine(1).isEmpty()) {
-                            Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Warp]");
-                            placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You need to include a warp name!");
+                            placer.sendMessage(CustomMessages.getString("Error.noWarpInput"));
+                            Place.setCancelled(true);
                         } else {
                             if (Warps.getWarps().containsKey(Place.getLine(1))){
                                 String warpName = Place.getLine(1);
                                 Place.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Warp]");
                                 Place.setLine(1, warpName);
-                                Place.setLine(2, ChatColor.ITALIC + "Click here to");
-                                Place.setLine(3, ChatColor.ITALIC + "teleport!");
-                                placer.sendMessage(ChatColor.GREEN + "Successfully created the Warp sign!");
+                                placer.sendMessage(CustomMessages.getString("Info.createdWarpSign"));
                             } else {
-                                Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Warp]");
-                                placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " That warp doesn't exist!");
+                                Place.setCancelled(true);
+                                placer.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
                             }
                         }
                     }
-                } else {
-                    placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Warps " + ChatColor.RED + "is disabled!");
-                    Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Warp]");
-                    Place.setCancelled(true);
                 }
+                // Let's assume that if we disable the warps feature that it's to avoid plugin conflicts.
+
+                // else {
+                //    placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Warps " + ChatColor.RED + "is disabled!");
+                //    Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Warp]");
+                //    Place.setCancelled(true);
+                // }
             } else if (Place.getLine(0).equalsIgnoreCase("[Spawn]")) {
-                if (Config.featSpawn()) {
-                    if (!placer.hasPermission("tbh.tp.admin.spawnsign")) {
-                        Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Spawn]");
-                        placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " You do not have permission to make this sign!");
+                if (Config.isFeatureEnabled("spawn")) {
+                    if (!placer.hasPermission("at.admin.spawnsign")) {
+                        placer.sendMessage(CustomMessages.getString("Error.noPermissionSign"));
                         Place.setCancelled(true);
                     } else {
                         Place.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Spawn]");
-                        placer.sendMessage(ChatColor.GREEN + "Successfully created the Spawn sign!");
+                        placer.sendMessage(CustomMessages.getString("Info.createdSpawnSign"));
                     }
-                } else {
-                    placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Spawn " + ChatColor.RED + "is disabled!");
-                    Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Spawn]");
-                    Place.setCancelled(true);
-                }
+                } //else {
+                 //   placer.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "The feature " + ChatColor.GOLD + "Spawn " + ChatColor.RED + "is disabled!");
+                 //   Place.setLine(0, ChatColor.RED + "" + ChatColor.BOLD + "[Spawn]");
+                 //   Place.setCancelled(true);
+              //  }
             }
         }
     }
