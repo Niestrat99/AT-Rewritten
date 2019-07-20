@@ -20,9 +20,11 @@ public class Warps {
     }
 
     public static void setWarp(String warpName, Location location) throws IOException {
-        Warps.set(warpName + ".x", location.getBlockX());
-        Warps.set(warpName + ".y", location.getBlockY());
-        Warps.set(warpName + ".z", location.getBlockZ());
+        Warps.set(warpName + ".x", location.getX());
+        Warps.set(warpName + ".y", location.getY());
+        Warps.set(warpName + ".z", location.getZ());
+        Warps.set(warpName + ".yaw", location.getYaw());
+        Warps.set(warpName + ".pitch", location.getPitch());
         Warps.set(warpName + ".world", location.getWorld().getName());
         save();
     }
@@ -30,7 +32,7 @@ public class Warps {
     public static HashMap<String, Location> getWarps() {
         HashMap<String, Location> warps = new HashMap<>();
         for (String Warp : Warps.getKeys(false)) {
-            Location location = new Location(Bukkit.getWorld(Warps.getString(Warp + ".world")), Warps.getInt(Warp + ".x"), Warps.getInt(Warp + ".y"), Warps.getInt(Warp + ".z"));
+            Location location = new Location(Bukkit.getWorld(Warps.getString(Warp + ".world")), Warps.getDouble(Warp + ".x"), Warps.getDouble(Warp + ".y"), Warps.getDouble(Warp + ".z"), Float.valueOf(String.valueOf(Warps.getDouble(Warp + ".yaw"))), Float.valueOf(String.valueOf(Warps.getDouble(Warp + ".pitch"))));
             warps.put(Warp, location);
         }
         return warps;

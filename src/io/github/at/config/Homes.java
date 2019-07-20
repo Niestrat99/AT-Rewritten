@@ -21,10 +21,12 @@ public class Homes {
     }
 
     public static void setHome(Player player, String homename, Location location) throws IOException {
-        homes.set(player.getUniqueId().toString() + "." + homename + ".x", location.getBlockX());
-        homes.set(player.getUniqueId().toString() + "." + homename + ".y", location.getBlockY());
-        homes.set(player.getUniqueId().toString() + "." + homename + ".z", location.getBlockZ());
+        homes.set(player.getUniqueId().toString() + "." + homename + ".x", location.getX());
+        homes.set(player.getUniqueId().toString() + "." + homename + ".y", location.getY());
+        homes.set(player.getUniqueId().toString() + "." + homename + ".z", location.getZ());
         homes.set(player.getUniqueId().toString() + "." + homename + ".world", location.getWorld().getName());
+        homes.set(player.getUniqueId().toString() + "." + homename + ".yaw", location.getYaw());
+        homes.set(player.getUniqueId().toString() + "." + homename + ".pitch", location.getPitch());
         save();
     }
 
@@ -33,9 +35,11 @@ public class Homes {
         try {
             for (String home: Homes.homes.getConfigurationSection(player.getUniqueId().toString()).getKeys(false)) {
                 Location location = new Location(Bukkit.getWorld(Homes.homes.getString(player.getUniqueId().toString() + "." + home + ".world")), // Gets world from name
-                        Homes.homes.getInt(player.getUniqueId().toString() + "." + home + ".x"), // Gets X value
-                        Homes.homes.getInt(player.getUniqueId().toString() + "." + home + ".y"), // Gets Y value
-                        Homes.homes.getInt(player.getUniqueId().toString() + "." + home + ".z")); // Gets Z value
+                        Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".x"), // Gets X value
+                        Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".y"), // Gets Y value
+                        Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".z"), // Gets Z value
+                        Float.valueOf(String.valueOf(Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".yaw"))),
+                        Float.valueOf(String.valueOf(Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".pitch"))));
                 homes.put(home,location);
             }
         } catch (NullPointerException ex) {
