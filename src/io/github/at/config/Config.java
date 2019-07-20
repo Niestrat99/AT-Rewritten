@@ -36,6 +36,7 @@ public class Config {
         config.addDefault("timers.teleportTimers.spawn", "default");
         config.addDefault("timers.teleportTimers.home", "default");
         config.addDefault("timers.teleportTimers.back", "default");
+      
         config.addDefault("timers.requestLifetime",60);
         config.addDefault("timers.cancel-on-rotate", false);
         // Booleans
@@ -111,6 +112,7 @@ public class Config {
         config.addDefault("distance-limiter.per-command.warp", true);
         config.addDefault("distance-limiter.per-command.spawn", true);
         config.addDefault("distance-limiter.per-command.back", true);
+      
         config.options().copyDefaults(true);
         save();
     }
@@ -197,7 +199,6 @@ public class Config {
     // Replaced with Config.getEXPTeleportPrice("tpr")
     @Deprecated
     public static int EXPTPRCost() {return config.getInt("payments.exp.EXPTPRCost");}
-
     public static boolean useWorldBorder() {return config.getBoolean("tpr.useWorldBorder");}
     public static int maxX() {return config.getInt("tpr.maximum-x");}
     public static int minX() {return config.getInt("tpr.minimum-x");}
