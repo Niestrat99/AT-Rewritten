@@ -29,7 +29,7 @@ public class TpList implements CommandExecutor {
                                 // args[0] is officially an int.
                                 int page = Integer.parseInt(args[0]);
                                 PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
-                                player.sendMessage(CustomMessages.getString("Info.multipleRequestsAccept"));
+                                player.sendMessage(CustomMessages.getString("Info.multipleRequestAccept"));
                                 try {
                                     for (TPRequest request : requests.getContentsInPage(page)) {
                                         new FancyMessage()
@@ -48,7 +48,7 @@ public class TpList implements CommandExecutor {
                             }
                         } else {
                             PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
-                            player.sendMessage(CustomMessages.getString("Info.multipleRequestsAccept"));
+                            player.sendMessage(CustomMessages.getString("Info.multipleRequestAccept"));
                             for (TPRequest request : requests.getContentsInPage(1)) {
                                 new FancyMessage()
                                         .command("/tpayes " + request.getRequester().getName())
