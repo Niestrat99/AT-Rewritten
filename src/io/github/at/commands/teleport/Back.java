@@ -20,7 +20,7 @@ public class Back implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("teleport")) {
-            if (sender.hasPermission("teleport")) {
+            if (sender.hasPermission("at.member.back")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
                     Location loc = TeleportTrackingManager.getLastLocation(player);

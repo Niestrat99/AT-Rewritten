@@ -10,10 +10,10 @@ commands:
 
   warps:
     description: Gives you a list of warps.
-    permission: tbh.tp.member.warps
+    permission: at.member.warps
   warp:
     description: Gives you a list of sub commands from this command.
-    permission: tbh.tp.member.warp
+    permission: at.member.warp
   tpr:
     description: Teleports you to a random place.
     permission: at.member.tpr
