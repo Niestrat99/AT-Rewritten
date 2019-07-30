@@ -4,6 +4,7 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
 import io.github.at.events.MovementManager;
+import io.github.at.events.TeleportTrackingManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
@@ -31,6 +32,7 @@ public class Home implements CommandExecutor {
                                     try {
                                         if (Homes.getHomes(target).containsKey(args[1])) {
                                             Location tlocation = Homes.getHomes(target).get(args[1]);
+                                            TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                                             player.teleport(tlocation);
                                             sender.sendMessage(CustomMessages.getString("Info.teleportingToHomeOther")
                                                     .replaceAll("\\{player}", target.getName())
@@ -72,6 +74,7 @@ public class Home implements CommandExecutor {
                                         }
                                     } catch (NullPointerException ex) {
                                         Location tlocation = Homes.getHomes(target).get(args[1]);
+                                        TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                                         player.teleport(tlocation);
                                         sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
                                                 .replaceAll("\\{player}", target.getName().replaceAll("\\{home}", args[1])));
@@ -87,6 +90,7 @@ public class Home implements CommandExecutor {
                             try {
                                 if (Homes.getHomes(player).containsKey(args[0])) {
                                     Location location = Homes.getHomes(player).get(args[0]);
+                                    TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                                     teleport(player, location, args[0]);
                                     return false;
                                 } else if (args[0].equalsIgnoreCase("bed")) {
@@ -95,6 +99,7 @@ public class Home implements CommandExecutor {
                                         player.sendMessage(CustomMessages.getString("Error.noBedHome"));
                                         return false;
                                     }
+                                    TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                                     teleport(player, location, args[0]);
                                     return false;
 
@@ -151,6 +156,7 @@ public class Home implements CommandExecutor {
                     @Override
                     public void run() {
                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
+                        TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                         player.teleport(loc);
                         MovementManager.getMovement().remove(player);
                         PaymentManager.withdraw("home", player);
@@ -162,6 +168,7 @@ public class Home implements CommandExecutor {
 
             } else {
                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
+                TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                 player.teleport(loc);
                 PaymentManager.withdraw("home", player);
             }

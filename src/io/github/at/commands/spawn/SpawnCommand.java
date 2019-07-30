@@ -4,6 +4,7 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Spawn;
 import io.github.at.events.MovementManager;
+import io.github.at.events.TeleportTrackingManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
@@ -43,6 +44,7 @@ public class SpawnCommand implements CommandExecutor {
                 BukkitRunnable movementtimer = new BukkitRunnable() {
                     @Override
                     public void run() {
+                        TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                         if (Spawn.getSpawn() != null) {
                             player.teleport(Spawn.getSpawn());
                         } else {
@@ -58,6 +60,7 @@ public class SpawnCommand implements CommandExecutor {
 
             } else {
                 PaymentManager.withdraw("spawn", player);
+                TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                 if (Spawn.getSpawn() != null) {
                     player.teleport(Spawn.getSpawn());
                 } else {

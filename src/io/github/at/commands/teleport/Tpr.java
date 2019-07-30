@@ -4,6 +4,7 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.events.CooldownManager;
 import io.github.at.events.MovementManager;
+import io.github.at.events.TeleportTrackingManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
@@ -92,6 +93,7 @@ public class Tpr implements CommandExecutor {
             BukkitRunnable movementtimer = new BukkitRunnable() {
                 @Override
                 public void run() {
+                    TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                     player.teleport(loc);
                     MovementManager.getMovement().remove(player);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
@@ -104,6 +106,7 @@ public class Tpr implements CommandExecutor {
             return false;
 
         } else {
+            TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
             player.teleport(loc);
             player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
             PaymentManager.withdraw("tpr", player);

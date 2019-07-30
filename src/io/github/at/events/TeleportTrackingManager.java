@@ -40,9 +40,6 @@ public class TeleportTrackingManager implements Listener {
                 return;
             }
         }
-        if (Config.isFeatureEnabled("teleport")) {
-            lastLocations.put(e.getPlayer(), e.getFrom());
-        }
     }
 
     public static Location getLastLocation(Player player) {

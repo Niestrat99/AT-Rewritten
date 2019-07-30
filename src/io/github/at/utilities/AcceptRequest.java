@@ -3,6 +3,7 @@ package io.github.at.utilities;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.events.MovementManager;
+import io.github.at.events.TeleportTrackingManager;
 import io.github.at.main.Main;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -20,6 +21,7 @@ public class AcceptRequest {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {
+                            TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                             player.teleport(request.getRequester());
                             MovementManager.getMovement().remove(player);
                             player.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
@@ -31,6 +33,7 @@ public class AcceptRequest {
                     movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpahere")*20);
                     player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpahere"))));
                 } else {
+                    TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                     player.teleport(request.getRequester());
                     player.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
                     PaymentManager.withdraw("tpahere", request.getRequester());
@@ -40,6 +43,7 @@ public class AcceptRequest {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {
+                            TeleportTrackingManager.getLastLocations().put(request.getRequester(), request.getRequester().getLocation());
                             request.getRequester().teleport(player);
                             MovementManager.getMovement().remove(request.getRequester());
                             request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
@@ -51,6 +55,7 @@ public class AcceptRequest {
                     request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpa"))));
 
                 } else {
+                    TeleportTrackingManager.getLastLocations().put(request.getRequester(), request.getRequester().getLocation());
                     request.getRequester().teleport(player);
                     request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
                     PaymentManager.withdraw("tpa", request.getRequester());

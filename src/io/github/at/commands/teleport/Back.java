@@ -44,6 +44,7 @@ public class Back implements CommandExecutor {
                             BukkitRunnable movementtimer = new BukkitRunnable() {
                                 @Override
                                 public void run() {
+                                    TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                                     player.teleport(finalLoc);
                                     MovementManager.getMovement().remove(player);
                                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
@@ -56,6 +57,7 @@ public class Back implements CommandExecutor {
                             player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("back"))));
 
                         } else {
+                            TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                             player.teleport(loc);
                             PaymentManager.withdraw("back", player);
                             player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));

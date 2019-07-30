@@ -4,6 +4,7 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Warps;
 import io.github.at.events.MovementManager;
+import io.github.at.events.TeleportTrackingManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
@@ -104,6 +105,7 @@ public class Warp implements CommandExecutor {
                 BukkitRunnable movementtimer = new BukkitRunnable() {
                     @Override
                     public void run() {
+                        TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                         player.teleport(loc);
                         MovementManager.getMovement().remove(player);
                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));
@@ -116,6 +118,7 @@ public class Warp implements CommandExecutor {
                 player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("warp"))));
 
             } else {
+                TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                 player.teleport(loc);
                 PaymentManager.withdraw("warp", player);
                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));

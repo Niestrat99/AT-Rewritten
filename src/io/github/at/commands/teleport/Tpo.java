@@ -2,6 +2,8 @@ package io.github.at.commands.teleport;
 
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
+import io.github.at.events.TeleportTrackingManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,6 +28,7 @@ public class Tpo implements CommandExecutor {
                             return false;
                         } else {
                             sender.sendMessage(CustomMessages.getString("Teleport.teleporting").replaceAll("\\{player}", target.getName()));
+                            TeleportTrackingManager.getLastLocations().put(player, player.getLocation());
                             player.teleport(target);
                             return false;
                         }

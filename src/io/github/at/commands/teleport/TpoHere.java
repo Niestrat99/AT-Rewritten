@@ -2,6 +2,7 @@ package io.github.at.commands.teleport;
 
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
+import io.github.at.events.TeleportTrackingManager;
 import io.github.at.utilities.DistanceLimiter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -28,6 +29,7 @@ public class TpoHere implements CommandExecutor {
                         } else {
                             sender.sendMessage(CustomMessages.getString("Teleport.teleportingPlayerToSelf").replaceAll("\\{player}", target.getName()));
                             target.sendMessage(CustomMessages.getString("Teleport.teleportingSelfToPlayer").replaceAll("\\{player}", sender.getName()));
+                            TeleportTrackingManager.getLastLocations().put(target, target.getLocation());
                             target.teleport(player);
                             return false;
                         }
