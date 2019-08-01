@@ -24,7 +24,16 @@ public class LastLocations {
             Location loc = TeleportTrackingManager.getLastLocation(player);
             // Format: player-uuid: x.y.z.yaw.pitch.world
             config.addDefault(player.getUniqueId().toString(),
-                    + loc.getX() + ":"
+                    loc.getX() + ":"
+                    + loc.getY() + ":"
+                    + loc.getZ() + ":"
+                    + loc.getYaw() + ":"
+                    + loc.getPitch() + ":"
+                    + loc.getWorld().getName());
+        }
+        for (Player player : TeleportTrackingManager.getDeathLocations().keySet()) {
+            Location loc = TeleportTrackingManager.getDeathLocation(player);
+            config.addDefault("death." + player.getUniqueId().toString(),  loc.getX() + ":"
                     + loc.getY() + ":"
                     + loc.getZ() + ":"
                     + loc.getYaw() + ":"
@@ -47,5 +56,24 @@ public class LastLocations {
             return null;
         }
 
+    }
+
+    public static Location getDeathLocation(Player player) {
+        try {
+            String[] loc = config.getString("death." + player.getUniqueId().toString()).split(":");
+            return new Location(Bukkit.getWorld(loc[5]), Double.valueOf(loc[0]), Double.valueOf(loc[1]), Double.valueOf(loc[2]), Float.valueOf(loc[3]), Float.valueOf(loc[4]));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static void deleteDeathLocation(Player player) {
+        config.set("death." + player.getUniqueId().toString(), null);
+        config.options().copyDefaults(true);
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
