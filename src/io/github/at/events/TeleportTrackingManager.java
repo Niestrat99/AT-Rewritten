@@ -8,6 +8,7 @@ import io.github.at.utilities.DistanceLimiter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -42,7 +43,7 @@ public class TeleportTrackingManager implements Listener {
         }
 
     }
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onTeleport(PlayerTeleportEvent e) {
         if (Config.hasStrictDistanceMonitor()) {
             if (!DistanceLimiter.canTeleport(e.getTo(), e.getFrom(), null) && !e.getPlayer().hasPermission("at.admin.bypass.distance-limit")) {
@@ -51,7 +52,7 @@ public class TeleportTrackingManager implements Listener {
                 return;
             }
         }
-        if (Config.isFeatureEnabled("teleport")) {
+        if (Config.isFeatureEnabled("teleport") && !e.isCancelled()) {
             lastLocations.put(e.getPlayer(), e.getFrom());
         }
     }
