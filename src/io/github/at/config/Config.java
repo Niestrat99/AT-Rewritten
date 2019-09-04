@@ -44,9 +44,7 @@ public class Config {
         config.addDefault("booleans.EXPPayment" , false);
         // Payments
         config.addDefault("payments.vault.teleportPrice" , 100.00);
-        config.addDefault("payments.vault.vaultTPRCost" , 200);
-        config.addDefault("payments.exp.EXPTeleportPrice" , 2);
-        config.addDefault("payments.exp.EXPTPRCost" , 4);
+        config.addDefault("payments.exp.teleportPrice" , 2);
 
         /* What I've done here is I've made it so that admins can modify the amount/exp paid per command, although by default
         *  it will get the values from the normal options.
@@ -128,10 +126,6 @@ public class Config {
         }
     }
 
-    @Deprecated
-    public static int teleportTimer(){
-        return config.getInt("timers.teleportTimer");
-    }
     public static int requestLifetime(){
         return config.getInt("timers.requestLifetime");
     }
@@ -147,9 +141,6 @@ public class Config {
         }
     }
 
-    @Deprecated
-    public static boolean useVault() {return config.getBoolean("booleans.useVault");}
-
     /* Used to get the amount that is paid for the specific command.
      * e.g: Config.getTeleportPrice("home") - returns a price (e.g $10) for how much the home command costs.
      */
@@ -160,9 +151,6 @@ public class Config {
             return config.getDouble("payments.vault." + command + ".price");
         }
     }
-
-    @Deprecated
-    public static double teleportPrice() {return config.getDouble("payments.vault.teleportPrice");}
 
     /* Used to check if a specific command is using EXP for payments.
      * e.g: Config.isUsingEXPPayment("home") - returns true if the home command is using payments through experience.
@@ -175,9 +163,6 @@ public class Config {
         }
     }
 
-    @Deprecated
-    public static boolean EXPPayment() {return config.getBoolean("booleans.EXPPayment");}
-
     /* Used to get the levels that are paid for the specific command.
      * e.g: Config.getEXPTeleportPrice("home") - returns the level that is required to use the home command.
      */
@@ -189,16 +174,6 @@ public class Config {
         }
     }
 
-    @Deprecated
-    public static int EXPTeleportPrice() {return config.getInt("payments.exp.EXPTeleportPrice");}
-
-    // Replaced with Config.getTeleportPrice("tpr")
-    @Deprecated
-    public static int vaultTPRCost() {return config.getInt("payments.vault.vaultTPRCost");}
-
-    // Replaced with Config.getEXPTeleportPrice("tpr")
-    @Deprecated
-    public static int EXPTPRCost() {return config.getInt("payments.exp.EXPTPRCost");}
     public static boolean useWorldBorder() {return config.getBoolean("tpr.useWorldBorder");}
     public static int maxX() {return config.getInt("tpr.maximum-x");}
     public static int minX() {return config.getInt("tpr.minimum-x");}
@@ -215,17 +190,6 @@ public class Config {
      * Config.isFeatureEnabled("spawn") - checks if the spawn feature is enabled.
      */
     public static boolean isFeatureEnabled(String feature) { return config.getBoolean("features." + feature); }
-
-    @Deprecated
-    public static boolean featTP() {return config.getBoolean("features.teleport");}
-    @Deprecated
-    public static boolean featWarps() {return config.getBoolean("features.warps");}
-    @Deprecated
-    public static boolean featSpawn() {return config.getBoolean("features.spawn");}
-    @Deprecated
-    public static boolean featRTP() {return config.getBoolean("features.randomTP");}
-    @Deprecated
-    public static boolean featHomes() {return config.getBoolean("features.homes");}
 
     public static boolean cancelOnRotate() {return config.getBoolean("timers.cancel-on-rotate");}
 
