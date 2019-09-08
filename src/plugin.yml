@@ -1,6 +1,6 @@
 main: io.github.at.main.Main
 name: AdvancedTeleport
-version: 5.0.1-SNAPSHOT-1
+version: 5.0.1
 description: A plugin which is based on tons of teleport stuff.
 authors: [Niestrat99,Thatsmusic99]
 softdepend: [Vault]
@@ -121,6 +121,7 @@ permissions:
       at.member.spawn.use-sign: true
       at.member.tpr.use-sign: true
       at.member.warp.use-sign: true
+      at.member.back.death: true
   at.admin.*:
     default: op
     description: Allows access to admin-based commands of the plugin.

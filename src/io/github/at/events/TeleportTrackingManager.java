@@ -59,7 +59,7 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
-        if (Config.isFeatureEnabled("teleport")) {
+        if (Config.isFeatureEnabled("teleport") && e.getEntity().hasPermission("at.member.back.death")) {
             deathLocations.put(e.getEntity(), e.getEntity().getLocation());
         }
     }
