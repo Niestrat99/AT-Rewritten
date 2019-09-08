@@ -38,8 +38,8 @@ public class Warps {
     public static HashMap<String, Location> getWarps() {
         HashMap<String, Location> warps = new HashMap<>();
         for (String Warp : Warps.getKeys(false)) {
-            Warp = Warps.getString(Warp + ".name") != null ? Warps.getString(Warp + ".name") : Warp;
             Location location = new Location(Bukkit.getWorld(Warps.getString(Warp + ".world")), Warps.getDouble(Warp + ".x"), Warps.getDouble(Warp + ".y"), Warps.getDouble(Warp + ".z"), Float.valueOf(String.valueOf(Warps.getDouble(Warp + ".yaw"))), Float.valueOf(String.valueOf(Warps.getDouble(Warp + ".pitch"))));
+            Warp = Warps.getString(Warp + ".name") != null ? Warps.getString(Warp + ".name") : Warp;
             warps.put(Warp, location);
         }
         return warps;

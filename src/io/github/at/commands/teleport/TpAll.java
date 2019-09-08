@@ -4,7 +4,6 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
 import io.github.at.events.CooldownManager;
-import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.TPRequest;
@@ -24,7 +23,7 @@ public class TpAll implements CommandExecutor {
                 if (sender.hasPermission("at.admin.all")) {
                     Player player = (Player) sender;
                     if (CooldownManager.getCooldown().containsKey(player)) {
-                        sender.sendMessage(ChatColor.RED + "This command has a cooldown of " + Config.commandCooldown() + " seconds each use - Please wait!");
+                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
                         return false;
                     }
                     int players = 0;

@@ -40,13 +40,13 @@ public class Homes {
         HashMap<String,Location> homes = new HashMap<>();
         try {
             for (String home: Homes.homes.getConfigurationSection(player.getUniqueId().toString()).getKeys(false)) {
-                home = Homes.homes.getString(player.getUniqueId().toString() + "." + home + ".name") != null ? Homes.homes.getString(player.getUniqueId().toString() + "." + home + ".name") : home;
                 Location location = new Location(Bukkit.getWorld(Homes.homes.getString(player.getUniqueId().toString() + "." + home + ".world")), // Gets world from name
                         Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".x"), // Gets X value
                         Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".y"), // Gets Y value
                         Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".z"), // Gets Z value
                         Float.valueOf(String.valueOf(Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".yaw"))),
                         Float.valueOf(String.valueOf(Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".pitch"))));
+                home = Homes.homes.getString(player.getUniqueId().toString() + "." + home + ".name") != null ? Homes.homes.getString(player.getUniqueId().toString() + "." + home + ".name") : home;
                 homes.put(home,location);
             }
         } catch (NullPointerException ex) {
