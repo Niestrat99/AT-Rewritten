@@ -7,6 +7,7 @@ import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,6 +20,10 @@ public class SpawnCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("spawn")) {
             if (sender.hasPermission("at.member.spawn")){
+                if (MovementManager.getMovement().containsKey(sender)) {
+                    sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "Can't use command while in teleport countdown!");
+                    return false;
+                }
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
                     spawn(player);
