@@ -8,6 +8,7 @@ import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -82,6 +83,10 @@ public class Home implements CommandExecutor {
                                     return false;
                                 }
                             }
+                        }
+                        if (MovementManager.getMovement().containsKey(player)) {
+                            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "Can't use command while in teleport countdown!");
+                            return false;
                         }
                         if (PaymentManager.canPay("home", player)) {
                             try {
