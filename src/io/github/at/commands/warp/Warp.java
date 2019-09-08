@@ -70,7 +70,7 @@ public class Warp implements CommandExecutor {
                         Player player = (Player) sender;
                         if (Warps.getWarps().containsKey(args[0])) {
                             if (MovementManager.getMovement().containsKey(player)) {
-                                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "Can't use command while in teleport countdown!");
+                                player.sendMessage(CustomMessages.getString("Error.onCountdown"));
                                 return false;
                             }
                             Location warp = Warps.getWarps().get(args[0]);

@@ -85,7 +85,7 @@ public class Home implements CommandExecutor {
                             }
                         }
                         if (MovementManager.getMovement().containsKey(player)) {
-                            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "Can't use command while in teleport countdown!");
+                            player.sendMessage(CustomMessages.getString("Error.onCountdown"));
                             return false;
                         }
                         if (PaymentManager.canPay("home", player)) {

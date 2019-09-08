@@ -73,6 +73,8 @@ public class CustomMessages {
         Config.addDefault("Error.noHomesOtherPlayer", "&e{player} &chasn't got any homes!");
         Config.addDefault("Error.tooFarAway", "&cThe teleport destination is too far away so you can not teleport there!");
         Config.addDefault("Error.noRequestsSent", "&cCouldn't send a request to anyone :(");
+        Config.addDefault("Error.onCountdown","&c&lERROR: &cCan't use command whilst waiting to teleport!");
+
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
         Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}&a!" +

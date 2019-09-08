@@ -21,7 +21,7 @@ public class SpawnCommand implements CommandExecutor {
         if (Config.isFeatureEnabled("spawn")) {
             if (sender.hasPermission("at.member.spawn")){
                 if (MovementManager.getMovement().containsKey(sender)) {
-                    sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "Can't use command while in teleport countdown!");
+                    sender.sendMessage(CustomMessages.getString("Error.onCountdown"));
                     return false;
                 }
                 if (sender instanceof Player) {

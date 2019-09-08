@@ -25,6 +25,10 @@ public class Tpr implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player)sender;
             if (Config.isFeatureEnabled("randomTP")) {
+                if (MovementManager.getMovement().containsKey(player)) {
+                    player.sendMessage(CustomMessages.getString("Error.onCountdown"));
+                    return false;
+                }
                 if (sender.hasPermission("at.member.tpr")) {
                     World world = player.getWorld();
                     if (args.length > 0) {
@@ -41,10 +45,7 @@ public class Tpr implements CommandExecutor {
                     }
                     return randomTeleport(player, world);
                 }
-                if (MovementManager.getMovement().containsKey(player)) {
-                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "Can't use command while in teleport countdown!");
-                    return false;
-                }
+
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
