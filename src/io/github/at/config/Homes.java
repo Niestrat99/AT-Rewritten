@@ -21,6 +21,12 @@ public class Homes {
     }
 
     public static void setHome(Player player, String homename, Location location) throws IOException {
+        if (homename.contains(".")) {
+            String s = homename;
+            homename = homename.replaceAll("\\.", "_");
+            homes.set(player.getUniqueId().toString() + "." + homename + ".name", s);
+
+        }
         homes.set(player.getUniqueId().toString() + "." + homename + ".x", location.getX());
         homes.set(player.getUniqueId().toString() + "." + homename + ".y", location.getY());
         homes.set(player.getUniqueId().toString() + "." + homename + ".z", location.getZ());
@@ -34,6 +40,7 @@ public class Homes {
         HashMap<String,Location> homes = new HashMap<>();
         try {
             for (String home: Homes.homes.getConfigurationSection(player.getUniqueId().toString()).getKeys(false)) {
+                home = Homes.homes.getString(player.getUniqueId().toString() + "." + home + ".name") != null ? Homes.homes.getString(player.getUniqueId().toString() + "." + home + ".name") : home;
                 Location location = new Location(Bukkit.getWorld(Homes.homes.getString(player.getUniqueId().toString() + "." + home + ".world")), // Gets world from name
                         Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".x"), // Gets X value
                         Homes.homes.getDouble(player.getUniqueId().toString() + "." + home + ".y"), // Gets Y value
