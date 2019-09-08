@@ -41,10 +41,6 @@ public class Tpr implements CommandExecutor {
                     }
                     return randomTeleport(player, world);
                 }
-                if (MovementManager.getMovement().containsKey(player)) {
-                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "Can't use command while in teleport countdown!");
-                    return false;
-                }
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));

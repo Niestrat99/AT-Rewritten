@@ -7,7 +7,6 @@ import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -69,10 +68,6 @@ public class Warp implements CommandExecutor {
                     if (sender instanceof Player) {
                         Player player = (Player) sender;
                         if (Warps.getWarps().containsKey(args[0])) {
-                            if (MovementManager.getMovement().containsKey(player)) {
-                                player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR: " + ChatColor.RED + "Can't use command while in teleport countdown!");
-                                return false;
-                            }
                             Location warp = Warps.getWarps().get(args[0]);
                             warp(warp, player, args[0]);
                         } else {
