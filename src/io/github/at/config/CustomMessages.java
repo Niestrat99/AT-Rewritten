@@ -74,6 +74,7 @@ public class CustomMessages {
         Config.addDefault("Error.tooFarAway", "&cThe teleport destination is too far away so you can not teleport there!");
         Config.addDefault("Error.noRequestsSent", "&cCouldn't send a request to anyone :(");
         Config.addDefault("Error.onCountdown","&c&lERROR: &cCan't use command whilst waiting to teleport!");
+        Config.addDefault("Error.noPermissionWarp", "&cYou can't warp to &e{warp}&c!");
 
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
