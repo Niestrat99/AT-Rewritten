@@ -3,7 +3,6 @@ package io.github.at.commands.warp;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Warps;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,7 +15,10 @@ public class WarpsCommand implements CommandExecutor {
                 StringBuilder wList = new StringBuilder();
                 wList.append(CustomMessages.getString("Info.warps"));
                 for (String warp: Warps.getWarps().keySet()) {
-                    wList.append(warp + ", ");
+                    if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warp)) {
+                        wList.append(warp + ", ");
+                    }
+
                 }
                 commandSender.sendMessage(wList.toString());
             }

@@ -26,6 +26,7 @@ public class Config {
         config.addDefault("features.spawn", true);
         config.addDefault("features.randomTP", true);
         config.addDefault("features.homes",true);
+
         // Timers
         config.addDefault("timers.commandCooldown",5);
         config.addDefault("timers.teleportTimer",3);
