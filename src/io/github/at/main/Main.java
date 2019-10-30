@@ -3,14 +3,12 @@ package io.github.at.main;
 import io.github.at.commands.AtHelp;
 import io.github.at.commands.AtInfo;
 import io.github.at.commands.AtReload;
-import io.github.at.commands.home.DelHome;
-import io.github.at.commands.home.Home;
-import io.github.at.commands.home.HomesCommand;
-import io.github.at.commands.home.SetHome;
+import io.github.at.commands.home.*;
 import io.github.at.commands.spawn.SetSpawn;
 import io.github.at.commands.spawn.SpawnCommand;
 import io.github.at.commands.teleport.*;
 import io.github.at.commands.warp.Warp;
+import io.github.at.commands.warp.WarpTabCompleter;
 import io.github.at.commands.warp.WarpsCommand;
 import io.github.at.config.*;
 import io.github.at.events.AtSigns;
@@ -125,6 +123,9 @@ public class Main extends JavaPlugin {
         // Spawn commands
         getCommand("spawn").setExecutor(new SpawnCommand());
         getCommand("setspawn").setExecutor(new SetSpawn());
+
+        getCommand("warp").setTabCompleter(new WarpTabCompleter());
+        getCommand("home").setTabCompleter(new HomeTabCompleter());
     }
 
     private void registerEvents() {
