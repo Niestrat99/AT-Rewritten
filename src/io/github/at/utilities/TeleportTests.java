@@ -1,6 +1,7 @@
 package io.github.at.utilities;
 
 import fanciful.FancyMessage;
+import io.github.at.config.CustomMessages;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -21,14 +22,14 @@ public class TeleportTests {
                     // Get the player.
                     Player target = Bukkit.getPlayer(args[0]);
                     if (target == null) {
-                        player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + " Either the player is currently offline or doesn't exist.");
+                        player.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                         return false;
                     } else {
 
                         // Get the request that was sent by the target.
                         TPRequest request = TPRequest.getRequestByReqAndResponder(player, target);
                         if (request == null) {
-                            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + "You don't have any pending requests from " + ChatColor.YELLOW + target.getName() + ChatColor.RED + "!");
+                            player.sendMessage(CustomMessages.getString("Error.noRequests"));
                             return false;
                         } else {
                             // Yes, the teleport request can be accepted/declined/cancelled.
@@ -47,7 +48,7 @@ public class TeleportTests {
                                 .send(player);
                     }
                     if (requests.getTotalPages() > 1) {
-                        player.sendMessage(ChatColor.GREEN + "Do /tpalist <Page Number> To check other requests.");
+                        player.sendMessage(CustomMessages.getString("Info.multipleRequestsList"));
                     }
 
                 }
@@ -55,7 +56,7 @@ public class TeleportTests {
                 return true;
             }
         } else {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "ERROR:" + ChatColor.RED + "You don't have any pending requests!");
+            player.sendMessage(CustomMessages.getString("Error.noRequests"));
             return false;
         }
         return false;
