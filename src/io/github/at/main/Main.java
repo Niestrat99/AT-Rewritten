@@ -109,6 +109,7 @@ public class Main extends JavaPlugin {
         getCommand("tpahere").setExecutor(new TpaHere());
         getCommand("tpall").setExecutor(new TpAll());
         getCommand("tpalist").setExecutor(new TpList());
+        getCommand("toggletp").setExecutor(new ToggleTP());
 
         // Home commands
         getCommand("home").setExecutor(new Home());

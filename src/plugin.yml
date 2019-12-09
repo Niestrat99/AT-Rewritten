@@ -31,6 +31,9 @@ commands:
   tpon:
     description: Allows you to receive teleport requests.
     permission: at.member.on
+  toggletp:
+    description: Lets you switch between receiving tp requests and not receiving them.
+    permission: at.member.toggletp
   tpcancel:
     description: Cancels a teleport request you've sent.
     permission: at.member.cancel
@@ -103,6 +106,7 @@ permissions:
       at.member.tpr: true
       at.member.off: true
       at.member.on: true
+      at.member.toggletp: true
       at.member.cancel: true
       at.member.unblock: true
       at.member.block: true
@@ -146,3 +150,4 @@ permissions:
       at.admin.info: true
       at.admin.bypass.distance-limit: true
       at.admin.sethome.bypass: true
+      at.admin.toggletp: true

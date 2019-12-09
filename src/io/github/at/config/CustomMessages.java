@@ -37,7 +37,7 @@ public class CustomMessages {
         Config.addDefault("Error.noPermissionSign", "&cYou do not have permission to make this sign!");
         Config.addDefault("Error.featureDisabled", "&cThis feature has been disabled!");
         Config.addDefault("Error.noRequests", "&cYou do not have any pending requests!");
-    //    Config.addDefault("Error.requestSendFail", "&cCould not send request to &e{player}!");
+    //    Config.addDefault("Error.requestSendFail", "&cCould not send request to &e{player}!"); - NOT USED!!!
         Config.addDefault("Error.tpOff", "&e{player} &chas their teleportation disabled!");
         Config.addDefault("Error.tpBlock", "&c{player} has blocked you from sending requests to them!");
         Config.addDefault("Error.alreadyOn", "&cYour teleport requests are already enabled!");
@@ -78,6 +78,8 @@ public class CustomMessages {
 
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
+        Config.addDefault("Info.tpAdminOff", "&aSuccessfully disabled teleport requests for &e{player}&a!");
+        Config.addDefault("Info.tpAdminOn", "&aSuccessfully enabled teleport requests for &e{player}&a!");
         Config.addDefault("Info.requestSent", "&aSuccessfully sent request to &e{player}&a!" +
                 "\n&aThey've got &e{lifetime} &ato respond!" +
                 "\n&aTo cancel the request use &e/tpcancel &ato cancel it.");
