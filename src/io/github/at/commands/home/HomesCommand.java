@@ -17,26 +17,28 @@ public class HomesCommand implements CommandExecutor {
                 if (args.length>0) {
                     if (sender.hasPermission("at.admin.homes")) {
                         Player player = Bukkit.getPlayer(args[0]);
-                        StringBuilder hlist = new StringBuilder();
-                        hlist.append(CustomMessages.getString("Info.homesOther").replaceAll("\\{player}", player.getName()));
-                        if (Bukkit.getPlayer(args[0]) != null) {
-                            try {
-                                if (Homes.getHomes(player).size()>0) {
-                                    for (String home: Homes.getHomes(player).keySet()) {
-                                        hlist.append(home + ", ");
+                        if (player != null) {
+                            StringBuilder hlist = new StringBuilder();
+                            hlist.append(CustomMessages.getString("Info.homesOther").replaceAll("\\{player}", player.getName()));
+                            if (Bukkit.getPlayer(args[0]) != null) {
+                                try {
+                                    if (Homes.getHomes(player).size()>0) {
+                                        for (String home: Homes.getHomes(player).keySet()) {
+                                            hlist.append(home + ", ");
+                                        }
+                                    } else {
+                                        sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
+                                        return false;
                                     }
-                                } else {
+
+                                } catch (NullPointerException ex) {
                                     sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
                                     return false;
                                 }
-
-                            } catch (NullPointerException ex) {
-                                sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
+                                sender.sendMessage(hlist.toString());
                                 return false;
                             }
-                            sender.sendMessage(hlist.toString());
-                            return false;
-                        }
+                        } // Otherwise we'll just get the main player's homes
                     }
                 }
                 if (sender instanceof Player) {
