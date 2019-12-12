@@ -78,9 +78,6 @@ public class Home implements CommandExecutor {
                                                 .replaceAll("\\{player}", target.getName().replaceAll("\\{home}", args[1])));
                                         return false;
                                     }
-                                } else {
-                                    sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                                    return false;
                                 }
                             }
                         }
