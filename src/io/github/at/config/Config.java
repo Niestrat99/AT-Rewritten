@@ -112,6 +112,8 @@ public class Config {
         config.addDefault("distance-limiter.per-command.warp", true);
         config.addDefault("distance-limiter.per-command.spawn", true);
         config.addDefault("distance-limiter.per-command.back", true);
+
+        config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("CHORUS_FRUIT", "COMMAND", "END_GATEWAY", "END_PORTAL", "ENDER_PEARL", "NETHER_PORTAL", "SPECTATE")));
       
         config.options().copyDefaults(true);
         save();
