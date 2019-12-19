@@ -1,6 +1,6 @@
 main: io.github.at.main.Main
 name: AdvancedTeleport
-version: 5.0.8
+version: 5.0.7
 description: A plugin which is based on tons of teleport stuff.
 authors: [Niestrat99,Thatsmusic99]
 softdepend: [Vault]
@@ -151,4 +151,3 @@ permissions:
       at.admin.bypass.distance-limit: true
       at.admin.sethome.bypass: true
       at.admin.toggletp: true
-      at.admin.bypass: true

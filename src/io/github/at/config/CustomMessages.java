@@ -134,7 +134,6 @@ public class CustomMessages {
                 "&6- /tpaccept - Accepts a player's teleport request.",
                 "&6- /tpdeny - Declines a player's teleport request.",
                 "&6- /tpcancel - Lets you cancel the request you have sent to a player.",
-                "&6- /toggletp - Lets you switch between /tpon and /tpoff.",
                 "&6- /tpon - Enables teleport requests to you.",
                 "&6- /tpoff - Disables teleport requests to you.",
                 "&6- /tpblock <player> - Blocks the player so that they cannot send you teleport requests anymore.",
