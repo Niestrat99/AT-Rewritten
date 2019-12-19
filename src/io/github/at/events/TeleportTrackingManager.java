@@ -45,14 +45,14 @@ public class TeleportTrackingManager implements Listener {
     }
     @EventHandler(priority = EventPriority.MONITOR)
     public void onTeleport(PlayerTeleportEvent e) {
-        if (Config.hasStrictDistanceMonitor() && Config.isCauseAllowed(e.getCause())) {
+        if (Config.hasStrictDistanceMonitor()) {
             if (!DistanceLimiter.canTeleport(e.getTo(), e.getFrom(), null) && !e.getPlayer().hasPermission("at.admin.bypass.distance-limit")) {
                 e.getPlayer().sendMessage(CustomMessages.getString("Error.tooFarAway"));
                 e.setCancelled(true);
                 return;
             }
         }
-        if (Config.isFeatureEnabled("teleport") && !e.isCancelled()) {
+        if (Config.isFeatureEnabled("teleport") && !e.isCancelled() && Config.isCauseAllowed(e.getCause())) {
             lastLocations.put(e.getPlayer(), e.getFrom());
         }
     }
