@@ -3,6 +3,7 @@ package io.github.at.config;
 import io.github.at.main.Main;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,7 +101,7 @@ public class Config {
         config.addDefault("tpr.maximum-z", 10000);
         config.addDefault("tpr.minimum-z", -10000);
         config.addDefault("tpr.useWorldBorder", true);
-        config.addDefault("tpr.avoidBlocks", new ArrayList<>(Arrays.asList("WATER","LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")));
+        config.addDefault("tpr.avoidBlocks", new ArrayList<>(Arrays.asList("WATER","LAVA", "STATIONARY_WATER", "STATIONARY_LAVA", "BEDROCK")));
 
         config.addDefault("distance-limiter.enabled", false);
         config.addDefault("distance-limiter.distance-limit", 1000);
@@ -111,6 +112,8 @@ public class Config {
         config.addDefault("distance-limiter.per-command.warp", true);
         config.addDefault("distance-limiter.per-command.spawn", true);
         config.addDefault("distance-limiter.per-command.back", true);
+
+        config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("CHORUS_FRUIT", "COMMAND", "END_GATEWAY", "END_PORTAL", "ENDER_PEARL", "NETHER_PORTAL", "SPECTATE")));
       
         config.options().copyDefaults(true);
         save();
@@ -217,5 +220,9 @@ public class Config {
 
     public static boolean hasStrictDistanceMonitor() {
         return config.getBoolean("distance-limiter.monitor-all-teleports");
+    }
+
+    public static boolean isCauseAllowed(PlayerTeleportEvent.TeleportCause cause) {
+        return config.getStringList("back.teleport-causes").contains(cause.name());
     }
 }

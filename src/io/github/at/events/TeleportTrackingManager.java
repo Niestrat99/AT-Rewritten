@@ -52,7 +52,7 @@ public class TeleportTrackingManager implements Listener {
                 return;
             }
         }
-        if (Config.isFeatureEnabled("teleport") && !e.isCancelled()) {
+        if (Config.isFeatureEnabled("teleport") && !e.isCancelled() && Config.isCauseAllowed(e.getCause())) {
             lastLocations.put(e.getPlayer(), e.getFrom());
         }
     }
