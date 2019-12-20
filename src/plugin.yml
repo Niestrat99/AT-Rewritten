@@ -151,3 +151,4 @@ permissions:
       at.admin.bypass.distance-limit: true
       at.admin.sethome.bypass: true
       at.admin.toggletp: true
+      at.admin.bypass: true
