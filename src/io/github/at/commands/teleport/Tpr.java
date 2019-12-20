@@ -63,16 +63,34 @@ public class Tpr implements CommandExecutor {
         player.sendMessage(CustomMessages.getString("Info.searching"));
         boolean validLocation = false;
         while (!validLocation) {
-            while (location.getBlock().getType() == Material.AIR) {
-                location.subtract(0, 1, 0);
+            if (location.getWorld().getEnvironment() == World.Environment.NETHER) { // We'll search up instead of down in the Nether!
+                while (location.getBlock().getType() != Material.AIR) {
+                    location.add(0, 1, 0);
+                }
+            } else {
+                while (location.getBlock().getType() == Material.AIR) {
+                    location.subtract(0, 1, 0);
+                }
             }
+
+
+
             boolean b = true;
             for (String Material: Config.avoidBlocks()) {
-                if (location.getBlock().getType().name().equalsIgnoreCase(Material)){
-                    location = RandomCoords.generateCoords(player, world);
-                    b = false;
-                    break;
+                if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
+                    if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
+                        location = RandomCoords.generateCoords(player, world);
+                        b = false;
+                        break;
+                    }
+                } else {
+                    if (location.getBlock().getType().name().equalsIgnoreCase(Material)){
+                        location = RandomCoords.generateCoords(player, world);
+                        b = false;
+                        break;
+                    }
                 }
+
             }
             if (!DistanceLimiter.canTeleport(player.getLocation(), location, "tpr") && !player.hasPermission("at.admin.bypass.distance-limit")) {
                 b = false;

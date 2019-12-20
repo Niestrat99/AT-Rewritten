@@ -101,7 +101,7 @@ public class Config {
         config.addDefault("tpr.maximum-z", 10000);
         config.addDefault("tpr.minimum-z", -10000);
         config.addDefault("tpr.useWorldBorder", true);
-        config.addDefault("tpr.avoidBlocks", new ArrayList<>(Arrays.asList("WATER","LAVA", "STATIONARY_WATER", "STATIONARY_LAVA", "BEDROCK")));
+        config.addDefault("tpr.avoidBlocks", new ArrayList<>(Arrays.asList("WATER","LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")));
 
         config.addDefault("distance-limiter.enabled", false);
         config.addDefault("distance-limiter.distance-limit", 1000);
@@ -114,7 +114,7 @@ public class Config {
         config.addDefault("distance-limiter.per-command.back", true);
 
         config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("CHORUS_FRUIT", "COMMAND", "END_GATEWAY", "END_PORTAL", "ENDER_PEARL", "NETHER_PORTAL", "PLUGIN", "SPECTATE")));
-        
+
         config.options().copyDefaults(true);
         save();
     }
