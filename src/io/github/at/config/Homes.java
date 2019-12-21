@@ -13,11 +13,11 @@ import java.util.HashMap;
 
 public class Homes {
 
-    public static File HomesFile = new File(Main.getInstance().getDataFolder(),"homes.yml");
-    public static FileConfiguration homes = YamlConfiguration.loadConfiguration(HomesFile);
+    public static File homesFile = new File(Main.getInstance().getDataFolder(),"homes.yml");
+    public static FileConfiguration homes = YamlConfiguration.loadConfiguration(homesFile);
 
     public static void save() throws IOException {
-        homes.save(HomesFile);
+        homes.save(homesFile);
     }
 
     public static void setHome(Player player, String homename, Location location) throws IOException {
@@ -61,5 +61,11 @@ public class Homes {
         save();
     }
 
-
+    public static void reloadHomes() throws IOException {
+        if (homesFile == null) {
+            homesFile = new File(Main.getInstance().getDataFolder(), "homes.yml");
+        }
+        homes = YamlConfiguration.loadConfiguration(homesFile);
+        save();
+    }
 }

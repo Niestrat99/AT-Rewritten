@@ -113,7 +113,7 @@ public class Config {
         config.addDefault("distance-limiter.per-command.spawn", true);
         config.addDefault("distance-limiter.per-command.back", true);
 
-        config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("CHORUS_FRUIT", "COMMAND", "END_GATEWAY", "END_PORTAL", "ENDER_PEARL", "NETHER_PORTAL", "PLUGIN", "SPECTATE")));
+        config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")));
 
         config.options().copyDefaults(true);
         save();
@@ -199,7 +199,7 @@ public class Config {
 
     public static void reloadConfig() throws IOException {
         if (configFile == null) {
-            configFile = new File(Main.getInstance().getDataFolder(), "custom-messages.yml");
+            configFile = new File(Main.getInstance().getDataFolder(), "config.yml");
         }
         config = YamlConfiguration.loadConfiguration(configFile);
         setDefaults();

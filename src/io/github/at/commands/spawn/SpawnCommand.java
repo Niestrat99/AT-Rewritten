@@ -7,8 +7,6 @@ import io.github.at.events.MovementManager;
 import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -39,7 +37,7 @@ public class SpawnCommand implements CommandExecutor {
     }
 
     public static void spawn(Player player) {
-        if (!DistanceLimiter.canTeleport(player.getLocation(), Spawn.getSpawn() != null ? Spawn.getSpawn() : player.getWorld().getSpawnLocation(), "spawn") && !player.hasPermission("at.admin.bypass.distance-limit")) {
+        if (!DistanceLimiter.canTeleport(player.getLocation(), Spawn.getSpawnFile() != null ? Spawn.getSpawnFile() : player.getWorld().getSpawnLocation(), "spawn") && !player.hasPermission("at.admin.bypass.distance-limit")) {
             player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
             return;
         }
@@ -48,8 +46,8 @@ public class SpawnCommand implements CommandExecutor {
                 BukkitRunnable movementtimer = new BukkitRunnable() {
                     @Override
                     public void run() {
-                        if (Spawn.getSpawn() != null) {
-                            player.teleport(Spawn.getSpawn());
+                        if (Spawn.getSpawnFile() != null) {
+                            player.teleport(Spawn.getSpawnFile());
                         } else {
                             player.teleport(player.getWorld().getSpawnLocation());
                         }
@@ -63,8 +61,8 @@ public class SpawnCommand implements CommandExecutor {
 
             } else {
                 PaymentManager.withdraw("spawn", player);
-                if (Spawn.getSpawn() != null) {
-                    player.teleport(Spawn.getSpawn());
+                if (Spawn.getSpawnFile() != null) {
+                    player.teleport(Spawn.getSpawnFile());
                 } else {
                     player.teleport(player.getWorld().getSpawnLocation());
                 }

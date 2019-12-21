@@ -76,4 +76,12 @@ public class LastLocations {
             e.printStackTrace();
         }
     }
+
+    public static void reloadBackLocations() throws IOException {
+        if (configFile == null) {
+            configFile = new File(Main.getInstance().getDataFolder(), "last-locations.yml");
+        }
+        config = YamlConfiguration.loadConfiguration(configFile);
+        save();
+    }
 }

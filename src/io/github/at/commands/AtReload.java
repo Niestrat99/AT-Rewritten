@@ -1,7 +1,6 @@
 package io.github.at.commands;
 
-import io.github.at.config.Config;
-import io.github.at.config.CustomMessages;
+import io.github.at.config.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import java.io.IOException;
 
 public class AtReload implements CommandExecutor {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (!sender.hasPermission("at.admin.reload")) {
@@ -19,7 +19,11 @@ public class AtReload implements CommandExecutor {
             try {
                 Config.reloadConfig();
                 CustomMessages.reloadConfig();
-                // TODO reload custom-messages.yml
+                Warps.reloadWarps();
+                Homes.reloadHomes();
+                LastLocations.reloadBackLocations();
+                TpBlock.reloadBlocks();
+                Spawn.reloadSpawn();
             } catch (IOException e) {
                 e.printStackTrace();
             }

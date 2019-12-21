@@ -15,34 +15,42 @@ import java.util.UUID;
 
 
 public class TpBlock {
-    public static File ConfigFile = new File(Main.getInstance().getDataFolder(),"blocklist.yml");
+    public static File configFile = new File(Main.getInstance().getDataFolder(),"blocklist.yml");
 
-    public static FileConfiguration Config = YamlConfiguration.loadConfiguration(ConfigFile);
+    public static FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
     public static void save() throws IOException {
-        Config.save(ConfigFile);
+        config.save(configFile);
     }
     public static void addBlockedPlayer(Player bpl, Player target) throws IOException {
         if (getBlockedPlayers(bpl).size()>0){
-            List<String> players = Config.getStringList("players." + bpl.getUniqueId().toString());
+            List<String> players = config.getStringList("players." + bpl.getUniqueId().toString());
             players.add(target.getUniqueId().toString());
-            Config.set("players." + bpl.getUniqueId().toString(), players);
+            config.set("players." + bpl.getUniqueId().toString(), players);
         } else {
-            Config.set("players." + bpl.getUniqueId().toString(), new ArrayList<>(Collections.singleton(target.getUniqueId().toString())));
+            config.set("players." + bpl.getUniqueId().toString(), new ArrayList<>(Collections.singleton(target.getUniqueId().toString())));
         }save();
     }
     public static List<Player> getBlockedPlayers(Player target){
         List<Player> players = new ArrayList<>();
-        for (String uniqueID:Config.getStringList("players." + target.getUniqueId().toString())){
+        for (String uniqueID: config.getStringList("players." + target.getUniqueId().toString())){
             Player player = Bukkit.getPlayer(UUID.fromString(uniqueID));
             players.add(player);
         }
         return players;
     }
     public static void remBlockedPlayer(Player rpl, Player target) throws IOException {
-        List<String> players = Config.getStringList("players." + rpl.getUniqueId().toString());
+        List<String> players = config.getStringList("players." + rpl.getUniqueId().toString());
         players.remove((target.getUniqueId().toString()));
-        Config.set("players." + rpl.getUniqueId().toString(), players);
+        config.set("players." + rpl.getUniqueId().toString(), players);
+        save();
+    }
+
+    public static void reloadBlocks() throws IOException {
+        if (configFile == null) {
+            configFile = new File(Main.getInstance().getDataFolder(), "blocklist.yml");
+        }
+        config = YamlConfiguration.loadConfiguration(configFile);
         save();
     }
 

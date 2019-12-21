@@ -11,28 +11,36 @@ import java.io.IOException;
 
 public class Spawn {
 
-    public static File Spawn = new File(Main.getInstance().getDataFolder(), "spawn.yml");
-    public static FileConfiguration SpawnPoint = YamlConfiguration.loadConfiguration(Spawn);
+    public static File spawnFile = new File(Main.getInstance().getDataFolder(), "spawn.yml");
+    public static FileConfiguration spawn = YamlConfiguration.loadConfiguration(spawnFile);
 
     public static void setSpawn(Location location) throws IOException {
-        SpawnPoint.set("spawnpoint.x", location.getX());
-        SpawnPoint.set("spawnpoint.y", location.getY());
-        SpawnPoint.set("spawnpoint.z", location.getZ());
-        SpawnPoint.set("spawnpoint.world", location.getWorld().getName());
-        SpawnPoint.set("spawnpoint.yaw", location.getYaw());
-        SpawnPoint.set("spawnpoint.pitch", location.getPitch());
+        spawn.set("spawnpoint.x", location.getX());
+        spawn.set("spawnpoint.y", location.getY());
+        spawn.set("spawnpoint.z", location.getZ());
+        spawn.set("spawnpoint.world", location.getWorld().getName());
+        spawn.set("spawnpoint.yaw", location.getYaw());
+        spawn.set("spawnpoint.pitch", location.getPitch());
         save();
     }
 
     public static void save() throws IOException {
-        SpawnPoint.save(Spawn);
+        spawn.save(spawnFile);
     }
 
-    public static Location getSpawn() {
+    public static Location getSpawnFile() {
         try {
-            return new Location(Bukkit.getWorld(SpawnPoint.getString( "spawnpoint.world")), SpawnPoint.getDouble(  "spawnpoint.x"), SpawnPoint.getDouble("spawnpoint.y"), SpawnPoint.getDouble("spawnpoint.z"), Float.valueOf(String.valueOf(SpawnPoint.getDouble("spawnpoint.yaw"))), Float.valueOf(String.valueOf(SpawnPoint.getDouble("spawnpoint.pitch"))));
+            return new Location(Bukkit.getWorld(spawn.getString( "spawnpoint.world")), spawn.getDouble(  "spawnpoint.x"), spawn.getDouble("spawnpoint.y"), spawn.getDouble("spawnpoint.z"), Float.valueOf(String.valueOf(spawn.getDouble("spawnpoint.yaw"))), Float.valueOf(String.valueOf(spawn.getDouble("spawnpoint.pitch"))));
         } catch (NullPointerException | IllegalArgumentException ex) {
             return null;
         }
+    }
+
+    public static void reloadSpawn() throws IOException {
+        if (spawnFile == null) {
+            spawnFile = new File(Main.getInstance().getDataFolder(), "last-locations.yml");
+        }
+        spawn = YamlConfiguration.loadConfiguration(spawnFile);
+        save();
     }
 }
