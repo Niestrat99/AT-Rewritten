@@ -123,8 +123,8 @@ public class CustomMessages {
                 "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
                 "&6--[ &bCategories &6]--",
                 "&6- Teleport",
-                "&6- warps",
-                "&6- spawnFile",
+                "&6- Warps",
+                "&6- Spawn",
                 "&6- RandomTP",
                 "&6- HomesCommand")));
         Config.addDefault("Help.mainHelpAdmin", new ArrayList<>(Collections.singletonList("&6- Admin")));
