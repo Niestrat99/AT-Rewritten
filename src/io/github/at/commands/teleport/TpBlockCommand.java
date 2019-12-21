@@ -37,6 +37,9 @@ public class TpBlockCommand implements CommandExecutor {
                                     TpBlock.addBlockedPlayer(player, target.getPlayer());
                                 } catch (IOException e) {
                                     e.printStackTrace();
+                                } catch (NullPointerException e) {
+                                    sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                                    return false;
                                 }
                                 sender.sendMessage(CustomMessages.getString("Info.blockPlayer").replaceAll("\\{player}", target.getName()));
                                 return false;

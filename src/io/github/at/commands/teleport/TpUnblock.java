@@ -34,6 +34,9 @@ public class TpUnblock implements CommandExecutor {
                                     TpBlock.remBlockedPlayer(player, target.getPlayer());
                                 } catch (IOException e) {
                                     e.printStackTrace();
+                                } catch (NullPointerException e) {
+                                    sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                                    return false;
                                 }
                                 sender.sendMessage(CustomMessages.getString("Info.unblockPlayer").replaceAll("\\{player}", args[0]));
                                 return false;
