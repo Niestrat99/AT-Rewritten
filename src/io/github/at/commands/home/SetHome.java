@@ -22,7 +22,7 @@ public class SetHome implements CommandExecutor {
                 if (sender.hasPermission("at.member.sethome")) {
                     if (args.length>0) {
                         if (Bukkit.getPlayer(args[0]) != null) {
-                            if (sender.hasPermission("tbh.tp.admin.sethome")) {
+                            if (sender.hasPermission("at.admin.sethome")) {
                                 // We'll just assume that the admin command overrides the homes limit.
                                 if (args.length>1) {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
