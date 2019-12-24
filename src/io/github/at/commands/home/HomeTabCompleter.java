@@ -16,15 +16,29 @@ public class HomeTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {
-            if (Bukkit.getPlayer(args[0]) != null && sender.hasPermission("at.admin.home")) {
+            if (!args[0].isEmpty() && Bukkit.getOfflinePlayer(args[0]) != null && sender.hasPermission("at.admin.home")) {
+                Player p = Bukkit.getOfflinePlayer(args[0]).getPlayer();
                 if (args.length < 3) {
                     try {
                         List<String> possibleHomes = new ArrayList<>();
-                        StringUtil.copyPartialMatches(args[1], Homes.getHomes(Bukkit.getPlayer(args[0])).keySet(), possibleHomes);
+                        StringUtil.copyPartialMatches(args[1], Homes.getHomes(p).keySet(), possibleHomes);
                         Collections.sort(possibleHomes);
                         return possibleHomes;
                     } catch (IndexOutOfBoundsException e) {
-                        List<String> possibleHomes = new ArrayList<>(Homes.getHomes(Bukkit.getPlayer(args[0])).keySet());
+                        try {
+                            List<String> possibleHomes = new ArrayList<>(Homes.getHomes(p).keySet());
+                            Collections.sort(possibleHomes);
+                            return possibleHomes;
+                        } catch (NullPointerException ex) { // DEAR GOD
+                            List<String> possibleHomes = new ArrayList<>();
+                            StringUtil.copyPartialMatches(args[0], Homes.getHomes((Player) sender).keySet(), possibleHomes);
+                            Collections.sort(possibleHomes);
+                            return possibleHomes;
+                        }
+
+                    } catch (NullPointerException e) { // For REAL Spigot, pick up your game and stop whining!
+                        List<String> possibleHomes = new ArrayList<>();
+                        StringUtil.copyPartialMatches(args[0], Homes.getHomes((Player) sender).keySet(), possibleHomes);
                         Collections.sort(possibleHomes);
                         return possibleHomes;
                     }
