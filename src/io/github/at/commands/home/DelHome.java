@@ -24,9 +24,6 @@ public class DelHome implements CommandExecutor {
                                 if (args.length>1) {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
                                     delHome(target, args[1]);
-                                } else {
-                                    sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                                    return false;
                                 }
                             }
                         }

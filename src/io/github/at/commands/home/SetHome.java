@@ -27,9 +27,6 @@ public class SetHome implements CommandExecutor {
                                 if (args.length>1) {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
                                     setHome(target, args[1]);
-                                } else {
-                                    sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                                    return false;
                                 }
                             }
                         }
