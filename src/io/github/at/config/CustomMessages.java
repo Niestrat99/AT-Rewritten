@@ -22,6 +22,7 @@ public class CustomMessages {
 
     public static void setDefaults() throws IOException {
         Config.addDefault("Teleport.eventBeforeTP" , "&aTeleporting in &b{countdown} seconds&a, please do not move!");
+        Config.addDefault("Teleport.eventBeforeTPMovementAllowed" , "&aTeleporting in &b{countdown} seconds&a!");
         Config.addDefault("Teleport.eventTeleport" , "&aTeleporting...");
         Config.addDefault("Teleport.eventMovement" , "&cTeleport has been cancelled due to movement.");
         Config.addDefault("Teleport.teleportingToSpawn", "&aTeleporting you to spawn!");
@@ -186,5 +187,13 @@ public class CustomMessages {
         Config = YamlConfiguration.loadConfiguration(ConfigFile);
         setDefaults();
         save();
+    }
+
+    public static String getEventBeforeTPMessage() {
+        if(Config.getBoolean("timers.cancel-on-movement")) {
+            return getString("Teleport.eventBeforeTP");
+        } else {
+            return getString("Teleport.eventBeforeTPMovementAllowed");
+        }
     }
 }
