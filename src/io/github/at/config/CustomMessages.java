@@ -190,7 +190,7 @@ public class CustomMessages {
     }
 
     public static String getEventBeforeTPMessage() {
-        if(Config.getBoolean("timers.cancel-on-movement")) {
+        if(io.github.at.config.Config.cancelOnMovement()) {
             return getString("Teleport.eventBeforeTP");
         } else {
             return getString("Teleport.eventBeforeTPMovementAllowed");
