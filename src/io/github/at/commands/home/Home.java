@@ -160,7 +160,7 @@ public class Home implements CommandExecutor {
                 };
                 MovementManager.getMovement().put(player, movementtimer);
                 movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("home") * 20);
-                player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("home"))));
+                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("home"))));
 
             } else {
                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));

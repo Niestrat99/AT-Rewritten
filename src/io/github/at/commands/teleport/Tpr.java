@@ -123,7 +123,7 @@ public class Tpr implements CommandExecutor {
             };
             MovementManager.getMovement().put(player, movementtimer);
             movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpr") * 20);
-            player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
+            player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
             return false;
 
         } else {

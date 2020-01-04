@@ -41,6 +41,7 @@ public class Config {
       
         config.addDefault("timers.requestLifetime",60);
         config.addDefault("timers.cancel-on-rotate", false);
+        config.addDefault("timers.cancel-on-movement", true);
         // Booleans
         config.addDefault("booleans.useVault" , false);
         config.addDefault("booleans.EXPPayment" , false);
@@ -196,6 +197,8 @@ public class Config {
     public static boolean isFeatureEnabled(String feature) { return config.getBoolean("features." + feature); }
 
     public static boolean cancelOnRotate() {return config.getBoolean("timers.cancel-on-rotate");}
+
+    public static boolean cancelOnMovement() {return config.getBoolean("timers.cancel-on-movement");}
 
     public static void reloadConfig() throws IOException {
         if (configFile == null) {

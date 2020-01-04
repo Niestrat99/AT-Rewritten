@@ -29,7 +29,7 @@ public class AcceptRequest {
                     };
                     MovementManager.getMovement().put(player, movementtimer);
                     movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpahere")*20);
-                    player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpahere"))));
+                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpahere"))));
                 } else {
                     player.teleport(request.getRequester());
                     player.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
@@ -48,7 +48,7 @@ public class AcceptRequest {
                     };
                     MovementManager.getMovement().put(request.getRequester(), movementtimer);
                     movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpa")*20);
-                    request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpa"))));
+                    request.getRequester().sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpa"))));
 
                 } else {
                     request.getRequester().teleport(player);

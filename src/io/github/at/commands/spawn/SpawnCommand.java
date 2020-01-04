@@ -57,7 +57,7 @@ public class SpawnCommand implements CommandExecutor {
                 };
                 MovementManager.getMovement().put(player, movementtimer);
                 movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("spawn") * 20);
-                player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("spawn"))));
+                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("spawn"))));
 
             } else {
                 PaymentManager.withdraw("spawn", player);
