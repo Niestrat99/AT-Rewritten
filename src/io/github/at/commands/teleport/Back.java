@@ -53,7 +53,7 @@ public class Back implements CommandExecutor {
                             };
                             MovementManager.getMovement().put(player, movementtimer);
                             movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("back")*20);
-                            player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("back"))));
+                            player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("back"))));
 
                         } else {
                             player.teleport(loc);

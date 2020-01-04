@@ -26,7 +26,7 @@ public class MovementManager implements Listener {
                 return;
             }
         }
-        if (movement.containsKey(event.getPlayer())) {
+        if (Config.cancelOnMovement() && movement.containsKey(event.getPlayer())) {
             BukkitRunnable timer = movement.get(event.getPlayer());
             timer.cancel();
             event.getPlayer().sendMessage(CustomMessages.getString("Teleport.eventMovement"));

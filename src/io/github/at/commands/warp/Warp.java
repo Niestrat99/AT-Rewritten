@@ -122,7 +122,7 @@ public class Warp implements CommandExecutor {
                 };
                 MovementManager.getMovement().put(player, movementtimer);
                 movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("warp")*20);
-                player.sendMessage(CustomMessages.getString("Teleport.eventBeforeTP").replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("warp"))));
+                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("warp"))));
 
             } else {
                 player.teleport(loc);
