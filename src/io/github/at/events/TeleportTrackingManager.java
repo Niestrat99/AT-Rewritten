@@ -12,6 +12,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -61,6 +62,13 @@ public class TeleportTrackingManager implements Listener {
     public void onDeath(PlayerDeathEvent e) {
         if (Config.isFeatureEnabled("teleport") && e.getEntity().hasPermission("at.member.back.death")) {
             deathLocations.put(e.getEntity(), e.getEntity().getLocation());
+        }
+    }
+
+    @EventHandler
+    public void onLeave(PlayerQuitEvent e) {
+        if (Config.isFeatureEnabled("teleport")) {
+            LastLocations.saveLocations();
         }
     }
 

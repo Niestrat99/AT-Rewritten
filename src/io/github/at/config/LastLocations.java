@@ -23,7 +23,7 @@ public class LastLocations {
         for (Player player : TeleportTrackingManager.getLastLocations().keySet()) {
             Location loc = TeleportTrackingManager.getLastLocation(player);
             // Format: player-uuid: x.y.z.yaw.pitch.world
-            config.addDefault(player.getUniqueId().toString(),
+            config.set(player.getUniqueId().toString(),
                     loc.getX() + ":"
                     + loc.getY() + ":"
                     + loc.getZ() + ":"
@@ -33,7 +33,7 @@ public class LastLocations {
         }
         for (Player player : TeleportTrackingManager.getDeathLocations().keySet()) {
             Location loc = TeleportTrackingManager.getDeathLocation(player);
-            config.addDefault("death." + player.getUniqueId().toString(),  loc.getX() + ":"
+            config.set("death." + player.getUniqueId().toString(),  loc.getX() + ":"
                     + loc.getY() + ":"
                     + loc.getZ() + ":"
                     + loc.getYaw() + ":"
