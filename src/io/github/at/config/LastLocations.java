@@ -32,13 +32,20 @@ public class LastLocations {
                     + loc.getWorld().getName());
         }
         for (Player player : TeleportTrackingManager.getDeathLocations().keySet()) {
-            Location loc = TeleportTrackingManager.getDeathLocation(player);
-            config.set("death." + player.getUniqueId().toString(),  loc.getX() + ":"
-                    + loc.getY() + ":"
-                    + loc.getZ() + ":"
-                    + loc.getYaw() + ":"
-                    + loc.getPitch() + ":"
-                    + loc.getWorld().getName());
+            try {
+                Location loc = TeleportTrackingManager.getDeathLocation(player);
+                config.set("death." + player.getUniqueId().toString(),  loc.getX() + ":"
+                        + loc.getY() + ":"
+                        + loc.getZ() + ":"
+                        + loc.getYaw() + ":"
+                        + loc.getPitch() + ":"
+                        + loc.getWorld().getName());
+            } catch (NullPointerException ex) { // Null location, no idea what causes it
+                if (player != null) {
+                    Main.getInstance().getLogger().warning("Null location for " + player.getName() + " (" + player.getUniqueId().toString() + "), is it stored in last-locations.yml? If so, please try deleting the entry, otherwise, ignore this error.");
+                }
+            }
+
         }
         config.options().copyDefaults(true);
         try {
