@@ -58,6 +58,10 @@ public class Tpr implements CommandExecutor {
             player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
             return false;
         }
+        if (Config.getBlacklistedWorlds().contains(world.getName()) && !player.hasPermission("at.admin.rtp.bypass-world")) {
+            player.sendMessage(CustomMessages.getString("Error.cantTPToWorld"));
+            return false;
+        }
         if (!PaymentManager.canPay("tpr", player)) return false;
         Location location = generateCoords(player, world);
         player.sendMessage(CustomMessages.getString("Info.searching"));
