@@ -21,15 +21,22 @@ public class LastLocations {
 
     public static void saveLocations() {
         for (Player player : TeleportTrackingManager.getLastLocations().keySet()) {
-            Location loc = TeleportTrackingManager.getLastLocation(player);
-            // Format: player-uuid: x.y.z.yaw.pitch.world
-            config.set(player.getUniqueId().toString(),
-                    loc.getX() + ":"
-                    + loc.getY() + ":"
-                    + loc.getZ() + ":"
-                    + loc.getYaw() + ":"
-                    + loc.getPitch() + ":"
-                    + loc.getWorld().getName());
+            try {
+                Location loc = TeleportTrackingManager.getLastLocation(player);
+                // Format: player-uuid: x.y.z.yaw.pitch.world
+                config.set(player.getUniqueId().toString(),
+                        loc.getX() + ":"
+                                + loc.getY() + ":"
+                                + loc.getZ() + ":"
+                                + loc.getYaw() + ":"
+                                + loc.getPitch() + ":"
+                                + loc.getWorld().getName());
+            } catch (NullPointerException ex) { // Null location, no idea what causes it
+                if (player != null) {
+                    Main.getInstance().getLogger().warning("Null location for " + player.getName() + " (" + player.getUniqueId().toString() + "), is it stored in last-locations.yml? If so, please try deleting the entry, otherwise, ignore this error.");
+                }
+            }
+
         }
         for (Player player : TeleportTrackingManager.getDeathLocations().keySet()) {
             try {
