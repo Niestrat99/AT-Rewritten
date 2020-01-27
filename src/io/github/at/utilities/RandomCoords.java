@@ -29,7 +29,7 @@ public class RandomCoords {
             }
         }
 
-        int y = world.getEnvironment() == World.Environment.NETHER ? 0 : 256;
+        int y = world.getEnvironment() == World.Environment.NETHER ? 0 : 255;
         return new Location(world, x, y, z);
     }
 
