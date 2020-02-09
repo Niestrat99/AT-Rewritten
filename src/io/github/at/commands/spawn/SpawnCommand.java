@@ -46,6 +46,7 @@ public class SpawnCommand implements CommandExecutor {
                 BukkitRunnable movementtimer = new BukkitRunnable() {
                     @Override
                     public void run() {
+                        PaymentManager.withdraw("spawn", player);
                         if (Spawn.getSpawnFile() != null) {
                             player.teleport(Spawn.getSpawnFile());
                         } else {
