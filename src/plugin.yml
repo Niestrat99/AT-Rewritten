@@ -3,7 +3,7 @@ name: AdvancedTeleport
 version: 5.0.10-SNAPSHOT-2
 description: A plugin which is based on tons of teleport stuff.
 authors: [Niestrat99,Thatsmusic99]
-softdepend: [Vault]
+softdepend: [Vault, Ultimate_Economy]
 api-version: 1.13
 
 
