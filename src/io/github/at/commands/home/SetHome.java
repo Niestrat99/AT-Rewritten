@@ -91,8 +91,10 @@ public class SetHome implements CommandExecutor {
     private int getHomesLimit(Player player) {
         for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
             if (permission.getPermission().startsWith("at.member.homes.")) {
-                String perm = permission.getPermission();
-                return Integer.parseInt(perm.substring(perm.lastIndexOf(".") + 1));
+                if (permission.getValue()) {
+                    String perm = permission.getPermission();
+                    return Integer.parseInt(perm.substring(perm.lastIndexOf(".") + 1));
+                }
             }
         }
         return -1;
