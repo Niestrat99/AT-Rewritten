@@ -13,13 +13,13 @@ public class PaymentManager {
     public static boolean canPay(String command, Player player) {
         if (Config.isUsingEXPPayment(command)){
             if (player.getLevel()<Config.getEXPTeleportPrice(command)){
-                player.sendMessage(CustomMessages.getString("Error.notEnoughEXP").replaceAll("\\{levels}", String.valueOf(Config.getEXPTeleportPrice("tpa"))));
+                player.sendMessage(CustomMessages.getString("Error.notEnoughEXP").replaceAll("\\{levels}", String.valueOf(Config.getEXPTeleportPrice(command))));
                 return false;
             }
         }
         if (Main.getVault() != null && Config.isUsingVault(command)) {
             if (Main.getVault().getBalance(player)<Config.getTeleportPrice(command)){
-                player.sendMessage(CustomMessages.getString("Error.notEnoughMoney").replaceAll("\\{amount}", String.valueOf(Config.getTeleportPrice("tpa"))));
+                player.sendMessage(CustomMessages.getString("Error.notEnoughMoney").replaceAll("\\{amount}", String.valueOf(Config.getTeleportPrice(command))));
                 return false;
             }
         }
