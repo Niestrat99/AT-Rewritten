@@ -31,10 +31,7 @@ public class LastLocations {
                                 + loc.getYaw() + ":"
                                 + loc.getPitch() + ":"
                                 + loc.getWorld().getName());
-            } catch (NullPointerException ex) { // Null location, no idea what causes it
-                if (player != null) {
-                    Main.getInstance().getLogger().warning("Null location for " + player.getName() + " (" + player.getUniqueId().toString() + "), is it stored in last-locations.yml? If so, please try deleting the entry, otherwise, ignore this error.");
-                }
+            } catch (NullPointerException ignored) { // Null location, no idea what causes it
             }
 
         }
