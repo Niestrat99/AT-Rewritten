@@ -8,7 +8,6 @@ import io.github.at.main.Main;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -154,11 +153,11 @@ public class Home implements CommandExecutor {
                     public void run() {
                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
                         player.teleport(loc);
-                        MovementManager.getMovement().remove(player);
+                        MovementManager.getMovement().remove(player.getUniqueId());
                         PaymentManager.withdraw("home", player);
                     }
                 };
-                MovementManager.getMovement().put(player, movementtimer);
+                MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
                 movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("home") * 20);
                 player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("home"))));
 

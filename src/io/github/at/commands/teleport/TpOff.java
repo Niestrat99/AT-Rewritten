@@ -9,12 +9,13 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TpOff implements CommandExecutor {
 
-    private static List<Player> tpoff = new ArrayList<>();
+    private static List<UUID> tpoff = new ArrayList<>();
 
-    public static List<Player> getTpOff() {
+    public static List<UUID> getTpOff() {
         return tpoff;
     }
 
@@ -23,10 +24,11 @@ public class TpOff implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
+            UUID uuid = player.getUniqueId();
             if (Config.isFeatureEnabled("teleport")) {
                 if (sender.hasPermission("at.member.off")) {
-                    if (!tpoff.contains(player)) {
-                        tpoff.add(player);
+                    if (!tpoff.contains(uuid)) {
+                        tpoff.add(uuid);
                         sender.sendMessage(CustomMessages.getString("Info.tpOff"));
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.alreadyOff"));

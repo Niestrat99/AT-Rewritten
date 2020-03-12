@@ -53,10 +53,10 @@ public class SpawnCommand implements CommandExecutor {
                             player.teleport(player.getWorld().getSpawnLocation());
                         }
                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
-                        MovementManager.getMovement().remove(player);
+                        MovementManager.getMovement().remove(player.getUniqueId());
                     }
                 };
-                MovementManager.getMovement().put(player, movementtimer);
+                MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
                 movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("spawn") * 20);
                 player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("spawn"))));
 

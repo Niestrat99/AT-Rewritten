@@ -18,12 +18,13 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class TeleportTrackingManager implements Listener {
 
-    private static HashMap<Player, Location> lastLocations = new HashMap<>();
+    private static HashMap<UUID, Location> lastLocations = new HashMap<>();
     // This needs a separate hashmap because players may not immediately click "Respawn".
-    private static HashMap<Player, Location> deathLocations = new HashMap<>();
+    private static HashMap<UUID, Location> deathLocations = new HashMap<>();
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
@@ -32,11 +33,11 @@ public class TeleportTrackingManager implements Listener {
                 @Override
                 public void run() {
                     if (LastLocations.getDeathLocation(e.getPlayer()) != null) {
-                        deathLocations.put(e.getPlayer(), LastLocations.getDeathLocation(e.getPlayer()));
+                        deathLocations.put(e.getPlayer().getUniqueId(), LastLocations.getDeathLocation(e.getPlayer()));
                         // We'll remove the last death location when the player has joined since it's one time use. Also saves space.
                         LastLocations.deleteDeathLocation(e.getPlayer());
                     } else {
-                        lastLocations.put(e.getPlayer(), LastLocations.getLocation(e.getPlayer()));
+                        lastLocations.put(e.getPlayer().getUniqueId(), LastLocations.getLocation(e.getPlayer()));
                     }
 
                 }
@@ -54,14 +55,14 @@ public class TeleportTrackingManager implements Listener {
             }
         }
         if (Config.isFeatureEnabled("teleport") && !e.isCancelled() && Config.isCauseAllowed(e.getCause())) {
-            lastLocations.put(e.getPlayer(), e.getFrom());
+            lastLocations.put(e.getPlayer().getUniqueId(), e.getFrom());
         }
     }
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
         if (Config.isFeatureEnabled("teleport") && e.getEntity().hasPermission("at.member.back.death")) {
-            deathLocations.put(e.getEntity(), e.getEntity().getLocation());
+            deathLocations.put(e.getEntity().getUniqueId(), e.getEntity().getLocation());
         }
     }
 
@@ -78,28 +79,29 @@ public class TeleportTrackingManager implements Listener {
             new BukkitRunnable() { // They also call PlayerTeleportEvent when you respawn
                 @Override
                 public void run() {
-                    if (deathLocations.get(e.getPlayer()) != null) {
-                        lastLocations.put(e.getPlayer(), deathLocations.get(e.getPlayer()));
-                        deathLocations.remove(e.getPlayer());
+                    UUID uuid = e.getPlayer().getUniqueId();
+                    if (deathLocations.get(uuid) != null) {
+                        lastLocations.put(uuid, deathLocations.get(uuid));
+                        deathLocations.remove(uuid);
                     }
                 }
             }.runTaskLater(Main.getInstance(), 10);
         }
     }
 
-    public static Location getLastLocation(Player player) {
-        return lastLocations.get(player);
+    public static Location getLastLocation(UUID uuid) {
+        return lastLocations.get(uuid);
     }
 
-    public static HashMap<Player, Location> getLastLocations() {
+    public static HashMap<UUID, Location> getLastLocations() {
         return lastLocations;
     }
 
-    public static HashMap<Player, Location> getDeathLocations() {
+    public static HashMap<UUID, Location> getDeathLocations() {
         return deathLocations;
     }
 
-    public static Location getDeathLocation(Player player) {
-        return deathLocations.get(player);
+    public static Location getDeathLocation(UUID uuid) {
+        return deathLocations.get(uuid);
     }
 }

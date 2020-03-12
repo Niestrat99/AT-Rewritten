@@ -114,13 +114,13 @@ public class Warp implements CommandExecutor {
                     @Override
                     public void run() {
                         player.teleport(loc);
-                        MovementManager.getMovement().remove(player);
+                        MovementManager.getMovement().remove(player.getUniqueId());
                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));
                         PaymentManager.withdraw("warp", player);
 
                     }
                 };
-                MovementManager.getMovement().put(player, movementtimer);
+                MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
                 movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("warp")*20);
                 player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("warp"))));
 

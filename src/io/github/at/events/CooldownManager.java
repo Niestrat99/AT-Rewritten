@@ -4,12 +4,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class CooldownManager {
 
-    private static HashMap<Player, BukkitRunnable> cooldown = new HashMap<>();
+    private static HashMap<UUID, BukkitRunnable> cooldown = new HashMap<>();
 
-    public static HashMap<Player, BukkitRunnable> getCooldown() {
+    public static HashMap<UUID, BukkitRunnable> getCooldown() {
         return cooldown;
     }
 }

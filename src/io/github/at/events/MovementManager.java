@@ -10,10 +10,11 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class MovementManager implements Listener {
 
-    private static HashMap<Player, BukkitRunnable> movement = new HashMap<>();
+    private static HashMap<UUID, BukkitRunnable> movement = new HashMap<>();
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
@@ -26,15 +27,16 @@ public class MovementManager implements Listener {
                 return;
             }
         }
-        if (Config.cancelOnMovement() && movement.containsKey(event.getPlayer())) {
-            BukkitRunnable timer = movement.get(event.getPlayer());
+        UUID uuid = event.getPlayer().getUniqueId();
+        if (Config.cancelOnMovement() && movement.containsKey(uuid)) {
+            BukkitRunnable timer = movement.get(uuid);
             timer.cancel();
             event.getPlayer().sendMessage(CustomMessages.getString("Teleport.eventMovement"));
-            movement.remove(event.getPlayer());
+            movement.remove(uuid);
         }
     }
 
-    public static HashMap<Player, BukkitRunnable> getMovement() {
+    public static HashMap<UUID, BukkitRunnable> getMovement() {
         return movement;
     }
 }

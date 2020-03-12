@@ -21,13 +21,13 @@ public class AcceptRequest {
                         @Override
                         public void run() {
                             player.teleport(request.getRequester());
-                            MovementManager.getMovement().remove(player);
+                            MovementManager.getMovement().remove(player.getUniqueId());
                             player.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
                             PaymentManager.withdraw("tpahere", request.getRequester());
 
                         }
                     };
-                    MovementManager.getMovement().put(player, movementtimer);
+                    MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
                     movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpahere")*20);
                     player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpahere"))));
                 } else {
@@ -41,12 +41,12 @@ public class AcceptRequest {
                         @Override
                         public void run() {
                             request.getRequester().teleport(player);
-                            MovementManager.getMovement().remove(request.getRequester());
+                            MovementManager.getMovement().remove(request.getRequester().getUniqueId());
                             request.getRequester().sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
                             PaymentManager.withdraw("tpa", request.getRequester());
                         }
                     };
-                    MovementManager.getMovement().put(request.getRequester(), movementtimer);
+                    MovementManager.getMovement().put(request.getRequester().getUniqueId(), movementtimer);
                     movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpa")*20);
                     request.getRequester().sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpa"))));
 

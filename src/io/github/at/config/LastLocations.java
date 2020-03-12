@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 public class LastLocations {
     public static File configFile = new File(Main.getInstance().getDataFolder(),"last-locations.yml");
@@ -20,11 +21,11 @@ public class LastLocations {
     }
 
     public static void saveLocations() {
-        for (Player player : TeleportTrackingManager.getLastLocations().keySet()) {
+        for (UUID uuid : TeleportTrackingManager.getLastLocations().keySet()) {
             try {
-                Location loc = TeleportTrackingManager.getLastLocation(player);
+                Location loc = TeleportTrackingManager.getLastLocation(uuid);
                 // Format: player-uuid: x.y.z.yaw.pitch.world
-                config.set(player.getUniqueId().toString(),
+                config.set(uuid.toString(),
                         loc.getX() + ":"
                                 + loc.getY() + ":"
                                 + loc.getZ() + ":"
@@ -35,10 +36,10 @@ public class LastLocations {
             }
 
         }
-        for (Player player : TeleportTrackingManager.getDeathLocations().keySet()) {
+        for (UUID uuid : TeleportTrackingManager.getDeathLocations().keySet()) {
             try {
-                Location loc = TeleportTrackingManager.getDeathLocation(player);
-                config.set("death." + player.getUniqueId().toString(),  loc.getX() + ":"
+                Location loc = TeleportTrackingManager.getDeathLocation(uuid);
+                config.set("death." + uuid.toString(),  loc.getX() + ":"
                         + loc.getY() + ":"
                         + loc.getZ() + ":"
                         + loc.getYaw() + ":"

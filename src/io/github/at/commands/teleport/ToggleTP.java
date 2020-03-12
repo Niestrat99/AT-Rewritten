@@ -8,6 +8,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class ToggleTP implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -17,13 +19,14 @@ public class ToggleTP implements CommandExecutor {
                     if (args.length>0) {
                         if (sender.hasPermission("at.admin.toggletp")) {
                             Player target = (Player) Bukkit.getPlayer(args[0]);
+                            UUID uuid = target.getUniqueId();
                             if (target.isOnline()) {
-                                if (TpOff.getTpOff().contains(target)) {
-                                    TpOff.getTpOff().remove(target);
+                                if (TpOff.getTpOff().contains(uuid)) {
+                                    TpOff.getTpOff().remove(uuid);
                                     sender.sendMessage(CustomMessages.getString("Info.tpAdminOn"));
                                     target.sendMessage(CustomMessages.getString("Info.tpOn"));
                                 } else {
-                                    TpOff.getTpOff().add(target);
+                                    TpOff.getTpOff().add(uuid);
                                     sender.sendMessage(CustomMessages.getString("Info.tpAdminOff"));
                                     target.sendMessage(CustomMessages.getString("Info.tpOff"));
                                 }
@@ -34,11 +37,12 @@ public class ToggleTP implements CommandExecutor {
                         }
                     } else {
                         Player player = (Player) sender;
-                        if (TpOff.getTpOff().contains(player)) {
-                            TpOff.getTpOff().remove(player);
+                        UUID uuid = player.getUniqueId();
+                        if (TpOff.getTpOff().contains(uuid)) {
+                            TpOff.getTpOff().remove(uuid);
                             sender.sendMessage(CustomMessages.getString("Info.tpOn"));
                         } else {
-                            TpOff.getTpOff().add(player);
+                            TpOff.getTpOff().add(uuid);
                             sender.sendMessage(CustomMessages.getString("Info.tpOff"));
                         }
                     }

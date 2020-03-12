@@ -15,6 +15,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.UUID;
+
 import static io.github.at.utilities.RandomCoords.generateCoords;
 
 public class Tpr implements CommandExecutor {
@@ -25,7 +27,7 @@ public class Tpr implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player)sender;
             if (Config.isFeatureEnabled("randomTP")) {
-                if (MovementManager.getMovement().containsKey(player)) {
+                if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                     player.sendMessage(CustomMessages.getString("Error.onCountdown"));
                     return false;
                 }
@@ -54,7 +56,8 @@ public class Tpr implements CommandExecutor {
     }
 
     public static boolean randomTeleport(Player player, World world) {
-        if (CooldownManager.getCooldown().containsKey(player)) {
+        UUID uuid = player.getUniqueId();
+        if (CooldownManager.getCooldown().containsKey(uuid)) {
             player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
             return false;
         }
@@ -109,10 +112,10 @@ public class Tpr implements CommandExecutor {
         BukkitRunnable cooldowntimer = new BukkitRunnable() {
             @Override
             public void run() {
-                CooldownManager.getCooldown().remove(player);
+                CooldownManager.getCooldown().remove(uuid);
             }
         };
-        CooldownManager.getCooldown().put(player, cooldowntimer);
+        CooldownManager.getCooldown().put(uuid, cooldowntimer);
         cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
         Location loc = location;
         if (Config.getTeleportTimer("tpr") > 0) {
@@ -120,12 +123,12 @@ public class Tpr implements CommandExecutor {
                 @Override
                 public void run() {
                     player.teleport(loc);
-                    MovementManager.getMovement().remove(player);
+                    MovementManager.getMovement().remove(uuid);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
                     PaymentManager.withdraw("tpr", player);
                 }
             };
-            MovementManager.getMovement().put(player, movementtimer);
+            MovementManager.getMovement().put(uuid, movementtimer);
             movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpr") * 20);
             player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
             return false;

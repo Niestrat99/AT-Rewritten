@@ -15,6 +15,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.UUID;
+
 public class TpAll implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -22,17 +24,19 @@ public class TpAll implements CommandExecutor {
             if (Config.isFeatureEnabled("teleport")) {
                 if (sender.hasPermission("at.admin.all")) {
                     Player player = (Player) sender;
-                    if (CooldownManager.getCooldown().containsKey(player)) {
+                    UUID playerUuid = player.getUniqueId();
+                    if (CooldownManager.getCooldown().containsKey(playerUuid)) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
                         return false;
                     }
                     int players = 0;
                     for (Player target : Bukkit.getOnlinePlayers()) {
                         if (target != player) {
-                            if (TpOff.getTpOff().contains(target)) {
+                            UUID targetUuid = target.getUniqueId();
+                            if (TpOff.getTpOff().contains(targetUuid)) {
                                 continue;
                             }
-                            if (TpBlock.getBlockedPlayers(target).contains(player)) {
+                            if (TpBlock.getBlockedPlayers(target).contains(playerUuid)) {
                                 continue;
                             }
                             if (!DistanceLimiter.canTeleport(player.getLocation(), target.getLocation(), "tpahere") && !target.hasPermission("at.admin.bypass.distance-limit")) {
@@ -54,10 +58,10 @@ public class TpAll implements CommandExecutor {
                             BukkitRunnable cooldowntimer = new BukkitRunnable() {
                                 @Override
                                 public void run() {
-                                    CooldownManager.getCooldown().remove(player);
+                                    CooldownManager.getCooldown().remove(playerUuid);
                                 }
                             };
-                            CooldownManager.getCooldown().put(player, cooldowntimer);
+                            CooldownManager.getCooldown().put(player.getUniqueId(), cooldowntimer);
                             cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
                         }
                     }

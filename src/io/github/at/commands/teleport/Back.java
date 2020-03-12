@@ -23,7 +23,7 @@ public class Back implements CommandExecutor {
             if (sender.hasPermission("at.member.back")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
-                    Location loc = TeleportTrackingManager.getLastLocation(player);
+                    Location loc = TeleportTrackingManager.getLastLocation(player.getUniqueId());
                     if (loc == null) {
                         loc = LastLocations.getLocation(player);
                         if (loc == null) {
@@ -45,13 +45,13 @@ public class Back implements CommandExecutor {
                                 @Override
                                 public void run() {
                                     player.teleport(finalLoc);
-                                    MovementManager.getMovement().remove(player);
+                                    MovementManager.getMovement().remove(player.getUniqueId());
                                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                                     PaymentManager.withdraw("back", player);
 
                                 }
                             };
-                            MovementManager.getMovement().put(player, movementtimer);
+                            MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
                             movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("back")*20);
                             player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("back"))));
 

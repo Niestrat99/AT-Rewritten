@@ -31,11 +31,10 @@ public class TpBlock {
             config.set("players." + bpl.getUniqueId().toString(), new ArrayList<>(Collections.singleton(target.getUniqueId().toString())));
         }save();
     }
-    public static List<Player> getBlockedPlayers(Player target){
-        List<Player> players = new ArrayList<>();
+    public static List<UUID> getBlockedPlayers(Player target){
+        List<UUID> players = new ArrayList<>();
         for (String uniqueID: config.getStringList("players." + target.getUniqueId().toString())){
-            Player player = Bukkit.getPlayer(UUID.fromString(uniqueID));
-            players.add(player);
+            players.add(UUID.fromString(uniqueID));
         }
         return players;
     }

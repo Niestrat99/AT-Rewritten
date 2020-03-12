@@ -17,6 +17,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.UUID;
+
 public class Tpa implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -24,11 +26,12 @@ public class Tpa implements CommandExecutor {
             Player player = (Player) sender;
             if (Config.isFeatureEnabled("teleport")) {
                 if (sender.hasPermission("at.member.tpa")) {
-                    if (CooldownManager.getCooldown().containsKey(player)) {
+                    UUID playerUuid = player.getUniqueId();
+                    if (CooldownManager.getCooldown().containsKey(playerUuid)) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
                         return false;
                     }
-                    if (MovementManager.getMovement().containsKey(player)) {
+                    if (MovementManager.getMovement().containsKey(playerUuid)) {
                         player.sendMessage(CustomMessages.getString("Error.onCountdown"));
                         return false;
                     }
@@ -42,11 +45,12 @@ public class Tpa implements CommandExecutor {
                             sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                             return false;
                         } else {
-                            if (TpOff.getTpOff().contains(target)) {
+                            UUID targetUuid = target.getUniqueId();
+                            if (TpOff.getTpOff().contains(targetUuid)) {
                                 sender.sendMessage(CustomMessages.getString("Error.tpOff").replaceAll("\\{player}", target.getName()));
                                 return false;
                             }
-                            if (TpBlock.getBlockedPlayers(target).contains(player)) {
+                            if (TpBlock.getBlockedPlayers(target).contains(playerUuid)) {
                                 sender.sendMessage(CustomMessages.getString("Error.tpBlock").replaceAll("\\{player}", target.getName()));
                                 return false;
                             }
@@ -78,10 +82,10 @@ public class Tpa implements CommandExecutor {
                                 BukkitRunnable cooldowntimer = new BukkitRunnable() {
                                     @Override
                                     public void run() {
-                                        CooldownManager.getCooldown().remove(player);
+                                        CooldownManager.getCooldown().remove(playerUuid);
                                     }
                                 };
-                                CooldownManager.getCooldown().put(player, cooldowntimer);
+                                CooldownManager.getCooldown().put(playerUuid, cooldowntimer);
                                 cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown()*20); // 20 ticks = 1 second
                                 return false;
                             }
