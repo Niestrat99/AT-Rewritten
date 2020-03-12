@@ -31,7 +31,7 @@ public class Back implements CommandExecutor {
                             return false;
                         }
                     }
-                    while (loc.getBlock().getType() != Material.AIR && loc.getBlock().getType() != Material.WATER) {
+                    while (!(loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.WATER || loc.getBlock().getType().name().equalsIgnoreCase("CAVE_AIR"))) {
                         loc.add(0.0, 1.0, 0.0);
                     }
                     if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back") && !player.hasPermission("at.admin.bypass.distance-limit")) {
