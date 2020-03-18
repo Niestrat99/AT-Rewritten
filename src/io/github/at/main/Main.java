@@ -1,5 +1,6 @@
 package io.github.at.main;
 
+import io.github.at.UpdateChecker;
 import io.github.at.commands.AtHelp;
 import io.github.at.commands.AtInfo;
 import io.github.at.commands.AtReload;
@@ -15,20 +16,27 @@ import io.github.at.events.AtSigns;
 import io.github.at.events.MovementManager;
 import io.github.at.events.TeleportTrackingManager;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.ChatColor;
 import org.bukkit.WorldBorder;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 
 public class Main extends JavaPlugin {
 
+    public static String pltitle(String title) {
+        title = "&3[&bAdvancedTeleport&3] " + title;
+        return ChatColor.translateAlternateColorCodes('&', title);
+    }
+
 
     // TODO SUGGESTIONS THAT HAVE BEEN MADE
-    // Back command
+    // Back command (done)
     // /rtp <World name> (done)
-    // Custom messages (doing)
-    // Payment for more than just /tpa and /tpahere
+    // Custom messages (done)
+    // Payment for more than just /tpa and /tpahere (done)
     // Payment using items (maybe???)
     // MySQL compatibility (AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
 
@@ -78,6 +86,22 @@ public class Main extends JavaPlugin {
         }
         setupEconomy();
         new Metrics(this);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    Object[] update = UpdateChecker.getUpdate();
+                    if (update != null) {
+                        getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + update[2]));
+                        getLogger().info(pltitle(ChatColor.AQUA + "Download link: https://www.spigotmc.org/resources/advanced-teleport.64139/"));
+                    } else {
+                        getLogger().info(pltitle(ChatColor.AQUA + "Plugin is up to date!"));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(this);
     }
 
     @Override
