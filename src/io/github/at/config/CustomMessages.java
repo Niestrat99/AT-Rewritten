@@ -77,6 +77,7 @@ public class CustomMessages {
         Config.addDefault("Error.onCountdown","&c&lERROR: &cCan't use command whilst waiting to teleport!");
         Config.addDefault("Error.noPermissionWarp", "&cYou can't warp to &e{warp}&c!");
         Config.addDefault("Error.cantTPToWorld", "&cYou can't use the RandomTP in that world!");
+        Config.addDefault("Error.invalidName", "&cHomes and warps may only have letters and numbers in the names!");
 
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");

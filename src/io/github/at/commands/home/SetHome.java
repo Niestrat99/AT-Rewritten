@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class SetHome implements CommandExecutor {
     @Override
@@ -21,12 +22,18 @@ public class SetHome implements CommandExecutor {
                 Player player = (Player)sender;
                 if (sender.hasPermission("at.member.sethome")) {
                     if (args.length>0) {
-                        if (Bukkit.getPlayer(args[0]) != null) {
+                        if (Bukkit.getOfflinePlayer(args[0]) != null) {
                             if (sender.hasPermission("at.admin.sethome")) {
                                 // We'll just assume that the admin command overrides the homes limit.
                                 if (args.length>1) {
-                                    Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
-                                    setHome(target, args[1]);
+                                    if (args[1].matches("^[A-Za-z0-9]+$")) {
+                                        UUID target = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
+                                        setHome(target, args[1]);
+                                    } else {
+                                        sender.sendMessage(CustomMessages.getString("Error.invalidName"));
+                                        return false;
+                                    }
+
                                 }
                             }
                         }
@@ -37,7 +44,13 @@ public class SetHome implements CommandExecutor {
                         if (Homes.getHomes(player).size() < limit
                                 || player.hasPermission("at.admin.sethome.bypass")
                                 || limit == -1) {
-                            setHome(player, args[0]);
+                            if (args[0].matches("^[A-Za-z0-9]+$")) {
+                                setHome(player.getUniqueId(), args[0]);
+                            } else {
+                                sender.sendMessage(CustomMessages.getString("Error.invalidName"));
+                                return false;
+                            }
+
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.reachedHomeLimit"));
                         }
@@ -60,7 +73,8 @@ public class SetHome implements CommandExecutor {
     // Separated this into a separate method so that the code is easier to read.
     // Player player - the player which is having the home set.
     // String name - the name of the home.
-    private void setHome(Player player, String name) {
+    private void setHome(UUID uuid, String name) {
+        Player player = Bukkit.getOfflinePlayer(uuid);
         Location home = player.getLocation();
         try {
             if (Homes.getHomes(player).containsKey(name)) {
