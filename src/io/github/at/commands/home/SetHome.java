@@ -27,8 +27,8 @@ public class SetHome implements CommandExecutor {
                                 // We'll just assume that the admin command overrides the homes limit.
                                 if (args.length>1) {
                                     if (args[1].matches("^[A-Za-z0-9]+$")) {
-                                        UUID target = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
-                                        setHome(target, args[1]);
+                                        Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
+                                        setHome(player, target, args[1]);
                                     } else {
                                         sender.sendMessage(CustomMessages.getString("Error.invalidName"));
                                         return false;
@@ -45,7 +45,7 @@ public class SetHome implements CommandExecutor {
                                 || player.hasPermission("at.admin.sethome.bypass")
                                 || limit == -1) {
                             if (args[0].matches("^[A-Za-z0-9]+$")) {
-                                setHome(player.getUniqueId(), args[0]);
+                                setHome(player, args[0]);
                             } else {
                                 sender.sendMessage(CustomMessages.getString("Error.invalidName"));
                                 return false;
@@ -70,19 +70,27 @@ public class SetHome implements CommandExecutor {
         return false;
     }
 
+    private void setHome(Player sender, String name) {
+        setHome(sender, sender, name);
+    }
+
     // Separated this into a separate method so that the code is easier to read.
     // Player player - the player which is having the home set.
     // String name - the name of the home.
-    private void setHome(UUID uuid, String name) {
-        Player player = Bukkit.getOfflinePlayer(uuid);
+    private void setHome(Player sender, Player player, String name) {
         Location home = player.getLocation();
         try {
             if (Homes.getHomes(player).containsKey(name)) {
-                player.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replaceAll("\\{home}", name));
+                sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replaceAll("\\{home}", name));
             } else {
                 try {
                     Homes.setHome(player, name, home);
-                    player.sendMessage(CustomMessages.getString("Info.setHome").replaceAll("\\{home}", name));
+                    if (sender == player) {
+                        sender.sendMessage(CustomMessages.getString("Info.setHome").replaceAll("\\{home}", name));
+                    } else {
+                        sender.sendMessage(CustomMessages.getString("Info.setHomeOther").replaceAll("\\{home}", name).replaceAll("\\{player}", player.getName()));
+                    }
+
                 } catch (IOException e) {
                     e.getStackTrace();
                 }
@@ -90,7 +98,11 @@ public class SetHome implements CommandExecutor {
         } catch (NullPointerException ex) {
             try {
                 Homes.setHome(player, name,home);
-                player.sendMessage(CustomMessages.getString("Info.setHome").replaceAll("\\{home}", name));
+                if (sender == player) {
+                    sender.sendMessage(CustomMessages.getString("Info.setHome").replaceAll("\\{home}", name));
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Info.setHomeOther").replaceAll("\\{home}", name).replaceAll("\\{player}", player.getName()));
+                }
             } catch (IOException e) {
                 e.getStackTrace();
             }

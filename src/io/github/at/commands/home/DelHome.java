@@ -43,25 +43,37 @@ public class DelHome implements CommandExecutor {
         return false;
     }
 
-    private void delHome(Player player, String name) {
+    private void delHome(Player player, Player sender, String name) {
         try {
             if (Homes.getHomes(player).containsKey(name)) {
                 try {
                     Homes.delHome(player, name);
-                    player.sendMessage(CustomMessages.getString("Info.deletedHome").replaceAll("\\{home}", name));
+                    if (sender == player) {
+                        sender.sendMessage(CustomMessages.getString("Info.deletedHome").replaceAll("\\{home}", name));
+                    } else {
+                        sender.sendMessage(CustomMessages.getString("Info.deletedHomeOther").replaceAll("\\{home}", name).replaceAll("\\{player}", player.getName()));
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
-                player.sendMessage(CustomMessages.getString("Error.noSuchHome"));
+                sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
             }
         } catch (NullPointerException ex) {
             try {
                 Homes.delHome(player, name);
-                player.sendMessage(CustomMessages.getString("Info.deletedHome").replaceAll("\\{home}", name));
+                if (sender == player) {
+                    sender.sendMessage(CustomMessages.getString("Info.deletedHome").replaceAll("\\{home}", name));
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Info.deletedHomeOther").replaceAll("\\{home}", name).replaceAll("\\{player}", player.getName()));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+    private void delHome(Player player, String name) {
+        delHome(player, player, name);
     }
 }

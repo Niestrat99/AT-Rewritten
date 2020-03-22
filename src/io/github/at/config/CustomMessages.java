@@ -103,7 +103,9 @@ public class CustomMessages {
         Config.addDefault("Info.requestDeclinedResponder", "&e{player} &ahas declined your teleport request!");
 
         Config.addDefault("Info.deletedHome", "&aSuccessfully deleted the home &e{home}&a!");
+        Config.addDefault("Info.deletedHomeOther", "&aSuccessfully deleted the home &e{home} &afor &e{player}&a!");
         Config.addDefault("Info.setHome", "&aSuccessfully set the home &e{home}&a!");
+        Config.addDefault("Info.setHomeOther", "&aSuccessfully set the home &e{home} &afor &e{player}&a!");
         Config.addDefault("Info.setSpawn", "&aSuccessfully set the spawnpoint!");
         Config.addDefault("Info.setWarp", "&aSuccessfully set the warp &e{warp}&a!");
         Config.addDefault("Info.deletedWarp", "&aSuccessfully deleted the warp &e{warp}&a!");
