@@ -23,7 +23,7 @@ public class DelHome implements CommandExecutor {
                             if (sender.hasPermission("at.admin.delhome")) {
                                 if (args.length>1) {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
-                                    delHome(target, args[1]);
+                                    delHome(target, player, args[1]);
                                 }
                             }
                         }
