@@ -66,78 +66,91 @@ public class Tpr implements CommandExecutor {
             return false;
         }
         if (!PaymentManager.canPay("tpr", player)) return false;
-        Location location = generateCoords(player, world);
+
         player.sendMessage(CustomMessages.getString("Info.searching"));
-        boolean validLocation = false;
-        while (!validLocation) {
-            if (location.getWorld().getEnvironment() == World.Environment.NETHER) { // We'll search up instead of down in the Nether!
-                while (location.getBlock().getType() != Material.AIR) {
-                    location.add(0, 1, 0);
-                }
-            } else {
-                while (location.getBlock().getType() == Material.AIR) {
-                    location.subtract(0, 1, 0);
-                }
-            }
-
-
-
-            boolean b = true;
-            for (String Material: Config.avoidBlocks()) {
-                if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
-                    if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
-                        location = RandomCoords.generateCoords(player, world);
-                        b = false;
-                        break;
-                    }
-                } else {
-                    if (location.getBlock().getType().name().equalsIgnoreCase(Material)){
-                        location = RandomCoords.generateCoords(player, world);
-                        b = false;
-                        break;
-                    }
-                }
-
-            }
-            if (!DistanceLimiter.canTeleport(player.getLocation(), location, "tpr") && !player.hasPermission("at.admin.bypass.distance-limit")) {
-                b = false;
-            }
-            if (b) {
-                location.add(0 , 1 , 0);
-                validLocation = true;
-            }
-        }
-        Chunk chunk = player.getWorld().getChunkAt(location);
-        chunk.load(true);
-        BukkitRunnable cooldowntimer = new BukkitRunnable() {
+        new BukkitRunnable() {
             @Override
             public void run() {
-                CooldownManager.getCooldown().remove(uuid);
-            }
-        };
-        CooldownManager.getCooldown().put(uuid, cooldowntimer);
-        cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
-        Location loc = location;
-        if (Config.getTeleportTimer("tpr") > 0) {
-            BukkitRunnable movementtimer = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    player.teleport(loc);
-                    MovementManager.getMovement().remove(uuid);
+                Location location = generateCoords(player, world);
+                boolean validLocation = false;
+                while (!validLocation) {
+                    if (location.getWorld().getEnvironment() == World.Environment.NETHER) { // We'll search up instead of down in the Nether!
+                        while (location.getBlock().getType() != Material.AIR) {
+                            location.add(0, 1, 0);
+                        }
+                    } else {
+                        while (location.getBlock().getType() == Material.AIR) {
+                            location.subtract(0, 1, 0);
+                        }
+                    }
+
+
+
+                    boolean b = true;
+                    for (String Material: Config.avoidBlocks()) {
+                        if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
+                            if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
+                                location = RandomCoords.generateCoords(player, world);
+                                b = false;
+                                break;
+                            }
+                        } else {
+                            if (location.getBlock().getType().name().equalsIgnoreCase(Material)){
+                                location = RandomCoords.generateCoords(player, world);
+                                b = false;
+                                break;
+                            }
+                        }
+
+                    }
+                    if (!DistanceLimiter.canTeleport(player.getLocation(), location, "tpr") && !player.hasPermission("at.admin.bypass.distance-limit")) {
+                        b = false;
+                    }
+                    if (b) {
+                        location.add(0 , 1 , 0);
+                        validLocation = true;
+                    }
+                }
+                Chunk chunk = player.getWorld().getChunkAt(location);
+
+                BukkitRunnable cooldowntimer = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        CooldownManager.getCooldown().remove(uuid);
+                    }
+                };
+                CooldownManager.getCooldown().put(uuid, cooldowntimer);
+                cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
+                if (Config.getTeleportTimer("tpr") > 0) {
+                    BukkitRunnable movementtimer = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            chunk.load(true);
+                            player.teleport(loc);
+                            MovementManager.getMovement().remove(uuid);
+                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
+                            PaymentManager.withdraw("tpr", player);
+                        }
+                    };
+                    MovementManager.getMovement().put(uuid, movementtimer);
+                    movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpr") * 20);
+                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
+
+                } else {
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            chunk.load(true);
+                            player.teleport(loc);
+                        }
+                    }.runTask(Main.getInstance());
+
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
                     PaymentManager.withdraw("tpr", player);
                 }
-            };
-            MovementManager.getMovement().put(uuid, movementtimer);
-            movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpr") * 20);
-            player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
-            return false;
+            }
+        }.runTaskAsynchronously(Main.getInstance());
 
-        } else {
-            player.teleport(loc);
-            player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
-            PaymentManager.withdraw("tpr", player);
-        }
         return false;
     }
 }
