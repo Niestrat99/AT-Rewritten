@@ -46,7 +46,7 @@ public class UpdateChecker {
         } catch (IOException | org.json.simple.parser.ParseException e) {
             e.printStackTrace();
         }
-        if (!Arrays.asList(lastVersion).toString().equals(Arrays.asList(currentVersion).toString())) {
+        if (!lastVersion.equals(currentVersion) && updatesArray != null) {
 
             String updateName = ((JSONObject) updatesArray.get(Objects.requireNonNull(updatesArray).size() - 1)).get("title").toString();
             return new Object[]{lastVersion, updateName, latestVersionString};
