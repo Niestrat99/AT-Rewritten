@@ -28,13 +28,17 @@ public class Warp implements CommandExecutor {
                             Player player = (Player) sender;
                             Location warp = player.getLocation();
                             if (args.length > 1) {
-                                try {
-                                    Warps.setWarp(args[1], warp);
-                                    sender.sendMessage(CustomMessages.getString("Info.setWarp").replaceAll("\\{warp}", args[1]));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                if (args[1].matches("^[a-zA-Z0-9]+$")) {
+                                    try {
+                                        Warps.setWarp(args[1], warp);
+                                        sender.sendMessage(CustomMessages.getString("Info.setWarp").replaceAll("\\{warp}", args[1]));
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    sender.sendMessage(CustomMessages.getString("Error.invalidName"));
+                                    return false;
                                 }
-
                             } else {
                                 sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
                                 return false;
