@@ -121,6 +121,7 @@ public class Tpr implements CommandExecutor {
                 };
                 CooldownManager.getCooldown().put(uuid, cooldowntimer);
                 cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
+                Location loc = location.clone().add(0.5, 0, 0.5);
                 if (Config.getTeleportTimer("tpr") > 0) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
