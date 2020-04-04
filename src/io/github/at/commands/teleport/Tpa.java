@@ -70,7 +70,7 @@ public class Tpa implements CommandExecutor {
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
                                 if(!Config.getSound("tpa.requestSent").equalsIgnoreCase("none")){
                                     try{
-                                        target.playSound(target.getLocation(), Sound.valueOf(Config.getSound("tpa.requestSent")), 10, 1);
+                                        ((Player) sender).playSound(((Player) sender).getLocation(), Sound.valueOf(Config.getSound("tpa.requestSent")), 10, 1);
                                     }
                                     catch(IllegalArgumentException e){
                                         getServer().getLogger().warning(CoreClass.pltitle(Config.getSound("tpa.requestSent") + " is an invalid sound name"));
