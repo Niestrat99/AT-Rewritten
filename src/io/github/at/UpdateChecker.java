@@ -1,56 +1,55 @@
 package io.github.at;
 
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class UpdateChecker {
 
     private final static String versionURL = "https://api.spiget.org/v2/resources/64139/versions?size=1000";
-    private final static String descriptionURL = "https://api.spiget.org/v2/resources/64139/versions?size=1000";
+    private final static String descriptionURL = "https://api.spiget.org/v2/resources/64139/updates?size=1000";
 
-    public static Object[] getUpdate() throws IOException {
-        URL url = new URL(versionURL);
-        Main at = Main.getInstance();
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.addRequestProperty("User-Agent", "ATPluginAgent");
-        InputStream inputStream = connection.getInputStream();
-        InputStreamReader reader = new InputStreamReader(inputStream);
-        JSONArray versionsArray = null;
+    public static Object[] getUpdate() {
+        CoreClass core = CoreClass.getInstance();
         try {
-            versionsArray = (JSONArray) new JSONParser().parse(reader);
-        } catch (IOException | org.json.simple.parser.ParseException e) {
-            e.printStackTrace();
-        }
-        int size = Objects.requireNonNull(versionsArray).size();
-        String[] lastVersion = ((JSONObject) versionsArray.get(size - 1)).get("name").toString().split("\\.");
-        String[] currentVersion = at.getDescription().getVersion().split("\\.");
-        String latestVersionString = ((JSONObject) versionsArray.get(versionsArray.size() - 1)).get("name").toString();
+            JSONArray versionsArray = getURLResults(versionURL);
+            if (versionsArray != null) {
+                int size = Objects.requireNonNull(versionsArray).size();
+                String lastVersion = ((JSONObject) versionsArray.get(size - 1)).get("name").toString();
+                String currentVersion = core.getDescription().getVersion();
+                if (!lastVersion.equals(currentVersion)) {
+                    JSONArray updatesArray = getURLResults(descriptionURL);
+                    if (updatesArray != null) {
+                        int updateSize = updatesArray.size();
+                        String updateName = ((JSONObject) updatesArray.get(updateSize - 1)).get("title").toString();
+                        return new Object[]{lastVersion, updateName};
+                    }
+                }
+            }
 
-        url = new URL(descriptionURL);
-        connection = (HttpURLConnection) url.openConnection();
-        inputStream = connection.getInputStream();
-        reader = new InputStreamReader(inputStream);
-        JSONArray updatesArray = null;
-        try {
-            updatesArray = (JSONArray) new JSONParser().parse(reader);
-        } catch (IOException | org.json.simple.parser.ParseException e) {
+        } catch (ParseException | IOException e) {
             e.printStackTrace();
-        }
-        if (!lastVersion.equals(currentVersion) && updatesArray != null) {
+            return null;
 
-            String updateName = ((JSONObject) updatesArray.get(Objects.requireNonNull(updatesArray).size() - 1)).get("title").toString();
-            return new Object[]{lastVersion, updateName, latestVersionString};
         }
         return null;
+    }
+
+    private static JSONArray getURLResults(String urlStr) throws IOException, ParseException {
+        URL url = new URL(urlStr);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.addRequestProperty("User-Agent", "AdvancedTeleportPA");
+        InputStream inputStream = connection.getInputStream();
+        InputStreamReader reader = new InputStreamReader(inputStream);
+        return (JSONArray) new JSONParser().parse(reader);
     }
 }
