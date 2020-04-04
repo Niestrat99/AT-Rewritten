@@ -10,13 +10,16 @@ import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import static org.bukkit.Bukkit.getServer;
 
 import java.util.UUID;
+
 
 public class Tpa implements CommandExecutor {
     @Override
@@ -65,9 +68,25 @@ public class Tpa implements CommandExecutor {
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
                                         .replaceAll("\\{player}", target.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                if(!Config.getSound("tpa.requestSent").equalsIgnoreCase("none")){
+                                    try{
+                                        target.playSound(target.getLocation(), Sound.valueOf(Config.getSound("tpa.requestSent")), 10, 1);
+                                    }
+                                    catch(IllegalArgumentException e){
+                                        getServer().getLogger().warning(CoreClass.pltitle(Config.getSound("tpa.requestSent") + " is an invalid sound name"));
+                                    }
+                                }
                                 target.sendMessage(CustomMessages.getString("Info.tpaRequestReceived")
                                         .replaceAll("\\{player}", sender.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                if(!Config.getSound("tpa.requestReceived").equalsIgnoreCase("none")){
+                                    try{
+                                        target.playSound(target.getLocation(), Sound.valueOf(Config.getSound("tpa.requestReceived")), 10, 1);
+                                    }
+                                    catch(IllegalArgumentException e){
+                                        getServer().getLogger().warning(CoreClass.pltitle(Config.getSound("tpa.requestReceived") + " is an invalid sound name"));
+                                    }
+                                }
                                 BukkitRunnable run = new BukkitRunnable() {
                                     @Override
                                     public void run() {
