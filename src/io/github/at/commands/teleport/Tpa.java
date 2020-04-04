@@ -68,7 +68,7 @@ public class Tpa implements CommandExecutor {
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
                                         .replaceAll("\\{player}", target.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
-                                if(!Config.getSound("tpa.requestSent").equalsIgnoreCase("none")){
+                                if(!Config.getSound("tpa.requestSent").equals("NONE")){
                                     try{
                                         ((Player) sender).playSound(((Player) sender).getLocation(), Sound.valueOf(Config.getSound("tpa.requestSent")), 10, 1);
                                     }
@@ -79,7 +79,7 @@ public class Tpa implements CommandExecutor {
                                 target.sendMessage(CustomMessages.getString("Info.tpaRequestReceived")
                                         .replaceAll("\\{player}", sender.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
-                                if(!Config.getSound("tpa.requestReceived").equalsIgnoreCase("none")){
+                                if(!Config.getSound("tpa.requestReceived").equals("NONE")){
                                     try{
                                         target.playSound(target.getLocation(), Sound.valueOf(Config.getSound("tpa.requestReceived")), 10, 1);
                                     }
