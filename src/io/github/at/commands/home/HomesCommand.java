@@ -26,6 +26,7 @@ public class HomesCommand implements CommandExecutor {
                                         for (String home: Homes.getHomes(player).keySet()) {
                                             hlist.append(home + ", ");
                                         }
+                                        hlist.setLength(hlist.length() - 2);
                                     } else {
                                         sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
                                         return false;
@@ -50,6 +51,7 @@ public class HomesCommand implements CommandExecutor {
                             for (String home: Homes.getHomes(player).keySet()) {
                                 hlist.append(home + ", ");
                             }
+                            hlist.setLength(hlist.length() - 2);
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noHomes"));
                             return false;
