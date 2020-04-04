@@ -1,4 +1,4 @@
-main: io.github.at.main.Main
+main: io.github.at.main.CoreClass
 name: AdvancedTeleport
 version: 5.0.16-SNAPSHOT
 description: A plugin which is based on tons of teleport stuff.
