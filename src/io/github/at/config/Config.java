@@ -151,7 +151,7 @@ public class Config {
     }
 
     /* Used to get the sound name that will be played for specific event.
-     * e.g: Config.getSound("tpa.") - returns a price (e.g $10) for how much the home command costs.
+     * e.g: Config.getSound("tpa.requestSent") - returns a string (e.g none, BLOCK_ANVIL_LAND) of the sound name that will be played to a player that sent a tpa request
      */
     public static String getSound(String event){ return config.getString("sounds." + event).toUpperCase(); }
 
