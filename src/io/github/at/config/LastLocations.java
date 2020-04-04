@@ -1,7 +1,7 @@
 package io.github.at.config;
 
 import io.github.at.events.TeleportTrackingManager;
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 public class LastLocations {
-    public static File configFile = new File(Main.getInstance().getDataFolder(),"last-locations.yml");
+    public static File configFile = new File(CoreClass.getInstance().getDataFolder(),"last-locations.yml");
     public static FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
     public static void save() throws IOException {
@@ -89,7 +89,7 @@ public class LastLocations {
 
     public static void reloadBackLocations() throws IOException {
         if (configFile == null) {
-            configFile = new File(Main.getInstance().getDataFolder(), "last-locations.yml");
+            configFile = new File(CoreClass.getInstance().getDataFolder(), "last-locations.yml");
         }
         config = YamlConfiguration.loadConfiguration(configFile);
         save();

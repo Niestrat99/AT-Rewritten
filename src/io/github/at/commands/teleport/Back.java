@@ -5,7 +5,7 @@ import io.github.at.config.CustomMessages;
 import io.github.at.config.LastLocations;
 import io.github.at.events.MovementManager;
 import io.github.at.events.TeleportTrackingManager;
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
 import org.bukkit.Location;
@@ -52,7 +52,7 @@ public class Back implements CommandExecutor {
                                 }
                             };
                             MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                            movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("back")*20);
+                            movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("back")*20);
                             player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("back"))));
 
                         } else {

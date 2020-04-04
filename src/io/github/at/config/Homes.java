@@ -1,6 +1,6 @@
 package io.github.at.config;
 
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class Homes {
 
-    public static File homesFile = new File(Main.getInstance().getDataFolder(),"homes.yml");
+    public static File homesFile = new File(CoreClass.getInstance().getDataFolder(),"homes.yml");
     public static FileConfiguration homes = YamlConfiguration.loadConfiguration(homesFile);
 
     public static void save() throws IOException {
@@ -63,7 +63,7 @@ public class Homes {
 
     public static void reloadHomes() throws IOException {
         if (homesFile == null) {
-            homesFile = new File(Main.getInstance().getDataFolder(), "homes.yml");
+            homesFile = new File(CoreClass.getInstance().getDataFolder(), "homes.yml");
         }
         homes = YamlConfiguration.loadConfiguration(homesFile);
         save();

@@ -1,7 +1,6 @@
 package io.github.at.config;
 
-import io.github.at.main.Main;
-import org.bukkit.Bukkit;
+import io.github.at.main.CoreClass;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -15,7 +14,7 @@ import java.util.UUID;
 
 
 public class TpBlock {
-    public static File configFile = new File(Main.getInstance().getDataFolder(),"blocklist.yml");
+    public static File configFile = new File(CoreClass.getInstance().getDataFolder(),"blocklist.yml");
 
     public static FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
@@ -47,7 +46,7 @@ public class TpBlock {
 
     public static void reloadBlocks() throws IOException {
         if (configFile == null) {
-            configFile = new File(Main.getInstance().getDataFolder(), "blocklist.yml");
+            configFile = new File(CoreClass.getInstance().getDataFolder(), "blocklist.yml");
         }
         config = YamlConfiguration.loadConfiguration(configFile);
         save();

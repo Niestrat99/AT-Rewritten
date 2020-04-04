@@ -4,11 +4,10 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
 import io.github.at.events.CooldownManager;
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -52,7 +51,7 @@ public class TpAll implements CommandExecutor {
                                     TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
                                 }
                             };
-                            run.runTaskLater(Main.getInstance(), Config.requestLifetime() * 20); // 60 seconds
+                            run.runTaskLater(CoreClass.getInstance(), Config.requestLifetime() * 20); // 60 seconds
                             TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA_HERE); // Creates a new teleport request.
                             TPRequest.addRequest(request);
                             BukkitRunnable cooldowntimer = new BukkitRunnable() {
@@ -62,7 +61,7 @@ public class TpAll implements CommandExecutor {
                                 }
                             };
                             CooldownManager.getCooldown().put(player.getUniqueId(), cooldowntimer);
-                            cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
+                            cooldowntimer.runTaskLater(CoreClass.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
                         }
                     }
                     if (players > 0) {

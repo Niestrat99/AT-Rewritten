@@ -1,6 +1,6 @@
 package io.github.at.config;
 
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -13,7 +13,7 @@ import java.util.Collections;
 
 public class CustomMessages {
 
-    public static File ConfigFile = new File(Main.getInstance().getDataFolder(),"custom-messages.yml");
+    public static File ConfigFile = new File(CoreClass.getInstance().getDataFolder(),"custom-messages.yml");
     public static FileConfiguration Config = YamlConfiguration.loadConfiguration(ConfigFile);
 
     public static void save() throws IOException {
@@ -186,7 +186,7 @@ public class CustomMessages {
 
     public static void reloadConfig() throws IOException {
         if (ConfigFile == null) {
-            ConfigFile = new File(Main.getInstance().getDataFolder(), "custom-messages.yml");
+            ConfigFile = new File(CoreClass.getInstance().getDataFolder(), "custom-messages.yml");
         }
         Config = YamlConfiguration.loadConfiguration(ConfigFile);
         setDefaults();

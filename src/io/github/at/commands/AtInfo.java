@@ -1,6 +1,6 @@
 package io.github.at.commands;
 
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,7 +12,7 @@ public class AtInfo implements CommandExecutor {
         if (sender.hasPermission("at.admin.info")) {
             sender.sendMessage(ChatColor.GOLD + "--[" + ChatColor.AQUA + "AdvancedTeleport" + ChatColor.GOLD + "]--");
             sender.sendMessage(ChatColor.GOLD + "- Developed by " + ChatColor.AQUA + "Niestrat99" + ChatColor.GOLD + " and " + ChatColor.AQUA + "Thatsmusic99");
-            sender.sendMessage(ChatColor.GOLD + "- Version: " + ChatColor.AQUA + Main.getInstance().getDescription().getVersion());
+            sender.sendMessage(ChatColor.GOLD + "- Version: " + ChatColor.AQUA + CoreClass.getInstance().getDescription().getVersion());
             sender.sendMessage(ChatColor.GOLD + "- Spigot Link: " + ChatColor.AQUA + "https://www.spigotmc.org/resources/advanced-teleport.64139/");
             sender.sendMessage(ChatColor.GOLD + "---" + ChatColor.AQUA + "Found bugs?" + ChatColor.GOLD + "---");
             sender.sendMessage(ChatColor.GOLD + "- Discord: " + ChatColor.AQUA + "https://discord.gg/nbT7wC2");

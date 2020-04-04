@@ -1,6 +1,6 @@
 package io.github.at.config;
 
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class Spawn {
 
-    public static File spawnFile = new File(Main.getInstance().getDataFolder(), "spawn.yml");
+    public static File spawnFile = new File(CoreClass.getInstance().getDataFolder(), "spawn.yml");
     public static FileConfiguration spawn = YamlConfiguration.loadConfiguration(spawnFile);
 
     public static void setSpawn(Location location) throws IOException {
@@ -38,7 +38,7 @@ public class Spawn {
 
     public static void reloadSpawn() throws IOException {
         if (spawnFile == null) {
-            spawnFile = new File(Main.getInstance().getDataFolder(), "last-locations.yml");
+            spawnFile = new File(CoreClass.getInstance().getDataFolder(), "last-locations.yml");
         }
         spawn = YamlConfiguration.loadConfiguration(spawnFile);
         save();

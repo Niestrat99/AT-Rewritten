@@ -5,12 +5,11 @@ import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
 import io.github.at.events.CooldownManager;
 import io.github.at.events.MovementManager;
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
 import io.github.at.utilities.TPRequest;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -76,7 +75,7 @@ public class Tpa implements CommandExecutor {
                                         TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
                                     }
                                 };
-                                run.runTaskLater(Main.getInstance(), Config.requestLifetime()*20); // 60 seconds
+                                run.runTaskLater(CoreClass.getInstance(), Config.requestLifetime()*20); // 60 seconds
                                 TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA_NORMAL); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
                                 BukkitRunnable cooldowntimer = new BukkitRunnable() {
@@ -86,7 +85,7 @@ public class Tpa implements CommandExecutor {
                                     }
                                 };
                                 CooldownManager.getCooldown().put(playerUuid, cooldowntimer);
-                                cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown()*20); // 20 ticks = 1 second
+                                cooldowntimer.runTaskLater(CoreClass.getInstance(), Config.commandCooldown()*20); // 20 ticks = 1 second
                                 return false;
                             }
 

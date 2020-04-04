@@ -4,10 +4,9 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Warps;
 import io.github.at.events.MovementManager;
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -125,7 +124,7 @@ public class Warp implements CommandExecutor {
                     }
                 };
                 MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("warp")*20);
+                movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("warp")*20);
                 player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("warp"))));
 
             } else {

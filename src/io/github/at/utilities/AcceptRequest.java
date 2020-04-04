@@ -3,7 +3,7 @@ package io.github.at.utilities;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.events.MovementManager;
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -28,7 +28,7 @@ public class AcceptRequest {
                         }
                     };
                     MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                    movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpahere")*20);
+                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("tpahere")*20);
                     player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpahere"))));
                 } else {
                     player.teleport(request.getRequester());
@@ -47,7 +47,7 @@ public class AcceptRequest {
                         }
                     };
                     MovementManager.getMovement().put(request.getRequester().getUniqueId(), movementtimer);
-                    movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpa")*20);
+                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("tpa")*20);
                     request.getRequester().sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpa"))));
 
                 } else {

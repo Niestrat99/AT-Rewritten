@@ -3,10 +3,9 @@ package io.github.at.events;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.LastLocations;
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import io.github.at.utilities.DistanceLimiter;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -41,7 +40,7 @@ public class TeleportTrackingManager implements Listener {
                     }
 
                 }
-            }.runTaskLater(Main.getInstance(), 10);
+            }.runTaskLater(CoreClass.getInstance(), 10);
         }
 
     }
@@ -85,7 +84,7 @@ public class TeleportTrackingManager implements Listener {
                         deathLocations.remove(uuid);
                     }
                 }
-            }.runTaskLater(Main.getInstance(), 10);
+            }.runTaskLater(CoreClass.getInstance(), 10);
         }
     }
 

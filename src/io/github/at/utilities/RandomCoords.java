@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Random;
 
-import static io.github.at.main.Main.worldBorder;
+import static io.github.at.main.CoreClass.worldBorder;
 
 public class RandomCoords {
 

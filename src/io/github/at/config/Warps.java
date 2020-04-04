@@ -1,6 +1,6 @@
 package io.github.at.config;
 
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class Warps {
 
-    public static File warp = new File(Main.getInstance().getDataFolder(), "warps.yml");
+    public static File warp = new File(CoreClass.getInstance().getDataFolder(), "warps.yml");
     public static FileConfiguration warps = YamlConfiguration.loadConfiguration(warp);
 
     public static void save() throws IOException {
@@ -52,7 +52,7 @@ public class Warps {
 
     public static void reloadWarps() throws IOException {
         if (warp == null) {
-            warp = new File(Main.getInstance().getDataFolder(), "warps.yml");
+            warp = new File(CoreClass.getInstance().getDataFolder(), "warps.yml");
         }
         warps = YamlConfiguration.loadConfiguration(warp);
         save();

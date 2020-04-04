@@ -1,6 +1,6 @@
 package io.github.at.config;
 
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Config {
 
-    public static File configFile = new File(Main.getInstance().getDataFolder(),"config.yml");
+    public static File configFile = new File(CoreClass.getInstance().getDataFolder(),"config.yml");
     public static FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
     public static void save() throws IOException {
@@ -203,7 +203,7 @@ public class Config {
 
     public static void reloadConfig() throws IOException {
         if (configFile == null) {
-            configFile = new File(Main.getInstance().getDataFolder(), "config.yml");
+            configFile = new File(CoreClass.getInstance().getDataFolder(), "config.yml");
         }
         config = YamlConfiguration.loadConfiguration(configFile);
         setDefaults();

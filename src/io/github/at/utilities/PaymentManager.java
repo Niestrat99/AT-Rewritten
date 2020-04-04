@@ -2,7 +2,7 @@ package io.github.at.utilities;
 
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.entity.Player;
 
@@ -17,8 +17,8 @@ public class PaymentManager {
                 return false;
             }
         }
-        if (Main.getVault() != null && Config.isUsingVault(command)) {
-            if (Main.getVault().getBalance(player)<Config.getTeleportPrice(command)){
+        if (CoreClass.getVault() != null && Config.isUsingVault(command)) {
+            if (CoreClass.getVault().getBalance(player)<Config.getTeleportPrice(command)){
                 player.sendMessage(CustomMessages.getString("Error.notEnoughMoney").replaceAll("\\{amount}", String.valueOf(Config.getTeleportPrice(command))));
                 return false;
             }
@@ -38,13 +38,13 @@ public class PaymentManager {
                             .replaceAll("\\{levels}", String.valueOf(player.getLevel())));
                 }
             }
-            if  (Main.getVault() != null && Config.isUsingVault(command)) {
-                if (Main.getVault().getBalance(player) >= Config.getTeleportPrice(command)){
-                    EconomyResponse payment = Main.getVault().withdrawPlayer(player, Config.getTeleportPrice(command));
+            if  (CoreClass.getVault() != null && Config.isUsingVault(command)) {
+                if (CoreClass.getVault().getBalance(player) >= Config.getTeleportPrice(command)){
+                    EconomyResponse payment = CoreClass.getVault().withdrawPlayer(player, Config.getTeleportPrice(command));
                     if (payment.transactionSuccess()){
                         player.sendMessage(CustomMessages.getString("Info.paymentVault")
                                 .replaceAll("\\{amount}", String.valueOf(Config.getTeleportPrice(command)))
-                                .replaceAll("\\{balance}", String.valueOf(Main.getVault().getBalance(player))));
+                                .replaceAll("\\{balance}", String.valueOf(CoreClass.getVault().getBalance(player))));
                     }
                 }
             }

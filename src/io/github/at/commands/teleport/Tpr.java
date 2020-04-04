@@ -4,7 +4,7 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.events.CooldownManager;
 import io.github.at.events.MovementManager;
-import io.github.at.main.Main;
+import io.github.at.main.CoreClass;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
 import io.github.at.utilities.RandomCoords;
@@ -120,7 +120,7 @@ public class Tpr implements CommandExecutor {
                     }
                 };
                 CooldownManager.getCooldown().put(uuid, cooldowntimer);
-                cooldowntimer.runTaskLater(Main.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
+                cooldowntimer.runTaskLater(CoreClass.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
                 Location loc = location.clone().add(0.5, 0, 0.5);
                 if (Config.getTeleportTimer("tpr") > 0) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
@@ -134,7 +134,7 @@ public class Tpr implements CommandExecutor {
                         }
                     };
                     MovementManager.getMovement().put(uuid, movementtimer);
-                    movementtimer.runTaskLater(Main.getInstance(), Config.getTeleportTimer("tpr") * 20);
+                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("tpr") * 20);
                     player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
 
                 } else {
@@ -144,13 +144,13 @@ public class Tpr implements CommandExecutor {
                             chunk.load(true);
                             player.teleport(loc);
                         }
-                    }.runTask(Main.getInstance());
+                    }.runTask(CoreClass.getInstance());
 
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
                     PaymentManager.withdraw("tpr", player);
                 }
             }
-        }.runTaskAsynchronously(Main.getInstance());
+        }.runTaskAsynchronously(CoreClass.getInstance());
 
         return false;
     }
