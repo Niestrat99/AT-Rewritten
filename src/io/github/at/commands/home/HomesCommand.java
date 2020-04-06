@@ -49,20 +49,18 @@ public class HomesCommand implements CommandExecutor {
                     hList.text(CustomMessages.getString("Info.homes"));
                     try {
                         if (Homes.getHomes(player).size()>0){
-
                             for (String home: Homes.getHomes(player).keySet()) {
                                 hList.then(home)
                                         .command("/home " + home)
                                         .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home));
                                 hList.then(", ");
                             }
-
                             hList.text("");
-
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noHomes"));
                             return false;
                         }
+
                     } catch (NullPointerException ex) { // If a player has never set any homes
                         sender.sendMessage(CustomMessages.getString("Error.noHomes"));
                         return false;
