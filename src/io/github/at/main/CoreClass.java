@@ -96,6 +96,7 @@ public class CoreClass extends JavaPlugin {
                 } else {
                     getLogger().info(pltitle(ChatColor.AQUA + "Plugin is up to date!"));
                 }
+                TpLoc.a();
             }
         }.runTaskAsynchronously(this);
     }
@@ -130,6 +131,7 @@ public class CoreClass extends JavaPlugin {
         getCommand("tpall").setExecutor(new TpAll());
         getCommand("tpalist").setExecutor(new TpList());
         getCommand("toggletp").setExecutor(new ToggleTP());
+        getCommand("tploc").setExecutor(new TpLoc());
 
         // Home commands
         getCommand("home").setExecutor(new Home());
