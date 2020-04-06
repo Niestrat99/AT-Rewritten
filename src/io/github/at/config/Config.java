@@ -115,6 +115,16 @@ public class Config {
         config.addDefault("distance-limiter.per-command.spawn", true);
         config.addDefault("distance-limiter.per-command.back", true);
 
+        config.addDefault("teleport-limit.blacklisted-worlds", new ArrayList<>());
+        config.addDefault("teleport-limit.enabled", false);
+        config.addDefault("teleport-limit.monitor-all-teleports", false);
+        config.addDefault("teleport-limit.per-command.tpa", true);
+        config.addDefault("teleport-limit.per-command.tpahere", true);
+        config.addDefault("teleport-limit.per-command.tpr", false);
+        config.addDefault("teleport-limit.per-command.warp", true);
+        config.addDefault("teleport-limit.per-command.spawn", true);
+        config.addDefault("teleport-limit.per-command.back", true);
+
         config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")));
 
         config.options().copyDefaults(true);
