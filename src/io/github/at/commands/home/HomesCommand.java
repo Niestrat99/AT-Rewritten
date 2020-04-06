@@ -1,5 +1,6 @@
 package io.github.at.commands.home;
 
+import fanciful.FancyMessage;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
@@ -44,14 +45,20 @@ public class HomesCommand implements CommandExecutor {
                 }
                 if (sender instanceof Player) {
                     Player player = (Player)sender;
-                    StringBuilder hlist = new StringBuilder();
-                    hlist.append(CustomMessages.getString("Info.homes"));
+                    FancyMessage hList = new FancyMessage();
+                    hList.text(CustomMessages.getString("Info.homes"));
                     try {
                         if (Homes.getHomes(player).size()>0){
+
                             for (String home: Homes.getHomes(player).keySet()) {
-                                hlist.append(home + ", ");
+                                hList.then(home)
+                                        .command("/home " + home)
+                                        .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home));
+                                hList.then(", ");
                             }
-                            hlist.setLength(hlist.length() - 2);
+
+                            hList.text("");
+
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noHomes"));
                             return false;
@@ -60,7 +67,7 @@ public class HomesCommand implements CommandExecutor {
                         sender.sendMessage(CustomMessages.getString("Error.noHomes"));
                         return false;
                     }
-                    sender.sendMessage(hlist.toString());
+                    hList.send(player);
                 }
             }
         } else {
