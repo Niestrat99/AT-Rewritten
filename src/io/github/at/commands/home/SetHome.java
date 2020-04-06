@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.io.IOException;
-import java.util.UUID;
 
 public class SetHome implements CommandExecutor {
     @Override
@@ -56,8 +55,13 @@ public class SetHome implements CommandExecutor {
                         }
 
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                        return false;
+                        int limit = getHomesLimit(player);
+                        if (Homes.getHomes(player).size() == 0 && (limit > 0 || limit == -1)) {
+                            setHome(player, "home");
+                        } else {
+                            sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
+                            return false;
+                        }
                     }
                 }
             } else {
