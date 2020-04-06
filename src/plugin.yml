@@ -1,6 +1,6 @@
 main: io.github.at.main.CoreClass
 name: AdvancedTeleport
-version: 5.0.16-SNAPSHOT
+version: 5.1
 description: A plugin which is based on tons of teleport stuff.
 authors: [Niestrat99,Thatsmusic99]
 softdepend: [Vault, Ultimate_Economy]
@@ -52,48 +52,67 @@ commands:
     description: Accepts a teleport request someone sent you.
     permission: at.member.yes
     aliases: [tpayes , tpyes]
+    usage: /tpaccept [Player]
   tpo:
     description: (ADMIN ONLY COMMAND) Instantly teleports you to another player.
     permission: at.admin.tpo
+    usage: /tpo <Player>
   tpahere:
     description: Sends the targeted player a teleport requests to where you are.
     permission: at.member.here
+    usage: /tpahere <Player>
   tpa:
     description: Sends the targeted player a teleport request to where they are.
     permission: at.member.tpa
+    usage: /tpa <Player>
   athelp:
     description: Sends you a list of commands.
     permission: at.member.help
+    usage: /athelp [Category]
   tpalist:
     description: Lists your teleport requests.
     permission: at.member.list
+    usage: /tpalist
   spawn:
     description: Teleports you to the spawn location.
     permission: at.member.spawn
+    usage: /spawn
   setspawn:
     description: Sets a spawn at your location.
     permission: at.admin.setspawn
+    usage: /setspawn
   atreload:
     description: Reloads the Config.
     permission: at.admin.reload
+    usage: /atreload
   sethome:
     description: Sets a home point at your location.
     permission: at.member.sethome
+    usage: /sethome [Home]
   delhome:
     description: Deletes a home point you've set.
     permission: at.member.delhome
+    usage: /delhome <Home>
   home:
     description: Sends you to your home point.
     permission: at.member.home
+    usage: /home [Home]
   homes:
     description: Gives a list of homes you've set.
     permission: at.member.homes
+    usage: /homes [Player]
   back:
     description: Teleports you to your last location.
     permission: at.member.back
+    usage: /back
   atinfo:
     description: Shows informations about this plugin.
     permission: at.admin.info
+    usage: /atinfo
+  tploc:
+    description: Teleports you to a specified location.
+    permission: at.admin.tploc
+    usage: /tploc <x> <y> <z> [World] [Player]
 
 permissions:
   at.member.warp.*:
@@ -153,3 +172,5 @@ permissions:
       at.admin.sethome.bypass: true
       at.admin.toggletp: true
       at.admin.bypass: true
+      at.admin.tploc: true
+      at.admin.tploc.others: true
