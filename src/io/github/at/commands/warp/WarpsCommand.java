@@ -1,5 +1,6 @@
 package io.github.at.commands.warp;
 
+import fanciful.FancyMessage;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Warps;
@@ -12,16 +13,18 @@ public class WarpsCommand implements CommandExecutor {
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("warps")) {
             if (commandSender.hasPermission("at.member.warps")){
-                StringBuilder wList = new StringBuilder();
-                wList.append(CustomMessages.getString("Info.warps"));
+                FancyMessage wList = new FancyMessage();
+                wList.text(CustomMessages.getString("Info.warps"));
                 for (String warp: Warps.getWarps().keySet()) {
                     if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warp)) {
-                        wList.append(warp + ", ");
+                        wList.then(warp)
+                                .command("/warp " + warp)
+                                .tooltip(CustomMessages.getString("Tooltip.warps").replaceAll("\\{warp}", warp));
+                        wList.then(", ");
                     }
-                    wList.setLength(wList.length() - 2);
-
+                    wList.text("");
                 }
-                commandSender.sendMessage(wList.toString());
+                wList.send(commandSender);
             }
         } else {
             commandSender.sendMessage(CustomMessages.getString("Error.featureDisabled"));

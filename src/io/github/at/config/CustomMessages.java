@@ -124,6 +124,8 @@ public class CustomMessages {
         Config.addDefault("Info.createdRTPSign", "&aSuccessfully created the RandomTP sign!");
         Config.addDefault("Info.createdSpawnSign", "&aSuccessfully created the spawn sign!");
         Config.addDefault("Info.tpallRequestSent", "&aSuccessfully sent a teleport request to &e{amount} &aplayer(s)!");
+        Config.addDefault("Tooltip.homes", "&aTeleports you to your home: &e{home}");
+        Config.addDefault("Tooltip.warps", "&aTeleports you to warp: &e{warp}");
         Config.addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
                 "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
                 "&6--[ &bCategories &6]--",
