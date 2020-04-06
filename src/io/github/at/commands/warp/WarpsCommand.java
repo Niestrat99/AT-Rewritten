@@ -18,6 +18,7 @@ public class WarpsCommand implements CommandExecutor {
                     if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warp)) {
                         wList.append(warp + ", ");
                     }
+                    wList.setLength(wList.length() - 2);
 
                 }
                 commandSender.sendMessage(wList.toString());
