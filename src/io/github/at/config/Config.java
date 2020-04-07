@@ -1,6 +1,7 @@
 package io.github.at.config;
 
 import io.github.at.main.CoreClass;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -44,10 +45,24 @@ public class Config {
         config.addDefault("timers.cancel-on-movement", true);
         // Booleans
         config.addDefault("booleans.useVault" , false);
+        config.addDefault("booleans.useWarpsGUIMenu" , false);
         config.addDefault("booleans.EXPPayment" , false);
         //Sounds
         config.addDefault("sounds.tpa.requestSent", "none");
         config.addDefault("sounds.tpa.requestReceived", "none");
+        //Warps Menu
+        config.addDefault("warpsGUIMenu.slots", 27);
+        //Warps Menu Example
+        config.addDefault("warpsGUIMenu.warps.warpName1.name", "&aWarp Name 1");
+        config.addDefault("warpsGUIMenu.warps.warpName1.item", "GRASS_BLOCK");
+        config.addDefault("warpsGUIMenu.warps.warpName1.tooltip", "Teleports you to warpName1");
+        config.addDefault("warpsGUIMenu.warps.warpName1.slot", 11);
+        config.addDefault("warpsGUIMenu.warps.warpName1.hideIfNoPermission", false);
+        config.addDefault("warpsGUIMenu.warps.warpName2.name", "&7Warp Name 2");
+        config.addDefault("warpsGUIMenu.warps.warpName2.item", "IRON_PICKAXE");
+        config.addDefault("warpsGUIMenu.warps.warpName2.tooltip", "Teleports you to warpName2");
+        config.addDefault("warpsGUIMenu.warps.warpName2.slot", 13);
+        config.addDefault("warpsGUIMenu.warps.warpName2.hideIfNoPermission", true);
         // Payments
         config.addDefault("payments.vault.teleportPrice" , 100.00);
         config.addDefault("payments.exp.teleportPrice" , 2);
@@ -160,10 +175,16 @@ public class Config {
         }
     }
 
+    public static boolean isUsingWarpsGUIMenu() { return config.getBoolean("booleans.useWarpsGUIMenu"); }
+
     /* Used to get the sound name that will be played for specific event.
      * e.g: Config.getSound("tpa.requestSent") - returns a string (e.g none, BLOCK_ANVIL_LAND) of the sound name that will be played to a player that sent a tpa request
      */
     public static String getSound(String event){ return config.getString("sounds." + event).toUpperCase(); }
+
+
+    public static ConfigurationSection getWarpsMenu() { return config.getConfigurationSection("warpsGUIMenu.warps"); }
+    public static int getWarpsMenuSlot() { return config.getInt("warpsGUIMenu.slots"); }
 
     /* Used to get the amount that is paid for the specific command.
      * e.g: Config.getTeleportPrice("home") - returns a price (e.g $10) for how much the home command costs.

@@ -4,30 +4,45 @@ import fanciful.FancyMessage;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Warps;
+import io.github.at.main.CoreClass;
+import io.github.at.utilities.IconMenu;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class WarpsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("warps")) {
             if (commandSender.hasPermission("at.member.warps")){
-                FancyMessage wList = new FancyMessage();
-                wList.text(CustomMessages.getString("Info.warps"));
-                String[] warps = (String[]) Warps.getWarps().keySet().toArray();
-                for (int i = 0; i < warps.length; i++) {
-                    if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warps[i])) {
-                        wList.then(warps[i])
-                                .command("/warp " + warps[i])
-                                .tooltip(CustomMessages.getString("Tooltip.warps").replaceAll("\\{warp}", warps[i]));
-                        if (i != warps.length - 1) {
-                            wList.then(", ");
+                if(Config.isUsingWarpsGUIMenu()){
+                        ConfigurationSection warps = Config.getWarpsMenu();
+                        IconMenu menu = new IconMenu(CustomMessages.getString("Info.warps"), Config.getWarpsMenuSlot(), CoreClass.getInstance());
+                        for (String warpName : warps.getKeys(false)) {
+                            ConfigurationSection warp = warps.getConfigurationSection(warpName);
+                            if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warpName) || !warp.getBoolean("hideIfNoPermission")) {
+                                menu.setOption(warp.getInt("slot"), new ItemStack(Material.valueOf(warp.getString("item")), 1), warp.getString("name"), "/warp " + warpName, warp.getString("tooltip"));
+                            }
+                        }
+                        menu.open((Player)commandSender);
+                }else{
+                    FancyMessage wList = new FancyMessage();
+                    wList.text(CustomMessages.getString("Info.warps"));
+                    for(String warp: Warps.getWarps().keySet()){
+                        if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warp)) {
+                            wList.then(warp)
+                                .command("/warp " + warp)
+                                .tooltip(CustomMessages.getString("Tooltip.warps").replaceAll("\\{warp}", warp))
+                                .then(", ");
                         }
                     }
-                    wList.text("");
+                    wList.text(""); //Removes trailing comma
+                    wList.send(commandSender);
                 }
-                wList.send(commandSender);
             }
         } else {
             commandSender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
