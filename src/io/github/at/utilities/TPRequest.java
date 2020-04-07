@@ -38,8 +38,8 @@ public class TPRequest {
     }
 
     public enum TeleportType {
-        TPA_HERE,
-        TPA_NORMAL
+        TPAHERE,
+        TPA
     }
 
     public static List<TPRequest> getRequests(Player responder) {
