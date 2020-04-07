@@ -10,6 +10,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Set;
+
 public class HomesCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -19,15 +21,21 @@ public class HomesCommand implements CommandExecutor {
                     if (sender.hasPermission("at.admin.homes")) {
                         Player player = Bukkit.getPlayer(args[0]);
                         if (player != null) {
-                            StringBuilder hlist = new StringBuilder();
-                            hlist.append(CustomMessages.getString("Info.homesOther").replaceAll("\\{player}", player.getName()));
+                            FancyMessage hlist = new FancyMessage();
+                            hlist.text(CustomMessages.getString("Info.homesOther").replaceAll("\\{player}", player.getName()));
                             if (Bukkit.getPlayer(args[0]) != null) {
                                 try {
                                     if (Homes.getHomes(player).size()>0) {
-                                        for (String home: Homes.getHomes(player).keySet()) {
-                                            hlist.append(home + ", ");
+                                        String[] homes = (String[]) Homes.getHomes(player).keySet().toArray();
+                                        for (int i = 0; i < homes.length; i++) {
+                                            hlist.then(homes[i])
+                                                    .command("/home " + homes[i])
+                                                    .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", homes[i]));
+                                            if (i != homes.length - 1) {
+                                                hlist.then(", ");
+                                            }
                                         }
-                                        hlist.setLength(hlist.length() - 2);
+                                        hlist.text("");
                                     } else {
                                         sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
                                         return false;
@@ -37,8 +45,8 @@ public class HomesCommand implements CommandExecutor {
                                     sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
                                     return false;
                                 }
-                                sender.sendMessage(hlist.toString());
-                                return false;
+                                hlist.send(sender);
+                                return true;
                             }
                         } // Otherwise we'll just get the main player's homes
                     }
@@ -49,11 +57,14 @@ public class HomesCommand implements CommandExecutor {
                     hList.text(CustomMessages.getString("Info.homes"));
                     try {
                         if (Homes.getHomes(player).size()>0){
-                            for (String home: Homes.getHomes(player).keySet()) {
-                                hList.then(home)
-                                        .command("/home " + home)
-                                        .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home));
-                                hList.then(", ");
+                            String[] homes = (String[]) Homes.getHomes(player).keySet().toArray();
+                            for (int i = 0; i < homes.length; i++) {
+                                hList.then(homes[i])
+                                        .command("/home " + homes[i])
+                                        .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", homes[i]));
+                                if (i != homes.length - 1) {
+                                    hList.then(", ");
+                                }
                             }
                             hList.text("");
                         } else {

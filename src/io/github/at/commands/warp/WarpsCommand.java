@@ -15,12 +15,15 @@ public class WarpsCommand implements CommandExecutor {
             if (commandSender.hasPermission("at.member.warps")){
                 FancyMessage wList = new FancyMessage();
                 wList.text(CustomMessages.getString("Info.warps"));
-                for (String warp: Warps.getWarps().keySet()) {
-                    if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warp)) {
-                        wList.then(warp)
-                                .command("/warp " + warp)
-                                .tooltip(CustomMessages.getString("Tooltip.warps").replaceAll("\\{warp}", warp));
-                        wList.then(", ");
+                String[] warps = (String[]) Warps.getWarps().keySet().toArray();
+                for (int i = 0; i < warps.length; i++) {
+                    if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warps[i])) {
+                        wList.then(warps[i])
+                                .command("/warp " + warps[i])
+                                .tooltip(CustomMessages.getString("Tooltip.warps").replaceAll("\\{warp}", warps[i]));
+                        if (i != warps.length - 1) {
+                            wList.then(", ");
+                        }
                     }
                     wList.text("");
                 }
