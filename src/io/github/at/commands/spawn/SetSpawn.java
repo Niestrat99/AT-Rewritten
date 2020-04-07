@@ -30,12 +30,10 @@ public class SetSpawn implements CommandExecutor {
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.noPermission"));
-                return false;
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 }

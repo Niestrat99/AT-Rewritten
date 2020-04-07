@@ -13,7 +13,6 @@ public class AtReload implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (!sender.hasPermission("at.admin.reload")) {
             sender.sendMessage(CustomMessages.getString("Error.noPermission"));
-            return false;
         } else {
             sender.sendMessage(CustomMessages.getString("Info.reloadingConfig"));
             try {
@@ -29,6 +28,6 @@ public class AtReload implements CommandExecutor {
             }
             sender.sendMessage(CustomMessages.getString("Info.reloadedConfig"));
         }
-        return false;
+        return true;
     }
 }

@@ -31,38 +31,34 @@ public class Tpa implements CommandExecutor {
                     UUID playerUuid = player.getUniqueId();
                     if (CooldownManager.getCooldown().containsKey(playerUuid)) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
-                        return false;
+                        return true;
                     }
                     if (MovementManager.getMovement().containsKey(playerUuid)) {
                         player.sendMessage(CustomMessages.getString("Error.onCountdown"));
-                        return false;
+                        return true;
                     }
                     if (args.length > 0) {
                         if (args[0].equalsIgnoreCase(player.getName())){
                             sender.sendMessage(CustomMessages.getString("Error.requestSentToSelf"));
-                            return false;
+                            return true;
                         }
                         Player target = Bukkit.getPlayer(args[0]);
                         if (target == null) {
                             sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                            return false;
+                            return true;
                         } else {
                             UUID targetUuid = target.getUniqueId();
                             if (TpOff.getTpOff().contains(targetUuid)) {
                                 sender.sendMessage(CustomMessages.getString("Error.tpOff").replaceAll("\\{player}", target.getName()));
-                                return false;
+                                return true;
                             }
                             if (TpBlock.getBlockedPlayers(target).contains(playerUuid)) {
                                 sender.sendMessage(CustomMessages.getString("Error.tpBlock").replaceAll("\\{player}", target.getName()));
-                                return false;
+                                return true;
                             }
                             if (TPRequest.getRequestByReqAndResponder(target, player) != null) {
                                 sender.sendMessage(CustomMessages.getString("Error.alreadySentRequest").replaceAll("\\{player}", target.getName()));
-                                return false;
-                            }
-                            if (!DistanceLimiter.canTeleport(player.getLocation(), target.getLocation(), "tpa") && !player.hasPermission("at.admin.bypass.distance-limit")) {
-                                player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
-                                return false;
+                                return true;
                             }
                             if (PaymentManager.canPay("tpa", player)) {
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
@@ -95,7 +91,7 @@ public class Tpa implements CommandExecutor {
                                     }
                                 };
                                 run.runTaskLater(CoreClass.getInstance(), Config.requestLifetime()*20); // 60 seconds
-                                TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA_NORMAL); // Creates a new teleport request.
+                                TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
                                 BukkitRunnable cooldowntimer = new BukkitRunnable() {
                                     @Override
@@ -105,20 +101,20 @@ public class Tpa implements CommandExecutor {
                                 };
                                 CooldownManager.getCooldown().put(playerUuid, cooldowntimer);
                                 cooldowntimer.runTaskLater(CoreClass.getInstance(), Config.commandCooldown()*20); // 20 ticks = 1 second
-                                return false;
+                                return true;
                             }
 
                         }
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
-                        return false;
+                        return true;
                     }
                 }
-                return false;
+                return true;
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
         }
-        return false;
+        return true;
     }
 }

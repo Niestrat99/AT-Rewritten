@@ -30,7 +30,7 @@ public class SetHome implements CommandExecutor {
                                         setHome(player, target, args[1]);
                                     } else {
                                         sender.sendMessage(CustomMessages.getString("Error.invalidName"));
-                                        return false;
+                                        return true;
                                     }
 
                                 }
@@ -47,7 +47,6 @@ public class SetHome implements CommandExecutor {
                                 setHome(player, args[0]);
                             } else {
                                 sender.sendMessage(CustomMessages.getString("Error.invalidName"));
-                                return false;
                             }
 
                         } else {
@@ -60,7 +59,6 @@ public class SetHome implements CommandExecutor {
                             setHome(player, "home");
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                            return false;
                         }
                     }
                 }
@@ -69,9 +67,8 @@ public class SetHome implements CommandExecutor {
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 
     private void setHome(Player sender, String name) {

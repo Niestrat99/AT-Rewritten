@@ -20,7 +20,7 @@ public class SpawnCommand implements CommandExecutor {
             if (sender.hasPermission("at.member.spawn")){
                 if (MovementManager.getMovement().containsKey(sender)) {
                     sender.sendMessage(CustomMessages.getString("Error.onCountdown"));
-                    return false;
+                    return true;
                 }
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
@@ -31,9 +31,8 @@ public class SpawnCommand implements CommandExecutor {
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 
     public static void spawn(Player player) {

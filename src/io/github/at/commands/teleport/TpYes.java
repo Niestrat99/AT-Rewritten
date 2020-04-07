@@ -29,12 +29,11 @@ public class TpYes implements CommandExecutor {
 
                     // It's not null, we've already run the tests to make sure it isn't
                     AcceptRequest.acceptRequest(request);
-                    return false;
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
             }
         }
-        return false;
+        return true;
     }
 }

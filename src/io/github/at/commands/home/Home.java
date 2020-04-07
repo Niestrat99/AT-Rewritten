@@ -39,12 +39,12 @@ public class Home implements CommandExecutor {
                                             sender.sendMessage(CustomMessages.getString("Info.teleportingToHomeOther")
                                                     .replaceAll("\\{player}", target.getName())
                                                     .replaceAll("\\{home}", args[1]));
-                                            return false;
+                                            return true;
                                         } else if (args[1].equalsIgnoreCase("bed")) {
                                             Location location = player.getBedSpawnLocation();
                                             if (location == null) {
                                                 player.sendMessage(CustomMessages.getString("Error.noBedHomeOther").replaceAll("\\{player}", target.getName()));
-                                                return false;
+                                                return true;
                                             }
 
                                         } else if (args[1].equalsIgnoreCase("list")) {
@@ -61,49 +61,49 @@ public class Home implements CommandExecutor {
                                                             hlist.setLength(hlist.length() - 2);
                                                         } else {
                                                             sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
-                                                            return false;
+                                                            return true;
                                                         }
 
                                                     } catch (NullPointerException ex) {
                                                         sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
-                                                        return false;
+                                                        return true;
                                                     }
                                                     sender.sendMessage(hlist.toString());
-                                                    return false;
+                                                    return true;
                                                 }
                                             }
                                         } else {
                                             sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
-                                            return false;
+                                            return true;
                                         }
                                     } catch (NullPointerException ex) {
                                         Location tlocation = Homes.getHomes(target).get(args[1]);
                                         player.teleport(tlocation);
                                         sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
                                                 .replaceAll("\\{player}", target.getName().replaceAll("\\{home}", args[1])));
-                                        return false;
+                                        return true;
                                     }
                                 }
                             }
                         }
                         if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                             player.sendMessage(CustomMessages.getString("Error.onCountdown"));
-                            return false;
+                            return true;
                         }
                         if (PaymentManager.canPay("home", player)) {
                             try {
                                 if (Homes.getHomes(player).containsKey(args[0])) {
                                     Location location = Homes.getHomes(player).get(args[0]);
                                     teleport(player, location, args[0]);
-                                    return false;
+                                    return true;
                                 } else if (args[0].equalsIgnoreCase("bed")) {
                                     Location location = player.getBedSpawnLocation();
                                     if (location == null) {
                                         player.sendMessage(CustomMessages.getString("Error.noBedHome"));
-                                        return false;
+                                        return true;
                                     }
                                     teleport(player, location, args[0]);
-                                    return false;
+                                    return true;
 
                                 } else if (args[0].equalsIgnoreCase("list")) {
                                     Bukkit.dispatchCommand(sender, "homes");
@@ -113,7 +113,7 @@ public class Home implements CommandExecutor {
                             } catch (NullPointerException ex) {
                                 Location location = Homes.getHomes(player).get(args[0]);
                                 teleport(player, location, args[0]);
-                                return false;
+                                return true;
                             }
                         }
 
@@ -123,7 +123,7 @@ public class Home implements CommandExecutor {
                             teleport(player, homes.get(name), name);
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                            return false;
+                            return true;
                         }
                     }
                 } else {
@@ -132,9 +132,9 @@ public class Home implements CommandExecutor {
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
+            return true;
         }
-        return false;
+        return true;
     }
 
     private void teleport(Player player, Location loc, String name) {

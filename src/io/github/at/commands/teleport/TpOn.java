@@ -26,11 +26,10 @@ public class TpOn implements CommandExecutor {
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-                return false;
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
         }
-        return false;
+        return true;
     }
 }

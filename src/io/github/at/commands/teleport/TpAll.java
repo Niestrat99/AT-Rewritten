@@ -26,7 +26,7 @@ public class TpAll implements CommandExecutor {
                     UUID playerUuid = player.getUniqueId();
                     if (CooldownManager.getCooldown().containsKey(playerUuid)) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
-                        return false;
+                        return true;
                     }
                     int players = 0;
                     for (Player target : Bukkit.getOnlinePlayers()) {
@@ -75,6 +75,6 @@ public class TpAll implements CommandExecutor {
         } else {
             sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
         }
-        return false;
+        return true;
     }
 }

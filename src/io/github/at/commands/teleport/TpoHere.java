@@ -19,33 +19,28 @@ public class TpoHere implements CommandExecutor {
                     if (args.length>0){
                         if (args[0].equalsIgnoreCase(player.getName())){
                             sender.sendMessage(CustomMessages.getString("Error.requestSentToSelf"));
-                            return false;
+                            return true;
                         }
                         Player target = Bukkit.getPlayer(args[0]);
                         if (target == null){
                             sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                            return false;
                         } else {
                             sender.sendMessage(CustomMessages.getString("Teleport.teleportingPlayerToSelf").replaceAll("\\{player}", target.getName()));
                             target.sendMessage(CustomMessages.getString("Teleport.teleportingSelfToPlayer").replaceAll("\\{player}", sender.getName()));
                             target.teleport(player);
-                            return false;
                         }
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
-                        return false;
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.noPermission"));
-                return false;
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 }

@@ -21,7 +21,7 @@ public class AtHelp implements CommandExecutor {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
                 }
-                return false;
+                return true;
             } else if (args[0].equalsIgnoreCase("teleport")) {
                 if (Config.isFeatureEnabled("teleport")) {
                     for (String str : CustomMessages.Config.getStringList("Help.teleport")) {
@@ -31,11 +31,11 @@ public class AtHelp implements CommandExecutor {
                         for (String str : CustomMessages.Config.getStringList("Help.teleportAdmin")) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                         }
-                        return false;
+                        return true;
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-                    return false;
+                    return true;
                 }
             } else if (args[0].equalsIgnoreCase("warps")) {
                 if (Config.isFeatureEnabled("warps")) {
@@ -46,11 +46,11 @@ public class AtHelp implements CommandExecutor {
                         for (String str : CustomMessages.Config.getStringList("Help.warpsAdmin")) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                         }
-                        return false;
+                        return true;
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-                    return false;
+                    return true;
                 }
             } else if (args[0].equalsIgnoreCase("Spawn")) {
                 if (Config.isFeatureEnabled("spawn")) {
@@ -61,22 +61,21 @@ public class AtHelp implements CommandExecutor {
                         for (String str : CustomMessages.Config.getStringList("Help.spawnAdmin")) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                         }
-                        return false;
+                        return true;
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-                    return false;
+                    return true;
                 }
             } else if (args[0].equalsIgnoreCase("RandomTP")) {
                 if (Config.isFeatureEnabled("randomTP")) {
                     for (String str : CustomMessages.Config.getStringList("Help.randomTP")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
-                    return false;
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-                    return false;
                 }
+                return true;
             } else if (args[0].equalsIgnoreCase("homes")) {
                 if (Config.isFeatureEnabled("homes")) {
                     for (String str : CustomMessages.Config.getStringList("Help.homes")) {
@@ -86,11 +85,11 @@ public class AtHelp implements CommandExecutor {
                         for (String str : CustomMessages.Config.getStringList("Help.homesAdmin")) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                         }
-                        return false;
+                        return true;
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-                    return false;
+                    return true;
                 }
             } else if (args[0].equalsIgnoreCase("Admin")) {
                 if (sender.hasPermission("at.admin.help")) {
@@ -98,9 +97,9 @@ public class AtHelp implements CommandExecutor {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
                 }
-                return false;
+                return true;
             }
-        }return false;
-
+        }
+        return true;
     }
 }

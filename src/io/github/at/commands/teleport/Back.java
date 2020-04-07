@@ -1,5 +1,6 @@
 package io.github.at.commands.teleport;
 
+import io.github.at.api.ATTeleportEvent;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.LastLocations;
@@ -28,7 +29,7 @@ public class Back implements CommandExecutor {
                         loc = LastLocations.getLocation(player);
                         if (loc == null) {
                             sender.sendMessage(CustomMessages.getString("Error.noLocation"));
-                            return false;
+                            return true;
                         }
                     }
                     while (!(loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.WATER || loc.getBlock().getType().name().equalsIgnoreCase("CAVE_AIR"))) {
@@ -36,7 +37,7 @@ public class Back implements CommandExecutor {
                     }
                     if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back") && !player.hasPermission("at.admin.bypass.distance-limit")) {
                         player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
-                        return false;
+                        return true;
                     }
                     Location finalLoc = loc;
                     if (PaymentManager.canPay("back", player)) {
@@ -66,12 +67,12 @@ public class Back implements CommandExecutor {
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.noPermission"));
-                return false;
+                return true;
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
+            return true;
         }
-        return false;
+        return true;
     }
 }

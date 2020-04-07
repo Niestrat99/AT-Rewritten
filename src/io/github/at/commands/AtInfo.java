@@ -20,6 +20,6 @@ public class AtInfo implements CommandExecutor {
             sender.sendMessage(ChatColor.GOLD + "- GitHub: " + ChatColor.AQUA + "https://github.com/Niestrat99/AT-Rewritten");
             sender.sendMessage(ChatColor.AQUA + "Do you like this plugin? Then please leave a review on the Spigot page!");
         }
-        return false;
+        return true;
     }
 }

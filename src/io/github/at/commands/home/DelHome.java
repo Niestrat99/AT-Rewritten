@@ -30,7 +30,6 @@ public class DelHome implements CommandExecutor {
                         delHome(player, args[0]);
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                        return false;
                     }
                 }
             } else {
@@ -38,9 +37,8 @@ public class DelHome implements CommandExecutor {
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 
     private void delHome(Player player, Player sender, String name) {

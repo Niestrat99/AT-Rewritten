@@ -31,8 +31,7 @@ public class WarpsCommand implements CommandExecutor {
             }
         } else {
             commandSender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 }

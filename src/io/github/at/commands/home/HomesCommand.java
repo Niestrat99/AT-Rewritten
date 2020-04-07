@@ -38,12 +38,12 @@ public class HomesCommand implements CommandExecutor {
                                         hlist.text("");
                                     } else {
                                         sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
-                                        return false;
+                                        return true;
                                     }
 
                                 } catch (NullPointerException ex) {
                                     sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
-                                    return false;
+                                    return true;
                                 }
                                 hlist.send(sender);
                                 return true;
@@ -69,20 +69,19 @@ public class HomesCommand implements CommandExecutor {
                             hList.text("");
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noHomes"));
-                            return false;
+                            return true;
                         }
 
                     } catch (NullPointerException ex) { // If a player has never set any homes
                         sender.sendMessage(CustomMessages.getString("Error.noHomes"));
-                        return false;
+                        return true;
                     }
                     hList.send(player);
                 }
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 }

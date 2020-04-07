@@ -1,5 +1,6 @@
 package io.github.at.commands.teleport;
 
+import io.github.at.api.ATTeleportEvent;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.events.CooldownManager;
@@ -29,7 +30,7 @@ public class Tpr implements CommandExecutor {
             if (Config.isFeatureEnabled("randomTP")) {
                 if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                     player.sendMessage(CustomMessages.getString("Error.onCountdown"));
-                    return false;
+                    return true;
                 }
                 if (sender.hasPermission("at.member.tpr")) {
                     World world = player.getWorld();
@@ -40,7 +41,7 @@ public class Tpr implements CommandExecutor {
                                 world = otherWorld;
                             } else {
                                 sender.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
-                                return false;
+                                return true;
                             }
                         }
 
@@ -52,21 +53,20 @@ public class Tpr implements CommandExecutor {
         } else {
             sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
         }
-        return false;
+        return true;
     }
 
     public static boolean randomTeleport(Player player, World world) {
         UUID uuid = player.getUniqueId();
         if (CooldownManager.getCooldown().containsKey(uuid)) {
             player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
-            return false;
+            return true;
         }
         if (Config.getBlacklistedWorlds().contains(world.getName()) && !player.hasPermission("at.admin.rtp.bypass-world")) {
             player.sendMessage(CustomMessages.getString("Error.cantTPToWorld"));
-            return false;
+            return true;
         }
         if (!PaymentManager.canPay("tpr", player)) return false;
-
         player.sendMessage(CustomMessages.getString("Info.searching"));
         new BukkitRunnable() {
             @Override
@@ -152,6 +152,6 @@ public class Tpr implements CommandExecutor {
             }
         }.runTaskAsynchronously(CoreClass.getInstance());
 
-        return false;
+        return true;
     }
 }

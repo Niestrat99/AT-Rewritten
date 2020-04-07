@@ -36,16 +36,13 @@ public class Warp implements CommandExecutor {
                                     }
                                 } else {
                                     sender.sendMessage(CustomMessages.getString("Error.invalidName"));
-                                    return false;
                                 }
                             } else {
                                 sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
-                                return false;
                             }
                         }
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noPermission"));
-                        return false;
                     }
                 } else if (args[0].equalsIgnoreCase("delete")) {
                     if (sender.hasPermission("at.admin.warpdel")) {
@@ -62,11 +59,9 @@ public class Warp implements CommandExecutor {
                             }
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
-                            return false;
                         }
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noPermission"));
-                        return false;
                     }
                 } else if (sender.hasPermission("at.member.warp")) {
                     if (sender instanceof Player) {
@@ -74,31 +69,27 @@ public class Warp implements CommandExecutor {
                         if (Warps.getWarps().containsKey(args[0])) {
                             if (MovementManager.getMovement().containsKey(player)) {
                                 player.sendMessage(CustomMessages.getString("Error.onCountdown"));
-                                return false;
+                                return true;
                             }
                             Location warp = Warps.getWarps().get(args[0]);
                             warp(warp, player, args[0]);
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
-                            return false;
                         }
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.noPermission"));
-                    return false;
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
-                return false;
             }
 
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 
     public static void warp(Location loc, Player player, String name) {

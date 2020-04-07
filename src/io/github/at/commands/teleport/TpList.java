@@ -56,11 +56,11 @@ public class TpList implements CommandExecutor {
                                                 .replaceAll("\\{player}", request.getRequester().getName()))
                                         .send(player);
                             }
-                            return false;
+                            return true;
                         }
                     } else {
                         player.sendMessage(CustomMessages.getString("Error.noRequests"));
-                        return false;
+                        return true;
                     }
 
                 } else {
@@ -69,8 +69,8 @@ public class TpList implements CommandExecutor {
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
+            return true;
         }
-        return false;
+        return true;
     }
 }

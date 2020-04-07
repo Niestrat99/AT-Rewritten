@@ -18,7 +18,7 @@ public class ToggleTP implements CommandExecutor {
                 if (sender.hasPermission("at.member.toggletp")) {
                     if (args.length>0) {
                         if (sender.hasPermission("at.admin.toggletp")) {
-                            Player target = (Player) Bukkit.getPlayer(args[0]);
+                            Player target = Bukkit.getPlayer(args[0]);
                             UUID uuid = target.getUniqueId();
                             if (target.isOnline()) {
                                 if (TpOff.getTpOff().contains(uuid)) {
@@ -32,7 +32,6 @@ public class ToggleTP implements CommandExecutor {
                                 }
                             } else {
                                 sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                                return false;
                             }
                         }
                     } else {
@@ -49,9 +48,8 @@ public class ToggleTP implements CommandExecutor {
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-                return false;
             }
         }
-        return false;
+        return true;
     }
 }

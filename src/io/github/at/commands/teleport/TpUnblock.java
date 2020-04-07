@@ -22,12 +22,11 @@ public class TpUnblock implements CommandExecutor {
                     if (args.length>0){
                         if (args[0].equalsIgnoreCase(player.getName())){
                             sender.sendMessage(CustomMessages.getString("Error.blockSelf"));
-                            return false;
+                            return true;
                         }
                         OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
                         if (target == null){
                             sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                            return false;
                         } else {
                             if (TpBlock.getBlockedPlayers(player).contains(target.getPlayer())){
                                 try {
@@ -36,15 +35,13 @@ public class TpUnblock implements CommandExecutor {
                                     e.printStackTrace();
                                 } catch (NullPointerException e) {
                                     sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                                    return false;
+                                    return true;
                                 }
                                 sender.sendMessage(CustomMessages.getString("Info.unblockPlayer").replaceAll("\\{player}", args[0]));
-                                return false;
                             }
                         }
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
-                        return false;
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
@@ -52,8 +49,7 @@ public class TpUnblock implements CommandExecutor {
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 }

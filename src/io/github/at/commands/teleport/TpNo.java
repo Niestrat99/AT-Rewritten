@@ -31,7 +31,6 @@ public class TpNo implements CommandExecutor {
                         request.getRequester().sendMessage(CustomMessages.getString("Info.requestDeclinedResponder").replaceAll("\\{player}", player.getName()));
                         player.sendMessage(CustomMessages.getString("Info.requestDeclined"));
                         request.destroy();
-                        return false;
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
@@ -39,8 +38,7 @@ public class TpNo implements CommandExecutor {
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
-            return false;
         }
-        return false;
+        return true;
     }
 }
