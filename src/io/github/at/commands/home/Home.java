@@ -100,22 +100,7 @@ public class Home implements CommandExecutor {
                                     return false;
 
                                 } else if (args[0].equalsIgnoreCase("list")) {
-                                    StringBuilder hlist = new StringBuilder();
-                                    hlist.append(CustomMessages.getString("Info.homes"));
-                                    try {
-                                        if (Homes.getHomes(player).size()>0){
-                                            for (String home: Homes.getHomes(player).keySet()) {
-                                                hlist.append(home + ", ");
-                                            }
-                                        } else {
-                                            sender.sendMessage(CustomMessages.getString("Error.noHomes"));
-                                            return false;
-                                        }
-                                    } catch (NullPointerException ex) { // If a player has never set any homes
-                                        sender.sendMessage(CustomMessages.getString("Error.noHomes"));
-                                        return false;
-                                    }
-                                    sender.sendMessage(hlist.toString());
+                                    Bukkit.dispatchCommand(sender, "homes");
                                 } else {
                                     sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
                                 }
