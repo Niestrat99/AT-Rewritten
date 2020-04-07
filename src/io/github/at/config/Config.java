@@ -184,7 +184,7 @@ public class Config {
 
 
     public static ConfigurationSection getWarpsMenu() { return config.getConfigurationSection("warpsGUIMenu.warps"); }
-    public static int getWarpsMenuSlot() { return config.getInt("warpsGUIMenu.slots"); }
+    public static int getWarpsMenuSlots() { return config.getInt("warpsGUIMenu.slots"); }
 
     /* Used to get the amount that is paid for the specific command.
      * e.g: Config.getTeleportPrice("home") - returns a price (e.g $10) for how much the home command costs.

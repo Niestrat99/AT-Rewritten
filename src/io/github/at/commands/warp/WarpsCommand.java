@@ -21,7 +21,7 @@ public class WarpsCommand implements CommandExecutor {
             if (commandSender.hasPermission("at.member.warps")){
                 if(Config.isUsingWarpsGUIMenu()){
                         ConfigurationSection warps = Config.getWarpsMenu();
-                        IconMenu menu = new IconMenu(CustomMessages.getString("Info.warps"), Config.getWarpsMenuSlot(), CoreClass.getInstance());
+                        IconMenu menu = new IconMenu(CustomMessages.getString("Info.warps"), Config.getWarpsMenuSlots(), CoreClass.getInstance());
                         for (String warpName : warps.getKeys(false)) {
                             ConfigurationSection warp = warps.getConfigurationSection(warpName);
                             if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warpName) || !warp.getBoolean("hideIfNoPermission")) {
