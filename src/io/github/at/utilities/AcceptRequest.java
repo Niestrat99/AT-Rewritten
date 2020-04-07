@@ -15,7 +15,7 @@ public class AcceptRequest {
         player.sendMessage(CustomMessages.getString("Info.requestAccepted"));
         // Check again
         if (PaymentManager.canPay(request.getType().name().toLowerCase().replaceAll("_", ""), request.getRequester())) {
-            if (request.getType() == TPRequest.TeleportType.TPA_HERE) {
+            if (request.getType() == TPRequest.TeleportType.TPAHERE) {
                 if (Config.getTeleportTimer("tpahere") > 0) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
