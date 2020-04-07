@@ -15,6 +15,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.HashMap;
+
 public class Home implements CommandExecutor {
 
     @Override
@@ -23,14 +25,16 @@ public class Home implements CommandExecutor {
             if (sender.hasPermission("at.member.home")) {
                 if (sender instanceof Player) {
                     Player player = (Player)sender;
+                    HashMap<String, Location> homes = Homes.getHomes(player);
                     if (args.length>0) {
                         if (Bukkit.getPlayer(args[0]) != null) {
                             if (sender.hasPermission("at.admin.home")) {
                                 if (args.length > 1) {
                                     Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
+                                    homes = Homes.getHomes(target);
                                     try {
-                                        if (Homes.getHomes(target).containsKey(args[1])) {
-                                            Location tlocation = Homes.getHomes(target).get(args[1]);
+                                        if (homes.containsKey(args[1])) {
+                                            Location tlocation = homes.get(args[1]);
                                             player.teleport(tlocation);
                                             sender.sendMessage(CustomMessages.getString("Info.teleportingToHomeOther")
                                                     .replaceAll("\\{player}", target.getName())
@@ -48,11 +52,13 @@ public class Home implements CommandExecutor {
                                                 StringBuilder hlist = new StringBuilder();
                                                 hlist.append(CustomMessages.getString("Info.homesOther").replaceAll("\\{player}", player.getName()));
                                                 if (Bukkit.getPlayer(args[0]) != null) {
+                                                    homes = Homes.getHomes(Bukkit.getPlayer(args[0]));
                                                     try {
-                                                        if (Homes.getHomes(player).size()>0) {
-                                                            for (String home: Homes.getHomes(player).keySet()) {
+                                                        if (homes.size()>0) {
+                                                            for (String home: homes.keySet()) {
                                                                 hlist.append(home + ", ");
                                                             }
+                                                            hlist.setLength(hlist.length() - 2);
                                                         } else {
                                                             sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
                                                             return false;
@@ -80,7 +86,7 @@ public class Home implements CommandExecutor {
                                 }
                             }
                         }
-                        if (MovementManager.getMovement().containsKey(player)) {
+                        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                             player.sendMessage(CustomMessages.getString("Error.onCountdown"));
                             return false;
                         }
@@ -112,8 +118,13 @@ public class Home implements CommandExecutor {
                         }
 
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                        return false;
+                        if (homes.size() == 1) {
+                            String name = homes.keySet().iterator().next();
+                            teleport(player, homes.get(name), name);
+                        } else {
+                            sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
+                            return false;
+                        }
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));

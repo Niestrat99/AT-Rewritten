@@ -124,6 +124,8 @@ public class CustomMessages {
         Config.addDefault("Info.createdRTPSign", "&aSuccessfully created the RandomTP sign!");
         Config.addDefault("Info.createdSpawnSign", "&aSuccessfully created the spawn sign!");
         Config.addDefault("Info.tpallRequestSent", "&aSuccessfully sent a teleport request to &e{amount} &aplayer(s)!");
+        Config.addDefault("Tooltip.homes", "&aTeleports you to your home: &e{home}");
+        Config.addDefault("Tooltip.warps", "&aTeleports you to warp: &e{warp}");
         Config.addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
                 "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
                 "&6--[ &bCategories &6]--",
@@ -148,7 +150,8 @@ public class CustomMessages {
                 "&6- /tpalist - Lists your teleport requests.")));
         Config.addDefault("Help.teleportAdmin", new ArrayList<>(Arrays.asList("&6- /tpo <player> - Instantly teleports you to the player.",
                 "&6- /tpohere <player> - Instantly teleports the player to you.",
-                "&6- /tpall - Sends a teleport request to every online player to teleport to you.")));
+                "&6- /tpall - Sends a teleport request to every online player to teleport to you.",
+                "&6- /tploc <x|~> <y|~> <z|~> [World|~] [Player] - Teleports you or another player to a specified location.")));
         Config.addDefault("Help.warps", new ArrayList<>(Arrays.asList("&b&lWarps help",
                 "&6- /warp <warp name> - Teleports you to an existing warp point.",
                 "&6- /warps - Gives you a list of warps.")));

@@ -91,11 +91,12 @@ public class CoreClass extends JavaPlugin {
             public void run() {
                 Object[] update = UpdateChecker.getUpdate();
                 if (update != null) {
-                    getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + update[0]));
+                    getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));
                     getLogger().info(pltitle(ChatColor.AQUA + "Download link: https://www.spigotmc.org/resources/advanced-teleport.64139/"));
                 } else {
                     getLogger().info(pltitle(ChatColor.AQUA + "Plugin is up to date!"));
                 }
+                TpLoc.a();
             }
         }.runTaskAsynchronously(this);
     }
@@ -130,6 +131,7 @@ public class CoreClass extends JavaPlugin {
         getCommand("tpall").setExecutor(new TpAll());
         getCommand("tpalist").setExecutor(new TpList());
         getCommand("toggletp").setExecutor(new ToggleTP());
+        getCommand("tploc").setExecutor(new TpLoc());
 
         // Home commands
         getCommand("home").setExecutor(new Home());

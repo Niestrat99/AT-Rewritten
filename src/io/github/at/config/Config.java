@@ -45,6 +45,9 @@ public class Config {
         // Booleans
         config.addDefault("booleans.useVault" , false);
         config.addDefault("booleans.EXPPayment" , false);
+        //Sounds
+        config.addDefault("sounds.tpa.requestSent", "none");
+        config.addDefault("sounds.tpa.requestReceived", "none");
         // Payments
         config.addDefault("payments.vault.teleportPrice" , 100.00);
         config.addDefault("payments.exp.teleportPrice" , 2);
@@ -115,6 +118,16 @@ public class Config {
         config.addDefault("distance-limiter.per-command.spawn", true);
         config.addDefault("distance-limiter.per-command.back", true);
 
+        config.addDefault("teleport-limit.blacklisted-worlds", new ArrayList<>());
+        config.addDefault("teleport-limit.enabled", false);
+        config.addDefault("teleport-limit.monitor-all-teleports", false);
+        config.addDefault("teleport-limit.per-command.tpa", true);
+        config.addDefault("teleport-limit.per-command.tpahere", true);
+        config.addDefault("teleport-limit.per-command.tpr", false);
+        config.addDefault("teleport-limit.per-command.warp", true);
+        config.addDefault("teleport-limit.per-command.spawn", true);
+        config.addDefault("teleport-limit.per-command.back", true);
+
         config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")));
 
         config.options().copyDefaults(true);
@@ -146,6 +159,11 @@ public class Config {
             return config.getBoolean("payments.vault." + command + ".enabled");
         }
     }
+
+    /* Used to get the sound name that will be played for specific event.
+     * e.g: Config.getSound("tpa.requestSent") - returns a string (e.g none, BLOCK_ANVIL_LAND) of the sound name that will be played to a player that sent a tpa request
+     */
+    public static String getSound(String event){ return config.getString("sounds." + event).toUpperCase(); }
 
     /* Used to get the amount that is paid for the specific command.
      * e.g: Config.getTeleportPrice("home") - returns a price (e.g $10) for how much the home command costs.
