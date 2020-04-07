@@ -76,7 +76,7 @@ public class TpaHere implements CommandExecutor {
                                     }
                                 };
                                 run.runTaskLater(CoreClass.getInstance(), Config.requestLifetime() * 20); // 60 seconds
-                                TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA_HERE); // Creates a new teleport request.
+                                TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPAHERE); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
                                 BukkitRunnable cooldowntimer = new BukkitRunnable() {
                                     @Override

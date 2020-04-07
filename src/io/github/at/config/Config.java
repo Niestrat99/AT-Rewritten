@@ -123,7 +123,6 @@ public class Config {
         config.addDefault("teleport-limit.monitor-all-teleports", false);
         config.addDefault("teleport-limit.per-command.tpa", true);
         config.addDefault("teleport-limit.per-command.tpahere", true);
-        config.addDefault("teleport-limit.per-command.tpr", false);
         config.addDefault("teleport-limit.per-command.warp", true);
         config.addDefault("teleport-limit.per-command.spawn", true);
         config.addDefault("teleport-limit.per-command.back", true);
@@ -238,6 +237,18 @@ public class Config {
 
     public static double getDistanceLimit() {
         return config.getDouble("distance-limiter.distance-limit");
+    }
+
+    public static boolean isTeleportLimiterEnabled() {
+        return config.getBoolean("teleport-limit.enabled");
+    }
+
+    public static boolean isTeleportLimiterEnabledForCmd(String command) {
+        return config.getBoolean("teleport-limit.per-command." + command);
+    }
+
+    public static boolean hasStrictTeleportLimiter() {
+        return config.getBoolean("teleport-limit.monitor-all-teleports");
     }
 
     public static boolean hasStrictDistanceMonitor() {

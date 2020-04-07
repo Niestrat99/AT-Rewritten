@@ -1,5 +1,6 @@
 package io.github.at.commands.teleport;
 
+import io.github.at.api.ATTeleportEvent;
 import io.github.at.config.Config;
 import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
@@ -57,21 +58,24 @@ public class TpLoc implements CommandExecutor {
                                 target = Bukkit.getPlayer(args[4]);
                                 if (target == null || !target.isOnline()) {
                                     player.sendMessage("no-player");
-                                    return false;
+                                    return true;
                                 }
                             }
                         }
-                        target.teleport(location);
-                        if (player != target) {
-                            player.sendMessage("teleport-other");
-                        } else {
-                            player.sendMessage("teleport");
+                        ATTeleportEvent event = new ATTeleportEvent(target, location, target.getLocation(), "", ATTeleportEvent.TeleportType.TPLOC);
+                        if (!event.isCancelled()) {
+                            target.teleport(location);
+                            if (player != target) {
+                                player.sendMessage("teleport-other");
+                            } else {
+                                player.sendMessage("teleport");
+                            }
                         }
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
 
     public static void a() {
