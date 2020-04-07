@@ -25,7 +25,8 @@ public class WarpsCommand implements CommandExecutor {
                         for (String warpName : warps.getKeys(false)) {
                             ConfigurationSection warp = warps.getConfigurationSection(warpName);
                             if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warpName) || !warp.getBoolean("hideIfNoPermission")) {
-                                menu.setOption(warp.getInt("slot"), new ItemStack(Material.valueOf(warp.getString("item")), 1), warp.getString("name"), "/warp " + warpName, warp.getString("tooltip"));
+                                menu.setOption(warp.getInt("slot"), new ItemStack(Material.valueOf(warp.getString("item")), 1), warp.getString("name"), warp.getString("tooltip"));
+                                menu.setCommand(warp.getInt("slot"), "/warp " + warpName);
                             }
                         }
                         menu.open((Player)commandSender);
