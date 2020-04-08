@@ -8,7 +8,6 @@ package io.github.at.utilities;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -116,6 +115,7 @@ public class IconMenu implements Listener, InventoryHolder {
             }
         }
     }
+
     public void destroy() {
         HandlerList.unregisterAll(this);
         core = null;

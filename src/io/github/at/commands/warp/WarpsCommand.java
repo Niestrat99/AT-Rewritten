@@ -4,6 +4,7 @@ import fanciful.FancyMessage;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Warps;
+import io.github.at.main.CoreClass;
 import io.github.at.utilities.IconMenu;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -19,9 +20,7 @@ public class WarpsCommand implements CommandExecutor {
         if (Config.isFeatureEnabled("warps")) {
             if (commandSender.hasPermission("at.member.warps")){
                 if(Config.isUsingWarpsGUIMenu()){
-                    if (commandSender instanceof Player) {
                         ConfigurationSection warps = Config.getWarpsMenu();
-                        int pages = warps.getKeys(false).size();
                         /* Instantiate IconMenu
                          * e.g: new IconMenu("Your Homes", 9, 1, CoreClass.getInstance()) will create a menu with "Your Homes" as the title with 1 page and has 9 slots for each page
                          * The slots have to be multiple of 9
@@ -31,7 +30,9 @@ public class WarpsCommand implements CommandExecutor {
                         for (String warpName : warps.getKeys(false)) {
                             ConfigurationSection warp = warps.getConfigurationSection(warpName);
                             if (commandSender.hasPermission("at.member.warp.*")
-                                    || commandSender.hasPermission("at.member.warp." + warpName) || !warp.getBoolean("hideIfNoPermission")) {
+                                    || commandSender.hasPermission("at.member.warp." + warpName)
+                                    || !warp.getBoolean("hideIfNoPermission")) {
+
                                 /* Set an option and command to the inventory menu
                                  * e.g:
                                  * menu.setOption(0, 11, new ItemStack(Material.GRASS_BLOCK, 1), "RTP", "Teleports you to random location");
@@ -73,12 +74,10 @@ public class WarpsCommand implements CommandExecutor {
                                 .then(", ");
                         }
                     }
-                    wList.text("");
+                    wList.text(""); //Removes trailing comma
                     wList.send(commandSender);
                 }
-
-            }
-        } else {
+            }else {
             commandSender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
         }
         return true;
