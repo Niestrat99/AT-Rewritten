@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class Config {
@@ -51,7 +50,7 @@ public class Config {
         //Sounds
         config.addDefault("sounds.tpa.requestSent", "none");
         config.addDefault("sounds.tpa.requestReceived", "none");
-        
+
         // Payments
         config.addDefault("payments.vault.teleportPrice" , 100.00);
         config.addDefault("payments.exp.teleportPrice" , 2);
@@ -163,16 +162,10 @@ public class Config {
         }
     }
 
-    public static boolean isUsingWarpsGUIMenu() { return config.getBoolean("booleans.useWarpsGUIMenu"); }
-
     /* Used to get the sound name that will be played for specific event.
      * e.g: Config.getSound("tpa.requestSent") - returns a string (e.g none, BLOCK_ANVIL_LAND) of the sound name that will be played to a player that sent a tpa request
      */
     public static String getSound(String event){ return config.getString("sounds." + event).toUpperCase(); }
-
-
-    public static ConfigurationSection getWarpsMenu() { return config.getConfigurationSection("warpsGUIMenu.warps"); }
-    public static int getWarpsMenuSlots() { return config.getInt("warpsGUIMenu.slots"); }
 
     /* Used to get the amount that is paid for the specific command.
      * e.g: Config.getTeleportPrice("home") - returns a price (e.g $10) for how much the home command costs.

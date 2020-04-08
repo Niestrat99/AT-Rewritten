@@ -3,6 +3,7 @@ package io.github.at.commands.warp;
 import fanciful.FancyMessage;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
+import io.github.at.config.GUI;
 import io.github.at.config.Warps;
 import io.github.at.main.CoreClass;
 import io.github.at.utilities.IconMenu;
@@ -19,14 +20,14 @@ public class WarpsCommand implements CommandExecutor {
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("warps")) {
             if (commandSender.hasPermission("at.member.warps")){
-                if(Config.isUsingWarpsGUIMenu()){
-                        ConfigurationSection warps = Config.getWarpsMenu();
+                if(GUI.isUsingWarpsGUIMenu()){
+                        ConfigurationSection warps = GUI.getWarpsMenu();
                         /* Instantiate IconMenu
                          * e.g: new IconMenu("Your Homes", 9, 1, CoreClass.getInstance()) will create a menu with "Your Homes" as the title with 1 page and has 9 slots for each page
                          * The slots have to be multiple of 9
                          * You have to pass an instance of the plugin on the 4th parameters for it to work
                          */
-                        IconMenu menu = new IconMenu(CustomMessages.getString("Info.warps"), Config.getWarpsMenuSlots(), 1, CoreClass.getInstance());
+                        IconMenu menu = new IconMenu(CustomMessages.getString("Info.warps"), GUI.getWarpsMenuSlots(), 1, CoreClass.getInstance());
                         for (String warpName : warps.getKeys(false)) {
                             ConfigurationSection warp = warps.getConfigurationSection(warpName);
                             if (commandSender.hasPermission("at.member.warp.*")
