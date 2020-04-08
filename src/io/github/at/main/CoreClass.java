@@ -81,6 +81,7 @@ public class CoreClass extends JavaPlugin {
             LastLocations.save();
             Warps.save();
             Spawn.save();
+            GUI.setDefaults();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -6,8 +6,8 @@
 package io.github.at.utilities;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -187,7 +187,7 @@ public class IconMenu implements Listener, InventoryHolder {
             return this;
         }
 
-        public Icon withNameAndLore(String name, String... lore) {
+        public Icon withNameAndLore(String name, List<String> lore) {
             setItemNameAndLore(item, name, lore);
             return this;
         }
@@ -297,10 +297,10 @@ public class IconMenu implements Listener, InventoryHolder {
         }
     }
 
-    private static ItemStack setItemNameAndLore(ItemStack item, String name, String[] lore) {
+    private static ItemStack setItemNameAndLore(ItemStack item, String name, List<String> lore) {
         ItemMeta im = item.getItemMeta();
         im.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        im.setLore(Arrays.asList(lore));
+        im.setLore(lore);
         item.setItemMeta(im);
         return item;
     }
