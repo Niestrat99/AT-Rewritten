@@ -25,25 +25,26 @@ public class Home implements CommandExecutor {
             if (sender.hasPermission("at.member.home")) {
                 if (sender instanceof Player) {
                     Player player = (Player)sender;
-                    HashMap<String, Location> homes = Homes.getHomes(player);
+                    String uuid = player.getUniqueId().toString();
+                    HashMap<String, Location> homes = Homes.getHomes(uuid);
                     if (args.length>0) {
                         if (Bukkit.getPlayer(args[0]) != null) {
                             if (sender.hasPermission("at.admin.home")) {
                                 if (args.length > 1) {
-                                    Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
-                                    homes = Homes.getHomes(target);
+                                    uuid = Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString();
+                                    homes = Homes.getHomes(uuid);
                                     try {
                                         if (homes.containsKey(args[1])) {
                                             Location tlocation = homes.get(args[1]);
                                             player.teleport(tlocation);
                                             sender.sendMessage(CustomMessages.getString("Info.teleportingToHomeOther")
-                                                    .replaceAll("\\{player}", target.getName())
+                                                    .replaceAll("\\{player}", Bukkit.getOfflinePlayer(args[0]).getName())
                                                     .replaceAll("\\{home}", args[1]));
                                             return true;
                                         } else if (args[1].equalsIgnoreCase("bed")) {
                                             Location location = player.getBedSpawnLocation();
                                             if (location == null) {
-                                                player.sendMessage(CustomMessages.getString("Error.noBedHomeOther").replaceAll("\\{player}", target.getName()));
+                                                player.sendMessage(CustomMessages.getString("Error.noBedHomeOther").replaceAll("\\{player}", Bukkit.getOfflinePlayer(args[0]).getName()));
                                                 return true;
                                             }
 
@@ -52,7 +53,7 @@ public class Home implements CommandExecutor {
                                                 StringBuilder hlist = new StringBuilder();
                                                 hlist.append(CustomMessages.getString("Info.homesOther").replaceAll("\\{player}", player.getName()));
                                                 if (Bukkit.getPlayer(args[0]) != null) {
-                                                    homes = Homes.getHomes(Bukkit.getPlayer(args[0]));
+                                                    homes = Homes.getHomes(uuid);
                                                     try {
                                                         if (homes.size()>0) {
                                                             for (String home: homes.keySet()) {
@@ -77,10 +78,10 @@ public class Home implements CommandExecutor {
                                             return true;
                                         }
                                     } catch (NullPointerException ex) {
-                                        Location tlocation = Homes.getHomes(target).get(args[1]);
+                                        Location tlocation = Homes.getHomes(uuid).get(args[1]);
                                         player.teleport(tlocation);
                                         sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
-                                                .replaceAll("\\{player}", target.getName().replaceAll("\\{home}", args[1])));
+                                                .replaceAll("\\{player}", Bukkit.getOfflinePlayer(args[0]).getName().replaceAll("\\{home}", args[1])));
                                         return true;
                                     }
                                 }
@@ -92,8 +93,8 @@ public class Home implements CommandExecutor {
                         }
                         if (PaymentManager.canPay("home", player)) {
                             try {
-                                if (Homes.getHomes(player).containsKey(args[0])) {
-                                    Location location = Homes.getHomes(player).get(args[0]);
+                                if (Homes.getHomes(uuid).containsKey(args[0])) {
+                                    Location location = Homes.getHomes(uuid).get(args[0]);
                                     teleport(player, location, args[0]);
                                     return true;
                                 } else if (args[0].equalsIgnoreCase("bed")) {
@@ -111,7 +112,7 @@ public class Home implements CommandExecutor {
                                     sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
                                 }
                             } catch (NullPointerException ex) {
-                                Location location = Homes.getHomes(player).get(args[0]);
+                                Location location = Homes.getHomes(uuid).get(args[0]);
                                 teleport(player, location, args[0]);
                                 return true;
                             }

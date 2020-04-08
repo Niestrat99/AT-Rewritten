@@ -10,8 +10,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Set;
-
 public class HomesCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -21,12 +19,13 @@ public class HomesCommand implements CommandExecutor {
                     if (sender.hasPermission("at.admin.homes")) {
                         Player player = Bukkit.getPlayer(args[0]);
                         if (player != null) {
+                            String uuid = player.getUniqueId().toString();
                             FancyMessage hlist = new FancyMessage();
                             hlist.text(CustomMessages.getString("Info.homesOther").replaceAll("\\{player}", player.getName()));
                             if (Bukkit.getPlayer(args[0]) != null) {
                                 try {
-                                    if (Homes.getHomes(player).size()>0) {
-                                        for (String home : Homes.getHomes(player).keySet()) {
+                                    if (Homes.getHomes(uuid).size()>0) {
+                                        for (String home : Homes.getHomes(uuid).keySet()) {
                                             hlist.then(home)
                                                     .command("/home " + home)
                                                     .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home))
@@ -50,11 +49,12 @@ public class HomesCommand implements CommandExecutor {
                 }
                 if (sender instanceof Player) {
                     Player player = (Player)sender;
+                    String uuid = player.getUniqueId().toString();
                     FancyMessage hList = new FancyMessage();
                     hList.text(CustomMessages.getString("Info.homes"));
                     try {
-                        if (Homes.getHomes(player).size()>0){
-                            for(String home : Homes.getHomes(player).keySet()){
+                        if (Homes.getHomes(uuid).size()>0){
+                            for(String home : Homes.getHomes(uuid).keySet()){
                                 hList.then(home)
                                         .command("/home " + home)
                                         .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home))

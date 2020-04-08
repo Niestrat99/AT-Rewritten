@@ -43,7 +43,7 @@ public class DelHome implements CommandExecutor {
 
     private void delHome(Player player, Player sender, String name) {
         try {
-            if (Homes.getHomes(player).containsKey(name)) {
+            if (Homes.getHomes(player.getUniqueId().toString()).containsKey(name)) {
                 try {
                     Homes.delHome(player, name);
                     if (sender == player) {
