@@ -112,42 +112,45 @@ public class Tpr implements CommandExecutor {
                     }
                 }
                 Chunk chunk = player.getWorld().getChunkAt(location);
-
-                BukkitRunnable cooldowntimer = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        CooldownManager.getCooldown().remove(uuid);
-                    }
-                };
-                CooldownManager.getCooldown().put(uuid, cooldowntimer);
-                cooldowntimer.runTaskLater(CoreClass.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
                 Location loc = location.clone().add(0.5, 0, 0.5);
-                if (Config.getTeleportTimer("tpr") > 0) {
-                    BukkitRunnable movementtimer = new BukkitRunnable() {
+                ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                if (!event.isCancelled()) {
+                    BukkitRunnable cooldowntimer = new BukkitRunnable() {
                         @Override
                         public void run() {
-                            chunk.load(true);
-                            player.teleport(loc);
-                            MovementManager.getMovement().remove(uuid);
-                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
-                            PaymentManager.withdraw("tpr", player);
+                            CooldownManager.getCooldown().remove(uuid);
                         }
                     };
-                    MovementManager.getMovement().put(uuid, movementtimer);
-                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("tpr") * 20);
-                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
+                    CooldownManager.getCooldown().put(uuid, cooldowntimer);
+                    cooldowntimer.runTaskLater(CoreClass.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
 
-                } else {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            chunk.load(true);
-                            player.teleport(loc);
-                        }
-                    }.runTask(CoreClass.getInstance());
+                    if (Config.getTeleportTimer("tpr") > 0) {
+                        BukkitRunnable movementtimer = new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                chunk.load(true);
+                                player.teleport(loc);
+                                MovementManager.getMovement().remove(uuid);
+                                player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
+                                PaymentManager.withdraw("tpr", player);
+                            }
+                        };
+                        MovementManager.getMovement().put(uuid, movementtimer);
+                        movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("tpr") * 20);
+                        player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
 
-                    player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
-                    PaymentManager.withdraw("tpr", player);
+                    } else {
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                chunk.load(true);
+                                player.teleport(loc);
+                            }
+                        }.runTask(CoreClass.getInstance());
+
+                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
+                        PaymentManager.withdraw("tpr", player);
+                    }
                 }
             }
         }.runTaskAsynchronously(CoreClass.getInstance());
