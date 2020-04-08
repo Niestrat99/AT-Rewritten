@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Config {
@@ -48,6 +49,7 @@ public class Config {
         //Sounds
         config.addDefault("sounds.tpa.requestSent", "none");
         config.addDefault("sounds.tpa.requestReceived", "none");
+
         // Payments
         config.addDefault("payments.vault.teleportPrice" , 100.00);
         config.addDefault("payments.exp.teleportPrice" , 2);
