@@ -26,16 +26,13 @@ public class HomesCommand implements CommandExecutor {
                             if (Bukkit.getPlayer(args[0]) != null) {
                                 try {
                                     if (Homes.getHomes(player).size()>0) {
-                                        String[] homes = (String[]) Homes.getHomes(player).keySet().toArray();
-                                        for (int i = 0; i < homes.length; i++) {
-                                            hlist.then(homes[i])
-                                                    .command("/home " + homes[i])
-                                                    .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", homes[i]));
-                                            if (i != homes.length - 1) {
-                                                hlist.then(", ");
-                                            }
+                                        for (String home : Homes.getHomes(player).keySet()) {
+                                            hlist.then(home)
+                                                    .command("/home " + home)
+                                                    .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home))
+                                                    .then(", ");
                                         }
-                                        hlist.text("");
+                                        hlist.text(""); //Removes trailing comma
                                     } else {
                                         sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
                                         return true;
@@ -57,16 +54,13 @@ public class HomesCommand implements CommandExecutor {
                     hList.text(CustomMessages.getString("Info.homes"));
                     try {
                         if (Homes.getHomes(player).size()>0){
-                            String[] homes = (String[]) Homes.getHomes(player).keySet().toArray();
-                            for (int i = 0; i < homes.length; i++) {
-                                hList.then(homes[i])
-                                        .command("/home " + homes[i])
-                                        .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", homes[i]));
-                                if (i != homes.length - 1) {
-                                    hList.then(", ");
-                                }
+                            for(String home : Homes.getHomes(player).keySet()){
+                                hList.then(home)
+                                        .command("/home " + home)
+                                        .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home))
+                                        .then(", ");
                             }
-                            hList.text("");
+                            hList.text(""); //Removes trailing comma
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noHomes"));
                             return true;
