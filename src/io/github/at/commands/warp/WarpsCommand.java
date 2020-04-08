@@ -57,7 +57,7 @@ public class WarpsCommand implements CommandExecutor {
                                                         (byte) warp.getInt("data-value")))
                                                 .withNameAndLore(
                                                         warp.getString("name"),
-                                                        (String[]) warp.getStringList("tooltip").toArray())
+                                                        warp.getStringList("tooltip"))
                                                 .withCommands("/warp " + warpName)
                                                 .withTexture("texture"));
                             }
