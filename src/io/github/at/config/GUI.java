@@ -48,6 +48,15 @@ public class GUI {
         }
     }
 
+    public static void reloadConfig() throws IOException {
+        if (configFile == null) {
+            configFile = new File(CoreClass.getInstance().getDataFolder(), "guis.yml");
+        }
+        config = YamlConfiguration.loadConfiguration(configFile);
+        setDefaults();
+        save();
+    }
+
     public static ConfigurationSection getWarpsMenu() { return config.getConfigurationSection("warps.warps"); }
     public static int getWarpsMenuSlots() { return config.getInt("warps.slots"); }
     public static boolean isUsingWarpsGUIMenu() { return config.getBoolean("warps.gui-enabled"); }

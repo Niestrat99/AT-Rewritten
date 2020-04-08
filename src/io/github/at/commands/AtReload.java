@@ -23,6 +23,7 @@ public class AtReload implements CommandExecutor {
                 LastLocations.reloadBackLocations();
                 TpBlock.reloadBlocks();
                 Spawn.reloadSpawn();
+                GUI.reloadConfig();
             } catch (IOException e) {
                 e.printStackTrace();
             }
