@@ -26,7 +26,7 @@ public class WarpsCommand implements CommandExecutor {
                          * The slots have to be multiple of 9
                          * You have to pass an instance of the plugin on the 3rd parameters for it to work
                          */
-                        IconMenu menu = new IconMenu(CustomMessages.getString("Info.warps"), Config.getWarpsMenuSlots(), CoreClass.getInstance());
+                        IconMenu menu = new IconMenu(CustomMessages.getString("Info.warps"), Config.getWarpsMenuSlots(), 1, CoreClass.getInstance());
                         for (String warpName : warps.getKeys(false)) {
                             ConfigurationSection warp = warps.getConfigurationSection(warpName);
                             if (commandSender.hasPermission("at.member.warp.*") || commandSender.hasPermission("at.member.warp." + warpName) || !warp.getBoolean("hideIfNoPermission")) {
@@ -45,8 +45,8 @@ public class WarpsCommand implements CommandExecutor {
                                  *      }
                                  * });
                                  */
-                                menu.setOption(warp.getInt("slot"), new ItemStack(Material.valueOf(warp.getString("item")), 1), warp.getString("name"), warp.getString("tooltip"));
-                                menu.setCommand(warp.getInt("slot"), "/warp " + warpName);
+                                menu.setOption(1, warp.getInt("slot"), new ItemStack(Material.valueOf(warp.getString("item")), 1), warp.getString("name"), warp.getString("tooltip"));
+                                menu.setCommand(1, warp.getInt("slot"), "/warp " + warpName);
                             }
                         }
                         menu.open((Player)commandSender);

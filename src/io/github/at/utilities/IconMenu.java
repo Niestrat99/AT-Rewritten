@@ -1,6 +1,6 @@
 /*
-Thanks to nisovin from bukkit forum
-Modified version from https://bukkit.org/threads/icon-menu.108342/
+ * Thanks to nisovin from bukkit forum
+ * Modified version from https://bukkit.org/threads/icon-menu.108342/
  */
 
 package io.github.at.utilities;
@@ -25,53 +25,104 @@ public class IconMenu implements Listener {
 
     private String name;
     private int size;
+    private int currentPage;
+    private int pageCount;
+
+    private OptionPage[] optionPages;
+
     private Plugin plugin;
+    private Player player;
+    private Inventory inventory;
 
-    private String[] optionNames;
-    private ItemStack[] optionIcons;
-    private String[] optionCommands;
-    private OptionClickEventHandler[] optionHandlers;
-
-    public IconMenu(String name, int size, Plugin plugin) {
+    public IconMenu(String name, int size, int pageCount, Plugin plugin) {
         this.name = name;
         this.size = size;
         this.plugin = plugin;
-        this.optionNames = new String[size];
-        this.optionIcons = new ItemStack[size];
-        this.optionCommands = new String[size];
-        this.optionHandlers = new OptionClickEventHandler[size];
+        this.player = null;
+        this.inventory = null;
+        this.optionPages = new OptionPage[pageCount];
+        for(int i = 0; i < optionPages.length; i++){
+            optionPages[i] = new OptionPage(size);
+        }
+        this.currentPage = 0;
+        this.pageCount = pageCount;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    public IconMenu setOption(int position, ItemStack icon, String name, String... info) {
-        optionNames[position] = name;
-        optionIcons[position] = setItemNameAndLore(icon, name, info);
+    public IconMenu setOption(int page, int position, ItemStack icon, String name, String... info) {
+        this.optionPages[page].optionNames[position] = name;
+        this.optionPages[page].optionIcons[position] = setItemNameAndLore(icon, name, info);
         return this;
     }
 
-    public void setCommand(int position, String command){
-        optionCommands[position] = command.startsWith("/") ? command.substring(1) : command;
+    public void setCommand(int page, int position, String command){
+        this.optionPages[page].optionCommands[position] = command.startsWith("/") ? command.substring(1) : command;
     }
 
-    public void setClickEventHandler(int position, OptionClickEventHandler handler){
-        optionHandlers[position] = handler;
+    public void setClickEventHandler(int page, int position, OptionClickEventHandler handler){
+        this.optionPages[page].optionHandlers[position] = handler;
     }
 
     public void open(Player player) {
-        Inventory inventory = Bukkit.createInventory(player, size, name);
-        for (int i = 0; i < optionIcons.length; i++) {
-            if (optionIcons[i] != null) {
-                inventory.setItem(i, optionIcons[i]);
+        this.player = player;
+        inventory = Bukkit.createInventory(player, size, name);
+        for (int i = 0; i < size; i++) {
+            if (this.optionPages[currentPage].optionIcons[i] != null) {
+                inventory.setItem(i, this.optionPages[currentPage].optionIcons[i]);
             }
         }
-        player.openInventory(inventory);
+        this.player.openInventory(inventory);
+    }
+
+    public void openNextPage() {
+        if (this.currentPage+1 >= pageCount) return;
+        this.currentPage++;
+        this.updatePage();
+    }
+
+    public void openPreviousPage() {
+        if (this.currentPage-1 < 0) return;
+        this.currentPage--;
+        this.updatePage();
+    }
+
+    public void openPage(int page) {
+        if (page >= pageCount || page < 0) return;
+        this.currentPage = page;
+        this.updatePage();
+    }
+
+    public void updatePage() {
+        for (int i = 0; i < size; i++) {
+            if (this.optionPages[currentPage].optionIcons[i] != null) {
+                inventory.setItem(i, this.optionPages[currentPage].optionIcons[i]);
+            }else {
+                inventory.clear(i);
+            }
+        }
+        this.player.updateInventory();
     }
 
     public void destroy() {
         HandlerList.unregisterAll(this);
         plugin = null;
-        optionNames = null;
-        optionIcons = null;
+        optionPages = null;
+        player = null;
+        inventory = null;
+    }
+
+    private static class OptionPage {
+        private String[] optionNames;
+        private ItemStack[] optionIcons;
+        private String[] optionCommands;
+        private OptionClickEventHandler[] optionHandlers;
+
+        public OptionPage(int size){
+            this.optionNames = new String[size];
+            this.optionIcons = new ItemStack[size];
+            this.optionCommands = new String[size];
+            this.optionHandlers = new OptionClickEventHandler[size];
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -84,12 +135,12 @@ public class IconMenu implements Listener {
         if (event.getView().getTitle().equals(name)) {
             event.setCancelled(true);
             int slot = event.getRawSlot();
-            if (slot >= 0 && slot < size && optionNames[slot] != null) {
+            if (slot >= 0 && slot < size && this.optionPages[currentPage].optionNames[slot] != null) {
                 Plugin plugin = this.plugin;
-                OptionClickEvent e = new OptionClickEvent((Player) event.getWhoClicked(), slot, optionNames[slot]);
+                OptionClickEvent e = new OptionClickEvent((Player) event.getWhoClicked(), slot, this.optionPages[currentPage].optionNames[slot]);
                 final Player p = (Player)event.getWhoClicked();
-                if(optionCommands[e.getPosition()] != null){
-                    Bukkit.dispatchCommand(e.getPlayer(), optionCommands[e.getPosition()]);
+                if(this.optionPages[currentPage].optionCommands[e.getPosition()] != null){
+                    Bukkit.dispatchCommand(e.getPlayer(), this.optionPages[currentPage].optionCommands[e.getPosition()]);
                     Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                         public void run() {
                             p.closeInventory();
@@ -98,8 +149,8 @@ public class IconMenu implements Listener {
                     if (e.willDestroy()) {
                         destroy();
                     }
-                }else if(optionHandlers[e.getPosition()] != null){
-                    optionHandlers[e.getPosition()].onOptionClick(e);
+                }else if(this.optionPages[currentPage].optionHandlers[e.getPosition()] != null){
+                    this.optionPages[currentPage].optionHandlers[e.getPosition()].onOptionClick(e);
                     if (e.willClose()) {
                         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                             public void run() {
@@ -171,3 +222,4 @@ public class IconMenu implements Listener {
         return item;
     }
 }
+
