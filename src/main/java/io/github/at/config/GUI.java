@@ -22,7 +22,6 @@ public class GUI {
     public static void setDefaults() {
         //Warps Menu
         config.addDefault("warps.slots", 27);
-        config.addDefault("warps.autofill", false);
         config.addDefault("warps.gui-enabled", false);
         // Last Page icon
         config.addDefault("warps.icons.last-page.name", "&bLast Page");
@@ -67,4 +66,6 @@ public class GUI {
     public static ConfigurationSection getWarpsMenu() { return config.getConfigurationSection("warps.warps"); }
     public static int getWarpsMenuSlots() { return config.getInt("warps.slots"); }
     public static boolean isUsingWarpsGUIMenu() { return config.getBoolean("warps.gui-enabled"); }
+    public static ConfigurationSection getLastPageIcon() { return config.getConfigurationSection("warps.icons.last-page"); }
+    public static ConfigurationSection getNextPageIcon() { return config.getConfigurationSection("warps.icons.next-page"); }
 }

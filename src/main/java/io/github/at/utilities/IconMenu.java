@@ -124,6 +124,10 @@ public class IconMenu implements Listener, InventoryHolder {
         inventory = null;
     }
 
+    public int getPageCount() {
+        return pageCount;
+    }
+
     private static class OptionPage {
         private Icon[] optionIcons;
 

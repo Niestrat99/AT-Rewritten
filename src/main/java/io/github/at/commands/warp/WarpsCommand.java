@@ -22,33 +22,26 @@ public class WarpsCommand implements CommandExecutor {
             if (commandSender.hasPermission("at.member.warps")){
                 if(GUI.isUsingWarpsGUIMenu()){
                         ConfigurationSection warps = GUI.getWarpsMenu();
-                        /* Instantiate IconMenu
-                         * e.g: new IconMenu("Your Homes", 9, 1, CoreClass.getInstance()) will create a menu with "Your Homes" as the title with 1 page and has 9 slots for each page
-                         * The slots have to be multiple of 9
-                         * You have to pass an instance of the plugin on the 4th parameters for it to work
-                         */
-                        IconMenu menu = new IconMenu(CustomMessages.getString("Info.warps"), GUI.getWarpsMenuSlots(), 1, CoreClass.getInstance());
+                        int minPage = 999;
+                        int maxPage = 0;
+                        for (String warp : warps.getKeys(false)) {
+                            int page = warps.getInt(warp + ".page");
+                            if (page < minPage) {
+                                minPage = page;
+                            }
+                            if (page > maxPage) {
+                                maxPage = page;
+                            }
+                        }
+                        int pages = maxPage - minPage + 1;
+                        IconMenu menu = new IconMenu(CustomMessages.getString("Info.warps"), GUI.getWarpsMenuSlots(), pages, CoreClass.getInstance());
+
                         for (String warpName : warps.getKeys(false)) {
                             ConfigurationSection warp = warps.getConfigurationSection(warpName);
                             if (commandSender.hasPermission("at.member.warp.*")
                                     || commandSender.hasPermission("at.member.warp." + warpName)
                                     || !warp.getBoolean("hideIfNoPermission")) {
 
-                                /* Set an option and command to the inventory menu
-                                 * e.g:
-                                 * menu.setOption(0, 11, new ItemStack(Material.GRASS_BLOCK, 1), "RTP", "Teleports you to random location");
-                                 * menu.setCommand(0, 11, "/rtp");
-                                 * will set item inventory on page 0 slot 11 with 1x grass block, and rename the item to "RTP" and shows "Teleports you to random location" on the tooltip, and dispatch "/rtp" command on the commandSender
-                                 *
-                                 * You can also do menu.setClickEventHandler() if you want to do more than just a simple command
-                                 * e.g:
-                                 * menu.setClickEventHandler(11, new IconMenu.OptionClickEventHandler() {
-                                 *      @Override
-                                 *      public void onOptionClick(IconMenu.OptionClickEvent event){
-                                 *          System.out.println(event.getPlayer().getDisplayName() + " just clicked something!");
-                                 *      }
-                                 * });
-                                 */
                                 menu.setIcon(0, warp.getInt("slot"),
                                         new IconMenu.Icon(
                                                 new ItemStack(
@@ -60,6 +53,39 @@ public class WarpsCommand implements CommandExecutor {
                                                         warp.getStringList("tooltip"))
                                                 .withCommands("/warp " + warpName)
                                                 .withTexture("texture"));
+                            }
+                        }
+                        // Next page icons will override warps
+                        for (int i = 0; i < pages; i++) {
+                            if (i == pages - 1 && i != 0) {
+                                ConfigurationSection lastPage = GUI.getLastPageIcon();
+                                menu.setIcon(i, lastPage.getInt("slot"),
+                                        new IconMenu.Icon(
+                                                new ItemStack(Material.valueOf(lastPage.getString("item")),
+                                                        1,
+                                                        (byte) lastPage.getInt("data-value")))
+                                                .withTexture(lastPage.getString("texture"))
+                                                .withNameAndLore(lastPage.getString("name"), lastPage.getStringList("tooltip"))
+                                                .withHandler(handler -> {
+                                                    handler.setWillClose(false);
+                                                    handler.setWillDestroy(false);
+                                                    menu.openPreviousPage();
+                                                }));
+                            }
+                            if (i == 0 && i != pages - 1) {
+                                ConfigurationSection nextPage = GUI.getNextPageIcon();
+                                menu.setIcon(i, nextPage.getInt("slot"),
+                                        new IconMenu.Icon(
+                                                new ItemStack(Material.valueOf(nextPage.getString("item")),
+                                                        1,
+                                                        (byte) nextPage.getInt("data-value")))
+                                                .withTexture(nextPage.getString("texture"))
+                                                .withNameAndLore(nextPage.getString("name"), nextPage.getStringList("tooltip"))
+                                                .withHandler(handler -> {
+                                                    handler.setWillClose(false);
+                                                    handler.setWillDestroy(false);
+                                                    menu.openNextPage();
+                                                }));
                             }
                         }
                         menu.open((Player)commandSender);
