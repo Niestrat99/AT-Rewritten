@@ -77,7 +77,7 @@ public class IconMenu implements Listener, InventoryHolder {
 
     public void open(Player player) {
         this.player = player.getUniqueId();
-        inventory = Bukkit.createInventory(player, size, title);
+        inventory = Bukkit.createInventory(this, size, title);
         updateContents();
         player.openInventory(inventory);
     }
@@ -144,7 +144,7 @@ public class IconMenu implements Listener, InventoryHolder {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent event) {
         // Checking if the holder is an instance of IconMenu to prevent potential conflict title comparison can cause.
-        if (event.getInventory().getHolder() instanceof IconMenu) {
+        if (event.getInventory().getHolder() == this) {
             // Cancel the event, stopping the player pick up the item.
             event.setCancelled(true);
             // Get the raw slot (NOT the slot)
