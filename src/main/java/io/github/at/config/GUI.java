@@ -32,7 +32,7 @@ public class GUI {
         config.addDefault("warps.icons.next-page.name", "&bNext Page");
         config.addDefault("warps.icons.next-page.item", "ARROW");
         config.addDefault("warps.icons.next-page.tooltip", new ArrayList<>());
-        config.addDefault("warps.icons.next-page.slot", 18);
+        config.addDefault("warps.icons.next-page.slot", 26);
         //Warps Menu Example
         config.addDefault("warps.warps.warpName1.name", "&aWarp Name 1");
         config.addDefault("warps.warps.warpName1.item", "GRASS_BLOCK");
