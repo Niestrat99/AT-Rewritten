@@ -129,6 +129,8 @@ public class Config {
         config.addDefault("teleport-limit.per-command.warp", true);
         config.addDefault("teleport-limit.per-command.spawn", true);
         config.addDefault("teleport-limit.per-command.back", true);
+        config.addDefault("teleport-limit.block-to-loc", true);
+        config.addDefault("teleport-limit.block-from-loc", true);
 
         config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")));
 
@@ -262,7 +264,15 @@ public class Config {
         return config.getStringList("back.teleport-causes").contains(cause.name());
     }
 
-    public static List<String> getBlacklistedWorlds() {
+    public static List<String> getBlacklistedTPRWorlds() {
         return config.getStringList("tpr.blacklist-worlds");
+    }
+
+    public static List<String> getBlacklistedWorlds() {
+        return config.getStringList("teleport-limit.blacklisted-worlds");
+    }
+
+    public static boolean containsBlacklistedWorld(String worldName, String pos) {
+        return getBlacklistedWorlds().contains(worldName) && config.getBoolean("teleport-limit.block-" + pos + "-loc");
     }
 }

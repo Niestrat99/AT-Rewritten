@@ -1,5 +1,6 @@
 package io.github.at.events;
 
+import io.github.at.api.ATTeleportEvent;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.LastLocations;
@@ -44,6 +45,7 @@ public class TeleportTrackingManager implements Listener {
         }
 
     }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onTeleport(PlayerTeleportEvent e) {
         if (Config.hasStrictDistanceMonitor()) {
@@ -53,8 +55,33 @@ public class TeleportTrackingManager implements Listener {
                 return;
             }
         }
+        if (Config.hasStrictTeleportLimiter() && !e.getPlayer().hasPermission("at.admin.bypass.teleport-limit")) {
+            String gotoWorld = e.getTo().getWorld().getName();
+            String fromWorld = e.getFrom().getWorld().getName();
+            if (Config.containsBlacklistedWorld(gotoWorld, "to") || Config.containsBlacklistedWorld(fromWorld, "from")) {
+                e.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
+                e.setCancelled(true);
+                return;
+            }
+        }
         if (Config.isFeatureEnabled("teleport") && !e.isCancelled() && Config.isCauseAllowed(e.getCause())) {
             lastLocations.put(e.getPlayer().getUniqueId(), e.getFrom());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onTeleport(ATTeleportEvent event) {
+        if (Config.isTeleportLimiterEnabled() && !event.getPlayer().hasPermission("at.admin.bypass.teleport-limit")) {
+            if (event.getType().isRestricted()) {
+                if (Config.isTeleportLimiterEnabledForCmd(event.getType().name().toLowerCase())) {
+                    String gotoWorld = event.getToLocation().getWorld().getName();
+                    String fromWorld = event.getFromLocation().getWorld().getName();
+                    if (Config.containsBlacklistedWorld(gotoWorld, "to") || Config.containsBlacklistedWorld(fromWorld, "from")) {
+                        event.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
+                        event.setCancelled(true);
+                    }
+                }
+            }
         }
     }
 

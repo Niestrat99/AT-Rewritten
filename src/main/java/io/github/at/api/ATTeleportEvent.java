@@ -74,13 +74,11 @@ public class ATTeleportEvent extends Event implements Cancellable {
 
         TPA(true),
         TPAHERE(true),
-        TPALL(false),
         HOME(false),
         WARP(true),
         SPAWN(true),
         TPR(false), // It actually is restricted, but it handles this within the command instead
         BACK(true),
-        TPO(false),
         TPLOC(false);
 
         private boolean restricted;

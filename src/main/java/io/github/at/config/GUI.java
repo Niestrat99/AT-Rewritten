@@ -35,14 +35,14 @@ public class GUI {
         config.addDefault("warps.icons.next-page.slot", 26);
         //Warps Menu Example
         config.addDefault("warps.warps.warpName1.name", "&aWarp Name 1");
-        config.addDefault("warps.warps.warpName1.item", "GRASS_BLOCK");
-        config.addDefault("warps.warps.warpName1.tooltip", Collections.singletonList("Teleports you to warpName1"));
+        config.addDefault("warps.warps.warpName1.item", "DIAMOND_SWORD");
+        config.addDefault("warps.warps.warpName1.tooltip", Collections.singletonList("&7Teleports you to warpName1"));
         config.addDefault("warps.warps.warpName1.slot", 11);
         config.addDefault("warps.warps.warpName1.page", 0);
         config.addDefault("warps.warps.warpName1.hide-if-no-permission", false);
         config.addDefault("warps.warps.warpName2.name", "&7Warp Name 2");
         config.addDefault("warps.warps.warpName2.item", "IRON_PICKAXE");
-        config.addDefault("warps.warps.warpName2.tooltip", Collections.singletonList("Teleports you to warpName2"));
+        config.addDefault("warps.warps.warpName2.tooltip", Collections.singletonList("&7Teleports you to warpName2"));
         config.addDefault("warps.warps.warpName2.slot", 13);
         config.addDefault("warps.warps.warpName2.page", 0);
         config.addDefault("warps.warps.warpName2.hide-if-no-permission", true);

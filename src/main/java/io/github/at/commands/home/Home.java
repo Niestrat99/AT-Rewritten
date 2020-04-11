@@ -1,5 +1,6 @@
 package io.github.at.commands.home;
 
+import io.github.at.api.ATTeleportEvent;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
@@ -143,28 +144,29 @@ public class Home implements CommandExecutor {
             player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
             return;
         }
-        if (PaymentManager.canPay("home", player)) {
-            if (Config.getTeleportTimer("home") > 0) {
-                BukkitRunnable movementtimer = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
-                        player.teleport(loc);
-                        MovementManager.getMovement().remove(player.getUniqueId());
-                        PaymentManager.withdraw("home", player);
-                    }
-                };
-                MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("home") * 20);
-                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("home"))));
+        ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), name, ATTeleportEvent.TeleportType.HOME);
+        if (!event.isCancelled()) {
+            if (PaymentManager.canPay("home", player)) {
+                if (Config.getTeleportTimer("home") > 0) {
+                    BukkitRunnable movementtimer = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
+                            player.teleport(loc);
+                            MovementManager.getMovement().remove(player.getUniqueId());
+                            PaymentManager.withdraw("home", player);
+                        }
+                    };
+                    MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
+                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("home") * 20);
+                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("home"))));
 
-            } else {
-                player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
-                player.teleport(loc);
-                PaymentManager.withdraw("home", player);
+                } else {
+                    player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
+                    player.teleport(loc);
+                    PaymentManager.withdraw("home", player);
+                }
             }
         }
-
     }
-
 }

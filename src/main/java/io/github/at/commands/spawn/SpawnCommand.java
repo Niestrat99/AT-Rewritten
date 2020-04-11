@@ -1,5 +1,6 @@
 package io.github.at.commands.spawn;
 
+import io.github.at.api.ATTeleportEvent;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Spawn;
@@ -7,6 +8,7 @@ import io.github.at.events.MovementManager;
 import io.github.at.main.CoreClass;
 import io.github.at.utilities.DistanceLimiter;
 import io.github.at.utilities.PaymentManager;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -40,33 +42,34 @@ public class SpawnCommand implements CommandExecutor {
             player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
             return;
         }
-        if (PaymentManager.canPay("spawn", player)) {
-            if (Config.getTeleportTimer("spawn") > 0) {
-                BukkitRunnable movementtimer = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        PaymentManager.withdraw("spawn", player);
-                        if (Spawn.getSpawnFile() != null) {
-                            player.teleport(Spawn.getSpawnFile());
-                        } else {
-                            player.teleport(player.getWorld().getSpawnLocation());
+        Location spawn;
+        if (Spawn.getSpawnFile() != null) {
+            spawn = Spawn.getSpawnFile();
+        } else {
+            spawn = player.getWorld().getSpawnLocation();
+        }
+        ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
+        if (!event.isCancelled()) {
+            if (PaymentManager.canPay("spawn", player)) {
+                if (Config.getTeleportTimer("spawn") > 0) {
+                    BukkitRunnable movementtimer = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            PaymentManager.withdraw("spawn", player);
+                            player.teleport(spawn);
+                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
+                            MovementManager.getMovement().remove(player.getUniqueId());
                         }
-                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
-                        MovementManager.getMovement().remove(player.getUniqueId());
-                    }
-                };
-                MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("spawn") * 20);
-                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("spawn"))));
+                    };
+                    MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
+                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("spawn") * 20);
+                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("spawn"))));
 
-            } else {
-                PaymentManager.withdraw("spawn", player);
-                if (Spawn.getSpawnFile() != null) {
-                    player.teleport(Spawn.getSpawnFile());
                 } else {
-                    player.teleport(player.getWorld().getSpawnLocation());
+                    PaymentManager.withdraw("spawn", player);
+                    player.teleport(spawn);
+                    player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
                 }
-                player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
             }
         }
     }

@@ -62,7 +62,7 @@ public class Tpr implements CommandExecutor {
             player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
             return true;
         }
-        if (Config.getBlacklistedWorlds().contains(world.getName()) && !player.hasPermission("at.admin.rtp.bypass-world")) {
+        if (Config.getBlacklistedTPRWorlds().contains(world.getName()) && !player.hasPermission("at.admin.rtp.bypass-world")) {
             player.sendMessage(CustomMessages.getString("Error.cantTPToWorld"));
             return true;
         }
