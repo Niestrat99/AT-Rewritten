@@ -15,13 +15,16 @@ commands:
   warp:
     description: Gives you a list of sub commands from this command.
     permission: at.member.warp
+    usage: /warp <Warp name>
   tpr:
     description: Teleports you to a random place.
     permission: at.member.tpr
     aliases: rtp
+    usage: /tpr [World]
   tpohere:
     description: (ADMIN ONLY COMMAND) Instantly teleports a player to you.
     permission: at.admin.tpohere
+    usage: /tpohere <Player>
   tpaall:
     description: (ADMIN ONLY COMMAND) Sends a "TPAHere"-request to every online player.
     permission: at.admin.all
@@ -41,9 +44,11 @@ commands:
   tpunblock:
     description: Unblocks a player.
     permission: at.member.unblock
+    usage: /tpunblock <Player>
   tpblock:
     description: Blocks and prevents a player to send a teleport request to you.
     permission: at.member.block
+    usage: /tpblock <Player>
   tpdeny:
     description: Declines a teleport request someone sent you.
     permission: at.member.no
@@ -112,7 +117,7 @@ commands:
   tploc:
     description: Teleports you to a specified location.
     permission: at.admin.tploc
-    usage: /tploc <x> <y> <z> [World] [Player]
+    usage: /tploc <x> <y> <z> [Yaw] [Pitch] [World] [Player]
 
 permissions:
   at.member.warp.*:

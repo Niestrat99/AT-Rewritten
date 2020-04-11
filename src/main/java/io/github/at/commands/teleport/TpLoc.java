@@ -43,15 +43,29 @@ public class TpLoc implements CommandExecutor {
                                 loc[i] = Double.parseDouble(args[i]);
                             }
                         }
+
+                        float yaw = player.getLocation().getYaw();
+                        float pitch = player.getLocation().getPitch();
+                        if (args.length > 3 && !args[3].equalsIgnoreCase("~") ) {
+                            if (location.matcher(args[3]).matches()) {
+                                yaw = Float.parseFloat(args[3]);
+                                if (args.length > 4 && !args[4].equalsIgnoreCase("~")) {
+                                    if (location.matcher(args[4]).matches()) {
+                                        pitch = Float.parseFloat(args[4]);
+                                    }
+                                }
+                            }
+                        }
+
                         World world = player.getWorld();
-                        if (args.length > 3 && !args[3].equalsIgnoreCase("~")) {
-                            world = Bukkit.getWorld(args[3]);
+                        if (args.length > 5 && !args[5].equalsIgnoreCase("~")) {
+                            world = Bukkit.getWorld(args[5]);
                             if (world == null) {
                                 player.sendMessage("no-world");
                                 return false;
                             }
                         }
-                        Location location = new Location(world, loc[0], loc[1], loc[2]);
+                        Location location = new Location(world, loc[0], loc[1], loc[2], yaw, pitch);
                         Player target = player;
                         if (args.length > 4) {
                             if (player.hasPermission("at.admin.tploc.others")) {
