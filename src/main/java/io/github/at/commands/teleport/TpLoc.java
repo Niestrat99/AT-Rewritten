@@ -2,6 +2,7 @@ package io.github.at.commands.teleport;
 
 import io.github.at.api.ATTeleportEvent;
 import io.github.at.config.Config;
+import io.github.at.config.CustomMessages;
 import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class TpLoc implements CommandExecutor {
 
-    private static Pattern location = Pattern.compile("^\\d+(\\.\\d+)?$");
+    private static Pattern location = Pattern.compile("^(-)?\\d+(\\.\\d+)?$");
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -67,11 +68,11 @@ public class TpLoc implements CommandExecutor {
                         }
                         Location location = new Location(world, loc[0], loc[1], loc[2], yaw, pitch);
                         Player target = player;
-                        if (args.length > 4) {
+                        if (args.length > 6) {
                             if (player.hasPermission("at.admin.tploc.others")) {
-                                target = Bukkit.getPlayer(args[4]);
+                                target = Bukkit.getPlayer(args[6]);
                                 if (target == null || !target.isOnline()) {
-                                    player.sendMessage("no-player");
+                                    player.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                                     return true;
                                 }
                             }
@@ -80,9 +81,22 @@ public class TpLoc implements CommandExecutor {
                         if (!event.isCancelled()) {
                             target.teleport(location);
                             if (player != target) {
-                                player.sendMessage("teleport-other");
+                                player.sendMessage(CustomMessages.getString("Info.teleportedToLocOther")
+                                        .replaceAll("\\{x}", String.valueOf(loc[0]))
+                                        .replaceAll("\\{y}", String.valueOf(loc[1]))
+                                        .replaceAll("\\{z}", String.valueOf(loc[2]))
+                                        .replaceAll("\\{yaw}", String.valueOf(yaw))
+                                        .replaceAll("\\{pitch}", String.valueOf(pitch))
+                                        .replaceAll("\\{world}", world.getName()
+                                        .replaceAll("\\{player}", args[6])));
                             } else {
-                                player.sendMessage("teleport");
+                                player.sendMessage(CustomMessages.getString("Info.teleportedToLoc")
+                                        .replaceAll("\\{x}", String.valueOf(loc[0]))
+                                        .replaceAll("\\{y}", String.valueOf(loc[1]))
+                                        .replaceAll("\\{z}", String.valueOf(loc[2]))
+                                        .replaceAll("\\{yaw}", String.valueOf(yaw))
+                                        .replaceAll("\\{pitch}", String.valueOf(pitch))
+                                        .replaceAll("\\{world}", world.getName()));
                             }
                         }
                     }
