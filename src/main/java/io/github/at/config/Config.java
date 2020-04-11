@@ -131,6 +131,7 @@ public class Config {
         config.addDefault("teleport-limit.per-command.back", true);
         config.addDefault("teleport-limit.block-to-loc", true);
         config.addDefault("teleport-limit.block-from-loc", true);
+        config.addDefault("teleport-limit.allow-teleport-within-world", true);
 
         config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")));
 
@@ -274,5 +275,9 @@ public class Config {
 
     public static boolean containsBlacklistedWorld(String worldName, String pos) {
         return getBlacklistedWorlds().contains(worldName) && config.getBoolean("teleport-limit.block-" + pos + "-loc");
+    }
+
+    public static boolean isAllowingTeleportBetweenWorlds() {
+        return config.getBoolean("teleport-limit.allow-teleport-within-world");
     }
 }
