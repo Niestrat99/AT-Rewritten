@@ -6,6 +6,7 @@
 package io.github.at.utilities;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -304,7 +305,11 @@ public class IconMenu implements Listener, InventoryHolder {
     private static ItemStack setItemNameAndLore(ItemStack item, String name, List<String> lore) {
         ItemMeta im = item.getItemMeta();
         im.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        im.setLore(lore);
+        List<String> colLore = new ArrayList<>();
+        for (String str : lore) {
+            colLore.add(ChatColor.translateAlternateColorCodes('&', str));
+        }
+        im.setLore(colLore);
         item.setItemMeta(im);
         return item;
     }
