@@ -42,6 +42,9 @@ public class TpLoc implements CommandExecutor {
                                 }
                             } else if (location.matcher(args[i]).matches()) {
                                 loc[i] = Double.parseDouble(args[i]);
+                            } else {
+                                player.sendMessage(CustomMessages.getString("Error.invalidArgs"));
+                                return false;
                             }
                         }
 
@@ -53,8 +56,14 @@ public class TpLoc implements CommandExecutor {
                                 if (args.length > 4 && !args[4].equalsIgnoreCase("~")) {
                                     if (location.matcher(args[4]).matches()) {
                                         pitch = Float.parseFloat(args[4]);
+                                    } else {
+                                        player.sendMessage(CustomMessages.getString("Error.invalidArgs"));
+                                        return false;
                                     }
                                 }
+                            } else {
+                                player.sendMessage(CustomMessages.getString("Error.invalidArgs"));
+                                return false;
                             }
                         }
 
@@ -99,7 +108,12 @@ public class TpLoc implements CommandExecutor {
                                         .replaceAll("\\{world}", world.getName()));
                             }
                         }
+                    } else {
+                        player.sendMessage(CustomMessages.getString("Error.tooFewArguments"));
+                        return false;
                     }
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }
             }
         }
