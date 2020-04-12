@@ -79,6 +79,7 @@ public class CustomMessages {
         Config.addDefault("Error.cantTPToWorld", "&cYou can't use the RandomTP in that world!");
         Config.addDefault("Error.invalidName", "&cHomes and warps may only have letters and numbers in the names!");
         Config.addDefault("Error.cantTPToWorldLim", "&cYou can't teleport to &e{world}&c!");
+        Config.addDefault("Error.tooFewArguments", "&cToo few arguments!");
 
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
