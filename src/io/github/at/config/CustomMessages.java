@@ -155,7 +155,7 @@ public class CustomMessages {
         Config.addDefault("Help.teleportAdmin", new ArrayList<>(Arrays.asList("&6- /tpo <player> - Instantly teleports you to the player.",
                 "&6- /tpohere <player> - Instantly teleports the player to you.",
                 "&6- /tpall - Sends a teleport request to every online player to teleport to you.",
-                "&6- /tploc <x|~> <y|~> <z|~> [World|~] [Player] - Teleports you or another player to a specified location.")));
+                "&6- /tploc <x|~> <y|~> <z|~> [Yaw|~] [Pitch|~] [World|~] [Player] - Teleports you or another player to a specified location.")));
         Config.addDefault("Help.warps", new ArrayList<>(Arrays.asList("&b&lWarps help",
                 "&6- /warp <warp name> - Teleports you to an existing warp point.",
                 "&6- /warps - Gives you a list of warps.")));
