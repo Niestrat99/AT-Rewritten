@@ -40,6 +40,7 @@ public class GUI {
         config.addDefault("warps.warps.warpName1.slot", 11);
         config.addDefault("warps.warps.warpName1.page", 0);
         config.addDefault("warps.warps.warpName1.hide-if-no-permission", false);
+
         config.addDefault("warps.warps.warpName2.name", "&7Warp Name 2");
         config.addDefault("warps.warps.warpName2.item", "IRON_PICKAXE");
         config.addDefault("warps.warps.warpName2.tooltip", Collections.singletonList("&7Teleports you to warpName2"));

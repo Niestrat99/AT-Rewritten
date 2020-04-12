@@ -45,7 +45,6 @@ public class Config {
         config.addDefault("timers.cancel-on-movement", true);
         // Booleans
         config.addDefault("booleans.useVault" , false);
-        config.addDefault("booleans.useWarpsGUIMenu" , false);
         config.addDefault("booleans.EXPPayment" , false);
         //Sounds
         config.addDefault("sounds.tpa.requestSent", "none");
