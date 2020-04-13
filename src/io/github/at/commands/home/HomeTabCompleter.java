@@ -17,7 +17,10 @@ public class HomeTabCompleter implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {
             String uuid2 = ((Player) sender).getUniqueId().toString();
-            if (!args[0].isEmpty() && Bukkit.getOfflinePlayer(args[0]) != null && sender.hasPermission("at.admin.home")) {
+            if (!args[0].isEmpty()
+                    && Bukkit.getOfflinePlayer(args[0]) != null
+                    && sender.hasPermission("at.admin.home")
+                    && args.length > 1) {
                 String uuid = Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString();
                 if (args.length < 3) {
                     try {
