@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
-Class-Path: WorldBorder.jar spigot-1.12.2-R0.1-SNAPSHOT-b1648.jar Vault.
- jar
+Main-Class: 
+Class-Path: WorldBorder.jar spigot-1.12.2-R0.1-SNAPSHOT-b1648.jar spigot
+ -1.12.2-R0.1-SNAPSHOT-b1648.jar Vault.jar WorldBorder.jar
 
