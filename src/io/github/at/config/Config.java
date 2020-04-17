@@ -49,6 +49,8 @@ public class Config {
         //Sounds
         config.addDefault("sounds.tpa.requestSent", "none");
         config.addDefault("sounds.tpa.requestReceived", "none");
+        config.addDefault("sounds.tpahere.requestSent", "none");
+        config.addDefault("sounds.tpahere.requestReceived", "none");
 
         // Payments
         config.addDefault("payments.vault.teleportPrice" , 100.00);

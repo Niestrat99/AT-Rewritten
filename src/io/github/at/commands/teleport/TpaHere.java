@@ -65,9 +65,25 @@ public class TpaHere implements CommandExecutor {
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
                                         .replaceAll("\\{player}", target.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                if(!Config.getSound("tpahere.requestSent").equals("NONE")){
+                                    try{
+                                        sender.playSound(sender.getLocation(), Sound.valueOf(Config.getSound("tpahere.requestSent")), 10, 1);
+                                    }
+                                    catch(IllegalArgumentException e){
+                                        getServer().getLogger().warning(CoreClass.pltitle(Config.getSound("tpahere.requestSent") + " is an invalid sound name"));
+                                    }
+                                }
                                 target.sendMessage(CustomMessages.getString("Info.tpaRequestHere")
                                         .replaceAll("\\{player}", sender.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                if(!Config.getSound("tpahere.requestReceived").equals("NONE")){
+                                    try{
+                                        target.playSound(target.getLocation(), Sound.valueOf(Config.getSound("tpahere.requestReceived")), 10, 1);
+                                    }
+                                    catch(IllegalArgumentException e){
+                                        getServer().getLogger().warning(CoreClass.pltitle(Config.getSound("tpahere.requestReceived") + " is an invalid sound name"));
+                                    }
+                                }
                                 BukkitRunnable run = new BukkitRunnable() {
                                     @Override
                                     public void run() {
