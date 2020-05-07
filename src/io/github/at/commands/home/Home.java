@@ -29,7 +29,7 @@ public class Home implements CommandExecutor {
                     String uuid = player.getUniqueId().toString();
                     HashMap<String, Location> homes = Homes.getHomes(uuid);
                     if (args.length>0) {
-                        if (Bukkit.getPlayer(args[0]) != null) {
+                        if (Bukkit.getOfflinePlayer(args[0]) != null) {
                             if (sender.hasPermission("at.admin.home")) {
                                 if (args.length > 1) {
                                     uuid = Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString();
