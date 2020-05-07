@@ -36,6 +36,7 @@ public class SetHome implements CommandExecutor {
 
                                 }
                             }
+                            return true;
                         }
                         // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
                         int limit = getHomesLimit(player);

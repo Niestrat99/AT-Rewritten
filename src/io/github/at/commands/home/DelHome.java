@@ -4,6 +4,7 @@ import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,12 +20,11 @@ public class DelHome implements CommandExecutor {
                 Player player = (Player)sender;
                 if (sender.hasPermission("at.member.delhome")) {
                     if (args.length>0) {
-                        if (Bukkit.getPlayer(args[0]) != null) {
-                            if (sender.hasPermission("at.admin.delhome")) {
-                                if (args.length>1) {
-                                    Player target = Bukkit.getOfflinePlayer(args[0]).getPlayer();
-                                    delHome(target, player, args[1]);
-                                }
+                        if (sender.hasPermission("at.admin.delhome")) {
+                            if (args.length>1) {
+                                OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                                delHome(target, player, args[1]);
+                                return true;
                             }
                         }
                         delHome(player, args[0]);
@@ -41,7 +41,7 @@ public class DelHome implements CommandExecutor {
         return true;
     }
 
-    private void delHome(Player player, Player sender, String name) {
+    private void delHome(OfflinePlayer player, Player sender, String name) {
         try {
             if (Homes.getHomes(player.getUniqueId().toString()).containsKey(name)) {
                 try {

@@ -3,6 +3,7 @@ package io.github.at.config;
 import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -56,7 +57,7 @@ public class Homes {
         return homes;
     }
 
-    public static void delHome(Player player, String homename) throws IOException {
+    public static void delHome(OfflinePlayer player, String homename) throws IOException {
         homes.set(player.getUniqueId().toString()+"."+homename,null);
         save();
     }
