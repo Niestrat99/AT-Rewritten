@@ -106,7 +106,7 @@ public class Warp implements CommandExecutor {
         if (!event.isCancelled()) {
             if (PaymentManager.canPay("warp", player)) {
 
-                if (Config.getTeleportTimer("warp") > 0) {
+                if (Config.getTeleportTimer("warp") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {

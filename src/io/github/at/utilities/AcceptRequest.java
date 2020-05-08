@@ -29,7 +29,7 @@ public class AcceptRequest {
     private static void teleport(Player toPlayer, Player fromPlayer, String type) {
         ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toPlayer.getLocation(), fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
         if (!event.isCancelled()) {
-            if (Config.getTeleportTimer(type) > 0) {
+            if (Config.getTeleportTimer(type) > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
                 BukkitRunnable movementtimer = new BukkitRunnable() {
                     @Override
                     public void run() {

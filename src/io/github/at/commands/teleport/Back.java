@@ -39,7 +39,7 @@ public class Back implements CommandExecutor {
                     if (!event.isCancelled()) {
                         Location finalLoc = loc;
                         if (PaymentManager.canPay("back", player)) {
-                            if (Config.getTeleportTimer("back") > 0) {
+                            if (Config.getTeleportTimer("back") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                                 BukkitRunnable movementtimer = new BukkitRunnable() {
                                     @Override
                                     public void run() {

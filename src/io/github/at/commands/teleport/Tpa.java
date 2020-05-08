@@ -27,7 +27,7 @@ public class Tpa implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (Config.isFeatureEnabled("teleport")) {
-                if (sender.hasPermission("at.member.tpa")) {
+                if (sender.hasPermission("at.member.tpa") && !player.hasPermission("at.admin.bypass.cooldown")) {
                     UUID playerUuid = player.getUniqueId();
                     if (CooldownManager.getCooldown().containsKey(playerUuid)) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));

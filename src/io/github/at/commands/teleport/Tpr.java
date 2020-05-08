@@ -58,7 +58,7 @@ public class Tpr implements CommandExecutor {
 
     public static boolean randomTeleport(Player player, World world) {
         UUID uuid = player.getUniqueId();
-        if (CooldownManager.getCooldown().containsKey(uuid)) {
+        if (CooldownManager.getCooldown().containsKey(uuid) && !player.hasPermission("at.admin.bypass.cooldown")) {
             player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
             return true;
         }
@@ -127,7 +127,7 @@ public class Tpr implements CommandExecutor {
                             CooldownManager.getCooldown().put(uuid, cooldowntimer);
                             cooldowntimer.runTaskLater(CoreClass.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
 
-                            if (Config.getTeleportTimer("tpr") > 0) {
+                            if (Config.getTeleportTimer("tpr") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                                 BukkitRunnable movementtimer = new BukkitRunnable() {
                                     @Override
                                     public void run() {

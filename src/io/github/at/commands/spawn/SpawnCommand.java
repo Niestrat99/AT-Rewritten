@@ -51,7 +51,7 @@ public class SpawnCommand implements CommandExecutor {
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         if (!event.isCancelled()) {
             if (PaymentManager.canPay("spawn", player)) {
-                if (Config.getTeleportTimer("spawn") > 0) {
+                if (Config.getTeleportTimer("spawn") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {

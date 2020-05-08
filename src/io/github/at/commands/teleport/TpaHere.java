@@ -26,7 +26,7 @@ public class TpaHere implements CommandExecutor {
                 if (sender.hasPermission("at.member.here")) {
                     Player player = (Player) sender;
                     UUID playerUuid = player.getUniqueId();
-                    if (CooldownManager.getCooldown().containsKey(playerUuid)) {
+                    if (CooldownManager.getCooldown().containsKey(playerUuid) && !player.hasPermission("at.admin.bypass.cooldown")) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
                         return true;
                     }
