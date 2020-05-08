@@ -147,7 +147,7 @@ public class Home implements CommandExecutor {
         ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), name, ATTeleportEvent.TeleportType.HOME);
         if (!event.isCancelled()) {
             if (PaymentManager.canPay("home", player)) {
-                if (Config.getTeleportTimer("home") > 0) {
+                if (Config.getTeleportTimer("home") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {

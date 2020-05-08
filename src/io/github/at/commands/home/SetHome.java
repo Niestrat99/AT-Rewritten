@@ -31,12 +31,11 @@ public class SetHome implements CommandExecutor {
                                         setHome(player, target, args[1], args[0]);
                                     } else {
                                         sender.sendMessage(CustomMessages.getString("Error.invalidName"));
-                                        return true;
                                     }
-
+                                    return true;
                                 }
                             }
-                            return true;
+
                         }
                         // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
                         int limit = getHomesLimit(player);
@@ -126,6 +125,6 @@ public class SetHome implements CommandExecutor {
                 }
             }
         }
-        return -1;
+        return Config.getDefaultHomesLimit();
     }
 }

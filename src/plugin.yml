@@ -179,3 +179,5 @@ permissions:
       at.admin.bypass: true
       at.admin.tploc: true
       at.admin.tploc.others: true
+      at.admin.bypass.timer: true
+      at.admin.bypass.cooldown: true
