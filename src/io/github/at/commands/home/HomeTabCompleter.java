@@ -54,6 +54,8 @@ public class HomeTabCompleter implements TabCompleter {
                         possibleHomes = new ArrayList<>();
                         StringUtil.copyPartialMatches(args[0], Homes.getHomes(uuid2).keySet(), possibleHomes);
                     }
+                    Collections.sort(possibleHomes);
+                    return possibleHomes;
                 } else {
                     return new ArrayList<>();
                 }
