@@ -38,7 +38,7 @@ public class Home implements CommandExecutor {
                                         if (homes.containsKey(args[1])) {
                                             Location tlocation = homes.get(args[1]);
                                             player.teleport(tlocation);
-                                            sender.sendMessage(CustomMessages.getString("Info.teleportingToHomeOther")
+                                            sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
                                                     .replaceAll("\\{player}", Bukkit.getOfflinePlayer(args[0]).getName())
                                                     .replaceAll("\\{home}", args[1]));
                                             return true;
