@@ -134,6 +134,8 @@ public class Config {
 
         config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")));
 
+        config.addDefault("homes.default-limit", -1);
+
         config.options().copyDefaults(true);
         save();
     }
@@ -278,5 +280,9 @@ public class Config {
 
     public static boolean isAllowingTeleportBetweenWorlds() {
         return config.getBoolean("teleport-limit.allow-teleport-within-world");
+    }
+
+    public static int getDefaultHomesLimit() {
+        return config.getInt("homes.default-limit");
     }
 }
