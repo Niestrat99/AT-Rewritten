@@ -33,10 +33,9 @@ public class SetHome implements CommandExecutor {
                                         sender.sendMessage(CustomMessages.getString("Error.invalidName"));
                                         return true;
                                     }
-
+                                    return true;
                                 }
                             }
-                            return true;
                         }
                         // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
                         int limit = getHomesLimit(player);
