@@ -16,6 +16,7 @@ public class HomeTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {
+            List<String> possibleHomes;
             String uuid2 = ((Player) sender).getUniqueId().toString();
             if (!args[0].isEmpty()
                     && Bukkit.getOfflinePlayer(args[0]) != null
@@ -24,28 +25,23 @@ public class HomeTabCompleter implements TabCompleter {
                 String uuid = Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString();
                 if (args.length < 3) {
                     try {
-                        List<String> possibleHomes = new ArrayList<>();
+                        possibleHomes = new ArrayList<>();
                         StringUtil.copyPartialMatches(args[1], Homes.getHomes(uuid).keySet(), possibleHomes);
                         Collections.sort(possibleHomes);
                         return possibleHomes;
                     } catch (IndexOutOfBoundsException e) {
                         try {
-                            List<String> possibleHomes = new ArrayList<>(Homes.getHomes(uuid).keySet());
-                            Collections.sort(possibleHomes);
-                            return possibleHomes;
+                            possibleHomes = new ArrayList<>(Homes.getHomes(uuid).keySet());
                         } catch (NullPointerException ex) { // DEAR GOD
-                            List<String> possibleHomes = new ArrayList<>();
+                            possibleHomes = new ArrayList<>();
                             StringUtil.copyPartialMatches(args[0], Homes.getHomes(uuid2).keySet(), possibleHomes);
-                            Collections.sort(possibleHomes);
-                            return possibleHomes;
                         }
-
                     } catch (NullPointerException e) { // For REAL Spigot, pick up your game and stop whining!
-                        List<String> possibleHomes = new ArrayList<>();
+                        possibleHomes = new ArrayList<>();
                         StringUtil.copyPartialMatches(args[0], Homes.getHomes(uuid2).keySet(), possibleHomes);
-                        Collections.sort(possibleHomes);
-                        return possibleHomes;
                     }
+                    Collections.sort(possibleHomes);
+                    return possibleHomes;
                 } else {
                     return new ArrayList<>();
                 }
@@ -53,14 +49,10 @@ public class HomeTabCompleter implements TabCompleter {
             } else {
                 if (args.length < 2) {
                     if (args[0].isEmpty()) {
-                        List<String> possibleHomes = new ArrayList<>(Homes.getHomes(uuid2).keySet());
-                        Collections.sort(possibleHomes);
-                        return possibleHomes;
+                        possibleHomes = new ArrayList<>(Homes.getHomes(uuid2).keySet());
                     } else {
-                        List<String> possibleHomes = new ArrayList<>();
+                        possibleHomes = new ArrayList<>();
                         StringUtil.copyPartialMatches(args[0], Homes.getHomes(uuid2).keySet(), possibleHomes);
-                        Collections.sort(possibleHomes);
-                        return possibleHomes;
                     }
                 } else {
                     return new ArrayList<>();
