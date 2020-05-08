@@ -150,6 +150,7 @@ public class CoreClass extends JavaPlugin {
 
         getCommand("warp").setTabCompleter(new WarpTabCompleter());
         getCommand("home").setTabCompleter(new HomeTabCompleter());
+        getCommand("delhome").setTabCompleter(new HomeTabCompleter());
     }
 
     private void registerEvents() {
