@@ -27,9 +27,9 @@ public class Tpa implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (Config.isFeatureEnabled("teleport")) {
-                if (sender.hasPermission("at.member.tpa") && !player.hasPermission("at.admin.bypass.cooldown")) {
+                if (sender.hasPermission("at.member.tpa")) {
                     UUID playerUuid = player.getUniqueId();
-                    if (CooldownManager.getCooldown().containsKey(playerUuid)) {
+                    if (CooldownManager.getCooldown().containsKey(playerUuid) && !player.hasPermission("at.admin.bypass.cooldown")) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
                         return true;
                     }
@@ -58,6 +58,10 @@ public class Tpa implements CommandExecutor {
                             }
                             if (TPRequest.getRequestByReqAndResponder(target, player) != null) {
                                 sender.sendMessage(CustomMessages.getString("Error.alreadySentRequest").replaceAll("\\{player}", target.getName()));
+                                return true;
+                            }
+                            if (!DistanceLimiter.canTeleport(player.getLocation(), target.getLocation(), "tpa") && !target.hasPermission("at.admin.bypass.distance-limit")) {
+                                player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
                                 return true;
                             }
                             if (PaymentManager.canPay("tpa", player)) {
