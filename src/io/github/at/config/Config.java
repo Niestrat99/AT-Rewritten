@@ -131,6 +131,7 @@ public class Config {
         config.addDefault("teleport-limit.block-to-loc", true);
         config.addDefault("teleport-limit.block-from-loc", true);
         config.addDefault("teleport-limit.allow-teleport-within-world", true);
+        config.addDefault("teleport-limit.allow-cross-world-teleporting", true);
 
         config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")));
 
@@ -278,8 +279,12 @@ public class Config {
         return getBlacklistedWorlds().contains(worldName) && config.getBoolean("teleport-limit.block-" + pos + "-loc");
     }
 
-    public static boolean isAllowingTeleportBetweenWorlds() {
+    public static boolean isAllowingTeleportWithinWorlds() {
         return config.getBoolean("teleport-limit.allow-teleport-within-world");
+    }
+
+    public static boolean isAllowingCrossWorldTeleport() {
+        return config.getBoolean("teleport-limit.allow-cross-world-teleporting");
     }
 
     public static int getDefaultHomesLimit() {

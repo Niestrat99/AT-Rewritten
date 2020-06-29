@@ -58,12 +58,17 @@ public class TeleportTrackingManager implements Listener {
         if (Config.hasStrictTeleportLimiter() && !e.getPlayer().hasPermission("at.admin.bypass.teleport-limit")) {
             String gotoWorld = e.getTo().getWorld().getName();
             String fromWorld = e.getFrom().getWorld().getName();
-            if (!(Config.isAllowingTeleportBetweenWorlds() && gotoWorld.equals(fromWorld))) {
+            if (!(Config.isAllowingTeleportWithinWorlds() && gotoWorld.equals(fromWorld))) {
                 if (Config.containsBlacklistedWorld(gotoWorld, "to") || Config.containsBlacklistedWorld(fromWorld, "from")) {
                     e.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
                     e.setCancelled(true);
                     return;
                 }
+            }
+            if (!gotoWorld.equals(fromWorld) && !Config.isAllowingCrossWorldTeleport()) {
+                e.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
+                e.setCancelled(true);
+                return;
             }
         }
         if (Config.isFeatureEnabled("teleport") && !e.isCancelled() && Config.isCauseAllowed(e.getCause())) {
@@ -78,11 +83,16 @@ public class TeleportTrackingManager implements Listener {
                 if (Config.isTeleportLimiterEnabledForCmd(event.getType().name().toLowerCase())) {
                     String gotoWorld = event.getToLocation().getWorld().getName();
                     String fromWorld = event.getFromLocation().getWorld().getName();
-                    if (!(Config.isAllowingTeleportBetweenWorlds() && gotoWorld.equals(fromWorld))) {
+                    if (!(Config.isAllowingTeleportWithinWorlds() && gotoWorld.equals(fromWorld))) {
                         if (Config.containsBlacklistedWorld(gotoWorld, "to") || Config.containsBlacklistedWorld(fromWorld, "from")) {
                             event.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
                             event.setCancelled(true);
+                            return;
                         }
+                    }
+                    if (!gotoWorld.equals(fromWorld) && !Config.isAllowingCrossWorldTeleport()) {
+                        event.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
+                        event.setCancelled(true);
                     }
                 }
             }
