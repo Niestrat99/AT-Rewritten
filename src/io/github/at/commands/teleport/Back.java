@@ -17,7 +17,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Back implements CommandExecutor {
+
+    private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR"));
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("teleport")) {
@@ -32,7 +39,13 @@ public class Back implements CommandExecutor {
                             return true;
                         }
                     }
-                    while (!(loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.WATER || loc.getBlock().getType().name().equalsIgnoreCase("CAVE_AIR"))) {
+                    double originalY = loc.getY();
+                    while (!airMaterials.contains(loc.getBlock().getType().name())) {
+                        // If we go beyond max height, stop and reset the Y value
+                        if (loc.getY() > loc.getWorld().getMaxHeight()) {
+                            loc.setY(originalY);
+                            break;
+                        }
                         loc.add(0.0, 1.0, 0.0);
                     }
                     ATTeleportEvent event = new ATTeleportEvent(player, player.getLocation(), loc, "back", ATTeleportEvent.TeleportType.BACK);
