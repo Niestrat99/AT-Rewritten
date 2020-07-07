@@ -46,7 +46,7 @@ public class TeleportTrackingManager implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent e) {
         if (Config.hasStrictDistanceMonitor()) {
             if (!DistanceLimiter.canTeleport(e.getTo(), e.getFrom(), null) && !e.getPlayer().hasPermission("at.admin.bypass.distance-limit")) {
@@ -76,7 +76,7 @@ public class TeleportTrackingManager implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTeleport(ATTeleportEvent event) {
         if (Config.isTeleportLimiterEnabled() && !event.getPlayer().hasPermission("at.admin.bypass.teleport-limit")) {
             if (event.getType().isRestricted()) {
