@@ -27,7 +27,7 @@ public class HomesCommand implements CommandExecutor {
                                 if (Homes.getHomes(uuid).size()>0) {
                                     for (String home : Homes.getHomes(uuid).keySet()) {
                                         hlist.then(home)
-                                                .command("/home " + home)
+                                                .command("/home " + args[0] + " " + home)
                                                 .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home))
                                                 .then(", ");
                                     }
