@@ -98,7 +98,7 @@ public class Warp implements CommandExecutor {
             player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
             return;
         }
-        if (!player.hasPermission("at.member.warp." + name) && !player.hasPermission("at.member.warp.*")) {
+        if (!player.hasPermission("at.member.warp." + name)) {
             player.sendMessage(CustomMessages.getString("Error.noPermissionWarp").replaceAll("\\{warp}", name));
             return;
         }
