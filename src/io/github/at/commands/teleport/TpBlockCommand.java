@@ -29,7 +29,7 @@ public class TpBlockCommand implements CommandExecutor {
                             sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                             return true;
                         } else {
-                            if (TpBlock.getBlockedPlayers(player).contains(target.getPlayer())){
+                            if (TpBlock.getBlockedPlayers(player).contains(target.getPlayer().getUniqueId())){
                                 sender.sendMessage(CustomMessages.getString("Error.alreadyBlocked"));
                             } else {
                                 try {

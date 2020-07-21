@@ -28,7 +28,7 @@ public class TpUnblock implements CommandExecutor {
                         if (target == null){
                             sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                         } else {
-                            if (TpBlock.getBlockedPlayers(player).contains(target.getPlayer())){
+                            if (TpBlock.getBlockedPlayers(player).contains(target.getPlayer().getUniqueId())){
                                 try {
                                     TpBlock.remBlockedPlayer(player, target.getPlayer());
                                 } catch (IOException e) {

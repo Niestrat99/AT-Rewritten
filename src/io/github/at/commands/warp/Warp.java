@@ -68,7 +68,7 @@ public class Warp implements CommandExecutor {
                     if (sender instanceof Player) {
                         Player player = (Player) sender;
                         if (Warps.getWarps().containsKey(args[0])) {
-                            if (MovementManager.getMovement().containsKey(player)) {
+                            if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                                 player.sendMessage(CustomMessages.getString("Error.onCountdown"));
                                 return true;
                             }

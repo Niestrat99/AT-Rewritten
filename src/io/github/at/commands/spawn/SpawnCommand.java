@@ -20,12 +20,13 @@ public class SpawnCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("spawn")) {
             if (sender.hasPermission("at.member.spawn")){
-                if (MovementManager.getMovement().containsKey(sender)) {
-                    sender.sendMessage(CustomMessages.getString("Error.onCountdown"));
-                    return true;
-                }
+
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
+                    if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+                        sender.sendMessage(CustomMessages.getString("Error.onCountdown"));
+                        return true;
+                    }
                     spawn(player);
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
