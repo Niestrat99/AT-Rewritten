@@ -1,7 +1,6 @@
 package io.github.at.config;
 
 import io.github.at.main.CoreClass;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.player.PlayerTeleportEvent;

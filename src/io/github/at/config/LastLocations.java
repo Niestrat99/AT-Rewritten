@@ -61,7 +61,7 @@ public class LastLocations {
     public static Location getLocation(Player player) {
         try {
             String[] loc = config.getString(player.getUniqueId().toString()).split(":");
-            return new Location(Bukkit.getWorld(loc[5]), Double.valueOf(loc[0]), Double.valueOf(loc[1]), Double.valueOf(loc[2]), Float.valueOf(loc[3]), Float.valueOf(loc[4]));
+            return new Location(Bukkit.getWorld(loc[5]), Double.parseDouble(loc[0]), Double.parseDouble(loc[1]), Double.parseDouble(loc[2]), Float.parseFloat(loc[3]), Float.parseFloat(loc[4]));
         } catch (Exception e) {
             return null;
         }

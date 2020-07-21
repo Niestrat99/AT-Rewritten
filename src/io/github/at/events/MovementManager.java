@@ -3,7 +3,6 @@ package io.github.at.events;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;

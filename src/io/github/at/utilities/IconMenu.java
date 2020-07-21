@@ -174,7 +174,7 @@ public class IconMenu implements Listener, InventoryHolder {
     }
 
     public interface OptionClickEventHandler {
-        public void onOptionClick(OptionClickEvent event);
+        void onOptionClick(OptionClickEvent event);
     }
 
     public static class Icon {
