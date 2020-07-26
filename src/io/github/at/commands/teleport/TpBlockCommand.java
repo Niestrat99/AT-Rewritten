@@ -3,6 +3,7 @@ package io.github.at.commands.teleport;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
+import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -24,30 +25,30 @@ public class TpBlockCommand implements CommandExecutor {
                             sender.sendMessage(CustomMessages.getString("Error.blockSelf"));
                             return true;
                         }
-                        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                        if (target == null){
-                            sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                            return true;
-                        } else {
-                            if (TpBlock.getBlockedPlayers(player).contains(target.getPlayer().getUniqueId())){
-                                sender.sendMessage(CustomMessages.getString("Error.alreadyBlocked"));
+                        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                            if (target == null){
+                                sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                             } else {
-                                try {
-                                    TpBlock.addBlockedPlayer(player, target.getPlayer());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (NullPointerException e) {
-                                    sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                                    return true;
+                                if (TpBlock.getBlockedPlayers(player).contains(target.getUniqueId())){
+                                    sender.sendMessage(CustomMessages.getString("Error.alreadyBlocked"));
+                                } else {
+                                    try {
+                                        TpBlock.addBlockedPlayer(player, target.getUniqueId());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    } catch (NullPointerException e) {
+                                        sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                                        return;
+                                    }
+                                    sender.sendMessage(CustomMessages.getString("Info.blockPlayer").replaceAll("\\{player}", target.getName()));
                                 }
-                                sender.sendMessage(CustomMessages.getString("Info.blockPlayer").replaceAll("\\{player}", target.getName()));
                             }
-                            return true;
-                        }
+                        });
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
-                        return true;
                     }
+                    return true;
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
                 }

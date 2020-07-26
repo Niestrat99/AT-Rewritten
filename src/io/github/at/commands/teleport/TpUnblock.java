@@ -3,6 +3,7 @@ package io.github.at.commands.teleport;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.TpBlock;
+import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -24,22 +25,24 @@ public class TpUnblock implements CommandExecutor {
                             sender.sendMessage(CustomMessages.getString("Error.blockSelf"));
                             return true;
                         }
-                        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                        if (target == null){
-                            sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                        } else {
-                            if (TpBlock.getBlockedPlayers(player).contains(target.getPlayer().getUniqueId())){
-                                try {
-                                    TpBlock.remBlockedPlayer(player, target.getPlayer());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (NullPointerException e) {
-                                    sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                                    return true;
+                        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                            if (target == null){
+                                sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                            } else {
+                                if (TpBlock.getBlockedPlayers(player).contains(target.getUniqueId())){
+                                    try {
+                                        TpBlock.remBlockedPlayer(player, target.getUniqueId());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    } catch (NullPointerException e) {
+                                        sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                                        return;
+                                    }
+                                    sender.sendMessage(CustomMessages.getString("Info.unblockPlayer").replaceAll("\\{player}", args[0]));
                                 }
-                                sender.sendMessage(CustomMessages.getString("Info.unblockPlayer").replaceAll("\\{player}", args[0]));
                             }
-                        }
+                        });
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
                     }
