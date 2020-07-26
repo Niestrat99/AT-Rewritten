@@ -1,6 +1,6 @@
 main: io.github.at.main.CoreClass
 name: AdvancedTeleport
-version: 5.1.6-SNAPSHOT-2
+version: 5.2
 description: A plugin which is based on tons of teleport stuff.
 authors: [Niestrat99,Thatsmusic99]
 softdepend: [Vault, Ultimate_Economy]
@@ -180,3 +180,4 @@ permissions:
       at.admin.tploc.others: true
       at.admin.bypass.timer: true
       at.admin.bypass.cooldown: true
+      at.admin.request-in-teleport: true

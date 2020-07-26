@@ -1,6 +1,7 @@
 package io.github.at.config;
 
 import io.github.at.main.CoreClass;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -137,6 +138,13 @@ public class Config {
         config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")));
 
         config.addDefault("homes.default-limit", -1);
+
+        config.addDefault("spawn.death.teleport.default", "spawn");
+        config.addDefault("spawn.death.teleport.world", "{default}");
+        config.addDefault("spawn.death.teleport.special-world", "warp:Special");
+        config.addDefault("spawn.death.teleport.another-world", "bed");
+        config.addDefault("spawn.join.teleport-on-first-join", true);
+        config.addDefault("spawn.join.teleport-on-every-join", false);
 
         config.options().copyDefaults(true);
         save();
@@ -290,5 +298,21 @@ public class Config {
 
     public static int getDefaultHomesLimit() {
         return config.getInt("homes.default-limit");
+    }
+
+    public static String getSpawnCommand(World world) {
+        String command = config.getString("spawn.death.teleport." + world.getName());
+        if (command == null || command.equals("{default}")) {
+            command = config.getString("spawn.death.teleport.default");
+        }
+        return command;
+    }
+
+    public static boolean spawnTPOnFirstJoin() {
+        return config.getBoolean("spawn.join.teleport-on-first-join");
+    }
+
+    public static boolean spawnTPEveryTime() {
+        return config.getBoolean("spawn.join.teleport-on-every-join");
     }
 }

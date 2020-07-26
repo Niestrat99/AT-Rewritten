@@ -81,6 +81,7 @@ public class CustomMessages {
         Config.addDefault("Error.cantTPToWorldLim", "&cYou can't teleport to &e{world}&c!");
         Config.addDefault("Error.tooFewArguments", "&cToo few arguments!");
         Config.addDefault("Error.invalidArgs", "&cInvalid arguments!");
+        Config.addDefault("Error.cantTPToPlayer", "&cYou can't request a teleportation to &e{player}&c!");
 
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
