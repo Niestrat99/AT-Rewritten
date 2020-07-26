@@ -32,6 +32,7 @@ public class PaymentManager {
     public static void withdraw(String command, Player player) {
         if (!player.hasPermission("at.admin.bypass")) {
             if (Config.isUsingEXPPayment(command)) {
+                if (Config.getEXPTeleportPrice(command) == 0) return;
                 if (player.getLevel() >= Config.getEXPTeleportPrice(command)){
                     int currentLevel = player.getLevel();
                     player.setLevel(currentLevel - Config.getEXPTeleportPrice(command));
@@ -41,6 +42,7 @@ public class PaymentManager {
                 }
             }
             if  (CoreClass.getVault() != null && Config.isUsingVault(command)) {
+                if (Config.getTeleportPrice(command) == 0) return;
                 if (CoreClass.getVault().getBalance(player) >= Config.getTeleportPrice(command)){
                     EconomyResponse payment = CoreClass.getVault().withdrawPlayer(player, Config.getTeleportPrice(command));
                     if (payment.transactionSuccess()){
