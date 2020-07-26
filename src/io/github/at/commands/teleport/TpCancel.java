@@ -26,7 +26,7 @@ public class TpCancel implements CommandExecutor {
                             if (args.length > 0) {
                                 Player target = Bukkit.getPlayer(args[0]);
                                 // Player is offline
-                                if (target == null) {
+                                if (target == null || !player.canSee(target)) {
                                     sender.sendMessage(CustomMessages.getString("Errors.noSuchPlayer"));
                                     return true;
                                 } else {
