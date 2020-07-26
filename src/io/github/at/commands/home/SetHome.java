@@ -21,46 +21,48 @@ public class SetHome implements CommandExecutor {
             if (sender instanceof Player) {
                 Player player = (Player)sender;
                 if (sender.hasPermission("at.member.sethome")) {
-                    if (args.length>0) {
-                        if (Bukkit.getOfflinePlayer(args[0]) != null) {
-                            if (sender.hasPermission("at.admin.sethome")) {
-                                // We'll just assume that the admin command overrides the homes limit.
-                                if (args.length>1) {
-                                    if (args[1].matches("^[A-Za-z0-9]+$")) {
-                                        UUID target = Bukkit.getOfflinePlayer(args[0]).getUniqueId();
-                                        setHome(player, target, args[1], args[0]);
-                                    } else {
-                                        sender.sendMessage(CustomMessages.getString("Error.invalidName"));
+                    Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                        if (args.length>0) {
+                            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                            if (target != null) {
+                                if (sender.hasPermission("at.admin.sethome")) {
+                                    // We'll just assume that the admin command overrides the homes limit.
+                                    if (args.length>1) {
+                                        if (args[1].matches("^[A-Za-z0-9]+$")) {
+                                            setHome(player, target.getUniqueId(), args[1], args[0]);
+                                        } else {
+                                            sender.sendMessage(CustomMessages.getString("Error.invalidName"));
+                                        }
+                                        return;
                                     }
-                                    return true;
                                 }
                             }
-                        }
-                        // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
-                        int limit = getHomesLimit(player);
+                            // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
+                            int limit = getHomesLimit(player);
 
-                        // If the number of homes a player has is smaller than or equal to the homes limit, or they have a bypass permission
-                        if (Homes.getHomes(player.getUniqueId().toString()).size() < limit
-                                || player.hasPermission("at.admin.sethome.bypass")
-                                || limit == -1) {
-                            if (args[0].matches("^[A-Za-z0-9]+$")) {
-                                setHome(player, args[0]);
+                            // If the number of homes a player has is smaller than or equal to the homes limit, or they have a bypass permission
+                            if (Homes.getHomes(player.getUniqueId().toString()).size() < limit
+                                    || player.hasPermission("at.admin.sethome.bypass")
+                                    || limit == -1) {
+                                if (args[0].matches("^[A-Za-z0-9]+$")) {
+                                    setHome(player, args[0]);
+                                } else {
+                                    sender.sendMessage(CustomMessages.getString("Error.invalidName"));
+                                }
+
                             } else {
-                                sender.sendMessage(CustomMessages.getString("Error.invalidName"));
+                                sender.sendMessage(CustomMessages.getString("Error.reachedHomeLimit"));
                             }
 
                         } else {
-                            sender.sendMessage(CustomMessages.getString("Error.reachedHomeLimit"));
+                            int limit = getHomesLimit(player);
+                            if (Homes.getHomes(player.getUniqueId().toString()).size() == 0 && (limit > 0 || limit == -1)) {
+                                setHome(player, "home");
+                            } else {
+                                sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
+                            }
                         }
-
-                    } else {
-                        int limit = getHomesLimit(player);
-                        if (Homes.getHomes(player.getUniqueId().toString()).size() == 0 && (limit > 0 || limit == -1)) {
-                            setHome(player, "home");
-                        } else {
-                            sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                        }
-                    }
+                    });
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
