@@ -3,8 +3,10 @@ package io.github.at.commands.home;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
+import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -118,14 +120,18 @@ public class SetHome implements CommandExecutor {
     // at.member.homes.40
     // at.member.homes.100000
     private int getHomesLimit(Player player) {
+        int maxHomes = Config.getDefaultHomesLimit();
         for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
             if (permission.getPermission().startsWith("at.member.homes.")) {
                 if (permission.getValue()) {
                     String perm = permission.getPermission();
-                    return Integer.parseInt(perm.substring(perm.lastIndexOf(".") + 1));
+                    int homes = Integer.parseInt(perm.substring(perm.lastIndexOf(".") + 1));
+                    if (maxHomes < homes) {
+                        maxHomes = homes;
+                    }
                 }
             }
         }
-        return Config.getDefaultHomesLimit();
+        return maxHomes;
     }
 }
