@@ -69,7 +69,7 @@ public class TeleportTrackingManager implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent e) {
         String result = ConditionChecker.canTeleport(e.getFrom(), e.getTo(), null, e.getPlayer());
         if (!result.isEmpty()) {
@@ -107,6 +107,7 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
+        UUID uuid = e.getPlayer().getUniqueId();
         if (Config.isFeatureEnabled("teleport")) {
             new BukkitRunnable() { // They also call PlayerTeleportEvent when you respawn
                 @Override
