@@ -1,10 +1,9 @@
 package io.github.at.events;
 
 import io.github.at.api.ATTeleportEvent;
-import io.github.at.config.Config;
-import io.github.at.config.CustomMessages;
-import io.github.at.config.LastLocations;
+import io.github.at.config.*;
 import io.github.at.main.CoreClass;
+import io.github.at.utilities.ConditionChecker;
 import io.github.at.utilities.DistanceLimiter;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -22,9 +21,9 @@ import java.util.UUID;
 
 public class TeleportTrackingManager implements Listener {
 
-    private static HashMap<UUID, Location> lastLocations = new HashMap<>();
+    private static final HashMap<UUID, Location> lastLocations = new HashMap<>();
     // This needs a separate hashmap because players may not immediately click "Respawn".
-    private static HashMap<UUID, Location> deathLocations = new HashMap<>();
+    private static final HashMap<UUID, Location> deathLocations = new HashMap<>();
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
@@ -43,59 +42,52 @@ public class TeleportTrackingManager implements Listener {
                 }
             }.runTaskLater(CoreClass.getInstance(), 10);
         }
-
+        if (!e.getPlayer().hasPlayedBefore()) {
+            if (Config.spawnTPOnFirstJoin()) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (Spawn.getSpawnFile() != null) {
+                            e.getPlayer().teleport(Spawn.getSpawnFile());
+                        } else {
+                            e.getPlayer().teleport(e.getPlayer().getWorld().getSpawnLocation());
+                        }
+                    }
+                }.runTaskLater(CoreClass.getInstance(), 10);
+            }
+        } else if (Config.spawnTPEveryTime()) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (Spawn.getSpawnFile() != null) {
+                        e.getPlayer().teleport(Spawn.getSpawnFile());
+                    } else {
+                        e.getPlayer().teleport(e.getPlayer().getWorld().getSpawnLocation());
+                    }
+                }
+            }.runTaskLater(CoreClass.getInstance(), 10);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent e) {
-        if (Config.hasStrictDistanceMonitor()) {
-            if (!DistanceLimiter.canTeleport(e.getTo(), e.getFrom(), null) && !e.getPlayer().hasPermission("at.admin.bypass.distance-limit")) {
-                e.getPlayer().sendMessage(CustomMessages.getString("Error.tooFarAway"));
-                e.setCancelled(true);
-                return;
-            }
+        String result = ConditionChecker.canTeleport(e.getFrom(), e.getTo(), null, e.getPlayer());
+        if (!result.isEmpty()) {
+            e.getPlayer().sendMessage(result);
+            e.setCancelled(true);
+            return;
         }
-        if (Config.hasStrictTeleportLimiter() && !e.getPlayer().hasPermission("at.admin.bypass.teleport-limit")) {
-            String gotoWorld = e.getTo().getWorld().getName();
-            String fromWorld = e.getFrom().getWorld().getName();
-            if (!(Config.isAllowingTeleportWithinWorlds() && gotoWorld.equals(fromWorld))) {
-                if (Config.containsBlacklistedWorld(gotoWorld, "to") || Config.containsBlacklistedWorld(fromWorld, "from")) {
-                    e.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
-                    e.setCancelled(true);
-                    return;
-                }
-            }
-            if (!gotoWorld.equals(fromWorld) && !Config.isAllowingCrossWorldTeleport()) {
-                e.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
-                e.setCancelled(true);
-                return;
-            }
-        }
-        if (Config.isFeatureEnabled("teleport") && !e.isCancelled() && Config.isCauseAllowed(e.getCause())) {
+        if (Config.isFeatureEnabled("teleport") && Config.isCauseAllowed(e.getCause())) {
             lastLocations.put(e.getPlayer().getUniqueId(), e.getFrom());
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onTeleport(ATTeleportEvent event) {
-        if (Config.isTeleportLimiterEnabled() && !event.getPlayer().hasPermission("at.admin.bypass.teleport-limit")) {
-            if (event.getType().isRestricted()) {
-                if (Config.isTeleportLimiterEnabledForCmd(event.getType().name().toLowerCase())) {
-                    String gotoWorld = event.getToLocation().getWorld().getName();
-                    String fromWorld = event.getFromLocation().getWorld().getName();
-                    if (!(Config.isAllowingTeleportWithinWorlds() && gotoWorld.equals(fromWorld))) {
-                        if (Config.containsBlacklistedWorld(gotoWorld, "to") || Config.containsBlacklistedWorld(fromWorld, "from")) {
-                            event.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
-                            event.setCancelled(true);
-                            return;
-                        }
-                    }
-                    if (!gotoWorld.equals(fromWorld) && !Config.isAllowingCrossWorldTeleport()) {
-                        event.getPlayer().sendMessage(CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", gotoWorld));
-                        event.setCancelled(true);
-                    }
-                }
-            }
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onTeleport(ATTeleportEvent e) {
+        String result = ConditionChecker.canTeleport(e.getFromLocation(), e.getToLocation(), null, e.getPlayer());
+        if (!result.isEmpty()) {
+            e.getPlayer().sendMessage(result);
+            e.setCancelled(true);
         }
     }
 
@@ -119,13 +111,41 @@ public class TeleportTrackingManager implements Listener {
             new BukkitRunnable() { // They also call PlayerTeleportEvent when you respawn
                 @Override
                 public void run() {
-                    UUID uuid = e.getPlayer().getUniqueId();
+
                     if (deathLocations.get(uuid) != null) {
                         lastLocations.put(uuid, deathLocations.get(uuid));
                         deathLocations.remove(uuid);
                     }
                 }
             }.runTaskLater(CoreClass.getInstance(), 10);
+        }
+        String spawnCommand = Config.getSpawnCommand(deathLocations.get(uuid).getWorld());
+        switch (spawnCommand) {
+            case "spawn":
+                if (Spawn.getSpawnFile() != null) {
+                    e.setRespawnLocation(Spawn.getSpawnFile());
+                } else {
+                    e.setRespawnLocation(e.getPlayer().getWorld().getSpawnLocation());
+                }
+                break;
+            case "bed":
+                if (!e.isBedSpawn() && e.getPlayer().getBedSpawnLocation() != null) {
+                    e.setRespawnLocation(e.getPlayer().getBedSpawnLocation());
+                }
+                break;
+            default:
+                if (spawnCommand.startsWith("warp:")) {
+                    try {
+                        String warp = spawnCommand.split(":")[1];
+                        if (Warps.getWarps().containsKey(warp)) {
+                            e.setRespawnLocation(Warps.getWarps().get(warp));
+                        } else {
+                            CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + deathLocations.get(uuid).getWorld());
+                        }
+                    } catch (IndexOutOfBoundsException ex) {
+                        CoreClass.getInstance().getLogger().warning("Malformed warp name for death in " + deathLocations.get(uuid).getWorld());
+                    }
+                }
         }
     }
 
