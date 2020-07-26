@@ -21,14 +21,15 @@ public class TpBlock {
     public static void save() throws IOException {
         config.save(configFile);
     }
-    public static void addBlockedPlayer(Player bpl, Player target) throws IOException {
+    public static void addBlockedPlayer(Player bpl, UUID target) throws IOException {
         if (getBlockedPlayers(bpl).size()>0){
             List<String> players = config.getStringList("players." + bpl.getUniqueId().toString());
-            players.add(target.getUniqueId().toString());
+            players.add(target.toString());
             config.set("players." + bpl.getUniqueId().toString(), players);
         } else {
-            config.set("players." + bpl.getUniqueId().toString(), new ArrayList<>(Collections.singleton(target.getUniqueId().toString())));
-        }save();
+            config.set("players." + bpl.getUniqueId().toString(), new ArrayList<>(Collections.singleton(target.toString())));
+        }
+        save();
     }
     public static List<UUID> getBlockedPlayers(Player target){
         List<UUID> players = new ArrayList<>();
@@ -37,9 +38,9 @@ public class TpBlock {
         }
         return players;
     }
-    public static void remBlockedPlayer(Player rpl, Player target) throws IOException {
+    public static void remBlockedPlayer(Player rpl, UUID target) throws IOException {
         List<String> players = config.getStringList("players." + rpl.getUniqueId().toString());
-        players.remove((target.getUniqueId().toString()));
+        players.remove((target.toString()));
         config.set("players." + rpl.getUniqueId().toString(), players);
         save();
     }
