@@ -4,6 +4,7 @@ import fanciful.FancyMessage;
 import io.github.at.config.Config;
 import io.github.at.config.CustomMessages;
 import io.github.at.config.Homes;
+import io.github.at.main.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -12,6 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class HomesCommand implements CommandExecutor {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (Config.isFeatureEnabled("homes")) {
