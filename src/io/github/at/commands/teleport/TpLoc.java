@@ -102,10 +102,10 @@ public class TpLoc implements CommandExecutor, TabCompleter {
                         // Should the player be flying or not?
                         boolean allowFlight = true;
                         if (args.length > 7) {
-                            if (target.hasPermission("at.admin.tploc.safe-teleport")) {
+                            if (target.hasPermission("at.admin.tploc.safe-teleport") && target.getAllowFlight()) {
                                 if (args[7].equalsIgnoreCase("precise")) {
-                                    target.setAllowFlight(true);
                                     target.setFlying(true);
+                                    allowFlight = true;
                                 } else if (args[7].equalsIgnoreCase("noflight")) {
                                     target.setFlying(false);
                                     allowFlight = false;
@@ -116,8 +116,7 @@ public class TpLoc implements CommandExecutor, TabCompleter {
                         ATTeleportEvent event = new ATTeleportEvent(target, location, target.getLocation(), "", ATTeleportEvent.TeleportType.TPLOC);
                         if (!event.isCancelled()) {
                             Location blockBelow = location.clone().add(0, -1, 0);
-                            if (allowFlight && target.hasPermission("at.admin.tploc.safe-teleport") && blockBelow.getBlock().getType() == Material.AIR) {
-                                target.setAllowFlight(true);
+                            if (allowFlight && target.getAllowFlight() && target.hasPermission("at.admin.tploc.safe-teleport") && blockBelow.getBlock().getType() == Material.AIR) {
                                 target.setFlying(true);
                             }
                             target.teleport(location);
@@ -209,8 +208,10 @@ public class TpLoc implements CommandExecutor, TabCompleter {
                     }
                     break;
                 case 8:
-                    StringUtil.copyPartialMatches(args[7],
-                            Arrays.asList("precise", "noflight"), results);
+                    if (player.hasPermission("at.admin.tploc.safe-teleport")) {
+                        StringUtil.copyPartialMatches(args[7],
+                                Arrays.asList("precise", "noflight"), results);
+                    }
                     break;
             }
         }
