@@ -68,25 +68,15 @@ public class Tpa implements CommandExecutor {
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
                                         .replaceAll("\\{player}", target.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
-                                if(!Config.getSound("tpa.requestSent").equals("NONE")){
-                                    try{
-                                        ((Player) sender).playSound(((Player) sender).getLocation(), Sound.valueOf(Config.getSound("tpa.requestSent")), 10, 1);
-                                    }
-                                    catch(IllegalArgumentException e){
-                                        getServer().getLogger().warning(CoreClass.pltitle(Config.getSound("tpa.requestSent") + " is an invalid sound name"));
-                                    }
-                                }
+
+                                CoreClass.playSound("tpa", "requestSent", player);
+
                                 target.sendMessage(CustomMessages.getString("Info.tpaRequestReceived")
                                         .replaceAll("\\{player}", sender.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
-                                if(!Config.getSound("tpa.requestReceived").equals("NONE")){
-                                    try{
-                                        target.playSound(target.getLocation(), Sound.valueOf(Config.getSound("tpa.requestReceived")), 10, 1);
-                                    }
-                                    catch(IllegalArgumentException e){
-                                        getServer().getLogger().warning(CoreClass.pltitle(Config.getSound("tpa.requestReceived") + " is an invalid sound name"));
-                                    }
-                                }
+
+                                CoreClass.playSound("tpa", "requestReceived", target);
+
                                 BukkitRunnable run = new BukkitRunnable() {
                                     @Override
                                     public void run() {

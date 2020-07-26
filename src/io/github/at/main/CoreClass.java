@@ -17,12 +17,16 @@ import io.github.at.events.MovementManager;
 import io.github.at.events.TeleportTrackingManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.WorldBorder;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
+
+import static org.bukkit.Bukkit.getServer;
 
 public class CoreClass extends JavaPlugin {
 
@@ -157,5 +161,16 @@ public class CoreClass extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AtSigns(), this);
         getServer().getPluginManager().registerEvents(new TeleportTrackingManager(), this);
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
+    }
+
+    public static void playSound(String type, String subType, Player target) {
+        if(!Config.getSound(type + "." + subType).equals("NONE")){
+            try{
+                target.playSound(target.getLocation(), Sound.valueOf(Config.getSound(type + "." + subType)), 10, 1);
+            }
+            catch(IllegalArgumentException e){
+                CoreClass.getInstance().getLogger().warning(CoreClass.pltitle(Config.getSound("tpa.requestReceived") + " is an invalid sound name"));
+            }
+        }
     }
 }
