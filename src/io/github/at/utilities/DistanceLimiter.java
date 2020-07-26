@@ -6,6 +6,7 @@ import org.bukkit.Location;
 public class DistanceLimiter {
 
     public static boolean canTeleport(Location loc1, Location loc2, String command) {
+        if (command == null && !Config.hasStrictDistanceMonitor()) return true;
         if (Config.isDistanceLimiterEnabled() && (command == null || Config.isDistanceLimiterEnabledForCmd(command))) {
             if (loc1.getWorld() != loc2.getWorld()) return true;
             // ((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1))^0.5
