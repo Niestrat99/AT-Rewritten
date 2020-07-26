@@ -13,6 +13,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
@@ -98,7 +99,16 @@ public class Warp implements CommandExecutor {
             player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
             return;
         }
-        if (!player.hasPermission("at.member.warp." + name)) {
+
+        boolean found = false;
+        if (player.hasPermission("at.member.warp.*")) found = true;
+        for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
+            if (permission.getPermission().equals("at.member.warp." + name)) {
+                found = permission.getValue();
+                break;
+            }
+        }
+        if (!found) {
             player.sendMessage(CustomMessages.getString("Error.noPermissionWarp").replaceAll("\\{warp}", name));
             return;
         }
