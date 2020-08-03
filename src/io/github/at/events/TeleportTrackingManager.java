@@ -108,18 +108,6 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
-        if (Config.isFeatureEnabled("teleport")) {
-            new BukkitRunnable() { // They also call PlayerTeleportEvent when you respawn
-                @Override
-                public void run() {
-
-                    if (deathLocations.get(uuid) != null) {
-                        lastLocations.put(uuid, deathLocations.get(uuid));
-                        deathLocations.remove(uuid);
-                    }
-                }
-            }.runTaskLater(CoreClass.getInstance(), 10);
-        }
         String spawnCommand = Config.getSpawnCommand(deathLocations.get(uuid).getWorld());
         switch (spawnCommand) {
             case "spawn":
@@ -147,6 +135,18 @@ public class TeleportTrackingManager implements Listener {
                         CoreClass.getInstance().getLogger().warning("Malformed warp name for death in " + deathLocations.get(uuid).getWorld());
                     }
                 }
+        }
+        if (Config.isFeatureEnabled("teleport")) {
+            new BukkitRunnable() { // They also call PlayerTeleportEvent when you respawn
+                @Override
+                public void run() {
+
+                    if (deathLocations.get(uuid) != null) {
+                        lastLocations.put(uuid, deathLocations.get(uuid));
+                        deathLocations.remove(uuid);
+                    }
+                }
+            }.runTaskLater(CoreClass.getInstance(), 10);
         }
     }
 
