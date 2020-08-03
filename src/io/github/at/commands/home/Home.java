@@ -84,6 +84,7 @@ public class Home implements CommandExecutor {
                         if (homes.size() == 1) {
                             String name = homes.keySet().iterator().next();
                             teleport(player, homes.get(name), name);
+                            return;
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
                             return;
