@@ -108,33 +108,35 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
-        String spawnCommand = Config.getSpawnCommand(deathLocations.get(uuid).getWorld());
-        switch (spawnCommand) {
-            case "spawn":
-                if (Spawn.getSpawnFile() != null) {
-                    e.setRespawnLocation(Spawn.getSpawnFile());
-                } else {
-                    e.setRespawnLocation(e.getPlayer().getWorld().getSpawnLocation());
-                }
-                break;
-            case "bed":
-                if (!e.isBedSpawn() && e.getPlayer().getBedSpawnLocation() != null) {
-                    e.setRespawnLocation(e.getPlayer().getBedSpawnLocation());
-                }
-                break;
-            default:
-                if (spawnCommand.startsWith("warp:")) {
-                    try {
-                        String warp = spawnCommand.split(":")[1];
-                        if (Warps.getWarps().containsKey(warp)) {
-                            e.setRespawnLocation(Warps.getWarps().get(warp));
-                        } else {
-                            CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + deathLocations.get(uuid).getWorld());
-                        }
-                    } catch (IndexOutOfBoundsException ex) {
-                        CoreClass.getInstance().getLogger().warning("Malformed warp name for death in " + deathLocations.get(uuid).getWorld());
+        if (Config.isFeatureEnabled("spawn")) {
+            String spawnCommand = Config.getSpawnCommand(deathLocations.get(uuid).getWorld());
+            switch (spawnCommand) {
+                case "spawn":
+                    if (Spawn.getSpawnFile() != null) {
+                        e.setRespawnLocation(Spawn.getSpawnFile());
+                    } else {
+                        e.setRespawnLocation(e.getPlayer().getWorld().getSpawnLocation());
                     }
-                }
+                    break;
+                case "bed":
+                    if (!e.isBedSpawn() && e.getPlayer().getBedSpawnLocation() != null) {
+                        e.setRespawnLocation(e.getPlayer().getBedSpawnLocation());
+                    }
+                    break;
+                default:
+                    if (spawnCommand.startsWith("warp:")) {
+                        try {
+                            String warp = spawnCommand.split(":")[1];
+                            if (Warps.getWarps().containsKey(warp)) {
+                                e.setRespawnLocation(Warps.getWarps().get(warp));
+                            } else {
+                                CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + deathLocations.get(uuid).getWorld());
+                            }
+                        } catch (IndexOutOfBoundsException ex) {
+                            CoreClass.getInstance().getLogger().warning("Malformed warp name for death in " + deathLocations.get(uuid).getWorld());
+                        }
+                    }
+            }
         }
         if (Config.isFeatureEnabled("teleport")) {
             new BukkitRunnable() { // They also call PlayerTeleportEvent when you respawn
