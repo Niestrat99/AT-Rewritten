@@ -19,9 +19,9 @@ public class HomeTabCompleter implements TabCompleter {
             List<String> possibleHomes;
             String uuid2 = ((Player) sender).getUniqueId().toString();
             if (!args[0].isEmpty()
+                    && args.length > 1
                     && Bukkit.getOfflinePlayer(args[0]) != null
-                    && sender.hasPermission("at.admin.home")
-                    && args.length > 1) {
+                    && sender.hasPermission("at.admin.home")) {
                 String uuid = Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString();
                 if (args.length < 3) {
                     try {
