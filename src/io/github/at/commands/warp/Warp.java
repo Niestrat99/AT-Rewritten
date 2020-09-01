@@ -103,7 +103,7 @@ public class Warp implements CommandExecutor {
         boolean found = false;
         if (player.hasPermission("at.member.warp.*")) found = true;
         for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
-            if (permission.getPermission().equals("at.member.warp." + name)) {
+            if (permission.getPermission().equalsIgnoreCase("at.member.warp." + name)) {
                 found = permission.getValue();
                 break;
             }
