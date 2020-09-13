@@ -109,6 +109,7 @@ public class TeleportTrackingManager implements Listener {
     public void onRespawn(PlayerRespawnEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
         if (Config.isFeatureEnabled("spawn")) {
+            if (deathLocations.get(uuid) == null) return;
             String spawnCommand = Config.getSpawnCommand(deathLocations.get(uuid).getWorld());
             switch (spawnCommand) {
                 case "spawn":
