@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -119,7 +120,7 @@ public class TpLoc implements CommandExecutor, TabCompleter {
                             if (allowFlight && target.getAllowFlight() && target.hasPermission("at.admin.tploc.safe-teleport") && blockBelow.getBlock().getType() == Material.AIR) {
                                 target.setFlying(true);
                             }
-                            target.teleport(location);
+                            PaperLib.teleportAsync(target, location);
                             if (player != target) {
                                 player.sendMessage(CustomMessages.getString("Info.teleportedToLocOther")
                                         .replaceAll("\\{x}", String.valueOf(loc[0]))

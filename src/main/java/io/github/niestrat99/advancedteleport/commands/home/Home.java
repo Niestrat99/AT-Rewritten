@@ -84,7 +84,7 @@ public class Home implements CommandExecutor {
                                         });
                                     } catch (NullPointerException ex) {
                                         Location tlocation = Homes.getHomes(uuidOther).get(args[1]);
-                                        player.teleport(tlocation);
+                                        PaperLib.teleportAsync(player, tlocation);
                                         sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
                                                 .replaceAll("\\{player}", args[0]).replaceAll("\\{home}", args[1]));
                                     }
@@ -107,7 +107,7 @@ public class Home implements CommandExecutor {
                             if (Homes.getHomes(uuid).containsKey(args[0])) {
                                 Location location = Homes.getHomes(uuid).get(args[0]);
                                 teleport(player, location, args[0]);
-                            } else if (args[0].equalsIgnoreCase("bed")) {
+                            } else if (args[0].equalsIgnoreCase("bed")  && Config.addBedToHomes()) {
                                 Location location = player.getBedSpawnLocation();
                                 if (location == null) {
                                     player.sendMessage(CustomMessages.getString("Error.noBedHome"));

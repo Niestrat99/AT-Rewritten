@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -95,11 +96,6 @@ public class Warp implements CommandExecutor {
     }
 
     public static void warp(Location loc, Player player, String name) {
-        if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "warp") && !player.hasPermission("at.admin.bypass.distance-limit")) {
-            player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
-            return;
-        }
-
         boolean found = false;
         if (player.hasPermission("at.member.warp.*")) found = true;
         for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
@@ -120,7 +116,7 @@ public class Warp implements CommandExecutor {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {
-                            player.teleport(loc);
+                            PaperLib.teleportAsync(player, loc);
                             MovementManager.getMovement().remove(player.getUniqueId());
                             player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));
                             PaymentManager.withdraw("warp", player);
@@ -132,7 +128,7 @@ public class Warp implements CommandExecutor {
                     player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("warp"))));
 
                 } else {
-                    player.teleport(loc);
+                    PaperLib.teleportAsync(player, loc);
                     PaymentManager.withdraw("warp", player);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));
                 }

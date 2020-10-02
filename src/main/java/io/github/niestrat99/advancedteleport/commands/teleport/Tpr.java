@@ -131,7 +131,7 @@ public class Tpr implements CommandExecutor {
                                     @Override
                                     public void run() {
                                         chunk.load(true);
-                                        player.teleport(loc);
+                                        PaperLib.teleportAsync(player, loc);
                                         MovementManager.getMovement().remove(uuid);
                                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
                                         PaymentManager.withdraw("tpr", player);

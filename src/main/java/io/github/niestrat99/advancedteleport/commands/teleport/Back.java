@@ -9,6 +9,7 @@ import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -55,7 +56,7 @@ public class Back implements CommandExecutor {
                                 BukkitRunnable movementtimer = new BukkitRunnable() {
                                     @Override
                                     public void run() {
-                                        player.teleport(finalLoc);
+                                        PaperLib.teleportAsync(player, finalLoc);
                                         MovementManager.getMovement().remove(player.getUniqueId());
                                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                                         PaymentManager.withdraw("back", player);
@@ -67,7 +68,7 @@ public class Back implements CommandExecutor {
                                 player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("back"))));
 
                             } else {
-                                player.teleport(loc);
+                                PaperLib.teleportAsync(player, loc);
                                 PaymentManager.withdraw("back", player);
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                             }

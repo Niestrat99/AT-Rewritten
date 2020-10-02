@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -39,10 +40,6 @@ public class SpawnCommand implements CommandExecutor {
     }
 
     public static void spawn(Player player) {
-        if (!DistanceLimiter.canTeleport(player.getLocation(), Spawn.getSpawnFile() != null ? Spawn.getSpawnFile() : player.getWorld().getSpawnLocation(), "spawn") && !player.hasPermission("at.admin.bypass.distance-limit")) {
-            player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
-            return;
-        }
         Location spawn;
         if (Spawn.getSpawnFile() != null) {
             spawn = Spawn.getSpawnFile();
@@ -57,7 +54,7 @@ public class SpawnCommand implements CommandExecutor {
                         @Override
                         public void run() {
                             PaymentManager.withdraw("spawn", player);
-                            player.teleport(spawn);
+                            PaperLib.teleportAsync(player, spawn);
                             player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
                             MovementManager.getMovement().remove(player.getUniqueId());
                         }
@@ -68,7 +65,7 @@ public class SpawnCommand implements CommandExecutor {
 
                 } else {
                     PaymentManager.withdraw("spawn", player);
-                    player.teleport(spawn);
+                    PaperLib.teleportAsync(player, spawn);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
                 }
             }
