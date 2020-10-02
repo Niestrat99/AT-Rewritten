@@ -6,8 +6,10 @@ import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -47,25 +49,35 @@ public class Home implements CommandExecutor {
                                         Location loc;
                                         switch (args[1].toLowerCase()) {
                                             case "bed":
-                                                loc = player.getBedSpawnLocation();
-                                                if (loc == null) {
-                                                    player.sendMessage(CustomMessages.getString("Error.noBedHomeOther").replaceAll("\\{player}", args[0]));
-                                                    return;
-                                                }
-                                                break;
-                                                case "list":
-                                                    Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
-                                                    return;
-                                                default:
+                                                if (Config.addBedToHomes()) {
+                                                    loc = player.getBedSpawnLocation();
+                                                    if (loc == null) {
+                                                        player.sendMessage(CustomMessages.getString("Error.noBedHomeOther").replaceAll("\\{player}", args[0]));
+                                                        return;
+                                                    }
+                                                } else {
                                                     if (homesOther.containsKey(args[1])) {
                                                         loc = homesOther.get(args[1]);
                                                     } else {
                                                         sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
                                                         return;
                                                     }
+                                                }
+
+                                                break;
+                                            case "list":
+                                                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+                                                return;
+                                            default:
+                                                if (homesOther.containsKey(args[1])) {
+                                                    loc = homesOther.get(args[1]);
+                                                } else {
+                                                    sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
+                                                    return;
+                                                }
                                         }
                                         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
-                                            player.teleport(loc);
+                                            PaperLib.teleportAsync(player, loc);
                                             sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
                                                     .replaceAll("\\{player}", args[0])
                                                     .replaceAll("\\{home}", args[1]));
@@ -84,11 +96,10 @@ public class Home implements CommandExecutor {
                         if (homes.size() == 1) {
                             String name = homes.keySet().iterator().next();
                             teleport(player, homes.get(name), name);
-                            return;
                         } else {
                             sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
-                            return;
                         }
+                        return;
                     }
 
                     if (PaymentManager.canPay("home", player)) {
@@ -127,10 +138,6 @@ public class Home implements CommandExecutor {
     }
 
     private void teleport(Player player, Location loc, String name) {
-        if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "home") && !player.hasPermission("at.admin.bypass.distance-limit")) {
-            player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
-            return;
-        }
         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
             ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), name, ATTeleportEvent.TeleportType.HOME);
             if (!event.isCancelled()) {
@@ -140,7 +147,7 @@ public class Home implements CommandExecutor {
                             @Override
                             public void run() {
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
-                                player.teleport(loc);
+                                PaperLib.teleportAsync(player, loc);
                                 MovementManager.getMovement().remove(player.getUniqueId());
                                 PaymentManager.withdraw("home", player);
                             }
@@ -151,7 +158,7 @@ public class Home implements CommandExecutor {
 
                     } else {
                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
-                        player.teleport(loc);
+                        PaperLib.teleportAsync(player, loc);
                         PaymentManager.withdraw("home", player);
                     }
                 }

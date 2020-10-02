@@ -34,7 +34,7 @@ public class HomesCommand implements CommandExecutor {
                                                     .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home))
                                                     .then(", ");
                                         }
-                                        if (player.getBedSpawnLocation() != null) {
+                                        if (player.getBedSpawnLocation() != null && Config.addBedToHomes()) {
                                             hlist.then("bed")
                                                     .command("/home " + args[0] + " bed")
                                                     .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", "bed"))
@@ -69,7 +69,7 @@ public class HomesCommand implements CommandExecutor {
                                             .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home))
                                             .then(", ");
                                 }
-                                if (player.getBedSpawnLocation() != null) {
+                                if (player.getBedSpawnLocation() != null && Config.addBedToHomes()) {
                                     hList.then("bed")
                                             .command("/home bed")
                                             .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", "bed"))

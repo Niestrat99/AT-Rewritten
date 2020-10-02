@@ -316,4 +316,6 @@ public class Config {
     public static boolean spawnTPEveryTime() {
         return config.getBoolean("spawn.join.teleport-on-every-join");
     }
+
+    public static boolean addBedToHomes() { return config.getBoolean("homes.add-bed-to-homes"); }
 }
