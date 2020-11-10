@@ -1,12 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
-import io.github.niestrat99.advancedteleport.config.Warps;
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.Warps;
+import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
-import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
@@ -69,6 +69,11 @@ public class Warp implements CommandExecutor {
                 } else if (sender.hasPermission("at.member.warp")) {
                     if (sender instanceof Player) {
                         Player player = (Player) sender;
+                        int cooldown = CooldownManager.secondsLeftOnCooldown("warp", player);
+                        if (cooldown > 0) {
+                            sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                            return true;
+                        }
                         if (Warps.getWarps().containsKey(args[0])) {
                             if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                                 player.sendMessage(CustomMessages.getString("Error.onCountdown"));
@@ -126,7 +131,7 @@ public class Warp implements CommandExecutor {
                     MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
                     movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("warp")*20);
                     player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("warp"))));
-
+                    CooldownManager.addToCooldown("warp", player);
                 } else {
                     PaperLib.teleportAsync(player, loc);
                     PaymentManager.withdraw("warp", player);

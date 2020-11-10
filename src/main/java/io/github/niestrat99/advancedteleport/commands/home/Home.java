@@ -1,13 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
-import io.github.niestrat99.advancedteleport.config.Homes;
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.Homes;
+import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
-import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
@@ -35,6 +34,11 @@ public class Home implements CommandExecutor {
                     HashMap<String, Location> homes = Homes.getHomes(uuid);
                     if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                         player.sendMessage(CustomMessages.getString("Error.onCountdown"));
+                        return;
+                    }
+                    int cooldown = CooldownManager.secondsLeftOnCooldown("home", player);
+                    if (cooldown > 0) {
+                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
                         return;
                     }
 
@@ -137,11 +141,12 @@ public class Home implements CommandExecutor {
         return true;
     }
 
-    private void teleport(Player player, Location loc, String name) {
+    public static void teleport(Player player, Location loc, String name) {
         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
             ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), name, ATTeleportEvent.TeleportType.HOME);
             if (!event.isCancelled()) {
                 if (PaymentManager.canPay("home", player)) {
+                    CooldownManager.addToCooldown("home", player);
                     if (Config.getTeleportTimer("home") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                         BukkitRunnable movementtimer = new BukkitRunnable() {
                             @Override

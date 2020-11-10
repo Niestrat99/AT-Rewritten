@@ -61,19 +61,22 @@ public class ConditionChecker {
         if (Config.isTeleportLimiterEnabled()) {
             if (!teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
                 if (Config.hasStrictTeleportLimiter() || command != null) {
-                    // Check if
-                    if (!Config.isAllowingCrossWorldTeleport()) {
-                        if (fromLoc.getWorld() != toLoc.getWorld()) {
-                            return CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", toLoc.getWorld().getName());
+                    if (Config.isTeleportLimiterEnabledForCmd(command)) {
+                        // Check if
+                        if (!Config.isAllowingCrossWorldTeleport()) {
+                            if (fromLoc.getWorld() != toLoc.getWorld()) {
+                                return CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", toLoc.getWorld().getName());
+                            }
+                        }
+
+                        if (!Config.isAllowingTeleportWithinWorlds()) {
+                            if (Config.containsBlacklistedWorld(toLoc.getWorld().getName(), "to")
+                                    || Config.containsBlacklistedWorld(fromLoc.getWorld().getName(), "from")) {
+                                return CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", toLoc.getWorld().getName());
+                            }
                         }
                     }
 
-                    if (!Config.isAllowingTeleportWithinWorlds()) {
-                        if (Config.containsBlacklistedWorld(toLoc.getWorld().getName(), "to")
-                                || Config.containsBlacklistedWorld(fromLoc.getWorld().getName(), "from")) {
-                            return CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", toLoc.getWorld().getName());
-                        }
-                    }
                 }
             }
         }

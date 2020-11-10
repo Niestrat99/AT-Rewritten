@@ -45,7 +45,7 @@ public class CustomMessages {
         Config.addDefault("Error.alreadyOff", "&cYour teleport requests are already disabled!");
         Config.addDefault("Error.alreadyBlocked", "&cThis player is already blocked!");
         Config.addDefault("Error.neverBlocked", "&cThis player was never blocked!");
-        Config.addDefault("Error.onCooldown", "&cThis command has a cooldown of {time} seconds each use - Please wait!");
+        Config.addDefault("Error.onCooldown", "&cPlease wait another {time} seconds to use this command!");
         Config.addDefault("Error.requestSentToSelf", "&cYou can't send a request to yourself!");
         Config.addDefault("Error.noSuchPlayer", "&cThe player is either currently offline or doesn't exist!");
         Config.addDefault("Error.alreadySentRequest", "&cYou've already sent a request to &e{player}&c!");

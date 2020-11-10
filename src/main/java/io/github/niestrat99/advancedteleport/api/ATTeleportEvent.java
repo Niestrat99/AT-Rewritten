@@ -72,23 +72,29 @@ public class ATTeleportEvent extends Event implements Cancellable {
 
     public enum TeleportType {
 
-        TPA(true),
-        TPAHERE(true),
-        HOME(false),
-        WARP(true),
-        SPAWN(true),
-        TPR(false), // It actually is restricted, but it handles this within the command instead
-        BACK(true),
-        TPLOC(false);
+        TPA(true, "tpa"),
+        TPAHERE(true, "tpahere"),
+        HOME(true, "home"),
+        WARP(true, "warp"),
+        SPAWN(true, "spawn"),
+        TPR(false, "tpr"), // It actually is restricted, but it handles this within the command instead
+        BACK(true, "back"),
+        TPLOC(false, "tploc");
 
         private boolean restricted;
+        private String name;
 
-        TeleportType(boolean restricted) {
+        TeleportType(boolean restricted, String name) {
             this.restricted = restricted;
+            this.name = name;
         }
 
         public boolean isRestricted() {
             return restricted;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 }

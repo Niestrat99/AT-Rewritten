@@ -1,12 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.TpBlock;
+import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
-import io.github.niestrat99.advancedteleport.config.Config;
-import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -24,8 +24,9 @@ public class TpAll implements CommandExecutor {
                 if (sender.hasPermission("at.admin.all")) {
                     Player player = (Player) sender;
                     UUID playerUuid = player.getUniqueId();
-                    if (CooldownManager.getCooldown().containsKey(playerUuid) && !player.hasPermission("at.admin.bypass.cooldown")) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
+                    int cooldown = CooldownManager.secondsLeftOnCooldown("tpaall", player);
+                    if (cooldown > 0) {
+                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
                         return true;
                     }
                     int players = 0;
@@ -54,14 +55,7 @@ public class TpAll implements CommandExecutor {
                             run.runTaskLater(CoreClass.getInstance(), Config.requestLifetime() * 20); // 60 seconds
                             TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPAHERE); // Creates a new teleport request.
                             TPRequest.addRequest(request);
-                            BukkitRunnable cooldowntimer = new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    CooldownManager.getCooldown().remove(playerUuid);
-                                }
-                            };
-                            CooldownManager.getCooldown().put(player.getUniqueId(), cooldowntimer);
-                            cooldowntimer.runTaskLater(CoreClass.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
+                            CooldownManager.addToCooldown("tpaall", player);
                         }
                     }
                     if (players > 0) {

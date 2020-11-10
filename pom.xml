@@ -6,7 +6,12 @@
 
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
-    <version>5.2.2</version>
+  <!--  <packaging>pom</packaging> -->
+    <version>5.2.4-SNAPSHOT</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <build>
         <plugins>
@@ -48,6 +53,10 @@
             </plugin>
         </plugins>
     </build>
+  <!--  <modules>
+        <module>AdvancedTP-Core</module>
+        <module>AdvancedTP-Bukkit</module>
+    </modules> -->
 
     <repositories>
         <!-- Spigot Repo -->

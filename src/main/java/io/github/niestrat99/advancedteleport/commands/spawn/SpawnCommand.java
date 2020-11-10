@@ -1,12 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
-import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
@@ -21,9 +21,13 @@ public class SpawnCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         if (Config.isFeatureEnabled("spawn")) {
             if (sender.hasPermission("at.member.spawn")){
-
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
+                    int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
+                    if (cooldown > 0) {
+                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                        return true;
+                    }
                     if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                         sender.sendMessage(CustomMessages.getString("Error.onCountdown"));
                         return true;
@@ -49,6 +53,7 @@ public class SpawnCommand implements CommandExecutor {
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         if (!event.isCancelled()) {
             if (PaymentManager.canPay("spawn", player)) {
+                CooldownManager.addToCooldown("spawn", player);
                 if (Config.getTeleportTimer("spawn") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override

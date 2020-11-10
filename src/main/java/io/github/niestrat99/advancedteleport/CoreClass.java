@@ -1,19 +1,20 @@
 package io.github.niestrat99.advancedteleport;
 
+import io.github.niestrat99.advancedteleport.commands.AtHelp;
+import io.github.niestrat99.advancedteleport.commands.AtInfo;
+import io.github.niestrat99.advancedteleport.commands.AtReload;
 import io.github.niestrat99.advancedteleport.commands.home.*;
+import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.Warp;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpTabCompleter;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.*;
-import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
-import io.github.niestrat99.advancedteleport.commands.AtHelp;
-import io.github.niestrat99.advancedteleport.commands.AtInfo;
-import io.github.niestrat99.advancedteleport.commands.AtReload;
-import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
 import io.github.niestrat99.advancedteleport.events.AtSigns;
+import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
+import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -87,6 +88,7 @@ public class CoreClass extends JavaPlugin {
             e.printStackTrace();
         }
         setupEconomy();
+        CooldownManager.init();
         new Metrics(this, 5146);
         new BukkitRunnable() {
             @Override

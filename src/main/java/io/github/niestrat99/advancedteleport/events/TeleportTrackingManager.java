@@ -1,13 +1,15 @@
 package io.github.niestrat99.advancedteleport.events;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.LastLocations;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.config.Warps;
-import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,30 +31,31 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
+        Player player = e.getPlayer();
         if (Config.isFeatureEnabled("teleport")) {
             new BukkitRunnable() { // Because when you join, PlayerTeleportEvent is also called
                 @Override
                 public void run() {
-                    if (LastLocations.getDeathLocation(e.getPlayer()) != null) {
-                        deathLocations.put(e.getPlayer().getUniqueId(), LastLocations.getDeathLocation(e.getPlayer()));
+                    if (LastLocations.getDeathLocation(player) != null) {
+                        deathLocations.put(player.getUniqueId(), LastLocations.getDeathLocation(player));
                         // We'll remove the last death location when the player has joined since it's one time use. Also saves space.
-                        LastLocations.deleteDeathLocation(e.getPlayer());
+                        LastLocations.deleteDeathLocation(player);
                     } else {
-                        lastLocations.put(e.getPlayer().getUniqueId(), LastLocations.getLocation(e.getPlayer()));
+                        lastLocations.put(player.getUniqueId(), LastLocations.getLocation(player));
                     }
 
                 }
             }.runTaskLater(CoreClass.getInstance(), 10);
         }
-        if (!e.getPlayer().hasPlayedBefore()) {
+        if (!player.hasPlayedBefore()) {
             if (Config.spawnTPOnFirstJoin()) {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
                         if (Spawn.getSpawnFile() != null) {
-                            e.getPlayer().teleport(Spawn.getSpawnFile());
+                            PaperLib.teleportAsync(player, Spawn.getSpawnFile());
                         } else {
-                            e.getPlayer().teleport(e.getPlayer().getWorld().getSpawnLocation());
+                            PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation());
                         }
                     }
                 }.runTaskLater(CoreClass.getInstance(), 10);
@@ -62,9 +65,9 @@ public class TeleportTrackingManager implements Listener {
                 @Override
                 public void run() {
                     if (Spawn.getSpawnFile() != null) {
-                        e.getPlayer().teleport(Spawn.getSpawnFile());
+                        PaperLib.teleportAsync(player, Spawn.getSpawnFile());
                     } else {
-                        e.getPlayer().teleport(e.getPlayer().getWorld().getSpawnLocation());
+                        PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation());
                     }
                 }
             }.runTaskLater(CoreClass.getInstance(), 10);
@@ -86,11 +89,14 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTeleport(ATTeleportEvent e) {
-        String result = ConditionChecker.canTeleport(e.getFromLocation(), e.getToLocation(), null, e.getPlayer());
-        if (!result.isEmpty()) {
-            e.getPlayer().sendMessage(result);
-            e.setCancelled(true);
+        if (e.getType().isRestricted()) {
+            String result = ConditionChecker.canTeleport(e.getFromLocation(), e.getToLocation(), e.getType().getName(), e.getPlayer());
+            if (!result.isEmpty()) {
+                e.getPlayer().sendMessage(result);
+                e.setCancelled(true);
+            }
         }
+
     }
 
     @EventHandler

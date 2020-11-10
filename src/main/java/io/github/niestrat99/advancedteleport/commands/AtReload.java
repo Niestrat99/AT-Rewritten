@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -24,6 +25,7 @@ public class AtReload implements CommandExecutor {
                 TpBlock.reloadBlocks();
                 Spawn.reloadSpawn();
                 GUI.reloadConfig();
+                CooldownManager.init();
             } catch (IOException e) {
                 e.printStackTrace();
             }

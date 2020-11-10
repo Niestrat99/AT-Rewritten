@@ -30,7 +30,7 @@ public class Config {
         config.addDefault("features.homes",true);
 
         // Timers
-        config.addDefault("timers.commandCooldown",5);
+        config.set("timers.commandCooldown", null);
         config.addDefault("timers.teleportTimer",3);
         config.addDefault("timers.teleportTimers.tpa", "default");
         config.addDefault("timers.teleportTimers.tpahere", "default");
@@ -43,6 +43,20 @@ public class Config {
         config.addDefault("timers.requestLifetime",60);
         config.addDefault("timers.cancel-on-rotate", false);
         config.addDefault("timers.cancel-on-movement", true);
+
+        // Cooldowns
+        config.addDefault("cooldowns.default", 5);
+        config.addDefault("cooldowns.apply-globally", false);
+        config.addDefault("cooldowns.add-to-timer", true);
+        config.addDefault("cooldowns.back", "default");
+        config.addDefault("cooldowns.tpa", "default");
+        config.addDefault("cooldowns.tpr", "default");
+        config.addDefault("cooldowns.tpahere", "default");
+        config.addDefault("cooldowns.home", "default");
+        config.addDefault("cooldowns.warp", "default");
+        config.addDefault("cooldowns.spawn", "default");
+        config.addDefault("cooldowns.tpaall", "default");
+
         // Booleans
         config.addDefault("booleans.useVault" , false);
         config.addDefault("booleans.EXPPayment" , false);
@@ -121,6 +135,7 @@ public class Config {
         config.addDefault("distance-limiter.per-command.warp", true);
         config.addDefault("distance-limiter.per-command.spawn", true);
         config.addDefault("distance-limiter.per-command.back", true);
+        config.addDefault("distance-limiter.per-command.home", true);
 
         config.addDefault("teleport-limit.blacklisted-worlds", new ArrayList<>());
         config.addDefault("teleport-limit.enabled", false);
@@ -130,6 +145,7 @@ public class Config {
         config.addDefault("teleport-limit.per-command.warp", true);
         config.addDefault("teleport-limit.per-command.spawn", true);
         config.addDefault("teleport-limit.per-command.back", true);
+        config.addDefault("teleport-limit.per-command.home", true);
         config.addDefault("teleport-limit.block-to-loc", true);
         config.addDefault("teleport-limit.block-from-loc", true);
         config.addDefault("teleport-limit.allow-teleport-within-world", true);
@@ -160,6 +176,22 @@ public class Config {
         } else {
             return config.getInt("timers.teleportTimers." + command);
         }
+    }
+
+    public static int getCooldown(String command) {
+        if (config.get("cooldowns." + command) instanceof String) {
+            return config.getInt("cooldowns.default");
+        } else {
+            return config.getInt("cooldowns." + command);
+        }
+    }
+
+    public static boolean isApplyingTimerToCooldown() {
+        return config.getBoolean("cooldowns.add-to-timer");
+    }
+
+    public static boolean isCooldownGlobal() {
+        return config.getBoolean("cooldowns.apply-globally");
     }
 
     public static int requestLifetime(){

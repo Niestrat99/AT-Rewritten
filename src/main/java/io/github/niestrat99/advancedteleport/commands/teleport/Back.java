@@ -2,13 +2,14 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.LastLocations;
+import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
-import io.github.niestrat99.advancedteleport.config.Config;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -31,6 +32,11 @@ public class Back implements CommandExecutor {
             if (sender.hasPermission("at.member.back")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
+                    int cooldown = CooldownManager.secondsLeftOnCooldown("back", player);
+                    if (cooldown > 0) {
+                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                        return true;
+                    }
                     Location loc = TeleportTrackingManager.getLastLocation(player.getUniqueId());
                     if (loc == null) {
                         loc = LastLocations.getLocation(player);
@@ -72,6 +78,7 @@ public class Back implements CommandExecutor {
                                 PaymentManager.withdraw("back", player);
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                             }
+                            CooldownManager.addToCooldown("back", player);
                         }
                     }
 

@@ -2,13 +2,13 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
-import io.github.niestrat99.advancedteleport.config.Config;
-import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -57,8 +57,9 @@ public class Tpr implements CommandExecutor {
 
     public static boolean randomTeleport(Player player, World world) {
         UUID uuid = player.getUniqueId();
-        if (CooldownManager.getCooldown().containsKey(uuid) && !player.hasPermission("at.admin.bypass.cooldown")) {
-            player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(Config.commandCooldown())));
+        int cooldown = CooldownManager.secondsLeftOnCooldown("tpr", player);
+        if (cooldown > 0) {
+            player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
             return true;
         }
         if (Config.getBlacklistedTPRWorlds().contains(world.getName()) && !player.hasPermission("at.admin.rtp.bypass-world")) {
@@ -79,7 +80,7 @@ public class Tpr implements CommandExecutor {
                         }
                     } else {
                         while (location.getBlock().getType() == Material.AIR) {
-                            location.subtract(0, 1, 0);
+                            location.subtract(0, 2, 0);
                         }
                     }
 
@@ -106,7 +107,7 @@ public class Tpr implements CommandExecutor {
                         b = false;
                     }
                     if (b) {
-                        location.add(0 , 1 , 0);
+                        location.add(0 , 2 , 0);
                         validLocation = true;
                     }
                 }
@@ -117,15 +118,7 @@ public class Tpr implements CommandExecutor {
                     public void run() {
                         ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
                         if (!event.isCancelled()) {
-                            BukkitRunnable cooldowntimer = new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    CooldownManager.getCooldown().remove(uuid);
-                                }
-                            };
-                            CooldownManager.getCooldown().put(uuid, cooldowntimer);
-                            cooldowntimer.runTaskLater(CoreClass.getInstance(), Config.commandCooldown() * 20); // 20 ticks = 1 second
-
+                            CooldownManager.addToCooldown("tpr", player);
                             if (Config.getTeleportTimer("tpr") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                                 BukkitRunnable movementtimer = new BukkitRunnable() {
                                     @Override
