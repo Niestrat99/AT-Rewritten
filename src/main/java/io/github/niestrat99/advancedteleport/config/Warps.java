@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class Warps {
 
@@ -35,8 +35,8 @@ public class Warps {
         save();
     }
 
-    public static HashMap<String, Location> getWarps() {
-        HashMap<String, Location> warps = new HashMap<>();
+    public static LinkedHashMap<String, Location> getWarps() {
+        LinkedHashMap<String, Location> warps = new LinkedHashMap<>();
         for (String Warp : Warps.warps.getKeys(false)) {
             Location location = new Location(Bukkit.getWorld(Warps.warps.getString(Warp + ".world")), Warps.warps.getDouble(Warp + ".x"), Warps.warps.getDouble(Warp + ".y"), Warps.warps.getDouble(Warp + ".z"), Float.valueOf(String.valueOf(Warps.warps.getDouble(Warp + ".yaw"))), Float.valueOf(String.valueOf(Warps.warps.getDouble(Warp + ".pitch"))));
             Warp = Warps.warps.getString(Warp + ".name") != null ? Warps.warps.getString(Warp + ".name") : Warp;
