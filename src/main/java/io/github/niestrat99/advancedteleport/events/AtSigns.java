@@ -1,13 +1,15 @@
 package io.github.niestrat99.advancedteleport.events;
 
+import io.github.niestrat99.advancedteleport.commands.home.Home;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.commands.teleport.Tpr;
 import io.github.niestrat99.advancedteleport.commands.warp.Warp;
+import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Warps;
-import io.github.niestrat99.advancedteleport.config.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -19,9 +21,158 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.HashMap;
+
 public class AtSigns implements Listener {
 
+    private HashMap<String, ATSign> signRegistry;
+
+    public AtSigns() {
+        signRegistry = new HashMap<>();
+        signRegistry.put("warps", new ATSign("Warps", "warps") {
+            @Override
+            public void onInteract(Sign sign, Player player) {
+                WarpsCommand.sendWarps(player);
+            }
+
+            @Override
+            public boolean canCreate(Sign sign, Player player) {
+                return true;
+            }
+        });
+
+        signRegistry.put("warp", new ATSign("Warp", "warps") {
+            @Override
+            public void onInteract(Sign sign, Player player) {
+                if (Warps.getWarps().containsKey(sign.getLine(1))) {
+                    Warp.warp(Warps.getWarps().get(sign.getLine(1)), player, sign.getLine(1));
+                }
+            }
+
+            @Override
+            public boolean canCreate(Sign sign, Player player) {
+                if (sign.getLine(1).isEmpty()) {
+                    player.sendMessage(CustomMessages.getString("Error.noWarpInput"));
+                    return false;
+                } else {
+                    if (Warps.getWarps().containsKey(sign.getLine(1))){
+                        String warpName = sign.getLine(1);
+                        sign.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Warp]");
+                        sign.setLine(1, warpName);
+                        player.sendMessage(CustomMessages.getString("Info.createdWarpSign"));
+                        return true;
+                    } else {
+                        player.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
+                        return false;
+                    }
+                }
+            }
+        });
+        signRegistry.put("home", new ATSign("Home", "homes") {
+            @Override
+            public void onInteract(Sign sign, Player player) {
+
+            }
+
+            @Override
+            public boolean canCreate(Sign sign, Player player) {
+                return false;
+            }
+        });
+
+        signRegistry.put("homes", new ATSign("Homes", "homes") {
+            @Override
+            public void onInteract(Sign sign, Player player) {
+
+            }
+
+            @Override
+            public boolean canCreate(Sign sign, Player player) {
+                return false;
+            }
+        });
+
+        signRegistry.put("bed", new ATSign("Bed", "homes") {
+            @Override
+            public void onInteract(Sign sign, Player player) {
+                Location bed = player.getBedSpawnLocation();
+                if (bed != null) {
+                    Home.teleport(player, bed, "bed");
+                }
+            }
+
+            @Override
+            public boolean canCreate(Sign sign, Player player) {
+                return true;
+            }
+        });
+
+        signRegistry.put("spawn", new ATSign("Spawn", "spawn") {
+            @Override
+            public void onInteract(Sign sign, Player player) {
+                SpawnCommand.spawn(player);
+            }
+
+            @Override
+            public boolean canCreate(Sign sign, Player player) {
+                return true;
+            }
+        });
+
+        signRegistry.put("randomtp", new ATSign("RandomTP", "randomTP") {
+            @Override
+            public void onInteract(Sign sign, Player player) {
+                if (!sign.getLine(1).isEmpty()) {
+                    World otherWorld = Bukkit.getWorld(sign.getLine(1));
+                    if (otherWorld != null) {
+                        Tpr.randomTeleport(player, otherWorld);
+                    } else {
+                        player.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
+                    }
+                } else {
+                    Tpr.randomTeleport(player, player.getWorld());
+                }
+            }
+
+            @Override
+            public boolean canCreate(Sign sign, Player player) {
+                if (!sign.getLine(1).isEmpty()) {
+                    World otherWorld = Bukkit.getWorld(sign.getLine(1));
+                    if (otherWorld == null) {
+                        player.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+    }
+
     @EventHandler
+    public void onSignInteract(PlayerInteractEvent event) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Player player = event.getPlayer();
+            Block clickedBlock = event.getClickedBlock();
+            BlockState blockState = clickedBlock.getState();
+            if (blockState instanceof Sign) {
+                Sign sign = (Sign) blockState;
+                String command = ChatColor.stripColor(sign.getLine(0));
+                if (command.length() > 2) {
+                    command = command.substring(1, command.length() - 1).toLowerCase();
+                }
+                if (signRegistry.containsKey(command)) {
+                    ATSign atSign = signRegistry.get(command);
+                    if (atSign.isEnabled()) {
+                        if (player.hasPermission(atSign.getRequiredPermission())) {
+                            atSign.onInteract(sign, player);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+  /*  @EventHandler
     public void onSignInteract(PlayerInteractEvent Sign){
         if (Sign.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player player = Sign.getPlayer();
@@ -34,16 +185,7 @@ public class AtSigns implements Listener {
                     case "[randomtp]":
                         if (Config.isFeatureEnabled("randomTP")) {
                             if (player.hasPermission("at.member.tpr.use-sign")) {
-                                if (!sign.getLine(1).isEmpty()) {
-                                    World otherWorld = Bukkit.getWorld(sign.getLine(1));
-                                    if (otherWorld != null) {
-                                        Tpr.randomTeleport(player, otherWorld);
-                                    } else {
-                                        player.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
-                                    }
-                                } else {
-                                    Tpr.randomTeleport(player, player.getWorld());
-                                }
+
                             } else {
                                 player.sendMessage(CustomMessages.getString("Error.noPermission"));
                             }
@@ -51,13 +193,7 @@ public class AtSigns implements Listener {
                         break;
                     case "[warp]":
                         if (Config.isFeatureEnabled("warps")) {
-                            if (Warps.getWarps().containsKey(sign.getLine(1))) {
-                                if (player.hasPermission("at.member.warp.use-sign")) {
-                                    Warp.warp(Warps.getWarps().get(sign.getLine(1)), player, sign.getLine(1));
-                                } else {
-                                    player.sendMessage(CustomMessages.getString("Error.noPermission"));
-                                }
-                            }
+
                         }
                         break;
                     case "[spawn]":
@@ -72,61 +208,33 @@ public class AtSigns implements Listener {
                 }
             }
         }
-    }
+    } */
 
     @EventHandler
     public void onSignPlace(SignChangeEvent event){
         Block placeBlock = event.getBlock();
         BlockState state = placeBlock.getState();
-        Player placer = event.getPlayer();
+        Player player = event.getPlayer();
         if (state instanceof Sign) {
-            switch (event.getLine(0).toLowerCase()) {
-                case "[randomtp]":
-                    if (Config.isFeatureEnabled("randomTP")) {
-                        if (!placer.hasPermission("at.admin.tprsign")){
-                            placer.sendMessage(CustomMessages.getString("Error.noPermissionSign"));
-                            event.setCancelled(true);
-                        } else {
-                            event.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[RandomTP]");
-                            placer.sendMessage(CustomMessages.getString("Info.createdRTPSign"));
+            Sign sign = (Sign) state;
+            String command = ChatColor.stripColor(event.getLine(0));
+            if (command.length() > 2) {
+                command = command.substring(1, command.length() - 1).toLowerCase();
+            }
+            if (signRegistry.containsKey(command)) {
+                ATSign atSign = signRegistry.get(command);
+                if (atSign.isEnabled()) {
+                    if (player.hasPermission(atSign.getAdminPermission())) {
+                        sign.setLine(1, event.getLine(1));
+                        if (atSign.canCreate(sign, player)) {
+                            event.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[" + atSign.getName() + "]");
                         }
+                    } else {
+                        player.sendMessage(CustomMessages.getString("Error.noPermissionSign"));
+                        event.setCancelled(true);
                     }
-                    break;
-                case "[warp]":
-                    if (Config.isFeatureEnabled("warps")) {
-                        if (!placer.hasPermission("at.admin.warpsign")){
-                            placer.sendMessage(CustomMessages.getString("Error.noPermissionSign"));
-                            event.setCancelled(true);
-                        } else {
-                            if (event.getLine(1).isEmpty()) {
-                                placer.sendMessage(CustomMessages.getString("Error.noWarpInput"));
-                                event.setCancelled(true);
-                            } else {
-                                if (Warps.getWarps().containsKey(event.getLine(1))){
-                                    String warpName = event.getLine(1);
-                                    event.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Warp]");
-                                    event.setLine(1, warpName);
-                                    placer.sendMessage(CustomMessages.getString("Info.createdWarpSign"));
-                                } else {
-                                    event.setCancelled(true);
-                                    placer.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
-                                }
-                            }
-                        }
-                    }
-                    break;
-                case "[spawn]":
-                    if (Config.isFeatureEnabled("spawn")) {
-                        if (!placer.hasPermission("at.admin.spawnsign")) {
-                            placer.sendMessage(CustomMessages.getString("Error.noPermissionSign"));
-                            event.setCancelled(true);
-                        } else {
-                            event.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Spawn]");
-                            placer.sendMessage(CustomMessages.getString("Info.createdSpawnSign"));
-                        }
-                    }
+                }
             }
         }
     }
-
 }
