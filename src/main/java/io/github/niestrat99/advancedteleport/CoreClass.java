@@ -17,6 +17,7 @@ import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.WorldBorder;
@@ -46,6 +47,7 @@ public class CoreClass extends JavaPlugin {
     private static Economy Vault;
     public static WorldBorder worldBorder;
     private static CoreClass Instance;
+    private static Permission perms = null;
 
     public static CoreClass getInstance() {
         return Instance;
@@ -71,6 +73,12 @@ public class CoreClass extends JavaPlugin {
         return Vault != null;
     }
 
+    private boolean setupPermissions() {
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        perms = rsp.getProvider();
+        return perms != null;
+    }
+
     @Override
     public void onEnable() {
         Instance = this;
@@ -89,12 +97,14 @@ public class CoreClass extends JavaPlugin {
             e.printStackTrace();
         }
         setupEconomy();
+        setupPermissions();
         CooldownManager.init();
         RandomTPAlgorithms.init();
         new Metrics(this, 5146);
         new BukkitRunnable() {
             @Override
             public void run() {
+                Config.setupDefaults();
                 Object[] update = UpdateChecker.getUpdate();
                 if (update != null) {
                     getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));
@@ -173,5 +183,9 @@ public class CoreClass extends JavaPlugin {
                 CoreClass.getInstance().getLogger().warning(CoreClass.pltitle(Config.getSound("tpa.requestReceived") + " is an invalid sound name"));
             }
         }
+    }
+
+    public static Permission getPerms() {
+        return perms;
     }
 }

@@ -1,21 +1,26 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Config {
 
     public static File configFile = new File(CoreClass.getInstance().getDataFolder(),"config.yml");
     public static FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+    private static List<String> defaults;
 
     public static void save() throws IOException {
         config.save(configFile);
@@ -163,6 +168,8 @@ public class Config {
         config.addDefault("spawn.join.teleport-on-first-join", true);
         config.addDefault("spawn.join.teleport-on-every-join", false);
 
+        config.addDefault("permissions.default-permissions", new ArrayList<>(Arrays.asList("at.member.*", "at.member.warp.*")));
+        config.addDefault("permissions.allow-admin-perms-as-defaults", false);
         config.options().copyDefaults(true);
         save();
     }
@@ -275,6 +282,7 @@ public class Config {
         config = YamlConfiguration.loadConfiguration(configFile);
         setDefaults();
         save();
+        setupDefaults();
     }
 
     public static boolean isDistanceLimiterEnabled() {
@@ -350,4 +358,47 @@ public class Config {
     }
 
     public static boolean addBedToHomes() { return config.getBoolean("homes.add-bed-to-homes"); }
+
+    public static void setupDefaults() {
+        List<String> permissions = config.getStringList("permissions.default-permissions");
+        if (defaults == null) {
+            defaults = new ArrayList<>();
+        } else {
+            for (String permission : defaults) {
+                Permission permObject = Bukkit.getPluginManager().getPermission(permission);
+                permObject.setDefault(PermissionDefault.OP);
+            }
+        }
+        boolean warned = false;
+        for (String permission : permissions) {
+            if (!permission.startsWith("at")) continue;
+            if (permission.startsWith("at.admin")) {
+                if (!warned) {
+                    CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default to all users.");
+                    if (!config.getBoolean("permissions.allow-admin-perms-as-defaults") || CoreClass.getPerms() != null) {
+                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so we're not adding it right now.");
+                        CoreClass.getInstance().getLogger().warning("To allow people to use admin permissions such as the ones specified, please disable the check in the configuration.");
+                        CoreClass.getInstance().getLogger().warning("If you have a permissions plugin hooked into Vault too, you cannot make admin permissions default permissions.");
+                    } else {
+                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so if this is not your doing, please check your configuration.");
+                        CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as the ones specified, please enable the check in the configuration.");
+                    }
+                    warned = true;
+                }
+                if (config.getBoolean("permissions.allow-admin-perms-as-defaults") && CoreClass.getPerms() == null) {
+                    CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
+                } else {
+                    CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
+                    continue;
+                }
+            }
+            Permission permObject = Bukkit.getPluginManager().getPermission(permission);
+            if (permObject == null) {
+                permObject = new Permission(permission);
+                Bukkit.getPluginManager().addPermission(permObject);
+            }
+            permObject.setDefault(PermissionDefault.TRUE);
+            defaults.add(permission);
+        }
+    }
 }
