@@ -6,11 +6,17 @@ import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class HomesCommand implements CommandExecutor {
 
@@ -31,13 +37,13 @@ public class HomesCommand implements CommandExecutor {
                                         for (String home : Homes.getHomes(uuid).keySet()) {
                                             hlist.then(home)
                                                     .command("/home " + args[0] + " " + home)
-                                                    .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home))
+                                                    .tooltip(getTooltip(player, sender, home))
                                                     .then(", ");
                                         }
                                         if (player.getBedSpawnLocation() != null && Config.addBedToHomes()) {
                                             hlist.then("bed")
                                                     .command("/home " + args[0] + " bed")
-                                                    .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", "bed"))
+                                                    .tooltip(getTooltip(player, sender, "bed"))
                                                     .then(", ");
                                         }
                                         hlist.text(""); //Removes trailing comma
@@ -61,18 +67,20 @@ public class HomesCommand implements CommandExecutor {
                         String uuid = player.getUniqueId().toString();
                         FancyMessage hList = new FancyMessage();
                         hList.text(CustomMessages.getString("Info.homes"));
+
                         try {
                             if (Homes.getHomes(uuid).size()>0){
                                 for(String home : Homes.getHomes(uuid).keySet()){
+
                                     hList.then(home)
                                             .command("/home " + home)
-                                            .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", home))
+                                            .tooltip(getTooltip(player, home))
                                             .then(", ");
                                 }
                                 if (player.getBedSpawnLocation() != null && Config.addBedToHomes()) {
                                     hList.then("bed")
                                             .command("/home bed")
-                                            .tooltip(CustomMessages.getString("Tooltip.homes").replaceAll("\\{home}", "bed"))
+                                            .tooltip(getTooltip(player, "bed"))
                                             .then(", ");
                                 }
                                 hList.text(""); //Removes trailing comma
@@ -95,4 +103,32 @@ public class HomesCommand implements CommandExecutor {
         }
         return true;
     }
+
+    private List<String> getTooltip(OfflinePlayer player, String home) {
+        return getTooltip(player, player.getPlayer(), home);
+    }
+
+    private List<String> getTooltip(OfflinePlayer player, CommandSender sender, String home) {
+        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getString("Tooltip.homes")));
+        if (sender.hasPermission("at.member.homes.location")) {
+            tooltip.addAll(Arrays.asList(CustomMessages.getString("Tooltip.location").split("\n")));
+        }
+        List<String> homeTooltip = new ArrayList<>(tooltip);
+        for (int i = 0; i < homeTooltip.size(); i++) {
+            Location homeLoc;
+            if (home.equals("bed")) {
+                homeLoc = player.getBedSpawnLocation();
+            } else {
+                homeLoc = Homes.getHomes(player.getUniqueId().toString()).get(home);
+            }
+
+            homeTooltip.set(i, homeTooltip.get(i).replaceAll("\\{home}", home)
+                    .replaceAll("\\{x}", String.valueOf(homeLoc.getX()))
+                    .replaceAll("\\{y}", String.valueOf(homeLoc.getY()))
+                    .replaceAll("\\{z}", String.valueOf(homeLoc.getZ()))
+                    .replaceAll("\\{world}", homeLoc.getWorld().getName()));
+        }
+        return homeTooltip;
+    }
+
 }

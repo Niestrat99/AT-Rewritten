@@ -1,19 +1,23 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.config.Config;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.GUI;
-import io.github.niestrat99.advancedteleport.config.Warps;
+import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.IconMenu;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class WarpsCommand implements CommandExecutor {
     @Override
@@ -106,12 +110,30 @@ public class WarpsCommand implements CommandExecutor {
                 if (sender.hasPermission("at.member.warp.*") || sender.hasPermission("at.member.warp." + warp)) {
                     wList.then(warp)
                             .command("/warp " + warp)
-                            .tooltip(CustomMessages.getString("Tooltip.warps").replaceAll("\\{warp}", warp))
+                            .tooltip(getTooltip(sender, warp))
                             .then(", ");
                 }
             }
             wList.text(""); //Removes trailing comma
             wList.send(sender);
         }
+    }
+
+    private static List<String> getTooltip(CommandSender sender, String warp) {
+        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getString("Tooltip.warps")));
+        if (sender.hasPermission("at.member.warps.location")) {
+            tooltip.addAll(Arrays.asList(CustomMessages.getString("Tooltip.location").split("\n")));
+        }
+        List<String> homeTooltip = new ArrayList<>(tooltip);
+        for (int i = 0; i < homeTooltip.size(); i++) {
+            Location warpLoc = Warps.getWarps().get(warp);
+
+            homeTooltip.set(i, homeTooltip.get(i).replaceAll("\\{warp}", warp)
+                    .replaceAll("\\{x}", String.valueOf(warpLoc.getBlockX()))
+                    .replaceAll("\\{y}", String.valueOf(warpLoc.getBlockY()))
+                    .replaceAll("\\{z}", String.valueOf(warpLoc.getBlockZ()))
+                    .replaceAll("\\{world}", warpLoc.getWorld().getName()));
+        }
+        return homeTooltip;
     }
 }

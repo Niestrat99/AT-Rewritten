@@ -132,6 +132,11 @@ public class CustomMessages {
         Config.addDefault("Info.teleportedToLocOther", "&aSuccessfully teleported &e{player} &ato &e{x}&a, &e{y}&a, &e{z}&a! (Yaw: &e{yaw}&a, Pitch: &e{pitch}&a, World: &e{world}&a)");
         Config.addDefault("Tooltip.homes", "&aTeleports you to your home: &e{home}");
         Config.addDefault("Tooltip.warps", "&aTeleports you to warp: &e{warp}");
+        Config.addDefault("Tooltip.location", "" +
+                "\n&bX &8» &7{x}" +
+                "\n&bY &8» &7{y}" +
+                "\n&bZ &8» &7{z}" +
+                "\n&bWorld &8» &7{world}");
         Config.addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
                 "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
                 "&6--[ &bCategories &6]--",
