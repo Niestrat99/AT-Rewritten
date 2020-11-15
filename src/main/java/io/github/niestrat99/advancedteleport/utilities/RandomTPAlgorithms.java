@@ -71,6 +71,12 @@ public class RandomTPAlgorithms {
                 location.setY(128);
                 // This is how much we'll jump by at first
                 int jumpAmount = 128;
+                // However, if we're in the Nether...
+                if (world.getEnvironment() == World.Environment.NETHER) {
+                    // We'll start at level 64 instead and start at a jump of 64.
+                    location.setY(64);
+                    jumpAmount = 64;
+                }
                 // Whether a valid location has been found or not
                 boolean validLocation = false;
                 // Whether to go up or down.
@@ -81,6 +87,12 @@ public class RandomTPAlgorithms {
                 while (!validLocation) {
                     // Divide the amount to jump by 2.
                     jumpAmount = jumpAmount / 2;
+                    // If we've hit a dead end with the jumps...
+                    if (jumpAmount == 0) {
+                        // Start over.
+                        getAlgorithms().get("binary").fire(player, callback);
+                        return;
+                    }
                     // Clone the current location.
                     Location subTempLocation = tempLoc.clone();
                     // The current material we're looking at.
