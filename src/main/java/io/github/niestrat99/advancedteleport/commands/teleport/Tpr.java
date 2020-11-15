@@ -9,6 +9,7 @@ import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
+import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import io.papermc.lib.PaperLib;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -20,7 +21,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.UUID;
 
 public class Tpr implements CommandExecutor {
-
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -43,7 +43,6 @@ public class Tpr implements CommandExecutor {
                                 return true;
                             }
                         }
-
                     }
                     return randomTeleport(player, world);
                 }
@@ -56,7 +55,6 @@ public class Tpr implements CommandExecutor {
     }
 
     public static boolean randomTeleport(Player player, World world) {
-        UUID uuid = player.getUniqueId();
         int cooldown = CooldownManager.secondsLeftOnCooldown("tpr", player);
         if (cooldown > 0) {
             player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
@@ -68,84 +66,30 @@ public class Tpr implements CommandExecutor {
         }
         if (!PaymentManager.canPay("tpr", player)) return false;
         player.sendMessage(CustomMessages.getString("Info.searching"));
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Location location = RandomCoords.generateCoords(world);
-                boolean validLocation = false;
-                while (!validLocation) {
-                    if (location.getWorld().getEnvironment() == World.Environment.NETHER) { // We'll search up instead of down in the Nether!
-                        while (location.getBlock().getType() != Material.AIR) {
-                            location.add(0, 1, 0);
+        RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
+            ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+            if (!event.isCancelled()) {
+                CooldownManager.addToCooldown("tpr", player);
+                if (Config.getTeleportTimer("tpr") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+                    BukkitRunnable movementtimer = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            PaperLib.teleportAsync(player, location);
+                            MovementManager.getMovement().remove(player.getUniqueId());
+                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
+                            PaymentManager.withdraw("tpr", player);
                         }
-                    } else {
-                        while (location.getBlock().getType() == Material.AIR) {
-                            location.subtract(0, 2, 0);
-                        }
-                    }
-
-
-
-                    boolean b = true;
-                    for (String Material: Config.avoidBlocks()) {
-                        if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
-                            if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
-                                location = RandomCoords.generateCoords(world);
-                                b = false;
-                                break;
-                            }
-                        } else {
-                            if (location.getBlock().getType().name().equalsIgnoreCase(Material)){
-                                location = RandomCoords.generateCoords(world);
-                                b = false;
-                                break;
-                            }
-                        }
-
-                    }
-                    if (!DistanceLimiter.canTeleport(player.getLocation(), location, "tpr") && !player.hasPermission("at.admin.bypass.distance-limit")) {
-                        b = false;
-                    }
-                    if (b) {
-                        location.add(0 , 2 , 0);
-                        validLocation = true;
-                    }
+                    };
+                    MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
+                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("tpr") * 20);
+                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
+                } else {
+                    PaperLib.teleportAsync(player, location);
+                    player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
+                    PaymentManager.withdraw("tpr", player);
                 }
-                Chunk chunk = player.getWorld().getChunkAt(location);
-                Location loc = location.clone().add(0.5, 0, 0.5);
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                        if (!event.isCancelled()) {
-                            CooldownManager.addToCooldown("tpr", player);
-                            if (Config.getTeleportTimer("tpr") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                                BukkitRunnable movementtimer = new BukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        chunk.load(true);
-                                        PaperLib.teleportAsync(player, loc);
-                                        MovementManager.getMovement().remove(uuid);
-                                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
-                                        PaymentManager.withdraw("tpr", player);
-                                    }
-                                };
-                                MovementManager.getMovement().put(uuid, movementtimer);
-                                movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("tpr") * 20);
-                                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
-
-                            } else {
-                                PaperLib.teleportAsync(player, loc);
-                                player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
-                                PaymentManager.withdraw("tpr", player);
-                            }
-                        }
-                    }
-                }.runTask(CoreClass.getInstance());
-
             }
-        }.runTaskAsynchronously(CoreClass.getInstance());
-
+        }));
         return true;
     }
 }

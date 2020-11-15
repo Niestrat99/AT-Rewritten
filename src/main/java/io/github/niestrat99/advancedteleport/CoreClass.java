@@ -15,6 +15,7 @@ import io.github.niestrat99.advancedteleport.events.AtSigns;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
+import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -89,6 +90,7 @@ public class CoreClass extends JavaPlugin {
         }
         setupEconomy();
         CooldownManager.init();
+        RandomTPAlgorithms.init();
         new Metrics(this, 5146);
         new BukkitRunnable() {
             @Override
