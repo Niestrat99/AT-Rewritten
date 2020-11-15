@@ -457,7 +457,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	}
 
 	private void send(CommandSender sender, String jsonString) {
-		if (!(sender instanceof Player)) {
+		// ADDITION: Stops problems for Bedrock-connected players
+		if (!(sender instanceof Player) || sender.getName().startsWith("*")) {
 			sender.sendMessage(toOldMessageFormat());
 			return;
 		}
