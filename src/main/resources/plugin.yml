@@ -1,6 +1,6 @@
 main: io.github.niestrat99.advancedteleport.CoreClass
 name: AdvancedTeleport
-version: 5.2.4-SNAPSHOT
+version: 5.3-SNAPSHOT
 description: A plugin which is based on tons of teleport stuff.
 authors: [Niestrat99,Thatsmusic99]
 softdepend: [Vault, Ultimate_Economy]
@@ -117,13 +117,12 @@ commands:
     description: Teleports you to a specified location.
     permission: at.admin.tploc
     usage: /tploc <x> <y> <z> [Yaw] [Pitch] [World] [Player]
-
 permissions:
   at.member.warp.*:
-    default: true
+    default: op
   # Allows all member permissions
   at.member.*:
-    default: true
+    default: op
     description: Allows access to member-based commands of the plugin.
     children:
       # All of these are "sub-permissions" of tbh.tp.member.*.
