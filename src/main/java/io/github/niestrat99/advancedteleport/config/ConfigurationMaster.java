@@ -135,7 +135,8 @@ public abstract class ConfigurationMaster {
             String line = currentLines.get(i);
             if (!line.startsWith(indent.toString())) return;
             if (line.startsWith("#")) continue;
-            if (line.startsWith(indent.toString() + divisions[iteration])) {
+            if (line.startsWith(indent.toString() + divisions[iteration]) ||
+                    line.startsWith(indent.toString() + "'" + divisions[iteration] + "'")) {
                 iteration += 1;
                 if (iteration == divisions.length) {
                     if (iteration == 1) {
