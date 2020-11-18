@@ -1,6 +1,6 @@
 main: io.github.niestrat99.advancedteleport.CoreClass
 name: AdvancedTeleport
-version: 5.3-SNAPSHOT
+version: 5.4-SNAPSHOT
 description: A plugin which is based on tons of teleport stuff.
 authors: [Niestrat99,Thatsmusic99]
 softdepend: [Vault, Ultimate_Economy]
@@ -151,6 +151,8 @@ permissions:
       at.member.tpr.use-sign: true
       at.member.warp.use-sign: true
       at.member.back.death: true
+      at.member.warps.location: true
+      at.member.homes.location: true
   at.admin.*:
     default: op
     description: Allows access to admin-based commands of the plugin.

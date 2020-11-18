@@ -86,6 +86,7 @@ public class CoreClass extends JavaPlugin {
         registerCommands();
         registerEvents();
         try {
+            new NewConfig();
             Config.setDefaults();
             CustomMessages.setDefaults();
             Homes.save();
