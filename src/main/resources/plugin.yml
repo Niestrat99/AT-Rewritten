@@ -1,6 +1,6 @@
 main: io.github.niestrat99.advancedteleport.CoreClass
 name: AdvancedTeleport
-version: 5.3-SNAPSHOT
+version: 5.3
 description: A plugin which is based on tons of teleport stuff.
 authors: [Niestrat99,Thatsmusic99]
 softdepend: [Vault, Ultimate_Economy]
@@ -148,9 +148,13 @@ permissions:
       at.member.tpa: true
       at.member.back: true
       at.member.spawn.use-sign: true
-      at.member.tpr.use-sign: true
+      at.member.randomtp.use-sign: true
       at.member.warp.use-sign: true
+      at.member.warps.use-sign: true
+      at.member.bed.use-sign: true
       at.member.back.death: true
+      at.member.homes.location: true
+      at.member.warps.location: true
   at.admin.*:
     default: op
     description: Allows access to admin-based commands of the plugin.
@@ -180,3 +184,8 @@ permissions:
       at.admin.bypass.timer: true
       at.admin.bypass.cooldown: true
       at.admin.request-in-teleport: true
+      at.admin.sign.spawn.create: true
+      at.admin.sign.randomtp.create: true
+      at.admin.sign.warp.create: true
+      at.admin.sign.warps.create: true
+      at.admin.sign.bed.create: true
