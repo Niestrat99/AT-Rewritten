@@ -9,7 +9,7 @@ Advanced Teleport is a rapidly growing plugin that is not only increasing sharpl
 - Returning to previous locations or death locations
 - Blocking and unblocking users who can send requests
 - Random Teleportation. (As of v5.3, this is far more efficient in comparison to common plugins!)
-- Pre-teleportation warp-ups, which options on whether to cancel upon movement or rotation.
+- Pre-teleportation warm-ups, which options on whether to cancel upon movement or rotation.
 - Per-command cooldowns.
 - Per-command prices, using Vault or EXP.
 - Sound alerts for /tpa and /tpahere.
