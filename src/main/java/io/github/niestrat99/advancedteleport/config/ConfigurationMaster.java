@@ -20,6 +20,7 @@ public abstract class ConfigurationMaster {
     private HashMap<String, String> comments;
     private List<String> currentLines;
     private HashMap<String, String> sections;
+    private List<String> nodeOrder;
 
     /**
      *
@@ -80,6 +81,7 @@ public abstract class ConfigurationMaster {
 
     public void addDefault(String path, Object value) {
         config.addDefault(path, value);
+        nodeOrder.add(path);
     }
 
     public void addDefault(String path, Object value, String section, String comment) {
@@ -180,6 +182,27 @@ public abstract class ConfigurationMaster {
         }
     }
 
+    // Get order of nodes
+    // Go through each line
+    // If not in correct position, move to correct location
+
+    public void rearrangeNodes() {
+        // For each
+        int size = nodeOrder.size();
+        int overhead = 0;
+        List<String> overheadParts = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            String path = nodeOrder.get(i + overhead);
+            String[] parts = path.split("\\.");
+            
+            overhead += path.split("\\.").length - 1;
+
+        }
+    }
+
+    public void checkNode(String path, int deepness, int currentLocation) {
+
+    }
 
 
     public void save(boolean isConfig) {
