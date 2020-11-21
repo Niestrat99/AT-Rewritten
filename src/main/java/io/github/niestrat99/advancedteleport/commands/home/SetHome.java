@@ -125,7 +125,9 @@ public class SetHome implements CommandExecutor {
             if (permission.getPermission().startsWith("at.member.homes.")) {
                 if (permission.getValue()) {
                     String perm = permission.getPermission();
-                    int homes = Integer.parseInt(perm.substring(perm.lastIndexOf(".") + 1));
+                    String ending = perm.substring(perm.lastIndexOf(".") + 1);
+                    if (!ending.matches("^[0-9]+$")) continue;
+                    int homes = Integer.parseInt(ending);
                     if (maxHomes < homes) {
                         maxHomes = homes;
                     }
