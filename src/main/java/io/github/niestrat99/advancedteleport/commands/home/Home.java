@@ -16,6 +16,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -81,14 +82,14 @@ public class Home implements CommandExecutor {
                                                 }
                                         }
                                         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
-                                            PaperLib.teleportAsync(player, loc);
+                                            PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
                                             sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
                                                     .replaceAll("\\{player}", args[0])
                                                     .replaceAll("\\{home}", args[1]));
                                         });
                                     } catch (NullPointerException ex) {
                                         Location tlocation = Homes.getHomes(uuidOther).get(args[1]);
-                                        PaperLib.teleportAsync(player, tlocation);
+                                        PaperLib.teleportAsync(player, tlocation, PlayerTeleportEvent.TeleportCause.COMMAND);
                                         sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
                                                 .replaceAll("\\{player}", args[0]).replaceAll("\\{home}", args[1]));
                                     }
@@ -152,7 +153,7 @@ public class Home implements CommandExecutor {
                             @Override
                             public void run() {
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
-                                PaperLib.teleportAsync(player, loc);
+                                PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
                                 MovementManager.getMovement().remove(player.getUniqueId());
                                 PaymentManager.withdraw("home", player);
                             }
@@ -163,7 +164,7 @@ public class Home implements CommandExecutor {
 
                     } else {
                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
-                        PaperLib.teleportAsync(player, loc);
+                        PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
                         PaymentManager.withdraw("home", player);
                     }
                 }

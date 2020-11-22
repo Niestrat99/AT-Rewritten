@@ -158,6 +158,7 @@ public class Config {
 
         config.addDefault("back.teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")));
 
+
         config.addDefault("homes.default-limit", -1);
         config.addDefault("homes.add-bed-to-homes", true);
 
