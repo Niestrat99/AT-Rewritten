@@ -29,7 +29,7 @@ public class CooldownManager {
             if (Config.isApplyingTimerToCooldown() && !Bukkit.getPlayer(uuid).hasPermission("at.admin.bypass.timer")) {
                 ms += Config.getTeleportTimer(command);
             }
-            this.command = command;
+            this.command = getKey(command);
             startingTime = System.currentTimeMillis();
             runTaskLater(CoreClass.getInstance());
         }
