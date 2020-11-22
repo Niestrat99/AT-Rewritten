@@ -16,6 +16,7 @@ import java.util.*;
 public abstract class ConfigurationMaster {
 
     private FileConfiguration config;
+    private FileConfiguration tempConfig;
     private File configFile;
     private HashMap<String, String> comments;
     private List<String> currentLines;
@@ -39,6 +40,7 @@ public abstract class ConfigurationMaster {
         }
         //
         config = YamlConfiguration.loadConfiguration(configFile);
+        tempConfig = new YamlConfiguration();
         currentLines = new ArrayList<>();
         comments = new HashMap<>();
         nodeOrder = new ArrayList<>();
@@ -69,8 +71,7 @@ public abstract class ConfigurationMaster {
                 "#  Spigot page - https://www.spigotmc.org/resources/advanced-teleport.64139/   #",
                 "#  Wiki - https://github.com/Niestrat99/AT-Rewritten/wiki                      #",
                 "#  Discord - https://discord.gg/mgWbbN4                                        #",
-                "################################################################################",
-                ""
+                "################################################################################"
 
         ));
         for (int i = 0; i < title.size(); i++) {
@@ -82,6 +83,7 @@ public abstract class ConfigurationMaster {
 
     public void addDefault(String path, Object value) {
         config.addDefault(path, value);
+        tempConfig.set(path, config.get(path));
         nodeOrder.add(path);
     }
 
@@ -103,6 +105,16 @@ public abstract class ConfigurationMaster {
     public void addSection(String beforePath, String section) {
         sections.put(beforePath, section);
     }
+
+    public void addSection(String section) {
+        int size = nodeOrder.size();
+        sections.put(null, section);
+    }
+
+    public void addSectionWithComment(String section, String comment) {
+
+    }
+
 
     public abstract void postSave();
 
@@ -142,10 +154,11 @@ public abstract class ConfigurationMaster {
                     line.startsWith(indent.toString() + "'" + divisions[iteration] + "'")) {
                 iteration += 1;
                 if (iteration == divisions.length) {
-                    if (iteration == 1) {
-                        currentLines.add("");
-                    }
                     int currentLine = i;
+                    if (iteration == 1) {
+                        currentLines.add(currentLine, "");
+                        currentLine++;
+                    }
                     String[] rawComment = comments.get(path).split("\n");
                     for (String commentPart : rawComment) {
                         currentLines.add(currentLine, indent + "# " + commentPart);
@@ -176,74 +189,16 @@ public abstract class ConfigurationMaster {
                     currentLines.add(i, length.toString());
                     currentLines.add(i, "#  " + section + "  #");
                     currentLines.add(i, length.toString());
-                    currentLines.add(i, "");
                     break;
                 }
             }
         }
     }
 
-    // Get order of nodes
-    // Go through each line
-    // If not in correct position, move to correct location
-
-    // no:
-    //  maybe: so
-    //  or: not
-    // yes: yes
-    // probably:
-    //  not: no
-    //  or: not
-    //  or-so: so
-
-    // no.maybe - Overhead of 1
-    // yes
-    // probably.not
-    // probably.or
-    // probably.or-so
-    // no.or
-    public void rearrangeNodes() {
-        // For each
-        int size = nodeOrder.size();
-        int overhead = 0;
-        List<String> overheadParts = new ArrayList<>();
-        // For each node in the order provided...
-        for (int i = 0; i < size; i++) {
-            // Get it
-            String path = nodeOrder.get(i);
-            // Split it up
-            String[] parts = path.split("\\.");
-            // Create a string builder for it to identify overheads
-            StringBuilder builder = new StringBuilder();
-            // For each
-            for (int j = 0; j < parts.length - 1; j++) {
-                builder.append(parts[j]);
-                if (!overheadParts.contains(builder.toString())) {
-                    overheadParts.add(builder.toString());
-                    overhead++;
-                }
-                builder.append(".");
-            }
-            checkNode(path, 0, 0);
-        }
-    }
-
-    public void checkNode(String path, int deepness, int currentLocation) {
-        String[] parts = path.split("\\.");
-        StringBuilder indent = new StringBuilder();
-        for (int i = 0; i < deepness; i++) {
-            indent.append("  ");
-        }
-        for (int loc = currentLocation; loc < currentLines.size(); loc++) {
-
-        }
-    }
-
-
     public void save(boolean isConfig) {
         try {
             if (isConfig) {
-                config.save(configFile);
+                tempConfig.save(configFile);
                 BufferedReader reader = new BufferedReader(new FileReader(configFile));
                 String currentLine;
                 while ((currentLine = reader.readLine()) != null) {

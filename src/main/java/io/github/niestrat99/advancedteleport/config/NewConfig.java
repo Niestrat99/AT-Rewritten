@@ -1,12 +1,20 @@
 package io.github.niestrat99.advancedteleport.config;
 
-public class NewConfig extends ConfigurationMaster{
+public class NewConfig extends ConfigurationMaster {
+
+    public static ConfigOption<Boolean> USE_BASIC_TELEPORT_FEATURES = new ConfigOption<>("use-basic-teleport-features");
+    public static ConfigOption<Boolean> USE_WARPS = new ConfigOption<>("use-warps");
+    public static ConfigOption<Boolean> USE_RANDOMTP = new ConfigOption<>("use-randomtp");
+    public static ConfigOption<Boolean> USE_SPAWN = new ConfigOption<>("use-spawn");
+    public static ConfigOption<Boolean> USE_HOMES = new ConfigOption<>("use-homes");
+
+    private static NewConfig instance;
     /**
      *
      */
     public NewConfig() {
         super("config-new");
-
+        instance = this;
     }
 
     @Override
@@ -21,12 +29,28 @@ public class NewConfig extends ConfigurationMaster{
         addDefault("use-randomtp", true, "Whether the plugin should allow random teleportation.");
         addDefault("use-homes", true, "Whether homes should be enabled in the plugin.");
 
-        addDefault("test.yes", true, "Test 1");
-        addDefault("test.yes-2", true, "Test 2");
+        addDefault("warp-up-timer-duration", 3, "Warm-Up Timers", "The number of seconds it takes for the teleportation to take place following confirmation.\n" +
+                "(i.e. \"You will teleport in 3 seconds!\"");
+        addDefault("cancel-warm-up-on-rotation", true, "Whether or not teleportation should be cancelled if the player rotates or moves.");
+        addDefault("cancel-warm-up-on-movement", true, "Whether or not teleportation should be cancelled upon movement only.");
+
     }
 
     @Override
     public void postSave() {
 
+    }
+
+    public static class ConfigOption<T> {
+
+        private String path;
+
+        public ConfigOption(String path) {
+            this.path = path;
+        }
+
+        public T get() {
+            return (T) instance.getConfig().get(path);
+        }
     }
 }
