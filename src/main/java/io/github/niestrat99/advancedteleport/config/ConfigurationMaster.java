@@ -185,10 +185,10 @@ public abstract class ConfigurationMaster {
                         length.append("#");
                     }
                     length.append("###");
-                    currentLines.add(i, "");
                     currentLines.add(i, length.toString());
                     currentLines.add(i, "#  " + section + "  #");
                     currentLines.add(i, length.toString());
+                    currentLines.add(i, "");
                     break;
                 }
             }
