@@ -60,6 +60,19 @@ public class NewConfig extends ConfigurationMaster {
         addDefault("per-command-cooldowns.home", "default", "Cooldown for /home");
         addDefault("per-command-cooldowns.back", "default", "Cooldown for /back");
 
+        addDefault("cost-amount", 100.0, "Teleportation Costs", "The amount it costs to teleport somewhere." +
+                "\nIf you want to use Vault Economy, use 100.0 to charge $100." +
+                "\nIf you want to use Minecraft EXP points, use 10EXP for 10 EXP Points." +
+                "\nIf you want to use Minecraft EXP levels, use 5LVL for 5 levels." +
+                "\nTo use multiple methods of charging, use a ; - e.g. '100.0;10LVL' for $100 and 10 EXP levels.");
+
+        addDefault("per-command-cost.tpa", "default", "Cost for /tpa.");
+        addDefault("per-command-cost.tpahere", "default", "Cost for /tpahere.");
+        addDefault("per-command-cost.tpr", "default", "Cost for /tpr, or /rtp.");
+        addDefault("per-command-cost.warp", "default", "Cost for /warp");
+        addDefault("per-command-cost.spawn", "default", "Cost for /spawn");
+        addDefault("per-command-cost.home", "default", "Cost for /home");
+        addDefault("per-command-cost.back", "default", "Cost for /back");
     }
 
     @Override
