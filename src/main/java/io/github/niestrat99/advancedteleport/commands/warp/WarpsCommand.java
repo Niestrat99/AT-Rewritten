@@ -33,7 +33,7 @@ public class WarpsCommand implements CommandExecutor {
     }
 
     public static void sendWarps(CommandSender sender) {
-        if(GUI.isUsingWarpsGUIMenu()) {
+        if (GUI.isUsingWarpsGUIMenu()) {
             ConfigurationSection warps = GUI.getWarpsMenu();
             int minPage = 999;
             int maxPage = 0;
@@ -104,18 +104,23 @@ public class WarpsCommand implements CommandExecutor {
             menu.open((Player) sender);
 
         } else {
-            FancyMessage wList = new FancyMessage();
-            wList.text(CustomMessages.getString("Info.warps"));
-            for(String warp: Warps.getWarps().keySet()){
-                if (sender.hasPermission("at.member.warp.*") || sender.hasPermission("at.member.warp." + warp)) {
-                    wList.then(warp)
-                            .command("/warp " + warp)
-                            .tooltip(getTooltip(sender, warp))
-                            .then(", ");
+            if (Warps.getWarps().size() > 0) {
+                FancyMessage wList = new FancyMessage();
+                wList.text(CustomMessages.getString("Info.warps"));
+                for(String warp: Warps.getWarps().keySet()){
+                    if (sender.hasPermission("at.member.warp.*") || sender.hasPermission("at.member.warp." + warp)) {
+                        wList.then(warp)
+                                .command("/warp " + warp)
+                                .tooltip(getTooltip(sender, warp))
+                                .then(", ");
+                    }
                 }
+                wList.text(""); //Removes trailing comma
+                wList.send(sender);
+            } else {
+                sender.sendMessage(CustomMessages.getString("Error.noWarps"));
             }
-            wList.text(""); //Removes trailing comma
-            wList.send(sender);
+
         }
     }
 

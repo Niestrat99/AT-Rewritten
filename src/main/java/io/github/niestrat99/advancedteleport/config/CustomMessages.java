@@ -82,6 +82,7 @@ public class CustomMessages {
         Config.addDefault("Error.tooFewArguments", "&cToo few arguments!");
         Config.addDefault("Error.invalidArgs", "&cInvalid arguments!");
         Config.addDefault("Error.cantTPToPlayer", "&cYou can't request a teleportation to &e{player}&c!");
+        Config.addDefault("Error.noWarps", "&cThere are no warps as of currently!");
 
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
