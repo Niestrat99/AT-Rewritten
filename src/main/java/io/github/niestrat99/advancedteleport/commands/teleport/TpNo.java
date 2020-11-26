@@ -22,14 +22,17 @@ public class TpNo implements CommandExecutor {
                         if (args.length > 0) {
                             target = Bukkit.getPlayer(args[0]);
                         } else {
-                            target = TPRequest.getRequests(player).get(0).getRequester();
+                            TPRequest request = TPRequest.getRequests(player).get(0);
+                            target = request.getRequester();
                         }
 
                         // Again, not null
                         TPRequest request = TPRequest.getRequestByReqAndResponder(player, target);
-                        request.getRequester().sendMessage(CustomMessages.getString("Info.requestDeclinedResponder").replaceAll("\\{player}", player.getName()));
+                        target.sendMessage(CustomMessages.getString("Info.requestDeclinedResponder").replaceAll("\\{player}", player.getName()));
                         player.sendMessage(CustomMessages.getString("Info.requestDeclined"));
-                        request.destroy();
+                        if (request != null) {
+                            request.destroy();
+                        }
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
