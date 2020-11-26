@@ -87,6 +87,11 @@ public abstract class ConfigurationMaster {
         nodeOrder.add(path);
     }
 
+    public void set(String path, Object value) {
+        config.set(path, value);
+        tempConfig.set(path, config.get(path));
+    }
+
     public void addDefault(String path, Object value, String section, String comment) {
         addDefault(path, value);
         addComment(path, comment);
