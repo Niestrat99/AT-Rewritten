@@ -17,22 +17,18 @@ public class TpNo implements CommandExecutor {
             if (sender.hasPermission("at.member.no")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
-                    if (TeleportTests.teleportTests(player, args, "tpano")) {
+                    TPRequest request = TeleportTests.teleportTests(player, args, "tpano");
+                    if (request != null) {
                         Player target;
                         if (args.length > 0) {
                             target = Bukkit.getPlayer(args[0]);
                         } else {
-                            TPRequest request = TPRequest.getRequests(player).get(0);
                             target = request.getRequester();
                         }
 
-                        // Again, not null
-                        TPRequest request = TPRequest.getRequestByReqAndResponder(player, target);
                         target.sendMessage(CustomMessages.getString("Info.requestDeclinedResponder").replaceAll("\\{player}", player.getName()));
                         player.sendMessage(CustomMessages.getString("Info.requestDeclined"));
-                        if (request != null) {
-                            request.destroy();
-                        }
+                        request.destroy();
                     }
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));

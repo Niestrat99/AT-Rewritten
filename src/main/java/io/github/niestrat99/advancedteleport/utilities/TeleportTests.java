@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public class TeleportTests {
 
-    public static boolean teleportTests(Player player, String[] args, String type) {
+    public static TPRequest teleportTests(Player player, String[] args, String type) {
 
         // Checks if any players have sent a request at all.
         if (!TPRequest.getRequests(player).isEmpty()) {
@@ -23,17 +23,17 @@ public class TeleportTests {
                     Player target = Bukkit.getPlayer(args[0]);
                     if (target == null) {
                         player.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                        return false;
+                        return null;
                     } else {
 
                         // Get the request that was sent by the target.
                         TPRequest request = TPRequest.getRequestByReqAndResponder(player, target);
                         if (request == null) {
                             player.sendMessage(CustomMessages.getString("Error.noRequests"));
-                            return false;
+                            return null;
                         } else {
                             // Yes, the teleport request can be accepted/declined/cancelled.
-                            return true;
+                            return request;
                         }
                     }
                 } else {
@@ -53,13 +53,13 @@ public class TeleportTests {
 
                 }
             } else {
-                return true;
+                return TPRequest.getRequests(player).get(0);
             }
         } else {
             player.sendMessage(CustomMessages.getString("Error.noRequests"));
-            return false;
+            return null;
         }
-        return false;
+        return null;
     }
 
 }
