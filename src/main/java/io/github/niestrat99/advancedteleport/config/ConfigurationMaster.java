@@ -22,6 +22,7 @@ public abstract class ConfigurationMaster {
     private List<String> currentLines;
     private HashMap<String, String> sections;
     private List<String> nodeOrder;
+    private final boolean isNew;
 
     /**
      *
@@ -40,6 +41,7 @@ public abstract class ConfigurationMaster {
         }
         //
         config = YamlConfiguration.loadConfiguration(configFile);
+        isNew = config.saveToString().isEmpty();
         tempConfig = new YamlConfiguration();
         currentLines = new ArrayList<>();
         comments = new HashMap<>();
@@ -87,6 +89,19 @@ public abstract class ConfigurationMaster {
         nodeOrder.add(path);
     }
 
+    public void addExample(String path, Object value) {
+        if (isNew) {
+            addDefault(path, value);
+        }
+    }
+
+    public void addExample(String path, Object value, String comment) {
+        if (isNew) {
+            addDefault(path, value);
+            addComment(path, comment);
+        }
+    }
+
     public void set(String path, Object value) {
         config.set(path, value);
         tempConfig.set(path, config.get(path));
@@ -113,7 +128,11 @@ public abstract class ConfigurationMaster {
 
     public void addSection(String section) {
         int size = nodeOrder.size();
-        sections.put(null, section);
+        if (size > 0) {
+            sections.put(nodeOrder.get(size - 1), section);
+        } else {
+            sections.put(null, section);
+        }
     }
 
     public void addSectionWithComment(String section, String comment) {
