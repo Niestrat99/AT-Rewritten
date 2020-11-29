@@ -6,7 +6,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -38,7 +38,7 @@ public class TpaHere implements CommandExecutor {
                         Player target = Bukkit.getPlayer(args[0]);
                         String result = ConditionChecker.canTeleport(player, target, "tpahere");
                         if (result.isEmpty()) {
-                            if (PaymentManager.canPay("tpahere", player)) {
+                            if (PaymentManager.getInstance().canPay("tpahere", player)) {
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
                                         .replaceAll("\\{player}", target.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));

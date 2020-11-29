@@ -5,9 +5,10 @@ import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Homes;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -24,7 +25,7 @@ public class Home implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (Config.isFeatureEnabled("homes")) {
+        if (NewConfig.getInstance().USE_HOMES.get()) {
             if (sender.hasPermission("at.member.home")) {
                 if (sender instanceof Player) {
                     Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
@@ -53,7 +54,7 @@ public class Home implements CommandExecutor {
                                         Location loc;
                                         switch (args[1].toLowerCase()) {
                                             case "bed":
-                                                if (Config.addBedToHomes()) {
+                                                if (NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
                                                     loc = player.getBedSpawnLocation();
                                                     if (loc == null) {
                                                         player.sendMessage(CustomMessages.getString("Error.noBedHomeOther").replaceAll("\\{player}", args[0]));
@@ -106,7 +107,7 @@ public class Home implements CommandExecutor {
                         return;
                     }
 
-                    if (PaymentManager.canPay("home", player)) {
+                    if (PaymentManager.getInstance().canPay("home", player)) {
                         try {
                             if (Homes.getHomes(uuid).containsKey(args[0])) {
                                 Location location = Homes.getHomes(uuid).get(args[0]);
@@ -145,7 +146,7 @@ public class Home implements CommandExecutor {
         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
             ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), name, ATTeleportEvent.TeleportType.HOME);
             if (!event.isCancelled()) {
-                if (PaymentManager.canPay("home", player)) {
+                if (PaymentManager.getInstance().canPay("home", player)) {
                     CooldownManager.addToCooldown("home", player);
                     if (Config.getTeleportTimer("home") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                         BukkitRunnable movementtimer = new BukkitRunnable() {

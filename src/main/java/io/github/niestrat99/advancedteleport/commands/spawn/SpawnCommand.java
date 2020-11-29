@@ -7,7 +7,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -52,7 +52,7 @@ public class SpawnCommand implements CommandExecutor {
         }
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         if (!event.isCancelled()) {
-            if (PaymentManager.canPay("spawn", player)) {
+            if (PaymentManager.getInstance().canPay("spawn", player)) {
                 CooldownManager.addToCooldown("spawn", player);
                 if (Config.getTeleportTimer("spawn") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {

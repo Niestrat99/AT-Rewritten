@@ -49,6 +49,8 @@ public class CoreClass extends JavaPlugin {
     private static CoreClass Instance;
     private static Permission perms = null;
 
+    private NewConfig config;
+
     public static CoreClass getInstance() {
         return Instance;
     }
@@ -86,7 +88,7 @@ public class CoreClass extends JavaPlugin {
         registerCommands();
         registerEvents();
         try {
-            new NewConfig();
+            config = new NewConfig();
             Config.setDefaults();
             CustomMessages.setDefaults();
             Homes.save();
@@ -188,5 +190,9 @@ public class CoreClass extends JavaPlugin {
 
     public static Permission getPerms() {
         return perms;
+    }
+
+    public NewConfig getConfiguration() {
+        return config;
     }
 }

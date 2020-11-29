@@ -7,7 +7,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Warps;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -115,7 +115,7 @@ public class Warp implements CommandExecutor {
         }
         ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), name, ATTeleportEvent.TeleportType.WARP);
         if (!event.isCancelled()) {
-            if (PaymentManager.canPay("warp", player)) {
+            if (PaymentManager.getInstance().canPay("warp", player)) {
 
                 if (Config.getTeleportTimer("warp") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {

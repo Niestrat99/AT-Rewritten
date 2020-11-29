@@ -9,7 +9,7 @@ import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -57,7 +57,7 @@ public class Back implements CommandExecutor {
                     ATTeleportEvent event = new ATTeleportEvent(player, player.getLocation(), loc, "back", ATTeleportEvent.TeleportType.BACK);
                     if (!event.isCancelled()) {
                         Location finalLoc = loc;
-                        if (PaymentManager.canPay("back", player)) {
+                        if (PaymentManager.getInstance().canPay("back", player)) {
                             if (Config.getTeleportTimer("back") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                                 BukkitRunnable movementtimer = new BukkitRunnable() {
                                     @Override

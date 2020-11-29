@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,7 +24,7 @@ public class AtHelp implements CommandExecutor {
                 }
                 return true;
             } else if (args[0].equalsIgnoreCase("teleport")) {
-                if (Config.isFeatureEnabled("teleport")) {
+                if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
                     for (String str : CustomMessages.Config.getStringList("Help.teleport")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
@@ -38,7 +39,7 @@ public class AtHelp implements CommandExecutor {
                     return true;
                 }
             } else if (args[0].equalsIgnoreCase("warps")) {
-                if (Config.isFeatureEnabled("warps")) {
+                if (NewConfig.getInstance().USE_WARPS.get()) {
                     for (String str : CustomMessages.Config.getStringList("Help.warps")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }

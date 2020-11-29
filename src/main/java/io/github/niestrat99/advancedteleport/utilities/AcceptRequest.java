@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -15,7 +16,7 @@ public class AcceptRequest {
         request.getRequester().sendMessage(CustomMessages.getString("Info.requestAcceptedResponder").replaceAll("\\{player}", player.getName()));
         player.sendMessage(CustomMessages.getString("Info.requestAccepted"));
         // Check again
-        if (PaymentManager.canPay(request.getType().name().toLowerCase().replaceAll("_", ""), request.getRequester())) {
+        if (PaymentManager.getInstance().canPay(request.getType().name().toLowerCase().replaceAll("_", ""), request.getRequester())) {
             if (request.getType() == TPRequest.TeleportType.TPAHERE) {
                 teleport(request.getRequester(), player, "tpahere");
             } else {
