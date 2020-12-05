@@ -39,12 +39,15 @@ public class TeleportTests {
                 } else {
                     // This utility helps in splitting lists into separate pages, like when you list your plots with PlotMe/PlotSquared.
                     PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
-                    player.sendMessage(ChatColor.GREEN + "You have multiple teleport requests pending! Click one of the following to " + (type.equalsIgnoreCase("tpayes") ? "accept" : "deny") + ":");
+                    if (type.equalsIgnoreCase("tpayes")) {
+                        player.sendMessage(CustomMessages.getString("Info.multipleRequestAccept"));
+                    } else {
+                        player.sendMessage(CustomMessages.getString("Info.multipleRequestDeny"));
+                    }
                     for (TPRequest request : requests.getContentsInPage(1)) {
                         new FancyMessage()
                                 .command("/" + type + " " + request.getRequester().getName())
-                                .color(ChatColor.AQUA)
-                                .text("> " + request.getRequester().getName())
+                                .text(CustomMessages.getString("Info.multipleRequestsIndex").replaceAll("\\{player}", request.getRequester().getName()))
                                 .send(player);
                     }
                     if (requests.getTotalPages() > 1) {
