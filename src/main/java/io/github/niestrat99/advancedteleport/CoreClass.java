@@ -18,6 +18,7 @@ import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.WorldBorder;
@@ -48,6 +49,7 @@ public class CoreClass extends JavaPlugin {
     public static WorldBorder worldBorder;
     private static CoreClass Instance;
     private static Permission perms = null;
+    private int version;
 
     private NewConfig config;
 
@@ -103,6 +105,7 @@ public class CoreClass extends JavaPlugin {
         setupPermissions();
         CooldownManager.init();
         RandomTPAlgorithms.init();
+        setupVersion();
         new Metrics(this, 5146);
         new BukkitRunnable() {
             @Override
@@ -194,5 +197,14 @@ public class CoreClass extends JavaPlugin {
 
     public NewConfig getConfiguration() {
         return config;
+    }
+
+    private void setupVersion() {
+        String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].split("_")[1];
+        this.version = Integer.parseInt(bukkitVersion);
+    }
+
+    public int getVersion() {
+        return version;
     }
 }

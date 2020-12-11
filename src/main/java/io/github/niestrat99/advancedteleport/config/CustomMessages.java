@@ -124,6 +124,7 @@ public class CustomMessages {
         Config.addDefault("Info.requestAcceptedResponder", "&e{player} &ahas accepted the teleport request!");
         Config.addDefault("Info.paymentVault", "&aYou have paid &e${amount} &aand now have &e${balance}&a!");
         Config.addDefault("Info.paymentEXP", "&aYou have paid &e{amount} EXP Levels &aand now have &e{levels}&a!");
+        Config.addDefault("Info.paymentPoints", "&aYou have paid &e{amount} EXP Points &aand now have &e{points}&a!");
         Config.addDefault("Info.createdWarpSign", "&aSuccessfully created the warp sign!");
         Config.addDefault("Info.createdRTPSign", "&aSuccessfully created the RandomTP sign!");
         Config.addDefault("Info.createdSpawnSign", "&aSuccessfully created the spawn sign!");
@@ -188,6 +189,7 @@ public class CustomMessages {
         Config.options().copyDefaults(true);
         save();
     }
+
     public static String getString(String path) {
         String str = Config.getString(path);
         if (str == null) return "";

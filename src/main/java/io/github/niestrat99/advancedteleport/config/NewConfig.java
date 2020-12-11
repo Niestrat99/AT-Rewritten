@@ -128,7 +128,8 @@ public class NewConfig extends ConfigurationMaster {
         addDefault("teleport-to-spawn-on-every-join", true,
                 "Whether the player should be teleported to the spawnpoint every time they join.");
 
-        addDefault("death-management.default", "spawn", "");
+        addComment("death-management", "");
+        addDefault("death-management.default", "spawn", "The default ");
         addExample("death-management.world", "{default}", "");
         addExample("death-management.special-world", "warp:Special");
         addExample("death-management.another-world", "bed");
