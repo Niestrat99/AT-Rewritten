@@ -67,28 +67,10 @@ public class PaymentManager {
     }
 
     // Method used to manage payments
-    public static void withdraw(String command, Player player) {
+    public void withdraw(String command, Player player) {
         if (!player.hasPermission("at.admin.bypass")) {
-            if (Config.isUsingEXPPayment(command)) {
-                if (Config.getEXPTeleportPrice(command) == 0) return;
-                if (player.getLevel() >= Config.getEXPTeleportPrice(command)){
-                    int currentLevel = player.getLevel();
-                    player.setLevel(currentLevel - Config.getEXPTeleportPrice(command));
-                    player.sendMessage(CustomMessages.getString("Info.paymentEXP")
-                            .replaceAll("\\{amount}", String.valueOf(Config.getEXPTeleportPrice(command)))
-                            .replaceAll("\\{levels}", String.valueOf(player.getLevel())));
-                }
-            }
-            if  (CoreClass.getVault() != null && Config.isUsingVault(command)) {
-                if (Config.getTeleportPrice(command) == 0) return;
-                if (CoreClass.getVault().getBalance(player) >= Config.getTeleportPrice(command)){
-                    EconomyResponse payment = CoreClass.getVault().withdrawPlayer(player, Config.getTeleportPrice(command));
-                    if (payment.transactionSuccess()){
-                        player.sendMessage(CustomMessages.getString("Info.paymentVault")
-                                .replaceAll("\\{amount}", String.valueOf(Config.getTeleportPrice(command)))
-                                .replaceAll("\\{balance}", String.valueOf(CoreClass.getVault().getBalance(player))));
-                    }
-                }
+            for (Payment payment : teleportCosts.get(command)) {
+                payment.withdraw(player);
             }
         }
     }

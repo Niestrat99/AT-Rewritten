@@ -22,6 +22,11 @@ public class VaultPayment extends Payment {
     }
 
     @Override
+    public String getMessagePath() {
+        return "Info.paymentVault";
+    }
+
+    @Override
     public void setPlayerAmount(Player player) {
 
     }

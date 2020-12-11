@@ -22,6 +22,11 @@ public class LevelsPayment extends Payment {
     }
 
     @Override
+    public String getMessagePath() {
+        return "Info.paymentEXP";
+    }
+
+    @Override
     public void setPlayerAmount(Player player) {
         player.setLevel(player.getLevel() - levels);
     }

@@ -22,6 +22,11 @@ public class PointsPayment extends Payment {
     }
 
     @Override
+    public String getMessagePath() {
+        return "Info.paymentPoints";
+    }
+
+    @Override
     public void setPlayerAmount(Player player) {
         player.setExp(player.getExp() - points);
     }
