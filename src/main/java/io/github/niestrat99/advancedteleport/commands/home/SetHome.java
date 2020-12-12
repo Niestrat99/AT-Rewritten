@@ -126,6 +126,7 @@ public class SetHome implements CommandExecutor {
                 if (permission.getValue()) {
                     String perm = permission.getPermission();
                     String ending = perm.substring(perm.lastIndexOf(".") + 1);
+                    if (ending.equalsIgnoreCase("unlimited")) return -1;
                     if (!ending.matches("^[0-9]+$")) continue;
                     int homes = Integer.parseInt(ending);
                     if (maxHomes < homes) {
