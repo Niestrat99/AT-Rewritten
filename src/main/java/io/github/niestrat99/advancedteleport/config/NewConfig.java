@@ -161,6 +161,16 @@ public class NewConfig extends CMFile {
                 "To disable this, use -1 as provided by default.");
         addDefault("add-bed-to-homes", true, "Whether or not the bed home should be added to /homes.");
 
+        addDefault("tpa-request-received", "none", "Notifications/Sounds",
+                "The sound played when a player receives a teleportation (tpa) request.\n" +
+                        "For 1.16+, check https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html for a list of sounds you can use\n" +
+                        "For 1.15 and below, check https://www.spigotmc.org/threads/sounds-spigot-1-7-1-14-4-sound-enums.340452/ for a list of sounds down to 1.7.\n" +
+                        "(Friendly reminder that 1.7.x is not supported though!)\n" +
+                        "Set to \"none\" if you want no sound playing.");
+        addDefault("tpa-request-sent", "none", "The sound played when a player sends a teleportation (tpa) request.");
+        addDefault("tpahere-request-received", "none", "The sound played when a player receives a teleportation (tpahere) request.");
+        addDefault("tpahere-request-sent", "none", "The sound played when a player sends a teleportation (tpahere) request.");
+
         addDefault("used-teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")), "Back",
                 "The teleport causes that the plugin must listen to allow players to teleport back to the previous location.\n" +
                         "You can see a full list of these causes at https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html");
