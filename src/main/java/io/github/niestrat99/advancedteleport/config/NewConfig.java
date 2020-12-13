@@ -156,6 +156,18 @@ public class NewConfig extends CMFile {
         addDefault("per-command-distance-limitations.home", "default", "Distance limit for /home");
         addDefault("per-command-distance-limitations.back", "default", "Distance limit for /back");
 
+        addDefault("maximum-x", 5000, "RandomTP", "The maximum X coordinate to go up to when selecting a random location.");
+        addDefault("maximum-z", 5000, "The maximum Z coordinate to go up to when selecting a random location.");
+        addDefault("minimum-x", -5000, "The minimum X coordinate to go down to when selecting a random location.");
+        addDefault("minimum-z", -5000, "The minimum Z coordinate to go down to when selecting a random location.");
+        addDefault("use-world-border", true, "When WorldBorder is installed, AT will check the border of each world instead rather than using the minimum and maximum coordinates.");
+        addDefault("avoid-blocks", new ArrayList<>(Arrays.asList("WATER", "LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")),
+                "Blocks that people must not be able to land in when using /tpr.");
+        addDefault("whitelist-worlds", false, "Whether or not /tpr should only be used in the worlds listed below.");
+        addDefault("allowed-worlds", new ArrayList<>(Arrays.asList("world", "world_nether")), "Worlds you can use /tpr in.\n" +
+                "If a player uses /tpr in a world that doesn't allow it, they will be teleported in the first world on the list instead.\n" +
+                "To make this feature effective, turn on \"whitelist-worlds\" above.");
+
         addDefault("default-homes-limit", -1, "Homes", "The default maximum of homes people can have.\n" +
                 "This can be overridden by giving people permissions such as at.member.homes.10.\n" +
                 "To disable this, use -1 as provided by default.");
