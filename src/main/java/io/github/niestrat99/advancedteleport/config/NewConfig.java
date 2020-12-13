@@ -156,6 +156,46 @@ public class NewConfig extends CMFile {
         addDefault("per-command-distance-limitations.home", "default", "Distance limit for /home");
         addDefault("per-command-distance-limitations.back", "default", "Distance limit for /back");
 
+        addComment("WARNING: A lot of the options below are considered advanced and use special syntax that is not often accepted in YAML.\n" +
+                "When using such options, wrap them in quotes: ''\n" +
+                "As an example, 'stop-teleportation-out:world,world_nether'");
+
+        addDefault("enable-teleport-limitations", false, "Teleportation Limitations",
+                "Enables teleport limitations. This means cross-world or even world teleportation can be limited within specific worlds.");
+        addDefault("monitor-all-teleports-limitations", false, "Whether or not all teleportation - not just AT's - should be checked to see if teleportation is allowed.");
+
+        addComment("world-rules", "The teleportation rules defined for each world.\n" +
+                "Rules include:\n" +
+                "- stop-teleportation-out - Stops players teleporting to another world when they are in this world.\n" +
+                "- stop-teleportation-within - Stops players teleporting within the world.\n" +
+                "- stop-teleportation-into - Stops players teleporting into this world.\n" +
+                "To combine multiple rules, use a ; - e.g. stop-teleportation-out;stop-teleportation-within\n" +
+                "For out and into rules, you can make it so that rules only initiate when in or going to a specific world using :, e.g. stop-teleportation-out:world stops players teleporting to \"world\" in the world they're currently in.\n" +
+                "To do the opposite (i.e. initiates the rule when users are not in the specified world), use !, e.g. stop-teleportation-into!world stops teleportation into a specific world if they are not in \"world\". If ! and : are used in the same rule, then : is given top priority." +
+                "To make this rule work with multiple worlds, use a comma (,), e.g. stop-teleportation-into:world,world_nether");
+        addDefault("world-rules.default", "stop-teleportation-within");
+        addExample("world-rules.world", "default");
+        addExample("world-rules.world_nether", "stop-teleportation-into!world", "Stops people teleporting into the Nether if they're not coming from \"world\"");
+
+        addComment("command-rules", "The teleportation rules defined for each AT command.\n" +
+                "Rules include:\n" +
+                "- override - The command will override world rules and run regardless.\n" +
+                "- ignore - The command will refuse to run regardless of world rules.\n" +
+                "To combine multiple rules, use a ;.\n" +
+                "To make rules behave differently in different worlds, use : to initiate the rule in a specific world (e.g. override:world to make the command override \"world\"'s rules.)\n" +
+                "To initiate rules outside of a specific world, use ! (e.g. override!world to make the command override world rules everywhere but in world)\n" +
+                "To use multiple worlds, use a comma (,).\n" +
+                "By default, all commands will comply with the world rules. If no rules are specified, they will comply.\n" +
+                "All worlds specified will be considered the world in which the player is currently in. For worlds being teleported to, add > to the start of the world name.\n" +
+                "For example, ignore:world,>world_nether will not run if the player is in \"world\" or if the player is going into the Nether.");
+        addDefault("command-rules.tpa", "");
+        addDefault("command-rules.tpahere", "");
+        addDefault("command-rules.tpr", "");
+        addDefault("command-rules.warp", "");
+        addDefault("command-rules.spawn", "");
+        addDefault("command-rules.home", "");
+        addDefault("command-rules.back", "");
+
         addDefault("maximum-x", 5000, "RandomTP", "The maximum X coordinate to go up to when selecting a random location.");
         addDefault("maximum-z", 5000, "The maximum Z coordinate to go up to when selecting a random location.");
         addDefault("minimum-x", -5000, "The minimum X coordinate to go down to when selecting a random location.");
