@@ -145,17 +145,16 @@ public class NewConfig extends CMFile {
                         "This is only applied when people are teleporting in the same world.");
         addDefault("maximum-teleport-distance", 1000, "The maximum distance that a player can teleport.\n" +
                 "This is the default distance applied to all commands when specified.");
-        addDefault("monitor-all-teleports-distance", false, "Whether or not all teleportations - not just AT's - should be checked for distance.\n" +
-                "This can cause some potential conflict ");
+        addDefault("monitor-all-teleports-distance", false, "Whether or not all teleportations - not just AT's - should be checked for distance.");
 
-        addComment("per-command-distance-limitations", "");
-        addDefault("per-command-distance-limitations.tpa", "default");
-        addDefault("per-command-distance-limitations.tpahere", "default");
-        addDefault("per-command-distance-limitations.tpr", "default");
-        addDefault("per-command-distance-limitations.warp", "default");
-        addDefault("per-command-distance-limitations.spawn", "default");
-        addDefault("per-command-distance-limitations.home", "default");
-        addComment("per-command-distance-limitations.back", "default");
+        addComment("per-command-distance-limitations", "Determines the distance limit for each command.");
+        addDefault("per-command-distance-limitations.tpa", "default", "Distance limit for /tpa");
+        addDefault("per-command-distance-limitations.tpahere", "default", "Distance limit for /tpahere");
+        addDefault("per-command-distance-limitations.tpr", "default", "Distance limit for /tpr");
+        addDefault("per-command-distance-limitations.warp", "default", "Distance limit for /warp");
+        addDefault("per-command-distance-limitations.spawn", "default", "Distance limit for /spawn");
+        addDefault("per-command-distance-limitations.home", "default", "Distance limit for /home");
+        addDefault("per-command-distance-limitations.back", "default", "Distance limit for /back");
 
         addDefault("default-homes-limit", -1, "Homes", "The default maximum of homes people can have.\n" +
                 "This can be overridden by giving people permissions such as at.member.homes.10.\n" +
@@ -171,13 +170,27 @@ public class NewConfig extends CMFile {
         addDefault("teleport-to-spawn-on-every-join", true,
                 "Whether the player should be teleported to the spawnpoint every time they join.");
 
-        addComment("death-management", "");
-        addDefault("death-management.default", "spawn", "The default ");
-        addExample("death-management.world", "{default}", "");
+        addComment("death-management", "Determines how and where players teleport when they die.\n" +
+                "Options include:\n" +
+                "- spawn - Teleports the player to the spawnpoint of either the world or specified by the plugin.\n" +
+                "- bed - Teleports to the player's bed.\n" +
+                "- anchor - 1.16+ only, teleports to the player's respawn anchor. However, due to limitations with Spigot's API, it may or may not always work. (add Player#getRespawnAnchor pls)\n" +
+                "- warp:Warp Name - Teleports the player to a specified warp. For example, if you want to teleport to Hub, you'd type warp:Hub\n" +
+                "- {default} - Uses the default respawn option, which is spawn unless set differently.\n" +
+                "If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.");
+        addDefault("death-management.default", "spawn");
+        addExample("death-management.world", "{default}");
         addExample("death-management.special-world", "warp:Special");
         addExample("death-management.another-world", "bed");
 
-        addDefault("default-permissions", new ArrayList<>(Arrays.asList("at.member.*", "at.member.warp.*")), "Permissions", "");
+        addDefault("default-permissions", new ArrayList<>(Arrays.asList("at.member.*", "at.member.warp.*")), "Permissions",
+                "The default permissions given to users without OP.\n" +
+                        "By default, Advanced Teleport allows users without OP to use all member features.\n" +
+                        "This allows for permission management without a permissions plugin, especially if a user doesn't understand how such plugins work.\n" +
+                        "However, if you have a permissions plugin and Vault installed, you cannot make admin permissions work by default.");
+        addDefault("allow-admin-permissions-as-default-perms", false, "Allows admin permissions to be allowed as default permissions by default.\n" +
+                "If you want to use admin permissions, it's often recommended to use a permissions plugin such as LuckPerms.\n" +
+                "Do not enable this if you are unsure of the risks this option proposes.");
 
     }
 
