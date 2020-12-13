@@ -33,12 +33,17 @@
                     <artifactSet>
                         <includes>
                             <include>io.papermc:paperlib</include>
+                            <include>com.github.Thatsmusic99:ConfigurationMaster</include>
                         </includes>
                     </artifactSet>
                     <relocations>
                         <relocation>
                             <pattern>io.papermc</pattern>
                             <shadedPattern>io.github.niestrat99.advancedteleport.paperlib</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>io.github.thatsmusic99.configurationmaster</pattern>
+                            <shadedPattern>io.github.niestrat99.advancedteleport.configurationmaster</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

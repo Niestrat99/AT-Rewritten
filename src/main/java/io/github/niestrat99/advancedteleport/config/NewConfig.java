@@ -74,8 +74,7 @@ public class NewConfig extends CMFile {
      *
      */
     public NewConfig() {
-        super("config-new");
-        instance = this;
+        super(CoreClass.getInstance(), "config-new");
     }
 
     @Override
@@ -321,6 +320,15 @@ public class NewConfig extends CMFile {
         ALLOW_ADMIN_PERMS = new ConfigOption<>("allow-admin-permissions-as-default-perms");
 
         new PaymentManager();
+    }
+
+    @Override
+    public HashMap<String, String> getExternalLinks() {
+        HashMap<String, String> links = new HashMap<>();
+        links.put("SpigotMC", "https://www.spigotmc.org/resources/advanced-teleport.64139/");
+        links.put("Wiki", "https://github.com/Niestrat99/AT-Rewritten/wiki");
+        links.put("Discord", "https://discord.gg/mgWbbN4");
+        return links;
     }
 
     public static class ConfigOption<T> {
