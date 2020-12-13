@@ -1,34 +1,73 @@
 package io.github.niestrat99.advancedteleport.config;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
-import org.bukkit.configuration.MemoryConfiguration;
+import io.github.thatsmusic99.configurationmaster.CMFile;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
-public class NewConfig extends ConfigurationMaster {
+public class NewConfig extends CMFile {
 
-    public ConfigOption<Boolean> USE_BASIC_TELEPORT_FEATURES = new ConfigOption<>("use-basic-teleport-features");
-    public ConfigOption<Boolean> USE_WARPS = new ConfigOption<>("use-warps");
-    public ConfigOption<Boolean> USE_RANDOMTP = new ConfigOption<>("use-randomtp");
-    public ConfigOption<Boolean> USE_SPAWN = new ConfigOption<>("use-spawn");
-    public ConfigOption<Boolean> USE_HOMES = new ConfigOption<>("use-homes");
+    public ConfigOption<Boolean> USE_BASIC_TELEPORT_FEATURES;
+    public ConfigOption<Boolean> USE_WARPS;
+    public ConfigOption<Boolean> USE_RANDOMTP;
+    public ConfigOption<Boolean> USE_SPAWN;
+    public ConfigOption<Boolean> USE_HOMES;
+    public ConfigOption<Integer> REQUEST_LIFETIME;
 
-    public ConfigOption<Integer> WARM_UP_TIMER_DURATION = new ConfigOption<>("warp-up-timer-duration");
-    public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
-    public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
-    public PerCommandOption<Integer> WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warp-up-timer-duration");
+    public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
+    public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
+    public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
+    public PerCommandOption<Integer> WARM_UPS;
 
-    public ConfigOption<Integer> COOLDOWN_TIMER_DURATION = new ConfigOption<>("warp-up-timer-duration");
-    public ConfigOption<Boolean> ADD_COOLDOWN_DURATION_TO_WARM_UP = new ConfigOption<>("add-cooldown-duration-to-warm-up");
-    public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS = new ConfigOption<>("apply-cooldown-to-all-commands");
-    public PerCommandOption<Integer> COOLDOWNS = new PerCommandOption<>("per-command-cooldowns", "warp-up-timer-duration");
+    public ConfigOption<Integer> COOLDOWN_TIMER_DURATION;
+    public ConfigOption<Boolean> ADD_COOLDOWN_DURATION_TO_WARM_UP;
+    public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS;
+    public PerCommandOption<Integer> COOLDOWNS;
 
-    public ConfigOption<Object> COST_AMOUNT = new ConfigOption<>("cost-amount");
-    public PerCommandOption<Object> COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
+    public ConfigOption<Object> COST_AMOUNT;
+    public PerCommandOption<Object> COSTS;
 
-    public ConfigOption<Integer> DEFAULT_HOMES_LIMIT = new ConfigOption<>("default-homes-limit");
-    public ConfigOption<Boolean> ADD_BED_TO_HOMES = new ConfigOption<>("add-bed-to-homes");
+    public ConfigOption<Boolean> ENABLE_DISTANCE_LIMITATIONS;
+    public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
+    public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS;
+    public PerCommandOption<Integer> DISTANCE_LIMITS;
+
+    public ConfigOption<Boolean> ENABLE_TELEPORT_LIMITATIONS;
+    public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS_LIMITS;
+    public ConfigOption<ConfigurationSection> WORLD_RULES;
+    public PerCommandOption<String> COMMAND_RULES;
+
+    public ConfigOption<Integer> MAXIMUM_X;
+    public ConfigOption<Integer> MAXIMUM_Z;
+    public ConfigOption<Integer> MINIMUM_X;
+    public ConfigOption<Integer> MINIMUM_Z;
+    public ConfigOption<Boolean> USE_WORLD_BORDER;
+    public ConfigOption<List<String>> AVOID_BLOCKS;
+    public ConfigOption<Boolean> WHITELIST_WORLD;
+    public ConfigOption<List<String>> ALLOWED_WORLDS;
+
+    public ConfigOption<Integer> DEFAULT_HOMES_LIMIT;
+    public ConfigOption<Boolean> ADD_BED_TO_HOMES;
+
+    public ConfigOption<String> TPA_REQUEST_RECEIVED;
+    public ConfigOption<String> TPA_REQUEST_SENT;
+    public ConfigOption<String> TPAHERE_REQUEST_RECEIVED;
+    public ConfigOption<String> TPAHERE_REQUEST_SENT;
+
+    public ConfigOption<List<String>> BACK_TELEPORT_CAUSES;
+
+    public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
+    public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
+
+    public ConfigOption<ConfigurationSection> DEATH_MANAGEMENT;
+
+    public ConfigOption<String> DEFAULT_PERMISSIONS;
+    public ConfigOption<Boolean> ALLOW_ADMIN_PERMS;
 
     private static NewConfig instance;
     /**
@@ -41,6 +80,9 @@ public class NewConfig extends ConfigurationMaster {
 
     @Override
     public void loadDefaults() {
+        instance = this;
+
+        addComment("Another comment at the very top for all you lads :)");
         addDefault("use-basic-teleport-features", true, "Features", "Whether basic teleportation features should be enabled or not." +
                 "\nThis includes /tpa, /tpahere, /tpblock, /tpunblock and /back." +
                 "\nThis does not disable the command for other plugins - if you want other plugins to use the provided commands, use Bukkit's commands.yml file." +
@@ -50,6 +92,7 @@ public class NewConfig extends ConfigurationMaster {
         addDefault("use-spawn", true, "Whether the plugin should modify spawn/spawn properties.");
         addDefault("use-randomtp", true, "Whether the plugin should allow random teleportation.");
         addDefault("use-homes", true, "Whether homes should be enabled in the plugin.");
+        addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
 
         addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", "The number of seconds it takes for the teleportation to take place following confirmation.\n" +
                 "(i.e. \"You will teleport in 3 seconds!\")\n" +
@@ -144,6 +187,64 @@ public class NewConfig extends ConfigurationMaster {
 
     @Override
     public void postSave() {
+
+        USE_BASIC_TELEPORT_FEATURES = new ConfigOption<>("use-basic-teleport-features");
+        USE_WARPS = new ConfigOption<>("use-warps");
+        USE_RANDOMTP = new ConfigOption<>("use-randomtp");
+        USE_SPAWN = new ConfigOption<>("use-spawn");
+        USE_HOMES = new ConfigOption<>("use-homes");
+        REQUEST_LIFETIME = new ConfigOption<>("request-lifetime");
+
+        WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
+        CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
+        CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
+        WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warp-up-timer-duration");
+
+        COOLDOWN_TIMER_DURATION = new ConfigOption<>("cooldown-duration");
+        ADD_COOLDOWN_DURATION_TO_WARM_UP = new ConfigOption<>("add-cooldown-duration-to-warm-up");
+        APPLY_COOLDOWN_TO_ALL_COMMANDS = new ConfigOption<>("apply-cooldown-to-all-commands");
+        COOLDOWNS = new PerCommandOption<>("per-command-cooldowns", "warp-up-timer-duration");
+
+        COST_AMOUNT = new ConfigOption<>("cost-amount");
+        COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
+
+        ENABLE_DISTANCE_LIMITATIONS = new ConfigOption<>("enable-distance-limitations");
+        MAXIMUM_TELEPORT_DISTANCE = new ConfigOption<>("maximum-teleport-distance");
+        MONITOR_ALL_TELEPORTS = new ConfigOption<>("monitor-all-teleports-distance");
+        DISTANCE_LIMITS = new PerCommandOption<>("per-command-distance-limitations", "maximum-teleport-distance");
+
+        ENABLE_TELEPORT_LIMITATIONS = new ConfigOption<>("enable-teleport-limitations");
+        MONITOR_ALL_TELEPORTS_LIMITS = new ConfigOption<>("monitor-all-teleports-limitations");
+        WORLD_RULES = new ConfigOption<>("world-rules");
+        COMMAND_RULES = new PerCommandOption<>("command-rules", "");
+
+        MAXIMUM_X = new ConfigOption<>("maximum-x");
+        MAXIMUM_Z = new ConfigOption<>("maximum-z");
+        MINIMUM_X = new ConfigOption<>("minimum-x");
+        MINIMUM_Z = new ConfigOption<>("minimum-z");
+        USE_WORLD_BORDER = new ConfigOption<>("use-world-border");
+        AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");
+        WHITELIST_WORLD = new ConfigOption<>("whitelist-worlds");
+        ALLOWED_WORLDS = new ConfigOption<>("allowed-worlds");
+
+        DEFAULT_HOMES_LIMIT = new ConfigOption<>("default-homes-limit");
+        ADD_BED_TO_HOMES = new ConfigOption<>("add-bed-to-homes");
+
+        TPA_REQUEST_RECEIVED = new ConfigOption<>("tpa-request-received");
+        TPA_REQUEST_SENT = new ConfigOption<>("tpa-request-sent");
+        TPAHERE_REQUEST_RECEIVED = new ConfigOption<>("tpahere-request-received");
+        TPAHERE_REQUEST_SENT = new ConfigOption<>("tpahere-request-sent");
+
+        BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
+
+        TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
+        TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
+
+        DEATH_MANAGEMENT = new ConfigOption<>("death-management");
+
+        DEFAULT_PERMISSIONS = new ConfigOption<>("default-permissions");
+        ALLOW_ADMIN_PERMS = new ConfigOption<>("allow-admin-permissions-as-default-perms");
+
         new PaymentManager();
     }
 
