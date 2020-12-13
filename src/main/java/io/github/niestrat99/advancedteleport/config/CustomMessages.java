@@ -82,6 +82,7 @@ public class CustomMessages {
         Config.addDefault("Error.tooFewArguments", "&cToo few arguments!");
         Config.addDefault("Error.invalidArgs", "&cInvalid arguments!");
         Config.addDefault("Error.cantTPToPlayer", "&cYou can't request a teleportation to &e{player}&c!");
+        Config.addDefault("Error.noWarps", "&cThere are no warps as of currently!");
 
         Config.addDefault("Info.tpOff", "&aSuccessfully disabled teleport requests!");
         Config.addDefault("Info.tpOn", "&aSuccessfully enabled teleport requests!");
@@ -103,6 +104,7 @@ public class CustomMessages {
         Config.addDefault("Info.multipleRequestsIndex", "&b> {player}");
         Config.addDefault("Info.multipleRequestsList", "&aDo /tpalist <Page Number> To check other requests.");
         Config.addDefault("Info.multipleRequestAccept", "&aYou have multiple teleport requests pending! Click one of the following to accept:");
+        Config.addDefault("Info.multipleRequestDeny", "&aYou have multiple teleport requests pending! Click one of the following to deny:");
         Config.addDefault("Info.requestDeclined", "&aYou've declined the teleport request!");
         Config.addDefault("Info.requestDeclinedResponder", "&e{player} &ahas declined your teleport request!");
 

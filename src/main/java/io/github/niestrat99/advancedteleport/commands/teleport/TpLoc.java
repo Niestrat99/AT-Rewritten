@@ -15,6 +15,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
@@ -120,7 +121,7 @@ public class TpLoc implements CommandExecutor, TabCompleter {
                             if (allowFlight && target.getAllowFlight() && target.hasPermission("at.admin.tploc.safe-teleport") && blockBelow.getBlock().getType() == Material.AIR) {
                                 target.setFlying(true);
                             }
-                            PaperLib.teleportAsync(target, location);
+                            PaperLib.teleportAsync(target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                             if (player != target) {
                                 player.sendMessage(CustomMessages.getString("Info.teleportedToLocOther")
                                         .replaceAll("\\{x}", String.valueOf(loc[0]))
