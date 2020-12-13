@@ -113,7 +113,7 @@ public class NewConfig extends CMFile {
                 "This is also the default cooldown period for all commands.");
         addDefault("add-cooldown-duration-to-warm-up", true, "Adds the warm-up duration to the cooldown duration.\n" +
                 "For example, if the cooldown duration was 5 seconds but the warm-up was 3, the cooldown becomes 8 seconds long.");
-        addDefault("apply-cooldowns-to-all-commands", false, "Whether or not the cooldown of one command will stop a user from using all commands.\n" +
+        addDefault("apply-cooldown-to-all-commands", false, "Whether or not the cooldown of one command will stop a user from using all commands.\n" +
                 "For example, if a player used /tpa with a cooldown of 10 seconds but then used /tpahere with a cooldown of 5, the 10-second cooldown would still apply.\n" +
                 "On the other hand, if a player used /tpahere, the cooldown of 5 seconds would apply to /tpa and other commands.");
 
