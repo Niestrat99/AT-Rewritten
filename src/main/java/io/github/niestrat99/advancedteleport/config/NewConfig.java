@@ -229,7 +229,7 @@ public class NewConfig extends CMFile {
 
         addDefault("teleport-to-spawn-on-first-join", true, "Spawn Management",
                 "Whether the player should be teleported to the spawnpoint when they join for the first time.");
-        addDefault("teleport-to-spawn-on-every-join", true,
+        addDefault("teleport-to-spawn-on-every-join", false,
                 "Whether the player should be teleported to the spawnpoint every time they join.");
 
         addComment("death-management", "Determines how and where players teleport when they die.\n" +
