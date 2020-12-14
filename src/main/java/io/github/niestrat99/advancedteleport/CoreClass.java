@@ -87,8 +87,6 @@ public class CoreClass extends JavaPlugin {
     public void onEnable() {
         Instance = this;
         System.out.println("Advanced Teleport is now enabling...");
-        registerCommands();
-        registerEvents();
         try {
             config = new NewConfig();
             Config.setDefaults();
@@ -101,6 +99,8 @@ public class CoreClass extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        registerCommands();
+        registerEvents();
         setupEconomy();
         setupPermissions();
         CooldownManager.init();
