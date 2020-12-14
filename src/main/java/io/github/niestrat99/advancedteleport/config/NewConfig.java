@@ -318,6 +318,29 @@ public class NewConfig extends CMFile {
         }
 
         moveTo("sounds.tpa.requestSent", "tpa-request-sent");
+        moveTo("sounds.tpa.requestReceived", "tpa-request-received");
+        moveTo("sounds.tpahere.requestSent", "tpahere-request-sent");
+        moveTo("sounds.tpahere.requestReceived", "tpahere-request-received");
+
+        moveTo("tpr.maximum-x", "maximum-x");
+        moveTo("tpr.maximum-z", "maximum-z");
+        moveTo("tpr.minimum-x", "minimum-x");
+        moveTo("tpr.minimum-z", "minimum-z");
+        moveTo("tpr.useWorldBorder", "use-world-border");
+        moveTo("tpr.avoidBlocks", "avoid-blocks");
+
+        moveTo("back.teleport-causes", "used-teleport-causes");
+
+        moveTo("homes.default-limit", "default-homes-limit");
+        moveTo("homes.add-bed-to-homes", "add-bed-to-homes");
+
+        moveTo("spawn.death.teleport", "death-management");
+        moveTo("spawn.join.teleport-on-first-join", "teleport-to-spawn-on-first-join");
+        moveTo("spawn.join.teleport-on-every-join", "teleport-to-spawn-on-every-join");
+
+        moveTo("permissions.default-permissions", "default-permissions");
+        moveTo("permissions.allow-admin-perms-as-defaults", "allow-admin-permissions-as-default-perms");
+
     }
 
     @Override
