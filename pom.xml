@@ -58,10 +58,10 @@
             </plugin>
         </plugins>
     </build>
-  <!--  <modules>
-        <module>AdvancedTP-Core</module>
-        <module>AdvancedTP-Bukkit</module>
-    </modules> -->
+<!--  <modules>
+<module>AdvancedTP-Core</module>
+<module>AdvancedTP-Bukkit</module>
+</modules> -->
 
     <repositories>
         <!-- Spigot Repo -->
@@ -87,7 +87,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.2-R0.1-SNAPSHOT</version>
+            <version>1.16.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -122,6 +122,12 @@
             <artifactId>spigot</artifactId>
             <version>1.16.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.Thatsmusic99</groupId>
+            <artifactId>ConfigurationMaster</artifactId>
+            <version>v1.0-SNAPSHOT-7</version>
         </dependency>
     </dependencies>
 </project>

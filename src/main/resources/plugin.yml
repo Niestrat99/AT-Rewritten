@@ -1,9 +1,9 @@
 main: io.github.niestrat99.advancedteleport.CoreClass
 name: AdvancedTeleport
 version: 5.4-SNAPSHOT
-description: A plugin which is based on tons of teleport stuff.
+description: A rapidly growing teleportation plugin looking to break the boundaries of traditional teleport plugins.
 authors: [Niestrat99,Thatsmusic99]
-softdepend: [Vault, Ultimate_Economy]
+softdepend: [Vault, Ultimate_Economy, ConfigurationMaster]
 api-version: 1.13
 
 commands:
