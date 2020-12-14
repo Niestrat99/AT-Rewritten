@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import io.github.niestrat99.advancedteleport.utilities.TeleportTests;
 import io.github.niestrat99.advancedteleport.config.Config;
@@ -13,7 +14,7 @@ import org.bukkit.entity.Player;
 public class TpNo implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (Config.isFeatureEnabled("teleport")) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.member.no")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;

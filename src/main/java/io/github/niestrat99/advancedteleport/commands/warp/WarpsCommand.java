@@ -22,7 +22,7 @@ import java.util.List;
 public class WarpsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (Config.isFeatureEnabled("warps")) {
+        if (NewConfig.getInstance().USE_WARPS.get()) {
             if (commandSender.hasPermission("at.member.warps")){
                 sendWarps(commandSender);
             }

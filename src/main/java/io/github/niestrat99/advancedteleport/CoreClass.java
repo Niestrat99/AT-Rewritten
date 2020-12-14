@@ -181,13 +181,35 @@ public class CoreClass extends JavaPlugin {
     }
 
     public static void playSound(String type, String subType, Player target) {
-        if(!Config.getSound(type + "." + subType).equals("NONE")){
-            try{
-                target.playSound(target.getLocation(), Sound.valueOf(Config.getSound(type + "." + subType)), 10, 1);
-            }
-            catch(IllegalArgumentException e){
-                CoreClass.getInstance().getLogger().warning(CoreClass.pltitle(Config.getSound("tpa.requestReceived") + " is an invalid sound name"));
-            }
+        String sound = null;
+        switch (type) {
+            case "tpa":
+                switch (subType) {
+                    case "sent":
+                        sound = NewConfig.getInstance().TPA_REQUEST_SENT.get();
+                        break;
+                    case "received":
+                        sound = NewConfig.getInstance().TPA_REQUEST_RECEIVED.get();
+                        break;
+                }
+                break;
+            case "tpahere":
+                switch (subType) {
+                    case "sent":
+                        sound = NewConfig.getInstance().TPAHERE_REQUEST_SENT.get();
+                        break;
+                    case "received":
+                        sound = NewConfig.getInstance().TPAHERE_REQUEST_RECEIVED.get();
+                        break;
+                }
+                break;
+        }
+        if (sound == null) return;
+        if (sound.equalsIgnoreCase("none")) return;
+        try {
+            target.playSound(target.getLocation(), Sound.valueOf(sound), 10, 1);
+        } catch(IllegalArgumentException e){
+            CoreClass.getInstance().getLogger().warning(CoreClass.pltitle(sound + " is an invalid sound name"));
         }
     }
 

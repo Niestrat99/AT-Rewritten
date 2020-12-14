@@ -112,7 +112,7 @@ public class Home implements CommandExecutor {
                             if (Homes.getHomes(uuid).containsKey(args[0])) {
                                 Location location = Homes.getHomes(uuid).get(args[0]);
                                 teleport(player, location, args[0]);
-                            } else if (args[0].equalsIgnoreCase("bed")  && Config.addBedToHomes()) {
+                            } else if (args[0].equalsIgnoreCase("bed")  && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
                                 Location location = player.getBedSpawnLocation();
                                 if (location == null) {
                                     player.sendMessage(CustomMessages.getString("Error.noBedHome"));
@@ -148,24 +148,25 @@ public class Home implements CommandExecutor {
             if (!event.isCancelled()) {
                 if (PaymentManager.getInstance().canPay("home", player)) {
                     CooldownManager.addToCooldown("home", player);
-                    if (Config.getTeleportTimer("home") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+                    int warmUp = NewConfig.getInstance().WARM_UPS.HOME.get();
+                    if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                         BukkitRunnable movementtimer = new BukkitRunnable() {
                             @Override
                             public void run() {
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
                                 PaperLib.teleportAsync(player, loc);
                                 MovementManager.getMovement().remove(player.getUniqueId());
-                                PaymentManager.withdraw("home", player);
+                                PaymentManager.getInstance().withdraw("home", player);
                             }
                         };
                         MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                        movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("home") * 20);
-                        player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("home"))));
+                        movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
+                        player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(warmUp)));
 
                     } else {
                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
                         PaperLib.teleportAsync(player, loc);
-                        PaymentManager.withdraw("home", player);
+                        PaymentManager.getInstance().withdraw("home", player);
                     }
                 }
             }

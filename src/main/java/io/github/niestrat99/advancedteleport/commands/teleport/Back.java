@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.LastLocations;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
@@ -28,7 +29,7 @@ public class Back implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (Config.isFeatureEnabled("teleport")) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.member.back")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
@@ -58,24 +59,25 @@ public class Back implements CommandExecutor {
                     if (!event.isCancelled()) {
                         Location finalLoc = loc;
                         if (PaymentManager.getInstance().canPay("back", player)) {
-                            if (Config.getTeleportTimer("back") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+                            int warmUp = NewConfig.getInstance().WARM_UPS.BACK.get();
+                            if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                                 BukkitRunnable movementtimer = new BukkitRunnable() {
                                     @Override
                                     public void run() {
                                         PaperLib.teleportAsync(player, finalLoc);
                                         MovementManager.getMovement().remove(player.getUniqueId());
                                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
-                                        PaymentManager.withdraw("back", player);
+                                        PaymentManager.getInstance().withdraw("back", player);
 
                                     }
                                 };
                                 MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                                movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("back")*20);
-                                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("back"))));
+                                movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
+                                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
 
                             } else {
                                 PaperLib.teleportAsync(player, loc);
-                                PaymentManager.withdraw("back", player);
+                                PaymentManager.getInstance().withdraw("back", player);
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                             }
                             CooldownManager.addToCooldown("back", player);

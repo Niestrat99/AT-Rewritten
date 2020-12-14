@@ -2,16 +2,14 @@ package io.github.niestrat99.advancedteleport.events;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class CooldownManager {
 
@@ -26,8 +24,8 @@ public class CooldownManager {
         public ATRunnable(UUID uuid, long waitingTime, String command) {
             this.uuid = uuid;
             ms = waitingTime;
-            if (Config.isApplyingTimerToCooldown() && !Bukkit.getPlayer(uuid).hasPermission("at.admin.bypass.timer")) {
-                ms += Config.getTeleportTimer(command);
+            if (NewConfig.getInstance().ADD_COOLDOWN_DURATION_TO_WARM_UP.get() && !Bukkit.getPlayer(uuid).hasPermission("at.admin.bypass.timer")) {
+                ms += NewConfig.getInstance().WARM_UPS.valueOf(command).get();
             }
             this.command = command;
             startingTime = System.currentTimeMillis();
@@ -58,27 +56,21 @@ public class CooldownManager {
 
     public static void addToCooldown(String command, Player player) {
         List<ATRunnable> list = cooldown.get(getKey(command));
-        list.add(new ATRunnable(player.getUniqueId(), Config.getCooldown(command), command));
+        list.add(new ATRunnable(player.getUniqueId(), NewConfig.getInstance().COOLDOWNS.valueOf(command).get(), command));
         cooldown.put(getKey(command), list);
     }
 
     private static String getKey(String command) {
-        return Config.isCooldownGlobal() ? "all" : command;
+        return NewConfig.getInstance().APPLY_COOLDOWN_TO_ALL_COMMANDS.get() ? "all" : command;
     }
 
     public static void init() {
         cooldown.clear();
-        if (Config.isCooldownGlobal()) {
+        if (NewConfig.getInstance().APPLY_COOLDOWN_TO_ALL_COMMANDS.get()) {
             cooldown.put("all", new ArrayList<>());
         } else {
-            for (String command : Config.config.getConfigurationSection("cooldowns").getKeys(false)) {
-                switch (command) {
-                    case "default":
-                    case "apply-globally":
-                        continue;
-                    default:
-                        cooldown.put(command, new ArrayList<>());
-                }
+            for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+                cooldown.put(command, new ArrayList<>());
             }
         }
     }

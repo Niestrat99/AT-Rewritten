@@ -210,7 +210,7 @@ public class CustomMessages {
     }
 
     public static String getEventBeforeTPMessage() {
-        if(io.github.niestrat99.advancedteleport.config.Config.cancelOnMovement()) {
+        if(NewConfig.getInstance().CANCEL_WARM_UP_ON_MOVEMENT.get()) {
             return getString("Teleport.eventBeforeTP");
         } else {
             return getString("Teleport.eventBeforeTPMovementAllowed");

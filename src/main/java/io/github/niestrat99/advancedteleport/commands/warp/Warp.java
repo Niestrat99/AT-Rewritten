@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Warps;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
@@ -22,7 +23,7 @@ import java.io.IOException;
 public class Warp implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (Config.isFeatureEnabled("warps")) {
+        if (NewConfig.getInstance().USE_WARPS.get()) {
             if (args.length > 0) {
                 if (args[0].equalsIgnoreCase("set")) {
                     if (sender.hasPermission("at.admin.warpset")) {
@@ -116,25 +117,25 @@ public class Warp implements CommandExecutor {
         ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), name, ATTeleportEvent.TeleportType.WARP);
         if (!event.isCancelled()) {
             if (PaymentManager.getInstance().canPay("warp", player)) {
-
-                if (Config.getTeleportTimer("warp") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+                int warmUp = NewConfig.getInstance().WARM_UPS.WARP.get();
+                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {
                             PaperLib.teleportAsync(player, loc);
                             MovementManager.getMovement().remove(player.getUniqueId());
                             player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));
-                            PaymentManager.withdraw("warp", player);
+                            PaymentManager.getInstance().withdraw("warp", player);
 
                         }
                     };
                     MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("warp")*20);
-                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("warp"))));
+                    movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
+                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
                     CooldownManager.addToCooldown("warp", player);
                 } else {
                     PaperLib.teleportAsync(player, loc);
-                    PaymentManager.withdraw("warp", player);
+                    PaymentManager.getInstance().withdraw("warp", player);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));
                 }
             }

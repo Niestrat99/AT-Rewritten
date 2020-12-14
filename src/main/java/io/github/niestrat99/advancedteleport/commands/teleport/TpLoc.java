@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
@@ -29,7 +30,7 @@ public class TpLoc implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (Config.isFeatureEnabled("teleport")) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.admin.tploc")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;

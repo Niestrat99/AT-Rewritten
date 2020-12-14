@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.utilities;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
@@ -30,24 +31,25 @@ public class AcceptRequest {
     private static void teleport(Player toPlayer, Player fromPlayer, String type) {
         ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toPlayer.getLocation(), fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
         if (!event.isCancelled()) {
-            if (Config.getTeleportTimer(type) > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
+            int warmUp = NewConfig.getInstance().WARM_UPS.valueOf(type).get();
+            if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
                 BukkitRunnable movementtimer = new BukkitRunnable() {
                     @Override
                     public void run() {
                         fromPlayer.teleport(toPlayer);
                         MovementManager.getMovement().remove(fromPlayer.getUniqueId());
                         fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
-                        PaymentManager.withdraw(type, type.equalsIgnoreCase("tpahere") ?  toPlayer : fromPlayer);
+                        PaymentManager.getInstance().withdraw(type, type.equalsIgnoreCase("tpahere") ?  toPlayer : fromPlayer);
 
                     }
                 };
                 MovementManager.getMovement().put(fromPlayer.getUniqueId(), movementtimer);
-                movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer(type)*20);
-                fromPlayer.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer(type))));
+                movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
+                fromPlayer.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
             } else {
                 fromPlayer.teleport(toPlayer);
                 fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
-                PaymentManager.withdraw("tpahere", type.equalsIgnoreCase("tpahere") ?  toPlayer : fromPlayer);
+                PaymentManager.getInstance().withdraw("tpahere", type.equalsIgnoreCase("tpahere") ?  toPlayer : fromPlayer);
             }
         }
     }

@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.events;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,7 +18,7 @@ public class MovementManager implements Listener {
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
-        if (!Config.cancelOnRotate()) {
+        if (!NewConfig.getInstance().CANCEL_WARM_UP_ON_ROTATION.get()) {
             Location locTo = event.getTo();
             Location locFrom = event.getFrom();
             if (locTo.getBlockX() == locFrom.getBlockX() // If the player rotated instead of moved
@@ -27,7 +28,7 @@ public class MovementManager implements Listener {
             }
         }
         UUID uuid = event.getPlayer().getUniqueId();
-        if (Config.cancelOnMovement() && movement.containsKey(uuid)) {
+        if (NewConfig.getInstance().CANCEL_WARM_UP_ON_MOVEMENT.get() && movement.containsKey(uuid)) {
             BukkitRunnable timer = movement.get(uuid);
             timer.cancel();
             event.getPlayer().sendMessage(CustomMessages.getString("Teleport.eventMovement"));

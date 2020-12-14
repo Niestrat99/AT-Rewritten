@@ -1,17 +1,13 @@
 package io.github.niestrat99.advancedteleport.payments;
 
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.payments.types.LevelsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
-import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 

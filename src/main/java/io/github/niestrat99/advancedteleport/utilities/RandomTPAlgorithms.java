@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -33,7 +34,7 @@ public class RandomTPAlgorithms {
 
 
                 boolean b = true;
-                for (String Material: Config.avoidBlocks()) {
+                for (String Material: NewConfig.getInstance().AVOID_BLOCKS.get()) {
                     if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
                         if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
                             location = RandomCoords.generateCoords(world);
@@ -108,7 +109,7 @@ public class RandomTPAlgorithms {
 
                     boolean mustBreak = false;
                     if (currentMat != Material.AIR) {
-                        for (String material : Config.avoidBlocks()) {
+                        for (String material : NewConfig.getInstance().AVOID_BLOCKS.get()) {
                             if (currentMat.name().equalsIgnoreCase(material)) {
                                 mustBreak = true;
                                 break;
@@ -153,7 +154,7 @@ public class RandomTPAlgorithms {
 
 
                 boolean b = true;
-                for (String Material: Config.avoidBlocks()) {
+                for (String Material: NewConfig.getInstance().AVOID_BLOCKS.get()) {
                     if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
                         if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
                             location = RandomCoords.generateCoords(world);

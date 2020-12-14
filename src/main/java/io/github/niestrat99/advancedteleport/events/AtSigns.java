@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.commands.teleport.Tpr;
 import io.github.niestrat99.advancedteleport.commands.warp.Warp;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Warps;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -29,7 +30,7 @@ public class AtSigns implements Listener {
 
     public AtSigns() {
         signRegistry = new HashMap<>();
-        signRegistry.put("warps", new ATSign("Warps", "warps") {
+        signRegistry.put("warps", new ATSign("Warps", NewConfig.getInstance().USE_WARPS.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
                 WarpsCommand.sendWarps(player);
@@ -41,7 +42,7 @@ public class AtSigns implements Listener {
             }
         });
 
-        signRegistry.put("warp", new ATSign("Warp", "warps") {
+        signRegistry.put("warp", new ATSign("Warp", NewConfig.getInstance().USE_WARPS.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
                 if (Warps.getWarps().containsKey(sign.getLine(1))) {
@@ -68,7 +69,7 @@ public class AtSigns implements Listener {
                 }
             }
         });
-        signRegistry.put("home", new ATSign("Home", "homes") {
+        signRegistry.put("home", new ATSign("Home", NewConfig.getInstance().USE_HOMES.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
 
@@ -80,7 +81,7 @@ public class AtSigns implements Listener {
             }
         });
 
-        signRegistry.put("homes", new ATSign("Homes", "homes") {
+        signRegistry.put("homes", new ATSign("Homes", NewConfig.getInstance().USE_HOMES.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
 
@@ -92,7 +93,7 @@ public class AtSigns implements Listener {
             }
         });
 
-        signRegistry.put("bed", new ATSign("Bed", "homes") {
+        signRegistry.put("bed", new ATSign("Bed", NewConfig.getInstance().USE_HOMES.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
                 Location bed = player.getBedSpawnLocation();
@@ -107,7 +108,7 @@ public class AtSigns implements Listener {
             }
         });
 
-        signRegistry.put("spawn", new ATSign("Spawn", "spawn") {
+        signRegistry.put("spawn", new ATSign("Spawn", NewConfig.getInstance().USE_SPAWN.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
                 SpawnCommand.spawn(player);
@@ -119,7 +120,7 @@ public class AtSigns implements Listener {
             }
         });
 
-        signRegistry.put("randomtp", new ATSign("RandomTP", "randomTP") {
+        signRegistry.put("randomtp", new ATSign("RandomTP", NewConfig.getInstance().USE_RANDOMTP.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
                 if (!sign.getLine(1).isEmpty()) {

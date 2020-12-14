@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
@@ -16,13 +17,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.List;
+
 public class Tpr implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player)sender;
-            if (Config.isFeatureEnabled("randomTP")) {
+            if (NewConfig.getInstance().USE_RANDOMTP.get()) {
                 if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                     player.sendMessage(CustomMessages.getString("Error.onCountdown"));
                     return true;
@@ -56,9 +59,25 @@ public class Tpr implements CommandExecutor {
             player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
             return true;
         }
-        if (Config.getBlacklistedTPRWorlds().contains(world.getName()) && !player.hasPermission("at.admin.rtp.bypass-world")) {
-            player.sendMessage(CustomMessages.getString("Error.cantTPToWorld"));
-            return true;
+        if (NewConfig.getInstance().WHITELIST_WORLD.get()) {
+            List<String> allowedWorlds = NewConfig.getInstance().ALLOWED_WORLDS.get();
+            if (!allowedWorlds.contains(world.getName())) {
+                if (!player.hasPermission("at.admin.rtp.bypass-world")) {
+                    if (allowedWorlds.isEmpty()) {
+                        player.sendMessage(CustomMessages.getString("Error.cantTPToWorld"));
+                        return true;
+                    } else {
+                        for (String worldName : allowedWorlds) {
+                            world = Bukkit.getWorld(worldName);
+                            if (world != null) break;
+                        }
+                        if (world == null) {
+                            player.sendMessage(CustomMessages.getString("Error.cantTPToWorld"));
+                            return true;
+                        }
+                    }
+                }
+            }
         }
         if (!PaymentManager.getInstance().canPay("tpr", player)) return false;
         player.sendMessage(CustomMessages.getString("Info.searching"));
@@ -66,23 +85,24 @@ public class Tpr implements CommandExecutor {
             ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
             if (!event.isCancelled()) {
                 CooldownManager.addToCooldown("tpr", player);
-                if (Config.getTeleportTimer("tpr") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+                int warmUp = NewConfig.getInstance().WARM_UPS.TPR.get();
+                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {
                             PaperLib.teleportAsync(player, location);
                             MovementManager.getMovement().remove(player.getUniqueId());
                             player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
-                            PaymentManager.withdraw("tpr", player);
+                            PaymentManager.getInstance().withdraw("tpr", player);
                         }
                     };
                     MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("tpr") * 20);
-                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("tpr"))));
+                    movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
+                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
                 } else {
                     PaperLib.teleportAsync(player, location);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
-                    PaymentManager.withdraw("tpr", player);
+                    PaymentManager.getInstance().withdraw("tpr", player);
                 }
             }
         }));

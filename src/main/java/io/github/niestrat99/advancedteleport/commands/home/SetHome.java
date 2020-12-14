@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Homes;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class SetHome implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (Config.isFeatureEnabled("homes")) {
+        if (NewConfig.getInstance().USE_HOMES.get()) {
             if (sender instanceof Player) {
                 Player player = (Player)sender;
                 if (sender.hasPermission("at.member.sethome")) {
@@ -120,7 +121,7 @@ public class SetHome implements CommandExecutor {
     // at.member.homes.40
     // at.member.homes.100000
     private int getHomesLimit(Player player) {
-        int maxHomes = Config.getDefaultHomesLimit();
+        int maxHomes = NewConfig.getInstance().DEFAULT_HOMES_LIMIT.get();
         for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
             if (permission.getPermission().startsWith("at.member.homes.")) {
                 if (permission.getValue()) {

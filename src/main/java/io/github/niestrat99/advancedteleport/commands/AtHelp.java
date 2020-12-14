@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -54,7 +53,7 @@ public class AtHelp implements CommandExecutor {
                     return true;
                 }
             } else if (args[0].equalsIgnoreCase("Spawn")) {
-                if (Config.isFeatureEnabled("spawn")) {
+                if (NewConfig.getInstance().USE_SPAWN.get()) {
                     for (String str : CustomMessages.Config.getStringList("Help.spawn")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
@@ -69,7 +68,7 @@ public class AtHelp implements CommandExecutor {
                     return true;
                 }
             } else if (args[0].equalsIgnoreCase("RandomTP")) {
-                if (Config.isFeatureEnabled("randomTP")) {
+                if (NewConfig.getInstance().USE_RANDOMTP.get()) {
                     for (String str : CustomMessages.Config.getStringList("Help.randomTP")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
@@ -78,7 +77,7 @@ public class AtHelp implements CommandExecutor {
                 }
                 return true;
             } else if (args[0].equalsIgnoreCase("homes")) {
-                if (Config.isFeatureEnabled("homes")) {
+                if (NewConfig.getInstance().USE_HOMES.get()) {
                     for (String str : CustomMessages.Config.getStringList("Help.homes")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }

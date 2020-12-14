@@ -3,7 +3,9 @@ package io.github.niestrat99.advancedteleport.utilities;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpOff;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.TpBlock;
+import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -47,7 +49,7 @@ public class ConditionChecker {
 
     public static String canTeleport(Location fromLoc, Location toLoc, String command, Player teleportingPlayer) {
         // Check if the player is too far away
-        if (Config.isDistanceLimiterEnabled()) {
+        if (NewConfig.getInstance().ENABLE_DISTANCE_LIMITATIONS.get()) {
             if (!teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")) {
                 if (fromLoc.getWorld() == toLoc.getWorld()) {
                     if (!DistanceLimiter.canTeleport(toLoc, fromLoc, command)) {
@@ -58,25 +60,10 @@ public class ConditionChecker {
         }
 
         // Check if the player is able to teleport between/within worlds
-        if (Config.isTeleportLimiterEnabled()) {
+        if (NewConfig.getInstance().ENABLE_TELEPORT_LIMITATIONS.get()) {
             if (!teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
-                if (Config.hasStrictTeleportLimiter() || command != null) {
-                    if (Config.isTeleportLimiterEnabledForCmd(command)) {
-                        // Check if
-                        if (!Config.isAllowingCrossWorldTeleport()) {
-                            if (fromLoc.getWorld() != toLoc.getWorld()) {
-                                return CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", toLoc.getWorld().getName());
-                            }
-                        }
-
-                        if (!Config.isAllowingTeleportWithinWorlds()) {
-                            if (Config.containsBlacklistedWorld(toLoc.getWorld().getName(), "to")
-                                    || Config.containsBlacklistedWorld(fromLoc.getWorld().getName(), "from")) {
-                                return CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", toLoc.getWorld().getName());
-                            }
-                        }
-                    }
-
+                if (!LimitationsManager.canTeleport(teleportingPlayer, toLoc, command)) {
+                    return CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", toLoc.getWorld().getName());
                 }
             }
         }
