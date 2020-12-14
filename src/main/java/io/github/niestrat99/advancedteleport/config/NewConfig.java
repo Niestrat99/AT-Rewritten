@@ -261,6 +261,66 @@ public class NewConfig extends CMFile {
     }
 
     @Override
+    public void moveToNew() {
+        moveTo("features.teleport", "use-basic-teleport-features");
+        moveTo("features.warps", "use-warps");
+        moveTo("features.spawn", "use-spawn");
+        moveTo("features.randomTP", "use-randomtp");
+        moveTo("features.homes", "use-homes");
+
+        moveTo("timers.teleportTimer", "warm-up-timer-duration");
+        moveTo("timers.cancel-on-rotate", "cancel-warm-up-on-rotation");
+        moveTo("timers.cancel-on-movement", "cancel-warm-up-on-movement");
+        for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+            moveTo("timers.teleportTimers." + command, "per-command-warm-ups." + command);
+        }
+
+        moveTo("cooldowns.default", "cooldown-duration");
+        moveTo("cooldowns.apply-globally", "apply-cooldown-to-all-commands");
+        moveTo("cooldowns.add-to-timer", "add-cooldown-duration-to-warm-up");
+        for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+            moveTo("cooldowns." + command, "per-command-cooldowns." + command);
+        }
+
+        moveTo("distance-limiter.enabled", "enable-distance-limitations");
+        moveTo("distance-limiter.distance-limit", "maximum-teleport-distance");
+        moveTo("distance-limiter.monitor-all-teleports", "monitor-all-teleports-distance");
+
+        boolean defaultVault = getConfig().getBoolean("booleans.useVault");
+        boolean defaultEXP = getConfig().getBoolean("booleans.EXPPayment");
+        int defaultEXPAmount = getConfig().getInt("payments.exp.teleportPrice");
+        double defaultPrice = getConfig().getDouble("payments.vault.teleportPrice");
+
+        StringBuilder builder = new StringBuilder();
+        if (defaultVault) {
+            builder.append(defaultPrice);
+        }
+
+        if (defaultEXP) {
+            if (builder.length() > 0) {
+                builder.append(";");
+            }
+            builder.append(defaultEXPAmount).append("LVL");
+        }
+        if (builder.length() > 0) {
+            set("cost-amount", builder.toString());
+        }
+        for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+            try {
+                if (getConfig().get("payments.vault." + command).equals("default")
+                        && getConfig().get("payments.exp." + command).equals("default")) {
+                    //    set("per-command-cost." + command);
+                }
+            } catch (Exception ignored) {
+
+            }
+
+        }
+
+        moveTo("sounds.tpa.requestSent", "tpa-request-sent");
+    }
+
+    @Override
     public void postSave() {
 
         USE_BASIC_TELEPORT_FEATURES = new ConfigOption<>("use-basic-teleport-features");
@@ -378,6 +438,30 @@ public class NewConfig extends CMFile {
             SPAWN = new ConfigOption<>(path + ".spawn", defaultPath);
             HOME = new ConfigOption<>(path + ".home", defaultPath);
             BACK = new ConfigOption<>(path + ".back", defaultPath);
+        }
+
+        public ConfigOption<T> valueOf(String command) {
+            switch (command) {
+                case "tpa":
+                    return TPA;
+                case "tpahere":
+                    return TPAHERE;
+                case "tpr":
+                    return TPR;
+                case "warp":
+                    return WARP;
+                case "spawn":
+                    return SPAWN;
+                case "home":
+                    return HOME;
+                case "back":
+                    return BACK;
+            }
+            return null;
+        }
+
+        public ConfigOption<T>[] values() {
+            return (ConfigOption<T>[]) new ConfigOption[]{TPA, TPAHERE, TPR, WARP, SPAWN, HOME, BACK};
         }
     }
 }
