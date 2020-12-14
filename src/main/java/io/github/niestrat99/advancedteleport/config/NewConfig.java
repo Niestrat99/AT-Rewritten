@@ -131,6 +131,7 @@ public class NewConfig extends CMFile {
                 "\nIf you want to use Minecraft EXP levels, use 5LVL for 5 levels." +
                 "\nTo use multiple methods of charging, use a ; - e.g. '100.0;10LVL' for $100 and 10 EXP levels.");
 
+        addComment("per-command-cost", "Command-specific costs.");
         addDefault("per-command-cost.tpa", "default", "Cost for /tpa.");
         addDefault("per-command-cost.tpahere", "default", "Cost for /tpahere.");
         addDefault("per-command-cost.tpr", "default", "Cost for /tpr, or /rtp.");
