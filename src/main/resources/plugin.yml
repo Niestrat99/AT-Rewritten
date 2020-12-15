@@ -148,8 +148,10 @@ permissions:
       at.member.tpa: true
       at.member.back: true
       at.member.spawn.use-sign: true
-      at.member.tpr.use-sign: true
+      at.member.randomtp.use-sign: true
       at.member.warp.use-sign: true
+      at.member.warps.use-sign: true
+      at.member.bed.use-sign: true
       at.member.back.death: true
       at.member.warps.location: true
       at.member.homes.location: true
@@ -182,3 +184,8 @@ permissions:
       at.admin.bypass.timer: true
       at.admin.bypass.cooldown: true
       at.admin.request-in-teleport: true
+      at.admin.sign.spawn.create: true
+      at.admin.sign.randomtp.create: true
+      at.admin.sign.warp.create: true
+      at.admin.sign.warps.create: true
+      at.admin.sign.bed.create: true

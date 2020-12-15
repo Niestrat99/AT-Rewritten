@@ -16,17 +16,8 @@ public class TpYes implements CommandExecutor {
         if (sender.hasPermission("at.member.yes")) {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
-                if (TeleportTests.teleportTests(player, args, "tpayes")) {
-                    Player target;
-                    if (args.length > 0) {
-                        target = Bukkit.getPlayer(args[0]);
-                    } else {
-                        target = TPRequest.getRequests(player).get(0).getRequester();
-                    }
-
-                    // Gets the request
-                    TPRequest request = TPRequest.getRequestByReqAndResponder(player, target);
-
+                TPRequest request = TeleportTests.teleportTests(player, args, "tpayes");
+                if (request != null) {
                     // It's not null, we've already run the tests to make sure it isn't
                     AcceptRequest.acceptRequest(request);
                 }

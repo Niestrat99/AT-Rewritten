@@ -3,11 +3,13 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class Tpo implements CommandExecutor {
     @Override
@@ -26,7 +28,7 @@ public class Tpo implements CommandExecutor {
                             sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                         } else {
                             sender.sendMessage(CustomMessages.getString("Teleport.teleporting").replaceAll("\\{player}", target.getName()));
-                            player.teleport(target);
+                            PaperLib.teleportAsync(player, target.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         }
                         return true;
                     } else {

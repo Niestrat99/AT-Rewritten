@@ -15,6 +15,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class SpawnCommand implements CommandExecutor {
@@ -61,7 +62,7 @@ public class SpawnCommand implements CommandExecutor {
                         @Override
                         public void run() {
                             PaymentManager.getInstance().withdraw("spawn", player);
-                            PaperLib.teleportAsync(player, spawn);
+                            PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
                             player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
                             MovementManager.getMovement().remove(player.getUniqueId());
                         }
@@ -72,7 +73,7 @@ public class SpawnCommand implements CommandExecutor {
 
                 } else {
                     PaymentManager.getInstance().withdraw("spawn", player);
-                    PaperLib.teleportAsync(player, spawn);
+                    PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
                 }
             }

@@ -15,6 +15,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
@@ -90,7 +91,7 @@ public class Tpr implements CommandExecutor {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {
-                            PaperLib.teleportAsync(player, location);
+                            PaperLib.teleportAsync(player, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                             MovementManager.getMovement().remove(player.getUniqueId());
                             player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
                             PaymentManager.getInstance().withdraw("tpr", player);
@@ -100,7 +101,7 @@ public class Tpr implements CommandExecutor {
                     movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
                     player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
                 } else {
-                    PaperLib.teleportAsync(player, location);
+                    PaperLib.teleportAsync(player, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
                     PaymentManager.getInstance().withdraw("tpr", player);
                 }

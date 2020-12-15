@@ -7,7 +7,9 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
+import io.papermc.lib.PaperLib;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class AcceptRequest {
@@ -36,7 +38,7 @@ public class AcceptRequest {
                 BukkitRunnable movementtimer = new BukkitRunnable() {
                     @Override
                     public void run() {
-                        fromPlayer.teleport(toPlayer);
+                        PaperLib.teleportAsync(fromPlayer, toPlayer.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         MovementManager.getMovement().remove(fromPlayer.getUniqueId());
                         fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
                         PaymentManager.getInstance().withdraw(type, type.equalsIgnoreCase("tpahere") ?  toPlayer : fromPlayer);
@@ -47,7 +49,7 @@ public class AcceptRequest {
                 movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
                 fromPlayer.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
             } else {
-                fromPlayer.teleport(toPlayer);
+                PaperLib.teleportAsync(fromPlayer, toPlayer.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                 fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
                 PaymentManager.getInstance().withdraw("tpahere", type.equalsIgnoreCase("tpahere") ?  toPlayer : fromPlayer);
             }

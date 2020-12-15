@@ -51,9 +51,9 @@ public class TeleportTrackingManager implements Listener {
                     @Override
                     public void run() {
                         if (Spawn.getSpawnFile() != null) {
-                            PaperLib.teleportAsync(player, Spawn.getSpawnFile());
+                            PaperLib.teleportAsync(player, Spawn.getSpawnFile(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         } else {
-                            PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation());
+                            PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         }
                     }
                 }.runTaskLater(CoreClass.getInstance(), 10);
@@ -63,9 +63,9 @@ public class TeleportTrackingManager implements Listener {
                 @Override
                 public void run() {
                     if (Spawn.getSpawnFile() != null) {
-                        PaperLib.teleportAsync(player, Spawn.getSpawnFile());
+                        PaperLib.teleportAsync(player, Spawn.getSpawnFile(), PlayerTeleportEvent.TeleportCause.COMMAND);
                     } else {
-                        PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation());
+                        PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                     }
                 }
             }.runTaskLater(CoreClass.getInstance(), 10);

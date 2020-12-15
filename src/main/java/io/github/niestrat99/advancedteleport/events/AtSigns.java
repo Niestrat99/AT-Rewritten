@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 public class AtSigns implements Listener {
 
-    private HashMap<String, ATSign> signRegistry;
+    private final HashMap<String, ATSign> signRegistry;
 
     public AtSigns() {
         signRegistry = new HashMap<>();
@@ -91,7 +91,7 @@ public class AtSigns implements Listener {
             public boolean canCreate(Sign sign, Player player) {
                 return false;
             }
-        });
+        }); 
 
         signRegistry.put("bed", new ATSign("Bed", NewConfig.getInstance().USE_HOMES.get()) {
             @Override
@@ -172,44 +172,6 @@ public class AtSigns implements Listener {
             }
         }
     }
-
-  /*  @EventHandler
-    public void onSignInteract(PlayerInteractEvent Sign){
-        if (Sign.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Player player = Sign.getPlayer();
-            Block clickedBlock = Sign.getClickedBlock();
-            BlockState state = clickedBlock.getState();
-            if (state instanceof org.bukkit.block.Sign) {
-                org.bukkit.block.Sign sign = (Sign) state;
-                String line1 = sign.getLine(0);
-                switch (ChatColor.stripColor(line1).toLowerCase()) {
-                    case "[randomtp]":
-                        if (Config.isFeatureEnabled("randomTP")) {
-                            if (player.hasPermission("at.member.tpr.use-sign")) {
-
-                            } else {
-                                player.sendMessage(CustomMessages.getString("Error.noPermission"));
-                            }
-                        }
-                        break;
-                    case "[warp]":
-                        if (Config.isFeatureEnabled("warps")) {
-
-                        }
-                        break;
-                    case "[spawn]":
-                        if (Config.isFeatureEnabled("spawn")) {
-                            if (player.hasPermission("at.member.spawn.use-sign")) {
-                                SpawnCommand.spawn(player);
-                            } else {
-                                player.sendMessage(CustomMessages.getString("Error.noPermission"));
-                            }
-                        }
-                        break;
-                }
-            }
-        }
-    } */
 
     @EventHandler
     public void onSignPlace(SignChangeEvent event){
