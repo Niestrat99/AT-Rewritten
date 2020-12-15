@@ -36,15 +36,6 @@ public class CoreClass extends JavaPlugin {
         return ChatColor.translateAlternateColorCodes('&', title);
     }
 
-
-    // TODO SUGGESTIONS THAT HAVE BEEN MADE
-    // Back command (done)
-    // /rtp <World name> (done)
-    // Custom messages (done)
-    // Payment for more than just /tpa and /tpahere (done)
-    // Payment using items (maybe???)
-    // MySQL compatibility (AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
-
     private static Economy Vault;
     public static WorldBorder worldBorder;
     private static CoreClass Instance;
@@ -78,7 +69,13 @@ public class CoreClass extends JavaPlugin {
     }
 
     private boolean setupPermissions() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        if (rsp == null) {
+            return false;
+        }
         perms = rsp.getProvider();
         return perms != null;
     }

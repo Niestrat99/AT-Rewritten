@@ -27,7 +27,7 @@ public class CooldownManager {
             if (NewConfig.getInstance().ADD_COOLDOWN_DURATION_TO_WARM_UP.get() && !Bukkit.getPlayer(uuid).hasPermission("at.admin.bypass.timer")) {
                 ms += NewConfig.getInstance().WARM_UPS.valueOf(command).get();
             }
-            this.command = command;
+            this.command = getKey(command);
             startingTime = System.currentTimeMillis();
             runTaskLater(CoreClass.getInstance());
         }

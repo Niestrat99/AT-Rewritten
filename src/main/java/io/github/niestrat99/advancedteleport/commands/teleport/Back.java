@@ -17,6 +17,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class Back implements CommandExecutor {
                                 BukkitRunnable movementtimer = new BukkitRunnable() {
                                     @Override
                                     public void run() {
-                                        PaperLib.teleportAsync(player, finalLoc);
+                                        PaperLib.teleportAsync(player, finalLoc, PlayerTeleportEvent.TeleportCause.COMMAND);
                                         MovementManager.getMovement().remove(player.getUniqueId());
                                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                                         PaymentManager.getInstance().withdraw("back", player);
@@ -76,8 +77,9 @@ public class Back implements CommandExecutor {
                                 player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
 
                             } else {
-                                PaperLib.teleportAsync(player, loc);
                                 PaymentManager.getInstance().withdraw("back", player);
+                                PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
+                               
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                             }
                             CooldownManager.addToCooldown("back", player);

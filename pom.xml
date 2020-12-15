@@ -7,7 +7,7 @@
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
   <!--  <packaging>pom</packaging> -->
-    <version>5.4-SNAPSHOT</version>
+    <version>5.4-SNAPSHOT-1</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

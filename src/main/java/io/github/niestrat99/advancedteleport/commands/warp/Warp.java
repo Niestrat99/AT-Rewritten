@@ -15,6 +15,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -122,7 +123,7 @@ public class Warp implements CommandExecutor {
                     BukkitRunnable movementtimer = new BukkitRunnable() {
                         @Override
                         public void run() {
-                            PaperLib.teleportAsync(player, loc);
+                            PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
                             MovementManager.getMovement().remove(player.getUniqueId());
                             player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));
                             PaymentManager.getInstance().withdraw("warp", player);
@@ -134,8 +135,8 @@ public class Warp implements CommandExecutor {
                     player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
                     CooldownManager.addToCooldown("warp", player);
                 } else {
-                    PaperLib.teleportAsync(player, loc);
                     PaymentManager.getInstance().withdraw("warp", player);
+                    PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));
                 }
             }
