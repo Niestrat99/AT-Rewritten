@@ -356,12 +356,12 @@ public class NewConfig extends CMFile {
         WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
-        WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warp-up-timer-duration");
+        WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
 
         COOLDOWN_TIMER_DURATION = new ConfigOption<>("cooldown-duration");
         ADD_COOLDOWN_DURATION_TO_WARM_UP = new ConfigOption<>("add-cooldown-duration-to-warm-up");
         APPLY_COOLDOWN_TO_ALL_COMMANDS = new ConfigOption<>("apply-cooldown-to-all-commands");
-        COOLDOWNS = new PerCommandOption<>("per-command-cooldowns", "warp-up-timer-duration");
+        COOLDOWNS = new PerCommandOption<>("per-command-cooldowns", "cooldown-duration");
 
         COST_AMOUNT = new ConfigOption<>("cost-amount");
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
