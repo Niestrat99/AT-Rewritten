@@ -34,24 +34,13 @@ public class AcceptRequest {
         ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toPlayer.getLocation(), fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
         if (!event.isCancelled()) {
             int warmUp = NewConfig.getInstance().WARM_UPS.valueOf(type).get();
+            Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
             if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
-                BukkitRunnable movementtimer = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        PaperLib.teleportAsync(fromPlayer, toPlayer.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                        MovementManager.getMovement().remove(fromPlayer.getUniqueId());
-                        fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
-                        PaymentManager.getInstance().withdraw(type, type.equalsIgnoreCase("tpahere") ?  toPlayer : fromPlayer);
-
-                    }
-                };
-                MovementManager.getMovement().put(fromPlayer.getUniqueId(), movementtimer);
-                movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
-                fromPlayer.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
+                MovementManager.createMovementTimer(fromPlayer, toPlayer.getLocation(), type, "Teleport.eventTeleport", warmUp, payingPlayer);
             } else {
                 PaperLib.teleportAsync(fromPlayer, toPlayer.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                 fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
-                PaymentManager.getInstance().withdraw("tpahere", type.equalsIgnoreCase("tpahere") ?  toPlayer : fromPlayer);
+                PaymentManager.getInstance().withdraw("tpahere", payingPlayer);
             }
         }
     }

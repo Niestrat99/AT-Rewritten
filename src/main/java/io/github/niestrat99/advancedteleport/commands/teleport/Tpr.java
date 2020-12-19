@@ -90,18 +90,7 @@ public class Tpr implements CommandExecutor {
                 CooldownManager.addToCooldown("tpr", player);
                 int warmUp = NewConfig.getInstance().WARM_UPS.TPR.get();
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    BukkitRunnable movementtimer = new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            PaperLib.teleportAsync(player, location, PlayerTeleportEvent.TeleportCause.COMMAND);
-                            MovementManager.getMovement().remove(player.getUniqueId());
-                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));
-                            PaymentManager.getInstance().withdraw("tpr", player);
-                        }
-                    };
-                    MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                    movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
-                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
+                    MovementManager.createMovementTimer(player, location, "tpr", "Teleport.teleportingToRandomPlace", warmUp);
                 } else {
                     PaperLib.teleportAsync(player, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToRandomPlace"));

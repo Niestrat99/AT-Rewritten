@@ -151,19 +151,7 @@ public class Home implements CommandExecutor {
                     CooldownManager.addToCooldown("home", player);
                     int warmUp = NewConfig.getInstance().WARM_UPS.HOME.get();
                     if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                        BukkitRunnable movementtimer = new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
-                                PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
-                                MovementManager.getMovement().remove(player.getUniqueId());
-                                PaymentManager.getInstance().withdraw("home", player);
-                            }
-                        };
-                        MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                        movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
-                        player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(warmUp)));
-
+                        MovementManager.createMovementTimer(player, loc, "home", "Teleport.teleportingToHome", warmUp, "\\{home}", name);
                     } else {
                         player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}",name));
                         PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);

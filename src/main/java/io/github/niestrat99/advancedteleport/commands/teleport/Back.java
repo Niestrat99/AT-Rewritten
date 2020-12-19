@@ -62,20 +62,7 @@ public class Back implements CommandExecutor {
                         if (PaymentManager.getInstance().canPay("back", player)) {
                             int warmUp = NewConfig.getInstance().WARM_UPS.BACK.get();
                             if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                                BukkitRunnable movementtimer = new BukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        PaperLib.teleportAsync(player, finalLoc, PlayerTeleportEvent.TeleportCause.COMMAND);
-                                        MovementManager.getMovement().remove(player.getUniqueId());
-                                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
-                                        PaymentManager.getInstance().withdraw("back", player);
-
-                                    }
-                                };
-                                MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                                movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
-                                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
-
+                                MovementManager.createMovementTimer(player, finalLoc, "back", "Teleport.teleportingToLastLoc", warmUp);
                             } else {
                                 PaymentManager.getInstance().withdraw("back", player);
                                 PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);

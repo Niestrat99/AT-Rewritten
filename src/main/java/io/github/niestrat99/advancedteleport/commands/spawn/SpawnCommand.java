@@ -58,18 +58,7 @@ public class SpawnCommand implements CommandExecutor {
                 CooldownManager.addToCooldown("spawn", player);
                 int warmUp = NewConfig.getInstance().WARM_UPS.SPAWN.get();
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    BukkitRunnable movementtimer = new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            PaymentManager.getInstance().withdraw("spawn", player);
-                            PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
-                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
-                            MovementManager.getMovement().remove(player.getUniqueId());
-                        }
-                    };
-                    MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                    movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
-                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(warmUp)));
+                    MovementManager.createMovementTimer(player, spawn, "spawn", "Teleport.teleportingToSpawn", warmUp);
 
                 } else {
                     PaymentManager.getInstance().withdraw("spawn", player);

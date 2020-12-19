@@ -120,19 +120,7 @@ public class Warp implements CommandExecutor {
             if (PaymentManager.getInstance().canPay("warp", player)) {
                 int warmUp = NewConfig.getInstance().WARM_UPS.WARP.get();
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    BukkitRunnable movementtimer = new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
-                            MovementManager.getMovement().remove(player.getUniqueId());
-                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", name));
-                            PaymentManager.getInstance().withdraw("warp", player);
-
-                        }
-                    };
-                    MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                    movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
-                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
+                    MovementManager.createMovementTimer(player, loc, "warp", "Teleport.teleportingToWarp", warmUp, "\\{warp}", name);
                     CooldownManager.addToCooldown("warp", player);
                 } else {
                     PaymentManager.getInstance().withdraw("warp", player);

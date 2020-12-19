@@ -1,12 +1,17 @@
 package io.github.niestrat99.advancedteleport.events;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -40,5 +45,33 @@ public class MovementManager implements Listener {
 
     public static HashMap<UUID, BukkitRunnable> getMovement() {
         return movement;
+    }
+
+    public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, String... placeholders) {
+        createMovementTimer(teleportingPlayer, location, command, message, warmUp, teleportingPlayer, placeholders);
+    }
+    public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, Player payingPlayer, String... placeholders) {
+        UUID uuid = teleportingPlayer.getUniqueId();
+        String actualMessage = CustomMessages.getString(message);
+        for (int i = 0; i < placeholders.length; i += 2) {
+            if (i > placeholders.length - 2) break;
+            actualMessage = actualMessage.replaceAll(placeholders[i], placeholders[i + 1]);
+        }
+        final String finalMessage = actualMessage;
+        BukkitRunnable movementtimer = new BukkitRunnable() {
+            @Override
+            public void run() {
+                PaperLib.teleportAsync(teleportingPlayer, location, PlayerTeleportEvent.TeleportCause.COMMAND);
+                movement.remove(uuid);
+
+                teleportingPlayer.sendMessage(finalMessage);
+                PaymentManager.getInstance().withdraw(command, payingPlayer);
+
+            }
+        };
+        movement.put(uuid, movementtimer);
+        movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
+        teleportingPlayer.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
+
     }
 }
