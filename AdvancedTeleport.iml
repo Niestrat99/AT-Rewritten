@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
@@ -25,6 +25,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.PryPurity:WorldBorder:v2.1.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.spigotmc:spigot:1.16.2-R0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.github.Thatsmusic99:ConfigurationMaster:v1.0-SNAPSHOT-6" level="project" />
+    <orderEntry type="library" name="Maven: com.github.Thatsmusic99:ConfigurationMaster:v1.0-SNAPSHOT-7" level="project" />
   </component>
 </module>
