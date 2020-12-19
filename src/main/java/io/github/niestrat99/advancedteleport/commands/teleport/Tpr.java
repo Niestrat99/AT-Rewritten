@@ -46,7 +46,9 @@ public class Tpr implements CommandExecutor {
                     }
                     return randomTeleport(player, world);
                 }
-
+            } else {
+                sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+                return true;
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
