@@ -481,7 +481,7 @@ public class NewConfig extends CMFile {
         }
 
         public T get() {
-            if (defaultPath != null) {
+            if (defaultPath != null && !defaultPath.isEmpty()) {
                 if (instance.getConfig().get(path).equals("default")) {
                     return (T) instance.getConfig().get(defaultPath);
                 } else {
