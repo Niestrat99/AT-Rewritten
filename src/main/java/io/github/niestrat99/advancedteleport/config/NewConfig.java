@@ -1,9 +1,13 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.CMFile;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,15 +70,16 @@ public class NewConfig extends CMFile {
 
     public ConfigOption<ConfigurationSection> DEATH_MANAGEMENT;
 
-    public ConfigOption<String> DEFAULT_PERMISSIONS;
+    public ConfigOption<List<String>> DEFAULT_PERMISSIONS;
     public ConfigOption<Boolean> ALLOW_ADMIN_PERMS;
 
     private static NewConfig instance;
+    private static List<String> defaults;
     /**
      *
      */
     public NewConfig() {
-        super(CoreClass.getInstance(), "config-new");
+        super(CoreClass.getInstance(), "config");
     }
 
     @Override
@@ -268,6 +273,7 @@ public class NewConfig extends CMFile {
         moveTo("features.randomTP", "use-randomtp");
         moveTo("features.homes", "use-homes");
 
+        moveTo("timers.requestLifetime", "request-lifetime");
         moveTo("timers.teleportTimer", "warm-up-timer-duration");
         moveTo("timers.cancel-on-rotate", "cancel-warm-up-on-rotation");
         moveTo("timers.cancel-on-movement", "cancel-warm-up-on-movement");

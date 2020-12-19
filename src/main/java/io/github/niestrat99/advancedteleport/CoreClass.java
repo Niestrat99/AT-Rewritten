@@ -73,9 +73,7 @@ public class CoreClass extends JavaPlugin {
             return false;
         }
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-        if (rsp == null) {
-            return false;
-        }
+        if (rsp == null) return false;
         perms = rsp.getProvider();
         return perms != null;
     }
@@ -86,7 +84,7 @@ public class CoreClass extends JavaPlugin {
         System.out.println("Advanced Teleport is now enabling...");
         try {
             config = new NewConfig();
-            Config.setDefaults();
+        //    Config.setDefaults();
             CustomMessages.setDefaults();
             Homes.save();
             LastLocations.save();
@@ -107,7 +105,7 @@ public class CoreClass extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Config.setupDefaults();
+                // Config.setupDefaults();
                 Object[] update = UpdateChecker.getUpdate();
                 if (update != null) {
                     getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));
