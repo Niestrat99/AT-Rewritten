@@ -18,7 +18,9 @@ public class MovementManager implements Listener {
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
-        if (!NewConfig.getInstance().CANCEL_WARM_UP_ON_ROTATION.get()) {
+        boolean cancelOnRotate = NewConfig.getInstance().CANCEL_WARM_UP_ON_ROTATION.get();
+        boolean cancelOnMove = NewConfig.getInstance().CANCEL_WARM_UP_ON_MOVEMENT.get();
+        if (!cancelOnRotate) {
             Location locTo = event.getTo();
             Location locFrom = event.getFrom();
             if (locTo.getBlockX() == locFrom.getBlockX() // If the player rotated instead of moved
@@ -28,7 +30,7 @@ public class MovementManager implements Listener {
             }
         }
         UUID uuid = event.getPlayer().getUniqueId();
-        if (NewConfig.getInstance().CANCEL_WARM_UP_ON_MOVEMENT.get() && movement.containsKey(uuid)) {
+        if ((cancelOnRotate || cancelOnMove) && movement.containsKey(uuid)) {
             BukkitRunnable timer = movement.get(uuid);
             timer.cancel();
             event.getPlayer().sendMessage(CustomMessages.getString("Teleport.eventMovement"));
