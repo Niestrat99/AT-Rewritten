@@ -68,6 +68,10 @@ public class RandomTPAlgorithms {
                 World world = player.getWorld();
                 // Generate random coordinates
                 Location location = RandomCoords.generateCoords(world);
+                // Whilst the location is too far away...
+                while (!ConditionChecker.canTeleport(player.getLocation(), location, "tpr", player).isEmpty()) {
+                    location = RandomCoords.generateCoords(world);
+                }
                 // Set the Y coordinate to 128
                 location.setY(128);
                 // This is how much we'll jump by at first
