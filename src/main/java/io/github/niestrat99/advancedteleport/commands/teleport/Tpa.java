@@ -46,13 +46,13 @@ public class Tpa implements CommandExecutor {
                                         .replaceAll("\\{player}", target.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
 
-                                CoreClass.playSound("tpa", "requestSent", player);
+                                CoreClass.playSound("tpa", "sent", player);
 
                                 target.sendMessage(CustomMessages.getString("Info.tpaRequestReceived")
                                         .replaceAll("\\{player}", sender.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
 
-                                CoreClass.playSound("tpa", "requestReceived", target);
+                                CoreClass.playSound("tpa", "received", target);
 
                                 BukkitRunnable run = new BukkitRunnable() {
                                     @Override
