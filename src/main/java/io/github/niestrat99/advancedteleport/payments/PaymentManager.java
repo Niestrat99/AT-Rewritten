@@ -34,6 +34,12 @@ public class PaymentManager {
         String[] rawPayments = String.valueOf(value).split(";");
         for (String rawPayment : rawPayments) {
             try {
+                if (rawPayment.length() - 3 <= 0) {
+                    if (CoreClass.getVault() != null) {
+                        payments.add(new VaultPayment(Double.parseDouble(rawPayment)));
+                    }
+                    continue;
+                }
                 String points = rawPayment.substring(0, rawPayment.length() - 3);
                 if (rawPayment.endsWith("LVL")) {
                     payments.add(new LevelsPayment(Integer.parseInt(points)));
