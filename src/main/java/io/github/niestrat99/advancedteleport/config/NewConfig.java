@@ -313,10 +313,35 @@ public class NewConfig extends CMFile {
         }
         for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
             try {
-                if (getConfig().get("payments.vault." + command).equals("default")
-                        && getConfig().get("payments.exp." + command).equals("default")) {
-                    //    set("per-command-cost." + command);
+                Object vault = getConfig().get("payments.vault." + command + ".price");
+                Object exp = getConfig().get("payments.exp." + command + ".price");
+                boolean vaultOn = getConfig().get("payments.vault." + command + ".enabled").equals("default")
+                        ? defaultVault : getConfig().getBoolean("payments.vault." + command + ".enabled");
+                boolean expOn = getConfig().get("payments.exp." + command + ".enabled").equals("default")
+                        ? defaultEXP : getConfig().getBoolean("payments.exp." + command + ".enabled");
+                StringBuilder paymentCombination = new StringBuilder();
+                if (vaultOn) {
+                    if (vault.equals("default")) {
+                        paymentCombination.append(defaultPrice);
+                    } else {
+                        paymentCombination.append(vault);
+                    }
+                    if (expOn) paymentCombination.append(";");
                 }
+
+                if (expOn) {
+                    if (exp.equals("default")) {
+                        paymentCombination.append(defaultEXPAmount).append("LVL");
+                    } else {
+                        paymentCombination.append(exp).append("LVL");
+                    }
+                }
+
+                if (paymentCombination.length() == 0) {
+                    paymentCombination.append("default");
+                }
+                set("per-command-cost." + command, paymentCombination.toString());
+
             } catch (Exception ignored) {
 
             }

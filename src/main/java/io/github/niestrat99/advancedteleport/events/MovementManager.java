@@ -50,6 +50,7 @@ public class MovementManager implements Listener {
     public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, String... placeholders) {
         createMovementTimer(teleportingPlayer, location, command, message, warmUp, teleportingPlayer, placeholders);
     }
+
     public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, Player payingPlayer, String... placeholders) {
         UUID uuid = teleportingPlayer.getUniqueId();
         String actualMessage = CustomMessages.getString(message);
