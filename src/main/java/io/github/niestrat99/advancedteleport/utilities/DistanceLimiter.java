@@ -14,7 +14,7 @@ public class DistanceLimiter {
         } else {
             allowedDistance = NewConfig.getInstance().DISTANCE_LIMITS.valueOf(command).get();
         }
-        if (NewConfig.getInstance().ENABLE_TELEPORT_LIMITATIONS.get() && allowedDistance > 0) {
+        if (NewConfig.getInstance().ENABLE_DISTANCE_LIMITATIONS.get() && allowedDistance > 0) {
             if (loc1.getWorld() != loc2.getWorld()) return true;
             // ((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1))^0.5
             double distance = Math.pow((Math.pow(loc2.getX() - loc1.getX(), 2)
