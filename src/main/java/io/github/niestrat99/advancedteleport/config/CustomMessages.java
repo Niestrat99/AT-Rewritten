@@ -51,6 +51,8 @@ public class CustomMessages {
         Config.addDefault("Error.alreadySentRequest", "&cYou've already sent a request to &e{player}&c!");
         Config.addDefault("Error.notEnoughEXP", "&cYou do not have enough EXP Levels to teleport there!" +
                 "\n&cYou need at least &e{levels} &cEXP levels!");
+        Config.addDefault("Error.notEnoughEXPPoints", "&cYou do not have enough EXP Points to teleport there!" +
+                "\n&cYou need at least &e{points} &cEXP points!");
         Config.addDefault("Error.notEnoughMoney", "&cYou do not have enough money to teleport there!" +
                 "\n&cYou need at least &e${amount}&c!");
         Config.addDefault("Error.requestExpired", "&cYour teleport request to &e{player} &chas expired!");
