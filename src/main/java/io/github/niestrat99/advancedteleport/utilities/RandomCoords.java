@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
 import com.wimbli.WorldBorder.BorderData;
-import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Location;
 import org.bukkit.World;

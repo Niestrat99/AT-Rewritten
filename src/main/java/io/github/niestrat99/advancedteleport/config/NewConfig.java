@@ -80,6 +80,10 @@ public class NewConfig extends CMFile {
      */
     public NewConfig() {
         super(CoreClass.getInstance(), "config");
+        addLink("SpigotMC", "https://www.spigotmc.org/resources/advanced-teleport.64139/");
+        addLink("Wiki", "https://github.com/Niestrat99/AT-Rewritten/wiki");
+        addLink("Discord", "https://discord.gg/mgWbbN4");
+        load();
     }
 
     @Override
@@ -161,11 +165,13 @@ public class NewConfig extends CMFile {
         addDefault("per-command-distance-limitations.home", "default", "Distance limit for /home");
         addDefault("per-command-distance-limitations.back", "default", "Distance limit for /back");
 
+        addSection("Teleportation Limitations");
+
         addComment("WARNING: A lot of the options below are considered advanced and use special syntax that is not often accepted in YAML.\n" +
                 "When using such options, wrap them in quotes: ''\n" +
                 "As an example, 'stop-teleportation-out:world,world_nether'");
 
-        addDefault("enable-teleport-limitations", false, "Teleportation Limitations",
+        addDefault("enable-teleport-limitations", false,
                 "Enables teleport limitations. This means cross-world or even world teleportation can be limited within specific worlds.");
         addDefault("monitor-all-teleports-limitations", false, "Whether or not all teleportation - not just AT's - should be checked to see if teleportation is allowed.");
 
@@ -480,15 +486,6 @@ public class NewConfig extends CMFile {
             permObject.setDefault(PermissionDefault.TRUE);
             defaults.add(permission);
         }
-    }
-
-    @Override
-    public HashMap<String, String> getExternalLinks() {
-        HashMap<String, String> links = new HashMap<>();
-        links.put("SpigotMC", "https://www.spigotmc.org/resources/advanced-teleport.64139/");
-        links.put("Wiki", "https://github.com/Niestrat99/AT-Rewritten/wiki");
-        links.put("Discord", "https://discord.gg/mgWbbN4");
-        return links;
     }
 
     public static class ConfigOption<T> {
