@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 public abstract class Payment {
 
     public abstract double getPaymentAmount();
+    public abstract void setPaymentAmount(double amount);
     public abstract double getPlayerAmount(Player player);
     public abstract String getMessagePath();
 
@@ -19,10 +20,7 @@ public abstract class Payment {
     public boolean withdraw(Player player) {
         if (canPay(player)) {
             setPlayerAmount(player);
-            player.sendMessage(
-                    CustomMessages.getString(getMessagePath())
-                            .replaceAll("\\{amount}", String.valueOf(getPaymentAmount()))
-                            .replaceAll("\\{levels}", String.valueOf(player.getLevel())));
+
             return true;
         }
         return false;

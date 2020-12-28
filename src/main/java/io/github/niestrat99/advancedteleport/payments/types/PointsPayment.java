@@ -1,14 +1,17 @@
 package io.github.niestrat99.advancedteleport.payments.types;
 
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.payments.Payment;
 import org.bukkit.entity.Player;
 
 public class PointsPayment extends Payment {
 
-    private float points;
+    private int points;
+    private LevelsPayment levels;
 
-    public PointsPayment(float points) {
+    public PointsPayment(int points) {
         this.points = points;
+        this.levels = null;
     }
 
     @Override
@@ -17,8 +20,42 @@ public class PointsPayment extends Payment {
     }
 
     @Override
+    public void setPaymentAmount(double amount) {
+        points = (int) amount;
+    }
+
+    public void addLevels(LevelsPayment levels) {
+        if (this.levels == null) {
+            this.levels = levels;
+        } else {
+            this.levels.setPaymentAmount(this.levels.getPaymentAmount() + levels.getPaymentAmount());
+        }
+    }
+
+    @Override
     public double getPlayerAmount(Player player) {
-        return player.getExp();
+        return player.getTotalExperience();
+    }
+
+    @Override
+    public boolean canPay(Player player) {
+        int requiredPoints = points;
+        if (levels != null) {
+            if (levels.getPaymentAmount() > player.getLevel()) {
+                player.sendMessage(CustomMessages.getString("Error.notEnoughEXP")
+                        .replaceAll("\\{levels}", String.valueOf(levels.getPaymentAmount())));
+                return false;
+            }
+            int expPoints = getEXPBetweenLevels(player.getLevel());
+            requiredPoints += expPoints;
+        }
+        if (player.getTotalExperience() >= requiredPoints) {
+            return true;
+        } else {
+            player.sendMessage(CustomMessages.getString("Error.notEnoughEXPPoints")
+                    .replaceAll("\\{points}", String.valueOf(requiredPoints)));
+            return false;
+        }
     }
 
     @Override
@@ -28,6 +65,36 @@ public class PointsPayment extends Payment {
 
     @Override
     public void setPlayerAmount(Player player) {
-        player.setExp(player.getExp() - points);
+        int expPoints = getEXPBetweenLevels(player.getLevel());
+        player.giveExp(-points);
+        player.giveExp(-expPoints);
+        if (expPoints > 0) {
+            player.sendMessage(
+                    CustomMessages.getString("Info.paymentEXP")
+                            .replaceAll("\\{amount}", String.valueOf(levels.getPaymentAmount()))
+                            .replaceAll("\\{levels}", String.valueOf(player.getLevel())));
+        }
+    }
+
+    protected int getEXPBetweenLevels(int startingLevel) {
+        // Store the calculated points too.
+        int expPoints = 0;
+        // If there's no levels though, return 0.
+        if (levels == null) return 0;
+        // Next, we need to calculate the amount of EXP points to deduct.
+        // Let's remove 1 off the current level each time.
+        for (int i = 0; i < levels.getPaymentAmount(); i++) {
+            // Get the resulting level.
+            int level = startingLevel - i - 1;
+            // If the level is 0-15:
+            if (level < 16) {
+                expPoints += 2 * level + 7;
+            } else if (level < 31) {
+                expPoints += 5 * level - 38;
+            } else {
+                expPoints += 9 * level - 158;
+            }
+        }
+        return expPoints;
     }
 }

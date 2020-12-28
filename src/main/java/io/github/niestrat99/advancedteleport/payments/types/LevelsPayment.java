@@ -13,7 +13,12 @@ public class LevelsPayment extends Payment {
 
     @Override
     public double getPaymentAmount() {
-        return 0;
+        return levels;
+    }
+
+    @Override
+    public void setPaymentAmount(double amount) {
+        this.levels = (int) amount;
     }
 
     @Override
@@ -28,6 +33,7 @@ public class LevelsPayment extends Payment {
 
     @Override
     public void setPlayerAmount(Player player) {
-        player.setLevel(player.getLevel() - levels);
     }
+
+
 }

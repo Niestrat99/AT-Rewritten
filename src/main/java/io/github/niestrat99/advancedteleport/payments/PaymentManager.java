@@ -13,7 +13,7 @@ import java.util.List;
 
 public class PaymentManager {
 
-    private HashMap<String, List<Payment>> teleportCosts;
+    private HashMap<String, HashMap<String, Payment>> teleportCosts;
 
     private static PaymentManager instance;
 
@@ -30,24 +30,24 @@ public class PaymentManager {
     }
 
     private void addCommand(String command, Object value) {
-        List<Payment> payments = new ArrayList<>();
+        HashMap<String, Payment> payments = new HashMap<>();
         String[] rawPayments = String.valueOf(value).split(";");
         for (String rawPayment : rawPayments) {
             try {
                 if (rawPayment.length() - 3 <= 0) {
                     if (CoreClass.getVault() != null) {
-                        payments.add(new VaultPayment(Double.parseDouble(rawPayment)));
+                        addPayment("vault", new VaultPayment(Double.parseDouble(rawPayment)), payments);
                     }
                     continue;
                 }
                 String points = rawPayment.substring(0, rawPayment.length() - 3);
                 if (rawPayment.endsWith("LVL")) {
-                    payments.add(new LevelsPayment(Integer.parseInt(points)));
+                    addPayment("levels", new LevelsPayment(Integer.parseInt(points)), payments);
                 } else if (rawPayment.endsWith("EXP")) {
-                    payments.add(new PointsPayment(Integer.parseInt(points)));
+                    addPayment("exp", new PointsPayment(Integer.parseInt(points)), payments);
                 } else {
                     if (CoreClass.getVault() != null) {
-                        payments.add(new VaultPayment(Double.parseDouble(rawPayment)));
+                        addPayment("vault", new VaultPayment(Double.parseDouble(rawPayment)), payments);
                     }
                 }
             } catch (Exception e) {
@@ -57,10 +57,31 @@ public class PaymentManager {
         teleportCosts.put(command, payments);
     }
 
+    private void addPayment(String type, Payment payment, HashMap<String, Payment> currentPayMethods) {
+        if (type.equalsIgnoreCase("levels")) {
+            if (currentPayMethods.containsKey("exp")) {
+                PointsPayment existingPayment = (PointsPayment) currentPayMethods.get("exp");
+                existingPayment.addLevels((LevelsPayment) payment);
+            } else {
+                PointsPayment newPayment = new PointsPayment(0);
+                newPayment.addLevels((LevelsPayment) payment);
+                currentPayMethods.put("exp", newPayment);
+            }
+        } else {
+            if (currentPayMethods.containsKey(type)) {
+                Payment existingPayment = currentPayMethods.get(type);
+                existingPayment.setPaymentAmount(payment.getPaymentAmount() + existingPayment.getPaymentAmount());
+            } else {
+                currentPayMethods.put(type, payment);
+            }
+        }
+
+    }
+
     // Method used to check if a player can pay for using a command
     public boolean canPay(String command, Player player) {
         if (player.hasPermission("at.admin.bypass.payment")) return true;
-        for (Payment payment : teleportCosts.get(command)) {
+        for (Payment payment : teleportCosts.get(command).values()) {
             if (!payment.canPay(player)) {
                 return false;
             }
@@ -71,7 +92,7 @@ public class PaymentManager {
     // Method used to manage payments
     public void withdraw(String command, Player player) {
         if (!player.hasPermission("at.admin.bypass")) {
-            for (Payment payment : teleportCosts.get(command)) {
+            for (Payment payment : teleportCosts.get(command).values()) {
                 payment.withdraw(player);
             }
         }
