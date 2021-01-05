@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.CMFile;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
@@ -184,6 +185,8 @@ public class NewConfig extends CMFile {
                 "For out and into rules, you can make it so that rules only initiate when in or going to a specific world using :, e.g. stop-teleportation-out:world stops players teleporting to \"world\" in the world they're currently in.\n" +
                 "To do the opposite (i.e. initiates the rule when users are not in the specified world), use !, e.g. stop-teleportation-into!world stops teleportation into a specific world if they are not in \"world\". If ! and : are used in the same rule, then : is given top priority." +
                 "To make this rule work with multiple worlds, use a comma (,), e.g. stop-teleportation-into:world,world_nether");
+
+        addLenientSection("world-rules");
         addDefault("world-rules.default", "stop-teleportation-within");
         addExample("world-rules.world", "default");
         addExample("world-rules.world_nether", "stop-teleportation-into!world", "Stops people teleporting into the Nether if they're not coming from \"world\"");
@@ -251,6 +254,8 @@ public class NewConfig extends CMFile {
                 "- warp:Warp Name - Teleports the player to a specified warp. For example, if you want to teleport to Hub, you'd type warp:Hub\n" +
                 "- {default} - Uses the default respawn option, which is spawn unless set differently.\n" +
                 "If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.");
+
+        addLenientSection("death-management");
         addDefault("death-management.default", "spawn");
         addExample("death-management.world", "{default}");
         addExample("death-management.special-world", "warp:Special");
