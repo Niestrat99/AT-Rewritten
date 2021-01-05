@@ -56,13 +56,12 @@ public class Back implements CommandExecutor {
                         }
                         loc.add(0.0, 1.0, 0.0);
                     }
-                    ATTeleportEvent event = new ATTeleportEvent(player, player.getLocation(), loc, "back", ATTeleportEvent.TeleportType.BACK);
+                    ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
                     if (!event.isCancelled()) {
-                        Location finalLoc = loc;
                         if (PaymentManager.getInstance().canPay("back", player)) {
                             int warmUp = NewConfig.getInstance().WARM_UPS.BACK.get();
                             if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                                MovementManager.createMovementTimer(player, finalLoc, "back", "Teleport.teleportingToLastLoc", warmUp);
+                                MovementManager.createMovementTimer(player, loc, "back", "Teleport.teleportingToLastLoc", warmUp);
                             } else {
                                 PaymentManager.getInstance().withdraw("back", player);
                                 PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
