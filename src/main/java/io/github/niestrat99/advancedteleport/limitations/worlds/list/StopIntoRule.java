@@ -13,11 +13,13 @@ public class StopIntoRule extends WorldRule {
     @Override
     public boolean canTeleport(Player player, Location toLoc) {
         String fromWorld = player.getLocation().getWorld().getName();
+        if (worlds.isEmpty()) {
+            return toLoc.getWorld().getName().equals(fromWorld);
+        }
         // If inclusive (1) and contains world (0), allow
         // If not inclusive (0) and contains world (0), deny
         // If not inclusive (0) and doesn't contain world (1), allow
         // If inclusive (1) and doesn't contain world (1), deny
-        if (inclusive ^ !worlds.contains(fromWorld)) return true;
-        return false;
+        return inclusive ^ worlds.contains(fromWorld);
     }
 }

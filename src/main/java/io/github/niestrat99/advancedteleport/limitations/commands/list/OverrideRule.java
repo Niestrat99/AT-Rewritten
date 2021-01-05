@@ -17,11 +17,10 @@ public class OverrideRule extends CommandRule {
         // If not inclusive (0) and contains world (0), deny
         // If not inclusive (0) and doesn't contain world (1), allow
         // If inclusive (1) and doesn't contain world (1), deny
+        String toWorld = toLoc.getWorld().getName();
         if (inclusive ^ !worlds.contains(fromWorld)) {
-            // Same goes for this
-            String toWorld = toLoc.getWorld().getName();
-            return inclusive ^ !worlds.contains(">" + toWorld);
+            return true;
         }
-        return false;
+        return (inclusive ^ !worlds.contains(">" + toWorld));
     }
 }

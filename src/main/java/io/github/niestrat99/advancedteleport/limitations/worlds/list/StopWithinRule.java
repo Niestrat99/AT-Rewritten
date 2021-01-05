@@ -12,6 +12,6 @@ public class StopWithinRule extends WorldRule {
 
     @Override
     public boolean canTeleport(Player player, Location toLoc) {
-        return player.getWorld().getName().equals(toLoc.getWorld().getName());
+        return !player.getWorld().getName().equals(toLoc.getWorld().getName());
     }
 }

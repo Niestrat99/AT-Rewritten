@@ -14,6 +14,7 @@ public abstract class WorldRule {
 
     public WorldRule(String worldRule) {
         worlds = new ArrayList<>();
+        if (worldRule.isEmpty()) return;
         if (worldRule.contains(":")) {
             inclusive = true;
             worldRule = worldRule.replaceFirst(":", "");
