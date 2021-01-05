@@ -37,6 +37,7 @@ public class CommandRuleManager {
 
     public int canTeleport(Player player, Location toLoc, String command) {
         List<CommandRule> rules = this.rules.get(command);
+        if (rules == null) return 0;
         for (CommandRule rule : rules) {
             if (rule instanceof IgnoreRule) {
                 if (!rule.canTeleport(player, toLoc)) return -1;
