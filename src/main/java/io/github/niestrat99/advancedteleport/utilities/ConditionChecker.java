@@ -62,6 +62,7 @@ public class ConditionChecker {
         // Check if the player is able to teleport between/within worlds
         if (NewConfig.getInstance().ENABLE_TELEPORT_LIMITATIONS.get()) {
             if (!teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
+                if (!NewConfig.getInstance().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return "";
                 if (!LimitationsManager.canTeleport(teleportingPlayer, toLoc, command)) {
                     return CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", toLoc.getWorld().getName());
                 }
