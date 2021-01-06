@@ -86,7 +86,11 @@ public class Tpr implements CommandExecutor {
         RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world, location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
             ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
             if (!event.isCancelled()) {
-                CooldownManager.addToCooldown("tpr", player);
+                // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
+                String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                    CooldownManager.addToCooldown("tpr", player);
+                }
                 int warmUp = NewConfig.getInstance().WARM_UPS.TPR.get();
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     MovementManager.createMovementTimer(player, location, "tpr", "Teleport.teleportingToRandomPlace", warmUp);

@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
@@ -41,6 +42,10 @@ public class AcceptRequest {
                 PaperLib.teleportAsync(fromPlayer, toPlayer.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                 fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
                 PaymentManager.getInstance().withdraw("tpahere", payingPlayer);
+                // If the cooldown is to be applied after only after a teleport takes place, apply it now
+                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+                    CooldownManager.addToCooldown(type, payingPlayer);
+                }
             }
         }
     }

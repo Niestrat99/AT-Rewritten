@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
+import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -67,7 +68,10 @@ public class MovementManager implements Listener {
 
                 teleportingPlayer.sendMessage(finalMessage);
                 PaymentManager.getInstance().withdraw(command, payingPlayer);
-
+                // If the cooldown is to be applied after only after a teleport takes place, apply it now
+                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+                    CooldownManager.addToCooldown(command, payingPlayer);
+                }
             }
         };
         movement.put(uuid, movementtimer);

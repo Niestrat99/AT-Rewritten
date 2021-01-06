@@ -32,6 +32,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Integer> COOLDOWN_TIMER_DURATION;
     public ConfigOption<Boolean> ADD_COOLDOWN_DURATION_TO_WARM_UP;
     public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS;
+    public ConfigOption<String> APPLY_COOLDOWN_AFTER;
     public PerCommandOption<Integer> COOLDOWNS;
 
     public ConfigOption<Object> COST_AMOUNT;
@@ -125,6 +126,14 @@ public class NewConfig extends CMFile {
         addDefault("apply-cooldown-to-all-commands", false, "Whether or not the cooldown of one command will stop a user from using all commands.\n" +
                 "For example, if a player used /tpa with a cooldown of 10 seconds but then used /tpahere with a cooldown of 5, the 10-second cooldown would still apply.\n" +
                 "On the other hand, if a player used /tpahere, the cooldown of 5 seconds would apply to /tpa and other commands.");
+        addDefault("apply-cooldown-after", "request", "When to apply the cooldown\n" +
+                        "Options include:\n" +
+                        "- request - Cooldown starts as soon as any teleport command is made and still applies even if no teleport takes place (i.e. cancelled by movement or not accepted).\n" +
+                        "- accept - Cooldown starts only when the teleport request is accepted (with /tpyes) and still applies even if no teleport takes place (i.e. cancelled by movement).\n" +
+                        "- teleport - Cooldown starts only when the teleport actually happens.\n" +
+                        "Note:\n" +
+                        "'request' and 'accept' behave the same for /rtp, /back, /spawn, /warp, and /home\n" +
+                        "cooldown for /tpall always starts when the command is ran, regardless if any player accepts or teleports");
 
         addComment("per-command-cooldowns", "Command-specific cooldowns.");
         addDefault("per-command-cooldowns.tpa", "default", "Cooldown for /tpa.");
@@ -403,6 +412,7 @@ public class NewConfig extends CMFile {
         COOLDOWN_TIMER_DURATION = new ConfigOption<>("cooldown-duration");
         ADD_COOLDOWN_DURATION_TO_WARM_UP = new ConfigOption<>("add-cooldown-duration-to-warm-up");
         APPLY_COOLDOWN_TO_ALL_COMMANDS = new ConfigOption<>("apply-cooldown-to-all-commands");
+        APPLY_COOLDOWN_AFTER = new ConfigOption<>("apply-cooldown-after");
         COOLDOWNS = new PerCommandOption<>("per-command-cooldowns", "cooldown-duration");
 
         COST_AMOUNT = new ConfigOption<>("cost-amount");

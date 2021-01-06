@@ -121,7 +121,11 @@ public class Warp implements CommandExecutor {
                 int warmUp = NewConfig.getInstance().WARM_UPS.WARP.get();
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     MovementManager.createMovementTimer(player, loc, "warp", "Teleport.teleportingToWarp", warmUp, "\\{warp}", name);
-                    CooldownManager.addToCooldown("warp", player);
+                    // If the cooldown is to be applied after request or accept (they are the same in the case of /warp), apply it now
+                    String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                    if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                        CooldownManager.addToCooldown("warp", player);
+                    }
                 } else {
                     PaymentManager.getInstance().withdraw("warp", player);
                     PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);

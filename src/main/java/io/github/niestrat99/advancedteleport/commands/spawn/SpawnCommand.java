@@ -55,7 +55,11 @@ public class SpawnCommand implements CommandExecutor {
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         if (!event.isCancelled()) {
             if (PaymentManager.getInstance().canPay("spawn", player)) {
-                CooldownManager.addToCooldown("spawn", player);
+                // If the cooldown is to be applied after request or accept (they are the same in the case of /spawn), apply it now
+                String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                    CooldownManager.addToCooldown("spawn", player);
+                }
                 int warmUp = NewConfig.getInstance().WARM_UPS.SPAWN.get();
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     MovementManager.createMovementTimer(player, spawn, "spawn", "Teleport.teleportingToSpawn", warmUp);
