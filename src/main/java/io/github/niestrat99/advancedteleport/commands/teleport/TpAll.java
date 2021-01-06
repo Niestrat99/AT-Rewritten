@@ -25,7 +25,7 @@ public class TpAll implements CommandExecutor {
                 if (sender.hasPermission("at.admin.all")) {
                     Player player = (Player) sender;
                     UUID playerUuid = player.getUniqueId();
-                    int cooldown = CooldownManager.secondsLeftOnCooldown("tpaall", player);
+                    int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
                     if (cooldown > 0) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
                         return true;
