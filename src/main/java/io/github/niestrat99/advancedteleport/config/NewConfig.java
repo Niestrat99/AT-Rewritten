@@ -110,6 +110,7 @@ public class NewConfig extends CMFile {
         addDefault("cancel-warm-up-on-rotation", true, "Whether or not teleportation should be cancelled if the player rotates or moves.");
         addDefault("cancel-warm-up-on-movement", true, "Whether or not teleportation should be cancelled upon movement only.");
 
+        addComment("per-command-warm-ups", "Command-specific warm-ups.");
         addDefault("per-command-warm-ups.tpa", "default", "Warm-up timer for /tpa.");
         addDefault("per-command-warm-ups.tpahere", "default", "Warm-up timer for /tpahere");
         addDefault("per-command-warm-ups.tpr", "default", "Warm-up timer for /tpr, or /rtp.");
