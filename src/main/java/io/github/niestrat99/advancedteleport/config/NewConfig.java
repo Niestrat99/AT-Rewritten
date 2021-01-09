@@ -412,7 +412,17 @@ public class NewConfig extends CMFile {
         COOLDOWN_TIMER_DURATION = new ConfigOption<>("cooldown-duration");
         ADD_COOLDOWN_DURATION_TO_WARM_UP = new ConfigOption<>("add-cooldown-duration-to-warm-up");
         APPLY_COOLDOWN_TO_ALL_COMMANDS = new ConfigOption<>("apply-cooldown-to-all-commands");
+
         APPLY_COOLDOWN_AFTER = new ConfigOption<>("apply-cooldown-after");
+        switch (APPLY_COOLDOWN_AFTER.get().toLowerCase()) {
+            case "accept":
+            case "request":
+            case "teleport":
+                break;
+            default:
+                CoreClass.getInstance().getLogger().warning("Bad input for apply-cooldown-after option! Using \"request\" as the default option...");
+                set("apply-cooldown-after", "request");
+        }
         COOLDOWNS = new PerCommandOption<>("per-command-cooldowns", "cooldown-duration");
 
         COST_AMOUNT = new ConfigOption<>("cost-amount");
