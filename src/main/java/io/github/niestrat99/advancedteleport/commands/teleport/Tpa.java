@@ -3,10 +3,11 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -23,7 +24,7 @@ public class Tpa implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (Config.isFeatureEnabled("teleport")) {
+            if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.tpa")) {
                     UUID playerUuid = player.getUniqueId();
                     int cooldown = CooldownManager.secondsLeftOnCooldown("tpa", player);
@@ -39,18 +40,19 @@ public class Tpa implements CommandExecutor {
                         Player target = Bukkit.getPlayer(args[0]);
                         String result = ConditionChecker.canTeleport(player, target, "tpa");
                         if (result.isEmpty()) {
-                            if (PaymentManager.canPay("tpa", player)) {
+                            if (PaymentManager.getInstance().canPay("tpa", player)) {
+                                int requestLifetime = NewConfig.getInstance().REQUEST_LIFETIME.get();
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
                                         .replaceAll("\\{player}", target.getName())
-                                        .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                        .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
 
-                                CoreClass.playSound("tpa", "requestSent", player);
+                                CoreClass.playSound("tpa", "sent", player);
 
                                 target.sendMessage(CustomMessages.getString("Info.tpaRequestReceived")
                                         .replaceAll("\\{player}", sender.getName())
-                                        .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                        .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
 
-                                CoreClass.playSound("tpa", "requestReceived", target);
+                                CoreClass.playSound("tpa", "received", target);
 
                                 BukkitRunnable run = new BukkitRunnable() {
                                     @Override
@@ -59,10 +61,13 @@ public class Tpa implements CommandExecutor {
                                         TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
                                     }
                                 };
-                                run.runTaskLater(CoreClass.getInstance(), Config.requestLifetime()*20); // 60 seconds
+                                run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20); // 60 seconds
                                 TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
-                                CooldownManager.addToCooldown("tpa", player);
+                                // If the cooldown is to be applied after request, apply it now
+                                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+                                    CooldownManager.addToCooldown("tpa", player);
+                                }
                                 return true;
                             }
                         } else {

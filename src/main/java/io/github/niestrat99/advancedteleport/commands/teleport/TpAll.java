@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.TpBlock;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
@@ -20,16 +21,17 @@ public class TpAll implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {
-            if (Config.isFeatureEnabled("teleport")) {
+            if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.admin.all")) {
                     Player player = (Player) sender;
                     UUID playerUuid = player.getUniqueId();
-                    int cooldown = CooldownManager.secondsLeftOnCooldown("tpaall", player);
+                    int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
                     if (cooldown > 0) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
                         return true;
                     }
                     int players = 0;
+                    int requestLifetime = NewConfig.getInstance().REQUEST_LIFETIME.get();
                     for (Player target : Bukkit.getOnlinePlayers()) {
                         if (target != player) {
                             UUID targetUuid = target.getUniqueId();
@@ -45,16 +47,17 @@ public class TpAll implements CommandExecutor {
                             players++;
                             target.sendMessage(CustomMessages.getString("Info.tpaRequestHere")
                                     .replaceAll("\\{player}", sender.getName())
-                                    .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                    .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
                             BukkitRunnable run = new BukkitRunnable() {
                                 @Override
                                 public void run() {
                                     TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
                                 }
                             };
-                            run.runTaskLater(CoreClass.getInstance(), Config.requestLifetime() * 20); // 60 seconds
+                            run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20); // 60 seconds
                             TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPAHERE); // Creates a new teleport request.
                             TPRequest.addRequest(request);
+                            // Cooldown for tpall is always applied after request
                             CooldownManager.addToCooldown("tpaall", player);
                         }
                     }

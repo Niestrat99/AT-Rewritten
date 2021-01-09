@@ -5,11 +5,12 @@ import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.LastLocations;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -29,7 +30,7 @@ public class Back implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (Config.isFeatureEnabled("teleport")) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.member.back")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
@@ -55,31 +56,23 @@ public class Back implements CommandExecutor {
                         }
                         loc.add(0.0, 1.0, 0.0);
                     }
-                    ATTeleportEvent event = new ATTeleportEvent(player, player.getLocation(), loc, "back", ATTeleportEvent.TeleportType.BACK);
+                    ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
                     if (!event.isCancelled()) {
-                        Location finalLoc = loc;
-                        if (PaymentManager.canPay("back", player)) {
-                            if (Config.getTeleportTimer("back") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                                BukkitRunnable movementtimer = new BukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        PaperLib.teleportAsync(player, finalLoc, PlayerTeleportEvent.TeleportCause.COMMAND);
-                                        MovementManager.getMovement().remove(player.getUniqueId());
-                                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
-                                        PaymentManager.withdraw("back", player);
-
-                                    }
-                                };
-                                MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                                movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("back")*20);
-                                player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(Config.getTeleportTimer("back"))));
-
+                        if (PaymentManager.getInstance().canPay("back", player)) {
+                            int warmUp = NewConfig.getInstance().WARM_UPS.BACK.get();
+                            if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+                                MovementManager.createMovementTimer(player, loc, "back", "Teleport.teleportingToLastLoc", warmUp);
                             } else {
+                                PaymentManager.getInstance().withdraw("back", player);
                                 PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
-                                PaymentManager.withdraw("back", player);
+                               
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                             }
-                            CooldownManager.addToCooldown("back", player);
+                            // If the cooldown is to be applied after request or accept (they are the same in the case of /back), apply it now
+                            String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                            if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                                CooldownManager.addToCooldown("back", player);
+                            }
                         }
                     }
 
