@@ -67,7 +67,6 @@ public class RandomTPAlgorithms {
 
         algorithms.put("binary", (player, world, callback) -> {
             Runnable runnable = () -> {
-                World world = player.getWorld();
                 // Generate random coordinates
                 Location location = RandomCoords.generateCoords(world);
                 // Whilst the location is too far away...
