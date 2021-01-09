@@ -64,7 +64,10 @@ public class Tpa implements CommandExecutor {
                                 run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20); // 60 seconds
                                 TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
-                                CooldownManager.addToCooldown("tpa", player);
+                                // If the cooldown is to be applied after request, apply it now
+                                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+                                    CooldownManager.addToCooldown("tpa", player);
+                                }
                                 return true;
                             }
                         } else {

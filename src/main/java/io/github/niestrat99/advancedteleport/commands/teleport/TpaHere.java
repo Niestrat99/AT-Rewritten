@@ -63,7 +63,10 @@ public class TpaHere implements CommandExecutor {
                                 run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20); // 60 seconds
                                 TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPAHERE); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
-                                CooldownManager.addToCooldown("tpahere", player);
+                                // If the cooldown is to be applied after request or accept (they are the same in the case of /spawn), apply it now
+                                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+                                    CooldownManager.addToCooldown("tpahere", player);
+                                }
                                 return true;
                             }
                         } else {

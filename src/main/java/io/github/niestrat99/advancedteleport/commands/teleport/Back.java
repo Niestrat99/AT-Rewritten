@@ -68,7 +68,11 @@ public class Back implements CommandExecutor {
                                
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                             }
-                            CooldownManager.addToCooldown("back", player);
+                            // If the cooldown is to be applied after request or accept (they are the same in the case of /back), apply it now
+                            String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                            if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                                CooldownManager.addToCooldown("back", player);
+                            }
                         }
                     }
 

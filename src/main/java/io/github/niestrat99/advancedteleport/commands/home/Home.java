@@ -148,7 +148,11 @@ public class Home implements CommandExecutor {
             ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), name, ATTeleportEvent.TeleportType.HOME);
             if (!event.isCancelled()) {
                 if (PaymentManager.getInstance().canPay("home", player)) {
-                    CooldownManager.addToCooldown("home", player);
+                    // If the cooldown is to be applied after request or accept (they are the same in the case of /home), apply it now
+                    String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                    if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                        CooldownManager.addToCooldown("home", player);
+                    }
                     int warmUp = NewConfig.getInstance().WARM_UPS.HOME.get();
                     if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                         MovementManager.createMovementTimer(player, loc, "home", "Teleport.teleportingToHome", warmUp, "\\{home}", name);
