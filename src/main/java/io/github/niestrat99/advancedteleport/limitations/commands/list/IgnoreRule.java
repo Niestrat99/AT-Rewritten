@@ -17,11 +17,15 @@ public class IgnoreRule extends CommandRule {
         // If not inclusive (0) and contains world (0), allow
         // If not inclusive (0) and doesn't contain world (1), deny
         // If inclusive (1) and doesn't contain world (1), allow
+        String toWorld = toLoc.getWorld().getName();
+
+        if (toWorld.equals(fromWorld)) {
+            return true;
+        }
         if (inclusive ^ !worlds.contains(fromWorld)) {
             return false;
 
         }
-        String toWorld = toLoc.getWorld().getName();
         return inclusive ^ !worlds.contains(">" + toWorld);
     }
 }
