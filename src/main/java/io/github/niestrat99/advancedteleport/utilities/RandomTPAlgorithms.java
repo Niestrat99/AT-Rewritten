@@ -1,6 +1,9 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.papermc.lib.PaperLib;
+import org.bukkit.Bukkit;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -63,8 +66,8 @@ public class RandomTPAlgorithms {
         });
 
         algorithms.put("binary", (player, world, callback) -> {
-            new Thread(() -> {
-
+            Runnable runnable = () -> {
+                World world = player.getWorld();
                 // Generate random coordinates
                 Location location = RandomCoords.generateCoords(world);
                 // Whilst the location is too far away...
@@ -137,7 +140,12 @@ public class RandomTPAlgorithms {
                 if (callback != null) {
                     callback.onSuccess(location);
                 }
-            }, "AdvancedTeleport RTP Worker").start();
+            };
+            if (Bukkit.getServer().getVersion().contains("1.8")) {
+                runnable.run();
+            } else {
+                new Thread(runnable, "AdvancedTeleport RTP Worker").start();
+            }
         });
 
         algorithms.put("jump", (player, world, callback) -> {
