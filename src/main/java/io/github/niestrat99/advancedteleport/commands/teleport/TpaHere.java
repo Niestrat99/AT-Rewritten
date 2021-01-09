@@ -3,10 +3,11 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -21,7 +22,7 @@ public class TpaHere implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player){
-            if (Config.isFeatureEnabled("teleport")) {
+            if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.here")) {
                     Player player = (Player) sender;
                     UUID playerUuid = player.getUniqueId();
@@ -38,18 +39,19 @@ public class TpaHere implements CommandExecutor {
                         Player target = Bukkit.getPlayer(args[0]);
                         String result = ConditionChecker.canTeleport(player, target, "tpahere");
                         if (result.isEmpty()) {
-                            if (PaymentManager.canPay("tpahere", player)) {
+                            if (PaymentManager.getInstance().canPay("tpahere", player)) {
+                                int requestLifetime = NewConfig.getInstance().REQUEST_LIFETIME.get();
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
                                         .replaceAll("\\{player}", target.getName())
-                                        .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                        .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
 
-                                CoreClass.playSound("tpahere", "requestSent", player);
+                                CoreClass.playSound("tpahere", "sent", player);
 
                                 target.sendMessage(CustomMessages.getString("Info.tpaRequestHere")
                                         .replaceAll("\\{player}", sender.getName())
-                                        .replaceAll("\\{lifetime}", String.valueOf(Config.requestLifetime())));
+                                        .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
 
-                                CoreClass.playSound("tpahere", "requestReceived", target);
+                                CoreClass.playSound("tpahere", "received", target);
 
                                 BukkitRunnable run = new BukkitRunnable() {
                                     @Override
@@ -58,10 +60,13 @@ public class TpaHere implements CommandExecutor {
                                         TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
                                     }
                                 };
-                                run.runTaskLater(CoreClass.getInstance(), Config.requestLifetime() * 20); // 60 seconds
+                                run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20); // 60 seconds
                                 TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPAHERE); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
-                                CooldownManager.addToCooldown("tpahere", player);
+                                // If the cooldown is to be applied after request or accept (they are the same in the case of /spawn), apply it now
+                                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+                                    CooldownManager.addToCooldown("tpahere", player);
+                                }
                                 return true;
                             }
                         } else {

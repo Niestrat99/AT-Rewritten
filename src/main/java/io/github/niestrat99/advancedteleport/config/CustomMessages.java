@@ -51,6 +51,8 @@ public class CustomMessages {
         Config.addDefault("Error.alreadySentRequest", "&cYou've already sent a request to &e{player}&c!");
         Config.addDefault("Error.notEnoughEXP", "&cYou do not have enough EXP Levels to teleport there!" +
                 "\n&cYou need at least &e{levels} &cEXP levels!");
+        Config.addDefault("Error.notEnoughEXPPoints", "&cYou do not have enough EXP Points to teleport there!" +
+                "\n&cYou need at least &e{points} &cEXP points!");
         Config.addDefault("Error.notEnoughMoney", "&cYou do not have enough money to teleport there!" +
                 "\n&cYou need at least &e${amount}&c!");
         Config.addDefault("Error.requestExpired", "&cYour teleport request to &e{player} &chas expired!");
@@ -126,6 +128,7 @@ public class CustomMessages {
         Config.addDefault("Info.requestAcceptedResponder", "&e{player} &ahas accepted the teleport request!");
         Config.addDefault("Info.paymentVault", "&aYou have paid &e${amount} &aand now have &e${balance}&a!");
         Config.addDefault("Info.paymentEXP", "&aYou have paid &e{amount} EXP Levels &aand now have &e{levels}&a!");
+        Config.addDefault("Info.paymentPoints", "&aYou have paid &e{amount} EXP Points &aand now have &e{points}&a!");
         Config.addDefault("Info.createdWarpSign", "&aSuccessfully created the warp sign!");
         Config.addDefault("Info.createdRTPSign", "&aSuccessfully created the RandomTP sign!");
         Config.addDefault("Info.createdSpawnSign", "&aSuccessfully created the spawn sign!");
@@ -190,6 +193,7 @@ public class CustomMessages {
         Config.options().copyDefaults(true);
         save();
     }
+
     public static String getString(String path) {
         String str = Config.getString(path);
         if (str == null) return "";
@@ -210,7 +214,7 @@ public class CustomMessages {
     }
 
     public static String getEventBeforeTPMessage() {
-        if(io.github.niestrat99.advancedteleport.config.Config.cancelOnMovement()) {
+        if(NewConfig.getInstance().CANCEL_WARM_UP_ON_MOVEMENT.get() || NewConfig.getInstance().CANCEL_WARM_UP_ON_ROTATION.get()) {
             return getString("Teleport.eventBeforeTP");
         } else {
             return getString("Teleport.eventBeforeTPMovementAllowed");

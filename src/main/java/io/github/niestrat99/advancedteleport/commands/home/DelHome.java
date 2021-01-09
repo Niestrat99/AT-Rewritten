@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.home;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Homes;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -15,7 +16,7 @@ import java.io.IOException;
 public class DelHome implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (Config.isFeatureEnabled("homes")) {
+        if (NewConfig.getInstance().USE_HOMES.get()) {
             if (sender instanceof Player) {
                 Player player = (Player)sender;
                 if (sender.hasPermission("at.member.delhome")) {

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.niestrat99</groupId>
   <artifactId>AdvancedTeleport</artifactId>
-  <version>5.2.4-SNAPSHOT</version>
+  <version>5.3.4-SNAPSHOT-2</version>
   <build>
     <plugins>
       <plugin>
@@ -85,10 +85,16 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>net.milkbowl.vault</groupId>
-      <artifactId>Vault</artifactId>
-      <version>1.7.3</version>
+      <groupId>com.github.MilkBowl</groupId>
+      <artifactId>VaultAPI</artifactId>
+      <version>1.7</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>bukkit</artifactId>
+          <groupId>org.bukkit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.github.PryPurity</groupId>

@@ -17,7 +17,7 @@ public class AtReload implements CommandExecutor {
         } else {
             sender.sendMessage(CustomMessages.getString("Info.reloadingConfig"));
             try {
-                Config.reloadConfig();
+                NewConfig.getInstance().reload();
                 CustomMessages.reloadConfig();
                 Warps.reloadWarps();
                 Homes.reloadHomes();
