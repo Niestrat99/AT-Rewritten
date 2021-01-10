@@ -4,10 +4,11 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.events.MovementManager;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -20,7 +21,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class SpawnCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (Config.isFeatureEnabled("spawn")) {
+        if (NewConfig.getInstance().USE_SPAWN.get()) {
             if (sender.hasPermission("at.member.spawn")){
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
@@ -53,24 +54,18 @@ public class SpawnCommand implements CommandExecutor {
         }
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         if (!event.isCancelled()) {
-            if (PaymentManager.canPay("spawn", player)) {
-                CooldownManager.addToCooldown("spawn", player);
-                if (Config.getTeleportTimer("spawn") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    BukkitRunnable movementtimer = new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            PaymentManager.withdraw("spawn", player);
-                            PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
-                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
-                            MovementManager.getMovement().remove(player.getUniqueId());
-                        }
-                    };
-                    MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("spawn") * 20);
-                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("spawn"))));
+            if (PaymentManager.getInstance().canPay("spawn", player)) {
+                // If the cooldown is to be applied after request or accept (they are the same in the case of /spawn), apply it now
+                String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                    CooldownManager.addToCooldown("spawn", player);
+                }
+                int warmUp = NewConfig.getInstance().WARM_UPS.SPAWN.get();
+                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+                    MovementManager.createMovementTimer(player, spawn, "spawn", "Teleport.teleportingToSpawn", warmUp);
 
                 } else {
-                    PaymentManager.withdraw("spawn", player);
+                    PaymentManager.getInstance().withdraw("spawn", player);
                     PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
                     player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
                 }

@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Homes;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.CoreClass;
@@ -22,7 +23,7 @@ public class HomesCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (Config.isFeatureEnabled("homes")) {
+        if (NewConfig.getInstance().USE_HOMES.get()) {
             if (sender.hasPermission("at.member.homes")) {
                 Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                     if (args.length>0) {
@@ -40,7 +41,7 @@ public class HomesCommand implements CommandExecutor {
                                                     .tooltip(getTooltip(player, sender, home))
                                                     .then(", ");
                                         }
-                                        if (player.getBedSpawnLocation() != null && Config.addBedToHomes()) {
+                                        if (player.getBedSpawnLocation() != null && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
                                             hlist.then("bed")
                                                     .command("/home " + args[0] + " bed")
                                                     .tooltip(getTooltip(player, sender, "bed"))
@@ -77,7 +78,7 @@ public class HomesCommand implements CommandExecutor {
                                             .tooltip(getTooltip(player, home))
                                             .then(", ");
                                 }
-                                if (player.getBedSpawnLocation() != null && Config.addBedToHomes()) {
+                                if (player.getBedSpawnLocation() != null && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
                                     hList.then("bed")
                                             .command("/home bed")
                                             .tooltip(getTooltip(player, "bed"))

@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -13,7 +14,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 public class TpoHere implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (Config.isFeatureEnabled("teleport")) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.admin.tpohere")){
                 if (sender instanceof Player){
                     Player player = (Player)sender;

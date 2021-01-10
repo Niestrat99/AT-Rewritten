@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@Deprecated
 public class Config {
 
     public static File configFile = new File(CoreClass.getInstance().getDataFolder(),"config.yml");

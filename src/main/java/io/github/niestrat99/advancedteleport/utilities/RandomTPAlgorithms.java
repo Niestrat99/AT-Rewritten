@@ -1,6 +1,10 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.papermc.lib.PaperLib;
+import org.bukkit.Bukkit;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -16,8 +20,7 @@ public class RandomTPAlgorithms {
     private static HashMap<String, Algorithm> algorithms = new HashMap<>();
 
     public static void init() {
-        algorithms.put("linear", (player, callback) -> {
-            World world = player.getWorld();
+        algorithms.put("linear", (player, world, callback) -> {
             Location location = RandomCoords.generateCoords(world);
             boolean validLocation = false;
             while (!validLocation) {
@@ -33,7 +36,7 @@ public class RandomTPAlgorithms {
 
 
                 boolean b = true;
-                for (String Material: Config.avoidBlocks()) {
+                for (String Material: NewConfig.getInstance().AVOID_BLOCKS.get()) {
                     if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
                         if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
                             location = RandomCoords.generateCoords(world);
@@ -62,11 +65,14 @@ public class RandomTPAlgorithms {
             }
         });
 
-        algorithms.put("binary", (player, callback) -> {
-            new Thread(() -> {
-                World world = player.getWorld();
+        algorithms.put("binary", (player, world, callback) -> {
+            Runnable runnable = () -> {
                 // Generate random coordinates
                 Location location = RandomCoords.generateCoords(world);
+                // Whilst the location is too far away...
+                while (!ConditionChecker.canTeleport(player.getLocation(), location, "tpr", player).isEmpty()) {
+                    location = RandomCoords.generateCoords(world);
+                }
                 // Set the Y coordinate to 128
                 location.setY(128);
                 // This is how much we'll jump by at first
@@ -90,7 +96,7 @@ public class RandomTPAlgorithms {
                     // If we've hit a dead end with the jumps...
                     if (jumpAmount == 0) {
                         // Start over.
-                        getAlgorithms().get("binary").fire(player, callback);
+                        getAlgorithms().get("binary").fire(player, world, callback);
                         return;
                     }
                     // Clone the current location.
@@ -108,14 +114,14 @@ public class RandomTPAlgorithms {
 
                     boolean mustBreak = false;
                     if (currentMat != Material.AIR) {
-                        for (String material : Config.avoidBlocks()) {
+                        for (String material : NewConfig.getInstance().AVOID_BLOCKS.get()) {
                             if (currentMat.name().equalsIgnoreCase(material)) {
                                 mustBreak = true;
                                 break;
                             }
                         }
                         if (mustBreak) {
-                            getAlgorithms().get("binary").fire(player, callback);
+                            getAlgorithms().get("binary").fire(player, world, callback);
                             return;
                         }
 
@@ -133,11 +139,15 @@ public class RandomTPAlgorithms {
                 if (callback != null) {
                     callback.onSuccess(location);
                 }
-            }, "AdvancedTeleport RTP Worker").start();
+            };
+            if (Bukkit.getServer().getVersion().contains("1.8")) {
+                runnable.run();
+            } else {
+                new Thread(runnable, "AdvancedTeleport RTP Worker").start();
+            }
         });
 
-        algorithms.put("jump", (player, callback) -> {
-            World world = player.getWorld();
+        algorithms.put("jump", (player, world, callback) -> {
             Location location = RandomCoords.generateCoords(world);
             boolean validLocation = false;
             while (!validLocation) {
@@ -153,7 +163,7 @@ public class RandomTPAlgorithms {
 
 
                 boolean b = true;
-                for (String Material: Config.avoidBlocks()) {
+                for (String Material: NewConfig.getInstance().AVOID_BLOCKS.get()) {
                     if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
                         if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
                             location = RandomCoords.generateCoords(world);
@@ -188,7 +198,7 @@ public class RandomTPAlgorithms {
     }
 
     public static interface Algorithm {
-        void fire(Player player, Callback<Location> callback);
+        void fire(Player player, World world, Callback<Location> callback);
     }
 
     public static interface Callback<D> {

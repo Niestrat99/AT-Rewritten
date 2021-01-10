@@ -18,6 +18,7 @@ import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.WorldBorder;
@@ -39,6 +40,9 @@ public class CoreClass extends JavaPlugin {
     public static WorldBorder worldBorder;
     private static CoreClass Instance;
     private static Permission perms = null;
+    private int version;
+
+    private NewConfig config;
 
     public static CoreClass getInstance() {
         return Instance;
@@ -69,9 +73,7 @@ public class CoreClass extends JavaPlugin {
             return false;
         }
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-        if (rsp == null) {
-            return false;
-        }
+        if (rsp == null) return false;
         perms = rsp.getProvider();
         return perms != null;
     }
@@ -80,10 +82,11 @@ public class CoreClass extends JavaPlugin {
     public void onEnable() {
         Instance = this;
         System.out.println("Advanced Teleport is now enabling...");
-        registerCommands();
-        registerEvents();
+        setupEconomy();
+        setupPermissions();
         try {
-            Config.setDefaults();
+            config = new NewConfig();
+        //    Config.setDefaults();
             CustomMessages.setDefaults();
             Homes.save();
             LastLocations.save();
@@ -93,15 +96,16 @@ public class CoreClass extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        setupEconomy();
-        setupPermissions();
+        registerCommands();
+        registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
+        setupVersion();
         new Metrics(this, 5146);
         new BukkitRunnable() {
             @Override
             public void run() {
-                Config.setupDefaults();
+                // Config.setupDefaults();
                 Object[] update = UpdateChecker.getUpdate();
                 if (update != null) {
                     getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));
@@ -172,17 +176,52 @@ public class CoreClass extends JavaPlugin {
     }
 
     public static void playSound(String type, String subType, Player target) {
-        if(!Config.getSound(type + "." + subType).equals("NONE")){
-            try{
-                target.playSound(target.getLocation(), Sound.valueOf(Config.getSound(type + "." + subType)), 10, 1);
-            }
-            catch(IllegalArgumentException e){
-                CoreClass.getInstance().getLogger().warning(CoreClass.pltitle(Config.getSound("tpa.requestReceived") + " is an invalid sound name"));
-            }
+        String sound = null;
+        switch (type) {
+            case "tpa":
+                switch (subType) {
+                    case "sent":
+                        sound = NewConfig.getInstance().TPA_REQUEST_SENT.get();
+                        break;
+                    case "received":
+                        sound = NewConfig.getInstance().TPA_REQUEST_RECEIVED.get();
+                        break;
+                }
+                break;
+            case "tpahere":
+                switch (subType) {
+                    case "sent":
+                        sound = NewConfig.getInstance().TPAHERE_REQUEST_SENT.get();
+                        break;
+                    case "received":
+                        sound = NewConfig.getInstance().TPAHERE_REQUEST_RECEIVED.get();
+                        break;
+                }
+                break;
+        }
+        if (sound == null) return;
+        if (sound.equalsIgnoreCase("none")) return;
+        try {
+            target.playSound(target.getLocation(), Sound.valueOf(sound), 10, 1);
+        } catch(IllegalArgumentException e){
+            CoreClass.getInstance().getLogger().warning(CoreClass.pltitle(sound + " is an invalid sound name"));
         }
     }
 
     public static Permission getPerms() {
         return perms;
+    }
+
+    public NewConfig getConfiguration() {
+        return config;
+    }
+
+    private void setupVersion() {
+        String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].split("_")[1];
+        this.version = Integer.parseInt(bukkitVersion);
+    }
+
+    public int getVersion() {
+        return version;
     }
 }

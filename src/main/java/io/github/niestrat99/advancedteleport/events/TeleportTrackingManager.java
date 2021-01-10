@@ -2,13 +2,11 @@ package io.github.niestrat99.advancedteleport.events;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.config.Config;
-import io.github.niestrat99.advancedteleport.config.LastLocations;
-import io.github.niestrat99.advancedteleport.config.Spawn;
-import io.github.niestrat99.advancedteleport.config.Warps;
+import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -32,7 +30,7 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        if (Config.isFeatureEnabled("teleport")) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
             new BukkitRunnable() { // Because when you join, PlayerTeleportEvent is also called
                 @Override
                 public void run() {
@@ -48,7 +46,7 @@ public class TeleportTrackingManager implements Listener {
             }.runTaskLater(CoreClass.getInstance(), 10);
         }
         if (!player.hasPlayedBefore()) {
-            if (Config.spawnTPOnFirstJoin()) {
+            if (NewConfig.getInstance().TELEPORT_TO_SPAWN_FIRST.get()) {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -60,7 +58,7 @@ public class TeleportTrackingManager implements Listener {
                     }
                 }.runTaskLater(CoreClass.getInstance(), 10);
             }
-        } else if (Config.spawnTPEveryTime()) {
+        } else if (NewConfig.getInstance().TELEPORT_TO_SPAWN_EVERY.get()) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -82,7 +80,8 @@ public class TeleportTrackingManager implements Listener {
             e.setCancelled(true);
             return;
         }
-        if (Config.isFeatureEnabled("teleport") && Config.isCauseAllowed(e.getCause())) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()
+                && NewConfig.getInstance().BACK_TELEPORT_CAUSES.get().contains(e.getCause().name())) {
             lastLocations.put(e.getPlayer().getUniqueId(), e.getFrom());
         }
     }
@@ -101,14 +100,14 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
-        if (Config.isFeatureEnabled("teleport") && e.getEntity().hasPermission("at.member.back.death")) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get() && e.getEntity().hasPermission("at.member.back.death")) {
             deathLocations.put(e.getEntity().getUniqueId(), e.getEntity().getLocation());
         }
     }
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
-        if (Config.isFeatureEnabled("teleport")) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
             LastLocations.saveLocations();
         }
     }
@@ -116,9 +115,14 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
-        if (Config.isFeatureEnabled("spawn")) {
+        if (NewConfig.getInstance().USE_SPAWN.get()) {
             if (deathLocations.get(uuid) == null) return;
-            String spawnCommand = Config.getSpawnCommand(deathLocations.get(uuid).getWorld());
+            ConfigurationSection deathManagement = NewConfig.getInstance().DEATH_MANAGEMENT.get();
+            String spawnCommand = deathManagement.getString(deathLocations.get(uuid).getWorld().getName());
+            if (spawnCommand == null) {
+                spawnCommand = deathManagement.getString("default");
+                if (spawnCommand == null) return;
+            }
             switch (spawnCommand) {
                 case "spawn":
                     if (Spawn.getSpawnFile() != null) {
@@ -131,6 +135,9 @@ public class TeleportTrackingManager implements Listener {
                     if (!e.isBedSpawn() && e.getPlayer().getBedSpawnLocation() != null) {
                         e.setRespawnLocation(e.getPlayer().getBedSpawnLocation());
                     }
+                    break;
+                case "anchor":
+                    // Vanilla just handles that
                     break;
                 default:
                     if (spawnCommand.startsWith("warp:")) {
@@ -147,7 +154,7 @@ public class TeleportTrackingManager implements Listener {
                     }
             }
         }
-        if (Config.isFeatureEnabled("teleport")) {
+        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
             new BukkitRunnable() { // They also call PlayerTeleportEvent when you respawn
                 @Override
                 public void run() {
