@@ -9,6 +9,7 @@ import io.github.niestrat99.advancedteleport.events.MovementManager;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -32,14 +33,15 @@ public class AcceptRequest {
     }
 
     private static void teleport(Player toPlayer, Player fromPlayer, String type) {
-        ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toPlayer.getLocation(), fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
+        final Location toLocation = toPlayer.getLocation();
+        ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toLocation, fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
         if (!event.isCancelled()) {
             int warmUp = NewConfig.getInstance().WARM_UPS.valueOf(type).get();
             Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
             if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
-                MovementManager.createMovementTimer(fromPlayer, toPlayer.getLocation(), type, "Teleport.eventTeleport", warmUp, payingPlayer);
+                MovementManager.createMovementTimer(fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
             } else {
-                PaperLib.teleportAsync(fromPlayer, toPlayer.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                PaperLib.teleportAsync(fromPlayer, toLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
                 fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
                 PaymentManager.getInstance().withdraw(type, payingPlayer);
                 // If the cooldown is to be applied after only after a teleport takes place, apply it now
