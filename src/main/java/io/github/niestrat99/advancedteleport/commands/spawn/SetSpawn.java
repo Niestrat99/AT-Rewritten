@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.config.Config;
 import org.bukkit.Location;
@@ -14,7 +15,7 @@ import java.io.IOException;
 public class SetSpawn implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (Config.isFeatureEnabled("spawn")) {
+        if (NewConfig.getInstance().USE_SPAWN.get()) {
             if (sender.hasPermission("at.admin.setspawn")){
                 if (sender instanceof Player) {
                     Player player = (Player) sender;

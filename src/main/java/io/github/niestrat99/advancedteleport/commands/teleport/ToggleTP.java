@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,7 +15,7 @@ public class ToggleTP implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {
-            if (Config.isFeatureEnabled("teleport")) {
+            if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.toggletp")) {
                     if (args.length>0) {
                         if (sender.hasPermission("at.admin.toggletp")) {
