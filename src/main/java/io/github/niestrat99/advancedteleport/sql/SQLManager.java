@@ -4,11 +4,12 @@ import java.sql.Connection;
 
 public abstract class SQLManager {
 
-    private static SQLManager instance;
-    private Connection connection;
+    protected static SQLManager instance;
+    protected Connection connection;
 
     public SQLManager() {
         instance = this;
+        
         createTable();
         transferOldData();
     }
