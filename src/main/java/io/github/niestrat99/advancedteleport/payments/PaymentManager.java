@@ -7,9 +7,7 @@ import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class PaymentManager {
 

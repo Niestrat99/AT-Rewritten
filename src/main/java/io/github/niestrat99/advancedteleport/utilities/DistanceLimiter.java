@@ -1,6 +1,5 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
-import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Location;
 

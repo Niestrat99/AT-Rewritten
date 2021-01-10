@@ -6,13 +6,11 @@ import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.CMFile;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class NewConfig extends CMFile {
@@ -159,6 +157,10 @@ public class NewConfig extends CMFile {
         addDefault("per-command-cost.spawn", "default", "Cost for /spawn");
         addDefault("per-command-cost.home", "default", "Cost for /home");
         addDefault("per-command-cost.back", "default", "Cost for /back");
+
+        addSection("SQL Storage");
+
+        
 
         addDefault("enable-distance-limitations", true, "Distance Limitations",
                 "Enables the distance limiter to stop players teleporting over a large distance.\n" +
