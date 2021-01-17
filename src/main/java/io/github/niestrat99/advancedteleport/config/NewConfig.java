@@ -160,6 +160,9 @@ public class NewConfig extends CMFile {
 
         addSection("SQL Storage");
 
+        addDefault("use-mysql", false, "Whether the plugin should use SQL storage or not.\n" +
+                "By default, AT uses SQLite storage, which stores data in a .db file locally.");
+        addDefault("");
         
 
         addDefault("enable-distance-limitations", true, "Distance Limitations",
