@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
+import io.github.niestrat99.advancedteleport.managers.TeleportTrackingManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;

@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.*;
-import io.github.niestrat99.advancedteleport.events.CooldownManager;
+import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

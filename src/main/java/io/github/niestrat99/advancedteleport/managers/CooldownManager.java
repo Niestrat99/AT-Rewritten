@@ -1,4 +1,4 @@
-package io.github.niestrat99.advancedteleport.events;
+package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;

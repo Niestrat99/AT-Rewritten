@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.events.CooldownManager;
+import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.AcceptRequest;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import io.github.niestrat99.advancedteleport.utilities.TeleportTests;
