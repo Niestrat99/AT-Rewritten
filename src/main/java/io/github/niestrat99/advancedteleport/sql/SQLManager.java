@@ -1,24 +1,31 @@
 package io.github.niestrat99.advancedteleport.sql;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
+
 import java.sql.Connection;
 
 public abstract class SQLManager {
 
-    protected static SQLManager instance;
     protected Connection connection;
 
     public SQLManager() {
-        instance = this;
-        
+
+
+
         createTable();
         transferOldData();
     }
 
-    public static SQLManager getInstance() {
-        return instance;
-    }
 
     public abstract void createTable();
 
     public abstract void transferOldData();
+
+    public interface SQLCallback<D> {
+        void onSuccess(D data);
+
+        default void onFail() {}
+    }
+
+
 }

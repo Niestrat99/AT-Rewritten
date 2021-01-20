@@ -11,6 +11,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: com.github.Thatsmusic99:ConfigurationMaster:v1.0-SNAPSHOT-7" level="project" />
+    <orderEntry type="library" name="Maven: com.github.Thatsmusic99:ConfigurationMaster:v1.0-SNAPSHOT-7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.github.Thatsmusic99:ConfigurationMaster:v1.0-SNAPSHOT-7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT" level="project" />
@@ -27,7 +29,8 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.PryPurity:WorldBorder:v2.1.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.spigotmc:spigot:1.16.2-R0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.github.Thatsmusic99:ConfigurationMaster:v1.0-RC-2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.Thatsmusic99:ConfigurationMaster:v1.1" level="project" />
+
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
   </component>
 </module>
