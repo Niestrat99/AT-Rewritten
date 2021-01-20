@@ -11,8 +11,9 @@ import java.util.UUID;
 
 public class ATPlayer {
 
-    private Player bukkitPlayer;
-    private HashMap<String, Home> homes;
+    private UUID uuid;
+    private HashMap<String, Location> homes;
+    private HashMap<UUID, BlockInfo> blockedUsers;
 
     public ATPlayer(Player player) {
         this(player.getUniqueId());
