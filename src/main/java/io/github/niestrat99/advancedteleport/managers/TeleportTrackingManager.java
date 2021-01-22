@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.papermc.lib.PaperLib;

@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
-import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Warps;
