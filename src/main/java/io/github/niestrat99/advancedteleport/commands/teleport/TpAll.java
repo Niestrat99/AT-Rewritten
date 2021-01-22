@@ -1,10 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.TpBlock;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.Bukkit;
@@ -17,13 +19,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.UUID;
 
 public class TpAll implements CommandExecutor {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {
             if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.admin.all")) {
                     Player player = (Player) sender;
-                    UUID playerUuid = player.getUniqueId();
                     int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
                     if (cooldown > 0) {
                         sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
@@ -33,14 +35,7 @@ public class TpAll implements CommandExecutor {
                     int requestLifetime = NewConfig.getInstance().REQUEST_LIFETIME.get();
                     for (Player target : Bukkit.getOnlinePlayers()) {
                         if (target != player) {
-                            UUID targetUuid = target.getUniqueId();
-                            if (TpOff.getTpOff().contains(targetUuid)) {
-                                continue;
-                            }
-                            if (TpBlock.getBlockedPlayers(target).contains(playerUuid)) {
-                                continue;
-                            }
-                            if (!DistanceLimiter.canTeleport(player.getLocation(), target.getLocation(), "tpahere") && !target.hasPermission("at.admin.bypass.distance-limit")) {
+                            if (!ConditionChecker.canTeleport(player, target, "tpahere").isEmpty()) {
                                 continue;
                             }
                             players++;
@@ -57,7 +52,7 @@ public class TpAll implements CommandExecutor {
                             TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPAHERE); // Creates a new teleport request.
                             TPRequest.addRequest(request);
                             // Cooldown for tpall is always applied after request
-                            CooldownManager.addToCooldown("tpaall", player);
+                            CooldownManager.addToCooldown("tpahere", player);
                         }
                     }
                     if (players > 0) {
