@@ -127,7 +127,7 @@
         <dependency>
             <groupId>com.github.Thatsmusic99</groupId>
             <artifactId>ConfigurationMaster</artifactId>
-            <version>v1.0-RC-2</version>
+            <version>v1.1</version>
         </dependency>
     </dependencies>
 </project>
