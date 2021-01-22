@@ -1,6 +1,5 @@
 package io.github.niestrat99.advancedteleport.payments;
 
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import org.bukkit.entity.Player;
 
 public abstract class Payment {

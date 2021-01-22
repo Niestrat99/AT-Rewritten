@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Config;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;

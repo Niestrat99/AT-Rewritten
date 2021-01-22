@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.utilities;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class TeleportTests {

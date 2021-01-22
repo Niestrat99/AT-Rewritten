@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.commands.spawn;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
-import io.github.niestrat99.advancedteleport.config.Config;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
