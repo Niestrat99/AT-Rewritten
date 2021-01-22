@@ -158,7 +158,7 @@ public class NewConfig extends CMFile {
         addDefault("per-command-cost.home", "default", "Cost for /home");
         addDefault("per-command-cost.back", "default", "Cost for /back");
 
-        addDefault("enable-distance-limitations", true, "Distance Limitations",
+        addDefault("enable-distance-limitations", false, "Distance Limitations",
                 "Enables the distance limiter to stop players teleporting over a large distance.\n" +
                         "This is only applied when people are teleporting in the same world.");
         addDefault("maximum-teleport-distance", 1000, "The maximum distance that a player can teleport.\n" +
