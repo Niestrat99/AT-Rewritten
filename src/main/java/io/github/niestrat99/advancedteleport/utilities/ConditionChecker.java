@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpOff;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -38,7 +39,7 @@ public class ConditionChecker {
         // If the target has teleportation disabled
         if (TpOff.getTpOff().contains(target.getUniqueId())) return CustomMessages.getString("Error.tpOff").replaceAll("\\{player}", target.getName());
         // Check if the player is blocked
-        if (TpBlock.getBlockedPlayers(target).contains(player.getUniqueId())) return CustomMessages.getString("Error.tpBlock").replaceAll("\\{player}", target.getName());
+        if (ATPlayer.getPlayer(target).isBlocked(player)) return CustomMessages.getString("Error.tpBlock").replaceAll("\\{player}", target.getName());
         // If a request has already been sent
         if (command.equalsIgnoreCase("tpa") || command.equalsIgnoreCase("tpahere")) {
             if (TPRequest.getRequestByReqAndResponder(target, player) != null) return CustomMessages.getString("Error.alreadySentRequest").replaceAll("\\{player}", target.getName());
