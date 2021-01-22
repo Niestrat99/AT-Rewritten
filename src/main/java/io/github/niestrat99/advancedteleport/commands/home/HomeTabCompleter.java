@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class HomeTabCompleter implements TabCompleter {
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {

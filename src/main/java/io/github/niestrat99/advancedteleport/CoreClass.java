@@ -151,7 +151,7 @@ public class CoreClass extends JavaPlugin {
         getCommand("tploc").setExecutor(new TpLoc());
 
         // Home commands
-        getCommand("home").setExecutor(new Home());
+        getCommand("home").setExecutor(new HomeCommand());
         getCommand("sethome").setExecutor(new SetHome());
         getCommand("delhome").setExecutor(new DelHome());
         getCommand("homes").setExecutor(new HomesCommand());

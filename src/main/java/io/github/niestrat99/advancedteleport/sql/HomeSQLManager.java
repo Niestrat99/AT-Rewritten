@@ -1,18 +1,29 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.BlockInfo;
+import io.github.niestrat99.advancedteleport.api.Home;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class HomeSQLManager extends SQLManager {
+
+    private static HomeSQLManager instance;
+
+    public HomeSQLManager() {
+        instance = this;
+    }
 
     @Override
     public void createTable() {
@@ -28,7 +39,8 @@ public class HomeSQLManager extends SQLManager {
                         "yaw FLOAT NOT NULL," +
                         "pitch FLOAT NOT NULL," +
                         "world VARCHAR(256) NOT NULL," +
-                        "timestamp BIGINT NOT NULL)");
+                        "timestamp_created BIGINT NOT NULL," +
+                        "timestamp_updated BIGINT NOT NULL)");
                 createTable.executeUpdate();
             } catch (SQLException exception) {
                 exception.printStackTrace();
@@ -38,23 +50,40 @@ public class HomeSQLManager extends SQLManager {
 
     @Override
     public void transferOldData() {
+        // Get the file itself.
+        File file = new File(CoreClass.getInstance().getDataFolder(), "homes.yml");
+        if (!file.exists()) return;
         // Load the config file.
-        YamlConfiguration homes = YamlConfiguration.loadConfiguration(
-                new File(CoreClass.getInstance().getDataFolder(), "homes.yml"));
+        YamlConfiguration homes = YamlConfiguration.loadConfiguration(file);
         // For each player found...
         for (String player : homes.getKeys(false)) {
             // Get the config section representing their homes.
             ConfigurationSection homeSection = homes.getConfigurationSection(player);
+            if (homeSection == null) continue;
             // For each home that appears...
-
+            for (String home : homeSection.getKeys(false)) {
+                ConfigurationSection homeRaw = homes.getConfigurationSection(player + "." + home);
+                if (homeRaw == null) continue;
+                String world = homeRaw.getString("world");
+                if (world == null) continue;
+                if (Bukkit.getWorld(world) == null) continue;
+                addHome(new Location(Bukkit.getWorld(world),
+                        homeRaw.getDouble("x"),
+                        homeRaw.getDouble("y"),
+                        homeRaw.getDouble("z"),
+                        (float) homeRaw.getDouble("yaw"),
+                        (float) homeRaw.getDouble("pitch")), UUID.fromString(player), home);
+            }
         }
+
+        file.delete();
     }
 
     public void addHome(Location location, UUID owner, String name) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement(
-                            "INSERT INTO advancedtp_homes (uuid_owner, home, x, y, z, yaw, pitch, world, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                            "INSERT INTO advancedtp_homes (uuid_owner, home, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                 statement.setString(1, owner.toString());
                 statement.setString(2, name);
@@ -65,6 +94,7 @@ public class HomeSQLManager extends SQLManager {
                 statement.setDouble(7, location.getPitch());
                 statement.setString(8, location.getWorld().getName());
                 statement.setLong(9, System.currentTimeMillis());
+                statement.setLong(10, System.currentTimeMillis());
                 statement.executeUpdate();
             } catch (SQLException exception) {
                 exception.printStackTrace();
@@ -73,6 +103,79 @@ public class HomeSQLManager extends SQLManager {
     }
 
     public void removeHome(UUID owner, String name) {
-        
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try {
+                PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM advancedtp_homes WHERE uuid_owner = ? AND home = ?");
+
+                statement.setString(1, owner.toString());
+                statement.setString(2, name);
+                statement.executeUpdate();
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        });
+    }
+
+    public void moveHome(Location newLocation, UUID owner, String name) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try {
+                PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE advancedtp_homes WHERE uuid_owner = ? AND home = ? SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ?");
+
+                statement.setString(1, owner.toString());
+                statement.setString(2, name);
+                statement.setDouble(3, newLocation.getX());
+                statement.setDouble(4, newLocation.getY());
+                statement.setDouble(5, newLocation.getZ());
+                statement.setDouble(6, newLocation.getYaw());
+                statement.setDouble(7, newLocation.getPitch());
+                statement.setString(8, newLocation.getWorld().getName());
+                statement.setLong(9, System.currentTimeMillis());
+                statement.executeUpdate();
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        });
+    }
+
+    public void getHomes(String ownerUUID, SQLCallback<HashMap<String, Home>> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try {
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM advancedtp_homes WHERE uuid_owner = ?");
+                statement.setString(1, ownerUUID);
+                ResultSet results = statement.executeQuery();
+                // Create a list for all homes.
+                HashMap<String, Home> homes = new HashMap<>();
+                // For each home...
+                while (results.next()) {
+                    // Get the world.
+                    World world = Bukkit.getWorld(results.getString("world"));
+                    if (world == null) continue;
+                    // Create the home object
+                    Home home = new Home(UUID.fromString(ownerUUID),
+                            results.getString("home"),
+                            new Location(world,
+                                    results.getDouble("x"),
+                                    results.getDouble("y"),
+                                    results.getDouble("z"),
+                                    results.getFloat("yaw"),
+                                    results.getFloat("pitch")),
+                            results.getLong("timestamp_created"),
+                            results.getLong("timestamp_updated"));
+                    // Add it to the list.
+                    homes.put(results.getString("home"), home);
+                }
+                // Go back to the main thread and return the list.
+                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> callback.onSuccess(homes));
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+                callback.onFail();
+            }
+        });
+    }
+
+    public static HomeSQLManager get() {
+        return instance;
     }
 }

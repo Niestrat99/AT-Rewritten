@@ -17,7 +17,7 @@ import java.util.UUID;
 public class ATPlayer {
 
     private UUID uuid;
-    private HashMap<String, Location> homes;
+    private HashMap<String, Home> homes;
     private HashMap<UUID, BlockInfo> blockedUsers;
 
     private static HashMap<String, ATPlayer> players = new HashMap<>();
@@ -30,6 +30,7 @@ public class ATPlayer {
         this.uuid = uuid;
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
+        HomeSQLManager.get().getHomes(uuid.toString(), list -> this.homes = list);
         players.put(name, this);
     }
 
@@ -77,6 +78,32 @@ public class ATPlayer {
         BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason);
     }
 
+    /*
+     * HOMES FUNCTIONALITY
+     */
+
+    public HashMap<String, Home> getHomes() {
+        return homes;
+    }
+
+    public void addHome(String name, Location location) {
+        homes.put(name, new Home(uuid, name, location, System.currentTimeMillis(), System.currentTimeMillis()));
+        HomeSQLManager.get().addHome(location, uuid, name);
+    }
+
+    public void moveHome(String name, Location newLocation) {
+        homes.get(name).setLocation(newLocation);
+        HomeSQLManager.get().moveHome(newLocation, uuid, name);
+    }
+
+    public void removeHome(String name) {
+        homes.remove(name);
+        HomeSQLManager.get().removeHome(uuid, name);
+    }
+
+    public Home getHome(String name) {
+        return homes.get(name);
+    }
 
     @NotNull
     public static ATPlayer getPlayer(Player player) {

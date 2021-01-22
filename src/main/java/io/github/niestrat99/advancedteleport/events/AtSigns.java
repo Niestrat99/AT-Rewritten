@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.events;
 
-import io.github.niestrat99.advancedteleport.commands.home.Home;
+import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.commands.teleport.Tpr;
 import io.github.niestrat99.advancedteleport.commands.warp.Warp;
@@ -98,7 +98,7 @@ public class AtSigns implements Listener {
             public void onInteract(Sign sign, Player player) {
                 Location bed = player.getBedSpawnLocation();
                 if (bed != null) {
-                    Home.teleport(player, bed, "bed");
+                    HomeCommand.teleport(player, bed, "bed");
                 }
             }
 

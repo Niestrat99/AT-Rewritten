@@ -1,7 +1,9 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.Home;
+import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Homes;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -15,12 +17,18 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-public class Home implements CommandExecutor {
+public class HomeCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -29,9 +37,10 @@ public class Home implements CommandExecutor {
                 if (sender instanceof Player) {
                     Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
 
-                    Player player = (Player)sender;
-                    String uuid = player.getUniqueId().toString();
-                    HashMap<String, Location> homes = Homes.getHomes(uuid);
+                    ATPlayer atPlayer = ATPlayer.getPlayer((Player)sender);
+                    Player player = atPlayer.getPlayer();
+
+                    HashMap<String, Home> homes = atPlayer.getHomes();
                     if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                         player.sendMessage(CustomMessages.getString("Error.onCountdown"));
                         return;
@@ -42,15 +51,17 @@ public class Home implements CommandExecutor {
                         return;
                     }
 
-                    if (args.length>0) {
+                    if (args.length > 0) {
                         if (sender.hasPermission("at.admin.home")) {
-                            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                            ATPlayer target = ATPlayer.getPlayer(args[0]);
                             if (target != null) {
                                 if (args.length > 1) {
-                                    String uuidOther = target.getUniqueId().toString();
-                                    HashMap<String, Location> homesOther = Homes.getHomes(uuidOther);
+                                    OfflinePlayer targetPlayer = target.getOfflinePlayer();
+                                    String uuidOther = targetPlayer.getUniqueId().toString();
+
+                                    HashMap<String, Home> homesOther = target.getHomes();
                                     try {
-                                        Location loc;
+                                        Home home;
                                         switch (args[1].toLowerCase()) {
                                             case "bed":
                                                 if (NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
@@ -148,7 +159,7 @@ public class Home implements CommandExecutor {
                 if (PaymentManager.getInstance().canPay("home", player)) {
                     // If the cooldown is to be applied after request or accept (they are the same in the case of /home), apply it now
                     String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
-                    if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                    if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
                         CooldownManager.addToCooldown("home", player);
                     }
                     int warmUp = NewConfig.getInstance().WARM_UPS.HOME.get();
@@ -162,5 +173,26 @@ public class Home implements CommandExecutor {
                 }
             }
         });
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        List<String> results = new ArrayList<>();
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            if (player.hasPermission("at.admin.home")) {
+                if (!args[0].isEmpty() && args.length == 2) {
+                    ATPlayer target = ATPlayer.getPlayer(args[0]);
+                    if (target == null) return new ArrayList<>();
+                    StringUtil.copyPartialMatches(args[1], target.getHomes().keySet(), results);
+                }
+            }
+            if (args.length == 1) {
+                ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                StringUtil.copyPartialMatches(args[0], atPlayer.getHomes().keySet(), results);
+            }
+        }
+        return results;
     }
 }
