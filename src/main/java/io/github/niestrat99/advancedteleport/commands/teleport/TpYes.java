@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.events.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.AcceptRequest;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import io.github.niestrat99.advancedteleport.utilities.TeleportTests;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

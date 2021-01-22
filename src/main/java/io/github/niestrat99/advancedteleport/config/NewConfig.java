@@ -6,13 +6,11 @@ import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.CMFile;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class NewConfig extends CMFile {

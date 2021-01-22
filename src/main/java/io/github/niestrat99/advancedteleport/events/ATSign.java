@@ -1,6 +1,5 @@
 package io.github.niestrat99.advancedteleport.events;
 
-import io.github.niestrat99.advancedteleport.config.Config;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
