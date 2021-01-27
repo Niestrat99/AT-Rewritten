@@ -106,16 +106,23 @@ public class WarpsCommand implements CommandExecutor {
             if (Warps.getWarps().size() > 0) {
                 FancyMessage wList = new FancyMessage();
                 wList.text(CustomMessages.getString("Info.warps"));
+                int count = 0;
                 for(String warp: Warps.getWarps().keySet()){
                     if (sender.hasPermission("at.member.warp.*") || sender.hasPermission("at.member.warp." + warp)) {
                         wList.then(warp)
                                 .command("/warp " + warp)
                                 .tooltip(getTooltip(sender, warp))
                                 .then(", ");
+                        count++;
                     }
                 }
                 wList.text(""); //Removes trailing comma
-                wList.send(sender);
+                if (count > 0) {
+                    wList.send(sender);
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.noWarps"));
+                }
+
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.noWarps"));
             }
