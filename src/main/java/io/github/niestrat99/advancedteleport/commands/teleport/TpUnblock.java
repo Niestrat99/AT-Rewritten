@@ -27,9 +27,7 @@ public class TpUnblock implements CommandExecutor {
                         }
                         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                            if (target == null){
-                                sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
-                            } else {
+
                                 if (TpBlock.getBlockedPlayers(player).contains(target.getUniqueId())){
                                     try {
                                         TpBlock.remBlockedPlayer(player, target.getUniqueId());
@@ -41,7 +39,7 @@ public class TpUnblock implements CommandExecutor {
                                     }
                                     sender.sendMessage(CustomMessages.getString("Info.unblockPlayer").replaceAll("\\{player}", args[0]));
                                 }
-                            }
+
                         });
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
