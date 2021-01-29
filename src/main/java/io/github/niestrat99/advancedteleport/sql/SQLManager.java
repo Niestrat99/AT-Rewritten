@@ -24,6 +24,8 @@ public abstract class SQLManager {
     public interface SQLCallback<D> {
         void onSuccess(D data);
 
+        default void onSuccess() {}
+
         default void onFail() {}
     }
 

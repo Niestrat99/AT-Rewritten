@@ -72,14 +72,14 @@ public class HomeSQLManager extends SQLManager {
                         homeRaw.getDouble("y"),
                         homeRaw.getDouble("z"),
                         (float) homeRaw.getDouble("yaw"),
-                        (float) homeRaw.getDouble("pitch")), UUID.fromString(player), home);
+                        (float) homeRaw.getDouble("pitch")), UUID.fromString(player), home, null);
             }
         }
 
         file.delete();
     }
 
-    public void addHome(Location location, UUID owner, String name) {
+    public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement(
@@ -96,13 +96,20 @@ public class HomeSQLManager extends SQLManager {
                 statement.setLong(9, System.currentTimeMillis());
                 statement.setLong(10, System.currentTimeMillis());
                 statement.executeUpdate();
+
+                if (callback != null) {
+                    callback.onSuccess(true);
+                }
             } catch (SQLException exception) {
                 exception.printStackTrace();
+                if (callback != null) {
+                    callback.onFail();
+                }
             }
         });
     }
 
-    public void removeHome(UUID owner, String name) {
+    public void removeHome(UUID owner, String name, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement(
@@ -111,6 +118,9 @@ public class HomeSQLManager extends SQLManager {
                 statement.setString(1, owner.toString());
                 statement.setString(2, name);
                 statement.executeUpdate();
+                if (callback != null) {
+                    callback.onSuccess(true);
+                }
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }

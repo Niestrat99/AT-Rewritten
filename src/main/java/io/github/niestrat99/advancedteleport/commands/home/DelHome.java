@@ -1,7 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Homes;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -9,8 +10,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.io.IOException;
 
 public class DelHome implements CommandExecutor {
     @Override
@@ -42,34 +41,22 @@ public class DelHome implements CommandExecutor {
     }
 
     private void delHome(OfflinePlayer player, Player sender, String name) {
-        try {
-            if (Homes.getHomes(player.getUniqueId().toString()).containsKey(name)) {
-                try {
-                    Homes.delHome(player, name);
-                    if (sender == player) {
-                        sender.sendMessage(CustomMessages.getString("Info.deletedHome").replaceAll("\\{home}", name));
-                    } else {
-                        sender.sendMessage(CustomMessages.getString("Info.deletedHomeOther").replaceAll("\\{home}", name).replaceAll("\\{player}", player.getName()));
-                    }
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
+            if (atPlayer.getHome(name) != null) {
+                sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replaceAll("\\{home}", name));
+                return;
             }
-        } catch (NullPointerException ex) {
-            try {
-                Homes.delHome(player, name);
-                if (sender == player) {
+
+            atPlayer.removeHome(name, data -> {
+                if (sender.getUniqueId() == player.getUniqueId()) {
                     sender.sendMessage(CustomMessages.getString("Info.deletedHome").replaceAll("\\{home}", name));
                 } else {
                     sender.sendMessage(CustomMessages.getString("Info.deletedHomeOther").replaceAll("\\{home}", name).replaceAll("\\{player}", player.getName()));
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+            });
+        });
     }
     private void delHome(Player player, String name) {
         delHome(player, player, name);

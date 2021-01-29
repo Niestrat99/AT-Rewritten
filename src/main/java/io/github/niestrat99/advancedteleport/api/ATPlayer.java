@@ -4,6 +4,7 @@ import com.sun.istack.internal.NotNull;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
+import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -86,9 +87,9 @@ public class ATPlayer {
         return homes;
     }
 
-    public void addHome(String name, Location location) {
+    public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback) {
         homes.put(name, new Home(uuid, name, location, System.currentTimeMillis(), System.currentTimeMillis()));
-        HomeSQLManager.get().addHome(location, uuid, name);
+        HomeSQLManager.get().addHome(location, uuid, name, callback);
     }
 
     public void moveHome(String name, Location newLocation) {
@@ -96,9 +97,9 @@ public class ATPlayer {
         HomeSQLManager.get().moveHome(newLocation, uuid, name);
     }
 
-    public void removeHome(String name) {
+    public void removeHome(String name, SQLManager.SQLCallback<Boolean> callback) {
         homes.remove(name);
-        HomeSQLManager.get().removeHome(uuid, name);
+        HomeSQLManager.get().removeHome(uuid, name, callback);
     }
 
     public Home getHome(String name) {
