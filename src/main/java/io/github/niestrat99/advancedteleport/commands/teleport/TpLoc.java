@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -24,7 +25,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class TpLoc implements CommandExecutor, TabCompleter {
+public class TpLoc implements ATCommand {
 
     private static final Pattern location = Pattern.compile("^(-)?\\d+(\\.\\d+)?$");
 

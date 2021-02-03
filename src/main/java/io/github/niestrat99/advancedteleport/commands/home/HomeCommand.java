@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class HomeCommand implements CommandExecutor, TabCompleter {
+public class HomeCommand extends AbstractHomeCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Homes;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -18,7 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class HomesCommand implements CommandExecutor {
+public class HomesCommand implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {

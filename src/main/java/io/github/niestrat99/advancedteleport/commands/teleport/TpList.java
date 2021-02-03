@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
@@ -9,8 +10,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class TpList implements CommandExecutor {
+import java.util.List;
+
+public class TpList implements ATCommand {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
@@ -72,5 +78,11 @@ public class TpList implements CommandExecutor {
             return true;
         }
         return true;
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        return null;
     }
 }

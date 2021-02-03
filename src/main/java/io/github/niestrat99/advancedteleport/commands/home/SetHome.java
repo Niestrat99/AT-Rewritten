@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Homes;
 import io.github.niestrat99.advancedteleport.CoreClass;
@@ -14,11 +15,16 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class SetHome implements CommandExecutor {
+public class SetHome implements ATCommand {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (NewConfig.getInstance().USE_HOMES.get()) {
@@ -128,5 +134,11 @@ public class SetHome implements CommandExecutor {
             }
         }
         return maxHomes;
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        return new ArrayList<>();
     }
 }

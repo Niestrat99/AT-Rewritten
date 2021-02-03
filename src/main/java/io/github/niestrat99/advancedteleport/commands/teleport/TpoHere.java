@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.papermc.lib.PaperLib;
@@ -10,7 +11,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-public class TpoHere implements CommandExecutor {
+public class TpoHere implements ATCommand {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {

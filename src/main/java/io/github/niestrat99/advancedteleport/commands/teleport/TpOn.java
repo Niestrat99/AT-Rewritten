@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.Command;
@@ -9,7 +10,8 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class TpOn implements CommandExecutor {
+public class TpOn implements ATCommand {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {

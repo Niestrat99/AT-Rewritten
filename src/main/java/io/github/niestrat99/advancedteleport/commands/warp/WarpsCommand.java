@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.IconMenu;
@@ -18,7 +19,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class WarpsCommand implements CommandExecutor {
+public class WarpsCommand implements ATCommand {
+
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (NewConfig.getInstance().USE_WARPS.get()) {

@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.TpBlock;
@@ -13,7 +14,8 @@ import org.bukkit.entity.Player;
 
 import java.io.IOException;
 
-public class TpUnblock implements CommandExecutor {
+public class TpUnblock implements ATCommand {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
