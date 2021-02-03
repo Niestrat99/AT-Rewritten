@@ -412,6 +412,7 @@ public class NewConfig extends CMFile {
         USE_SPAWN = new ConfigOption<>("use-spawn");
         USE_HOMES = new ConfigOption<>("use-homes");
         REQUEST_LIFETIME = new ConfigOption<>("request-lifetime");
+        DISABLED_COMMANDS = new ConfigOption<>("disabled-commands");
 
         WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
