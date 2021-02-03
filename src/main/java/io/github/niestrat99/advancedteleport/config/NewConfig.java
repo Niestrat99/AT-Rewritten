@@ -21,6 +21,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> USE_SPAWN;
     public ConfigOption<Boolean> USE_HOMES;
     public ConfigOption<Integer> REQUEST_LIFETIME;
+    public ConfigOption<List<String>> DISABLED_COMMANDS;
 
     public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
@@ -101,6 +102,8 @@ public class NewConfig extends CMFile {
         addDefault("use-randomtp", true, "Whether the plugin should allow random teleportation.");
         addDefault("use-homes", true, "Whether homes should be enabled in the plugin.");
         addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
+        addDefault("disabled-commands", new ArrayList<>(), "The commands that AT should not register upon starting up.\n" +
+                "In other words, this gives up the command for other plugins to use.");
 
         addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", "The number of seconds it takes for the teleportation to take place following confirmation.\n" +
                 "(i.e. \"You will teleport in 3 seconds!\")\n" +
