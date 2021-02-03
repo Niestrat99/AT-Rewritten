@@ -32,6 +32,12 @@ public class ATPlayer {
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> this.homes = list);
+
+        if (getPlayer() != null
+                && getPlayer().getBedSpawnLocation() != null
+                && !getHomes().containsKey("bed")) {
+            addHome("bed", getPlayer().getBedSpawnLocation(), null);
+        }
         players.put(name, this);
     }
 
@@ -104,6 +110,13 @@ public class ATPlayer {
 
     public Home getHome(String name) {
         return homes.get(name);
+    }
+
+    public Home getBedSpawn() {
+        if (getPlayer().getBedSpawnLocation() != null) {
+            return new Home(uuid, "bed", getPlayer().getBedSpawnLocation(), -1, -1);
+        }
+        return null;
     }
 
     @NotNull
