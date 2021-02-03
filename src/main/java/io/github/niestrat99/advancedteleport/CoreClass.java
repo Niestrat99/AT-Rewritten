@@ -7,7 +7,7 @@ import io.github.niestrat99.advancedteleport.commands.home.*;
 import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
-import io.github.niestrat99.advancedteleport.commands.warp.Warp;
+import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpTabCompleter;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.*;
@@ -157,7 +157,7 @@ public class CoreClass extends JavaPlugin {
         getCommand("homes").setExecutor(new HomesCommand());
 
         // Warp commands
-        getCommand("warp").setExecutor(new Warp());
+        getCommand("warp").setExecutor(new WarpCommand());
         getCommand("warps").setExecutor(new WarpsCommand());
 
         // Spawn commands

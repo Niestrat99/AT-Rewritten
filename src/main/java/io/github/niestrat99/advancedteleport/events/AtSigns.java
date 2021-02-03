@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.events;
 import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.commands.teleport.Tpr;
-import io.github.niestrat99.advancedteleport.commands.warp.Warp;
+import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -46,7 +46,7 @@ public class AtSigns implements Listener {
             @Override
             public void onInteract(Sign sign, Player player) {
                 if (Warps.getWarps().containsKey(sign.getLine(1))) {
-                    Warp.warp(Warps.getWarps().get(sign.getLine(1)), player, sign.getLine(1));
+                    WarpCommand.warp(Warps.getWarps().get(sign.getLine(1)), player, sign.getLine(1));
                 }
             }
 
