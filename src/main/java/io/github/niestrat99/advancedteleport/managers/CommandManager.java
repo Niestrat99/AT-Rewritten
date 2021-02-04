@@ -70,19 +70,38 @@ public class CommandManager {
         if (command.getPlugin() != CoreClass.getInstance()) return;
         CommandMap map = getMap();
         if (map == null) return;
+        HashMap<String, Command> commands = getCommands(map);
+        if (commands == null) return;
         if (NewConfig.getInstance().DISABLED_COMMANDS.get().contains(name)) {
             if (command.isRegistered()) {
                 command.unregister(map);
+                commands.remove(name);
+                commands.remove("advancedteleport:" + name);
+                // Let another plugin take over
+                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                    for (String otherCmd : commands.keySet()) {
+                        String[] parts = otherCmd.split(":");
+                        if (parts.length < 2) continue;
+                        if (parts[1].equals(name)) {
+                            if (parts[0].equals("advancedteleport")) continue;
+                            commands.put(name, commands.get(otherCmd));
+                            break;
+                        }
+                    }
+                });
+
                 return;
             }
         } else {
             if (!command.isRegistered()) {
                 command.register(map);
+                commands.put(name, command);
+                commands.put("advancedteleport:" + name, command);
             }
         }
         if (atCommand instanceof AsyncATCommand) {
             command.setExecutor((sender, cmd, label, args) -> {
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> atCommand.onCommand(sender, cmd, label, args))
+                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> atCommand.onCommand(sender, cmd, label, args));
                 return false;
             });
         } else {
@@ -97,6 +116,17 @@ public class CommandManager {
             Method map = Bukkit.getServer().getClass().getDeclaredMethod("getCommandMap");
             return (CommandMap) map.invoke(Bukkit.getServer());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static HashMap<String, Command> getCommands(CommandMap map) {
+        try {
+            Field commands = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            commands.setAccessible(true);
+            return (HashMap) commands.get(map);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return null;

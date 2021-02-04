@@ -103,7 +103,8 @@ public class NewConfig extends CMFile {
         addDefault("use-homes", true, "Whether homes should be enabled in the plugin.");
         addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
         addDefault("disabled-commands", new ArrayList<>(), "The commands that AT should not register upon starting up.\n" +
-                "In other words, this gives up the command for other plugins to use.");
+                "In other words, this gives up the command for other plugins to use.\n" +
+                "NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for anything to change.");
 
         addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", "The number of seconds it takes for the teleportation to take place following confirmation.\n" +
                 "(i.e. \"You will teleport in 3 seconds!\")\n" +
