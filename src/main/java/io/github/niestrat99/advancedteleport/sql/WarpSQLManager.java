@@ -71,10 +71,11 @@ public class WarpSQLManager extends SQLManager {
                     warpSection.getDouble("z"),
                     (float) warpSection.getDouble("yaw"),
                     (float) warpSection.getDouble("pitch"));
+            System.out.println(location);
             addWarp(new Warp(null, warp, location, -1, -1), null);
-
         }
 
+        file.delete();
 
     }
 
@@ -85,7 +86,7 @@ public class WarpSQLManager extends SQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO advancedtp_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "INSERT INTO advancedtp_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                 statement.setString(1, name);
                 statement.setString(2, creator == null ? null : creator.toString());
@@ -161,7 +162,8 @@ public class WarpSQLManager extends SQLManager {
                     World world = Bukkit.getWorld(results.getString("world"));
                     if (world == null) continue;
                     // Create the warp object and it'll register itself.
-                    new Warp(UUID.fromString(results.getString("uuid_creator")),
+                    String creator = results.getString("uuid_creator");
+                    new Warp(creator == null ? null : UUID.fromString(creator),
                             results.getString("warp"),
                             new Location(world,
                                     results.getDouble("x"),

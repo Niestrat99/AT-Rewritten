@@ -22,6 +22,7 @@ public class HomeSQLManager extends SQLManager {
     private static HomeSQLManager instance;
 
     public HomeSQLManager() {
+        super();
         instance = this;
     }
 
@@ -39,6 +40,7 @@ public class HomeSQLManager extends SQLManager {
                         "yaw FLOAT NOT NULL," +
                         "pitch FLOAT NOT NULL," +
                         "world VARCHAR(256) NOT NULL," +
+                        "icon VARCHAR(256) DEFAULT 'GRASS_BLOCK' NOT NULL," +
                         "timestamp_created BIGINT NOT NULL," +
                         "timestamp_updated BIGINT NOT NULL)");
                 createTable.executeUpdate();
@@ -83,7 +85,7 @@ public class HomeSQLManager extends SQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement(
-                            "INSERT INTO advancedtp_homes (uuid_owner, home, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                            "INSERT INTO advancedtp_homes (uuid_owner, home, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                 statement.setString(1, owner.toString());
                 statement.setString(2, name);

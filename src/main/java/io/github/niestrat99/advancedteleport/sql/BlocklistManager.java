@@ -42,19 +42,26 @@ public class BlocklistManager extends SQLManager {
 
     @Override
     public void transferOldData() {
+        //
+        File blocklistFile = new File(CoreClass.getInstance().getDataFolder(), "blocklist.yml");
+        if (!blocklistFile.exists()) return;
         // Load the config file.
-        YamlConfiguration blocklist = YamlConfiguration.loadConfiguration(
-                new File(CoreClass.getInstance().getDataFolder(), "blocklist.yml"));
-        // For each player found...
-        for (String player : blocklist.getConfigurationSection("players").getKeys(false)) {
-            // Get the list for the player blocked.
-            List<String> blockedPlayers = blocklist.getStringList("players." + player);
-            // For each blocked player...
-            for (String blockedPlayer : blockedPlayers) {
-                // Reasons didn't exist pre-5.4, so the reason is null.
-                blockUser(player, blockedPlayer, null);
+        YamlConfiguration blocklist = YamlConfiguration.loadConfiguration(blocklistFile);
+
+        ConfigurationSection playersSection = blocklist.getConfigurationSection("players");
+        if (playersSection != null) {
+            // For each player found...
+            for (String player : playersSection.getKeys(false)) {
+                // Get the list for the player blocked.
+                List<String> blockedPlayers = blocklist.getStringList("players." + player);
+                // For each blocked player...
+                for (String blockedPlayer : blockedPlayers) {
+                    // Reasons didn't exist pre-5.4, so the reason is null.
+                    blockUser(player, blockedPlayer, null);
+                }
             }
         }
+        blocklistFile.delete();
     }
 
     public void blockUser(String receiverUUID, String blockedUUID, String reason) {
