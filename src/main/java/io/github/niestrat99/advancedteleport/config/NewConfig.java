@@ -37,6 +37,8 @@ public class NewConfig extends CMFile {
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
 
+    public ConfigOption<Boolean> USE_MYSQL;
+
     public ConfigOption<Boolean> ENABLE_DISTANCE_LIMITATIONS;
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS;
@@ -166,8 +168,10 @@ public class NewConfig extends CMFile {
 
         addDefault("use-mysql", false, "Whether the plugin should use SQL storage or not.\n" +
                 "By default, AT uses SQLite storage, which stores data in a .db file locally.");
-        addDefault("");
-        
+        addDefault("mysql-host", "127.0.0.1", "The MySQL host to connect to.");
+        addDefault("mysql-port", 3308, "The port to connect to.");
+        addDefault("mysql-user", "username", "The username to use when connecting.");
+        addDefault("mysql-password", "password", "The password to use when connecting.");
 
         addDefault("enable-distance-limitations", true, "Distance Limitations",
                 "Enables the distance limiter to stop players teleporting over a large distance.\n" +
@@ -438,6 +442,8 @@ public class NewConfig extends CMFile {
 
         COST_AMOUNT = new ConfigOption<>("cost-amount");
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
+
+        USE_MYSQL = new ConfigOption<>("use-mysql");
 
         ENABLE_DISTANCE_LIMITATIONS = new ConfigOption<>("enable-distance-limitations");
         MAXIMUM_TELEPORT_DISTANCE = new ConfigOption<>("maximum-teleport-distance");
