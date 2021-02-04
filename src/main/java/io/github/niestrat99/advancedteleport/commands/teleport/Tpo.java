@@ -1,10 +1,14 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
+import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -26,6 +30,23 @@ public class Tpo implements ATCommand {
                         }
                         Player target = Bukkit.getPlayer(args[0]);
                         if (target == null) {
+                            if (sender.hasPermission("at.admin.tpo.offline")) {
+                                PlayerSQLManager.get().getLocation(args[0], new SQLManager.SQLCallback<Location>() {
+                                    @Override
+                                    public void onSuccess(Location data) {
+                                        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
+                                            PaperLib.teleportAsync(player, data);
+                                            sender.sendMessage("Teleported to " + args[0]);
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFail() {
+                                        sender.sendMessage("No saved location");
+                                    }
+                                });
+                                return true;
+                            }
                             sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
                         } else {
                             sender.sendMessage(CustomMessages.getString("Teleport.teleporting").replaceAll("\\{player}", target.getName()));
