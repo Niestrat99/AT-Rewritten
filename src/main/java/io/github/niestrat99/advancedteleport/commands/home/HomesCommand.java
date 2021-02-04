@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Homes;
@@ -13,11 +15,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class HomesCommand implements ATCommand {
 
@@ -29,72 +30,15 @@ public class HomesCommand implements ATCommand {
                     if (args.length>0) {
                         if (sender.hasPermission("at.admin.homes")) {
                             OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
-                            if (player != null) {
-                                String uuid = player.getUniqueId().toString();
-                                FancyMessage hlist = new FancyMessage();
-                                hlist.text(CustomMessages.getString("Info.homesOther").replaceAll("\\{player}", player.getName()));
-                                try {
-                                    if (Homes.getHomes(uuid).size()>0) {
-                                        for (String home : Homes.getHomes(uuid).keySet()) {
-                                            hlist.then(home)
-                                                    .command("/home " + args[0] + " " + home)
-                                                    .tooltip(getTooltip(player, sender, home))
-                                                    .then(", ");
-                                        }
-                                        if (player.getBedSpawnLocation() != null && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
-                                            hlist.then("bed")
-                                                    .command("/home " + args[0] + " bed")
-                                                    .tooltip(getTooltip(player, sender, "bed"))
-                                                    .then(", ");
-                                        }
-                                        hlist.text(""); //Removes trailing comma
-                                    } else {
-                                        sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
-                                        return;
-                                    }
-
-                                } catch (NullPointerException ex) {
-                                    sender.sendMessage(CustomMessages.getString("Error.noHomesOther").replaceAll("\\{player}", player.getName()));
-                                    return;
-                                }
-                                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> hlist.send(sender));
-
+                            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                            if (atPlayer.getHomes().size() > 0) {
+                                getHomes(sender, player);
                                 return;
-                            } // Otherwise we'll just get the main player's homes
+                            }
                         }
                     }
                     if (sender instanceof Player) {
-                        Player player = (Player)sender;
-                        String uuid = player.getUniqueId().toString();
-                        FancyMessage hList = new FancyMessage();
-                        hList.text(CustomMessages.getString("Info.homes"));
-
-                        try {
-                            if (Homes.getHomes(uuid).size()>0){
-                                for(String home : Homes.getHomes(uuid).keySet()){
-
-                                    hList.then(home)
-                                            .command("/home " + home)
-                                            .tooltip(getTooltip(player, home))
-                                            .then(", ");
-                                }
-                                if (player.getBedSpawnLocation() != null && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
-                                    hList.then("bed")
-                                            .command("/home bed")
-                                            .tooltip(getTooltip(player, "bed"))
-                                            .then(", ");
-                                }
-                                hList.text(""); //Removes trailing comma
-                            } else {
-                                sender.sendMessage(CustomMessages.getString("Error.noHomes"));
-                                return;
-                            }
-
-                        } catch (NullPointerException ex) { // If a player has never set any homes
-                            sender.sendMessage(CustomMessages.getString("Error.noHomes"));
-                            return;
-                        }
-                        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> hList.send(sender));
+                        getHomes(sender, (Player) sender);
                     }
                 });
 
@@ -105,25 +49,43 @@ public class HomesCommand implements ATCommand {
         return true;
     }
 
-    private List<String> getTooltip(OfflinePlayer player, String home) {
-        return getTooltip(player, player.getPlayer(), home);
+    private void getHomes(CommandSender sender, OfflinePlayer target) {
+        ATPlayer atPlayer = ATPlayer.getPlayer(target);
+        FancyMessage hList = new FancyMessage();
+        hList.text(CustomMessages.getString("Info.homes"));
+
+        if (atPlayer.getHomes().size() > 0) {
+            for (Home home : atPlayer.getHomes().values()) {
+
+                hList.then(home.getName())
+                        .command("/home " + home.getName())
+                        .tooltip(getTooltip(sender, home))
+                        .then(", ");
+            }
+            if (atPlayer.getBedSpawn() != null && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
+                hList.then("bed")
+                        .command("/home bed")
+                        .tooltip(getTooltip(sender, atPlayer.getBedSpawn()))
+                        .then(", ");
+            }
+            hList.text(""); //Removes trailing comma
+        } else {
+            return;
+        }
+
+        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> hList.send(sender));
     }
 
-    private List<String> getTooltip(OfflinePlayer player, CommandSender sender, String home) {
+    private List<String> getTooltip(CommandSender sender, Home home) {
         List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getString("Tooltip.homes")));
         if (sender.hasPermission("at.member.homes.location")) {
             tooltip.addAll(Arrays.asList(CustomMessages.getString("Tooltip.location").split("\n")));
         }
         List<String> homeTooltip = new ArrayList<>(tooltip);
         for (int i = 0; i < homeTooltip.size(); i++) {
-            Location homeLoc;
-            if (home.equals("bed")) {
-                homeLoc = player.getBedSpawnLocation();
-            } else {
-                homeLoc = Homes.getHomes(player.getUniqueId().toString()).get(home);
-            }
+            Location homeLoc = home.getLocation();
 
-            homeTooltip.set(i, homeTooltip.get(i).replaceAll("\\{home}", home)
+            homeTooltip.set(i, homeTooltip.get(i).replaceAll("\\{home}", home.getName())
                     .replaceAll("\\{x}", String.valueOf(homeLoc.getX()))
                     .replaceAll("\\{y}", String.valueOf(homeLoc.getY()))
                     .replaceAll("\\{z}", String.valueOf(homeLoc.getZ()))
@@ -131,5 +93,4 @@ public class HomesCommand implements ATCommand {
         }
         return homeTooltip;
     }
-
 }
