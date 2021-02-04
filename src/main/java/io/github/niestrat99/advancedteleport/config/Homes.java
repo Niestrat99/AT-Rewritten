@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+@Deprecated
 public class Homes {
 
     public static File homesFile = new File(CoreClass.getInstance().getDataFolder(),"homes.yml");

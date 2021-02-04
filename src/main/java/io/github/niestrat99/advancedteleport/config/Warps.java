@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
+@Deprecated
 public class Warps {
 
     public static File warp = new File(CoreClass.getInstance().getDataFolder(), "warps.yml");

@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-
+@Deprecated
 public class TpBlock {
     public static File configFile = new File(CoreClass.getInstance().getDataFolder(),"blocklist.yml");
 
