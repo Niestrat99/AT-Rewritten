@@ -1,36 +1,67 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
-import io.github.niestrat99.advancedteleport.commands.AtHelp;
+import io.github.niestrat99.advancedteleport.commands.*;
+import io.github.niestrat99.advancedteleport.commands.home.DelHome;
 import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
-import io.github.niestrat99.advancedteleport.commands.teleport.Back;
+import io.github.niestrat99.advancedteleport.commands.home.HomesCommand;
+import io.github.niestrat99.advancedteleport.commands.home.SetHome;
+import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
+import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
+import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
-import org.bukkit.command.*;
-import org.bukkit.command.defaults.BukkitCommand;
-import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 public class CommandManager {
 
     public static void registerCommands() {
         register("athelp", new AtHelp());
+        register("atreload", new AtReload());
+        register("atinfo", new AtInfo());
 
         register("back", new Back());
+        register("toggletp", new ToggleTP());
+        register("tpa", new Tpa());
+        register("tpahere", new TpaHere());
+        register("tpall", new TpAll());
+        register("tpblock", new TpBlockCommand());
+        register("tpcancel", new TpCancel());
+        register("tplist", new TpList());
+        register("tploc", new TpLoc());
+        register("tpno", new TpNo());
+        register("tpo", new Tpo());
+        register("tpoff", new TpOff());
+        register("tpohere", new TpoHere());
+        register("tpon", new TpOn());
+        register("tpr", new Tpr());
+        register("tpunblock", new TpUnblock());
+        register("tpyes", new TpYes());
 
         register("home", new HomeCommand());
+        register("sethome", new SetHome());
+        register("delhome", new DelHome());
+        register("homes", new HomesCommand());
 
         register("warp", new WarpCommand());
         register("setwarp", new SetWarpCommand());
         register("delwarp", new DeleteWarpCommand());
         register("movewarp", new MoveWarpCommand());
         register("warps", new WarpsCommand());
+
+        register("spawn", new SpawnCommand());
+        register("setspawn", new SetSpawn());
     }
 
     private static void register(String name, ATCommand atCommand) {
