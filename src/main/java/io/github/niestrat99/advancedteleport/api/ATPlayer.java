@@ -1,9 +1,10 @@
 package io.github.niestrat99.advancedteleport.api;
 
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
+import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,6 +21,7 @@ public class ATPlayer {
     private UUID uuid;
     private HashMap<String, Home> homes;
     private HashMap<UUID, BlockInfo> blockedUsers;
+    private boolean isTeleportationEnabled;
 
     private static HashMap<String, ATPlayer> players = new HashMap<>();
 
@@ -32,6 +34,7 @@ public class ATPlayer {
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> this.homes = list);
+        PlayerSQLManager.get().isTeleportationOn(uuid, result -> this.isTeleportationEnabled = result);
 
         if (getPlayer() != null
                 && getPlayer().getBedSpawnLocation() != null
@@ -53,6 +56,15 @@ public class ATPlayer {
 
     }
 
+    public boolean isTeleportationEnabled() {
+        return isTeleportationEnabled;
+    }
+
+    public void setTeleportationEnabled(boolean teleportationEnabled, SQLManager.SQLCallback<Boolean> callback) {
+        isTeleportationEnabled = teleportationEnabled;
+        PlayerSQLManager.get().setTeleportationOn(uuid, teleportationEnabled, callback);
+    }
+
     /*
      * BLOCKING FUNCTIONALITY
      */
@@ -62,7 +74,7 @@ public class ATPlayer {
      * @param otherPlayer
      * @return
      */
-    public boolean isBlocked(OfflinePlayer otherPlayer) {
+    public boolean hasBlocked(OfflinePlayer otherPlayer) {
         return blockedUsers.containsKey(otherPlayer.getUniqueId());
     }
 
@@ -83,6 +95,12 @@ public class ATPlayer {
         blockedUsers.put(otherUUID, new BlockInfo(uuid, otherUUID, reason, System.currentTimeMillis()));
         // Add the entry to the SQL database.
         BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason);
+    }
+
+    public void unblockUser(@NotNull UUID otherUUID) {
+        blockedUsers.remove(otherUUID);
+
+        BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString());
     }
 
     /*
@@ -139,6 +157,10 @@ public class ATPlayer {
             new ATPlayer(player.getUniqueId(), player.getName());
         });
         return null;
+    }
+
+    public static void removePlayer(Player player) {
+        players.remove(player.getName());
     }
 
 }
