@@ -11,10 +11,16 @@ import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpTabCompleter;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.*;
-import io.github.niestrat99.advancedteleport.events.AtSigns;
+import io.github.niestrat99.advancedteleport.listeners.AtSigns;
+import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
+import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.TeleportTrackingManager;
+import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
+import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
+import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
+import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -96,7 +102,13 @@ public class CoreClass extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        registerCommands();
+        CommandManager.registerCommands();
+        {
+            new BlocklistManager();
+            new HomeSQLManager();
+            new PlayerSQLManager();
+            new WarpSQLManager();
+        }
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
@@ -173,6 +185,7 @@ public class CoreClass extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AtSigns(), this);
         getServer().getPluginManager().registerEvents(new TeleportTrackingManager(), this);
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
+        getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
     }
 
     public static void playSound(String type, String subType, Player target) {
