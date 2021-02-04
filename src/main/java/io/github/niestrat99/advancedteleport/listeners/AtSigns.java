@@ -1,5 +1,7 @@
-package io.github.niestrat99.advancedteleport.events;
+package io.github.niestrat99.advancedteleport.listeners;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.commands.teleport.Tpr;
@@ -8,6 +10,7 @@ import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Warps;
+import io.github.niestrat99.advancedteleport.listeners.ATSign;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -45,8 +48,8 @@ public class AtSigns implements Listener {
         signRegistry.put("warp", new ATSign("Warp", NewConfig.getInstance().USE_WARPS.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
-                if (Warps.getWarps().containsKey(sign.getLine(1))) {
-                    WarpCommand.warp(Warps.getWarps().get(sign.getLine(1)), player, sign.getLine(1));
+                if (Warp.getWarps().containsKey(sign.getLine(1))) {
+                    WarpCommand.warp(Warp.getWarps().get(sign.getLine(1)), player);
                 }
             }
 
@@ -96,9 +99,9 @@ public class AtSigns implements Listener {
         signRegistry.put("bed", new ATSign("Bed", NewConfig.getInstance().USE_HOMES.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
-                Location bed = player.getBedSpawnLocation();
-                if (bed != null) {
-                    HomeCommand.teleport(player, bed, "bed");
+                ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                if (atPlayer.getBedSpawn() != null) {
+                    HomeCommand.teleport(player, atPlayer.getBedSpawn());
                 }
             }
 
