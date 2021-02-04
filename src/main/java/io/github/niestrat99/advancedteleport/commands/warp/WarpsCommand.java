@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
@@ -105,10 +106,10 @@ public class WarpsCommand implements ATCommand {
             menu.open((Player) sender);
 
         } else {
-            if (Warps.getWarps().size() > 0) {
+            if (Warp.getWarps().size() > 0) {
                 FancyMessage wList = new FancyMessage();
                 wList.text(CustomMessages.getString("Info.warps"));
-                for(String warp: Warps.getWarps().keySet()){
+                for (String warp: Warp.getWarps().keySet()){
                     if (sender.hasPermission("at.member.warp.*") || sender.hasPermission("at.member.warp." + warp)) {
                         wList.then(warp)
                                 .command("/warp " + warp)
@@ -132,7 +133,7 @@ public class WarpsCommand implements ATCommand {
         }
         List<String> homeTooltip = new ArrayList<>(tooltip);
         for (int i = 0; i < homeTooltip.size(); i++) {
-            Location warpLoc = Warps.getWarps().get(warp);
+            Location warpLoc = Warp.getWarps().get(warp).getLocation();
 
             homeTooltip.set(i, homeTooltip.get(i).replaceAll("\\{warp}", warp)
                     .replaceAll("\\{x}", String.valueOf(warpLoc.getBlockX()))

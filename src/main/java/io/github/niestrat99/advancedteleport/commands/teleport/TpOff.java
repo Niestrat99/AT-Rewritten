@@ -1,6 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.Command;
@@ -12,25 +14,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class TpOff implements ATCommand {
-
-    private static List<UUID> tpoff = new ArrayList<>();
-
-    public static List<UUID> getTpOff() {
-        return tpoff;
-    }
-
+public class TpOff implements AsyncATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            UUID uuid = player.getUniqueId();
             if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.off")) {
-                    if (!tpoff.contains(uuid)) {
-                        tpoff.add(uuid);
-                        sender.sendMessage(CustomMessages.getString("Info.tpOff"));
+                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                    if (atPlayer.isTeleportationEnabled()) {
+                        atPlayer.setTeleportationEnabled(false, callback -> {
+                            sender.sendMessage(CustomMessages.getString("Info.tpOff"));
+                        });
+
                     } else {
                         sender.sendMessage(CustomMessages.getString("Error.alreadyOff"));
                     }

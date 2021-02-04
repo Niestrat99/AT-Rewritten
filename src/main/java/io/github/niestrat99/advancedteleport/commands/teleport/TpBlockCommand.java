@@ -1,20 +1,15 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.TpBlock;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.io.IOException;
 
 public class TpBlockCommand implements AsyncATCommand {
 
@@ -41,7 +36,7 @@ public class TpBlockCommand implements AsyncATCommand {
                             //
                             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
 
-                            if (atPlayer.isBlocked(target)) {
+                            if (atPlayer.hasBlocked(target)) {
                                 sender.sendMessage(CustomMessages.getString("Error.alreadyBlocked"));
                                 return;
                             }

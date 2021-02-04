@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -21,16 +22,18 @@ public class ToggleTP implements AsyncATCommand {
                     if (args.length>0) {
                         if (sender.hasPermission("at.admin.toggletp")) {
                             Player target = Bukkit.getPlayer(args[0]);
-                            UUID uuid = target.getUniqueId();
-                            if (target.isOnline()) {
-                                if (TpOff.getTpOff().contains(uuid)) {
-                                    TpOff.getTpOff().remove(uuid);
-                                    sender.sendMessage(CustomMessages.getString("Info.tpAdminOn"));
-                                    target.sendMessage(CustomMessages.getString("Info.tpOn"));
+                            if (target != null) {
+                                ATPlayer atPlayer = ATPlayer.getPlayer(target);
+                                if (atPlayer.isTeleportationEnabled()) {
+                                    atPlayer.setTeleportationEnabled(false, callback -> {
+                                        sender.sendMessage(CustomMessages.getString("Info.tpAdminOff"));
+                                        target.sendMessage(CustomMessages.getString("Info.tpOff"));
+                                    });
                                 } else {
-                                    TpOff.getTpOff().add(uuid);
-                                    sender.sendMessage(CustomMessages.getString("Info.tpAdminOff"));
-                                    target.sendMessage(CustomMessages.getString("Info.tpOff"));
+                                    atPlayer.setTeleportationEnabled(true, callback -> {
+                                        sender.sendMessage(CustomMessages.getString("Info.tpAdminOn"));
+                                        target.sendMessage(CustomMessages.getString("Info.tpOn"));
+                                    });
                                 }
                             } else {
                                 sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
@@ -38,13 +41,15 @@ public class ToggleTP implements AsyncATCommand {
                         }
                     } else {
                         Player player = (Player) sender;
-                        UUID uuid = player.getUniqueId();
-                        if (TpOff.getTpOff().contains(uuid)) {
-                            TpOff.getTpOff().remove(uuid);
-                            sender.sendMessage(CustomMessages.getString("Info.tpOn"));
+                        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                        if (atPlayer.isTeleportationEnabled()) {
+                            atPlayer.setTeleportationEnabled(false, callback -> {
+                                sender.sendMessage(CustomMessages.getString("Info.tpOff"));
+                            });
                         } else {
-                            TpOff.getTpOff().add(uuid);
-                            sender.sendMessage(CustomMessages.getString("Info.tpOff"));
+                            atPlayer.setTeleportationEnabled(true, callback -> {
+                                sender.sendMessage(CustomMessages.getString("Info.tpOn"));
+                            });
                         }
                     }
                 }
