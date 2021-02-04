@@ -21,7 +21,13 @@ public class Warp {
     private static HashMap<String, Warp> warps = new HashMap<>();
 
     public Warp(UUID creator, String name, Location location, long createdTime, long updatedTime) {
+        this.name = name;
+        this.location = location;
+        this.creator = creator;
+        this.createdTime = createdTime;
+        this.updatedTime = updatedTime;
 
+        warps.put(name, this);
     }
 
     public String getName() {
@@ -45,5 +51,9 @@ public class Warp {
 
     public static HashMap<String, Warp> getWarps() {
         return warps;
+    }
+
+    public void delete(SQLManager.SQLCallback<Boolean> callback) {
+        WarpSQLManager.get().removeWarp(name, callback);
     }
 }

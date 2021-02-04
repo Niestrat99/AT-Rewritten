@@ -15,7 +15,11 @@ public class Home {
     private String updatedTimeFormatted;
 
     public Home(UUID owner, String name, Location location, long createdTime, long updatedTime) {
-
+        this.name = name;
+        this.owner = owner;
+        this.location = location;
+        this.createdTime = createdTime;
+        this.updatedTime = updatedTime;
     }
 
     public Location getLocation() {
