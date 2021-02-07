@@ -49,6 +49,14 @@ public class Warp {
         WarpSQLManager.get().moveWarp(location, name, callback);
     }
 
+    public long getCreatedTime() {
+        return createdTime;
+    }
+
+    public long getUpdatedTime() {
+        return updatedTime;
+    }
+
     public static HashMap<String, Warp> getWarps() {
         return warps;
     }
