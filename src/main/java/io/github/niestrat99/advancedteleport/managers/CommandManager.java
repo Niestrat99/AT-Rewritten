@@ -2,10 +2,7 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.*;
-import io.github.niestrat99.advancedteleport.commands.home.DelHome;
-import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
-import io.github.niestrat99.advancedteleport.commands.home.HomesCommand;
-import io.github.niestrat99.advancedteleport.commands.home.SetHome;
+import io.github.niestrat99.advancedteleport.commands.home.*;
 import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
@@ -53,6 +50,7 @@ public class CommandManager {
         register("sethome", new SetHome());
         register("delhome", new DelHome());
         register("homes", new HomesCommand());
+        register("movehome", new MoveHomeCommand());
 
         register("warp", new WarpCommand());
         register("setwarp", new SetWarpCommand());

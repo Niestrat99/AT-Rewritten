@@ -16,6 +16,10 @@ commands:
     description: Gives you a list of sub commands from this command.
     permission: at.member.warp
     usage: /warp <Warp name>
+  movewarp:
+    description: Moves a specified warp.
+    permission: at.admin.movewarp
+    usage: /movewarp <Warp name>
   tpr:
     description: Teleports you to a random place.
     permission: at.member.tpr
@@ -106,6 +110,10 @@ commands:
     description: Gives a list of homes you've set.
     permission: at.member.homes
     usage: /homes [Player]
+  movehome:
+    description: Moves a home to a new location.
+    permission: at.member.movehome
+    usage: /movehome <Home>
   back:
     description: Teleports you to your last location.
     permission: at.member.back
