@@ -9,11 +9,8 @@ import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Warps;
-import io.github.niestrat99.advancedteleport.listeners.ATSign;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -59,7 +56,7 @@ public class AtSigns implements Listener {
                     player.sendMessage(CustomMessages.getString("Error.noWarpInput"));
                     return false;
                 } else {
-                    if (Warps.getWarps().containsKey(sign.getLine(1))){
+                    if (Warp.getWarps().containsKey(sign.getLine(1))){
                         String warpName = sign.getLine(1);
                         sign.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Warp]");
                         sign.setLine(1, warpName);

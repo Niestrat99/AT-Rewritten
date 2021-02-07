@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
@@ -143,8 +144,8 @@ public class TeleportTrackingManager implements Listener {
                     if (spawnCommand.startsWith("warp:")) {
                         try {
                             String warp = spawnCommand.split(":")[1];
-                            if (Warps.getWarps().containsKey(warp)) {
-                                e.setRespawnLocation(Warps.getWarps().get(warp));
+                            if (Warp.getWarps().containsKey(warp)) {
+                                e.setRespawnLocation(Warp.getWarps().get(warp).getLocation());
                             } else {
                                 CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + deathLocations.get(uuid).getWorld());
                             }
