@@ -10,14 +10,11 @@ import java.sql.SQLException;
 
 public abstract class SQLManager {
 
-    protected Connection connection;
+    protected static Connection connection;
 
     public SQLManager() {
-
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-
+        if (connection == null) {
             if (NewConfig.getInstance().USE_MYSQL.get()) {
-
             } else {
                 // Load JDBC
                 try {
@@ -27,10 +24,10 @@ public abstract class SQLManager {
                     e.printStackTrace();
                 }
             }
+        }
+        createTable();
+        transferOldData();
 
-            createTable();
-            transferOldData();
-        });
 
 
     }
