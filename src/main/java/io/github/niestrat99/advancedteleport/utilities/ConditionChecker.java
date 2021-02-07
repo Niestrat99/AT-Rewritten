@@ -4,7 +4,6 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpOff;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.TpBlock;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -36,10 +35,11 @@ public class ConditionChecker {
         // if someone removes this for uk and germany that would be great
         String teleportLims = canTeleport(player.getLocation(), target.getLocation(), command, player);
         if (!teleportLims.isEmpty()) return teleportLims;
+        ATPlayer atTarget = ATPlayer.getPlayer(target);
         // If the target has teleportation disabled
-        if (TpOff.getTpOff().contains(target.getUniqueId())) return CustomMessages.getString("Error.tpOff").replaceAll("\\{player}", target.getName());
+        if (!atTarget.isTeleportationEnabled()) return CustomMessages.getString("Error.tpOff").replaceAll("\\{player}", target.getName());
         // Check if the player is blocked
-        if (ATPlayer.getPlayer(target).isBlocked(player)) return CustomMessages.getString("Error.tpBlock").replaceAll("\\{player}", target.getName());
+        if (atTarget.hasBlocked(player)) return CustomMessages.getString("Error.tpBlock").replaceAll("\\{player}", target.getName());
         // If a request has already been sent
         if (command.equalsIgnoreCase("tpa") || command.equalsIgnoreCase("tpahere")) {
             if (TPRequest.getRequestByReqAndResponder(target, player) != null) return CustomMessages.getString("Error.alreadySentRequest").replaceAll("\\{player}", target.getName());
