@@ -100,7 +100,7 @@ public class CommandManager {
         if (atCommand instanceof AsyncATCommand) {
             command.setExecutor((sender, cmd, label, args) -> {
                 Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> atCommand.onCommand(sender, cmd, label, args));
-                return false;
+                return true;
             });
         } else {
             command.setExecutor(atCommand);
