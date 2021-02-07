@@ -20,7 +20,7 @@ public abstract class AbstractHomeCommand implements ATCommand {
         List<String> results = new ArrayList<>();
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (player.hasPermission("at.admin.home")) {
+            if (player.hasPermission("at.admin." + cmd.getName())) {
                 if (!args[0].isEmpty() && args.length == 2) {
                     ATPlayer target = ATPlayer.getPlayer(args[0]);
                     if (target == null) return new ArrayList<>();
