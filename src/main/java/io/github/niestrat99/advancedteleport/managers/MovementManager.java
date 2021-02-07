@@ -56,7 +56,7 @@ public class MovementManager implements Listener {
         String actualMessage = CustomMessages.getString(message);
         for (int i = 0; i < placeholders.length; i += 2) {
             if (i > placeholders.length - 2) break;
-            actualMessage = actualMessage.replaceAll(placeholders[i], placeholders[i + 1]);
+            actualMessage = actualMessage.replace(placeholders[i], placeholders[i + 1]);
         }
         final String finalMessage = actualMessage;
         BukkitRunnable movementtimer = new BukkitRunnable() {

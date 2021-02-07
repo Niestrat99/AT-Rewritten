@@ -3,22 +3,16 @@ package io.github.niestrat99.advancedteleport.commands.home;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Homes;
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -32,48 +26,36 @@ public class SetHome implements AsyncATCommand {
                 Player player = (Player) sender;
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 if (sender.hasPermission("at.member.sethome")) {
-                    Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                        if (args.length>0) {
-                            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                            if (sender.hasPermission("at.admin.sethome")) {
-                                // We'll just assume that the admin command overrides the homes limit.
-                                if (args.length > 1) {
-                                    if (args[1].matches("^[A-Za-z0-9]+$")) {
-                                        setHome(player, target.getUniqueId(), args[1], args[0]);
-                                    } else {
-                                        sender.sendMessage(CustomMessages.getString("Error.invalidName"));
-                                    }
-                                    return;
-                                }
-                            }
-
-
-                            // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
-                            int limit = getHomesLimit(player);
-
-                            // If the number of homes a player has is smaller than or equal to the homes limit, or they have a bypass permission
-                            if (atPlayer.getHomes().size() < limit
-                                    || player.hasPermission("at.admin.sethome.bypass")
-                                    || limit == -1) {
-                                if (args[0].matches("^[A-Za-z0-9]+$")) {
-                                    setHome(player, args[0]);
-                                } else {
-                                    sender.sendMessage(CustomMessages.getString("Error.invalidName"));
-                                }
-
-                            } else {
-                                sender.sendMessage(CustomMessages.getString("Error.reachedHomeLimit"));
-                            }
-
-                        } else {
-                            int limit = getHomesLimit(player);
-                            if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
-                                setHome(player, "home");
-                            } else {
-                                sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
+                    if (args.length>0) {
+                        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                        if (sender.hasPermission("at.admin.sethome")) {
+                            // We'll just assume that the admin command overrides the homes limit.
+                            if (args.length > 1) {
+                                setHome(player, target.getUniqueId(), args[1], args[0]);
+                                return true;
                             }
                         }
-                    });
+
+                        // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
+                        int limit = getHomesLimit(player);
+
+                        // If the number of homes a player has is smaller than or equal to the homes limit, or they have a bypass permission
+                        if (atPlayer.getHomes().size() < limit
+                                || player.hasPermission("at.admin.sethome.bypass")
+                                || limit == -1) {
+                            setHome(player, args[0]);
+
+                        } else {
+                            sender.sendMessage(CustomMessages.getString("Error.reachedHomeLimit"));
+                        }
+                    } else {
+                        int limit = getHomesLimit(player);
+                        if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
+                            setHome(player, "home");
+                        } else {
+                            sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
+                        }
+                    }
                 }
             } else {
                 sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
@@ -92,17 +74,15 @@ public class SetHome implements AsyncATCommand {
     // Player player - the player which is having the home set.
     // String name - the name of the home.
     private void setHome(Player sender, UUID player, String homeName, String playerName) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            OfflinePlayer settingPlayer = Bukkit.getOfflinePlayer(player);
+        OfflinePlayer settingPlayer = Bukkit.getOfflinePlayer(player);
 
-            ATPlayer atPlayer = ATPlayer.getPlayer(settingPlayer);
+        ATPlayer atPlayer = ATPlayer.getPlayer(settingPlayer);
 
         if (atPlayer.getHome(homeName) != null) {
             sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replace("{home}", homeName));
             return;
         }
 
-                    sender.sendMessage(CustomMessages.getString("Info.setHome").replaceAll("\\{home}", homeName));
         atPlayer.addHome(homeName, sender.getLocation(), data -> {
             if (sender.getUniqueId() == player) {
                 sender.sendMessage(CustomMessages.getString("Info.setHome").replace("{home}", homeName));

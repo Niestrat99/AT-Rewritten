@@ -1,24 +1,23 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Homes;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
-import io.github.niestrat99.advancedteleport.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class HomesCommand implements AsyncATCommand {
 
@@ -26,22 +25,19 @@ public class HomesCommand implements AsyncATCommand {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (NewConfig.getInstance().USE_HOMES.get()) {
             if (sender.hasPermission("at.member.homes")) {
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                    if (args.length>0) {
-                        if (sender.hasPermission("at.admin.homes")) {
-                            OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
-                            ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                            if (atPlayer.getHomes().size() > 0) {
-                                getHomes(sender, player);
-                                return;
-                            }
+                if (args.length>0) {
+                    if (sender.hasPermission("at.admin.homes")) {
+                        OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
+                        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                        if (atPlayer.getHomes().size() > 0) {
+                            getHomes(sender, player);
+                            return true;
                         }
                     }
-                    if (sender instanceof Player) {
-                        getHomes(sender, (Player) sender);
-                    }
-                });
-
+                }
+                if (sender instanceof Player) {
+                    getHomes(sender, (Player) sender);
+                }
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
