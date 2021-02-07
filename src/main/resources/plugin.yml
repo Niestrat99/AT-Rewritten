@@ -13,9 +13,17 @@ commands:
     description: Gives you a list of warps.
     permission: at.member.warps
   warp:
-    description: Gives you a list of sub commands from this command.
+    description: Teleports you to a specified warp.
     permission: at.member.warp
     usage: /warp <Warp name>
+  setwarp:
+    description: Sets a warp at your location.
+    permission: at.admin.setwarp
+    usage: /setwarp <Warp name>
+  delwarp:
+    description: Deletes a specified warp.
+    permission: at.admin.delwarp
+    usage: /delwarp <Warp name>
   movewarp:
     description: Moves a specified warp.
     permission: at.admin.movewarp
@@ -97,7 +105,7 @@ commands:
   sethome:
     description: Sets a home point at your location.
     permission: at.member.sethome
-    usage: /sethome [Home]
+    usage: /sethome <Home>
   delhome:
     description: Deletes a home point you've set.
     permission: at.member.delhome
@@ -105,7 +113,7 @@ commands:
   home:
     description: Sends you to your home point.
     permission: at.member.home
-    usage: /home [Home]
+    usage: /home <Home>
   homes:
     description: Gives a list of homes you've set.
     permission: at.member.homes
@@ -173,8 +181,8 @@ permissions:
       at.admin.tpo: true
       at.admin.help: true
       at.admin.rtpsign: true
-      at.admin.warpset: true
-      at.admin.warpdel: true
+      at.admin.setwarp: true
+      at.admin.delwarp: true
       at.admin.warpsign: true
       at.admin.setspawn: true
       at.admin.spawnsign: true
