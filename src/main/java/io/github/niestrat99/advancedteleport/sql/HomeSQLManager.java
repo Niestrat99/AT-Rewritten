@@ -103,6 +103,18 @@ public class HomeSQLManager extends SQLManager {
                     callback.onSuccess(true);
                 }
             } catch (SQLException exception) {
+                DataFailManager.get().addFailure(
+                        DataFailManager.Operation.ADD_HOME,
+                        location.getWorld().getName(),
+                        String.valueOf(location.getX()),
+                        String.valueOf(location.getY()),
+                        String.valueOf(location.getZ()),
+                        String.valueOf(location.getYaw()),
+                        String.valueOf(location.getPitch()),
+                        name,
+                        owner.toString()
+
+                );
                 exception.printStackTrace();
                 if (callback != null) {
                     callback.onFail();
@@ -124,29 +136,51 @@ public class HomeSQLManager extends SQLManager {
                     callback.onSuccess(true);
                 }
             } catch (SQLException exception) {
+                DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_HOME,
+                        owner.toString(),
+                        name);
                 exception.printStackTrace();
+                if (callback != null) {
+                    callback.onFail();
+                }
             }
         });
     }
 
-    public void moveHome(Location newLocation, UUID owner, String name) {
+    public void moveHome(Location newLocation, UUID owner, String name, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement(
-                        "UPDATE advancedtp_homes WHERE uuid_owner = ? AND home = ? SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ?");
+                        "UPDATE advancedtp_homes SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ? WHERE uuid_owner = ? AND home = ? ");
 
-                statement.setString(1, owner.toString());
-                statement.setString(2, name);
-                statement.setDouble(3, newLocation.getX());
-                statement.setDouble(4, newLocation.getY());
-                statement.setDouble(5, newLocation.getZ());
-                statement.setDouble(6, newLocation.getYaw());
-                statement.setDouble(7, newLocation.getPitch());
-                statement.setString(8, newLocation.getWorld().getName());
-                statement.setLong(9, System.currentTimeMillis());
+                statement.setDouble(1, newLocation.getX());
+                statement.setDouble(2, newLocation.getY());
+                statement.setDouble(3, newLocation.getZ());
+                statement.setDouble(4, newLocation.getYaw());
+                statement.setDouble(5, newLocation.getPitch());
+                statement.setString(6, newLocation.getWorld().getName());
+                statement.setLong(7, System.currentTimeMillis());
+                statement.setString(8, owner.toString());
+                statement.setString(9, name);
                 statement.executeUpdate();
+                if (callback != null) {
+                    callback.onSuccess(true);
+                }
             } catch (SQLException exception) {
+                DataFailManager.get().addFailure(
+                        DataFailManager.Operation.MOVE_HOME,
+                        newLocation.getWorld().getName(),
+                        String.valueOf(newLocation.getX()),
+                        String.valueOf(newLocation.getY()),
+                        String.valueOf(newLocation.getZ()),
+                        String.valueOf(newLocation.getYaw()),
+                        String.valueOf(newLocation.getPitch()),
+                        name,
+                        owner.toString());
                 exception.printStackTrace();
+                if (callback != null) {
+                    callback.onFail();
+                }
             }
         });
     }

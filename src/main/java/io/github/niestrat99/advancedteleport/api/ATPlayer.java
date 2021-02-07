@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class ATPlayer {
@@ -82,25 +81,25 @@ public class ATPlayer {
         return blockedUsers.get(otherPlayer.getUniqueId());
     }
 
-    public void blockUser(@NotNull OfflinePlayer otherPlayer) {
-        blockUser(otherPlayer, null);
+    public void blockUser(@NotNull OfflinePlayer otherPlayer, SQLManager.SQLCallback<Boolean> callback) {
+        blockUser(otherPlayer, null, callback);
     }
 
-    public void blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason) {
-        blockUser(otherPlayer.getUniqueId(), reason);
+    public void blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason, SQLManager.SQLCallback<Boolean> callback) {
+        blockUser(otherPlayer.getUniqueId(), reason, callback);
     }
 
-    public void blockUser(@NotNull UUID otherUUID, @Nullable String reason) {
+    public void blockUser(@NotNull UUID otherUUID, @Nullable String reason, SQLManager.SQLCallback<Boolean> callback) {
         // Add the user to the list of blocked users.
         blockedUsers.put(otherUUID, new BlockInfo(uuid, otherUUID, reason, System.currentTimeMillis()));
         // Add the entry to the SQL database.
-        BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason);
+        BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason, callback);
     }
 
-    public void unblockUser(@NotNull UUID otherUUID) {
+    public void unblockUser(@NotNull UUID otherUUID, SQLManager.SQLCallback<Boolean> callback) {
         blockedUsers.remove(otherUUID);
 
-        BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString());
+        BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString(), callback);
     }
 
     /*
@@ -116,9 +115,9 @@ public class ATPlayer {
         HomeSQLManager.get().addHome(location, uuid, name, callback);
     }
 
-    public void moveHome(String name, Location newLocation) {
+    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
         homes.get(name).setLocation(newLocation);
-        HomeSQLManager.get().moveHome(newLocation, uuid, name);
+        HomeSQLManager.get().moveHome(newLocation, uuid, name, callback);
     }
 
     public void removeHome(String name, SQLManager.SQLCallback<Boolean> callback) {

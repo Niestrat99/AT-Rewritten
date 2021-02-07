@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.BlockInfo;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -57,14 +58,14 @@ public class BlocklistManager extends SQLManager {
                 // For each blocked player...
                 for (String blockedPlayer : blockedPlayers) {
                     // Reasons didn't exist pre-5.4, so the reason is null.
-                    blockUser(player, blockedPlayer, null);
+                    blockUser(player, blockedPlayer, null, null);
                 }
             }
         }
         blocklistFile.delete();
     }
 
-    public void blockUser(String receiverUUID, String blockedUUID, String reason) {
+    public void blockUser(String receiverUUID, String blockedUUID, String reason, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement;
@@ -80,21 +81,31 @@ public class BlocklistManager extends SQLManager {
                 statement.setString(2, blockedUUID);
                 statement.setLong(3, System.currentTimeMillis());
                 statement.executeUpdate();
+                if (callback != null) {
+                    callback.onSuccess(true);
+                }
             } catch (SQLException exception) {
+                DataFailManager.get().addFailure(DataFailManager.Operation.ADD_BLOCK, receiverUUID, blockedUUID, reason);
+                callback.onFail();
                 exception.printStackTrace();
             }
         });
 
     }
 
-    public void unblockUser(String receiverUUID, String blockedUUID) {
+    public void unblockUser(String receiverUUID, String blockedUUID, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement("DELETE FROM advancedtp_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?");
                 statement.setString(1, receiverUUID);
                 statement.setString(2, blockedUUID);
                 statement.executeUpdate();
+                if (callback != null) {
+                    callback.onSuccess(true);
+                }
             } catch (SQLException exception) {
+                DataFailManager.get().addFailure(DataFailManager.Operation.UNBLOCK, receiverUUID, blockedUUID);
+                callback.onFail();
                 exception.printStackTrace();
             }
         });

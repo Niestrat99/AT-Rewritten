@@ -83,6 +83,8 @@ public class WarpSQLManager extends SQLManager {
         Location location = warp.getLocation();
         UUID creator = warp.getCreator();
         String name = warp.getName();
+        long created = warp.getCreatedTime();
+        long updated = warp.getUpdatedTime();
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement(
@@ -96,14 +98,25 @@ public class WarpSQLManager extends SQLManager {
                 statement.setDouble(6, location.getYaw());
                 statement.setDouble(7, location.getPitch());
                 statement.setString(8, location.getWorld().getName());
-                statement.setLong(9, System.currentTimeMillis());
-                statement.setLong(10, System.currentTimeMillis());
+                statement.setLong(9, created);
+                statement.setLong(10, updated);
                 statement.executeUpdate();
 
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
             } catch (SQLException exception) {
+                DataFailManager.get().addFailure(DataFailManager.Operation.ADD_WARP,
+                        location.getWorld().getName(),
+                        String.valueOf(location.getX()),
+                        String.valueOf(location.getY()),
+                        String.valueOf(location.getZ()),
+                        String.valueOf(location.getYaw()),
+                        String.valueOf(location.getPitch()),
+                        name,
+                        creator == null ? null : creator.toString(),
+                        String.valueOf(created),
+                        String.valueOf(updated));
                 exception.printStackTrace();
                 if (callback != null) {
                     callback.onFail();
@@ -123,7 +136,11 @@ public class WarpSQLManager extends SQLManager {
                     callback.onSuccess(true);
                 }
             } catch (SQLException exception) {
+                DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_WARP, name);
                 exception.printStackTrace();
+                if (callback != null) {
+                    callback.onFail();
+                }
             }
         });
     }
@@ -132,19 +149,27 @@ public class WarpSQLManager extends SQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement(
-                        "UPDATE advancedtp_warps WHERE AND warp = ? SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ?");
+                        "UPDATE advancedtp_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ? WHERE warp = ?");
 
-                statement.setString(1, name);
-                statement.setDouble(2, newLocation.getX());
-                statement.setDouble(3, newLocation.getY());
-                statement.setDouble(4, newLocation.getZ());
-                statement.setDouble(5, newLocation.getYaw());
-                statement.setDouble(6, newLocation.getPitch());
-                statement.setString(7, newLocation.getWorld().getName());
-                statement.setLong(8, System.currentTimeMillis());
+                statement.setDouble(1, newLocation.getX());
+                statement.setDouble(2, newLocation.getY());
+                statement.setDouble(3, newLocation.getZ());
+                statement.setDouble(4, newLocation.getYaw());
+                statement.setDouble(5, newLocation.getPitch());
+                statement.setString(6, newLocation.getWorld().getName());
+                statement.setLong(7, System.currentTimeMillis());
+                statement.setString(8, name);
                 statement.executeUpdate();
                 callback.onSuccess(true);
             } catch (SQLException exception) {
+                DataFailManager.get().addFailure(DataFailManager.Operation.MOVE_WARP,
+                        newLocation.getWorld().getName(),
+                        String.valueOf(newLocation.getX()),
+                        String.valueOf(newLocation.getY()),
+                        String.valueOf(newLocation.getZ()),
+                        String.valueOf(newLocation.getYaw()),
+                        String.valueOf(newLocation.getPitch()),
+                        name);
                 exception.printStackTrace();
                 callback.onFail();
             }
