@@ -97,18 +97,18 @@ public class SetHome implements AsyncATCommand {
 
             ATPlayer atPlayer = ATPlayer.getPlayer(settingPlayer);
 
-            if (atPlayer.getHome(homeName) != null) {
-                sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replaceAll("\\{home}", homeName));
-                return;
-            }
+        if (atPlayer.getHome(homeName) != null) {
+            sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replace("{home}", homeName));
+            return;
+        }
 
-            atPlayer.addHome(homeName, sender.getLocation(), data -> {
-                if (sender.getUniqueId() == player) {
                     sender.sendMessage(CustomMessages.getString("Info.setHome").replaceAll("\\{home}", homeName));
-                } else {
-                    sender.sendMessage(CustomMessages.getString("Info.setHomeOther").replaceAll("\\{home}", homeName).replaceAll("\\{player}", playerName));
-                }
-            });
+        atPlayer.addHome(homeName, sender.getLocation(), data -> {
+            if (sender.getUniqueId() == player) {
+                sender.sendMessage(CustomMessages.getString("Info.setHome").replace("{home}", homeName));
+            } else {
+                sender.sendMessage(CustomMessages.getString("Info.setHomeOther").replace("{home}", homeName).replaceAll("\\{player}", playerName));
+            }
         });
     }
 

@@ -47,16 +47,17 @@ public class DelHome extends AbstractHomeCommand implements AsyncATCommand {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
-            if (atPlayer.getHome(name) != null) {
-                sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replaceAll("\\{home}", name));
+            if (atPlayer.getHome(name) == null) {
+                // Home doesn't exist TODO
+                sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replace("{home}", name));
                 return;
             }
 
             atPlayer.removeHome(name, data -> {
                 if (sender.getUniqueId() == player.getUniqueId()) {
-                    sender.sendMessage(CustomMessages.getString("Info.deletedHome").replaceAll("\\{home}", name));
+                    sender.sendMessage(CustomMessages.getString("Info.deletedHome").replace("{home}", name));
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Info.deletedHomeOther").replaceAll("\\{home}", name).replaceAll("\\{player}", player.getName()));
+                    sender.sendMessage(CustomMessages.getString("Info.deletedHomeOther").replace("{home}", name).replaceAll("\\{player}", player.getName()));
                 }
             });
         });

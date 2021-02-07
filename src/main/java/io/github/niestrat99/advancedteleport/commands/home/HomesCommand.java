@@ -85,7 +85,7 @@ public class HomesCommand implements AsyncATCommand {
         for (int i = 0; i < homeTooltip.size(); i++) {
             Location homeLoc = home.getLocation();
 
-            homeTooltip.set(i, homeTooltip.get(i).replaceAll("\\{home}", home.getName())
+            homeTooltip.set(i, homeTooltip.get(i).replace("{home}", home.getName())
                     .replaceAll("\\{x}", String.valueOf(homeLoc.getX()))
                     .replaceAll("\\{y}", String.valueOf(homeLoc.getY()))
                     .replaceAll("\\{z}", String.valueOf(homeLoc.getZ()))

@@ -89,7 +89,7 @@ public class HomeCommand extends AbstractHomeCommand {
                                             PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                                             sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
                                                     .replaceAll("\\{player}", args[0])
-                                                    .replaceAll("\\{home}", args[1]));
+                                                    .replace("{home}", args[1]));
                                         });
 
                                     return;
@@ -154,9 +154,9 @@ public class HomeCommand extends AbstractHomeCommand {
                     }
                     int warmUp = NewConfig.getInstance().WARM_UPS.HOME.get();
                     if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                        MovementManager.createMovementTimer(player, home.getLocation(), "home", "Teleport.teleportingToHome", warmUp, "\\{home}", home.getName());
+                        MovementManager.createMovementTimer(player, home.getLocation(), "home", "Teleport.teleportingToHome", warmUp, "{home}", home.getName());
                     } else {
-                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replaceAll("\\{home}", home.getName()));
+                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replace("{home}", home.getName()));
                         PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         PaymentManager.getInstance().withdraw("home", player);
                     }
