@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -41,16 +42,28 @@ public class TpBlockCommand implements AsyncATCommand {
                                 return;
                             }
 
+                            SQLManager.SQLCallback<Boolean> callback = new SQLManager.SQLCallback<Boolean>() {
+                                @Override
+                                public void onSuccess(Boolean data) {
+                                    sender.sendMessage(CustomMessages.getString("Info.blockPlayer").replaceAll("\\{player}", target.getName()));
+
+                                }
+
+                                @Override
+                                public void onFail() {
+                                    sender.sendMessage("Failed to save block");
+                                }
+                            };
+
                             if (args.length > 1) {
                                 StringBuilder reason = new StringBuilder();
                                 for (int i = 1; i < args.length; i++) {
                                     reason.append(args[i]).append(" ");
                                 }
-                                atPlayer.blockUser(target, reason.toString().trim());
+                                atPlayer.blockUser(target, reason.toString().trim(), callback);
                             } else {
-                                atPlayer.blockUser(target);
+                                atPlayer.blockUser(target, callback);
                             }
-                            sender.sendMessage(CustomMessages.getString("Info.blockPlayer").replaceAll("\\{player}", target.getName()));
 
                         });
                     } else {

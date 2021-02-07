@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -33,8 +34,18 @@ public class TpUnblock implements AsyncATCommand {
                                 return;
                             }
 
-                            atPlayer.unblockUser(target.getUniqueId());
-                            sender.sendMessage(CustomMessages.getString("Info.unblockPlayer").replaceAll("\\{player}", args[0]));
+                            atPlayer.unblockUser(target.getUniqueId(), new SQLManager.SQLCallback<Boolean>() {
+                                @Override
+                                public void onSuccess(Boolean data) {
+                                    sender.sendMessage(CustomMessages.getString("Info.unblockPlayer").replaceAll("\\{player}", args[0]));
+
+                                }
+
+                                @Override
+                                public void onFail() {
+                                    sender.sendMessage("Failed to unblock");
+                                }
+                            });
 
                         });
                     } else {
