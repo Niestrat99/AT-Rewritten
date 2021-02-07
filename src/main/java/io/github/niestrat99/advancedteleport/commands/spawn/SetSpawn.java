@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
+import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
@@ -11,7 +12,8 @@ import org.bukkit.entity.Player;
 
 import java.io.IOException;
 
-public class SetSpawn implements CommandExecutor {
+public class SetSpawn implements AsyncATCommand {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
         if (NewConfig.getInstance().USE_SPAWN.get()) {
