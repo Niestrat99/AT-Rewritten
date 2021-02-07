@@ -1,18 +1,14 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.TpBlock;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -20,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 public class TpAll implements ATCommand {
 

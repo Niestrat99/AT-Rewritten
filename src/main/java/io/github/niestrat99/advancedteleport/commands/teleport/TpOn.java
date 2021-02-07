@@ -1,16 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class TpOn implements AsyncATCommand {
 

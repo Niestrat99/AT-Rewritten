@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.commands;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

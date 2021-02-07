@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.api;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Location;
-import org.fusesource.hawtjni.runtime.Callback;
 
 import java.util.HashMap;
 import java.util.UUID;

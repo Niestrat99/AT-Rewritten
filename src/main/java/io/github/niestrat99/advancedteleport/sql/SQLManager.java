@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import org.bukkit.Bukkit;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

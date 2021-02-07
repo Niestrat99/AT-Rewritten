@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.teleport.TpOff;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;

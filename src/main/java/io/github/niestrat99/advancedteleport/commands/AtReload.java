@@ -4,7 +4,6 @@ import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
