@@ -9,7 +9,6 @@ import io.github.niestrat99.advancedteleport.utilities.IconMenu;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;

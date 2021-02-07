@@ -8,7 +8,6 @@ import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

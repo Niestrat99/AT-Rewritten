@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.commands.warp;
 
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

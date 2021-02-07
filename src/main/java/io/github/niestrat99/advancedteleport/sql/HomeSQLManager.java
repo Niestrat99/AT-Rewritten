@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.BlockInfo;
 import io.github.niestrat99.advancedteleport.api.Home;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -10,7 +9,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
