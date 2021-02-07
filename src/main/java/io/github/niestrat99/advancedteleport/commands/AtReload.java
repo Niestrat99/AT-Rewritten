@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,16 +23,14 @@ public class AtReload implements AsyncATCommand {
             try {
                 NewConfig.getInstance().reload();
                 CustomMessages.reloadConfig();
-                Warps.reloadWarps();
-                Homes.reloadHomes();
                 LastLocations.reloadBackLocations();
-                TpBlock.reloadBlocks();
                 Spawn.reloadSpawn();
                 GUI.reloadConfig();
                 CooldownManager.init();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            CommandManager.registerCommands();
             sender.sendMessage(CustomMessages.getString("Info.reloadedConfig"));
         }
         return true;
