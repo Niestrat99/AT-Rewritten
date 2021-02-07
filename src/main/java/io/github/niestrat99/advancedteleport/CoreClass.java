@@ -1,15 +1,6 @@
 package io.github.niestrat99.advancedteleport;
 
-import io.github.niestrat99.advancedteleport.commands.AtHelp;
-import io.github.niestrat99.advancedteleport.commands.AtInfo;
-import io.github.niestrat99.advancedteleport.commands.AtReload;
-import io.github.niestrat99.advancedteleport.commands.home.*;
-import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
-import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
-import io.github.niestrat99.advancedteleport.commands.teleport.*;
-import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
-import io.github.niestrat99.advancedteleport.commands.warp.WarpTabCompleter;
-import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
 import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.listeners.AtSigns;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
@@ -17,10 +8,7 @@ import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.TeleportTrackingManager;
-import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
-import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
-import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
-import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -94,9 +82,7 @@ public class CoreClass extends JavaPlugin {
             config = new NewConfig();
         //    Config.setDefaults();
             CustomMessages.setDefaults();
-            Homes.save();
             LastLocations.save();
-            Warps.save();
             Spawn.save();
             GUI.setDefaults();
         } catch (IOException e) {
@@ -108,6 +94,7 @@ public class CoreClass extends JavaPlugin {
             new HomeSQLManager();
             new PlayerSQLManager();
             new WarpSQLManager();
+            new DataFailManager();
         }
         registerEvents();
         CooldownManager.init();
@@ -133,52 +120,7 @@ public class CoreClass extends JavaPlugin {
     @Override
     public void onDisable() {
         LastLocations.saveLocations();
-    }
-
-    // Separate method for registering commands
-    private void registerCommands() {
-
-        // Main commands
-        getCommand("athelp").setExecutor(new AtHelp());
-        getCommand("atreload").setExecutor(new AtReload());
-        getCommand("atinfo").setExecutor(new AtInfo());
-
-        // TP commands
-        getCommand("back").setExecutor(new Back());
-        getCommand("tpa").setExecutor(new Tpa());
-        getCommand("tpr").setExecutor(new Tpr());
-        getCommand("tpoff").setExecutor(new TpOff());
-        getCommand("tpon").setExecutor(new TpOn());
-        getCommand("tpblock").setExecutor(new TpBlockCommand());
-        getCommand("tpcancel").setExecutor(new TpCancel());
-        getCommand("tpno").setExecutor(new TpNo());
-        getCommand("tpo").setExecutor(new Tpo());
-        getCommand("tpohere").setExecutor(new TpoHere());
-        getCommand("tpunblock").setExecutor(new TpUnblock());
-        getCommand("tpyes").setExecutor(new TpYes());
-        getCommand("tpahere").setExecutor(new TpaHere());
-        getCommand("tpall").setExecutor(new TpAll());
-        getCommand("tpalist").setExecutor(new TpList());
-        getCommand("toggletp").setExecutor(new ToggleTP());
-        getCommand("tploc").setExecutor(new TpLoc());
-
-        // Home commands
-        getCommand("home").setExecutor(new HomeCommand());
-        getCommand("sethome").setExecutor(new SetHome());
-        getCommand("delhome").setExecutor(new DelHome());
-        getCommand("homes").setExecutor(new HomesCommand());
-
-        // Warp commands
-        getCommand("warp").setExecutor(new WarpCommand());
-        getCommand("warps").setExecutor(new WarpsCommand());
-
-        // Spawn commands
-        getCommand("spawn").setExecutor(new SpawnCommand());
-        getCommand("setspawn").setExecutor(new SetSpawn());
-
-        getCommand("warp").setTabCompleter(new WarpTabCompleter());
-        getCommand("home").setTabCompleter(new HomeTabCompleter());
-        getCommand("delhome").setTabCompleter(new HomeTabCompleter());
+        DataFailManager.get().onDisable();
     }
 
     private void registerEvents() {
