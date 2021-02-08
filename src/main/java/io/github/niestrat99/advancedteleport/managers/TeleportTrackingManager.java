@@ -128,9 +128,7 @@ public class TeleportTrackingManager implements Listener {
                 case "spawn":
                     if (Spawn.getSpawnFile() != null) {
                         e.setRespawnLocation(Spawn.getSpawnFile());
-                    } else {
-                        e.setRespawnLocation(e.getPlayer().getWorld().getSpawnLocation());
-                    }
+                    } 
                     break;
                 case "bed":
                     if (!e.isBedSpawn() && e.getPlayer().getBedSpawnLocation() != null) {
