@@ -100,6 +100,7 @@ public class CoreClass extends JavaPlugin {
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
+
         setupVersion();
         new Metrics(this, 5146);
         new BukkitRunnable() {
@@ -138,20 +139,20 @@ public class CoreClass extends JavaPlugin {
             case "tpa":
                 switch (subType) {
                     case "sent":
-                        sound = NewConfig.getInstance().TPA_REQUEST_SENT.get();
+                        sound = NewConfig.get().TPA_REQUEST_SENT.get();
                         break;
                     case "received":
-                        sound = NewConfig.getInstance().TPA_REQUEST_RECEIVED.get();
+                        sound = NewConfig.get().TPA_REQUEST_RECEIVED.get();
                         break;
                 }
                 break;
             case "tpahere":
                 switch (subType) {
                     case "sent":
-                        sound = NewConfig.getInstance().TPAHERE_REQUEST_SENT.get();
+                        sound = NewConfig.get().TPAHERE_REQUEST_SENT.get();
                         break;
                     case "received":
-                        sound = NewConfig.getInstance().TPAHERE_REQUEST_RECEIVED.get();
+                        sound = NewConfig.get().TPAHERE_REQUEST_RECEIVED.get();
                         break;
                 }
                 break;

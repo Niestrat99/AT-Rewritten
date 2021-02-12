@@ -23,7 +23,7 @@ public class SpawnCommand implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (NewConfig.getInstance().USE_SPAWN.get()) {
+        if (NewConfig.get().USE_SPAWN.get()) {
             if (sender.hasPermission("at.member.spawn")){
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
@@ -58,11 +58,11 @@ public class SpawnCommand implements ATCommand {
         if (!event.isCancelled()) {
             if (PaymentManager.getInstance().canPay("spawn", player)) {
                 // If the cooldown is to be applied after request or accept (they are the same in the case of /spawn), apply it now
-                String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
                 if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
                     CooldownManager.addToCooldown("spawn", player);
                 }
-                int warmUp = NewConfig.getInstance().WARM_UPS.SPAWN.get();
+                int warmUp = NewConfig.get().WARM_UPS.SPAWN.get();
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     MovementManager.createMovementTimer(player, spawn, "spawn", "Teleport.teleportingToSpawn", warmUp);
 

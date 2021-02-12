@@ -31,7 +31,7 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             new BukkitRunnable() { // Because when you join, PlayerTeleportEvent is also called
                 @Override
                 public void run() {
@@ -47,7 +47,7 @@ public class TeleportTrackingManager implements Listener {
             }.runTaskLater(CoreClass.getInstance(), 10);
         }
         if (!player.hasPlayedBefore()) {
-            if (NewConfig.getInstance().TELEPORT_TO_SPAWN_FIRST.get()) {
+            if (NewConfig.get().TELEPORT_TO_SPAWN_FIRST.get()) {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -59,7 +59,7 @@ public class TeleportTrackingManager implements Listener {
                     }
                 }.runTaskLater(CoreClass.getInstance(), 10);
             }
-        } else if (NewConfig.getInstance().TELEPORT_TO_SPAWN_EVERY.get()) {
+        } else if (NewConfig.get().TELEPORT_TO_SPAWN_EVERY.get()) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -81,8 +81,8 @@ public class TeleportTrackingManager implements Listener {
             e.setCancelled(true);
             return;
         }
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()
-                && NewConfig.getInstance().BACK_TELEPORT_CAUSES.get().contains(e.getCause().name())) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
+                && NewConfig.get().BACK_TELEPORT_CAUSES.get().contains(e.getCause().name())) {
             lastLocations.put(e.getPlayer().getUniqueId(), e.getFrom());
         }
     }
@@ -101,14 +101,14 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get() && e.getEntity().hasPermission("at.member.back.death")) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get() && e.getEntity().hasPermission("at.member.back.death")) {
             deathLocations.put(e.getEntity().getUniqueId(), e.getEntity().getLocation());
         }
     }
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             LastLocations.saveLocations();
         }
     }
@@ -116,9 +116,9 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
-        if (NewConfig.getInstance().USE_SPAWN.get()) {
+        if (NewConfig.get().USE_SPAWN.get()) {
             if (deathLocations.get(uuid) == null) return;
-            ConfigurationSection deathManagement = NewConfig.getInstance().DEATH_MANAGEMENT.get();
+            ConfigurationSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
             String spawnCommand = deathManagement.getString(deathLocations.get(uuid).getWorld().getName());
             if (spawnCommand == null) {
                 spawnCommand = deathManagement.getString("default");
@@ -128,7 +128,7 @@ public class TeleportTrackingManager implements Listener {
                 case "spawn":
                     if (Spawn.getSpawnFile() != null) {
                         e.setRespawnLocation(Spawn.getSpawnFile());
-                    } 
+                    }
                     break;
                 case "bed":
                     if (!e.isBedSpawn() && e.getPlayer().getBedSpawnLocation() != null) {
@@ -153,7 +153,7 @@ public class TeleportTrackingManager implements Listener {
                     }
             }
         }
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             new BukkitRunnable() { // They also call PlayerTeleportEvent when you respawn
                 @Override
                 public void run() {

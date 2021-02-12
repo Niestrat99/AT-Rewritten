@@ -29,7 +29,7 @@ public class Back implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.member.back")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
@@ -58,7 +58,7 @@ public class Back implements ATCommand {
                     ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
                     if (!event.isCancelled()) {
                         if (PaymentManager.getInstance().canPay("back", player)) {
-                            int warmUp = NewConfig.getInstance().WARM_UPS.BACK.get();
+                            int warmUp = NewConfig.get().WARM_UPS.BACK.get();
                             if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                                 MovementManager.createMovementTimer(player, loc, "back", "Teleport.teleportingToLastLoc", warmUp);
                             } else {
@@ -68,7 +68,7 @@ public class Back implements ATCommand {
                                 player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
                             }
                             // If the cooldown is to be applied after request or accept (they are the same in the case of /back), apply it now
-                            String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                            String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
                             if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
                                 CooldownManager.addToCooldown("back", player);
                             }

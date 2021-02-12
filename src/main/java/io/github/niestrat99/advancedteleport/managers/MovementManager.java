@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.managers;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
@@ -23,8 +22,8 @@ public class MovementManager implements Listener {
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
-        boolean cancelOnRotate = NewConfig.getInstance().CANCEL_WARM_UP_ON_ROTATION.get();
-        boolean cancelOnMove = NewConfig.getInstance().CANCEL_WARM_UP_ON_MOVEMENT.get();
+        boolean cancelOnRotate = NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get();
+        boolean cancelOnMove = NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get();
         if (!cancelOnRotate) {
             Location locTo = event.getTo();
             Location locFrom = event.getFrom();
@@ -68,7 +67,7 @@ public class MovementManager implements Listener {
                 teleportingPlayer.sendMessage(finalMessage);
                 PaymentManager.getInstance().withdraw(command, payingPlayer);
                 // If the cooldown is to be applied after only after a teleport takes place, apply it now
-                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+                if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
                     CooldownManager.addToCooldown(command, payingPlayer);
                 }
             }

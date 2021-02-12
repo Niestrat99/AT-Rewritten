@@ -16,7 +16,7 @@ public class TpUnblock implements AsyncATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.member.unblock")) {
                 if (sender instanceof Player){
                     Player player = (Player)sender;

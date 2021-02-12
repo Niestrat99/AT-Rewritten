@@ -143,7 +143,7 @@ public class ATPlayer {
     // at.member.homes.40
     // at.member.homes.100000
     public int getHomesLimit() {
-        int maxHomes = NewConfig.getInstance().DEFAULT_HOMES_LIMIT.get();
+        int maxHomes = NewConfig.get().DEFAULT_HOMES_LIMIT.get();
         for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
             if (permission.getPermission().startsWith("at.member.homes.")) {
                 if (permission.getValue()) {
@@ -162,7 +162,7 @@ public class ATPlayer {
     }
 
     public boolean canAccessHome(Home home) {
-        if (!NewConfig.getInstance().DENY_HOMES_IF_OVER_LIMIT.get()) return true;
+        if (!NewConfig.get().DENY_HOMES_IF_OVER_LIMIT.get()) return true;
         if (homes.containsValue(home)) {
             List<Home> homes = new ArrayList<>(this.homes.values());
             int index = homes.indexOf(home);

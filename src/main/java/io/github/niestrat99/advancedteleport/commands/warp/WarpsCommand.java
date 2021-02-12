@@ -23,7 +23,7 @@ public class WarpsCommand implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (NewConfig.getInstance().USE_WARPS.get()) {
+        if (NewConfig.get().USE_WARPS.get()) {
             if (commandSender.hasPermission("at.member.warps")){
                 sendWarps(commandSender);
             }

@@ -18,7 +18,7 @@ public class MoveHomeCommand extends AbstractHomeCommand implements AsyncATComma
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (NewConfig.getInstance().USE_HOMES.get()) {
+        if (NewConfig.get().USE_HOMES.get()) {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);

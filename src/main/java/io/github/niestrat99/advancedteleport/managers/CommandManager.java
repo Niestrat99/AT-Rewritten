@@ -68,7 +68,7 @@ public class CommandManager {
         if (map == null) return;
         HashMap<String, Command> commands = getCommands(map);
         if (commands == null) return;
-        if (NewConfig.getInstance().DISABLED_COMMANDS.get().contains(name)) {
+        if (NewConfig.get().DISABLED_COMMANDS.get().contains(name)) {
             if (command.isRegistered()) {
                 command.unregister(map);
                 commands.remove(name);

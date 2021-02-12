@@ -18,7 +18,7 @@ public class CommandRuleManager {
     public CommandRuleManager() {
         rules = new HashMap<>();
         for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
-            addCommand(command, NewConfig.getInstance().COMMAND_RULES.valueOf(command).get());
+            addCommand(command, NewConfig.get().COMMAND_RULES.valueOf(command).get());
         }
     }
 

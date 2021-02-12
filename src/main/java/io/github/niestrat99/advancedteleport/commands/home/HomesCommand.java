@@ -24,7 +24,7 @@ public class HomesCommand implements AsyncATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.getInstance().USE_HOMES.get()) {
+        if (NewConfig.get().USE_HOMES.get()) {
             if (sender.hasPermission("at.member.homes")) {
                 if (args.length>0) {
                     if (sender.hasPermission("at.admin.homes")) {
@@ -58,7 +58,7 @@ public class HomesCommand implements AsyncATCommand {
                             .command("/home " + home.getName())
                             .tooltip(getTooltip(sender, home))
                             .then(", ");
-                } else if (!NewConfig.getInstance().HIDE_HOMES_IF_DENIED.get()) {
+                } else if (!NewConfig.get().HIDE_HOMES_IF_DENIED.get()) {
                     hList.then(home.getName())
                             .tooltip(getTooltip(sender, home))
                             .color(ChatColor.GRAY)
@@ -67,7 +67,7 @@ public class HomesCommand implements AsyncATCommand {
                 }
 
             }
-            if (atPlayer.getBedSpawn() != null && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
+            if (atPlayer.getBedSpawn() != null && NewConfig.get().ADD_BED_TO_HOMES.get()) {
                 hList.then("bed")
                         .command("/home bed")
                         .tooltip(getTooltip(sender, atPlayer.getBedSpawn()))

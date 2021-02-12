@@ -214,7 +214,7 @@ public class CustomMessages {
     }
 
     public static String getEventBeforeTPMessage() {
-        if(NewConfig.getInstance().CANCEL_WARM_UP_ON_MOVEMENT.get() || NewConfig.getInstance().CANCEL_WARM_UP_ON_ROTATION.get()) {
+        if(NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() || NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
             return getString("Teleport.eventBeforeTP");
         } else {
             return getString("Teleport.eventBeforeTPMovementAllowed");

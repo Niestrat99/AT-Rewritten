@@ -20,7 +20,7 @@ public class AtReload implements AsyncATCommand {
         } else {
             sender.sendMessage(CustomMessages.getString("Info.reloadingConfig"));
             try {
-                NewConfig.getInstance().reload();
+                NewConfig.get().reload();
                 CustomMessages.reloadConfig();
                 LastLocations.reloadBackLocations();
                 Spawn.reloadSpawn();

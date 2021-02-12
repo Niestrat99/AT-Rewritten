@@ -3,11 +3,9 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,7 +15,7 @@ public class TpoHere implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.admin.tpohere")){
                 if (sender instanceof Player) {
                     Player player = (Player) sender;

@@ -22,7 +22,7 @@ public class HomeCommand extends AbstractHomeCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (NewConfig.getInstance().USE_HOMES.get()) {
+        if (NewConfig.get().USE_HOMES.get()) {
             if (sender.hasPermission("at.member.home")) {
                 if (sender instanceof Player) {
                     Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
@@ -52,7 +52,7 @@ public class HomeCommand extends AbstractHomeCommand {
                                     Home home;
                                     switch (args[1].toLowerCase()) {
                                         case "bed":
-                                            if (NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
+                                            if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
                                                 home = target.getBedSpawn();
                                                 if (home == null) {
                                                     player.sendMessage(CustomMessages.getString("Error.noBedHomeOther").replaceAll("\\{player}", args[0]));
@@ -103,7 +103,7 @@ public class HomeCommand extends AbstractHomeCommand {
                     Home home;
                     if (atPlayer.getHomes().containsKey(args[0])) {
                         home = atPlayer.getHomes().get(args[0]);
-                    } else if (args[0].equalsIgnoreCase("bed")  && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
+                    } else if (args[0].equalsIgnoreCase("bed")  && NewConfig.get().ADD_BED_TO_HOMES.get()) {
                         home = atPlayer.getBedSpawn();
                         if (home == null) {
                             player.sendMessage(CustomMessages.getString("Error.noBedHome"));
@@ -143,11 +143,11 @@ public class HomeCommand extends AbstractHomeCommand {
             if (!event.isCancelled()) {
                 if (PaymentManager.getInstance().canPay("home", player)) {
                     // If the cooldown is to be applied after request or accept (they are the same in the case of /home), apply it now
-                    String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                    String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
                     if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
                         CooldownManager.addToCooldown("home", player);
                     }
-                    int warmUp = NewConfig.getInstance().WARM_UPS.HOME.get();
+                    int warmUp = NewConfig.get().WARM_UPS.HOME.get();
                     if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                         MovementManager.createMovementTimer(player, home.getLocation(), "home", "Teleport.teleportingToHome", warmUp, "{home}", home.getName());
                     } else {

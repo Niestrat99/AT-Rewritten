@@ -15,7 +15,7 @@ public class DelHome extends AbstractHomeCommand implements AsyncATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (NewConfig.getInstance().USE_HOMES.get()) {
+        if (NewConfig.get().USE_HOMES.get()) {
             if (sender instanceof Player) {
                 Player player = (Player)sender;
                 if (sender.hasPermission("at.member.delhome")) {

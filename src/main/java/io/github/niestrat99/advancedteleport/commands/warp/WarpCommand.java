@@ -18,7 +18,7 @@ public class WarpCommand extends AbstractWarpCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.getInstance().USE_WARPS.get()) {
+        if (NewConfig.get().USE_WARPS.get()) {
             if (args.length > 0) {
                 if (sender.hasPermission("at.member.warp")) {
                     if (sender instanceof Player) {
@@ -70,11 +70,11 @@ public class WarpCommand extends AbstractWarpCommand {
         ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);
         if (!event.isCancelled()) {
             if (PaymentManager.getInstance().canPay("warp", player)) {
-                int warmUp = NewConfig.getInstance().WARM_UPS.WARP.get();
+                int warmUp = NewConfig.get().WARM_UPS.WARP.get();
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     MovementManager.createMovementTimer(player, warp.getLocation(), "warp", "Teleport.teleportingToWarp", warmUp, "\\{warp}", warp.getName());
                     // If the cooldown is to be applied after request or accept (they are the same in the case of /warp), apply it now
-                    String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                    String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
                     if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
                         CooldownManager.addToCooldown("warp", player);
                     }

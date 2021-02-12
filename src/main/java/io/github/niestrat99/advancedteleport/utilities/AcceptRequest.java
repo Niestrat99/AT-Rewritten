@@ -33,7 +33,7 @@ public class AcceptRequest {
         final Location toLocation = toPlayer.getLocation();
         ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toLocation, fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
         if (!event.isCancelled()) {
-            int warmUp = NewConfig.getInstance().WARM_UPS.valueOf(type).get();
+            int warmUp = NewConfig.get().WARM_UPS.valueOf(type).get();
             Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
             if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
                 MovementManager.createMovementTimer(fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
@@ -42,7 +42,7 @@ public class AcceptRequest {
                 fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
                 PaymentManager.getInstance().withdraw(type, payingPlayer);
                 // If the cooldown is to be applied after only after a teleport takes place, apply it now
-                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+                if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
                     CooldownManager.addToCooldown(type, payingPlayer);
                 }
             }

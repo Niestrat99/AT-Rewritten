@@ -15,7 +15,7 @@ public class SetSpawn implements AsyncATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (NewConfig.getInstance().USE_SPAWN.get()) {
+        if (NewConfig.get().USE_SPAWN.get()) {
             if (sender.hasPermission("at.admin.setspawn")){
                 if (sender instanceof Player) {
                     Player player = (Player) sender;

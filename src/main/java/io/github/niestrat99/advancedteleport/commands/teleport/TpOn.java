@@ -14,7 +14,7 @@ public class TpOn implements AsyncATCommand {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player)sender;
-            if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.on")) {
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
                     if (!atPlayer.isTeleportationEnabled()) {

@@ -4,8 +4,6 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
@@ -19,7 +17,7 @@ public class Tpo implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.admin.tpo")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;

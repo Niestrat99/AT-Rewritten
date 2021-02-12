@@ -22,7 +22,7 @@ public class TpAll implements ATCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {
-            if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.admin.all")) {
                     Player player = (Player) sender;
                     int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
@@ -31,7 +31,7 @@ public class TpAll implements ATCommand {
                         return true;
                     }
                     int players = 0;
-                    int requestLifetime = NewConfig.getInstance().REQUEST_LIFETIME.get();
+                    int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
                     for (Player target : Bukkit.getOnlinePlayers()) {
                         if (target != player) {
                             if (!ConditionChecker.canTeleport(player, target, "tpahere").isEmpty()) {

@@ -24,7 +24,7 @@ public class Tpa implements ATCommand {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.tpa")) {
                     UUID playerUuid = player.getUniqueId();
                     int cooldown = CooldownManager.secondsLeftOnCooldown("tpa", player);
@@ -41,7 +41,7 @@ public class Tpa implements ATCommand {
                         String result = ConditionChecker.canTeleport(player, target, "tpa");
                         if (result.isEmpty()) {
                             if (PaymentManager.getInstance().canPay("tpa", player)) {
-                                int requestLifetime = NewConfig.getInstance().REQUEST_LIFETIME.get();
+                                int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
                                         .replaceAll("\\{player}", target.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
@@ -65,7 +65,7 @@ public class Tpa implements ATCommand {
                                 TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
                                 // If the cooldown is to be applied after request, apply it now
-                                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+                                if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
                                     CooldownManager.addToCooldown("tpa", player);
                                 }
                                 return true;

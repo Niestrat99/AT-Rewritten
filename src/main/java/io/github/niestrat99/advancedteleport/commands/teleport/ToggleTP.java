@@ -14,7 +14,7 @@ public class ToggleTP implements AsyncATCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player) {
-            if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.toggletp")) {
                     if (args.length>0) {
                         if (sender.hasPermission("at.admin.toggletp")) {

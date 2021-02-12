@@ -302,7 +302,7 @@ public class NewConfig extends CMFile {
 
     }
 
-    public static NewConfig getInstance() {
+    public static NewConfig get() {
         return instance;
     }
 

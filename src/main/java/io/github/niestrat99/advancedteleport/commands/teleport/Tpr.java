@@ -25,7 +25,7 @@ public class Tpr implements ATCommand {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player)sender;
-            if (NewConfig.getInstance().USE_RANDOMTP.get()) {
+            if (NewConfig.get().USE_RANDOMTP.get()) {
                 if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                     player.sendMessage(CustomMessages.getString("Error.onCountdown"));
                     return true;
@@ -61,8 +61,8 @@ public class Tpr implements ATCommand {
             player.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
             return true;
         }
-        if (NewConfig.getInstance().WHITELIST_WORLD.get()) {
-            List<String> allowedWorlds = NewConfig.getInstance().ALLOWED_WORLDS.get();
+        if (NewConfig.get().WHITELIST_WORLD.get()) {
+            List<String> allowedWorlds = NewConfig.get().ALLOWED_WORLDS.get();
             if (!allowedWorlds.contains(world.getName())) {
                 if (!player.hasPermission("at.admin.rtp.bypass-world")) {
                     if (allowedWorlds.isEmpty()) {
@@ -87,11 +87,11 @@ public class Tpr implements ATCommand {
             ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
             if (!event.isCancelled()) {
                 // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
-                String cooldownConfig = NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get();
+                String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
                 if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
                     CooldownManager.addToCooldown("tpr", player);
                 }
-                int warmUp = NewConfig.getInstance().WARM_UPS.TPR.get();
+                int warmUp = NewConfig.get().WARM_UPS.TPR.get();
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
                     MovementManager.createMovementTimer(player, location, "tpr", "Teleport.teleportingToRandomPlace", warmUp);
                 } else {

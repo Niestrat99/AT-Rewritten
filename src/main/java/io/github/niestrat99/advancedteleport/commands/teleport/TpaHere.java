@@ -22,7 +22,7 @@ public class TpaHere implements ATCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (sender instanceof Player){
-            if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.here")) {
                     Player player = (Player) sender;
                     UUID playerUuid = player.getUniqueId();
@@ -40,7 +40,7 @@ public class TpaHere implements ATCommand {
                         String result = ConditionChecker.canTeleport(player, target, "tpahere");
                         if (result.isEmpty()) {
                             if (PaymentManager.getInstance().canPay("tpahere", player)) {
-                                int requestLifetime = NewConfig.getInstance().REQUEST_LIFETIME.get();
+                                int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
                                 sender.sendMessage(CustomMessages.getString("Info.requestSent")
                                         .replaceAll("\\{player}", target.getName())
                                         .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
@@ -64,7 +64,7 @@ public class TpaHere implements ATCommand {
                                 TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPAHERE); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
                                 // If the cooldown is to be applied after request or accept (they are the same in the case of /spawn), apply it now
-                                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+                                if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
                                     CooldownManager.addToCooldown("tpahere", player);
                                 }
                                 return true;

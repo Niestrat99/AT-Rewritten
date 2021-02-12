@@ -9,7 +9,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +20,7 @@ public class SetHome implements AsyncATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (NewConfig.getInstance().USE_HOMES.get()) {
+        if (NewConfig.get().USE_HOMES.get()) {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
