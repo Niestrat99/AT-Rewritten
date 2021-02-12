@@ -34,10 +34,6 @@ public abstract class SQLManager {
             }
         }
         createTable();
-        transferOldData();
-
-
-
     }
 
     private void loadSqlite() {
