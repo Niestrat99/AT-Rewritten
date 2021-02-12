@@ -170,38 +170,6 @@ public class PlayerSQLManager extends SQLManager {
         });
     }
 
-    public void movePlayer(String name, Location position, SQLCallback<Boolean> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
-                PreparedStatement statement = connection.prepareStatement("UPDATE advancedtp_players SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ? WHERE name = ?");
-                statement.setString(1, name.toLowerCase());
-                statement.setDouble(2, position.getX());
-                statement.setDouble(3, position.getY());
-                statement.setDouble(4, position.getZ());
-                statement.setFloat(5, position.getYaw());
-                statement.setFloat(6, position.getPitch());
-                statement.setString(7, position.getWorld().getName());
-                statement.executeUpdate();
-                if (callback != null) {
-                    callback.onSuccess(true);
-                }
-            } catch (SQLException exception) {
-                DataFailManager.get().addFailure(
-                        DataFailManager.Operation.MOVE_PLAYER,
-                        position.getWorld().getName(),
-                        String.valueOf(position.getX()),
-                        String.valueOf(position.getY()),
-                        String.valueOf(position.getZ()),
-                        String.valueOf(position.getYaw()),
-                        String.valueOf(position.getPitch()),
-                        name
-                );
-                callback.onFail();
-                exception.printStackTrace();
-            }
-        });
-    }
-
     public void getLocation(String name, SQLCallback<Location> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {

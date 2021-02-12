@@ -95,9 +95,6 @@ public class DataFailManager {
             case ADD_PLAYER:
                 PlayerSQLManager.get().addPlayer(Bukkit.getPlayer(UUID.fromString(fail.data[0])), callback);
                 break;
-            case MOVE_PLAYER:
-                PlayerSQLManager.get().movePlayer(fail.data[6], locFromStrings(fail.data), callback);
-                break;
             case UPDATE_PLAYER:
                 PlayerSQLManager.get().updatePlayerInformation(Bukkit.getPlayer(UUID.fromString(fail.data[0])), callback);
                 break;
@@ -210,7 +207,6 @@ public class DataFailManager {
         CHANGE_TELEPORTATION,
         UPDATE_PLAYER,
         ADD_PLAYER,
-        MOVE_PLAYER,
         ADD_WARP,
         MOVE_WARP,
         DELETE_WARP
