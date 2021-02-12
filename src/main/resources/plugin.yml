@@ -122,6 +122,11 @@ commands:
     description: Moves a home to a new location.
     permission: at.member.movehome
     usage: /movehome <Home>
+  setmainhome:
+    description: Sets a user's main home.
+    permission: at.member.setmainhome
+    usage: /setmainhome <Home>
+    aliases: [setmhome]
   back:
     description: Teleports you to your last location.
     permission: at.member.back
@@ -142,7 +147,7 @@ permissions:
     default: op
     description: Allows access to member-based commands of the plugin.
     children:
-      # All of these are "sub-permissions" of tbh.tp.member.*.
+      # All of these are "sub-permissions" of at.member.*.
       at.member.tpr: true
       at.member.off: true
       at.member.on: true
@@ -162,6 +167,7 @@ permissions:
       at.member.delhome: true
       at.member.home: true
       at.member.homes: true
+      at.member.setmainhome: true
       at.member.tpa: true
       at.member.back: true
       at.member.spawn.use-sign: true
