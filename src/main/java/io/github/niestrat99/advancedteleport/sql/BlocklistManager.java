@@ -37,6 +37,7 @@ public class BlocklistManager extends SQLManager {
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
+            transferOldData();
         });
 
     }

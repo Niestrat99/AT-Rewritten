@@ -45,6 +45,7 @@ public class PlayerSQLManager extends SQLManager {
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
+            transferOldData();
         });
     }
 

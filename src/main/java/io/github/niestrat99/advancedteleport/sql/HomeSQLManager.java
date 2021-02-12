@@ -46,6 +46,7 @@ public class HomeSQLManager extends SQLManager {
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
+            transferOldData();
         });
     }
 

@@ -44,6 +44,7 @@ public class WarpSQLManager extends SQLManager {
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
+            transferOldData();
         });
     }
 
