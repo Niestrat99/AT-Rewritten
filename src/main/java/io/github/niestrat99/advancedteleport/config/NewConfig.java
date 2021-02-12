@@ -38,6 +38,12 @@ public class NewConfig extends CMFile {
     public PerCommandOption<Object> COSTS;
 
     public ConfigOption<Boolean> USE_MYSQL;
+    public ConfigOption<String> MYSQL_HOST;
+    public ConfigOption<Integer> MYSQL_PORT;
+    public ConfigOption<String> MYSQL_DATABASE;
+    public ConfigOption<String> USERNAME;
+    public ConfigOption<String> PASSWORD;
+
 
     public ConfigOption<Boolean> ENABLE_DISTANCE_LIMITATIONS;
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
@@ -172,7 +178,8 @@ public class NewConfig extends CMFile {
                 "By default, AT uses SQLite storage, which stores data in a .db file locally.");
         addDefault("mysql-host", "127.0.0.1", "The MySQL host to connect to.");
         addDefault("mysql-port", 3308, "The port to connect to.");
-        addDefault("mysql-user", "username", "The username to use when connecting.");
+        addDefault("mysql-database", "database", "The database to connect to.");
+        addDefault("mysql-username", "username", "The username to use when connecting.");
         addDefault("mysql-password", "password", "The password to use when connecting.");
 
         addDefault("enable-distance-limitations", true, "Distance Limitations",
@@ -451,6 +458,11 @@ public class NewConfig extends CMFile {
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
 
         USE_MYSQL = new ConfigOption<>("use-mysql");
+        MYSQL_HOST = new ConfigOption<>("mysql-host");
+        MYSQL_PORT = new ConfigOption<>("mysql-port");
+        MYSQL_DATABASE = new ConfigOption<>("mysql-database");
+        USERNAME = new ConfigOption<>("mysql-username");
+        PASSWORD = new ConfigOption<>("mysql-password");
 
         ENABLE_DISTANCE_LIMITATIONS = new ConfigOption<>("enable-distance-limitations");
         MAXIMUM_TELEPORT_DISTANCE = new ConfigOption<>("maximum-teleport-distance");
