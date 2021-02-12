@@ -22,6 +22,7 @@ public class ATPlayer {
     private LinkedHashMap<String, Home> homes;
     private HashMap<UUID, BlockInfo> blockedUsers;
     private boolean isTeleportationEnabled;
+    private String mainHome;
 
     private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
@@ -33,14 +34,19 @@ public class ATPlayer {
         this.uuid = uuid;
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
-        HomeSQLManager.get().getHomes(uuid.toString(), list -> this.homes = list);
+        HomeSQLManager.get().getHomes(uuid.toString(), list -> {
+            this.homes = list;
+            // Do this after to be safe
+            PlayerSQLManager.get().getMainHome(name, result -> {
+                System.out.println("Main home: " + result);
+                if (result != null && !result.isEmpty()) {
+                    setMainHome(result, null);
+                }
+            });
+        });
+
         PlayerSQLManager.get().isTeleportationOn(uuid, result -> this.isTeleportationEnabled = result);
 
-        if (getPlayer() != null
-                && getPlayer().getBedSpawnLocation() != null
-                && !getHomes().containsKey("bed")) {
-            addHome("bed", getPlayer().getBedSpawnLocation(), null);
-        }
         players.put(name, this);
     }
 
@@ -142,6 +148,27 @@ public class ATPlayer {
     // E.g.: at.member.homes.5
     // at.member.homes.40
     // at.member.homes.100000
+    public boolean hasMainHome() {
+        return mainHome != null && !mainHome.isEmpty() && homes.containsKey(mainHome);
+    }
+
+    public Home getMainHome() {
+        return homes.get(mainHome);
+    }
+
+    public void setMainHome(String name, SQLManager.SQLCallback<Boolean> callback) {
+        if (!homes.containsKey(name)) return;
+        this.mainHome = name;
+        LinkedHashMap<String, Home> tempHomes = new LinkedHashMap<>();
+        tempHomes.put(name, homes.get(name));
+        for (String home : homes.keySet()) {
+            if (home.equals(name)) continue;
+            tempHomes.put(home, homes.get(home));
+        }
+        homes = tempHomes;
+
+        PlayerSQLManager.get().setMainHome(uuid, name, callback);
+    }
     public int getHomesLimit() {
         int maxHomes = NewConfig.get().DEFAULT_HOMES_LIMIT.get();
         for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {

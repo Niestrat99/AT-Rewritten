@@ -49,6 +49,7 @@ public class CommandManager {
         register("delhome", new DelHome());
         register("homes", new HomesCommand());
         register("movehome", new MoveHomeCommand());
+        register("setmainhome", new SetMainHomeCommand());
 
         register("warp", new WarpCommand());
         register("setwarp", new SetWarpCommand());

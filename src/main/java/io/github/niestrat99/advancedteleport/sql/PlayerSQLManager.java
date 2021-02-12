@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.sql;
 
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.Home;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -32,6 +33,7 @@ public class PlayerSQLManager extends SQLManager {
                         "uuid VARCHAR(256) NOT NULL, " +
                         "name VARCHAR(256) NOT NULL," +
                         "timestamp_last_joined BIGINT NOT NULL," +
+                        "main_home VARCHAR(256)," +
                         "teleportation_on BIT DEFAULT 1 NOT NULL, " +
                         "x DOUBLE NOT NULL, " +
                         "y DOUBLE NOT NULL, " +
@@ -190,6 +192,43 @@ public class PlayerSQLManager extends SQLManager {
             } catch (SQLException exception) {
                 exception.printStackTrace();
                 callback.onFail();
+            }
+        });
+    }
+
+    public void getMainHome(String name, SQLCallback<String> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try {
+                PreparedStatement statement = connection.prepareStatement("SELECT main_home FROM advancedtp_players WHERE name = ?");
+                statement.setString(1, name.toLowerCase());
+                ResultSet results = statement.executeQuery();
+                if (results.next()) {
+                    callback.onSuccess(results.getString("main_home"));
+                    return;
+                }
+                callback.onSuccess(null);
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        });
+    }
+
+    public void setMainHome(UUID uuid, String home, SQLCallback<Boolean> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try {
+                PreparedStatement statement = connection.prepareStatement("UPDATE advancedtp_players SET main_home = ? WHERE uuid = ?");
+                statement.setString(1, home);
+                statement.setString(2, uuid.toString());
+                statement.executeUpdate();
+                if (callback != null) {
+                    callback.onSuccess(true);
+                }
+            } catch (SQLException exception) {
+                DataFailManager.get().addFailure(DataFailManager.Operation.CHANGE_TELEPORTATION, home, uuid.toString());
+                if (callback != null) {
+                    callback.onFail();
+                }
+                exception.printStackTrace();
             }
         });
     }

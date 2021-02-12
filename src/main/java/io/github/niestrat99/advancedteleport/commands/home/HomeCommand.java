@@ -91,7 +91,10 @@ public class HomeCommand extends AbstractHomeCommand {
                             }
                         }
                     } else {
-                        if (homes.size() == 1) {
+
+                        if (atPlayer.hasMainHome()) {
+                            teleport(player, atPlayer.getMainHome());
+                        } else if (homes.size() == 1) {
                             String name = homes.keySet().iterator().next();
                             teleport(player, homes.get(name));
                         } else {
