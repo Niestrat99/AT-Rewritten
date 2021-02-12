@@ -146,6 +146,8 @@ public class DataFailManager {
                     writer.write("\n");
                 }
                 writer.close();
+            } else {
+                failCsv.delete();
             }
         } catch (IOException e) {
             e.printStackTrace();
