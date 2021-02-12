@@ -18,12 +18,12 @@ import java.util.*;
 
 public class ATPlayer {
 
-    private UUID uuid;
+    private final UUID uuid;
     private LinkedHashMap<String, Home> homes;
     private HashMap<UUID, BlockInfo> blockedUsers;
     private boolean isTeleportationEnabled;
 
-    private static HashMap<String, ATPlayer> players = new HashMap<>();
+    private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
     public ATPlayer(Player player) {
         this(player.getUniqueId(), player.getName());
