@@ -162,6 +162,7 @@ public class ATPlayer {
     }
 
     public boolean canAccessHome(Home home) {
+        if (getHomesLimit() == -1) return true;
         if (!NewConfig.get().DENY_HOMES_IF_OVER_LIMIT.get()) return true;
         if (homes.containsValue(home)) {
             List<Home> homes = new ArrayList<>(this.homes.values());
@@ -169,6 +170,14 @@ public class ATPlayer {
             return index < getHomesLimit();
         }
         return false;
+    }
+
+    public boolean hasHome(String name) {
+        return homes.containsKey(name);
+    }
+
+    public boolean canSetMoreHomes() {
+        return getHomesLimit() == -1 || homes.size() < getHomesLimit();
     }
 
     @NotNull

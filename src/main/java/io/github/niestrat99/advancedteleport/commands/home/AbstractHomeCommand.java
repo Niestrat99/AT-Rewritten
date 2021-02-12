@@ -29,7 +29,13 @@ public abstract class AbstractHomeCommand implements ATCommand {
             }
             if (args.length == 1) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                StringUtil.copyPartialMatches(args[0], atPlayer.getHomes().keySet(), results);
+                List<String> homes = new ArrayList<>();
+                for (String home : atPlayer.getHomes().keySet()) {
+                    if (atPlayer.canAccessHome(atPlayer.getHome(home)) || cmd.getName().equalsIgnoreCase("delhome")) {
+                        homes.add(home);
+                    }
+                }
+                StringUtil.copyPartialMatches(args[0], homes, results);
             }
         }
         return results;
