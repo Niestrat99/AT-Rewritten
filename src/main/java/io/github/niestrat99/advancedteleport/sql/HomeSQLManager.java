@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 public class HomeSQLManager extends SQLManager {
@@ -183,14 +184,14 @@ public class HomeSQLManager extends SQLManager {
         });
     }
 
-    public void getHomes(String ownerUUID, SQLCallback<HashMap<String, Home>> callback) {
+    public void getHomes(String ownerUUID, SQLCallback<LinkedHashMap<String, Home>> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM advancedtp_homes WHERE uuid_owner = ?");
                 statement.setString(1, ownerUUID);
                 ResultSet results = statement.executeQuery();
                 // Create a list for all homes.
-                HashMap<String, Home> homes = new HashMap<>();
+                LinkedHashMap<String, Home> homes = new LinkedHashMap<>();
                 // For each home...
                 while (results.next()) {
                     // Get the world.
