@@ -159,8 +159,8 @@ public class PlayerSQLManager extends SQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement("UPDATE advancedtp_players SET teleportation_on = ? WHERE uuid = ?");
-                statement.setString(1, uuid.toString());
-                statement.setBoolean(2, enabled);
+                statement.setBoolean(1, enabled);
+                statement.setString(2, uuid.toString());
                 statement.executeUpdate();
                 if (callback != null) {
                     callback.onSuccess(true);
