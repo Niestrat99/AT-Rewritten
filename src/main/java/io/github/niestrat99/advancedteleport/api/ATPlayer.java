@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import io.github.niestrat99.advancedteleport.config.NewConfig;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
@@ -12,13 +14,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 public class ATPlayer {
 
     private UUID uuid;
-    private HashMap<String, Home> homes;
+    private LinkedHashMap<String, Home> homes;
     private HashMap<UUID, BlockInfo> blockedUsers;
     private boolean isTeleportationEnabled;
 
@@ -134,6 +135,40 @@ public class ATPlayer {
             return new Home(uuid, "bed", getPlayer().getBedSpawnLocation(), -1, -1);
         }
         return null;
+    }
+
+    // Used to get the permission for how many homes a player can have.
+    // If there is no permission, then it's assumed that the number of homes they can have is limitless (-1).
+    // E.g.: at.member.homes.5
+    // at.member.homes.40
+    // at.member.homes.100000
+    public int getHomesLimit() {
+        int maxHomes = NewConfig.getInstance().DEFAULT_HOMES_LIMIT.get();
+        for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
+            if (permission.getPermission().startsWith("at.member.homes.")) {
+                if (permission.getValue()) {
+                    String perm = permission.getPermission();
+                    String ending = perm.substring(perm.lastIndexOf(".") + 1);
+                    if (ending.equalsIgnoreCase("unlimited")) return -1;
+                    if (!ending.matches("^[0-9]+$")) continue;
+                    int homes = Integer.parseInt(ending);
+                    if (maxHomes < homes) {
+                        maxHomes = homes;
+                    }
+                }
+            }
+        }
+        return maxHomes;
+    }
+
+    public boolean canAccessHome(Home home) {
+        if (!NewConfig.getInstance().DENY_HOMES_IF_OVER_LIMIT.get()) return true;
+        if (homes.containsValue(home)) {
+            List<Home> homes = new ArrayList<>(this.homes.values());
+            int index = homes.indexOf(home);
+            return index < getHomesLimit();
+        }
+        return false;
     }
 
     @NotNull

@@ -100,23 +100,24 @@ public class HomeCommand extends AbstractHomeCommand {
                         return;
                     }
 
-                    if (PaymentManager.getInstance().canPay("home", player)) {
-
-                        if (atPlayer.getHomes().containsKey(args[0])) {
-                            Home home = atPlayer.getHomes().get(args[0]);
-                            teleport(player, home);
-                        } else if (args[0].equalsIgnoreCase("bed")  && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
-                            Home home = atPlayer.getHomes().get(args[0]);
-                            if (home == null) {
-                                player.sendMessage(CustomMessages.getString("Error.noBedHome"));
-                                return;
-                            }
-                            teleport(player, home);
-                        } else if (args[0].equalsIgnoreCase("list")) {
-                            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
-                        } else {
-                            sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
+                    Home home;
+                    if (atPlayer.getHomes().containsKey(args[0])) {
+                        home = atPlayer.getHomes().get(args[0]);
+                    } else if (args[0].equalsIgnoreCase("bed")  && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
+                        home = atPlayer.getBedSpawn();
+                        if (home == null) {
+                            player.sendMessage(CustomMessages.getString("Error.noBedHome"));
+                            return;
                         }
+                    } else if (args[0].equalsIgnoreCase("list")) {
+                        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+                        return;
+                    } else {
+                        sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
+                        return;
+                    }
+                    if (atPlayer.canAccessHome(home)) {
+                        teleport(player, home);
                     }
                     });
                 } else {

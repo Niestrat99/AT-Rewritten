@@ -60,6 +60,8 @@ public class NewConfig extends CMFile {
 
     public ConfigOption<Integer> DEFAULT_HOMES_LIMIT;
     public ConfigOption<Boolean> ADD_BED_TO_HOMES;
+    public ConfigOption<Boolean> DENY_HOMES_IF_OVER_LIMIT;
+    public ConfigOption<Boolean> HIDE_HOMES_IF_DENIED;
 
     public ConfigOption<String> TPA_REQUEST_RECEIVED;
     public ConfigOption<String> TPA_REQUEST_SENT;
@@ -249,6 +251,11 @@ public class NewConfig extends CMFile {
                 "This can be overridden by giving people permissions such as at.member.homes.10.\n" +
                 "To disable this, use -1 as provided by default.");
         addDefault("add-bed-to-homes", true, "Whether or not the bed home should be added to /homes.");
+        addDefault("deny-homes-if-over-limit", true, "Whether or not players should be denied access to some of their homes if they exceed their homes limit.\n" +
+                "The homes denied access to will end up being their most recently set homes.\n" +
+                "For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.");
+        addDefault("hide-homes-if-denied", false, "If homes should be hidden from /homes should they be denied access.\n" +
+                "If this is false, they will be greyed out in the /homes list.");
 
         addDefault("tpa-request-received", "none", "Notifications/Sounds",
                 "The sound played when a player receives a teleportation (tpa) request.\n" +
@@ -466,6 +473,8 @@ public class NewConfig extends CMFile {
 
         DEFAULT_HOMES_LIMIT = new ConfigOption<>("default-homes-limit");
         ADD_BED_TO_HOMES = new ConfigOption<>("add-bed-to-homes");
+        DENY_HOMES_IF_OVER_LIMIT = new ConfigOption<>("deny-homes-if-over-limit");
+        HIDE_HOMES_IF_DENIED = new ConfigOption<>("hide-homes-if-denied");
 
         TPA_REQUEST_RECEIVED = new ConfigOption<>("tpa-request-received");
         TPA_REQUEST_SENT = new ConfigOption<>("tpa-request-sent");

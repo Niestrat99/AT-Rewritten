@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -52,11 +53,19 @@ public class HomesCommand implements AsyncATCommand {
 
         if (atPlayer.getHomes().size() > 0) {
             for (Home home : atPlayer.getHomes().values()) {
+                if (atPlayer.canAccessHome(home)) {
+                    hList.then(home.getName())
+                            .command("/home " + home.getName())
+                            .tooltip(getTooltip(sender, home))
+                            .then(", ");
+                } else if (!NewConfig.getInstance().HIDE_HOMES_IF_DENIED.get()) {
+                    hList.then(home.getName())
+                            .tooltip(getTooltip(sender, home))
+                            .color(ChatColor.GRAY)
+                            .style(ChatColor.ITALIC)
+                            .then(", ");
+                }
 
-                hList.then(home.getName())
-                        .command("/home " + home.getName())
-                        .tooltip(getTooltip(sender, home))
-                        .then(", ");
             }
             if (atPlayer.getBedSpawn() != null && NewConfig.getInstance().ADD_BED_TO_HOMES.get()) {
                 hList.then("bed")

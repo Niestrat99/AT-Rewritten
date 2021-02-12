@@ -37,7 +37,7 @@ public class SetHome implements AsyncATCommand {
                         }
 
                         // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
-                        int limit = getHomesLimit(player);
+                        int limit = atPlayer.getHomesLimit();
 
                         // If the number of homes a player has is smaller than or equal to the homes limit, or they have a bypass permission
                         if (atPlayer.getHomes().size() < limit
@@ -49,7 +49,7 @@ public class SetHome implements AsyncATCommand {
                             sender.sendMessage(CustomMessages.getString("Error.reachedHomeLimit"));
                         }
                     } else {
-                        int limit = getHomesLimit(player);
+                        int limit = atPlayer.getHomesLimit();
                         if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
                             setHome(player, "home");
                         } else {
@@ -92,29 +92,7 @@ public class SetHome implements AsyncATCommand {
         });
     }
 
-    // Used to get the permission for how many homes a player can have.
-    // If there is no permission, then it's assumed that the number of homes they can have is limitless (-1).
-    // E.g.: at.member.homes.5
-    // at.member.homes.40
-    // at.member.homes.100000
-    private int getHomesLimit(Player player) {
-        int maxHomes = NewConfig.getInstance().DEFAULT_HOMES_LIMIT.get();
-        for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
-            if (permission.getPermission().startsWith("at.member.homes.")) {
-                if (permission.getValue()) {
-                    String perm = permission.getPermission();
-                    String ending = perm.substring(perm.lastIndexOf(".") + 1);
-                    if (ending.equalsIgnoreCase("unlimited")) return -1;
-                    if (!ending.matches("^[0-9]+$")) continue;
-                    int homes = Integer.parseInt(ending);
-                    if (maxHomes < homes) {
-                        maxHomes = homes;
-                    }
-                }
-            }
-        }
-        return maxHomes;
-    }
+
 
     @Nullable
     @Override
