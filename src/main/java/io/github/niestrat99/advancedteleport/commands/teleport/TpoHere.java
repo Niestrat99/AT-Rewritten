@@ -4,8 +4,10 @@ import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
+import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,8 +29,16 @@ public class TpoHere implements ATCommand {
                         Player target = Bukkit.getPlayer(args[0]);
                         if (target == null) {
                             if (sender.hasPermission("at.admin.tpohere.offline")) {
-                                PlayerSQLManager.get().movePlayer(args[0], player.getLocation(), callback -> {
-                                    sender.sendMessage("Teleported offline player " + args[0]);
+                                NBTReader.setLocation(args[0], player.getLocation(), new NBTReader.NBTCallback<Boolean>() {
+                                    @Override
+                                    public void onSuccess(Boolean data) {
+                                        sender.sendMessage("Teleported offline player " + args[0]);
+                                    }
+
+                                    @Override
+                                    public void onFail(String message) {
+                                        sender.sendMessage(message);
+                                    }
                                 });
                                 return true;
                             }

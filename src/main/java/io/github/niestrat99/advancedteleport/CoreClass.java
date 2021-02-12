@@ -105,6 +105,7 @@ public class CoreClass extends JavaPlugin {
             @Override
             public void run() {
                 // Config.setupDefaults();
+                NBTReader.init();
                 Object[] update = UpdateChecker.getUpdate();
                 if (update != null) {
                     getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));

@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
+import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,7 +31,7 @@ public class Tpo implements ATCommand {
                         Player target = Bukkit.getPlayer(args[0]);
                         if (target == null) {
                             if (sender.hasPermission("at.admin.tpo.offline")) {
-                                PlayerSQLManager.get().getLocation(args[0], new SQLManager.SQLCallback<Location>() {
+                                NBTReader.getLocation(args[0], new NBTReader.NBTCallback<Location>() {
                                     @Override
                                     public void onSuccess(Location data) {
                                         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
@@ -40,8 +41,8 @@ public class Tpo implements ATCommand {
                                     }
 
                                     @Override
-                                    public void onFail() {
-                                        sender.sendMessage("No saved location");
+                                    public void onFail(String message) {
+                                        sender.sendMessage(message);
                                     }
                                 });
                                 return true;
