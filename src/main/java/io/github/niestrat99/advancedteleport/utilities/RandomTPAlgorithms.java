@@ -140,7 +140,9 @@ public class RandomTPAlgorithms {
             if (Bukkit.getServer().getVersion().contains("1.8")) {
                 runnable.run();
             } else {
-                new Thread(runnable, "AdvancedTeleport RTP Worker").start();
+                Thread thread = new Thread(runnable, "AdvancedTeleport RTP Worker");
+                thread.setPriority(3);
+                thread.start();
             }
         });
 
