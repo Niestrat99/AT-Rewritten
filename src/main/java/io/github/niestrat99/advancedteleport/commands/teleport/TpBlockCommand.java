@@ -11,11 +11,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class TpBlockCommand implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, String s, String[] args) {
         // If teleporting features are enabled...
         if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             // If the user has permission...

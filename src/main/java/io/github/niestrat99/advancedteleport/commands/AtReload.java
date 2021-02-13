@@ -14,7 +14,7 @@ import java.util.List;
 public class AtReload implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (!sender.hasPermission("at.admin.reload")) {
             CustomMessages.sendMessage(sender, "Error.noPermission");
         } else {

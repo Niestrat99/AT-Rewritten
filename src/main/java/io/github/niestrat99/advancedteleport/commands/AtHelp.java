@@ -13,7 +13,7 @@ import java.util.List;
 public class AtHelp implements ATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender.hasPermission("at.member.help")) {
             if (args.length == 0) {
                 for (String str : CustomMessages.config.getStringList("Help.mainHelp")) {

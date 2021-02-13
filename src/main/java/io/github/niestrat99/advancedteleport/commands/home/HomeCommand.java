@@ -23,7 +23,7 @@ import java.util.HashMap;
 public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (NewConfig.get().USE_HOMES.get()) {
             if (sender.hasPermission("at.member.home")) {
                 if (sender instanceof Player) {

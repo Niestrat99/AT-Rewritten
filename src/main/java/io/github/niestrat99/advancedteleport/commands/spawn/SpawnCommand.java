@@ -23,7 +23,7 @@ import java.util.List;
 public class SpawnCommand implements ATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (NewConfig.get().USE_SPAWN.get()) {
             if (sender.hasPermission("at.member.spawn")){
                 if (sender instanceof Player) {

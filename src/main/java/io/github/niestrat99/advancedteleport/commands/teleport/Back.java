@@ -29,7 +29,7 @@ public class Back implements ATCommand {
     private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR"));
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, String s, @NotNull String[] strings) {
         if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.member.back")) {
                 if (sender instanceof Player) {
@@ -89,7 +89,7 @@ public class Back implements ATCommand {
                 CustomMessages.sendMessage(sender, "Error.noPermission");
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
         return true;
