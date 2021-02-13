@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class SetHome implements AsyncATCommand {
+public class SetHomeCommand implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (NewConfig.get().USE_HOMES.get()) {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
@@ -35,32 +35,26 @@ public class SetHome implements AsyncATCommand {
                             }
                         }
 
-                        // I don't really want to run this method twice if a player has a lot of permissions, so store it as an int
-                        int limit = atPlayer.getHomesLimit();
-
-                        // If the number of homes a player has is smaller than or equal to the homes limit, or they have a bypass permission
-                        if (atPlayer.getHomes().size() < limit
-                                || player.hasPermission("at.admin.sethome.bypass")
-                                || limit == -1) {
+                        if (atPlayer.canSetMoreHomes()) {
                             setHome(player, args[0]);
 
                         } else {
-                            sender.sendMessage(CustomMessages.getString("Error.reachedHomeLimit"));
+                            CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
                         }
                     } else {
                         int limit = atPlayer.getHomesLimit();
                         if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
                             setHome(player, "home");
                         } else {
-                            sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
+                            CustomMessages.sendMessage(sender, "Error.noHomeInput");
                         }
                     }
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                CustomMessages.sendMessage(sender, "Error.notAPlayer");
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }
@@ -78,15 +72,15 @@ public class SetHome implements AsyncATCommand {
         ATPlayer atPlayer = ATPlayer.getPlayer(settingPlayer);
 
         if (atPlayer.getHome(homeName) != null) {
-            sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replace("{home}", homeName));
+            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "{home}", homeName);
             return;
         }
 
         atPlayer.addHome(homeName, sender.getLocation(), data -> {
             if (sender.getUniqueId() == player) {
-                sender.sendMessage(CustomMessages.getString("Info.setHome").replace("{home}", homeName));
+                CustomMessages.sendMessage(sender, "Info.setHome", "{home}", homeName);
             } else {
-                sender.sendMessage(CustomMessages.getString("Info.setHomeOther").replace("{home}", homeName).replaceAll("\\{player}", playerName));
+                CustomMessages.sendMessage(sender, "Info.setHomeOther", "{home}", homeName, "{player}", playerName);
             }
         });
     }
