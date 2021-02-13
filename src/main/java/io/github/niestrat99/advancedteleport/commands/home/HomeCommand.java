@@ -94,7 +94,13 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                             teleport(player, atPlayer.getMainHome());
                         } else if (homes.size() == 1) {
                             String name = homes.keySet().iterator().next();
-                            teleport(player, homes.get(name));
+                            Home home = homes.get(name);
+                            if (atPlayer.canAccessHome(home)) {
+                                teleport(player, home);
+                            } else {
+                                CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
+                            }
+
                         } else {
                             CustomMessages.sendMessage(sender, "Error.noHomeInput");
                         }
@@ -117,12 +123,17 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                         CustomMessages.sendMessage(sender, "Error.noSuchHome");
                         return true;
                     }
+
                     if (atPlayer.canAccessHome(home)) {
                         teleport(player, home);
+                    } else {
+                        CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
                     }
                 } else {
                     CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPermission");
             }
         } else {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");

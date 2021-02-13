@@ -38,7 +38,11 @@ public class HomesCommand implements AsyncATCommand {
                 }
                 if (sender instanceof Player) {
                     getHomes(sender, (Player) sender);
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPermission");
             }
         } else {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
@@ -53,7 +57,7 @@ public class HomesCommand implements AsyncATCommand {
 
         if (atPlayer.getHomes().size() > 0) {
             for (Home home : atPlayer.getHomes().values()) {
-                if (atPlayer.canAccessHome(home)) {
+                if (atPlayer.canAccessHome(home) || sender.hasPermission("at.admin.homes")) {
                     hList.then(home.getName())
                             .command("/home " + home.getName())
                             .tooltip(getTooltip(sender, home))

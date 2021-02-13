@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -49,6 +50,8 @@ public class SetHomeCommand implements AsyncATCommand {
                             CustomMessages.sendMessage(sender, "Error.noHomeInput");
                         }
                     }
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noPermission");
                 }
             } else {
                 CustomMessages.sendMessage(sender, "Error.notAPlayer");
@@ -75,6 +78,10 @@ public class SetHomeCommand implements AsyncATCommand {
             CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "{home}", homeName);
             return;
         }
+
+        atPlayer.addHome(homeName, sender.getLocation(), SQLManager.SQLCallback.getDefaultCallback(sender,
+                sender.getUniqueId() == player ? "Info.setHome" : "Info.setHomeOther",
+                "Error.setHomeFail", "{home}", homeName, "{player}", playerName));
 
         atPlayer.addHome(homeName, sender.getLocation(), data -> {
             if (sender.getUniqueId() == player) {

@@ -33,6 +33,8 @@ public class SetWarpCommand extends AbstractWarpCommand implements AsyncATComman
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noWarpInput");
                 }
+            } else {
+                CustomMessages.sendMessage(sender, "Error.notAPlayer");
             }
         } else {
             CustomMessages.sendMessage(sender, "Error.noPermission");

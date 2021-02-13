@@ -88,6 +88,12 @@ public class CustomMessages {
         config.addDefault("Error.invalidArgs", "&b↑ &8» &7Invalid arguments!");
         config.addDefault("Error.cantTPToPlayer", "&b↑ &8» &7You can't request a teleportation to &b{player}&7!");
         config.addDefault("Error.noWarps", "&b↑ &8» &7There are no warps as of currently!");
+        config.addDefault("Error.noAccessHome", "&b↑ &8» &7You cannot access &b{home}&7 as of currently!");
+        config.addDefault("Error.moveHomeFail", "&b↑ &8» &7The home has been moved but the data has not been stored successfully. The plugin will try to fix this itself.");
+        config.addDefault("Error.setMainHomeFail", "&b↑ &8» &7The main home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        config.addDefault("Error.deleteHomeFail", "&b↑ &8» &7The home has been deleted but the data has not been stored successfully. The plugin will try to fix this itself.");
+        config.addDefault("Error.setHomeFail", "&b↑ &8» &7The home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        config.addDefault("Error.deleteWarpFail", "&b↑ &8» &7The warp has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
 
         config.addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         config.addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -147,6 +153,11 @@ public class CustomMessages {
         config.addDefault("Info.tpallRequestSent", "&b↑ &8» &7Successfully sent a teleport request to &b{amount} &7player(s)!");
         config.addDefault("Info.teleportedToLoc", "&b↑ &8» &7Successfully teleported you to &b{x}&7, &b{y}&7, &b{z}&7! (Yaw: &b{yaw}&7, Pitch: &b{pitch}&7, World: &b{world}&7)");
         config.addDefault("Info.teleportedToLocOther", "&b↑ &8» &7Successfully teleported &b{player} &7to &b{x}&7, &b{y}&7, &b{z}&7! (Yaw: &b{yaw}&7, Pitch: &b{pitch}&7, World: &b{world}&7)");
+        config.addDefault("Info.movedWarp", "&b↑ &8» &7Moved &b{warp} &7to your current location!");
+        config.addDefault("Info.movedHome", "&b↑ &8» &7Moved home &b{home} &7to your current location!");
+        config.addDefault("Info.movedHomeOther", "&b↑ &8» &7Moved &b{player}'s &7home &b{home} &7to your location!");
+        config.addDefault("Info.setMainHome", "&b↑ &8» &7Made &b{home} &7your main home!");
+        config.addDefault("Info.setAndMadeMainHome", "&b↑ &8» &7Set &b{home} &7at your current location and made it your main home!");
         config.addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
         config.addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");
         config.addDefault("Tooltip.location", "" +

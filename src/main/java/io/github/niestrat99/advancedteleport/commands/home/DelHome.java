@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -31,6 +32,8 @@ public class DelHome extends AbstractHomeCommand implements AsyncATCommand {
                     } else {
                         CustomMessages.sendMessage(sender, "Error.noHomeInput");
                     }
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noPermission");
                 }
             } else {
                 CustomMessages.sendMessage(sender, "Error.notAPlayer");
@@ -48,13 +51,9 @@ public class DelHome extends AbstractHomeCommand implements AsyncATCommand {
             CustomMessages.sendMessage(sender, "Error.noSuchHome");
             return;
         }
-        atPlayer.removeHome(name, data -> {
-            if (sender.getUniqueId() == player.getUniqueId()) {
-                CustomMessages.sendMessage(sender, "Info.deletedHome", "{home}", name);
-            } else {
-                CustomMessages.sendMessage(sender, "Info.deletedHomeOther", "{home}", name, "{player}", player.getName());
-            }
-        });
+        atPlayer.removeHome(name, SQLManager.SQLCallback.getDefaultCallback(sender,
+                sender.getUniqueId() == player.getUniqueId() ? "Info.deletedHome" : "Info.deletedHomeOther",
+                "Error.setHomeFail", "{home}", name, "{player}", player.getName()));
     }
 
     private void delHome(Player player, String name) {
