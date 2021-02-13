@@ -30,7 +30,7 @@ public class HomeSQLManager extends SQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement createTable = connection.prepareStatement("CREATE TABLE IF NOT EXISTS advancedtp_homes " +
-                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "uuid_owner VARCHAR(256) NOT NULL, " +
                         "home VARCHAR(256) NOT NULL," +
                         "x DOUBLE NOT NULL," +

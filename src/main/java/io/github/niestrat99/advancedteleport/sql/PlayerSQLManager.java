@@ -29,7 +29,7 @@ public class PlayerSQLManager extends SQLManager {
             try {
                 PreparedStatement createTable = connection.prepareStatement(
                         "CREATE TABLE IF NOT EXISTS advancedtp_players " +
-                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "uuid VARCHAR(256) NOT NULL, " +
                         "name VARCHAR(256) NOT NULL," +
                         "timestamp_last_joined BIGINT NOT NULL," +

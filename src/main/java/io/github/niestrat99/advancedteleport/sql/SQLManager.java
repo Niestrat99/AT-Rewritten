@@ -10,6 +10,7 @@ import java.sql.SQLException;
 public abstract class SQLManager {
 
     protected static Connection connection;
+    protected static boolean usingSqlite;
 
     public SQLManager() {
         if (connection == null) {
@@ -22,7 +23,7 @@ public abstract class SQLManager {
                             + NewConfig.get().MYSQL_DATABASE.get() + "?useSSL=false&autoReconnect=true",
                             NewConfig.get().USERNAME.get(),
                             NewConfig.get().PASSWORD.get());
-
+                    usingSqlite = false;
                 } catch (ClassNotFoundException | SQLException e) {
                     e.printStackTrace();
                     loadSqlite();
@@ -41,6 +42,7 @@ public abstract class SQLManager {
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + CoreClass.getInstance().getDataFolder() + "/data.db");
+            usingSqlite = true;
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
@@ -49,6 +51,10 @@ public abstract class SQLManager {
     public abstract void createTable();
 
     public abstract void transferOldData();
+
+    public String getStupidAutoIncrementThing() {
+        return usingSqlite ? "AUTOINCREMENT" : "AUTO_INCREMENT";
+    }
 
     public interface SQLCallback<D> {
         void onSuccess(D data);

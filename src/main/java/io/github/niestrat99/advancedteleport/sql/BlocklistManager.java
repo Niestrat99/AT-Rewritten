@@ -28,7 +28,7 @@ public class BlocklistManager extends SQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement createTable = connection.prepareStatement("CREATE TABLE IF NOT EXISTS advancedtp_blocklist " +
-                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "uuid_receiver VARCHAR(256) NOT NULL, " +
                         "uuid_blocked VARCHAR(256) NOT NULL," +
                         "timestamp BIGINT NOT NULL," +

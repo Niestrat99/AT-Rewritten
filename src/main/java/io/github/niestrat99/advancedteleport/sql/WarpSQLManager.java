@@ -29,7 +29,7 @@ public class WarpSQLManager extends SQLManager {
             try {
                 PreparedStatement createTable = connection.prepareStatement(
                         "CREATE TABLE IF NOT EXISTS advancedtp_warps " +
-                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "warp VARCHAR(256) NOT NULL," +
                         "uuid_creator VARCHAR(256), " +
                         "x DOUBLE NOT NULL," +
