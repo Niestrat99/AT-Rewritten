@@ -1,7 +1,9 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import org.bukkit.command.CommandSender;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,10 +12,16 @@ import java.sql.SQLException;
 public abstract class SQLManager {
 
     protected static Connection connection;
+    protected static String tablePrefix;
     protected static boolean usingSqlite;
 
     public SQLManager() {
         if (connection == null) {
+            tablePrefix = NewConfig.get().TABLE_PREFIX.get();
+            if (!tablePrefix.matches("^[_A-Za-z0-9]+$")) {
+                CoreClass.getInstance().getLogger().warning("Table prefix " + tablePrefix + " is not alphanumeric. Using advancedtp...");
+                tablePrefix = "advancedtp";
+            }
             if (NewConfig.get().USE_MYSQL.get()) {
                 try {
                     Class.forName("com.mysql.jdbc.Driver");
@@ -62,6 +70,20 @@ public abstract class SQLManager {
         default void onSuccess() {}
 
         default void onFail() {}
+
+        static SQLCallback<Boolean> getDefaultCallback(CommandSender sender, String success, String fail, String... placeholders) {
+            return new SQLCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean data) {
+                    CustomMessages.sendMessage(sender, success, placeholders);
+                }
+
+                @Override
+                public void onFail() {
+                    CustomMessages.sendMessage(sender, fail, placeholders);
+                }
+            };
+        }
     }
 
 

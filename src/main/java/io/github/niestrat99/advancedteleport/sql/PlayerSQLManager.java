@@ -1,8 +1,6 @@
 package io.github.niestrat99.advancedteleport.sql;
 
-
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.Home;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -28,7 +26,7 @@ public class PlayerSQLManager extends SQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement createTable = connection.prepareStatement(
-                        "CREATE TABLE IF NOT EXISTS advancedtp_players " +
+                        "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_players " +
                         "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "uuid VARCHAR(256) NOT NULL, " +
                         "name VARCHAR(256) NOT NULL," +
@@ -69,7 +67,7 @@ public class PlayerSQLManager extends SQLManager {
     public void updatePlayerInformation(OfflinePlayer player, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("UPDATE advancedtp_players SET name = ?, timestamp_last_joined = ? WHERE uuid = ?");
+                PreparedStatement statement = connection.prepareStatement("UPDATE " + tablePrefix + "_players SET name = ?, timestamp_last_joined = ? WHERE uuid = ?");
                 statement.setString(1, player.getName().toLowerCase());
                 statement.setLong(2, System.currentTimeMillis());
                 statement.setString(3, player.getUniqueId().toString());
@@ -87,7 +85,7 @@ public class PlayerSQLManager extends SQLManager {
     public void isPlayerInDatabase(Player player, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("SELECT name FROM advancedtp_players WHERE uuid = ?");
+                PreparedStatement statement = connection.prepareStatement("SELECT name FROM " + tablePrefix + "_players WHERE uuid = ?");
                 statement.setString(1, player.getUniqueId().toString());
                 ResultSet results = statement.executeQuery();
                 callback.onSuccess(results.next());
@@ -108,7 +106,7 @@ public class PlayerSQLManager extends SQLManager {
                     return;
                 }
                 PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO advancedtp_players (uuid, name, timestamp_last_joined, x, y, z, yaw, pitch, world) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "INSERT INTO " + tablePrefix + "_players (uuid, name, timestamp_last_joined, x, y, z, yaw, pitch, world) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                 statement.setString(1, player.getUniqueId().toString());
                 statement.setString(2, player.getName().toLowerCase());
@@ -141,7 +139,7 @@ public class PlayerSQLManager extends SQLManager {
     public void isTeleportationOn(UUID uuid, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("SELECT teleportation_on FROM advancedtp_players WHERE uuid = ?");
+                PreparedStatement statement = connection.prepareStatement("SELECT teleportation_on FROM " + tablePrefix + "_players WHERE uuid = ?");
                 statement.setString(1, uuid.toString());
                 ResultSet results = statement.executeQuery();
                 if (results.next()) {
@@ -158,7 +156,7 @@ public class PlayerSQLManager extends SQLManager {
     public void setTeleportationOn(UUID uuid, boolean enabled, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("UPDATE advancedtp_players SET teleportation_on = ? WHERE uuid = ?");
+                PreparedStatement statement = connection.prepareStatement("UPDATE " + tablePrefix + "_players SET teleportation_on = ? WHERE uuid = ?");
                 statement.setBoolean(1, enabled);
                 statement.setString(2, uuid.toString());
                 statement.executeUpdate();
@@ -176,7 +174,7 @@ public class PlayerSQLManager extends SQLManager {
     public void getLocation(String name, SQLCallback<Location> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM advancedtp_players WHERE name = ?");
+                PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + tablePrefix + "_players WHERE name = ?");
                 statement.setString(1, name.toLowerCase());
                 ResultSet results = statement.executeQuery();
                 if (results.next()) {
@@ -199,7 +197,7 @@ public class PlayerSQLManager extends SQLManager {
     public void getMainHome(String name, SQLCallback<String> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("SELECT main_home FROM advancedtp_players WHERE name = ?");
+                PreparedStatement statement = connection.prepareStatement("SELECT main_home FROM " + tablePrefix + "_players WHERE name = ?");
                 statement.setString(1, name.toLowerCase());
                 ResultSet results = statement.executeQuery();
                 if (results.next()) {
@@ -216,7 +214,7 @@ public class PlayerSQLManager extends SQLManager {
     public void setMainHome(UUID uuid, String home, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("UPDATE advancedtp_players SET main_home = ? WHERE uuid = ?");
+                PreparedStatement statement = connection.prepareStatement("UPDATE " + tablePrefix + "_players SET main_home = ? WHERE uuid = ?");
                 statement.setString(1, home);
                 statement.setString(2, uuid.toString());
                 statement.executeUpdate();

@@ -27,7 +27,7 @@ public class BlocklistManager extends SQLManager {
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement createTable = connection.prepareStatement("CREATE TABLE IF NOT EXISTS advancedtp_blocklist " +
+                PreparedStatement createTable = connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + tablePrefix + "_blocklist " +
                         "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "uuid_receiver VARCHAR(256) NOT NULL, " +
                         "uuid_blocked VARCHAR(256) NOT NULL," +
@@ -72,11 +72,11 @@ public class BlocklistManager extends SQLManager {
                 PreparedStatement statement;
                 if (reason != null) {
                     statement = connection.prepareStatement(
-                            "INSERT INTO advancedtp_blocklist (uuid_receiver, uuid_blocked, timestamp, reason) VALUES (?, ?, ?, ?)");
+                            "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp, reason) VALUES (?, ?, ?, ?)");
                     statement.setString(4, reason);
                 } else {
                     statement = connection.prepareStatement(
-                            "INSERT INTO advancedtp_blocklist (uuid_receiver, uuid_blocked, timestamp) VALUES (?, ?, ?)");
+                            "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp) VALUES (?, ?, ?)");
                 }
                 statement.setString(1, receiverUUID);
                 statement.setString(2, blockedUUID);
@@ -97,7 +97,7 @@ public class BlocklistManager extends SQLManager {
     public void unblockUser(String receiverUUID, String blockedUUID, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("DELETE FROM advancedtp_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?");
+                PreparedStatement statement = connection.prepareStatement("DELETE FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?");
                 statement.setString(1, receiverUUID);
                 statement.setString(2, blockedUUID);
                 statement.executeUpdate();
@@ -115,7 +115,7 @@ public class BlocklistManager extends SQLManager {
     public void getBlockedPlayers(String receiverUUID, SQLCallback<HashMap<UUID, BlockInfo>> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM advancedtp_blocklist WHERE uuid_receiver = ?");
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ?");
                 statement.setString(1, receiverUUID);
                 ResultSet results = statement.executeQuery();
                 // Create a list for all blocked players.

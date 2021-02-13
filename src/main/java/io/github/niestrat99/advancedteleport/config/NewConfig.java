@@ -43,7 +43,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<String> MYSQL_DATABASE;
     public ConfigOption<String> USERNAME;
     public ConfigOption<String> PASSWORD;
-
+    public ConfigOption<String> TABLE_PREFIX;
 
     public ConfigOption<Boolean> ENABLE_DISTANCE_LIMITATIONS;
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
@@ -181,6 +181,8 @@ public class NewConfig extends CMFile {
         addDefault("mysql-database", "database", "The database to connect to.");
         addDefault("mysql-username", "username", "The username to use when connecting.");
         addDefault("mysql-password", "password", "The password to use when connecting.");
+        addDefault("mysql-table-prefix", "advancedtp", "The prefix of all AT tables. \n" +
+                "If you're on Bungee, you may want to add your server's name to the end.");
 
         addDefault("enable-distance-limitations", true, "Distance Limitations",
                 "Enables the distance limiter to stop players teleporting over a large distance.\n" +
@@ -463,6 +465,7 @@ public class NewConfig extends CMFile {
         MYSQL_DATABASE = new ConfigOption<>("mysql-database");
         USERNAME = new ConfigOption<>("mysql-username");
         PASSWORD = new ConfigOption<>("mysql-password");
+        TABLE_PREFIX = new ConfigOption<>("mysql-table-prefix");
 
         ENABLE_DISTANCE_LIMITATIONS = new ConfigOption<>("enable-distance-limitations");
         MAXIMUM_TELEPORT_DISTANCE = new ConfigOption<>("maximum-teleport-distance");
