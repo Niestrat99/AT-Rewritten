@@ -194,13 +194,24 @@ public class CustomMessages {
         save();
     }
 
-    public static String getString(String path) {
-        String str = Config.getString(path);
+    public static String getString(String path, String... placeholders) {
+        return translateString(config.getString(path), placeholders);
+    }
+
+    public static String translateString(String str, String... placeholders) {
         if (str == null) return "";
         str = str.replaceAll("''", "'");
         str = str.replaceAll("^'", "");
         str = str.replaceAll("'$", "");
         str = ChatColor.translateAlternateColorCodes('&', str);
+
+        for (int i = 0; i < placeholders.length; i += 2) {
+            try {
+                str = str.replace(placeholders[i], placeholders[i + 1]);
+            } catch (ArrayIndexOutOfBoundsException ignored) {
+
+            }
+        }
         return str;
     }
 
@@ -208,16 +219,104 @@ public class CustomMessages {
         if (ConfigFile == null) {
             ConfigFile = new File(CoreClass.getInstance().getDataFolder(), "custom-messages.yml");
         }
-        Config = YamlConfiguration.loadConfiguration(ConfigFile);
+        config = YamlConfiguration.loadConfiguration(ConfigFile);
         setDefaults();
         save();
     }
 
-    public static String getEventBeforeTPMessage() {
-        if(NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() || NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
-            return getString("Teleport.eventBeforeTP");
+    public static void sendMessage(CommandSender sender, String path, String... placeholders) {
+        if (config.get(path) instanceof List) {
+            List<String> messages = config.getStringList(path);
+            for (String message : messages) {
+                getFancyMessage(translateString(message, placeholders)).send(sender);
+            }
         } else {
-            return getString("Teleport.eventBeforeTPMovementAllowed");
+            String[] messages = translateString(config.getString(path), placeholders).split("\n");
+            for (String message : messages) {
+                getFancyMessage(message).send(sender);
+            }
+
         }
+    }
+
+    // Doing it like this because Regex is not co-operating
+    private static FancyMessage getFancyMessage(String str) {
+        int startTextPointer = -1;
+        int endTextPointer = -1;
+
+        int startCommandPointer = -1;
+        int endCommandPointer;
+
+        int lastMarkdownPointer = 0;
+
+        FancyMessage builder = new FancyMessage();
+        boolean buildingComponent = false;
+
+        for (int i = 0; i < str.length(); i++) {
+            if (!buildingComponent && str.charAt(i) == '[' && (i == 0 || !(str.charAt(i - 1) == '\\'))) {
+                startTextPointer = i + 1;
+                buildingComponent = true;
+            } else if (buildingComponent && str.charAt(i) == ']' && !(str.charAt(i - 1) == '\\')) {
+                endTextPointer = i;
+            } else if (buildingComponent && str.charAt(i) == '(') {
+                if (str.charAt(i - 1) == ']') {
+                    startCommandPointer = i + 1;
+                } else if (startCommandPointer == -1) {
+                    buildingComponent = false;
+                    startTextPointer = -1;
+                    endTextPointer = -1;
+                }
+            } else if (buildingComponent && str.charAt(i) == ')' && !(str.charAt(i - 1) == '\\')) {
+                if (startCommandPointer != -1) {
+                    endCommandPointer = i;
+                    // Get all the
+                    builder.text(str.substring(lastMarkdownPointer, startTextPointer - 1));
+
+                    String command = "";
+                    List<String> tooltip = new ArrayList<>();
+
+                    String fullCommand = str.substring(startCommandPointer, endCommandPointer);
+
+                    int dividerIndex = fullCommand.indexOf('|');
+                    if (dividerIndex != -1 && fullCommand.charAt(dividerIndex - 1) != '\\') {
+                        String[] parts = fullCommand.split("\\|");
+                        for (String part : parts) {
+                            if (part.startsWith("/") && command.isEmpty()) {
+                                command = part;
+                            } else {
+                                tooltip.add(part);
+                            }
+                        }
+                    } else {
+                        if (fullCommand.startsWith("/")) {
+                            command = fullCommand;
+                        } else {
+                            tooltip.add(fullCommand);
+                        }
+                    }
+
+                    builder.then(str.substring(startTextPointer, endTextPointer)).tooltip(tooltip);
+
+                    if (!command.isEmpty()) {
+                        builder.command(command);
+                    }
+
+                    builder.then();
+
+                    lastMarkdownPointer = endCommandPointer + 1;
+
+                    startTextPointer = -1;
+                    endTextPointer = -1;
+                    startCommandPointer = -1;
+
+                    buildingComponent = false;
+
+                }
+            }
+        }
+
+        builder.text(str.substring(lastMarkdownPointer));
+
+        return builder;
     }
 }
