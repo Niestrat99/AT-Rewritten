@@ -1,6 +1,13 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.managers.MovementManager;
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
+import io.papermc.lib.PaperLib;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 import io.github.niestrat99.advancedteleport.CoreClass;
@@ -38,7 +45,6 @@ public class ATPlayer {
             this.homes = list;
             // Do this after to be safe
             PlayerSQLManager.get().getMainHome(name, result -> {
-                System.out.println("Main home: " + result);
                 if (result != null && !result.isEmpty()) {
                     setMainHome(result, null);
                 }
@@ -58,8 +64,27 @@ public class ATPlayer {
         return Bukkit.getOfflinePlayer(uuid);
     }
 
-    public void teleport(Location location) {
+    public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp) {
+        Player player = event.getPlayer();
+        if (!event.isCancelled()) {
+            if (PaymentManager.getInstance().canPay(command, player)) {
+                // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
+                String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
 
+                if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                    CooldownManager.addToCooldown(command, player);
+                }
+
+                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+                    MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp, "{home}", event.getLocName(), "{warp}", event.getLocName());
+                } else {
+                    PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                    CustomMessages.sendMessage(player, teleportMsg);
+                    PaymentManager.getInstance().withdraw(command, player);
+                }
+            }
+
+        }
     }
 
     public boolean isTeleportationEnabled() {

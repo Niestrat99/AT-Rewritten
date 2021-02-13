@@ -57,24 +57,8 @@ public class SpawnCommand implements ATCommand {
         }
 
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
-        if (!event.isCancelled()) {
-            if (PaymentManager.getInstance().canPay("spawn", player)) {
-                // If the cooldown is to be applied after request or accept (they are the same in the case of /spawn), apply it now
-                String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
-                if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
-                    CooldownManager.addToCooldown("spawn", player);
-                }
-                int warmUp = NewConfig.get().WARM_UPS.SPAWN.get();
-                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    MovementManager.createMovementTimer(player, spawn, "spawn", "Teleport.teleportingToSpawn", warmUp);
 
-                } else {
-                    PaymentManager.getInstance().withdraw("spawn", player);
-                    PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
-                    player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
-                }
-            }
-        }
+        ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn", NewConfig.get().WARM_UPS.SPAWN.get());
     }
 
     @Nullable

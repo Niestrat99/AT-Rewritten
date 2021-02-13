@@ -140,23 +140,7 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                     home.getName(),
                     ATTeleportEvent.TeleportType.HOME
             );
-            if (!event.isCancelled()) {
-                if (PaymentManager.getInstance().canPay("home", player)) {
-                    // If the cooldown is to be applied after request or accept (they are the same in the case of /home), apply it now
-                    String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
-                    if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
-                        CooldownManager.addToCooldown("home", player);
-                    }
-                    int warmUp = NewConfig.get().WARM_UPS.HOME.get();
-                    if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                        MovementManager.createMovementTimer(player, home.getLocation(), "home", "Teleport.teleportingToHome", warmUp, "{home}", home.getName());
-                    } else {
-                        player.sendMessage(CustomMessages.getString("Teleport.teleportingToHome").replace("{home}", home.getName()));
-                        PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                        PaymentManager.getInstance().withdraw("home", player);
-                    }
-                }
-            }
+            ATPlayer.getPlayer(player).teleport(event, "home", "Teleport.teleportingToHome", NewConfig.get().WARM_UPS.HOME.get());
         });
     }
 }

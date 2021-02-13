@@ -56,31 +56,14 @@ public class Back implements ATCommand {
                         }
                         loc.add(0.0, 1.0, 0.0);
                     }
-                    ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
-                    if (!event.isCancelled()) {
-                        if (PaymentManager.getInstance().canPay("back", player)) {
-                            int warmUp = NewConfig.get().WARM_UPS.BACK.get();
-                            if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                                MovementManager.createMovementTimer(player, loc, "back", "Teleport.teleportingToLastLoc", warmUp);
-                            } else {
-                                PaymentManager.getInstance().withdraw("back", player);
-                                PaperLib.teleportAsync(player, loc, PlayerTeleportEvent.TeleportCause.COMMAND);
-                               
-                                player.sendMessage(CustomMessages.getString("Teleport.teleportingToLastLoc"));
-                            }
-                            // If the cooldown is to be applied after request or accept (they are the same in the case of /back), apply it now
-                            String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
-                            if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
-                                CooldownManager.addToCooldown("back", player);
-                            }
-                        }
-                    }
 
                     if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back") && !player.hasPermission("at.admin.bypass.distance-limit")) {
                         CustomMessages.sendMessage(player, "Error.tooFarAway");
                         return true;
                     }
 
+                    ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
+                    ATPlayer.getPlayer(player).teleport(event, "back", "Teleport.teleportingToLastLoc", NewConfig.get().WARM_UPS.BACK.get());
 
                 } else {
                     CustomMessages.sendMessage(sender, "Error.notAPlayer");

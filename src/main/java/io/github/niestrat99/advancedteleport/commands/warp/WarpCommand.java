@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -68,22 +69,6 @@ public class WarpCommand extends AbstractWarpCommand {
             return;
         }
         ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);
-        if (!event.isCancelled()) {
-            if (PaymentManager.getInstance().canPay("warp", player)) {
-                int warmUp = NewConfig.get().WARM_UPS.WARP.get();
-                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    MovementManager.createMovementTimer(player, warp.getLocation(), "warp", "Teleport.teleportingToWarp", warmUp, "\\{warp}", warp.getName());
-                    // If the cooldown is to be applied after request or accept (they are the same in the case of /warp), apply it now
-                    String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
-                    if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
-                        CooldownManager.addToCooldown("warp", player);
-                    }
-                } else {
-                    PaymentManager.getInstance().withdraw("warp", player);
-                    PaperLib.teleportAsync(player, warp.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", warp.getName()));
-                }
-            }
-        }
+        ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp", NewConfig.get().WARM_UPS.WARP.get());
     }
 }
