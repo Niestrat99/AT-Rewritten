@@ -19,17 +19,15 @@ public class MoveWarpCommand extends AbstractWarpCommand {
                 if (args.length > 0) {
                     Warp warp = Warp.getWarps().get(args[0]);
                     if (warp != null) {
-                        warp.setLocation(warpLoc, callback -> sender.sendMessage(
-                                CustomMessages.getString("Info.setWarp")
-                                        .replace("{warp}", args[0])));
+                        warp.setLocation(warpLoc, callback -> CustomMessages.sendMessage(sender, "Info.setWarp", "{warp}", args[0]));
                     }
 
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
+                    CustomMessages.sendMessage(sender, "Error.noWarpInput");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+            CustomMessages.sendMessage(sender, "Error.noPermission");
         }
 
         return true;

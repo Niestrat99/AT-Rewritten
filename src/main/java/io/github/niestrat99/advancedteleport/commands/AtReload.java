@@ -16,9 +16,9 @@ public class AtReload implements AsyncATCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (!sender.hasPermission("at.admin.reload")) {
-            sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+            CustomMessages.sendMessage(sender, "Error.noPermission");
         } else {
-            sender.sendMessage(CustomMessages.getString("Info.reloadingConfig"));
+            CustomMessages.sendMessage(sender, "Info.reloadingConfig");
             try {
                 NewConfig.get().reload();
                 CustomMessages.reloadConfig();
@@ -30,7 +30,7 @@ public class AtReload implements AsyncATCommand {
                 e.printStackTrace();
             }
             CommandManager.registerCommands();
-            sender.sendMessage(CustomMessages.getString("Info.reloadedConfig"));
+            CustomMessages.sendMessage(sender, "Info.reloadedConfig");
         }
         return true;
     }

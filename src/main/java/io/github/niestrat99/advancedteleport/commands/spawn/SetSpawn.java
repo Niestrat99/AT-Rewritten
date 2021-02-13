@@ -22,18 +22,18 @@ public class SetSpawn implements AsyncATCommand {
                     Location spawn = player.getLocation();
                     try {
                         Spawn.setSpawn(spawn);
-                        sender.sendMessage(CustomMessages.getString("Info.setSpawn"));
+                        CustomMessages.sendMessage(sender, "Info.setSpawn");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+                CustomMessages.sendMessage(sender, "Error.noPermission");
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }

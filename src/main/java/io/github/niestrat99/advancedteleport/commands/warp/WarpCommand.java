@@ -25,31 +25,30 @@ public class WarpCommand extends AbstractWarpCommand {
                         Player player = (Player) sender;
                         int cooldown = CooldownManager.secondsLeftOnCooldown("warp", player);
                         if (cooldown > 0) {
-                            sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
                             return true;
                         }
                         if (Warp.getWarps().containsKey(args[0])) {
                             if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                                player.sendMessage(CustomMessages.getString("Error.onCountdown"));
+                                CustomMessages.sendMessage(player, "Error.onCountdown");
                                 return true;
                             }
                             Warp warp = Warp.getWarps().get(args[0]);
                             warp(warp, player);
                         } else {
-                            sender.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
+                            CustomMessages.sendMessage(sender, "Error.noSuchWarp");
                         }
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                        CustomMessages.sendMessage(sender, "Error.notAPlayer");
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+                    CustomMessages.sendMessage(sender, "Error.noPermission");
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
+                CustomMessages.sendMessage(sender, "Error.noWarpInput");
             }
-
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }
@@ -64,7 +63,7 @@ public class WarpCommand extends AbstractWarpCommand {
             }
         }
         if (!found) {
-            player.sendMessage(CustomMessages.getString("Error.noPermissionWarp").replaceAll("\\{warp}", warp.getName()));
+            CustomMessages.sendMessage(player, "Error.noPermissionWarp", "{warp}", warp.getName());
             return;
         }
         ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);

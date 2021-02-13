@@ -28,11 +28,11 @@ public class TpaHere implements ATCommand {
                     UUID playerUuid = player.getUniqueId();
                     int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
                     if (cooldown > 0) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                        CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
                         return true;
                     }
                     if (MovementManager.getMovement().containsKey(playerUuid)) {
-                        player.sendMessage(CustomMessages.getString("Error.onCountdown"));
+                        CustomMessages.sendMessage(player, "Error.onCountdown");
                         return true;
                     }
                     if (args.length > 0) {
@@ -41,22 +41,20 @@ public class TpaHere implements ATCommand {
                         if (result.isEmpty()) {
                             if (PaymentManager.getInstance().canPay("tpahere", player)) {
                                 int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
-                                sender.sendMessage(CustomMessages.getString("Info.requestSent")
-                                        .replaceAll("\\{player}", target.getName())
-                                        .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
+                                CustomMessages.sendMessage(sender, "Info.requestSent",
+                                        "{player}", target.getName(), "{lifetime}", String.valueOf(requestLifetime));
 
                                 CoreClass.playSound("tpahere", "sent", player);
 
-                                target.sendMessage(CustomMessages.getString("Info.tpaRequestHere")
-                                        .replaceAll("\\{player}", sender.getName())
-                                        .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
+                                CustomMessages.sendMessage(target, "Info.tpaRequestHere",
+                                        "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
 
                                 CoreClass.playSound("tpahere", "received", target);
 
                                 BukkitRunnable run = new BukkitRunnable() {
                                     @Override
                                     public void run() {
-                                        sender.sendMessage(CustomMessages.getString("Error.requestExpired").replaceAll("\\{player}", target.getName()));
+                                        CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}", target.getName());
                                         TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
                                     }
                                 };
@@ -64,7 +62,7 @@ public class TpaHere implements ATCommand {
                                 TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPAHERE); // Creates a new teleport request.
                                 TPRequest.addRequest(request);
                                 // If the cooldown is to be applied after request or accept (they are the same in the case of /spawn), apply it now
-                                if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+                                if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
                                     CooldownManager.addToCooldown("tpahere", player);
                                 }
                                 return true;
@@ -74,15 +72,18 @@ public class TpaHere implements ATCommand {
                             return true;
                         }
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
+                        CustomMessages.sendMessage(sender, "Error.noPlayerInput");
                         return true;
                     }
 
                 }
+            } else {
+                CustomMessages.sendMessage(sender, "Error.featureDisabled");
+                return true;
             }
         } else {
-        sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
-    }
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+        }
         return true;
     }
 }

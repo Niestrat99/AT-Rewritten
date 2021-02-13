@@ -23,7 +23,7 @@ public class Tpo implements ATCommand {
                     Player player = (Player) sender;
                     if (args.length > 0) {
                         if (args[0].equalsIgnoreCase(player.getName())){
-                            sender.sendMessage(CustomMessages.getString("Error.requestSentToSelf"));
+                            CustomMessages.sendMessage(sender, "Error.requestSentToSelf");
                             return true;
                         }
                         Player target = Bukkit.getPlayer(args[0]);
@@ -45,23 +45,23 @@ public class Tpo implements ATCommand {
                                 });
                                 return true;
                             }
-                            sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                            CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
                         } else {
-                            sender.sendMessage(CustomMessages.getString("Teleport.teleporting").replaceAll("\\{player}", target.getName()));
+                            CustomMessages.sendMessage(sender, "Teleport.teleporting", "{player}", target.getName());
                             PaperLib.teleportAsync(player, target.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         }
                         return true;
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
+                        CustomMessages.sendMessage(sender, "Error.noPlayerInput");
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+                CustomMessages.sendMessage(sender, "Error.noPermission");
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }

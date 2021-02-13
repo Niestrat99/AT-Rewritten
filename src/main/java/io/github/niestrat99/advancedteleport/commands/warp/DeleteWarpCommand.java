@@ -15,16 +15,16 @@ public class DeleteWarpCommand extends AbstractWarpCommand implements AsyncATCom
             if (args.length > 0) {
                 if (Warp.getWarps().containsKey(args[0])) {
                     Warp.getWarps().get(args[0]).delete(callback ->
-                            sender.sendMessage(CustomMessages.getString("Info.deletedWarp").replaceAll("\\{warp}", args[0])));
+                            CustomMessages.sendMessage(sender, "Info.deletedWarp", "{warp}", args[0]));
 
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
+                    CustomMessages.sendMessage(sender, "Error.noSuchWarp");
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
+                CustomMessages.sendMessage(sender, "Error.noWarpInput");
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+            CustomMessages.sendMessage(sender, "Error.noPermission");
         }
         return true;
     }

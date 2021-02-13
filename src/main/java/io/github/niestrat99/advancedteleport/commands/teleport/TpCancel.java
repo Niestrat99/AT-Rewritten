@@ -28,24 +28,23 @@ public class TpCancel implements ATCommand {
                                 Player target = Bukkit.getPlayer(args[0]);
                                 // Player is offline
                                 if (target == null || !player.canSee(target)) {
-                                    sender.sendMessage(CustomMessages.getString("Errors.noSuchPlayer"));
+                                    CustomMessages.sendMessage(sender, "Errors.noSuchPlayer");
                                     return true;
                                 } else {
                                     TPRequest request = TPRequest.getRequestByReqAndResponder(target, player);
                                     if (request == null) {
-                                        sender.sendMessage(CustomMessages.getString("Error.noRequestsFromPlayer").replaceAll("\\{player}", target.getName()));
-                                        return true;
+                                        CustomMessages.sendMessage(sender, "Error.noRequestsFromPlayer", "{player}", args[0]);
                                     } else {
-                                        player.sendMessage(CustomMessages.getString("Info.tpCancel"));
-                                        request.getResponder().sendMessage(CustomMessages.getString("Info.tpCancelResponder").replaceAll("\\{player}", player.getName()));
+                                        CustomMessages.sendMessage(sender, "Info.tpCancel");
+                                        CustomMessages.sendMessage(request.getResponder(), "Info.tpCancelResponder", "{player}", player.getName());
                                         request.destroy();
-                                        return true;
                                     }
+                                    return true;
                                 }
                             } else {
                                 // This utility helps in splitting lists into separate pages, like when you list your plots with PlotMe/PlotSquared.
                                 PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequestsByRequester(player), 8);
-                                player.sendMessage(CustomMessages.getString("Info.multipleRequestsCancel"));
+                                CustomMessages.sendMessage(player, "Info.multipleRequestsCancel");
                                 // Displays the first 8 requests
                                 for (TPRequest request : requests.getContentsInPage(1)) {
                                     new FancyMessage()
@@ -55,27 +54,27 @@ public class TpCancel implements ATCommand {
                                             .send(player);
                                 }
                                 if (requests.getTotalPages() > 1) {
-                                    player.sendMessage(CustomMessages.getString("Info.multipleRequestsList"));
+                                    CustomMessages.sendMessage(player, "Info.multipleRequestsList");
                                 }
 
                             }
                         } else {
                             TPRequest request = TPRequest.getRequestsByRequester(player).get(0);
-                            request.getResponder().sendMessage(CustomMessages.getString("Info.tpCancelResponder").replaceAll("\\{player}", player.getName()));
-                            player.sendMessage(CustomMessages.getString("Info.tpCancel"));
+                            CustomMessages.sendMessage(request.getResponder(), "Info.tpCancelResponder", "{player}", player.getName());
+                            CustomMessages.sendMessage(player, "Info.tpCancel");
                             request.destroy();
                             return true;
                         }
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noRequests"));
+                        CustomMessages.sendMessage(sender, "Error.noRequests");
                         return true;
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
         return true;

@@ -22,25 +22,20 @@ public class SetWarpCommand extends AbstractWarpCommand implements AsyncATComman
                 Player player = (Player) sender;
                 Location warp = player.getLocation();
                 if (args.length > 0) {
-                //    if (args[0].matches("^[a-zA-Z0-9]+$")) {
                     WarpSQLManager.get().addWarp(new Warp(player.getUniqueId(),
                             args[0],
                             warp,
                             System.currentTimeMillis(),
                             System.currentTimeMillis()), callback ->
-                                    sender.sendMessage(
-                                            CustomMessages.getString("Info.setWarp")
-                                                    .replaceAll("\\{warp}", args[0])));
+                                    CustomMessages.sendMessage(sender,"Info.setWarp", "{warp}", args[0]));
 
-                    //    } else {
-                //        sender.sendMessage(CustomMessages.getString("Error.invalidName"));
-                //    }
+
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
+                    CustomMessages.sendMessage(sender, "Error.noWarpInput");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+            CustomMessages.sendMessage(sender, "Error.noPermission");
         }
 
         return true;

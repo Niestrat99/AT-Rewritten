@@ -18,18 +18,16 @@ public class TpOn implements AsyncATCommand {
                 if (sender.hasPermission("at.member.on")) {
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
                     if (!atPlayer.isTeleportationEnabled()) {
-                        atPlayer.setTeleportationEnabled(true, callback -> {
-                            sender.sendMessage(CustomMessages.getString("Info.tpOn"));
-                        });
+                        atPlayer.setTeleportationEnabled(true, callback -> CustomMessages.sendMessage(sender, "Info.tpOn"));
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.alreadyOn"));
+                        CustomMessages.sendMessage(sender, "Error.alreadyOn");
                     }
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+                CustomMessages.sendMessage(sender, "Error.featureDisabled");
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
         return true;
     }

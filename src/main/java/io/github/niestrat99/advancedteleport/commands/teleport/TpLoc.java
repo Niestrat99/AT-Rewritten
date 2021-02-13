@@ -52,7 +52,7 @@ public class TpLoc implements ATCommand {
                             } else if (location.matcher(args[i]).matches()) {
                                 loc[i] = Double.parseDouble(args[i]);
                             } else {
-                                player.sendMessage(CustomMessages.getString("Error.invalidArgs"));
+                                CustomMessages.sendMessage(player, "Error.invalidArgs");
                                 return false;
                             }
                         }
@@ -67,12 +67,12 @@ public class TpLoc implements ATCommand {
                                     if (location.matcher(args[4]).matches()) {
                                         pitch = Float.parseFloat(args[4]);
                                     } else {
-                                        player.sendMessage(CustomMessages.getString("Error.invalidArgs"));
+                                        CustomMessages.sendMessage(player, "Error.invalidArgs");
                                         return false;
                                     }
                                 }
                             } else {
-                                player.sendMessage(CustomMessages.getString("Error.invalidArgs"));
+                                CustomMessages.sendMessage(player, "Error.invalidArgs");
                                 return false;
                             }
                         }
@@ -94,7 +94,7 @@ public class TpLoc implements ATCommand {
                             if (player.hasPermission("at.admin.tploc.others")) {
                                 target = Bukkit.getPlayer(args[6]);
                                 if (target == null || !target.isOnline()) {
-                                    player.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                                    CustomMessages.sendMessage(player, "Error.noSuchPlayer");
                                     return true;
                                 }
                             }
@@ -122,30 +122,30 @@ public class TpLoc implements ATCommand {
                             }
                             PaperLib.teleportAsync(target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                             if (player != target) {
-                                player.sendMessage(CustomMessages.getString("Info.teleportedToLocOther")
-                                        .replaceAll("\\{x}", String.valueOf(loc[0]))
-                                        .replaceAll("\\{y}", String.valueOf(loc[1]))
-                                        .replaceAll("\\{z}", String.valueOf(loc[2]))
-                                        .replaceAll("\\{yaw}", String.valueOf(yaw))
-                                        .replaceAll("\\{pitch}", String.valueOf(pitch))
-                                        .replaceAll("\\{world}", world.getName()
-                                        .replaceAll("\\{player}", args[6])));
+                                CustomMessages.sendMessage(player, "Info.teleportedToLocOther",
+                                        "{x}", String.valueOf(loc[0]),
+                                        "{y}", String.valueOf(loc[1]),
+                                        "{z}", String.valueOf(loc[2]),
+                                        "{yaw}", String.valueOf(yaw),
+                                        "{pitch}", String.valueOf(pitch),
+                                        "{world}", world.getName(),
+                                        "{player}", args[6]);
                             } else {
-                                player.sendMessage(CustomMessages.getString("Info.teleportedToLoc")
-                                        .replaceAll("\\{x}", String.valueOf(loc[0]))
-                                        .replaceAll("\\{y}", String.valueOf(loc[1]))
-                                        .replaceAll("\\{z}", String.valueOf(loc[2]))
-                                        .replaceAll("\\{yaw}", String.valueOf(yaw))
-                                        .replaceAll("\\{pitch}", String.valueOf(pitch))
-                                        .replaceAll("\\{world}", world.getName()));
+                                CustomMessages.sendMessage(player, "Info.teleportedToLoc",
+                                        "{x}", String.valueOf(loc[0]),
+                                        "{y}", String.valueOf(loc[1]),
+                                        "{z}", String.valueOf(loc[2]),
+                                        "{yaw}", String.valueOf(yaw),
+                                        "{pitch}", String.valueOf(pitch),
+                                        "{world}", world.getName());
                             }
                         }
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.tooFewArguments"));
+                        CustomMessages.sendMessage(player, "Error.tooFewArguments");
                         return false;
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         }

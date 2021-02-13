@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
@@ -15,30 +16,29 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class HomeCommand extends AbstractHomeCommand {
+public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (NewConfig.get().USE_HOMES.get()) {
             if (sender.hasPermission("at.member.home")) {
                 if (sender instanceof Player) {
-                    Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-
                     ATPlayer atPlayer = ATPlayer.getPlayer((Player)sender);
                     Player player = atPlayer.getPlayer();
 
                     HashMap<String, Home> homes = atPlayer.getHomes();
                     if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                        player.sendMessage(CustomMessages.getString("Error.onCountdown"));
-                        return;
+                        CustomMessages.sendMessage(player, "Error.onCountdown");
+                        return true;
                     }
                     int cooldown = CooldownManager.secondsLeftOnCooldown("home", player);
                     if (cooldown > 0) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
-                        return;
+                        CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+                        return true;
                     }
 
                     if (args.length > 0) {
@@ -55,38 +55,36 @@ public class HomeCommand extends AbstractHomeCommand {
                                             if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
                                                 home = target.getBedSpawn();
                                                 if (home == null) {
-                                                    player.sendMessage(CustomMessages.getString("Error.noBedHomeOther").replaceAll("\\{player}", args[0]));
-                                                    return;
+                                                    CustomMessages.sendMessage(player, "Error.noBedHomeOther", "{player}", args[0]);
+                                                    return true;
                                                 }
                                             } else {
                                                 if (homesOther.containsKey(args[1])) {
                                                     home = homesOther.get(args[1]);
                                                 } else {
-                                                    sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
-                                                    return;
+                                                    CustomMessages.sendMessage(sender, "Error.noSuchHome");
+                                                    return true;
                                                 }
                                             }
 
                                             break;
                                         case "list":
                                             Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
-                                            return;
+                                            return true;
                                         default:
                                             if (homesOther.containsKey(args[1])) {
                                                 home = homesOther.get(args[1]);
                                             } else {
-                                                sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
-                                                return;
+                                                CustomMessages.sendMessage(sender, "Error.noSuchHome");
+                                                return true;
                                             }
                                         }
                                         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
                                             PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                                            sender.sendMessage(CustomMessages.getString("Teleport.teleportingToHomeOther")
-                                                    .replaceAll("\\{player}", args[0])
-                                                    .replace("{home}", args[1]));
+                                            CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
                                         });
 
-                                    return;
+                                    return true;
                                 }
                             }
                         }
@@ -98,9 +96,9 @@ public class HomeCommand extends AbstractHomeCommand {
                             String name = homes.keySet().iterator().next();
                             teleport(player, homes.get(name));
                         } else {
-                            sender.sendMessage(CustomMessages.getString("Error.noHomeInput"));
+                            CustomMessages.sendMessage(sender, "Error.noHomeInput");
                         }
-                        return;
+                        return true;
                     }
 
                     Home home;
@@ -109,26 +107,25 @@ public class HomeCommand extends AbstractHomeCommand {
                     } else if (args[0].equalsIgnoreCase("bed")  && NewConfig.get().ADD_BED_TO_HOMES.get()) {
                         home = atPlayer.getBedSpawn();
                         if (home == null) {
-                            player.sendMessage(CustomMessages.getString("Error.noBedHome"));
-                            return;
+                            CustomMessages.sendMessage(player, "Error.noBedHome");
+                            return true;
                         }
                     } else if (args[0].equalsIgnoreCase("list")) {
                         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
-                        return;
+                        return true;
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noSuchHome"));
-                        return;
+                        CustomMessages.sendMessage(sender, "Error.noSuchHome");
+                        return true;
                     }
                     if (atPlayer.canAccessHome(home)) {
                         teleport(player, home);
                     }
-                    });
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
         return true;

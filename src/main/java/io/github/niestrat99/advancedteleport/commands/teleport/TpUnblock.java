@@ -22,7 +22,7 @@ public class TpUnblock implements AsyncATCommand {
                     Player player = (Player)sender;
                     if (args.length>0){
                         if (args[0].equalsIgnoreCase(player.getName())){
-                            sender.sendMessage(CustomMessages.getString("Error.blockSelf"));
+                            CustomMessages.sendMessage(sender, "Error.blockSelf");
                             return true;
                         }
                         ATPlayer atPlayer = ATPlayer.getPlayer(player);
@@ -37,7 +37,7 @@ public class TpUnblock implements AsyncATCommand {
                             atPlayer.unblockUser(target.getUniqueId(), new SQLManager.SQLCallback<Boolean>() {
                                 @Override
                                 public void onSuccess(Boolean data) {
-                                    sender.sendMessage(CustomMessages.getString("Info.unblockPlayer").replaceAll("\\{player}", args[0]));
+                                    CustomMessages.sendMessage(sender, "Info.unblockPlayer", "{player}", args[0]);
 
                                 }
 
@@ -49,14 +49,14 @@ public class TpUnblock implements AsyncATCommand {
 
                         });
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
+                        CustomMessages.sendMessage(sender, "Error.noPlayerInput");
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }

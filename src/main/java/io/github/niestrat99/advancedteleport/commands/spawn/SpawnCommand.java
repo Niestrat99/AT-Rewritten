@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -29,20 +30,20 @@ public class SpawnCommand implements ATCommand {
                     Player player = (Player) sender;
                     int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
                     if (cooldown > 0) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                        CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
                         return true;
                     }
                     if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCountdown"));
+                        CustomMessages.sendMessage(sender, "Error.onCountdown");
                         return true;
                     }
                     spawn(player);
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }
@@ -54,6 +55,7 @@ public class SpawnCommand implements ATCommand {
         } else {
             spawn = player.getWorld().getSpawnLocation();
         }
+
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         if (!event.isCancelled()) {
             if (PaymentManager.getInstance().canPay("spawn", player)) {

@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -35,14 +36,14 @@ public class Back implements ATCommand {
                     Player player = (Player) sender;
                     int cooldown = CooldownManager.secondsLeftOnCooldown("back", player);
                     if (cooldown > 0) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                        CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
                         return true;
                     }
                     Location loc = TeleportTrackingManager.getLastLocation(player.getUniqueId());
                     if (loc == null) {
                         loc = LastLocations.getLocation(player);
                         if (loc == null) {
-                            sender.sendMessage(CustomMessages.getString("Error.noLocation"));
+                            CustomMessages.sendMessage(sender, "Error.noLocation");
                             return true;
                         }
                     }
@@ -76,17 +77,16 @@ public class Back implements ATCommand {
                     }
 
                     if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back") && !player.hasPermission("at.admin.bypass.distance-limit")) {
-                        player.sendMessage(CustomMessages.getString("Error.tooFarAway"));
+                        CustomMessages.sendMessage(player, "Error.tooFarAway");
                         return true;
                     }
 
 
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.noPermission"));
-                return true;
+                CustomMessages.sendMessage(sender, "Error.noPermission");
             }
         } else {
             sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));

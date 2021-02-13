@@ -26,17 +26,16 @@ public class TpNo implements ATCommand {
                         } else {
                             target = request.getRequester();
                         }
-
-                        target.sendMessage(CustomMessages.getString("Info.requestDeclinedResponder").replaceAll("\\{player}", player.getName()));
-                        player.sendMessage(CustomMessages.getString("Info.requestDeclined"));
+                        CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", "{player}", player.getName());
+                        CustomMessages.sendMessage(player, "Info.requestDeclined");
                         request.destroy();
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }

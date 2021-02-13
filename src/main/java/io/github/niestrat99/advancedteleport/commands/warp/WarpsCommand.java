@@ -24,11 +24,11 @@ public class WarpsCommand implements ATCommand {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (NewConfig.get().USE_WARPS.get()) {
-            if (commandSender.hasPermission("at.member.warps")){
-                sendWarps(commandSender);
+            if (sender.hasPermission("at.member.warps")){
+                sendWarps(sender);
             }
         } else {
-            commandSender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }
@@ -119,7 +119,7 @@ public class WarpsCommand implements ATCommand {
                 wList.text(""); //Removes trailing comma
                 wList.send(sender);
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.noWarps"));
+                CustomMessages.sendMessage(sender, "Error.noWarps");
             }
 
         }

@@ -34,7 +34,7 @@ public class TpList implements AsyncATCommand {
                                 // args[0] is officially an int.
                                 int page = Integer.parseInt(args[0]);
                                 PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
-                                player.sendMessage(CustomMessages.getString("Info.multipleRequestAccept"));
+                                CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
                                 try {
                                     for (TPRequest request : requests.getContentsInPage(page)) {
                                         new FancyMessage()
@@ -44,16 +44,15 @@ public class TpList implements AsyncATCommand {
                                                 .send(player);
                                     }
                                 } catch (IllegalArgumentException ex) {
-                                    player.sendMessage(CustomMessages.getString("Error.invalidPageNo"));
+                                    CustomMessages.sendMessage(player, "Error.invalidPageNo");
                                 }
 
                             } else {
-                                player.sendMessage(CustomMessages.getString("Error.invalidPageNo"));
-
+                                CustomMessages.sendMessage(player, "Error.invalidPageNo");
                             }
                         } else {
                             PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
-                            player.sendMessage(CustomMessages.getString("Info.multipleRequestAccept"));
+                            CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
                             for (TPRequest request : requests.getContentsInPage(1)) {
                                 new FancyMessage()
                                         .command("/tpayes " + request.getRequester().getName())
@@ -64,16 +63,16 @@ public class TpList implements AsyncATCommand {
                             return true;
                         }
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.noRequests"));
+                        CustomMessages.sendMessage(player, "Error.noRequests");
                         return true;
                     }
 
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
         return true;

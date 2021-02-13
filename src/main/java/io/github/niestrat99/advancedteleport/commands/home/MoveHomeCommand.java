@@ -53,7 +53,7 @@ public class MoveHomeCommand extends AbstractHomeCommand implements AsyncATComma
 
                         if (home == null) {
                             // Home doesn't exist TODO
-                            sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replace("{home}", args[0]));
+                            CustomMessages.sendMessage(sender, "Error.noSuchHome");
                             return true;
                         }
 

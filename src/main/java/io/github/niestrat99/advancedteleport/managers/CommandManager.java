@@ -45,7 +45,7 @@ public class CommandManager {
         register("tpyes", new TpYes());
 
         register("home", new HomeCommand());
-        register("sethome", new SetHome());
+        register("sethome", new SetHomeCommand());
         register("delhome", new DelHome());
         register("homes", new HomesCommand());
         register("movehome", new MoveHomeCommand());

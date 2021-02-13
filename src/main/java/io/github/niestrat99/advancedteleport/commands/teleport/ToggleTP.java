@@ -23,35 +23,31 @@ public class ToggleTP implements AsyncATCommand {
                                 ATPlayer atPlayer = ATPlayer.getPlayer(target);
                                 if (atPlayer.isTeleportationEnabled()) {
                                     atPlayer.setTeleportationEnabled(false, callback -> {
-                                        sender.sendMessage(CustomMessages.getString("Info.tpAdminOff"));
-                                        target.sendMessage(CustomMessages.getString("Info.tpOff"));
+                                        CustomMessages.sendMessage(sender, "Info.tpAdminOff");
+                                        CustomMessages.sendMessage(target, "Info.tpOff");
                                     });
                                 } else {
                                     atPlayer.setTeleportationEnabled(true, callback -> {
-                                        sender.sendMessage(CustomMessages.getString("Info.tpAdminOn"));
-                                        target.sendMessage(CustomMessages.getString("Info.tpOn"));
+                                        CustomMessages.sendMessage(sender, "Info.tpAdminOn");
+                                        CustomMessages.sendMessage(target, "Info.tpOn");
                                     });
                                 }
                             } else {
-                                sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                                CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
                             }
                         }
                     } else {
                         Player player = (Player) sender;
                         ATPlayer atPlayer = ATPlayer.getPlayer(player);
                         if (atPlayer.isTeleportationEnabled()) {
-                            atPlayer.setTeleportationEnabled(false, callback -> {
-                                sender.sendMessage(CustomMessages.getString("Info.tpOff"));
-                            });
+                            atPlayer.setTeleportationEnabled(false, callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
                         } else {
-                            atPlayer.setTeleportationEnabled(true, callback -> {
-                                sender.sendMessage(CustomMessages.getString("Info.tpOn"));
-                            });
+                            atPlayer.setTeleportationEnabled(true, callback -> CustomMessages.sendMessage(sender, "Info.tpOn"));
                         }
                     }
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+                CustomMessages.sendMessage(sender, "Error.featureDisabled");
             }
         }
         return true;

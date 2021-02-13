@@ -21,7 +21,7 @@ public class TpoHere implements ATCommand {
                     Player player = (Player) sender;
                     if (args.length>0) {
                         if (args[0].equalsIgnoreCase(player.getName())) {
-                            sender.sendMessage(CustomMessages.getString("Error.requestSentToSelf"));
+                            CustomMessages.sendMessage(sender, "Error.requestSentToSelf");
                             return true;
                         }
                         Player target = Bukkit.getPlayer(args[0]);
@@ -40,23 +40,23 @@ public class TpoHere implements ATCommand {
                                 });
                                 return true;
                             }
-                            sender.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                            CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
                         } else {
-                            sender.sendMessage(CustomMessages.getString("Teleport.teleportingPlayerToSelf").replaceAll("\\{player}", target.getName()));
-                            target.sendMessage(CustomMessages.getString("Teleport.teleportingSelfToPlayer").replaceAll("\\{player}", sender.getName()));
+                            CustomMessages.sendMessage(sender, "Teleport.teleportingPlayerToSelf", "{player}", target.getName());
+                            CustomMessages.sendMessage(target, "Teleport.teleportingSelfToPlayer", "{player}", sender.getName());
                             PaperLib.teleportAsync(target, player.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         }
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
+                        CustomMessages.sendMessage(sender, "Error.noPlayerInput");
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+                CustomMessages.sendMessage(sender, "Error.noPermission");
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }

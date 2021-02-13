@@ -23,12 +23,12 @@ public class TpYes implements ATCommand {
                     // It's not null, we've already run the tests to make sure it isn't
                     AcceptRequest.acceptRequest(request);
                     // If the cooldown is to be applied after the request is accepted, apply it now
-                    if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
+                    if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
                         CooldownManager.addToCooldown(request.getType() == TPRequest.TeleportType.TPAHERE ? "tpahere" : "tpa", request.getRequester());
                     }
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                CustomMessages.sendMessage(sender, "Error.notAPlayer");
             }
         }
         return true;

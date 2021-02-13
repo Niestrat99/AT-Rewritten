@@ -28,7 +28,7 @@ public class TpBlockCommand implements AsyncATCommand {
                     if (args.length>0){
                         // Don't block ourselves lmao
                         if (args[0].equalsIgnoreCase(player.getName())){
-                            sender.sendMessage(CustomMessages.getString("Error.blockSelf"));
+                            CustomMessages.sendMessage(sender, "Error.blockSelf");
                             return true;
                         }
                         ATPlayer atPlayer = ATPlayer.getPlayer(player);
@@ -38,14 +38,14 @@ public class TpBlockCommand implements AsyncATCommand {
                             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
 
                             if (atPlayer.hasBlocked(target)) {
-                                sender.sendMessage(CustomMessages.getString("Error.alreadyBlocked"));
+                                CustomMessages.sendMessage(sender, "Error.alreadyBlocked");
                                 return;
                             }
 
                             SQLManager.SQLCallback<Boolean> callback = new SQLManager.SQLCallback<Boolean>() {
                                 @Override
                                 public void onSuccess(Boolean data) {
-                                    sender.sendMessage(CustomMessages.getString("Info.blockPlayer").replaceAll("\\{player}", target.getName()));
+                                    CustomMessages.sendMessage(sender, "Info.blockPlayer", "{player}", args[0]);
 
                                 }
 
@@ -67,15 +67,15 @@ public class TpBlockCommand implements AsyncATCommand {
 
                         });
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
+                        CustomMessages.sendMessage(sender, "Error.noPlayerInput");
                     }
                     return true;
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
         return true;
