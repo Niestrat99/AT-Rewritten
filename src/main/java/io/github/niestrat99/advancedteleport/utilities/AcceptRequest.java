@@ -15,8 +15,9 @@ public class AcceptRequest {
 
     public static void acceptRequest(TPRequest request) {
         Player player = request.getResponder();
-        request.getRequester().sendMessage(CustomMessages.getString("Info.requestAcceptedResponder").replaceAll("\\{player}", player.getName()));
-        player.sendMessage(CustomMessages.getString("Info.requestAccepted"));
+
+        CustomMessages.sendMessage(request.getRequester(), "Info.requestAcceptedResponder", "{player}", player.getName());
+        CustomMessages.sendMessage(player, "Info.requestAccepted");
         // Check again
         if (PaymentManager.getInstance().canPay(request.getType().name().toLowerCase().replaceAll("_", ""), request.getRequester())) {
             if (request.getType() == TPRequest.TeleportType.TPAHERE) {
@@ -39,7 +40,7 @@ public class AcceptRequest {
                 MovementManager.createMovementTimer(fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
             } else {
                 PaperLib.teleportAsync(fromPlayer, toLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
-                fromPlayer.sendMessage(CustomMessages.getString("Teleport.eventTeleport"));
+                CustomMessages.sendMessage(fromPlayer, "Teleport.eventTeleport");
                 PaymentManager.getInstance().withdraw(type, payingPlayer);
                 // If the cooldown is to be applied after only after a teleport takes place, apply it now
                 if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {

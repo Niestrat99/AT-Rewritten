@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import org.bukkit.Bukkit;
@@ -23,25 +22,25 @@ public class ConditionChecker {
      */
     public static String canTeleport(Player player, Player target, String command) {
         // If the target is null, don't teleport
-        if (target == null) return CustomMessages.getString("Error.noSuchPlayer");
+        if (target == null) return "Error.noSuchPlayer";
         // If the target can't be seen, don't teleport
-        if (!player.canSee(target)) return CustomMessages.getString("Error.noSuchPlayer");
+        if (!player.canSee(target)) return "Error.noSuchPlayer";
         // Are you serious rn
-        if (target == player) return CustomMessages.getString("Error.requestSentToSelf");
+        if (target == player) return "Error.requestSentToSelf";
         // If the player can't be seen, check permissions
-        if (!player.hasPermission("at.admin.request-in-vanish") && !target.canSee(player)) return CustomMessages.getString("Error.cantTPToPlayer");
+        if (!player.hasPermission("at.admin.request-in-vanish") && !target.canSee(player)) return "Error.cantTPToPlayer";
         // Check if the distance/worlds are a limit
         // if someone removes this for uk and germany that would be great
         String teleportLims = canTeleport(player.getLocation(), target.getLocation(), command, player);
         if (!teleportLims.isEmpty()) return teleportLims;
         ATPlayer atTarget = ATPlayer.getPlayer(target);
         // If the target has teleportation disabled
-        if (!atTarget.isTeleportationEnabled()) return CustomMessages.getString("Error.tpOff").replaceAll("\\{player}", target.getName());
+        if (!atTarget.isTeleportationEnabled()) return "Error.tpOff";
         // Check if the player is blocked
-        if (atTarget.hasBlocked(player)) return CustomMessages.getString("Error.tpBlock").replaceAll("\\{player}", target.getName());
+        if (atTarget.hasBlocked(player)) return "Error.tpBlock";
         // If a request has already been sent
         if (command.equalsIgnoreCase("tpa") || command.equalsIgnoreCase("tpahere")) {
-            if (TPRequest.getRequestByReqAndResponder(target, player) != null) return CustomMessages.getString("Error.alreadySentRequest").replaceAll("\\{player}", target.getName());
+            if (TPRequest.getRequestByReqAndResponder(target, player) != null) return "Error.alreadySentRequest";
         }
         return "";
     }
@@ -52,7 +51,7 @@ public class ConditionChecker {
             if (!teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")) {
                 if (fromLoc.getWorld() == toLoc.getWorld()) {
                     if (!DistanceLimiter.canTeleport(toLoc, fromLoc, command)) {
-                        return CustomMessages.getString("Error.tooFarAway");
+                        return "Error.tooFarAway";
                     }
                 }
             }
@@ -63,7 +62,7 @@ public class ConditionChecker {
             if (!teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
                 if (!NewConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return "";
                 if (!LimitationsManager.canTeleport(teleportingPlayer, toLoc, command)) {
-                    return CustomMessages.getString("Error.cantTPToWorldLim").replaceAll("\\{world}", toLoc.getWorld().getName());
+                    return "Error.cantTPToWorldLim";
                 }
             }
         }

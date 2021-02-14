@@ -31,20 +31,14 @@ public class MoveHomeCommand extends AbstractHomeCommand implements AsyncATComma
                                 ATPlayer atTarget = ATPlayer.getPlayer(args[0]);
                                 if (atTarget != null) {
                                     if (!atTarget.getHomes().containsKey(args[1])) {
+                                        CustomMessages.sendMessage(sender, "Error.noSuchHome");
                                         return true;
                                     }
                                 }
-                                HomeSQLManager.get().moveHome(player.getLocation(), target.getUniqueId(), args[1], new SQLManager.SQLCallback<Boolean>() {
-                                    @Override
-                                    public void onSuccess(Boolean data) {
-                                        sender.sendMessage("Moved home");
-                                    }
+                                HomeSQLManager.get().moveHome(player.getLocation(), target.getUniqueId(), args[1],
+                                        SQLManager.SQLCallback.getDefaultCallback(sender, "Info.movedHomeOther", "Error.moveHomeFail",
+                                                "{player}", args[0], "{home}", args[1]));
 
-                                    @Override
-                                    public void onFail() {
-                                        sender.sendMessage("Did not move home");
-                                    }
-                                });
                                 return true;
                             }
                         }
@@ -52,26 +46,26 @@ public class MoveHomeCommand extends AbstractHomeCommand implements AsyncATComma
                         Home home = atPlayer.getHome(args[0]);
 
                         if (home == null) {
-                            // Home doesn't exist TODO
-                            sender.sendMessage(CustomMessages.getString("Error.homeAlreadySet").replace("{home}", args[0]));
+                            CustomMessages.sendMessage(sender, "Error.noSuchHome");
                             return true;
                         }
 
-                        atPlayer.moveHome(args[0], player.getLocation(), new SQLManager.SQLCallback<Boolean>() {
-                            @Override
-                            public void onSuccess(Boolean data) {
-                                sender.sendMessage("Moved home");
-                            }
+                        atPlayer.moveHome(args[0], player.getLocation(),
+                                SQLManager.SQLCallback.getDefaultCallback(
+                                        sender, "Info.movedHome", "Error.moveHomeFail", "{home}", args[0]));
 
-                            @Override
-                            public void onFail() {
-                                sender.sendMessage("Did not move home");
-                            }
-                        });
 
+                    } else {
+                        CustomMessages.sendMessage(sender, "Error.noHomeInput");
                     }
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noPermission");
                 }
+            } else {
+                CustomMessages.sendMessage(sender, "Error.notAPlayer");
             }
+        } else {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }

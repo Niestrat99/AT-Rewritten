@@ -24,35 +24,18 @@ public class SetMainHomeCommand extends AbstractHomeCommand implements AsyncATCo
                         if (atPlayer.hasHome(homeName)) {
                             Home home = atPlayer.getHome(homeName);
                             if (atPlayer.canAccessHome(home)) {
-                                atPlayer.setMainHome(homeName, new SQLManager.SQLCallback<Boolean>() {
-                                    @Override
-                                    public void onSuccess(Boolean data) {
-                                        sender.sendMessage("New Main home set");
-                                    }
-
-                                    @Override
-                                    public void onFail() {
-                                        sender.sendMessage("you suck");
-                                    }
-                                });
+                                atPlayer.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
+                                        sender, "Info.setMainHome", "Error.setMainHomeFail", "{home}", homeName));
 
                             } else {
                                 sender.sendMessage("No access lol");
                             }
                         } else {
                             if (atPlayer.canSetMoreHomes()) {
-                                atPlayer.addHome(homeName, player.getLocation(), callback ->
-                                        atPlayer.setMainHome(homeName, new SQLManager.SQLCallback<Boolean>() {
-                                    @Override
-                                    public void onSuccess(Boolean data) {
-                                        sender.sendMessage("New main home set w/ new home");
-                                    }
 
-                                    @Override
-                                    public void onFail() {
-                                        sender.sendMessage("you suck");
-                                    }
-                                }));
+                                atPlayer.addHome(homeName, player.getLocation(), callback ->
+                                        atPlayer.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
+                                                sender, "Info.setAndMadeMainHome", "Error.setMainHomeFail", "{home}", homeName)));
                             }
                         }
                     } else {

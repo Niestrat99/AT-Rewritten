@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -13,11 +14,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.jetbrains.annotations.NotNull;
 
 public class WarpCommand extends AbstractWarpCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (NewConfig.get().USE_WARPS.get()) {
             if (args.length > 0) {
                 if (sender.hasPermission("at.member.warp")) {
@@ -25,31 +27,30 @@ public class WarpCommand extends AbstractWarpCommand {
                         Player player = (Player) sender;
                         int cooldown = CooldownManager.secondsLeftOnCooldown("warp", player);
                         if (cooldown > 0) {
-                            sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
                             return true;
                         }
                         if (Warp.getWarps().containsKey(args[0])) {
                             if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                                player.sendMessage(CustomMessages.getString("Error.onCountdown"));
+                                CustomMessages.sendMessage(player, "Error.onCountdown");
                                 return true;
                             }
                             Warp warp = Warp.getWarps().get(args[0]);
                             warp(warp, player);
                         } else {
-                            sender.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
+                            CustomMessages.sendMessage(sender, "Error.noSuchWarp");
                         }
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                        CustomMessages.sendMessage(sender, "Error.notAPlayer");
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+                    CustomMessages.sendMessage(sender, "Error.noPermission");
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.noWarpInput"));
+                CustomMessages.sendMessage(sender, "Error.noWarpInput");
             }
-
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }
@@ -64,26 +65,10 @@ public class WarpCommand extends AbstractWarpCommand {
             }
         }
         if (!found) {
-            player.sendMessage(CustomMessages.getString("Error.noPermissionWarp").replaceAll("\\{warp}", warp.getName()));
+            CustomMessages.sendMessage(player, "Error.noPermissionWarp", "{warp}", warp.getName());
             return;
         }
         ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);
-        if (!event.isCancelled()) {
-            if (PaymentManager.getInstance().canPay("warp", player)) {
-                int warmUp = NewConfig.get().WARM_UPS.WARP.get();
-                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    MovementManager.createMovementTimer(player, warp.getLocation(), "warp", "Teleport.teleportingToWarp", warmUp, "\\{warp}", warp.getName());
-                    // If the cooldown is to be applied after request or accept (they are the same in the case of /warp), apply it now
-                    String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
-                    if(cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
-                        CooldownManager.addToCooldown("warp", player);
-                    }
-                } else {
-                    PaymentManager.getInstance().withdraw("warp", player);
-                    PaperLib.teleportAsync(player, warp.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    player.sendMessage(CustomMessages.getString("Teleport.teleportingToWarp").replaceAll("\\{warp}", warp.getName()));
-                }
-            }
-        }
+        ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp", NewConfig.get().WARM_UPS.WARP.get());
     }
 }

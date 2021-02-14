@@ -53,17 +53,17 @@ public class AtSigns implements Listener {
             @Override
             public boolean canCreate(Sign sign, Player player) {
                 if (sign.getLine(1).isEmpty()) {
-                    player.sendMessage(CustomMessages.getString("Error.noWarpInput"));
+                    CustomMessages.sendMessage(player, "Error.noWarpInput");
                     return false;
                 } else {
                     if (Warp.getWarps().containsKey(sign.getLine(1))){
                         String warpName = sign.getLine(1);
                         sign.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Warp]");
                         sign.setLine(1, warpName);
-                        player.sendMessage(CustomMessages.getString("Info.createdWarpSign"));
+                        CustomMessages.sendMessage(player, "Info.createdWarpSign");
                         return true;
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
+                        CustomMessages.sendMessage(player, "Error.noSuchWarp");
                         return false;
                     }
                 }
@@ -128,7 +128,7 @@ public class AtSigns implements Listener {
                     if (otherWorld != null) {
                         Tpr.randomTeleport(player, otherWorld);
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
+                        CustomMessages.sendMessage(player, "Error.noSuchWorld");
                     }
                 } else {
                     Tpr.randomTeleport(player, player.getWorld());
@@ -140,7 +140,7 @@ public class AtSigns implements Listener {
                 if (!sign.getLine(1).isEmpty()) {
                     World otherWorld = Bukkit.getWorld(sign.getLine(1));
                     if (otherWorld == null) {
-                        player.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
+                        CustomMessages.sendMessage(player, "Error.noSuchWorld");
                         return false;
                     }
                 }
@@ -193,7 +193,7 @@ public class AtSigns implements Listener {
                             event.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[" + atSign.getName() + "]");
                         }
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.noPermissionSign"));
+                        CustomMessages.sendMessage(player, "Error.noPermissionSign");
                         event.setCancelled(true);
                     }
                 }

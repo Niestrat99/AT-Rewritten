@@ -20,14 +20,14 @@ import java.util.List;
 public class TpAll implements ATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (sender instanceof Player) {
             if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.admin.all")) {
                     Player player = (Player) sender;
                     int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
                     if (cooldown > 0) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                        CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
                         return true;
                     }
                     int players = 0;
@@ -38,9 +38,8 @@ public class TpAll implements ATCommand {
                                 continue;
                             }
                             players++;
-                            target.sendMessage(CustomMessages.getString("Info.tpaRequestHere")
-                                    .replaceAll("\\{player}", sender.getName())
-                                    .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
+                            CustomMessages.sendMessage(target, "Info.tpaRequestHere", "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
+
                             BukkitRunnable run = new BukkitRunnable() {
                                 @Override
                                 public void run() {
@@ -55,15 +54,15 @@ public class TpAll implements ATCommand {
                         }
                     }
                     if (players > 0) {
-                        player.sendMessage(CustomMessages.getString("Info.tpallRequestSent").replaceAll("\\{amount}", String.valueOf(players)));
+                        CustomMessages.sendMessage(player, "Info.tpallRequestSent", "{amount}", String.valueOf(players));
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.noRequestsSent"));
+                        CustomMessages.sendMessage(player, "Error.noRequestsSent");
                     }
                 }
 
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
         return true;
     }

@@ -29,11 +29,11 @@ public class Tpa implements ATCommand {
                     UUID playerUuid = player.getUniqueId();
                     int cooldown = CooldownManager.secondsLeftOnCooldown("tpa", player);
                     if (cooldown > 0) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                        CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
                         return true;
                     }
                     if (MovementManager.getMovement().containsKey(playerUuid)) {
-                        player.sendMessage(CustomMessages.getString("Error.onCountdown"));
+                        CustomMessages.sendMessage(player, "Error.onCountdown");
                         return true;
                     }
                     if (args.length > 0) {
@@ -42,22 +42,23 @@ public class Tpa implements ATCommand {
                         if (result.isEmpty()) {
                             if (PaymentManager.getInstance().canPay("tpa", player)) {
                                 int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
-                                sender.sendMessage(CustomMessages.getString("Info.requestSent")
-                                        .replaceAll("\\{player}", target.getName())
-                                        .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
+
+                                CustomMessages.sendMessage(sender, "Info.requestSent",
+                                        "{player}", target.getName(),
+                                        "{lifetime}", String.valueOf(requestLifetime));
 
                                 CoreClass.playSound("tpa", "sent", player);
 
-                                target.sendMessage(CustomMessages.getString("Info.tpaRequestReceived")
-                                        .replaceAll("\\{player}", sender.getName())
-                                        .replaceAll("\\{lifetime}", String.valueOf(requestLifetime)));
+                                CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
+                                        "{player}", sender.getName(),
+                                        "{lifetime}", String.valueOf(requestLifetime));
 
                                 CoreClass.playSound("tpa", "received", target);
 
                                 BukkitRunnable run = new BukkitRunnable() {
                                     @Override
                                     public void run() {
-                                        sender.sendMessage(CustomMessages.getString("Error.requestExpired").replaceAll("\\{player}", target.getName()));
+                                        CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}", target.getName());
                                         TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
                                     }
                                 };
@@ -71,18 +72,18 @@ public class Tpa implements ATCommand {
                                 return true;
                             }
                         } else {
-                            player.sendMessage(result);
+                            CustomMessages.sendMessage(player, result, "{player}", target.getName(), "{world}", target.getWorld().getName());
                             return true;
                         }
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.noPlayerInput"));
+                        CustomMessages.sendMessage(sender, "Error.noPlayerInput");
                         return true;
                     }
                 }
                 return true;
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
         return true;
     }
