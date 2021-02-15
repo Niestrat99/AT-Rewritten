@@ -81,7 +81,7 @@ public class ATPlayer {
                     MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp, "{home}", event.getLocName(), "{warp}", event.getLocName());
                 } else {
                     PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    CustomMessages.sendMessage(player, teleportMsg);
+                    CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}", event.getLocName());
                     PaymentManager.getInstance().withdraw(command, player);
                 }
             }
