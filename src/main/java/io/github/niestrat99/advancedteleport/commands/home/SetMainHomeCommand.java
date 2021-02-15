@@ -56,10 +56,16 @@ public class SetMainHomeCommand extends AbstractHomeCommand implements AsyncATCo
                             }
                         }
                     } else {
-                        sender.sendMessage("needs a home name loser");
+                        CustomMessages.sendMessage(sender, "Error.noHomeInput");
                     }
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPermission");
             }
+        } else {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }

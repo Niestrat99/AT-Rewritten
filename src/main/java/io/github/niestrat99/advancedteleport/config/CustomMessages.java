@@ -158,6 +158,8 @@ public class CustomMessages {
         config.addDefault("Info.movedHomeOther", "&b↑ &8» &7Moved &b{player}'s &7home &b{home} &7to your location!");
         config.addDefault("Info.setMainHome", "&b↑ &8» &7Made &b{home} &7your main home!");
         config.addDefault("Info.setAndMadeMainHome", "&b↑ &8» &7Set &b{home} &7at your current location and made it your main home!");
+        config.addDefault("Info.setMainHomeOther", "&b↑ &8» &7Made &b{home} {player}'s &7main home!");
+        config.addDefault("Info.setAndMadeMainHomeOther", "&b↑ &8» &7Set &b{home} &7for &b{player} &7at your current location and made it their main home!");
         config.addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
         config.addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");
         config.addDefault("Tooltip.location", "" +
