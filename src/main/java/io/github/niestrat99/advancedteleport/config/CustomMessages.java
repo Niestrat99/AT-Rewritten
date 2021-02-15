@@ -29,12 +29,12 @@ public class CustomMessages {
         config.addDefault("Teleport.eventTeleport" , "&b↑ &8» &7Teleporting...");
         config.addDefault("Teleport.eventMovement" , "&b↑ &8» &7Teleport has been cancelled due to movement.");
         config.addDefault("Teleport.teleportingToSpawn", "&b↑ &8» &7Teleporting you to spawn!");
-        config.addDefault("Teleport.teleporting", "&b↑ &8» &7Teleporting to &e{player}&a!");
-        config.addDefault("Teleport.teleportingToHome", "&b↑ &8» &7Teleporting to &e{home}&a!");
+        config.addDefault("Teleport.teleporting", "&b↑ &8» &7Teleporting to &b{player}&7!");
+        config.addDefault("Teleport.teleportingToHome", "&b↑ &8» &7Teleporting to &b{home}&7!");
         config.addDefault("Teleport.teleportingToHomeOther", "&b↑ &8» &7Teleporting to &b{player}&7's home, &b{home}&7!");
         config.addDefault("Teleport.teleportingToWarp", "&b↑ &8» &7Teleporting you to &b{warp}&7!");
-        config.addDefault("Teleport.teleportingPlayerToSelf", "&b↑ &8» &7Teleporting &e{player} &ato you!");
-        config.addDefault("Teleport.teleportingSelfToPlayer", "&b↑ &8» &7Teleporting you to &e{player}&a!");
+        config.addDefault("Teleport.teleportingPlayerToSelf", "&b↑ &8» &7Teleporting &b{player} &7to you!");
+        config.addDefault("Teleport.teleportingSelfToPlayer", "&b↑ &8» &7Teleporting you to &b{player}&7!");
         config.addDefault("Teleport.teleportingToRandomPlace", "&b↑ &8» &7Teleporting you to a random place!");
         config.addDefault("Teleport.teleportingToLastLoc", "&b↑ &8» &7Teleporting to your last location!");
         config.addDefault("Error.noPermission", "&b↑ &8» &7You do not have permission to use this command!");
@@ -97,8 +97,8 @@ public class CustomMessages {
 
         config.addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         config.addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
-        config.addDefault("Info.tpAdminOff", "&b↑ &8» &7Successfully disabled teleport requests for &e{player}&a!");
-        config.addDefault("Info.tpAdminOn", "&b↑ &8» &7Successfully enabled teleport requests for &e{player}&a!");
+        config.addDefault("Info.tpAdminOff", "&b↑ &8» &7Successfully disabled teleport requests for &b{player}&7!");
+        config.addDefault("Info.tpAdminOn", "&b↑ &8» &7Successfully enabled teleport requests for &b{player}&7!");
         config.addDefault("Info.requestSent", "&b↑ &8» &7Successfully sent request to &b{player}&7!" +
                 "\n&b↑ &8» &7They've got &b{lifetime} &7to respond!" +
                 "\n&aTo cancel the request use &b/tpcancel &7to cancel it." +
@@ -144,7 +144,7 @@ public class CustomMessages {
         config.addDefault("Info.homesOther", "&b&l{player}'s homes: &r");
         config.addDefault("Info.requestAccepted", "&b↑ &8» &7You've accepted the teleport request!");
         config.addDefault("Info.requestAcceptedResponder", "&b↑ &8» &b{player} &7has accepted the teleport request!");
-        config.addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b${amount} &7and now have &e${balance}&a!");
+        config.addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b${amount} &7and now have &b${balance}&7!");
         config.addDefault("Info.paymentEXP", "&b↑ &8» &7You have paid &b{amount} EXP Levels &7and now have &b{levels} &7levels!");
         config.addDefault("Info.paymentPoints", "&b↑ &8» &7You have paid &b{amount} EXP Points &7and now have &b{points} &7points!");
         config.addDefault("Info.createdWarpSign", "&b↑ &8» &7Successfully created the warp sign!");
