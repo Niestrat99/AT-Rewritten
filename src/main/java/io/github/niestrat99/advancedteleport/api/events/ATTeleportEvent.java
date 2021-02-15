@@ -1,4 +1,4 @@
-package io.github.niestrat99.advancedteleport.api;
+package io.github.niestrat99.advancedteleport.api.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

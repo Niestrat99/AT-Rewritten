@@ -33,7 +33,7 @@ public class RandomTPAlgorithms {
 
 
                 boolean b = true;
-                for (String Material: NewConfig.getInstance().AVOID_BLOCKS.get()) {
+                for (String Material: NewConfig.get().AVOID_BLOCKS.get()) {
                     if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
                         if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
                             location = RandomCoords.generateCoords(world);
@@ -111,7 +111,7 @@ public class RandomTPAlgorithms {
 
                     boolean mustBreak = false;
                     if (currentMat != Material.AIR) {
-                        for (String material : NewConfig.getInstance().AVOID_BLOCKS.get()) {
+                        for (String material : NewConfig.get().AVOID_BLOCKS.get()) {
                             if (currentMat.name().equalsIgnoreCase(material)) {
                                 mustBreak = true;
                                 break;
@@ -140,7 +140,9 @@ public class RandomTPAlgorithms {
             if (Bukkit.getServer().getVersion().contains("1.8")) {
                 runnable.run();
             } else {
-                new Thread(runnable, "AdvancedTeleport RTP Worker").start();
+                Thread thread = new Thread(runnable, "AdvancedTeleport RTP Worker");
+                thread.setPriority(3);
+                thread.start();
             }
         });
 
@@ -160,7 +162,7 @@ public class RandomTPAlgorithms {
 
 
                 boolean b = true;
-                for (String Material: NewConfig.getInstance().AVOID_BLOCKS.get()) {
+                for (String Material: NewConfig.get().AVOID_BLOCKS.get()) {
                     if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
                         if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
                             location = RandomCoords.generateCoords(world);

@@ -1,19 +1,21 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import io.github.niestrat99.advancedteleport.utilities.TeleportTests;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-public class TpNo implements CommandExecutor {
+public class TpNo implements ATCommand {
+
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.member.no")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
@@ -25,17 +27,16 @@ public class TpNo implements CommandExecutor {
                         } else {
                             target = request.getRequester();
                         }
-
-                        target.sendMessage(CustomMessages.getString("Info.requestDeclinedResponder").replaceAll("\\{player}", player.getName()));
-                        player.sendMessage(CustomMessages.getString("Info.requestDeclined"));
+                        CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", "{player}", player.getName());
+                        CustomMessages.sendMessage(player, "Info.requestDeclined");
                         request.destroy();
                     }
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }

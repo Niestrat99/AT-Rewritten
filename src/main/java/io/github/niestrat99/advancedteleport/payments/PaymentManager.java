@@ -18,18 +18,23 @@ public class PaymentManager {
     public PaymentManager() {
         instance = this;
         teleportCosts = new HashMap<>();
-        addCommand("tpa", NewConfig.getInstance().COSTS.TPA.get());
-        addCommand("tpahere", NewConfig.getInstance().COSTS.TPAHERE.get());
-        addCommand("tpr", NewConfig.getInstance().COSTS.TPR.get());
-        addCommand("spawn", NewConfig.getInstance().COSTS.SPAWN.get());
-        addCommand("warp", NewConfig.getInstance().COSTS.WARP.get());
-        addCommand("home", NewConfig.getInstance().COSTS.HOME.get());
-        addCommand("back", NewConfig.getInstance().COSTS.BACK.get());
+        addCommand("tpa", NewConfig.get().COSTS.TPA.get());
+        addCommand("tpahere", NewConfig.get().COSTS.TPAHERE.get());
+        addCommand("tpr", NewConfig.get().COSTS.TPR.get());
+        addCommand("spawn", NewConfig.get().COSTS.SPAWN.get());
+        addCommand("warp", NewConfig.get().COSTS.WARP.get());
+        addCommand("home", NewConfig.get().COSTS.HOME.get());
+        addCommand("back", NewConfig.get().COSTS.BACK.get());
     }
 
     private void addCommand(String command, Object value) {
         HashMap<String, Payment> payments = new HashMap<>();
-        String[] rawPayments = String.valueOf(value).split(";");
+        String valueStr = String.valueOf(value);
+        if (valueStr.isEmpty()) {
+            teleportCosts.put(command, payments);
+            return;
+        }
+        String[] rawPayments = valueStr.split(";");
         for (String rawPayment : rawPayments) {
             try {
                 if (rawPayment.length() - 3 <= 0) {

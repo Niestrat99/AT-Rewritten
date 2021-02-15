@@ -21,14 +21,14 @@ public class TeleportTests {
                     // Get the player.
                     Player target = Bukkit.getPlayer(args[0]);
                     if (target == null) {
-                        player.sendMessage(CustomMessages.getString("Error.noSuchPlayer"));
+                        CustomMessages.sendMessage(player, "Error.noSuchPlayer");
                         return null;
                     } else {
 
                         // Get the request that was sent by the target.
                         TPRequest request = TPRequest.getRequestByReqAndResponder(player, target);
                         if (request == null) {
-                            player.sendMessage(CustomMessages.getString("Error.noRequests"));
+                            CustomMessages.sendMessage(player, "Error.noRequests");
                             return null;
                         } else {
                             // Yes, the teleport request can be accepted/declined/cancelled.
@@ -39,9 +39,9 @@ public class TeleportTests {
                     // This utility helps in splitting lists into separate pages, like when you list your plots with PlotMe/PlotSquared.
                     PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
                     if (type.equalsIgnoreCase("tpayes")) {
-                        player.sendMessage(CustomMessages.getString("Info.multipleRequestAccept"));
+                        CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
                     } else {
-                        player.sendMessage(CustomMessages.getString("Info.multipleRequestDeny"));
+                        CustomMessages.sendMessage(player, "Info.multipleRequestDeny");
                     }
                     for (TPRequest request : requests.getContentsInPage(1)) {
                         new FancyMessage()
@@ -50,7 +50,7 @@ public class TeleportTests {
                                 .send(player);
                     }
                     if (requests.getTotalPages() > 1) {
-                        player.sendMessage(CustomMessages.getString("Info.multipleRequestsList"));
+                        CustomMessages.sendMessage(player, "Info.multipleRequestsList");
                     }
 
                 }
@@ -58,7 +58,7 @@ public class TeleportTests {
                 return TPRequest.getRequests(player).get(0);
             }
         } else {
-            player.sendMessage(CustomMessages.getString("Error.noRequests"));
+            CustomMessages.sendMessage(player, "Error.noRequests");
             return null;
         }
         return null;

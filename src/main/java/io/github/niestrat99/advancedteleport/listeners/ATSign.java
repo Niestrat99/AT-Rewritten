@@ -1,4 +1,4 @@
-package io.github.niestrat99.advancedteleport.events;
+package io.github.niestrat99.advancedteleport.listeners;
 
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;

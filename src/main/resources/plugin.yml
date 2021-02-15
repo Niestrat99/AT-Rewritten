@@ -1,6 +1,6 @@
 main: io.github.niestrat99.advancedteleport.CoreClass
 name: AdvancedTeleport
-version: 5.4-SNAPSHOT-2
+version: 5.4-SNAPSHOT-3
 description: A rapidly growing teleportation plugin looking to break the boundaries of traditional teleport plugins.
 authors: [Niestrat99,Thatsmusic99]
 contributors: [SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan]
@@ -8,14 +8,25 @@ softdepend: [Vault, Ultimate_Economy, ConfigurationMaster]
 api-version: 1.13
 
 commands:
-
   warps:
     description: Gives you a list of warps.
     permission: at.member.warps
   warp:
-    description: Gives you a list of sub commands from this command.
+    description: Teleports you to a specified warp.
     permission: at.member.warp
     usage: /warp <Warp name>
+  setwarp:
+    description: Sets a warp at your location.
+    permission: at.admin.setwarp
+    usage: /setwarp <Warp name>
+  delwarp:
+    description: Deletes a specified warp.
+    permission: at.admin.delwarp
+    usage: /delwarp <Warp name>
+  movewarp:
+    description: Moves a specified warp.
+    permission: at.admin.movewarp
+    usage: /movewarp <Warp name>
   tpr:
     description: Teleports you to a random place.
     permission: at.member.tpr
@@ -93,7 +104,7 @@ commands:
   sethome:
     description: Sets a home point at your location.
     permission: at.member.sethome
-    usage: /sethome [Home]
+    usage: /sethome <Home>
   delhome:
     description: Deletes a home point you've set.
     permission: at.member.delhome
@@ -101,11 +112,20 @@ commands:
   home:
     description: Sends you to your home point.
     permission: at.member.home
-    usage: /home [Home]
+    usage: /home <Home>
   homes:
     description: Gives a list of homes you've set.
     permission: at.member.homes
     usage: /homes [Player]
+  movehome:
+    description: Moves a home to a new location.
+    permission: at.member.movehome
+    usage: /movehome <Home>
+  setmainhome:
+    description: Sets a user's main home.
+    permission: at.member.setmainhome
+    usage: /setmainhome <Home>
+    aliases: [setmhome]
   back:
     description: Teleports you to your last location.
     permission: at.member.back
@@ -126,7 +146,7 @@ permissions:
     default: op
     description: Allows access to member-based commands of the plugin.
     children:
-      # All of these are "sub-permissions" of tbh.tp.member.*.
+      # All of these are "sub-permissions" of at.member.*.
       at.member.tpr: true
       at.member.off: true
       at.member.on: true
@@ -146,6 +166,7 @@ permissions:
       at.member.delhome: true
       at.member.home: true
       at.member.homes: true
+      at.member.setmainhome: true
       at.member.tpa: true
       at.member.back: true
       at.member.spawn.use-sign: true
@@ -165,8 +186,8 @@ permissions:
       at.admin.tpo: true
       at.admin.help: true
       at.admin.rtpsign: true
-      at.admin.warpset: true
-      at.admin.warpdel: true
+      at.admin.setwarp: true
+      at.admin.delwarp: true
       at.admin.warpsign: true
       at.admin.setspawn: true
       at.admin.spawnsign: true

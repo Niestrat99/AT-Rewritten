@@ -1,4 +1,4 @@
-package io.github.niestrat99.advancedteleport.events;
+package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -22,8 +22,8 @@ public class MovementManager implements Listener {
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
-        boolean cancelOnRotate = NewConfig.getInstance().CANCEL_WARM_UP_ON_ROTATION.get();
-        boolean cancelOnMove = NewConfig.getInstance().CANCEL_WARM_UP_ON_MOVEMENT.get();
+        boolean cancelOnRotate = NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get();
+        boolean cancelOnMove = NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get();
         if (!cancelOnRotate) {
             Location locTo = event.getTo();
             Location locFrom = event.getFrom();
@@ -37,7 +37,7 @@ public class MovementManager implements Listener {
         if ((cancelOnRotate || cancelOnMove) && movement.containsKey(uuid)) {
             BukkitRunnable timer = movement.get(uuid);
             timer.cancel();
-            event.getPlayer().sendMessage(CustomMessages.getString("Teleport.eventMovement"));
+            CustomMessages.sendMessage(event.getPlayer(), "Teleport.eventMovement");
             movement.remove(uuid);
         }
     }
@@ -52,29 +52,26 @@ public class MovementManager implements Listener {
 
     public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, Player payingPlayer, String... placeholders) {
         UUID uuid = teleportingPlayer.getUniqueId();
-        String actualMessage = CustomMessages.getString(message);
-        for (int i = 0; i < placeholders.length; i += 2) {
-            if (i > placeholders.length - 2) break;
-            actualMessage = actualMessage.replaceAll(placeholders[i], placeholders[i + 1]);
-        }
-        final String finalMessage = actualMessage;
         BukkitRunnable movementtimer = new BukkitRunnable() {
             @Override
             public void run() {
                 PaperLib.teleportAsync(teleportingPlayer, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                 movement.remove(uuid);
-
-                teleportingPlayer.sendMessage(finalMessage);
+                CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
                 PaymentManager.getInstance().withdraw(command, payingPlayer);
                 // If the cooldown is to be applied after only after a teleport takes place, apply it now
-                if(NewConfig.getInstance().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+                if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
                     CooldownManager.addToCooldown(command, payingPlayer);
                 }
             }
         };
         movement.put(uuid, movementtimer);
         movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
-        teleportingPlayer.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}" , String.valueOf(warmUp)));
+        if (NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() || NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
+            CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTP", "{countdown}", String.valueOf(warmUp));
+        } else {
+            CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTPMovementAllowed", "{countdown}", String.valueOf(warmUp));
+        }
 
     }
 }

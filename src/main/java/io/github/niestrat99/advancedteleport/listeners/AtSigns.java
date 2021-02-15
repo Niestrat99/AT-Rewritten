@@ -1,16 +1,16 @@
-package io.github.niestrat99.advancedteleport.events;
+package io.github.niestrat99.advancedteleport.listeners;
 
-import io.github.niestrat99.advancedteleport.commands.home.Home;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.commands.teleport.Tpr;
-import io.github.niestrat99.advancedteleport.commands.warp.Warp;
+import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Warps;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -30,7 +30,7 @@ public class AtSigns implements Listener {
 
     public AtSigns() {
         signRegistry = new HashMap<>();
-        signRegistry.put("warps", new ATSign("Warps", NewConfig.getInstance().USE_WARPS.get()) {
+        signRegistry.put("warps", new ATSign("Warps", NewConfig.get().USE_WARPS.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
                 WarpsCommand.sendWarps(player);
@@ -42,34 +42,34 @@ public class AtSigns implements Listener {
             }
         });
 
-        signRegistry.put("warp", new ATSign("Warp", NewConfig.getInstance().USE_WARPS.get()) {
+        signRegistry.put("warp", new ATSign("Warp", NewConfig.get().USE_WARPS.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
-                if (Warps.getWarps().containsKey(sign.getLine(1))) {
-                    Warp.warp(Warps.getWarps().get(sign.getLine(1)), player, sign.getLine(1));
+                if (Warp.getWarps().containsKey(sign.getLine(1))) {
+                    WarpCommand.warp(Warp.getWarps().get(sign.getLine(1)), player);
                 }
             }
 
             @Override
             public boolean canCreate(Sign sign, Player player) {
                 if (sign.getLine(1).isEmpty()) {
-                    player.sendMessage(CustomMessages.getString("Error.noWarpInput"));
+                    CustomMessages.sendMessage(player, "Error.noWarpInput");
                     return false;
                 } else {
-                    if (Warps.getWarps().containsKey(sign.getLine(1))){
+                    if (Warp.getWarps().containsKey(sign.getLine(1))){
                         String warpName = sign.getLine(1);
                         sign.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Warp]");
                         sign.setLine(1, warpName);
-                        player.sendMessage(CustomMessages.getString("Info.createdWarpSign"));
+                        CustomMessages.sendMessage(player, "Info.createdWarpSign");
                         return true;
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.noSuchWarp"));
+                        CustomMessages.sendMessage(player, "Error.noSuchWarp");
                         return false;
                     }
                 }
             }
         });
-        signRegistry.put("home", new ATSign("Home", NewConfig.getInstance().USE_HOMES.get()) {
+        signRegistry.put("home", new ATSign("Home", NewConfig.get().USE_HOMES.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
 
@@ -81,7 +81,7 @@ public class AtSigns implements Listener {
             }
         });
 
-        signRegistry.put("homes", new ATSign("Homes", NewConfig.getInstance().USE_HOMES.get()) {
+        signRegistry.put("homes", new ATSign("Homes", NewConfig.get().USE_HOMES.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
 
@@ -93,12 +93,12 @@ public class AtSigns implements Listener {
             }
         }); 
 
-        signRegistry.put("bed", new ATSign("Bed", NewConfig.getInstance().USE_HOMES.get()) {
+        signRegistry.put("bed", new ATSign("Bed", NewConfig.get().USE_HOMES.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
-                Location bed = player.getBedSpawnLocation();
-                if (bed != null) {
-                    Home.teleport(player, bed, "bed");
+                ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                if (atPlayer.getBedSpawn() != null) {
+                    HomeCommand.teleport(player, atPlayer.getBedSpawn());
                 }
             }
 
@@ -108,7 +108,7 @@ public class AtSigns implements Listener {
             }
         });
 
-        signRegistry.put("spawn", new ATSign("Spawn", NewConfig.getInstance().USE_SPAWN.get()) {
+        signRegistry.put("spawn", new ATSign("Spawn", NewConfig.get().USE_SPAWN.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
                 SpawnCommand.spawn(player);
@@ -120,7 +120,7 @@ public class AtSigns implements Listener {
             }
         });
 
-        signRegistry.put("randomtp", new ATSign("RandomTP", NewConfig.getInstance().USE_RANDOMTP.get()) {
+        signRegistry.put("randomtp", new ATSign("RandomTP", NewConfig.get().USE_RANDOMTP.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
                 if (!sign.getLine(1).isEmpty()) {
@@ -128,7 +128,7 @@ public class AtSigns implements Listener {
                     if (otherWorld != null) {
                         Tpr.randomTeleport(player, otherWorld);
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
+                        CustomMessages.sendMessage(player, "Error.noSuchWorld");
                     }
                 } else {
                     Tpr.randomTeleport(player, player.getWorld());
@@ -140,7 +140,7 @@ public class AtSigns implements Listener {
                 if (!sign.getLine(1).isEmpty()) {
                     World otherWorld = Bukkit.getWorld(sign.getLine(1));
                     if (otherWorld == null) {
-                        player.sendMessage(CustomMessages.getString("Error.noSuchWorld"));
+                        CustomMessages.sendMessage(player, "Error.noSuchWorld");
                         return false;
                     }
                 }
@@ -193,7 +193,7 @@ public class AtSigns implements Listener {
                             event.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[" + atSign.getName() + "]");
                         }
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.noPermissionSign"));
+                        CustomMessages.sendMessage(player, "Error.noPermissionSign");
                         event.setCancelled(true);
                     }
                 }

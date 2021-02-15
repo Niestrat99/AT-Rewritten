@@ -21,6 +21,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> USE_SPAWN;
     public ConfigOption<Boolean> USE_HOMES;
     public ConfigOption<Integer> REQUEST_LIFETIME;
+    public ConfigOption<List<String>> DISABLED_COMMANDS;
 
     public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
@@ -35,6 +36,14 @@ public class NewConfig extends CMFile {
 
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
+
+    public ConfigOption<Boolean> USE_MYSQL;
+    public ConfigOption<String> MYSQL_HOST;
+    public ConfigOption<Integer> MYSQL_PORT;
+    public ConfigOption<String> MYSQL_DATABASE;
+    public ConfigOption<String> USERNAME;
+    public ConfigOption<String> PASSWORD;
+    public ConfigOption<String> TABLE_PREFIX;
 
     public ConfigOption<Boolean> ENABLE_DISTANCE_LIMITATIONS;
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
@@ -57,6 +66,8 @@ public class NewConfig extends CMFile {
 
     public ConfigOption<Integer> DEFAULT_HOMES_LIMIT;
     public ConfigOption<Boolean> ADD_BED_TO_HOMES;
+    public ConfigOption<Boolean> DENY_HOMES_IF_OVER_LIMIT;
+    public ConfigOption<Boolean> HIDE_HOMES_IF_DENIED;
 
     public ConfigOption<String> TPA_REQUEST_RECEIVED;
     public ConfigOption<String> TPA_REQUEST_SENT;
@@ -101,6 +112,9 @@ public class NewConfig extends CMFile {
         addDefault("use-randomtp", true, "Whether the plugin should allow random teleportation.");
         addDefault("use-homes", true, "Whether homes should be enabled in the plugin.");
         addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
+        addDefault("disabled-commands", new ArrayList<>(), "The commands that AT should not register upon starting up.\n" +
+                "In other words, this gives up the command for other plugins to use.\n" +
+                "NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for anything to change.");
 
         addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", "The number of seconds it takes for the teleportation to take place following confirmation.\n" +
                 "(i.e. \"You will teleport in 3 seconds!\")\n" +
@@ -157,6 +171,18 @@ public class NewConfig extends CMFile {
         addDefault("per-command-cost.spawn", "default", "Cost for /spawn");
         addDefault("per-command-cost.home", "default", "Cost for /home");
         addDefault("per-command-cost.back", "default", "Cost for /back");
+
+        addSection("SQL Storage");
+
+        addDefault("use-mysql", false, "Whether the plugin should use SQL storage or not.\n" +
+                "By default, AT uses SQLite storage, which stores data in a .db file locally.");
+        addDefault("mysql-host", "127.0.0.1", "The MySQL host to connect to.");
+        addDefault("mysql-port", 3308, "The port to connect to.");
+        addDefault("mysql-database", "database", "The database to connect to.");
+        addDefault("mysql-username", "username", "The username to use when connecting.");
+        addDefault("mysql-password", "password", "The password to use when connecting.");
+        addDefault("mysql-table-prefix", "advancedtp", "The prefix of all AT tables. \n" +
+                "If you're on Bungee, you may want to add your server's name to the end.");
 
         addDefault("enable-distance-limitations", false, "Distance Limitations",
                 "Enables the distance limiter to stop players teleporting over a large distance.\n" +
@@ -234,6 +260,11 @@ public class NewConfig extends CMFile {
                 "This can be overridden by giving people permissions such as at.member.homes.10.\n" +
                 "To disable this, use -1 as provided by default.");
         addDefault("add-bed-to-homes", true, "Whether or not the bed home should be added to /homes.");
+        addDefault("deny-homes-if-over-limit", true, "Whether or not players should be denied access to some of their homes if they exceed their homes limit.\n" +
+                "The homes denied access to will end up being their most recently set homes.\n" +
+                "For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.");
+        addDefault("hide-homes-if-denied", false, "If homes should be hidden from /homes should they be denied access.\n" +
+                "If this is false, they will be greyed out in the /homes list.");
 
         addDefault("tpa-request-received", "none", "Notifications/Sounds",
                 "The sound played when a player receives a teleportation (tpa) request.\n" +
@@ -280,7 +311,7 @@ public class NewConfig extends CMFile {
 
     }
 
-    public static NewConfig getInstance() {
+    public static NewConfig get() {
         return instance;
     }
 
@@ -402,6 +433,7 @@ public class NewConfig extends CMFile {
         USE_SPAWN = new ConfigOption<>("use-spawn");
         USE_HOMES = new ConfigOption<>("use-homes");
         REQUEST_LIFETIME = new ConfigOption<>("request-lifetime");
+        DISABLED_COMMANDS = new ConfigOption<>("disabled-commands");
 
         WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
@@ -427,6 +459,14 @@ public class NewConfig extends CMFile {
         COST_AMOUNT = new ConfigOption<>("cost-amount");
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
 
+        USE_MYSQL = new ConfigOption<>("use-mysql");
+        MYSQL_HOST = new ConfigOption<>("mysql-host");
+        MYSQL_PORT = new ConfigOption<>("mysql-port");
+        MYSQL_DATABASE = new ConfigOption<>("mysql-database");
+        USERNAME = new ConfigOption<>("mysql-username");
+        PASSWORD = new ConfigOption<>("mysql-password");
+        TABLE_PREFIX = new ConfigOption<>("mysql-table-prefix");
+
         ENABLE_DISTANCE_LIMITATIONS = new ConfigOption<>("enable-distance-limitations");
         MAXIMUM_TELEPORT_DISTANCE = new ConfigOption<>("maximum-teleport-distance");
         MONITOR_ALL_TELEPORTS = new ConfigOption<>("monitor-all-teleports-distance");
@@ -448,6 +488,8 @@ public class NewConfig extends CMFile {
 
         DEFAULT_HOMES_LIMIT = new ConfigOption<>("default-homes-limit");
         ADD_BED_TO_HOMES = new ConfigOption<>("add-bed-to-homes");
+        DENY_HOMES_IF_OVER_LIMIT = new ConfigOption<>("deny-homes-if-over-limit");
+        HIDE_HOMES_IF_DENIED = new ConfigOption<>("hide-homes-if-denied");
 
         TPA_REQUEST_RECEIVED = new ConfigOption<>("tpa-request-received");
         TPA_REQUEST_SENT = new ConfigOption<>("tpa-request-sent");
