@@ -79,7 +79,7 @@ public class HomesCommand implements AsyncATCommand {
             }
             hList.text(""); //Removes trailing comma
         } else {
-            return;
+            hList.text(CustomMessages.getString("Error.noHomes"));
         }
 
         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> hList.send(sender));
