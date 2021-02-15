@@ -38,6 +38,7 @@ public class WarpSQLManager extends SQLManager {
                         "yaw FLOAT NOT NULL," +
                         "pitch FLOAT NOT NULL," +
                         "world VARCHAR(256) NOT NULL," +
+                        "price VARCHAR(256)," +
                         "timestamp_created BIGINT NOT NULL," +
                         "timestamp_updated BIGINT NOT NULL)");
                 createTable.executeUpdate();
