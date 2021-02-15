@@ -102,6 +102,9 @@ public class DataFailManager {
             case CHANGE_TELEPORTATION:
                 PlayerSQLManager.get().setTeleportationOn(UUID.fromString(fail.data[0]), Boolean.parseBoolean(fail.data[1]), callback);
                 break;
+            case SET_MAIN_HOME:
+                PlayerSQLManager.get().setMainHome(UUID.fromString(fail.data[1]), fail.data[0], callback);
+                break;
             case ADD_BLOCK:
                 BlocklistManager.get().blockUser(fail.data[0], fail.data[1], fail.data[2], callback);
                 break;
@@ -123,6 +126,8 @@ public class DataFailManager {
             case DELETE_WARP:
                 WarpSQLManager.get().removeWarp(fail.data[0], callback);
                 break;
+            case UPDATE_LOCATION:
+                PlayerSQLManager.get().setPreviousLocation(fail.data[6], locFromStrings(fail.data), callback);
 
         }
     }
@@ -208,6 +213,8 @@ public class DataFailManager {
         CHANGE_TELEPORTATION,
         UPDATE_PLAYER,
         ADD_PLAYER,
+        UPDATE_LOCATION,
+        SET_MAIN_HOME,
         ADD_WARP,
         MOVE_WARP,
         DELETE_WARP
