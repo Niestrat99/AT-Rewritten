@@ -25,6 +25,7 @@ public abstract class AbstractHomeCommand implements ATCommand {
                     ATPlayer target = ATPlayer.getPlayer(args[0]);
                     if (target == null) return new ArrayList<>();
                     StringUtil.copyPartialMatches(args[1], target.getHomes().keySet(), results);
+                    return results;
                 }
             }
             if (args.length == 1) {
