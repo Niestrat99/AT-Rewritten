@@ -24,8 +24,7 @@ public class IgnoreRule extends CommandRule {
         }
         if (inclusive ^ !worlds.contains(fromWorld)) {
             return false;
-
         }
-        return inclusive ^ !worlds.contains(">" + toWorld);
+        return inclusive ^ worlds.contains(">" + toWorld);
     }
 }

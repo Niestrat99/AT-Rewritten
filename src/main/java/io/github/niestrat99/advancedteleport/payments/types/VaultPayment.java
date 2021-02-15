@@ -27,8 +27,7 @@ public class VaultPayment extends Payment {
     public boolean canPay(Player player) {
         boolean result = super.canPay(player);
         if (!result) {
-            player.sendMessage(CustomMessages.getString("Error.notEnoughMoney")
-                    .replaceAll("\\{amount}", String.valueOf(price)));
+            CustomMessages.sendMessage(player, "Error.notEnoughMoney", "{amount}", String.valueOf(price));
         }
         return result;
     }
@@ -46,9 +45,6 @@ public class VaultPayment extends Payment {
     @Override
     public void setPlayerAmount(Player player) {
         CoreClass.getVault().withdrawPlayer(player, price);
-        player.sendMessage(
-                CustomMessages.getString("Info.paymentVault")
-                        .replaceAll("\\{amount}", String.valueOf(price))
-                        .replaceAll("\\{balance}", String.valueOf(getPlayerAmount(player))));
+        CustomMessages.sendMessage(player, "Info.paymentVault", "{amount}", String.valueOf(price), "{balance}", String.valueOf(getPlayerAmount(player)));
     }
 }

@@ -1,36 +1,42 @@
 package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.*;
-import io.github.niestrat99.advancedteleport.events.CooldownManager;
+import io.github.niestrat99.advancedteleport.managers.CommandManager;
+import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.List;
 
-public class AtReload implements CommandExecutor {
+public class AtReload implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (!sender.hasPermission("at.admin.reload")) {
-            sender.sendMessage(CustomMessages.getString("Error.noPermission"));
+            CustomMessages.sendMessage(sender, "Error.noPermission");
         } else {
-            sender.sendMessage(CustomMessages.getString("Info.reloadingConfig"));
+            CustomMessages.sendMessage(sender, "Info.reloadingConfig");
             try {
-                NewConfig.getInstance().reload();
+                NewConfig.get().reload();
                 CustomMessages.reloadConfig();
-                Warps.reloadWarps();
-                Homes.reloadHomes();
-                LastLocations.reloadBackLocations();
-                TpBlock.reloadBlocks();
                 Spawn.reloadSpawn();
                 GUI.reloadConfig();
                 CooldownManager.init();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            sender.sendMessage(CustomMessages.getString("Info.reloadedConfig"));
+            CommandManager.registerCommands();
+            CustomMessages.sendMessage(sender, "Info.reloadedConfig");
         }
         return true;
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        return null;
     }
 }

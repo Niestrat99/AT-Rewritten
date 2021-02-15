@@ -18,7 +18,7 @@ public class WorldRulesManager {
 
     public WorldRulesManager() {
         rules = new HashMap<>();
-        ConfigurationSection worlds = NewConfig.getInstance().WORLD_RULES.get();
+        ConfigurationSection worlds = NewConfig.get().WORLD_RULES.get();
         for (String world : worlds.getKeys(false)) {
             addWorld(world, worlds.getString(world));
         }

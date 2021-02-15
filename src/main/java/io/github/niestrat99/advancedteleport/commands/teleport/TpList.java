@@ -1,19 +1,24 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
-import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class TpList implements CommandExecutor {
+import java.util.List;
+
+public class TpList implements AsyncATCommand {
+
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.getInstance().USE_BASIC_TELEPORT_FEATURES.get()) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             if (sender.hasPermission("at.member.list")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
@@ -29,7 +34,7 @@ public class TpList implements CommandExecutor {
                                 // args[0] is officially an int.
                                 int page = Integer.parseInt(args[0]);
                                 PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
-                                player.sendMessage(CustomMessages.getString("Info.multipleRequestAccept"));
+                                CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
                                 try {
                                     for (TPRequest request : requests.getContentsInPage(page)) {
                                         new FancyMessage()
@@ -39,16 +44,15 @@ public class TpList implements CommandExecutor {
                                                 .send(player);
                                     }
                                 } catch (IllegalArgumentException ex) {
-                                    player.sendMessage(CustomMessages.getString("Error.invalidPageNo"));
+                                    CustomMessages.sendMessage(player, "Error.invalidPageNo");
                                 }
 
                             } else {
-                                player.sendMessage(CustomMessages.getString("Error.invalidPageNo"));
-
+                                CustomMessages.sendMessage(player, "Error.invalidPageNo");
                             }
                         } else {
                             PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
-                            player.sendMessage(CustomMessages.getString("Info.multipleRequestAccept"));
+                            CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
                             for (TPRequest request : requests.getContentsInPage(1)) {
                                 new FancyMessage()
                                         .command("/tpayes " + request.getRequester().getName())
@@ -59,18 +63,24 @@ public class TpList implements CommandExecutor {
                             return true;
                         }
                     } else {
-                        player.sendMessage(CustomMessages.getString("Error.noRequests"));
+                        CustomMessages.sendMessage(player, "Error.noRequests");
                         return true;
                     }
 
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
         return true;
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        return null;
     }
 }

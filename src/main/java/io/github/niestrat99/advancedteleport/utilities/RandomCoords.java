@@ -19,19 +19,19 @@ public class RandomCoords {
     public static Location generateCoords(World world) {
         double x;
         double z;
-        if (NewConfig.getInstance().USE_WORLD_BORDER.get() && worldBorder != null) {
+        if (NewConfig.get().USE_WORLD_BORDER.get() && worldBorder != null) {
             BorderData border = com.wimbli.WorldBorder.Config.Border(world.getName());
             // If a border has been set
             if (border != null) {
                 x = getRandomCoords(border.getX() - border.getRadiusX(), border.getX() + border.getRadiusX());
                 z = getRandomCoords(border.getZ() - border.getRadiusZ(), border.getZ() + border.getRadiusZ());
             } else {
-                x = getRandomCoords(NewConfig.getInstance().MINIMUM_X.get(), NewConfig.getInstance().MAXIMUM_X.get());
-                z = getRandomCoords(NewConfig.getInstance().MINIMUM_Z.get(), NewConfig.getInstance().MAXIMUM_Z.get());
+                x = getRandomCoords(NewConfig.get().MINIMUM_X.get(), NewConfig.get().MAXIMUM_X.get());
+                z = getRandomCoords(NewConfig.get().MINIMUM_Z.get(), NewConfig.get().MAXIMUM_Z.get());
             }
         } else {
-            x = getRandomCoords(NewConfig.getInstance().MINIMUM_X.get(), NewConfig.getInstance().MAXIMUM_X.get());
-            z = getRandomCoords(NewConfig.getInstance().MINIMUM_Z.get(), NewConfig.getInstance().MAXIMUM_Z.get());
+            x = getRandomCoords(NewConfig.get().MINIMUM_X.get(), NewConfig.get().MAXIMUM_X.get());
+            z = getRandomCoords(NewConfig.get().MINIMUM_Z.get(), NewConfig.get().MAXIMUM_Z.get());
         }
 
 

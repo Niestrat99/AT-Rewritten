@@ -3,10 +3,14 @@ package io.github.niestrat99.advancedteleport.commands;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class AtInfo implements CommandExecutor {
+import java.util.List;
+
+public class AtInfo implements AsyncATCommand {
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender.hasPermission("at.admin.info")) {
@@ -21,5 +25,11 @@ public class AtInfo implements CommandExecutor {
             sender.sendMessage(ChatColor.AQUA + "Do you like this plugin? Then please leave a review on the Spigot page!");
         }
         return true;
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        return null;
     }
 }

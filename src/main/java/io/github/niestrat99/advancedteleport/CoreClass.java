@@ -1,21 +1,16 @@
 package io.github.niestrat99.advancedteleport;
 
-import io.github.niestrat99.advancedteleport.commands.AtHelp;
-import io.github.niestrat99.advancedteleport.commands.AtInfo;
-import io.github.niestrat99.advancedteleport.commands.AtReload;
-import io.github.niestrat99.advancedteleport.commands.home.*;
-import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
-import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
-import io.github.niestrat99.advancedteleport.commands.teleport.*;
-import io.github.niestrat99.advancedteleport.commands.warp.Warp;
-import io.github.niestrat99.advancedteleport.commands.warp.WarpTabCompleter;
-import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
 import io.github.niestrat99.advancedteleport.config.*;
-import io.github.niestrat99.advancedteleport.events.AtSigns;
-import io.github.niestrat99.advancedteleport.events.CooldownManager;
-import io.github.niestrat99.advancedteleport.events.MovementManager;
-import io.github.niestrat99.advancedteleport.events.TeleportTrackingManager;
+import io.github.niestrat99.advancedteleport.listeners.AtSigns;
+import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
+import io.github.niestrat99.advancedteleport.managers.CommandManager;
+import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.managers.MovementManager;
+import io.github.niestrat99.advancedteleport.managers.TeleportTrackingManager;
+import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
+import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
@@ -88,24 +83,30 @@ public class CoreClass extends JavaPlugin {
             config = new NewConfig();
         //    Config.setDefaults();
             CustomMessages.setDefaults();
-            Homes.save();
-            LastLocations.save();
-            Warps.save();
             Spawn.save();
             GUI.setDefaults();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        registerCommands();
+        CommandManager.registerCommands();
+        {
+            new BlocklistManager();
+            new HomeSQLManager();
+            new PlayerSQLManager();
+            new WarpSQLManager();
+            new DataFailManager();
+        }
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
+
         setupVersion();
         new Metrics(this, 5146);
         new BukkitRunnable() {
             @Override
             public void run() {
                 // Config.setupDefaults();
+                NBTReader.init();
                 Object[] update = UpdateChecker.getUpdate();
                 if (update != null) {
                     getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));
@@ -120,59 +121,14 @@ public class CoreClass extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        LastLocations.saveLocations();
-    }
-
-    // Separate method for registering commands
-    private void registerCommands() {
-
-        // Main commands
-        getCommand("athelp").setExecutor(new AtHelp());
-        getCommand("atreload").setExecutor(new AtReload());
-        getCommand("atinfo").setExecutor(new AtInfo());
-
-        // TP commands
-        getCommand("back").setExecutor(new Back());
-        getCommand("tpa").setExecutor(new Tpa());
-        getCommand("tpr").setExecutor(new Tpr());
-        getCommand("tpoff").setExecutor(new TpOff());
-        getCommand("tpon").setExecutor(new TpOn());
-        getCommand("tpblock").setExecutor(new TpBlockCommand());
-        getCommand("tpcancel").setExecutor(new TpCancel());
-        getCommand("tpno").setExecutor(new TpNo());
-        getCommand("tpo").setExecutor(new Tpo());
-        getCommand("tpohere").setExecutor(new TpoHere());
-        getCommand("tpunblock").setExecutor(new TpUnblock());
-        getCommand("tpyes").setExecutor(new TpYes());
-        getCommand("tpahere").setExecutor(new TpaHere());
-        getCommand("tpall").setExecutor(new TpAll());
-        getCommand("tpalist").setExecutor(new TpList());
-        getCommand("toggletp").setExecutor(new ToggleTP());
-        getCommand("tploc").setExecutor(new TpLoc());
-
-        // Home commands
-        getCommand("home").setExecutor(new Home());
-        getCommand("sethome").setExecutor(new SetHome());
-        getCommand("delhome").setExecutor(new DelHome());
-        getCommand("homes").setExecutor(new HomesCommand());
-
-        // Warp commands
-        getCommand("warp").setExecutor(new Warp());
-        getCommand("warps").setExecutor(new WarpsCommand());
-
-        // Spawn commands
-        getCommand("spawn").setExecutor(new SpawnCommand());
-        getCommand("setspawn").setExecutor(new SetSpawn());
-
-        getCommand("warp").setTabCompleter(new WarpTabCompleter());
-        getCommand("home").setTabCompleter(new HomeTabCompleter());
-        getCommand("delhome").setTabCompleter(new HomeTabCompleter());
+        DataFailManager.get().onDisable();
     }
 
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new AtSigns(), this);
         getServer().getPluginManager().registerEvents(new TeleportTrackingManager(), this);
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
+        getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
     }
 
     public static void playSound(String type, String subType, Player target) {
@@ -181,20 +137,20 @@ public class CoreClass extends JavaPlugin {
             case "tpa":
                 switch (subType) {
                     case "sent":
-                        sound = NewConfig.getInstance().TPA_REQUEST_SENT.get();
+                        sound = NewConfig.get().TPA_REQUEST_SENT.get();
                         break;
                     case "received":
-                        sound = NewConfig.getInstance().TPA_REQUEST_RECEIVED.get();
+                        sound = NewConfig.get().TPA_REQUEST_RECEIVED.get();
                         break;
                 }
                 break;
             case "tpahere":
                 switch (subType) {
                     case "sent":
-                        sound = NewConfig.getInstance().TPAHERE_REQUEST_SENT.get();
+                        sound = NewConfig.get().TPAHERE_REQUEST_SENT.get();
                         break;
                     case "received":
-                        sound = NewConfig.getInstance().TPAHERE_REQUEST_RECEIVED.get();
+                        sound = NewConfig.get().TPAHERE_REQUEST_RECEIVED.get();
                         break;
                 }
                 break;
