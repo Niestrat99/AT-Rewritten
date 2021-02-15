@@ -184,7 +184,7 @@ public class NewConfig extends CMFile {
         addDefault("mysql-table-prefix", "advancedtp", "The prefix of all AT tables. \n" +
                 "If you're on Bungee, you may want to add your server's name to the end.");
 
-        addDefault("enable-distance-limitations", true, "Distance Limitations",
+        addDefault("enable-distance-limitations", false, "Distance Limitations",
                 "Enables the distance limiter to stop players teleporting over a large distance.\n" +
                         "This is only applied when people are teleporting in the same world.");
         addDefault("maximum-teleport-distance", 1000, "The maximum distance that a player can teleport.\n" +
@@ -521,37 +521,41 @@ public class NewConfig extends CMFile {
             }
         }
 
-        boolean warned = false;
-        for (String permission : permissions) {
-            if (!permission.startsWith("at")) continue;
-            if (permission.startsWith("at.admin")) {
-                if (!warned) {
-                    CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default to all users.");
-                    if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
-                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so we're not adding it right now.");
-                        CoreClass.getInstance().getLogger().warning("To allow people to use admin permissions such as the ones specified, please disable the check in the configuration.");
-                        CoreClass.getInstance().getLogger().warning("If you have a permissions plugin hooked into Vault too, you cannot make admin permissions default permissions.");
-                    } else {
-                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so if this is not your doing, please check your configuration.");
-                        CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as the ones specified, please enable the check in the configuration.");
+
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            boolean warned = false;
+            for (String permission : permissions) {
+                if (!permission.startsWith("at")) continue;
+                if (permission.startsWith("at.admin")) {
+                    if (!warned) {
+                        CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default to all users.");
+                        if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
+                            CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so we're not adding it right now.");
+                            CoreClass.getInstance().getLogger().warning("To allow people to use admin permissions such as the ones specified, please disable the check in the configuration.");
+                            CoreClass.getInstance().getLogger().warning("If you have a permissions plugin hooked into Vault too, you cannot make admin permissions default permissions.");
+                        } else {
+                            CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so if this is not your doing, please check your configuration.");
+                            CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as the ones specified, please enable the check in the configuration.");
+                        }
+                        warned = true;
                     }
-                    warned = true;
+                    if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
+                        CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
+                    } else {
+                        CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
+                        continue;
+                    }
                 }
-                if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
-                    CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
-                } else {
-                    CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
-                    continue;
+                Permission permObject = Bukkit.getPluginManager().getPermission(permission);
+                if (permObject == null) {
+                    permObject = new Permission(permission);
+                    Bukkit.getPluginManager().addPermission(permObject);
                 }
+                permObject.setDefault(PermissionDefault.TRUE);
+                defaults.add(permission);
             }
-            Permission permObject = Bukkit.getPluginManager().getPermission(permission);
-            if (permObject == null) {
-                permObject = new Permission(permission);
-                Bukkit.getPluginManager().addPermission(permObject);
-            }
-            permObject.setDefault(PermissionDefault.TRUE);
-            defaults.add(permission);
-        }
+        });
+
     }
 
     public static class ConfigOption<T> {
