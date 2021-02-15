@@ -4,6 +4,8 @@ import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Location;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -16,6 +18,7 @@ public class Warp {
     private long updatedTime;
     private String createdTimeFormatted;
     private String updatedTimeFormatted;
+    private SimpleDateFormat format;
 
     private static HashMap<String, Warp> warps = new HashMap<>();
 
@@ -25,6 +28,10 @@ public class Warp {
         this.creator = creator;
         this.createdTime = createdTime;
         this.updatedTime = updatedTime;
+
+        this.format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+        this.createdTimeFormatted = format.format(new Date(createdTime));
+        this.updatedTimeFormatted = format.format(new Date(updatedTime));
 
         warps.put(name, this);
     }
@@ -44,6 +51,8 @@ public class Warp {
     public void setLocation(Location location, SQLManager.SQLCallback<Boolean> callback) {
         this.location = location;
         this.updatedTime = System.currentTimeMillis();
+
+        this.updatedTimeFormatted = format.format(new Date(updatedTime));
 
         WarpSQLManager.get().moveWarp(location, name, callback);
     }
