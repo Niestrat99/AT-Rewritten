@@ -29,7 +29,12 @@ public class PaymentManager {
 
     private void addCommand(String command, Object value) {
         HashMap<String, Payment> payments = new HashMap<>();
-        String[] rawPayments = String.valueOf(value).split(";");
+        String valueStr = String.valueOf(value);
+        if (valueStr.isEmpty()) {
+            teleportCosts.put(command, payments);
+            return;
+        }
+        String[] rawPayments = valueStr.split(";");
         for (String rawPayment : rawPayments) {
             try {
                 if (rawPayment.length() - 3 <= 0) {
