@@ -55,7 +55,7 @@ public class ATPlayer {
         PlayerSQLManager.get().isTeleportationOn(uuid, result -> this.isTeleportationEnabled = result);
         PlayerSQLManager.get().getPreviousLocation(name, result -> this.previousLoc = result);
 
-        players.put(name, this);
+        players.put(name.toLowerCase(), this);
     }
 
     public Player getPlayer() {
@@ -236,18 +236,18 @@ public class ATPlayer {
 
     @NotNull
     public static ATPlayer getPlayer(Player player) {
-        return players.containsKey(player.getName()) ? players.get(player.getName()) : new ATPlayer(player);
+        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) : new ATPlayer(player);
     }
 
     @NotNull
     public static ATPlayer getPlayer(OfflinePlayer player) {
-        return players.containsKey(player.getName()) ? players.get(player.getName()) : new ATPlayer(player.getUniqueId(), player.getName());
+        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) : new ATPlayer(player.getUniqueId(), player.getName());
     }
 
     @Nullable
     public static ATPlayer getPlayer(String name) {
-        if (players.containsKey(name)) {
-            return players.get(name);
+        if (players.containsKey(name.toLowerCase())) {
+            return players.get(name.toLowerCase());
         }
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
