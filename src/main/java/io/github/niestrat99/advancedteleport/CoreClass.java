@@ -83,7 +83,6 @@ public class CoreClass extends JavaPlugin {
             config = new NewConfig();
         //    Config.setDefaults();
             CustomMessages.setDefaults();
-            LastLocations.save();
             Spawn.save();
             GUI.setDefaults();
         } catch (IOException e) {
@@ -122,7 +121,6 @@ public class CoreClass extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        LastLocations.saveLocations();
         DataFailManager.get().onDisable();
     }
 

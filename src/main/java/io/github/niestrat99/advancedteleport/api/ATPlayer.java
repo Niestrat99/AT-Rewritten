@@ -30,6 +30,7 @@ public class ATPlayer {
     private HashMap<UUID, BlockInfo> blockedUsers;
     private boolean isTeleportationEnabled;
     private String mainHome;
+    private Location previousLoc;
 
     private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
@@ -52,6 +53,7 @@ public class ATPlayer {
         });
 
         PlayerSQLManager.get().isTeleportationOn(uuid, result -> this.isTeleportationEnabled = result);
+        PlayerSQLManager.get().getPreviousLocation(name, result -> this.previousLoc = result);
 
         players.put(name, this);
     }
@@ -258,4 +260,12 @@ public class ATPlayer {
         players.remove(player.getName());
     }
 
+    public Location getPreviousLocation() {
+        return previousLoc;
+    }
+
+    public void setPreviousLocation(Location previousLoc) {
+        this.previousLoc = previousLoc;
+        PlayerSQLManager.get().setPreviousLocation(getPlayer().getName(), previousLoc, null);
+    }
 }

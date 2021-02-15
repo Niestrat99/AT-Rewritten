@@ -1,20 +1,29 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class PlayerSQLManager extends SQLManager {
 
     private static PlayerSQLManager instance;
+    private static HashMap<UUID, Location> previousLocationData;
+    private static YamlConfiguration lastLocations;
+    private static File lastLocFile;
 
     public PlayerSQLManager() {
         super();
@@ -33,12 +42,12 @@ public class PlayerSQLManager extends SQLManager {
                         "timestamp_last_joined BIGINT NOT NULL," +
                         "main_home VARCHAR(256)," +
                         "teleportation_on BIT DEFAULT 1 NOT NULL, " +
-                        "x DOUBLE NOT NULL, " +
-                        "y DOUBLE NOT NULL, " +
-                        "z DOUBLE NOT NULL, " +
-                        "yaw FLOAT NOT NULL, " +
-                        "pitch FLOAT NOT NULL, " +
-                        "world VARCHAR(256) NOT NULL)"
+                        "x DOUBLE, " +
+                        "y DOUBLE, " +
+                        "z DOUBLE, " +
+                        "yaw FLOAT, " +
+                        "pitch FLOAT, " +
+                        "world VARCHAR(256))"
                 );
 
                 createTable.executeUpdate();
@@ -51,6 +60,44 @@ public class PlayerSQLManager extends SQLManager {
 
     @Override
     public void transferOldData() {
+        previousLocationData = new HashMap<>();
+        // Get the file itself.
+        lastLocFile = new File(CoreClass.getInstance().getDataFolder(), "last-locations.yml");
+        if (!lastLocFile.exists()) return;
+        // Load the config file.
+        lastLocations = YamlConfiguration.loadConfiguration(lastLocFile);
+        //
+        for (String uuid : lastLocations.getKeys(false)) {
+            if (uuid.equals("death")) continue;
+            if (lastLocations.getString("death." + uuid) != null) continue;
+            String locStr = lastLocations.getString(uuid);
+            if (locStr == null) continue;
+            String[] locParts = locStr.split(":");
+            Location loc = new Location(Bukkit.getWorld(locParts[5]),
+                    Double.parseDouble(locParts[0]),
+                    Double.parseDouble(locParts[1]),
+                    Double.parseDouble(locParts[2]),
+                    Float.parseFloat(locParts[3]),
+                    Float.parseFloat(locParts[4]));
+
+            previousLocationData.put(UUID.fromString(uuid), loc);
+        }
+        ConfigurationSection section = lastLocations.getConfigurationSection("death");
+        if (section == null) return;
+
+        for (String uuid : section.getKeys(false)) {
+            String locStr = section.getString(uuid);
+            if (locStr == null) continue;
+            String[] locParts = locStr.split(":");
+            Location loc = new Location(Bukkit.getWorld(locParts[5]),
+                    Double.parseDouble(locParts[0]),
+                    Double.parseDouble(locParts[1]),
+                    Double.parseDouble(locParts[2]),
+                    Float.parseFloat(locParts[3]),
+                    Float.parseFloat(locParts[4]));
+
+            previousLocationData.put(UUID.fromString(uuid), loc);
+        }
 
     }
 
@@ -72,7 +119,13 @@ public class PlayerSQLManager extends SQLManager {
                 statement.setLong(2, System.currentTimeMillis());
                 statement.setString(3, player.getUniqueId().toString());
                 statement.executeUpdate();
+                if (previousLocationData.containsKey(player.getUniqueId())) {
+                    ATPlayer.getPlayer(player).setPreviousLocation(previousLocationData.get(player.getUniqueId()));
+
+                    removeLastLocation(player.getUniqueId());
+                }
                 if (callback != null) {
+
                     callback.onSuccess(true);
                 }
             } catch (SQLException exception) {
@@ -102,22 +155,22 @@ public class PlayerSQLManager extends SQLManager {
                     if (callback != null) {
                         callback.onFail();
                     }
-
                     return;
                 }
                 PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO " + tablePrefix + "_players (uuid, name, timestamp_last_joined, x, y, z, yaw, pitch, world) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "INSERT INTO " + tablePrefix + "_players (uuid, name, timestamp_last_joined) VALUES (?, ?, ?)");
 
                 statement.setString(1, player.getUniqueId().toString());
                 statement.setString(2, player.getName().toLowerCase());
                 statement.setLong(3, System.currentTimeMillis());
-                statement.setDouble(4, player.getLocation().getX());
-                statement.setDouble(5, player.getLocation().getY());
-                statement.setDouble(6, player.getLocation().getZ());
-                statement.setDouble(7, player.getLocation().getYaw());
-                statement.setDouble(8, player.getLocation().getPitch());
-                statement.setString(9, player.getLocation().getWorld().getName());
                 statement.executeUpdate();
+
+                if (previousLocationData.containsKey(player.getUniqueId())) {
+                    ATPlayer.getPlayer(player).setPreviousLocation(previousLocationData.get(player.getUniqueId()));
+
+                    removeLastLocation(player.getUniqueId());
+                }
+
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -171,25 +224,62 @@ public class PlayerSQLManager extends SQLManager {
         });
     }
 
-    public void getLocation(String name, SQLCallback<Location> callback) {
+    public void getPreviousLocation(String name, SQLCallback<Location> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + tablePrefix + "_players WHERE name = ?");
                 statement.setString(1, name.toLowerCase());
                 ResultSet results = statement.executeQuery();
                 if (results.next()) {
-                    World world = Bukkit.getWorld(results.getString("world"));
-                    callback.onSuccess(new Location(world, results.getDouble("x"),
-                            results.getDouble("y"),
-                            results.getDouble("z"),
-                            results.getFloat("yaw"),
-                            results.getFloat("pitch")));
-                    return;
+                    try {
+                        World world = Bukkit.getWorld(results.getString("world"));
+                        callback.onSuccess(new Location(world, results.getDouble("x"),
+                                results.getDouble("y"),
+                                results.getDouble("z"),
+                                results.getFloat("yaw"),
+                                results.getFloat("pitch")));
+                        return;
+                    } catch (NullPointerException | IllegalArgumentException ex) {
+                        callback.onFail();
+                    }
                 }
                 callback.onFail();
             } catch (SQLException exception) {
                 exception.printStackTrace();
                 callback.onFail();
+            }
+        });
+    }
+
+    public void setPreviousLocation(String name, Location location, SQLCallback<Boolean> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try {
+                PreparedStatement statement = connection.prepareStatement("UPDATE " + tablePrefix + "_players SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ? WHERE name = ?");
+                statement.setDouble(1, location.getX());
+                statement.setDouble(2, location.getY());
+                statement.setDouble(3, location.getZ());
+                statement.setFloat(4, location.getYaw());
+                statement.setFloat(5, location.getPitch());
+                statement.setString(6, location.getWorld().getName());
+                statement.setString(7, name.toLowerCase());
+
+                statement.executeUpdate();
+                if (callback != null) {
+                    callback.onSuccess(true);
+                }
+            } catch (SQLException exception) {
+                DataFailManager.get().addFailure(DataFailManager.Operation.UPDATE_LOCATION,
+                        location.getWorld().getName(),
+                        String.valueOf(location.getX()),
+                        String.valueOf(location.getY()),
+                        String.valueOf(location.getZ()),
+                        String.valueOf(location.getYaw()),
+                        String.valueOf(location.getPitch()),
+                        name);
+                if (callback != null) {
+                    callback.onFail();
+                }
+                exception.printStackTrace();
             }
         });
     }
@@ -222,13 +312,30 @@ public class PlayerSQLManager extends SQLManager {
                     callback.onSuccess(true);
                 }
             } catch (SQLException exception) {
-                DataFailManager.get().addFailure(DataFailManager.Operation.CHANGE_TELEPORTATION, home, uuid.toString());
+                DataFailManager.get().addFailure(DataFailManager.Operation.SET_MAIN_HOME, home, uuid.toString());
                 if (callback != null) {
                     callback.onFail();
                 }
                 exception.printStackTrace();
             }
         });
+    }
+
+    private static void removeLastLocation(UUID uuid) {
+        previousLocationData.remove(uuid);
+        lastLocations.set(uuid.toString(), null);
+        lastLocations.set("death." + uuid.toString(), null);
+
+        if (previousLocationData.isEmpty()) {
+            lastLocFile.delete();
+        } else {
+            try {
+                lastLocations.save(lastLocFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public static PlayerSQLManager get() {

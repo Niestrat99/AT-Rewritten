@@ -4,19 +4,13 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.LastLocations;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
-import io.github.niestrat99.advancedteleport.managers.TeleportTrackingManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
-import io.github.niestrat99.advancedteleport.payments.PaymentManager;
-import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,18 +28,16 @@ public class Back implements ATCommand {
             if (sender.hasPermission("at.member.back")) {
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
+                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
                     int cooldown = CooldownManager.secondsLeftOnCooldown("back", player);
                     if (cooldown > 0) {
                         CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
                         return true;
                     }
-                    Location loc = TeleportTrackingManager.getLastLocation(player.getUniqueId());
+                    Location loc = atPlayer.getPreviousLocation();
                     if (loc == null) {
-                        loc = LastLocations.getLocation(player);
-                        if (loc == null) {
-                            CustomMessages.sendMessage(sender, "Error.noLocation");
-                            return true;
-                        }
+                        CustomMessages.sendMessage(sender, "Error.noLocation");
+                        return true;
                     }
                     double originalY = loc.getY();
                     while (!airMaterials.contains(loc.getBlock().getType().name())) {
@@ -63,7 +55,7 @@ public class Back implements ATCommand {
                     }
 
                     ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
-                    ATPlayer.getPlayer(player).teleport(event, "back", "Teleport.teleportingToLastLoc", NewConfig.get().WARM_UPS.BACK.get());
+                    atPlayer.teleport(event, "back", "Teleport.teleportingToLastLoc", NewConfig.get().WARM_UPS.BACK.get());
 
                 } else {
                     CustomMessages.sendMessage(sender, "Error.notAPlayer");
