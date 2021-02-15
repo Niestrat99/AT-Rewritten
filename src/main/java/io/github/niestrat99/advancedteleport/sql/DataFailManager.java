@@ -65,9 +65,10 @@ public class DataFailManager {
 
     public void handleFailure(Fail fail) {
 
-        SQLManager.SQLCallback callback = new SQLManager.SQLCallback() {
+        SQLManager.SQLCallback<Boolean> callback = new SQLManager.SQLCallback<Boolean>() {
+
             @Override
-            public void onSuccess(Object data) {
+            public void onSuccess(Boolean data) {
                 pendingFails.remove(fail);
             }
 
