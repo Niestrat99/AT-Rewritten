@@ -199,7 +199,7 @@ public class PlayerSQLManager extends SQLManager {
                     callback.onSuccess(results.getBoolean("teleportation_on"));
                     return;
                 }
-                callback.onSuccess(false);
+                callback.onSuccess(true);
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
