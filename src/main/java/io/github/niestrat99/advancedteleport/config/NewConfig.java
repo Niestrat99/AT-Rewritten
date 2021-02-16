@@ -161,7 +161,8 @@ public class NewConfig extends CMFile {
                 "\nIf you want to use Vault Economy, use 100.0 to charge $100." +
                 "\nIf you want to use Minecraft EXP points, use 10EXP for 10 EXP Points." +
                 "\nIf you want to use Minecraft EXP levels, use 5LVL for 5 levels." +
-                "\nTo use multiple methods of charging, use a ; - e.g. '100.0;10LVL' for $100 and 10 EXP levels.");
+                "\nTo use multiple methods of charging, use a ; - e.g. '100.0;10LVL' for $100 and 10 EXP levels." +
+                "\nTo disable, just put an empty string, i.e. ''");
 
         addComment("per-command-cost", "Command-specific costs.");
         addDefault("per-command-cost.tpa", "default", "Cost for /tpa.");
