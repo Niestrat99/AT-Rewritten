@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.niestrat99</groupId>
   <artifactId>AdvancedTeleport</artifactId>
-  <version>5.3.4-SNAPSHOT-2</version>
+  <version>5.4</version>
   <build>
     <plugins>
       <plugin>
@@ -29,12 +29,17 @@
           <artifactSet>
             <includes>
               <include>io.papermc:paperlib</include>
+              <include>com.github.Thatsmusic99:ConfigurationMaster</include>
             </includes>
           </artifactSet>
           <relocations>
             <relocation>
               <pattern>io.papermc</pattern>
               <shadedPattern>io.github.niestrat99.advancedteleport.paperlib</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>io.github.thatsmusic99.configurationmaster</pattern>
+              <shadedPattern>io.github.niestrat99.advancedteleport.configurationmaster</shadedPattern>
             </relocation>
           </relocations>
         </configuration>
@@ -59,7 +64,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.16.2-R0.1-SNAPSHOT</version>
+      <version>1.16.5-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -107,6 +112,12 @@
       <artifactId>spigot</artifactId>
       <version>1.16.2-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>13.0</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
   <properties>
