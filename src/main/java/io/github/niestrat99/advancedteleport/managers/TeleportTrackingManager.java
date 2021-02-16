@@ -31,6 +31,7 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
+        if (e.getPlayer().hasMetadata("NPC")) return;
         Player player = e.getPlayer();
         if (!player.hasPlayedBefore()) {
             if (NewConfig.get().TELEPORT_TO_SPAWN_FIRST.get()) {
@@ -61,6 +62,7 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent e) {
+        if (e.getPlayer().hasMetadata("NPC")) return;
         String result = ConditionChecker.canTeleport(e.getFrom(), e.getTo(), null, e.getPlayer());
         if (!result.isEmpty()) {
             e.getPlayer().sendMessage(result);
@@ -87,6 +89,7 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
+        if (e.getEntity().hasMetadata("NPC")) return;
         if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get() && e.getEntity().hasPermission("at.member.back.death")) {
             ATPlayer.getPlayer(e.getEntity()).setPreviousLocation(e.getEntity().getLocation());
         }
@@ -94,6 +97,7 @@ public class TeleportTrackingManager implements Listener {
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
+        if (e.getPlayer().hasMetadata("NPC")) return;
         UUID uuid = e.getPlayer().getUniqueId();
         ATPlayer atPlayer = ATPlayer.getPlayer(e.getPlayer());
         if (NewConfig.get().USE_SPAWN.get()) {

@@ -12,12 +12,14 @@ public class PlayerListeners implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
+        if (event.getPlayer().hasMetadata("NPC")) return;
         ATPlayer.getPlayer(event.getPlayer());
         PlayerSQLManager.get().updatePlayerData(event.getPlayer());
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
+        if (event.getPlayer().hasMetadata("NPC")) return;
         ATPlayer.removePlayer(event.getPlayer());
         NBTReader.addLeaveToCache(event.getPlayer());
     }

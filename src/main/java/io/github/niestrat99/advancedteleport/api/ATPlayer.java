@@ -35,8 +35,7 @@ public class ATPlayer {
     private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
     public ATPlayer(Player player) {
-        this((player == null || player.hasMetadata("NPC")) ? null : player.getUniqueId(),
-                (player == null || player.hasMetadata("NPC")) ? null : player.getName());
+        this(player.getUniqueId(), player.getName());
     }
 
     public ATPlayer(@Nullable UUID uuid, @Nullable String name) {
