@@ -17,7 +17,9 @@ import org.bukkit.command.SimpleCommandMap;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class CommandManager {
 
@@ -69,33 +71,47 @@ public class CommandManager {
         if (map == null) return;
         HashMap<String, Command> commands = getCommands(map);
         if (commands == null) return;
-        if (NewConfig.get().DISABLED_COMMANDS.get().contains(name)) {
-            if (command.isRegistered()) {
-                command.unregister(map);
-                commands.remove(name);
-                commands.remove("advancedteleport:" + name);
+
+        List<String> aliases = new ArrayList<>(command.getAliases());
+        aliases.add(name);
+
+        boolean removed = false;
+        for (String alias : aliases) {
+            if (NewConfig.get().DISABLED_COMMANDS.get().contains(alias) || removed) {
+                if (command.isRegistered()) {
+                    removed = true;
+                    command.unregister(map);
+
+                }
+            }
+        }
+
+        if (removed) {
+            for (String alias : aliases) {
+                commands.remove(alias);
+                commands.remove("advancedteleport:" + alias);
                 // Let another plugin take over
                 Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                     for (String otherCmd : commands.keySet()) {
                         String[] parts = otherCmd.split(":");
                         if (parts.length < 2) continue;
-                        if (parts[1].equals(name)) {
+                        if (parts[1].equals(alias)) {
                             if (parts[0].equals("advancedteleport")) continue;
-                            commands.put(name, commands.get(otherCmd));
+                            commands.put(alias, commands.get(otherCmd));
                             break;
                         }
                     }
                 });
-
-                return;
             }
-        } else {
-            if (!command.isRegistered()) {
-                command.register(map);
-                commands.put(name, command);
-                commands.put("advancedteleport:" + name, command);
-            }
+            return;
         }
+
+        if (!command.isRegistered()) {
+            command.register(map);
+            commands.put(name, command);
+            commands.put("advancedteleport:" + name, command);
+        }
+
         if (atCommand instanceof AsyncATCommand) {
             command.setExecutor((sender, cmd, label, args) -> {
                 Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> atCommand.onCommand(sender, cmd, label, args));
