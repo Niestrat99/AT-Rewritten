@@ -51,7 +51,7 @@ public class CustomMessages {
         config.addDefault("Error.onCooldown", "&b↑ &8» &7Please wait another &b{time} &7seconds to use this command!");
         config.addDefault("Error.requestSentToSelf", "&b↑ &8» &7You can't send a request to yourself!");
         config.addDefault("Error.noSuchPlayer", "&b↑ &8» &7The player is either currently offline or doesn't exist!");
-        config.addDefault("Error.alreadySentRequest", "&b↑ &8» &7You've already sent a request to &e{player}&c!");
+        config.addDefault("Error.alreadySentRequest", "&b↑ &8» &7You've already sent a request to &7{player}&b!");
         config.addDefault("Error.notEnoughEXP", "&b↑ &8» &7You do not have enough EXP Levels to teleport there!" +
                 "\n&b↑ &8» &7You need at least &b{levels} &7EXP levels!");
         config.addDefault("Error.notEnoughEXPPoints", "&b↑ &8» &7You do not have enough EXP Points to teleport there!" +
@@ -69,7 +69,7 @@ public class CustomMessages {
         config.addDefault("Error.noBedHome", "&b↑ &8» &7You don't have any bed spawn set!");
         config.addDefault("Error.noBedHomeOther", "&b↑ &8» &b{player} &7doesn't have a bed spawn set!");
         config.addDefault("Error.reachedHomeLimit", "&b↑ &8» &7You can't set any more homes!");
-        config.addDefault("Error.homeAlreadySet", "&b↑ &8» &7You already have a home called &e{home}&c!");
+        config.addDefault("Error.homeAlreadySet", "&b↑ &8» &7You already have a home called &b{home}&7!");
         config.addDefault("Error.noWarpInput", "&b↑ &8» &7You have to include the warp's name!");
         config.addDefault("Error.noSuchWarp", "&b↑ &8» &7That warp doesn't exist!");
         config.addDefault("Error.noSuchWorld", "&b↑ &8» &7That world doesn't exist!");
@@ -80,7 +80,7 @@ public class CustomMessages {
         config.addDefault("Error.tooFarAway", "&b↑ &8» &7The teleport destination is too far away so you can not teleport there!");
         config.addDefault("Error.noRequestsSent", "&b↑ &8» &7Couldn't send a request to anyone :(");
         config.addDefault("Error.onCountdown","&b↑ &8» &7You can't use this command whilst waiting to teleport!");
-        config.addDefault("Error.noPermissionWarp", "&b↑ &8» &7You can't warp to &e{warp}&c!");
+        config.addDefault("Error.noPermissionWarp", "&b↑ &8» &7You can't warp to &b{warp}&7!");
         config.addDefault("Error.cantTPToWorld", "&b↑ &8» &7You can't randomly teleport in that world!");
        // config.addDefault("Error.invalidName", "&cHomes and warps may only have letters and numbers in the names!");
         config.addDefault("Error.cantTPToWorldLim", "&b↑ &8» &7You can't teleport to &b{world}&7!");
@@ -101,7 +101,7 @@ public class CustomMessages {
         config.addDefault("Info.tpAdminOn", "&b↑ &8» &7Successfully enabled teleport requests for &b{player}&7!");
         config.addDefault("Info.requestSent", "&b↑ &8» &7Successfully sent request to &b{player}&7!" +
                 "\n&b↑ &8» &7They've got &b{lifetime} &7to respond!" +
-                "\n&aTo cancel the request use &b/tpcancel &7to cancel it." +
+                "\n&7To cancel the request use &b/tpcancel &7to cancel it." +
                 "\n" +
                 "\n                                [&7&l[CANCEL]](/tpcancel {player})" +
                 "\n&7");
@@ -256,16 +256,16 @@ public class CustomMessages {
     public static void sendMessage(CommandSender sender, String path, String... placeholders) {
         if (config.get(path) instanceof List) {
             List<String> messages = config.getStringList(path);
-            for (String message : messages) {
-                getFancyMessage(translateString(message, placeholders)).send(sender);
+            for (int i = 0; i < messages.size(); i++) {
+                getFancyMessage(translateString(messages.get(i), placeholders)).sendProposal(sender, i);
             }
         } else {
             String[] messages = translateString(config.getString(path), placeholders).split("\n");
-            for (String message : messages) {
-                getFancyMessage(message).send(sender);
+            for (int i = 0; i < messages.length; i++) {
+                getFancyMessage(messages[i]).sendProposal(sender, i);
             }
-
         }
+        FancyMessage.send(sender);
     }
 
     // Doing it like this because Regex is not co-operating
@@ -312,14 +312,14 @@ public class CustomMessages {
                         for (String part : parts) {
                             if (part.startsWith("/") && command.isEmpty()) {
                                 command = part;
-                            } else {
+                            } else if (!part.isEmpty()) {
                                 tooltip.add(part);
                             }
                         }
                     } else {
                         if (fullCommand.startsWith("/")) {
                             command = fullCommand;
-                        } else {
+                        } else if (!fullCommand.isEmpty()) {
                             tooltip.add(fullCommand);
                         }
                     }
