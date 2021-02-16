@@ -178,7 +178,7 @@ public class NewConfig extends CMFile {
         addDefault("use-mysql", false, "Whether the plugin should use SQL storage or not.\n" +
                 "By default, AT uses SQLite storage, which stores data in a .db file locally.");
         addDefault("mysql-host", "127.0.0.1", "The MySQL host to connect to.");
-        addDefault("mysql-port", 3308, "The port to connect to.");
+        addDefault("mysql-port", 3306, "The port to connect to.");
         addDefault("mysql-database", "database", "The database to connect to.");
         addDefault("mysql-username", "username", "The username to use when connecting.");
         addDefault("mysql-password", "password", "The password to use when connecting.");
