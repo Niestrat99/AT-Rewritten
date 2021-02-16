@@ -25,7 +25,7 @@ import java.util.*;
 
 public class ATPlayer {
 
-    private final UUID uuid;
+    private UUID uuid;
     private LinkedHashMap<String, Home> homes;
     private HashMap<UUID, BlockInfo> blockedUsers;
     private boolean isTeleportationEnabled;
@@ -35,10 +35,13 @@ public class ATPlayer {
     private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
     public ATPlayer(Player player) {
-        this(player.getUniqueId(), player.getName());
+        this((player == null || player.hasMetadata("NPC")) ? null : player.getUniqueId(),
+                (player == null || player.hasMetadata("NPC")) ? null : player.getName());
     }
 
-    public ATPlayer(UUID uuid, String name) {
+    public ATPlayer(@Nullable UUID uuid, @Nullable String name) {
+        if (uuid == null || name == null) return;
+
         this.uuid = uuid;
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
