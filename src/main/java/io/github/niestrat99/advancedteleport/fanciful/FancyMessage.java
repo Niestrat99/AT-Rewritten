@@ -40,6 +40,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	private List<MessagePart> messageParts;
 	private String jsonString;
 	private boolean dirty;
+	private static HashMap<CommandSender, List<FancyMessage>> messageOrder = new HashMap<>();
 	
 	@Override
 	public FancyMessage clone() throws CloneNotSupportedException {
@@ -453,18 +454,40 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 *
 	 * @param player The player who will receive the message.
 	 */
-	public void send(Player player) {
-		send(player, toJSONString());
+	public void sendProposal(Player player, int order) {
+		sendProposal(player, toJSONString(), order);
 	}
 
-	private void send(CommandSender sender, String jsonString) {
+	private void sendProposal(CommandSender sender, String jsonString, int order) {
 		// ADDITION: Stops problems for Bedrock-connected players
 		if (!(sender instanceof Player) || sender.getName().startsWith("*")) {
 			sender.sendMessage(toOldMessageFormat());
 			return;
 		}
 		Player player = (Player) sender;
-		Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + jsonString));
+		List<FancyMessage> messages = messageOrder.get(player);
+		if (messages == null) {
+			messages = new ArrayList<>();
+		}
+		messages.add(order, this);
+		messageOrder.put(sender, messages);
+	}
+
+	public static void send(CommandSender sender) {
+		Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
+			List<FancyMessage> messages = messageOrder.get(sender);
+			if (messages != null) {
+				for (FancyMessage message : messages) {
+					if (!(sender instanceof Player) || sender.getName().startsWith("*")) {
+						sender.sendMessage(message.toOldMessageFormat());
+						continue;
+					}
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + sender.getName() + " " + message.toJSONString());
+				}
+			}
+			messageOrder.remove(sender);
+		});
+
 	}
 
 	/**
@@ -475,20 +498,20 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param sender The command sender who will receive the message.
 	 * @see #toOldMessageFormat()
 	 */
-	public void send(CommandSender sender) {
-		send(sender, toJSONString());
+	public void sendProposal(CommandSender sender, int order) {
+		sendProposal(sender, toJSONString(), order);
 	}
 
 	/**
 	 * Sends this message to multiple command senders.
 	 *
 	 * @param senders The command senders who will receive the message.
-	 * @see #send(CommandSender)
+	 * @see #sendProposal(CommandSender, int)
 	 */
 	public void send(final Iterable<? extends CommandSender> senders) {
 		String string = toJSONString();
 		for (final CommandSender sender : senders) {
-			send(sender, string);
+			sendProposal(sender, string, 0);
 		}
 	}
 

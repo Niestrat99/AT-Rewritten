@@ -43,13 +43,15 @@ public class TeleportTests {
                     } else {
                         CustomMessages.sendMessage(player, "Info.multipleRequestDeny");
                     }
-                    for (TPRequest request : requests.getContentsInPage(1)) {
+                    for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
+                        TPRequest request = requests.getContentsInPage(1).get(i);
                         new FancyMessage()
                                 .command("/" + type + " " + request.getRequester().getName())
                                 .text(CustomMessages.getString("Info.multipleRequestsIndex").replaceAll("\\{player}", request.getRequester().getName()))
-                                .send(player);
+                                .sendProposal(player, i);
                     }
                     if (requests.getTotalPages() > 1) {
+                        FancyMessage.send(player);
                         CustomMessages.sendMessage(player, "Info.multipleRequestsList");
                     }
 

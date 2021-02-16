@@ -82,7 +82,10 @@ public class HomesCommand implements AsyncATCommand {
             hList.text(CustomMessages.getString("Error.noHomes"));
         }
 
-        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> hList.send(sender));
+        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
+            hList.sendProposal(sender, 0);
+            FancyMessage.send(sender);
+        });
     }
 
     private List<String> getTooltip(CommandSender sender, Home home) {

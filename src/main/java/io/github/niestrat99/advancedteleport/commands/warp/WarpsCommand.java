@@ -121,7 +121,8 @@ public class WarpsCommand implements ATCommand {
                 }
                 wList.text(""); //Removes trailing comma
                 if (count > 0) {
-                    wList.send(sender);
+                    wList.sendProposal(sender, 0);
+                    FancyMessage.send(sender);
                 } else {
                     sender.sendMessage(CustomMessages.getString("Error.noWarps"));
                 }

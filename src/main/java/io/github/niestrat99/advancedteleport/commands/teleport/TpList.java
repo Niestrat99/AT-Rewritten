@@ -36,13 +36,15 @@ public class TpList implements AsyncATCommand {
                                 PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
                                 CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
                                 try {
-                                    for (TPRequest request : requests.getContentsInPage(page)) {
+                                    for (int i = 0; i < requests.getContentsInPage(page).size(); i++) {
+                                        TPRequest request = requests.getContentsInPage(page).get(i);
                                         new FancyMessage()
                                                 .command("/tpayes " + request.getRequester().getName())
                                                 .text(CustomMessages.getString("Info.multipleRequestsIndex")
                                                         .replaceAll("\\{player}", request.getRequester().getName()))
-                                                .send(player);
+                                                .sendProposal(player, i);
                                     }
+                                    FancyMessage.send(player);
                                 } catch (IllegalArgumentException ex) {
                                     CustomMessages.sendMessage(player, "Error.invalidPageNo");
                                 }
@@ -53,13 +55,15 @@ public class TpList implements AsyncATCommand {
                         } else {
                             PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
                             CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
-                            for (TPRequest request : requests.getContentsInPage(1)) {
+                            for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
+                                TPRequest request = requests.getContentsInPage(1).get(i);
                                 new FancyMessage()
                                         .command("/tpayes " + request.getRequester().getName())
                                         .text(CustomMessages.getString("Info.multipleRequestsIndex")
                                                 .replaceAll("\\{player}", request.getRequester().getName()))
-                                        .send(player);
+                                        .sendProposal(player, i);
                             }
+                            FancyMessage.send(player);
                             return true;
                         }
                     } else {

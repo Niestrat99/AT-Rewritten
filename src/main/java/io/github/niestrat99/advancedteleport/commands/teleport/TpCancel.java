@@ -47,15 +47,18 @@ public class TpCancel implements ATCommand {
                                 PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequestsByRequester(player), 8);
                                 CustomMessages.sendMessage(player, "Info.multipleRequestsCancel");
                                 // Displays the first 8 requests
-                                for (TPRequest request : requests.getContentsInPage(1)) {
+                                for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
+                                    TPRequest request = requests.getContentsInPage(1).get(i);
                                     new FancyMessage()
                                             .command("/tpcancel " + request.getResponder().getName())
                                             .text(CustomMessages.getString("Info.multipleRequestsIndex")
                                                     .replaceAll("\\{player}", request.getResponder().getName()))
-                                            .send(player);
+                                            .sendProposal(player, i);
                                 }
                                 if (requests.getTotalPages() > 1) {
+                                    FancyMessage.send(player);
                                     CustomMessages.sendMessage(player, "Info.multipleRequestsList");
+
                                 }
 
                             }
