@@ -1,34 +1,34 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
+public class TpOn implements AsyncATCommand {
 
-public class TpOn implements CommandExecutor {
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player) {
             Player player = (Player)sender;
-            UUID uuid = player.getUniqueId();
-            if (Config.isFeatureEnabled("teleport")) {
+            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.on")) {
-                    if (TpOff.getTpOff().contains(uuid)) {
-                        TpOff.getTpOff().remove(uuid);
-                        sender.sendMessage(CustomMessages.getString("Info.tpOn"));
+                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                    if (!atPlayer.isTeleportationEnabled()) {
+                        atPlayer.setTeleportationEnabled(true, callback -> CustomMessages.sendMessage(sender, "Info.tpOn"));
                     } else {
-                        sender.sendMessage(CustomMessages.getString("Error.alreadyOn"));
+                        CustomMessages.sendMessage(sender, "Error.alreadyOn");
                     }
                 }
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+                CustomMessages.sendMessage(sender, "Error.featureDisabled");
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
         return true;
     }

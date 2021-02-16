@@ -1,45 +1,46 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.config.Config;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
-import io.github.niestrat99.advancedteleport.events.CooldownManager;
-import io.github.niestrat99.advancedteleport.events.MovementManager;
-import io.github.niestrat99.advancedteleport.utilities.PaymentManager;
-import io.papermc.lib.PaperLib;
+import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class SpawnCommand implements CommandExecutor {
+import java.util.List;
+
+public class SpawnCommand implements ATCommand {
+
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (Config.isFeatureEnabled("spawn")) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        if (NewConfig.get().USE_SPAWN.get()) {
             if (sender.hasPermission("at.member.spawn")){
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
                     int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
                     if (cooldown > 0) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCooldown").replaceAll("\\{time}", String.valueOf(cooldown)));
+                        CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
                         return true;
                     }
                     if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                        sender.sendMessage(CustomMessages.getString("Error.onCountdown"));
+                        CustomMessages.sendMessage(sender, "Error.onCountdown");
                         return true;
                     }
                     spawn(player);
                 } else {
-                    sender.sendMessage(CustomMessages.getString("Error.notAPlayer"));
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
             }
         } else {
-            sender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }
@@ -51,30 +52,15 @@ public class SpawnCommand implements CommandExecutor {
         } else {
             spawn = player.getWorld().getSpawnLocation();
         }
-        ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
-        if (!event.isCancelled()) {
-            if (PaymentManager.canPay("spawn", player)) {
-                CooldownManager.addToCooldown("spawn", player);
-                if (Config.getTeleportTimer("spawn") > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    BukkitRunnable movementtimer = new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            PaymentManager.withdraw("spawn", player);
-                            PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
-                            player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
-                            MovementManager.getMovement().remove(player.getUniqueId());
-                        }
-                    };
-                    MovementManager.getMovement().put(player.getUniqueId(), movementtimer);
-                    movementtimer.runTaskLater(CoreClass.getInstance(), Config.getTeleportTimer("spawn") * 20);
-                    player.sendMessage(CustomMessages.getEventBeforeTPMessage().replaceAll("\\{countdown}", String.valueOf(Config.getTeleportTimer("spawn"))));
 
-                } else {
-                    PaymentManager.withdraw("spawn", player);
-                    PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
-                    player.sendMessage(CustomMessages.getString("Teleport.teleportingToSpawn"));
-                }
-            }
-        }
+        ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
+
+        ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn", NewConfig.get().WARM_UPS.SPAWN.get());
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        return null;
     }
 }

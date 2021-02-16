@@ -1,33 +1,35 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.IconMenu;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class WarpsCommand implements CommandExecutor {
+public class WarpsCommand implements ATCommand {
+
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (Config.isFeatureEnabled("warps")) {
-            if (commandSender.hasPermission("at.member.warps")){
-                sendWarps(commandSender);
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        if (NewConfig.get().USE_WARPS.get()) {
+            if (sender.hasPermission("at.member.warps")){
+                sendWarps(sender);
             }
         } else {
-            commandSender.sendMessage(CustomMessages.getString("Error.featureDisabled"));
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
         }
         return true;
     }
@@ -104,21 +106,28 @@ public class WarpsCommand implements CommandExecutor {
             menu.open((Player) sender);
 
         } else {
-            if (Warps.getWarps().size() > 0) {
+            if (Warp.getWarps().size() > 0) {
                 FancyMessage wList = new FancyMessage();
                 wList.text(CustomMessages.getString("Info.warps"));
-                for(String warp: Warps.getWarps().keySet()){
+                int count = 0;
+                for(String warp: Warp.getWarps().keySet()){
                     if (sender.hasPermission("at.member.warp.*") || sender.hasPermission("at.member.warp." + warp)) {
                         wList.then(warp)
                                 .command("/warp " + warp)
                                 .tooltip(getTooltip(sender, warp))
                                 .then(", ");
+                        count++;
                     }
                 }
                 wList.text(""); //Removes trailing comma
-                wList.send(sender);
+                if (count > 0) {
+                    wList.send(sender);
+                } else {
+                    sender.sendMessage(CustomMessages.getString("Error.noWarps"));
+                }
+
             } else {
-                sender.sendMessage(CustomMessages.getString("Error.noWarps"));
+                CustomMessages.sendMessage(sender, "Error.noWarps");
             }
 
         }
@@ -131,7 +140,7 @@ public class WarpsCommand implements CommandExecutor {
         }
         List<String> homeTooltip = new ArrayList<>(tooltip);
         for (int i = 0; i < homeTooltip.size(); i++) {
-            Location warpLoc = Warps.getWarps().get(warp);
+            Location warpLoc = Warp.getWarps().get(warp).getLocation();
 
             homeTooltip.set(i, homeTooltip.get(i).replaceAll("\\{warp}", warp)
                     .replaceAll("\\{x}", String.valueOf(warpLoc.getBlockX()))
