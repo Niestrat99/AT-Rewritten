@@ -66,9 +66,13 @@ public class CommandManager {
     private static void register(String name, ATCommand atCommand) {
         PluginCommand command = Bukkit.getPluginCommand(name);
         if (command == null) return;
-        if (command.getPlugin() != CoreClass.getInstance()) return;
+
+        if (command.getPlugin() != CoreClass.getInstance()) {
+            command = Bukkit.getPluginCommand("advancedteleport:" + name);
+        }
         CommandMap map = getMap();
         if (map == null) return;
+
         HashMap<String, Command> commands = getCommands(map);
         if (commands == null) return;
 
