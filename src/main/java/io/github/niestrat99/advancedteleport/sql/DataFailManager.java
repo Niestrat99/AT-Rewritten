@@ -97,7 +97,7 @@ public class DataFailManager {
                 PlayerSQLManager.get().addPlayer(Bukkit.getPlayer(UUID.fromString(fail.data[0])), callback);
                 break;
             case UPDATE_PLAYER:
-                PlayerSQLManager.get().updatePlayerInformation(Bukkit.getPlayer(UUID.fromString(fail.data[0])), callback);
+                PlayerSQLManager.get().updatePlayerInformation(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])), callback);
                 break;
             case CHANGE_TELEPORTATION:
                 PlayerSQLManager.get().setTeleportationOn(UUID.fromString(fail.data[0]), Boolean.parseBoolean(fail.data[1]), callback);
