@@ -35,7 +35,7 @@ public class CommandManager {
         register("tpall", new TpAll());
         register("tpblock", new TpBlockCommand());
         register("tpcancel", new TpCancel());
-        register("tplist", new TpList());
+        register("tpalist", new TpList());
         register("tploc", new TpLoc());
         register("tpno", new TpNo());
         register("tpo", new Tpo());
