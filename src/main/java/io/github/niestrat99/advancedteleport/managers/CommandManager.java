@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class CommandManager {
@@ -96,7 +97,10 @@ public class CommandManager {
                 commands.remove("advancedteleport:" + alias);
                 // Let another plugin take over
                 Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                    for (String otherCmd : commands.keySet()) {
+                    Iterator<String> commandIterator = commands.keySet().iterator();
+                    // Ignore warning, can yield CME
+                    while (commandIterator.hasNext()) {
+                        String otherCmd = commandIterator.next();
                         String[] parts = otherCmd.split(":");
                         if (parts.length < 2) continue;
                         if (parts[1].equals(alias)) {
