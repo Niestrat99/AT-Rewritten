@@ -60,6 +60,7 @@ public class ATPlayer {
         players.put(name.toLowerCase(), this);
     }
 
+    @Nullable
     public Player getPlayer() {
         return Bukkit.getPlayer(uuid);
     }
@@ -166,8 +167,8 @@ public class ATPlayer {
     }
 
     public Home getBedSpawn() {
-        if (getPlayer().getBedSpawnLocation() != null) {
-            return new Home(uuid, "bed", getPlayer().getBedSpawnLocation(), -1, -1);
+        if (getOfflinePlayer().getBedSpawnLocation() != null) {
+            return new Home(uuid, "bed", getOfflinePlayer().getBedSpawnLocation(), -1, -1);
         }
         return null;
     }
@@ -213,6 +214,8 @@ public class ATPlayer {
      */
     public int getHomesLimit() {
         int maxHomes = NewConfig.get().DEFAULT_HOMES_LIMIT.get();
+        // Player is offline, we'll assume an admin is getting the homes
+        if (getPlayer() == null) return -1;
         for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
             if (permission.getPermission().startsWith("at.member.homes.")) {
                 if (permission.getValue()) {
@@ -285,6 +288,6 @@ public class ATPlayer {
 
     public void setPreviousLocation(Location previousLoc) {
         this.previousLoc = previousLoc;
-        PlayerSQLManager.get().setPreviousLocation(getPlayer().getName(), previousLoc, null);
+        PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
     }
 }
