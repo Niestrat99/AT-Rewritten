@@ -69,7 +69,7 @@ public class TpaHere implements ATCommand {
                                 return true;
                             }
                         } else {
-                            CustomMessages.sendMessage(player, result, "{player}", target.getName(), "{world}", target.getWorld().getName());
+                            CustomMessages.sendMessage(player, result, "{player}", args[0], "{world}", target == null ? "<No Such World>" : target.getWorld().getName());
                             return true;
                         }
                     } else {
