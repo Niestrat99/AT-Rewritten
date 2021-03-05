@@ -148,10 +148,10 @@ public class PlayerSQLManager extends SQLManager {
         });
     }
 
-    public void addPlayer(Player player, SQLCallback<Boolean> callback) {
+    public void addPlayer(OfflinePlayer player, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
-                if (player == null) {
+                if (player.getName() == null) {
                     if (callback != null) {
                         callback.onFail();
                     }
