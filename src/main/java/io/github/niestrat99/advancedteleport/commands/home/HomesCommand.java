@@ -64,7 +64,7 @@ public class HomesCommand implements AsyncATCommand {
             for (Home home : atPlayer.getHomes().values()) {
                 if (atPlayer.canAccessHome(home) || sender.hasPermission("at.admin.homes")) {
                     hList.then(home.getName())
-                            .command("/home " + home.getName())
+                            .command("/home " + (sender != target ? target.getName() + " " : "") + home.getName())
                             .tooltip(getTooltip(sender, home))
                             .then(", ");
                 } else if (!NewConfig.get().HIDE_HOMES_IF_DENIED.get()) {
@@ -78,13 +78,18 @@ public class HomesCommand implements AsyncATCommand {
             }
             if (atPlayer.getBedSpawn() != null && NewConfig.get().ADD_BED_TO_HOMES.get()) {
                 hList.then("bed")
-                        .command("/home bed")
+                        .command("/home "+ (sender != target ? target.getName() + " " : "") + "bed")
                         .tooltip(getTooltip(sender, atPlayer.getBedSpawn()))
                         .then(", ");
             }
             hList.text(""); //Removes trailing comma
         } else {
-            hList.text(CustomMessages.getString("Error.noHomes"));
+            if (sender != target.getPlayer()) {
+                hList.text(CustomMessages.getString("Error.noHomesOtherPlayer", "{player}", target.getName()));
+            } else {
+                hList.text(CustomMessages.getString("Error.noHomes"));
+            }
+
         }
 
         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
