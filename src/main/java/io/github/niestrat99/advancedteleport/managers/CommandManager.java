@@ -71,6 +71,9 @@ public class CommandManager {
         if (command.getPlugin() != CoreClass.getInstance()) {
             command = Bukkit.getPluginCommand("advancedteleport:" + name);
         }
+
+        if (command == null) return;
+
         CommandMap map = getMap();
         if (map == null) return;
 
