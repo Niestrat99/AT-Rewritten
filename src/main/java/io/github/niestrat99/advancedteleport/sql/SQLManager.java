@@ -55,6 +55,17 @@ public abstract class SQLManager {
             e.printStackTrace();
         }
     }
+    
+    public static void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        }
+
+    }
 
     public abstract void createTable();
 

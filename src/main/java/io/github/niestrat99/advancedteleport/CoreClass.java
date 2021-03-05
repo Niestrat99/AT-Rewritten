@@ -122,6 +122,7 @@ public class CoreClass extends JavaPlugin {
     @Override
     public void onDisable() {
         DataFailManager.get().onDisable();
+        SQLManager.closeConnection();
     }
 
     private void registerEvents() {
