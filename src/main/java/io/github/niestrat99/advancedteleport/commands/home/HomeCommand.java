@@ -44,8 +44,8 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                     if (args.length > 0) {
                         if (sender.hasPermission("at.admin.home")) {
                             ATPlayer target = ATPlayer.getPlayer(args[0]);
-                            if (target != null) {
-                                if (args.length > 1) {
+                            if (args.length > 1) {
+                                if (target != null) {
 
                                     HashMap<String, Home> homesOther = target.getHomes();
 
@@ -78,15 +78,18 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                                                 CustomMessages.sendMessage(sender, "Error.noSuchHome");
                                                 return true;
                                             }
-                                        }
-                                        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
-                                            PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                                            CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
-                                        });
+                                    }
+                                    Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
+                                        PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                                        CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
+                                    });
 
-                                    return true;
+                                } else {
+                                    CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
                                 }
+                                return true;
                             }
+
                         }
                     } else {
 

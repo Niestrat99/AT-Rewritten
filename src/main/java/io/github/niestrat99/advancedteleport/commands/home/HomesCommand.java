@@ -30,6 +30,11 @@ public class HomesCommand implements AsyncATCommand {
                     if (sender.hasPermission("at.admin.homes")) {
                         OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
                         ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                        // Homes haven't loaded yet
+                        if (atPlayer.getHomes() == null) {
+                            CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
+                            return true;
+                        }
                         if (atPlayer.getHomes().size() > 0) {
                             getHomes(sender, player);
                             return true;
