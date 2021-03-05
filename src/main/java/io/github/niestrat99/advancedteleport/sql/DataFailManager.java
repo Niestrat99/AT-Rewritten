@@ -94,7 +94,7 @@ public class DataFailManager {
                         fail.data[6], callback);
                 break;
             case ADD_PLAYER:
-                PlayerSQLManager.get().addPlayer(Bukkit.getPlayer(UUID.fromString(fail.data[0])), callback);
+                PlayerSQLManager.get().addPlayer(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])), callback);
                 break;
             case UPDATE_PLAYER:
                 PlayerSQLManager.get().updatePlayerInformation(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])), callback);
