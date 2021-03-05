@@ -94,6 +94,7 @@ public class CustomMessages {
         config.addDefault("Error.deleteHomeFail", "&b↑ &8» &7The home has been deleted but the data has not been stored successfully. The plugin will try to fix this itself.");
         config.addDefault("Error.setHomeFail", "&b↑ &8» &7The home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
         config.addDefault("Error.deleteWarpFail", "&b↑ &8» &7The warp has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        config.addDefault("Error.homesNotLoaded", "&b↑ &8» &7Homes for this player haven't loaded yet, please wait a little bit (even just a second) before trying this again!");
 
         config.addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         config.addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
