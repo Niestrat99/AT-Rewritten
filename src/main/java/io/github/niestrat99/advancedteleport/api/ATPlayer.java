@@ -52,6 +52,10 @@ public class ATPlayer {
                     setMainHome(result, null);
                 }
             });
+            // Add the bed spawn home
+            if (getBedSpawn() != null && NewConfig.get().ADD_BED_TO_HOMES.get()) {
+                homes.put("bed", getBedSpawn());
+            }
         });
 
         PlayerSQLManager.get().isTeleportationOn(uuid, result -> this.isTeleportationEnabled = result);
