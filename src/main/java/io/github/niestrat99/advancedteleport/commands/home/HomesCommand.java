@@ -58,13 +58,22 @@ public class HomesCommand implements AsyncATCommand {
     private void getHomes(CommandSender sender, OfflinePlayer target) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
         FancyMessage hList = new FancyMessage();
-        hList.text(CustomMessages.getString("Info.homes"));
 
+        String infoPath = "Info.homes";
+        String extraArg = "";
+        String noHomes = "Error.noHomes";
+        if (sender != target) {
+            infoPath = "Info.homesOther";
+            extraArg = target.getName() + " ";
+            noHomes = "Error.noHomesOtherPlayer";
+        }
+
+        hList.text(CustomMessages.getString(infoPath, "{player}", target.getName()));
         if (atPlayer.getHomes().size() > 0) {
             for (Home home : atPlayer.getHomes().values()) {
                 if (atPlayer.canAccessHome(home) || sender.hasPermission("at.admin.homes")) {
                     hList.then(home.getName())
-                            .command("/home " + (sender != target ? target.getName() + " " : "") + home.getName())
+                            .command("/home " + extraArg + home.getName())
                             .tooltip(getTooltip(sender, home))
                             .then(", ");
                 } else if (!NewConfig.get().HIDE_HOMES_IF_DENIED.get()) {
@@ -76,19 +85,10 @@ public class HomesCommand implements AsyncATCommand {
                 }
 
             }
-            if (atPlayer.getBedSpawn() != null && NewConfig.get().ADD_BED_TO_HOMES.get()) {
-                hList.then("bed")
-                        .command("/home "+ (sender != target ? target.getName() + " " : "") + "bed")
-                        .tooltip(getTooltip(sender, atPlayer.getBedSpawn()))
-                        .then(", ");
-            }
             hList.text(""); //Removes trailing comma
         } else {
-            if (sender != target.getPlayer()) {
-                hList.text(CustomMessages.getString("Error.noHomesOtherPlayer", "{player}", target.getName()));
-            } else {
-                hList.text(CustomMessages.getString("Error.noHomes"));
-            }
+            hList.text(CustomMessages.getString(noHomes, "{player}", target.getName()));
+
 
         }
 
