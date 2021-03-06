@@ -37,6 +37,9 @@ public class CustomMessages {
         config.addDefault("Teleport.teleportingSelfToPlayer", "&b↑ &8» &7Teleporting you to &b{player}&7!");
         config.addDefault("Teleport.teleportingToRandomPlace", "&b↑ &8» &7Teleporting you to a random place!");
         config.addDefault("Teleport.teleportingToLastLoc", "&b↑ &8» &7Teleporting to your last location!");
+        config.addDefault("Teleport.teleportedToOfflinePlayer", "&b↑ &8» &7Teleported to offline player &b{player}&7!");
+        config.addDefault("Teleport.teleportedOfflinePlayerHere", "&b↑ &8» &7Teleported offline player &b{player} &7to your location!");
+
         config.addDefault("Error.noPermission", "&b↑ &8» &7You do not have permission to use this command!");
         config.addDefault("Error.noPermissionSign", "&b↑ &8» &7You do not have permission to make this sign!");
         config.addDefault("Error.featureDisabled", "&b↑ &8» &7This feature has been disabled!");
@@ -95,6 +98,9 @@ public class CustomMessages {
         config.addDefault("Error.setHomeFail", "&b↑ &8» &7The home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
         config.addDefault("Error.deleteWarpFail", "&b↑ &8» &7The warp has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
         config.addDefault("Error.homesNotLoaded", "&b↑ &8» &7Homes for this player haven't loaded yet, please wait a little bit (even just a second) before trying this again!");
+        config.addDefault("Error.noOfflineLocation", "&b↑ &8» &7No offline location was found for &b{player}&7!");
+        config.addDefault("Error.failedOfflineTeleport", "&b↑ &8» &7Failed to teleport to offline player &b{player}&7!");
+        config.addDefault("Error.failedOfflineTeleportHere", "&b↑ &8» &7Failed to teleport offline player &b{player} &7 to your location!");
 
         config.addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         config.addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -140,9 +146,9 @@ public class CustomMessages {
         config.addDefault("Info.unblockPlayer", "&b↑ &8» &7Successfully unblocked &b{player}&7!");
         config.addDefault("Info.reloadingConfig", "&b↑ &8» &7Reloading &bAdvancedTeleport&7's config...");
         config.addDefault("Info.reloadedConfig", "&b↑ &8» &7Finished reloading the config!");
-        config.addDefault("Info.warps", "&b&lWarps: &r");
-        config.addDefault("Info.homes", "&b&lHomes: &r");
-        config.addDefault("Info.homesOther", "&b&l{player}'s homes: &r");
+        config.addDefault("Info.warps", "&b&lWarps &8» &r");
+        config.addDefault("Info.homes", "&b&lHomes &8» &r");
+        config.addDefault("Info.homesOther", "&b&l{player}'s homes &8» &r");
         config.addDefault("Info.requestAccepted", "&b↑ &8» &7You've accepted the teleport request!");
         config.addDefault("Info.requestAcceptedResponder", "&b↑ &8» &b{player} &7has accepted the teleport request!");
         config.addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b${amount} &7and now have &b${balance}&7!");

@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.utilities.nbt;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
@@ -57,10 +58,14 @@ public class NBTReader {
                         try {
 
                             Location location = getLocation(player);
+                            if (location == null) {
+                                callback.onFail(CustomMessages.getString("Error.noOfflineLocation", "{player}", name));
+                                return;
+                            }
                             CACHE.put(lowerName, location);
                             callback.onSuccess(location);
                         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | NoSuchFieldException e) {
-                            callback.onFail("Life sucks :)");
+                            callback.onFail(CustomMessages.getString("Error.failedOfflineTeleport", "{player}", name));
                             e.printStackTrace();
                         }
 
@@ -85,7 +90,7 @@ public class NBTReader {
                         callback.onSuccess(true);
                     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException | NoSuchFieldException | InstantiationException | FileNotFoundException e) {
                         e.printStackTrace();
-                        callback.onFail("Skedaddle skadoodle your brain is now a noodle");
+                        callback.onFail(CustomMessages.getString("Error.failedOfflineTeleportHere", "{player}", name));
                     }
                 }
             }

@@ -27,20 +27,6 @@ public class TpoHere implements ATCommand {
                         }
                         Player target = Bukkit.getPlayer(args[0]);
                         if (target == null) {
-                            if (sender.hasPermission("at.admin.tpohere.offline")) {
-                                NBTReader.setLocation(args[0], player.getLocation(), new NBTReader.NBTCallback<Boolean>() {
-                                    @Override
-                                    public void onSuccess(Boolean data) {
-                                        sender.sendMessage("Teleported offline player " + args[0]);
-                                    }
-
-                                    @Override
-                                    public void onFail(String message) {
-                                        sender.sendMessage(message);
-                                    }
-                                });
-                                return true;
-                            }
                             CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
                         } else {
                             CustomMessages.sendMessage(sender, "Teleport.teleportingPlayerToSelf", "{player}", target.getName());

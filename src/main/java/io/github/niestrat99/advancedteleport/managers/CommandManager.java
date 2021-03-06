@@ -46,6 +46,8 @@ public class CommandManager {
         register("tpr", new Tpr());
         register("tpunblock", new TpUnblock());
         register("tpyes", new TpYes());
+        register("tpoffline", new TpOffline());
+        register("tpofflinehere", new TpHereOffline());
 
         register("home", new HomeCommand());
         register("sethome", new SetHomeCommand());

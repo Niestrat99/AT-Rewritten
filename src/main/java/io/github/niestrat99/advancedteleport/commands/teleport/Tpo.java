@@ -29,23 +29,6 @@ public class Tpo implements ATCommand {
                         }
                         Player target = Bukkit.getPlayer(args[0]);
                         if (target == null) {
-                            if (sender.hasPermission("at.admin.tpo.offline")) {
-                                NBTReader.getLocation(args[0], new NBTReader.NBTCallback<Location>() {
-                                    @Override
-                                    public void onSuccess(Location data) {
-                                        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
-                                            PaperLib.teleportAsync(player, data);
-                                            sender.sendMessage("Teleported to " + args[0]);
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onFail(String message) {
-                                        sender.sendMessage(message);
-                                    }
-                                });
-                                return true;
-                            }
                             CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
                         } else {
                             CustomMessages.sendMessage(sender, "Teleport.teleporting", "{player}", target.getName());

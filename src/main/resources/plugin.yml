@@ -140,6 +140,16 @@ commands:
     description: Teleports you to a specified location.
     permission: at.admin.tploc
     usage: /tploc <x> <y> <z> [Yaw] [Pitch] [World] [Player]
+  tpoffline:
+    description: Teleports to an offline player.
+    permission: at.admin.tpoffline
+    usage: /tpoffline <Player>
+    aliases: [tpoffl]
+  tpofflinehere:
+    description: Teleports an offline player to your location.
+    permission: at.admin.tpofflinehere
+    usage: /tpofflinehere <Player>
+    aliases: [tpofflh, tpofflhere]
 permissions:
   at.member.warp.*:
     default: op
@@ -213,3 +223,5 @@ permissions:
       at.admin.sign.warp.create: true
       at.admin.sign.warps.create: true
       at.admin.sign.bed.create: true
+      at.admin.tpoffline: true
+      at.admin.tpofflinehere: true
