@@ -26,7 +26,9 @@ import java.util.*;
 public class ATPlayer {
 
     private UUID uuid;
+    @NotNull
     private LinkedHashMap<String, Home> homes;
+    @NotNull
     private HashMap<UUID, BlockInfo> blockedUsers;
     private boolean isTeleportationEnabled;
     private String mainHome;
@@ -42,6 +44,8 @@ public class ATPlayer {
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
+        this.homes = new LinkedHashMap<>();
+        this.blockedUsers = new HashMap<>();
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> {
