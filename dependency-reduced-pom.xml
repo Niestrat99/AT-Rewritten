@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.niestrat99</groupId>
   <artifactId>AdvancedTeleport</artifactId>
-  <version>v5.4.4</version>
+  <version>v5.4.6-SNAPSHOT-1</version>
   <build>
     <plugins>
       <plugin>
