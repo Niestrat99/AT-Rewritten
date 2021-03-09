@@ -73,11 +73,10 @@ public class WarpSQLManager extends SQLManager {
                     warpSection.getDouble("z"),
                     (float) warpSection.getDouble("yaw"),
                     (float) warpSection.getDouble("pitch"));
-            System.out.println(location);
             addWarp(new Warp(null, warp, location, -1, -1), null);
         }
 
-        file.delete();
+        file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "warps-backup.yml"));
 
     }
 

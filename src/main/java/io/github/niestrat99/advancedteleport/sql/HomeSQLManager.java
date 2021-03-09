@@ -77,7 +77,7 @@ public class HomeSQLManager extends SQLManager {
             }
         }
 
-        file.delete();
+        file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "homes-backup.yml"));
     }
 
     public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {

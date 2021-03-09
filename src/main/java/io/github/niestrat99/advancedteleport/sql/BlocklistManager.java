@@ -63,7 +63,8 @@ public class BlocklistManager extends SQLManager {
                 }
             }
         }
-        blocklistFile.delete();
+
+        blocklistFile.renameTo(new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
     }
 
     public void blockUser(String receiverUUID, String blockedUUID, String reason, SQLCallback<Boolean> callback) {
