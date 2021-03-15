@@ -25,56 +25,71 @@ public class CustomMessages extends CMFile {
         config = this;
     }
 
-    public static void setDefaults() throws IOException {
-        config.addDefault("Teleport.eventBeforeTP" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7, please do not move!");
-        config.addDefault("Teleport.eventBeforeTPMovementAllowed" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7!");
-        config.addDefault("Teleport.eventTeleport" , "&b↑ &8» &7Teleporting...");
-        config.addDefault("Teleport.eventMovement" , "&b↑ &8» &7Teleport has been cancelled due to movement.");
-        config.addDefault("Teleport.teleportingToSpawn", "&b↑ &8» &7Teleporting you to spawn!");
-        config.addDefault("Teleport.teleporting", "&b↑ &8» &7Teleporting to &b{player}&7!");
-        config.addDefault("Teleport.teleportingToHome", "&b↑ &8» &7Teleporting to &b{home}&7!");
-        config.addDefault("Teleport.teleportingToHomeOther", "&b↑ &8» &7Teleporting to &b{player}&7's home, &b{home}&7!");
-        config.addDefault("Teleport.teleportingToWarp", "&b↑ &8» &7Teleporting you to &b{warp}&7!");
-        config.addDefault("Teleport.teleportingPlayerToSelf", "&b↑ &8» &7Teleporting &b{player} &7to you!");
-        config.addDefault("Teleport.teleportingSelfToPlayer", "&b↑ &8» &7Teleporting you to &b{player}&7!");
-        config.addDefault("Teleport.teleportingToRandomPlace", "&b↑ &8» &7Teleporting you to a random place!");
-        config.addDefault("Teleport.teleportingToLastLoc", "&b↑ &8» &7Teleporting to your last location!");
-        config.addDefault("Teleport.teleportedToOfflinePlayer", "&b↑ &8» &7Teleported to offline player &b{player}&7!");
-        config.addDefault("Teleport.teleportedOfflinePlayerHere", "&b↑ &8» &7Teleported offline player &b{player} &7to your location!");
+    public void loadDefaults() {
+        addLenientSection("Teleport");
+        addDefault("Teleport.eventBeforeTP" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7, please do not move!");
 
-        config.addDefault("Error.noPermission", "&b↑ &8» &7You do not have permission to use this command!");
-        config.addDefault("Error.noPermissionSign", "&b↑ &8» &7You do not have permission to make this sign!");
-        config.addDefault("Error.featureDisabled", "&b↑ &8» &7This feature has been disabled!");
-        config.addDefault("Error.noRequests", "&b↑ &8» &7You do not have any pending requests!");
+        addComment("Teleport.eventBeforeTP_title", "This is an example use for titles and subtitles in the plugin." +
+                "\nThis feature is supported only if you're on version 1.8.8 or newer.");
+        addExample("Teleport.eventBeforeTP_title.length" , 80, "How many seconds (in ticks) the header should last. This is not including fading.");
+        addExample("Teleport.eventBeforeTP_title.fade-in" , 0, "How many seconds (in ticks) the header should take to fade in.");
+        addExample("Teleport.eventBeforeTP_title.fade-out" , 10, "How many seconds (in ticks) the header should take to fade out.");
+        addExample("Teleport.eventBeforeTP_title.0", "&7&lTeleporting...");
+        addExample("Teleport.eventBeforeTP_title.20", "&b> &7&lTeleporting... &b<");
+        addExample("Teleport.eventBeforeTP_title.40", "&b>> &7&lTeleporting... &b<<");
+        addExample("Teleport.eventBeforeTP_title.60", "&b>>> &e&lTeleported! &b<<<");
+        addExample("Teleport.eventBeforeTP_subtitle.0", "&bPlease do not move!");
+        addExample("Teleport.eventBeforeTP_subtitle.60", "");
+
+        addDefault("Teleport.eventBeforeTPMovementAllowed" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7!");
+        addDefault("Teleport.eventTeleport" , "&b↑ &8» &7Teleporting...");
+        addDefault("Teleport.eventMovement" , "&b↑ &8» &7Teleport has been cancelled due to movement.");
+        addDefault("Teleport.teleportingToSpawn", "&b↑ &8» &7Teleporting you to spawn!");
+        addDefault("Teleport.teleporting", "&b↑ &8» &7Teleporting to &b{player}&7!");
+        addDefault("Teleport.teleportingToHome", "&b↑ &8» &7Teleporting to &b{home}&7!");
+        addDefault("Teleport.teleportingToHomeOther", "&b↑ &8» &7Teleporting to &b{player}&7's home, &b{home}&7!");
+        addDefault("Teleport.teleportingToWarp", "&b↑ &8» &7Teleporting you to &b{warp}&7!");
+        addDefault("Teleport.teleportingPlayerToSelf", "&b↑ &8» &7Teleporting &b{player} &7to you!");
+        addDefault("Teleport.teleportingSelfToPlayer", "&b↑ &8» &7Teleporting you to &b{player}&7!");
+        addDefault("Teleport.teleportingToRandomPlace", "&b↑ &8» &7Teleporting you to a random place!");
+        addDefault("Teleport.teleportingToLastLoc", "&b↑ &8» &7Teleporting to your last location!");
+        addDefault("Teleport.teleportedToOfflinePlayer", "&b↑ &8» &7Teleported to offline player &b{player}&7!");
+        addDefault("Teleport.teleportedOfflinePlayerHere", "&b↑ &8» &7Teleported offline player &b{player} &7to your location!");
+
+        addLenientSection("Error");
+        addDefault("Error.noPermission", "&b↑ &8» &7You do not have permission to use this command!");
+        addDefault("Error.noPermissionSign", "&b↑ &8» &7You do not have permission to make this sign!");
+        addDefault("Error.featureDisabled", "&b↑ &8» &7This feature has been disabled!");
+        addDefault("Error.noRequests", "&b↑ &8» &7You do not have any pending requests!");
     //    Config.addDefault("Error.requestSendFail", "&cCould not send request to &e{player}!"); - NOT USED!!!
-        config.addDefault("Error.tpOff", "&b↑ &8» &b{player} &7has their teleportation disabled!");
-        config.addDefault("Error.tpBlock", "&b↑ &8» &b{player} &7has blocked you from sending requests to them!");
-        config.addDefault("Error.alreadyOn", "&b↑ &8» &7Your teleport requests are already enabled!");
-        config.addDefault("Error.alreadyOff", "&b↑ &8» &7Your teleport requests are already disabled!");
-        config.addDefault("Error.alreadyBlocked", "&b↑ &8» &7This player is already blocked!");
-        config.addDefault("Error.neverBlocked", "&b↑ &8» &7This player was never blocked!");
-        config.addDefault("Error.onCooldown", "&b↑ &8» &7Please wait another &b{time} &7seconds to use this command!");
-        config.addDefault("Error.requestSentToSelf", "&b↑ &8» &7You can't send a request to yourself!");
-        config.addDefault("Error.noSuchPlayer", "&b↑ &8» &7The player is either currently offline or doesn't exist!");
-        config.addDefault("Error.alreadySentRequest", "&b↑ &8» &7You've already sent a request to &7{player}&b!");
-        config.addDefault("Error.notEnoughEXP", "&b↑ &8» &7You do not have enough EXP Levels to teleport there!" +
+        addDefault("Error.tpOff", "&b↑ &8» &b{player} &7has their teleportation disabled!");
+        addDefault("Error.tpBlock", "&b↑ &8» &b{player} &7has blocked you from sending requests to them!");
+        addDefault("Error.alreadyOn", "&b↑ &8» &7Your teleport requests are already enabled!");
+        addDefault("Error.alreadyOff", "&b↑ &8» &7Your teleport requests are already disabled!");
+        addDefault("Error.alreadyBlocked", "&b↑ &8» &7This player is already blocked!");
+        addDefault("Error.neverBlocked", "&b↑ &8» &7This player was never blocked!");
+        addDefault("Error.onCooldown", "&b↑ &8» &7Please wait another &b{time} &7seconds to use this command!");
+        addDefault("Error.requestSentToSelf", "&b↑ &8» &7You can't send a request to yourself!");
+        addDefault("Error.noSuchPlayer", "&b↑ &8» &7The player is either currently offline or doesn't exist!");
+        addDefault("Error.alreadySentRequest", "&b↑ &8» &7You've already sent a request to &7{player}&b!");
+        addDefault("Error.notEnoughEXP", "&b↑ &8» &7You do not have enough EXP Levels to teleport there!" +
                 "\n&b↑ &8» &7You need at least &b{levels} &7EXP levels!");
-        config.addDefault("Error.notEnoughEXPPoints", "&b↑ &8» &7You do not have enough EXP Points to teleport there!" +
+        addDefault("Error.notEnoughEXPPoints", "&b↑ &8» &7You do not have enough EXP Points to teleport there!" +
                 "\n&b↑ &8» &7You need at least &b{points} &7EXP points!");
-        config.addDefault("Error.notEnoughMoney", "&b↑ &8» &7You do not have enough money to teleport there!" +
+        addDefault("Error.notEnoughMoney", "&b↑ &8» &7You do not have enough money to teleport there!" +
                 "\n&b↑ &8» &7You need at least &b${amount}&7!");
-        config.addDefault("Error.requestExpired", "&b↑ &8» &7Your teleport request to &b{player} &7has expired!");
-        config.addDefault("Error.noPlayerInput", "&b↑ &8» &7You must include a player name!");
-        config.addDefault("Error.blockSelf", "&b↑ &8» &7You can't block yourself!");
-        config.addDefault("Error.noRequestsFromPlayer", "&b↑ &8» &7You don't have any pending requests from &b{player}&7!");
-        config.addDefault("Error.noRequests", "&b↑ &8» &7You don't have any pending requests!");
-        config.addDefault("Error.invalidPageNo", "&b↑ &8» &7You've inserted an invalid page number!");
-        config.addDefault("Error.noHomeInput", "&b↑ &8» &7You have to include a home name!");
-        config.addDefault("Error.noSuchHome", "&b↑ &8» &7This home doesn't exist!");
-        config.addDefault("Error.noBedHome", "&b↑ &8» &7You don't have any bed spawn set!");
-        config.addDefault("Error.noBedHomeOther", "&b↑ &8» &b{player} &7doesn't have a bed spawn set!");
-        config.addDefault("Error.reachedHomeLimit", "&b↑ &8» &7You can't set any more homes!");
-        config.addDefault("Error.homeAlreadySet", "&b↑ &8» &7You already have a home called &b{home}&7!");
+        addDefault("Error.requestExpired", "&b↑ &8» &7Your teleport request to &b{player} &7has expired!");
+        addDefault("Error.noPlayerInput", "&b↑ &8» &7You must include a player name!");
+        addDefault("Error.blockSelf", "&b↑ &8» &7You can't block yourself!");
+        addDefault("Error.noRequestsFromPlayer", "&b↑ &8» &7You don't have any pending requests from &b{player}&7!");
+        addDefault("Error.noRequests", "&b↑ &8» &7You don't have any pending requests!");
+        addDefault("Error.invalidPageNo", "&b↑ &8» &7You've inserted an invalid page number!");
+        addDefault("Error.noHomeInput", "&b↑ &8» &7You have to include a home name!");
+        addDefault("Error.noSuchHome", "&b↑ &8» &7This home doesn't exist!");
+        addDefault("Error.noBedHome", "&b↑ &8» &7You don't have any bed spawn set!");
+        addDefault("Error.noBedHomeOther", "&b↑ &8» &b{player} &7doesn't have a bed spawn set!");
+        addDefault("Error.reachedHomeLimit", "&b↑ &8» &7You can't set any more homes!");
+        addDefault("Error.homeAlreadySet", "&b↑ &8» &7You already have a home called &b{home}&7!");
         config.addDefault("Error.noWarpInput", "&b↑ &8» &7You have to include the warp's name!");
         config.addDefault("Error.noSuchWarp", "&b↑ &8» &7That warp doesn't exist!");
         config.addDefault("Error.noSuchWorld", "&b↑ &8» &7That world doesn't exist!");
@@ -103,6 +118,7 @@ public class CustomMessages extends CMFile {
         config.addDefault("Error.noOfflineLocation", "&b↑ &8» &7No offline location was found for &b{player}&7!");
         config.addDefault("Error.failedOfflineTeleport", "&b↑ &8» &7Failed to teleport to offline player &b{player}&7!");
         config.addDefault("Error.failedOfflineTeleportHere", "&b↑ &8» &7Failed to teleport offline player &b{player} &7 to your location!");
+        addDefault("Error.alreadySearching", "&b↑ &8» &7Already searching for a location to teleport to!");
 
         config.addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         config.addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -216,26 +232,25 @@ public class CustomMessages extends CMFile {
         config.addDefault("Help.spawnAdmin", new ArrayList<>(Collections.singletonList("&6- /setspawn - Sets a spawn point at your location.")));
         config.addDefault("Help.randomTP", new ArrayList<>(Arrays.asList("&b&lRandomTP help",
                 "&6- /rtp - Teleports you to a random location.")));
-        config.addDefault("Help.homes", new ArrayList<>(Arrays.asList("&b&lHomes help",
+        addDefault("Help.homes", new ArrayList<>(Arrays.asList("&b&lHomes help",
                 "&6- /sethome <Home> - Sets a home point at your location.",
                 "&6- /delhome <Home> - Deletes a home point you've set.",
                 "&6- /home <Home> - Teleports you to your home.",
                 "&6- /homes - Gives you a list of homes you've set.",
                 "&6- /movehome <Home> - Moves one of your homes to your current location.",
                 "&6- /setmainhome <Home> - Sets a home at your location or makes an existing one your main home.")));
-        config.addDefault("Help.homesAdmin", new ArrayList<>(Arrays.asList("&6- /sethome <player> <home name> - Sets a home point at your location for the player.",
+        addDefault("Help.homesAdmin", new ArrayList<>(Arrays.asList("&6- /sethome <player> <home name> - Sets a home point at your location for the player.",
                 "&6- /delhome <player> <home name> - Deletes a home point of a player.",
                 "&6- /home <player> <home name> - Teleports you to a home point a player has set.",
                 "&6- /homes <player> - Gives you a list of homes of a player.")));
-        config.addDefault("Help.admin", new ArrayList<>(Arrays.asList("&b&lAdmin help",
+        addDefault("Help.admin", new ArrayList<>(Arrays.asList("&b&lAdmin help",
                 "&6- /atinfo - Shows informations about this plugin.",
                 "&6- /atreload - Reloads all configuration files of this plugin.")));
-        config.options().copyDefaults(true);
-        save();
+
     }
 
     public static String getString(String path, String... placeholders) {
-        return translateString(config.getString(path), placeholders);
+        return translateString(config.getConfig().getString(path), placeholders);
     }
 
     public static String translateString(String str, String... placeholders) {
@@ -252,31 +267,81 @@ public class CustomMessages extends CMFile {
 
             }
         }
+
         return str;
     }
 
-    public static void reloadConfig() throws IOException {
-        if (ConfigFile == null) {
-            ConfigFile = new File(CoreClass.getInstance().getDataFolder(), "custom-messages.yml");
-        }
-        config = YamlConfiguration.loadConfiguration(ConfigFile);
-        setDefaults();
-        save();
-    }
-
     public static void sendMessage(CommandSender sender, String path, String... placeholders) {
-        if (config.get(path) instanceof List) {
-            List<String> messages = config.getStringList(path);
+        if (config.getConfig() == null) return;
+        if (supportsTitles() && sender instanceof Player) {
+            Player player = (Player) sender;
+
+            ConfigurationSection titles = config.getConfig().getConfigurationSection(path + "_title");
+            ConfigurationSection subtitles = config.getConfig().getConfigurationSection(path + "_subtitle");
+            if (titles != null || subtitles != null) {
+
+                // Fade in, stay, out
+                int[] titleInfo = new int[]{0, 0, 0};
+
+                if (titles != null) {
+                    titleInfo[0] = titles.getInt("fade-in");
+                    titleInfo[1] = titles.getInt("length");
+                    titleInfo[2] = titles.getInt("fade-out");
+                }
+
+                new BukkitRunnable() {
+
+                    private int current = 0;
+                    private String previousTitle = null;
+                    private String previousSubtitle = null;
+
+                    @Override
+                    public void run() {
+                        if (current == titleInfo[1]) {
+                            cancel();
+                            return;
+                        }
+                        String title = null;
+                        String subtitle = null;
+                        if (titles != null) {
+                            title = titles.getString(String.valueOf(current));
+                        }
+                        if (subtitles != null) {
+                            subtitle = subtitles.getString(String.valueOf(current));
+                        }
+
+                        player.sendTitle(title == null ? previousTitle : (previousTitle = translateString(title, placeholders)),
+                                subtitle == null ? previousSubtitle : (previousSubtitle = translateString(subtitle, placeholders)),
+                                titleInfo[0],
+                                titleInfo[1] - current,
+                                titleInfo[2]);
+
+                        current++;
+                    }
+                }.runTaskTimer(CoreClass.getInstance(), 1, 1);
+            }
+        }
+        if (config.getConfig().get(path) instanceof List) {
+            List<String> messages = config.getConfig().getStringList(path);
             for (int i = 0; i < messages.size(); i++) {
                 getFancyMessage(translateString(messages.get(i), placeholders)).sendProposal(sender, i);
             }
         } else {
-            String[] messages = translateString(config.getString(path), placeholders).split("\n");
+            String[] messages = translateString(config.getConfig().getString(path), placeholders).split("\n");
             for (int i = 0; i < messages.length; i++) {
                 getFancyMessage(messages[i]).sendProposal(sender, i);
             }
         }
         FancyMessage.send(sender);
+    }
+
+    private static boolean supportsTitles() {
+        try {
+            Player.class.getDeclaredMethod("sendTitle", String.class, String.class, int.class, int.class, int.class);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
     // Doing it like this because Regex is not co-operating
