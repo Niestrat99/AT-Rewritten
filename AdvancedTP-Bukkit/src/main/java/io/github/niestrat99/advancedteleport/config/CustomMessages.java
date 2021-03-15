@@ -2,25 +2,27 @@ package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
+import io.github.thatsmusic99.configurationmaster.CMFile;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-public class CustomMessages {
+public class CustomMessages extends CMFile {
 
     public static File ConfigFile = new File(CoreClass.getInstance().getDataFolder(),"custom-messages.yml");
-    public static FileConfiguration config = YamlConfiguration.loadConfiguration(ConfigFile);
+    public static CustomMessages config;
 
-    public static void save() throws IOException {
-        config.save(ConfigFile);
+    public CustomMessages(Plugin plugin) {
+        super(plugin, "custom-messages");
+        setDescription(null);
+        config = this;
     }
 
     public static void setDefaults() throws IOException {

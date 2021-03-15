@@ -85,7 +85,7 @@ public class CoreClass extends JavaPlugin {
         try {
             config = new NewConfig();
         //    Config.setDefaults();
-            CustomMessages.setDefaults();
+            new CustomMessages(this).load();
             Spawn.save();
             GUI.setDefaults();
         } catch (IOException e) {

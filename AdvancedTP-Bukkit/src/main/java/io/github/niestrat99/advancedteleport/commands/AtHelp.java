@@ -16,22 +16,22 @@ public class AtHelp implements ATCommand {
     public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender.hasPermission("at.member.help")) {
             if (args.length == 0) {
-                for (String str : CustomMessages.config.getStringList("Help.mainHelp")) {
+                for (String str : CustomMessages.config.getConfig().getStringList("Help.mainHelp")) {
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                 }
                 if (sender.hasPermission("at.admin.help")) {
-                    for (String str : CustomMessages.config.getStringList("Help.mainHelpAdmin")) {
+                    for (String str : CustomMessages.config.getConfig().getStringList("Help.mainHelpAdmin")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
                 }
                 return true;
             } else if (args[0].equalsIgnoreCase("teleport")) {
                 if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-                    for (String str : CustomMessages.config.getStringList("Help.teleport")) {
+                    for (String str : CustomMessages.config.getConfig().getStringList("Help.teleport")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
                     if (sender.hasPermission("at.admin.help")) {
-                        for (String str : CustomMessages.config.getStringList("Help.teleportAdmin")) {
+                        for (String str : CustomMessages.config.getConfig().getStringList("Help.teleportAdmin")) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                         }
                         return true;
@@ -42,11 +42,11 @@ public class AtHelp implements ATCommand {
                 }
             } else if (args[0].equalsIgnoreCase("warps")) {
                 if (NewConfig.get().USE_WARPS.get()) {
-                    for (String str : CustomMessages.config.getStringList("Help.warps")) {
+                    for (String str : CustomMessages.config.getConfig().getStringList("Help.warps")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
                     if (sender.hasPermission("at.admin.help")) {
-                        for (String str : CustomMessages.config.getStringList("Help.warpsAdmin")) {
+                        for (String str : CustomMessages.config.getConfig().getStringList("Help.warpsAdmin")) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                         }
                         return true;
@@ -57,11 +57,11 @@ public class AtHelp implements ATCommand {
                 }
             } else if (args[0].equalsIgnoreCase("Spawn")) {
                 if (NewConfig.get().USE_SPAWN.get()) {
-                    for (String str : CustomMessages.config.getStringList("Help.spawn")) {
+                    for (String str : CustomMessages.config.getConfig().getStringList("Help.spawn")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
                     if (sender.hasPermission("at.admin.help")) {
-                        for (String str : CustomMessages.config.getStringList("Help.spawnAdmin")) {
+                        for (String str : CustomMessages.config.getConfig().getStringList("Help.spawnAdmin")) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                         }
                         return true;
@@ -72,7 +72,7 @@ public class AtHelp implements ATCommand {
                 }
             } else if (args[0].equalsIgnoreCase("RandomTP")) {
                 if (NewConfig.get().USE_RANDOMTP.get()) {
-                    for (String str : CustomMessages.config.getStringList("Help.randomTP")) {
+                    for (String str : CustomMessages.config.getConfig().getStringList("Help.randomTP")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
                 } else {
@@ -81,11 +81,11 @@ public class AtHelp implements ATCommand {
                 return true;
             } else if (args[0].equalsIgnoreCase("homes")) {
                 if (NewConfig.get().USE_HOMES.get()) {
-                    for (String str : CustomMessages.config.getStringList("Help.homes")) {
+                    for (String str : CustomMessages.config.getConfig().getStringList("Help.homes")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
                     if (sender.hasPermission("at.admin.help")) {
-                        for (String str : CustomMessages.config.getStringList("Help.homesAdmin")) {
+                        for (String str : CustomMessages.config.getConfig().getStringList("Help.homesAdmin")) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                         }
                         return true;
@@ -96,7 +96,7 @@ public class AtHelp implements ATCommand {
                 }
             } else if (args[0].equalsIgnoreCase("Admin")) {
                 if (sender.hasPermission("at.admin.help")) {
-                    for (String str : CustomMessages.config.getStringList("Help.admin")) {
+                    for (String str : CustomMessages.config.getConfig().getStringList("Help.admin")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
                     }
                 }
