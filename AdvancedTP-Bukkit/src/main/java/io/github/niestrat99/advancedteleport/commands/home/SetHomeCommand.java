@@ -26,9 +26,9 @@ public class SetHomeCommand implements AsyncATCommand {
                 Player player = (Player) sender;
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 if (sender.hasPermission("at.member.sethome")) {
-                    if (args.length>0) {
+                    if (args.length > 0) {
                         OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                        if (sender.hasPermission("at.admin.sethome")) {
+                        if (sender.hasPermission("at.admin.sethome") && player != target) {
                             // We'll just assume that the admin command overrides the homes limit.
                             if (args.length > 1) {
                                 setHome(player, target.getUniqueId(), args[1], args[0]);
