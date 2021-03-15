@@ -17,9 +17,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Tpr implements ATCommand {
+
+    private static List<UUID> searchingPlayers = new ArrayList<>();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -81,9 +85,15 @@ public class Tpr implements ATCommand {
                 }
             }
         }
+        if (searchingPlayers.contains(player.getUniqueId())) {
+            CustomMessages.sendMessage(player, "Error.alreadySearching");
+            return true;
+        }
         if (!PaymentManager.getInstance().canPay("tpr", player)) return false;
         CustomMessages.sendMessage(player, "Info.searching");
+        searchingPlayers.add(player.getUniqueId());
         RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world, location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
+            searchingPlayers.remove(player.getUniqueId());
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
             ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
             atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
