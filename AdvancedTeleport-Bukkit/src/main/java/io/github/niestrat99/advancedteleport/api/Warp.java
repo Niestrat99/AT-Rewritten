@@ -70,6 +70,7 @@ public class Warp {
     }
 
     public void delete(SQLManager.SQLCallback<Boolean> callback) {
+        warps.remove(name);
         WarpSQLManager.get().removeWarp(name, callback);
     }
 }

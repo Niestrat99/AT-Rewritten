@@ -36,6 +36,10 @@ public class ATPlayer {
 
     private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
+    /**
+     *
+     * @param player
+     */
     public ATPlayer(Player player) {
         this(player.getUniqueId(), player.getName());
     }
@@ -114,9 +118,10 @@ public class ATPlayer {
      */
 
     /**
+     * Checks to see if this player has blocked a specified player.
      *
-     * @param otherPlayer
-     * @return
+     * @param otherPlayer The player that this one theoretically blocked.
+     * @return true is otherPlayer is blocked, false if otherwise.
      */
     public boolean hasBlocked(OfflinePlayer otherPlayer) {
         return blockedUsers.containsKey(otherPlayer.getUniqueId());

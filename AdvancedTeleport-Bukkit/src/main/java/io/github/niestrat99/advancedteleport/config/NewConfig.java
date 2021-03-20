@@ -20,8 +20,11 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> USE_RANDOMTP;
     public ConfigOption<Boolean> USE_SPAWN;
     public ConfigOption<Boolean> USE_HOMES;
-    public ConfigOption<Integer> REQUEST_LIFETIME;
     public ConfigOption<List<String>> DISABLED_COMMANDS;
+
+    public ConfigOption<Integer> REQUEST_LIFETIME;
+    public ConfigOption<Boolean> USE_MULTIPLE_REQUESTS;
+    public ConfigOption<Boolean> NOTIFY_ON_EXPIRE;
 
     public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
@@ -111,10 +114,17 @@ public class NewConfig extends CMFile {
         addDefault("use-spawn", true, "Whether the plugin should modify spawn/spawn properties.");
         addDefault("use-randomtp", true, "Whether the plugin should allow random teleportation.");
         addDefault("use-homes", true, "Whether homes should be enabled in the plugin.");
-        addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
         addDefault("disabled-commands", new ArrayList<>(), "The commands that AT should not register upon starting up.\n" +
                 "In other words, this gives up the command for other plugins to use.\n" +
                 "NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for anything to change.");
+
+        addSection("Teleport Requesting");
+        addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
+        addDefault("allow-multiple-requests", true, "Whether or not the plugin should enable the use of multiple requests.\n" +
+                "When enabled, user 1 may get TPA requests from user 2 and 3, but user 1 is prompted to select a specific request.\n" +
+                "When this is disabled and user 1 receives requests from user 2 and then 3, they will only have user 3's request to respond to.");
+        addDefault("notify-on-expire", true, "Let the player know when their request has timed out or been displaced by another user's request.\n" +
+                "Displacement only occurs when allow-multiple-requests is disabled.");
 
         addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", "The number of seconds it takes for the teleportation to take place following confirmation.\n" +
                 "(i.e. \"You will teleport in 3 seconds!\")\n" +
@@ -156,6 +166,8 @@ public class NewConfig extends CMFile {
         addDefault("per-command-cooldowns.spawn", "default", "Cooldown for /spawn");
         addDefault("per-command-cooldowns.home", "default", "Cooldown for /home");
         addDefault("per-command-cooldowns.back", "default", "Cooldown for /back");
+        //addDefault("per-command-cooldowns.sethome", "default", "Cooldown for /sethome");
+        //addDefault("per-command-cooldowns.setwarp", "default", "Cooldown for /setwarp");
 
         addDefault("cost-amount", 100.0, "Teleportation Costs", "The amount it costs to teleport somewhere." +
                 "\nIf you want to use Vault Economy, use 100.0 to charge $100." +
@@ -172,6 +184,8 @@ public class NewConfig extends CMFile {
         addDefault("per-command-cost.spawn", "default", "Cost for /spawn");
         addDefault("per-command-cost.home", "default", "Cost for /home");
         addDefault("per-command-cost.back", "default", "Cost for /back");
+        //addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
+        //addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
 
         addSection("SQL Storage");
 
@@ -433,8 +447,11 @@ public class NewConfig extends CMFile {
         USE_RANDOMTP = new ConfigOption<>("use-randomtp");
         USE_SPAWN = new ConfigOption<>("use-spawn");
         USE_HOMES = new ConfigOption<>("use-homes");
-        REQUEST_LIFETIME = new ConfigOption<>("request-lifetime");
         DISABLED_COMMANDS = new ConfigOption<>("disabled-commands");
+
+        REQUEST_LIFETIME = new ConfigOption<>("request-lifetime");
+        USE_MULTIPLE_REQUESTS = new ConfigOption<>("allow-multiple-requests");
+        NOTIFY_ON_EXPIRE = new ConfigOption<>("notify-on-expire");
 
         WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");

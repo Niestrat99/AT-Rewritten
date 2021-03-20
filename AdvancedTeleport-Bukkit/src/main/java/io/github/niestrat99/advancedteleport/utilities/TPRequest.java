@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -72,6 +74,14 @@ public class TPRequest {
     }
 
     public static void addRequest(TPRequest request) {
+        if (!NewConfig.get().USE_MULTIPLE_REQUESTS.get()) {
+            for (TPRequest otherRequest : getRequests(request.responder)) {
+                if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                    CustomMessages.sendMessage(otherRequest.requester, "Info.requestDisplaced", "{player}", request.responder.getName());
+                }
+                otherRequest.destroy();
+            }
+        }
         requestList.add(request);
     }
 

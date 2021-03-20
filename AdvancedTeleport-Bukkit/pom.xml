@@ -5,12 +5,12 @@
     <parent>
         <artifactId>AdvancedTeleport</artifactId>
         <groupId>io.github.niestrat99</groupId>
-        <version>v5.4.6-SNAPSHOT-2</version>
+        <version>v5.4.6-SNAPSHOT-3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
-    <artifactId>AdvancedTP-Bukkit</artifactId>
+    <artifactId>AdvancedTeleport-Bukkit</artifactId>
 
 
 </project>

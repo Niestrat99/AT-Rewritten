@@ -18,11 +18,13 @@ public class CustomMessages extends CMFile {
 
     public static File ConfigFile = new File(CoreClass.getInstance().getDataFolder(),"custom-messages.yml");
     public static CustomMessages config;
+    private static HashMap<CommandSender, BukkitRunnable> titleManager;
 
     public CustomMessages(Plugin plugin) {
         super(plugin, "custom-messages");
         setDescription(null);
         config = this;
+        titleManager = new HashMap<>();
     }
 
     public void loadDefaults() {
@@ -44,6 +46,10 @@ public class CustomMessages extends CMFile {
         addDefault("Teleport.eventBeforeTPMovementAllowed" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7!");
         addDefault("Teleport.eventTeleport" , "&b↑ &8» &7Teleporting...");
         addDefault("Teleport.eventMovement" , "&b↑ &8» &7Teleport has been cancelled due to movement.");
+        addDefault("Teleport.eventMovement_title.length", 60);
+        addDefault("Teleport.eventMovement_title.fade-in", 0);
+        addDefault("Teleport.eventMovement_title.fade-out", 10);
+        addDefault("Teleport.eventMovement_title.0", "&e&l! &c&lCancelled &e&l!");
         addDefault("Teleport.teleportingToSpawn", "&b↑ &8» &7Teleporting you to spawn!");
         addDefault("Teleport.teleporting", "&b↑ &8» &7Teleporting to &b{player}&7!");
         addDefault("Teleport.teleportingToHome", "&b↑ &8» &7Teleporting to &b{home}&7!");
@@ -90,34 +96,34 @@ public class CustomMessages extends CMFile {
         addDefault("Error.noBedHomeOther", "&b↑ &8» &b{player} &7doesn't have a bed spawn set!");
         addDefault("Error.reachedHomeLimit", "&b↑ &8» &7You can't set any more homes!");
         addDefault("Error.homeAlreadySet", "&b↑ &8» &7You already have a home called &b{home}&7!");
-        config.addDefault("Error.noWarpInput", "&b↑ &8» &7You have to include the warp's name!");
-        config.addDefault("Error.noSuchWarp", "&b↑ &8» &7That warp doesn't exist!");
-        config.addDefault("Error.noSuchWorld", "&b↑ &8» &7That world doesn't exist!");
-        config.addDefault("Error.noLocation", "&b↑ &8» &7You don't have any location to teleport back to!");
-        config.addDefault("Error.notAPlayer", "&b↑ &8» &7You must be a player to run this command!");
+        addDefault("Error.noWarpInput", "&b↑ &8» &7You have to include the warp's name!");
+        addDefault("Error.noSuchWarp", "&b↑ &8» &7That warp doesn't exist!");
+        addDefault("Error.noSuchWorld", "&b↑ &8» &7That world doesn't exist!");
+        addDefault("Error.noLocation", "&b↑ &8» &7You don't have any location to teleport back to!");
+        addDefault("Error.notAPlayer", "&b↑ &8» &7You must be a player to run this command!");
         config.addDefault("Error.noHomes", "&b↑ &8» &7You haven't got any homes!");
         config.addDefault("Error.noHomesOtherPlayer", "&b↑ &8» &b{player} &7hasn't got any homes!");
         config.addDefault("Error.tooFarAway", "&b↑ &8» &7The teleport destination is too far away so you can not teleport there!");
         config.addDefault("Error.noRequestsSent", "&b↑ &8» &7Couldn't send a request to anyone :(");
         config.addDefault("Error.onCountdown","&b↑ &8» &7You can't use this command whilst waiting to teleport!");
         config.addDefault("Error.noPermissionWarp", "&b↑ &8» &7You can't warp to &b{warp}&7!");
-        config.addDefault("Error.cantTPToWorld", "&b↑ &8» &7You can't randomly teleport in that world!");
+        addDefault("Error.cantTPToWorld", "&b↑ &8» &7You can't randomly teleport in that world!");
        // config.addDefault("Error.invalidName", "&cHomes and warps may only have letters and numbers in the names!");
-        config.addDefault("Error.cantTPToWorldLim", "&b↑ &8» &7You can't teleport to &b{world}&7!");
-        config.addDefault("Error.tooFewArguments", "&b↑ &8» &7Too few arguments!");
-        config.addDefault("Error.invalidArgs", "&b↑ &8» &7Invalid arguments!");
-        config.addDefault("Error.cantTPToPlayer", "&b↑ &8» &7You can't request a teleportation to &b{player}&7!");
-        config.addDefault("Error.noWarps", "&b↑ &8» &7There are no warps as of currently!");
-        config.addDefault("Error.noAccessHome", "&b↑ &8» &7You cannot access &b{home}&7 as of currently!");
-        config.addDefault("Error.moveHomeFail", "&b↑ &8» &7The home has been moved but the data has not been stored successfully. The plugin will try to fix this itself.");
-        config.addDefault("Error.setMainHomeFail", "&b↑ &8» &7The main home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
-        config.addDefault("Error.deleteHomeFail", "&b↑ &8» &7The home has been deleted but the data has not been stored successfully. The plugin will try to fix this itself.");
-        config.addDefault("Error.setHomeFail", "&b↑ &8» &7The home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
-        config.addDefault("Error.deleteWarpFail", "&b↑ &8» &7The warp has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
-        config.addDefault("Error.homesNotLoaded", "&b↑ &8» &7Homes for this player haven't loaded yet, please wait a little bit (even just a second) before trying this again!");
-        config.addDefault("Error.noOfflineLocation", "&b↑ &8» &7No offline location was found for &b{player}&7!");
-        config.addDefault("Error.failedOfflineTeleport", "&b↑ &8» &7Failed to teleport to offline player &b{player}&7!");
-        config.addDefault("Error.failedOfflineTeleportHere", "&b↑ &8» &7Failed to teleport offline player &b{player} &7 to your location!");
+        addDefault("Error.cantTPToWorldLim", "&b↑ &8» &7You can't teleport to &b{world}&7!");
+        addDefault("Error.tooFewArguments", "&b↑ &8» &7Too few arguments!");
+        addDefault("Error.invalidArgs", "&b↑ &8» &7Invalid arguments!");
+        addDefault("Error.cantTPToPlayer", "&b↑ &8» &7You can't request a teleportation to &b{player}&7!");
+        addDefault("Error.noWarps", "&b↑ &8» &7There are no warps as of currently!");
+        addDefault("Error.noAccessHome", "&b↑ &8» &7You cannot access &b{home}&7 as of currently!");
+        addDefault("Error.moveHomeFail", "&b↑ &8» &7The home has been moved but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.setMainHomeFail", "&b↑ &8» &7The main home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.deleteHomeFail", "&b↑ &8» &7The home has been deleted but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.setHomeFail", "&b↑ &8» &7The home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.deleteWarpFail", "&b↑ &8» &7The warp has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.homesNotLoaded", "&b↑ &8» &7Homes for this player haven't loaded yet, please wait a little bit (even just a second) before trying this again!");
+        addDefault("Error.noOfflineLocation", "&b↑ &8» &7No offline location was found for &b{player}&7!");
+        addDefault("Error.failedOfflineTeleport", "&b↑ &8» &7Failed to teleport to offline player &b{player}&7!");
+        addDefault("Error.failedOfflineTeleportHere", "&b↑ &8» &7Failed to teleport offline player &b{player} &7 to your location!");
         addDefault("Error.alreadySearching", "&b↑ &8» &7Already searching for a location to teleport to!");
 
         config.addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
@@ -152,6 +158,7 @@ public class CustomMessages extends CMFile {
         config.addDefault("Info.multipleRequestDeny", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to deny:");
         config.addDefault("Info.requestDeclined", "&b↑ &8» &7You've declined the teleport request!");
         config.addDefault("Info.requestDeclinedResponder", "&b↑ &8» &b{player} &7has declined your teleport request!");
+        config.addDefault("Info.requestDisplaced", "&b↑ &8» &7Your request has been cancelled because &b{player} &7got another request!");
 
         config.addDefault("Info.deletedHome", "&b↑ &8» &7Successfully deleted the home &b{home}&7!");
         config.addDefault("Info.deletedHomeOther", "&b↑ &8» &7Successfully deleted the home &b{home} &7for &b{player}&7!");
@@ -289,7 +296,7 @@ public class CustomMessages extends CMFile {
                     titleInfo[2] = titles.getInt("fade-out");
                 }
 
-                new BukkitRunnable() {
+                BukkitRunnable runnable = new BukkitRunnable() {
 
                     private int current = 0;
                     private String previousTitle = null;
@@ -297,7 +304,7 @@ public class CustomMessages extends CMFile {
 
                     @Override
                     public void run() {
-                        if (current == titleInfo[1]) {
+                        if (current == titleInfo[1] || titleManager.get(player) != this) {
                             cancel();
                             return;
                         }
@@ -318,7 +325,9 @@ public class CustomMessages extends CMFile {
 
                         current++;
                     }
-                }.runTaskTimer(CoreClass.getInstance(), 1, 1);
+                };
+                titleManager.put(player, runnable);
+                runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
         }
         if (config.getConfig().get(path) instanceof List) {
