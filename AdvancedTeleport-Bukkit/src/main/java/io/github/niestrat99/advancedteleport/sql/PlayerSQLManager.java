@@ -101,7 +101,7 @@ public class PlayerSQLManager extends SQLManager {
 
     }
 
-    public void updatePlayerData(Player player) {
+    public void updatePlayerData(OfflinePlayer player) {
         isPlayerInDatabase(player, result -> {
             if (result) {
                 updatePlayerInformation(player, null);
@@ -114,6 +114,7 @@ public class PlayerSQLManager extends SQLManager {
     public void updatePlayerInformation(OfflinePlayer player, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
+                if (player.getName() == null) return;
                 PreparedStatement statement = connection.prepareStatement("UPDATE " + tablePrefix + "_players SET name = ?, timestamp_last_joined = ? WHERE uuid = ?");
                 statement.setString(1, player.getName().toLowerCase());
                 statement.setLong(2, System.currentTimeMillis());
@@ -135,7 +136,7 @@ public class PlayerSQLManager extends SQLManager {
         });
     }
 
-    public void isPlayerInDatabase(Player player, SQLCallback<Boolean> callback) {
+    public void isPlayerInDatabase(OfflinePlayer player, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try {
                 PreparedStatement statement = connection.prepareStatement("SELECT name FROM " + tablePrefix + "_players WHERE uuid = ?");
