@@ -51,8 +51,8 @@ public class TeleportTests {
                                 .sendProposal(player, i);
                     }
                     if (requests.getTotalPages() > 1) {
-                        FancyMessage.send(player);
                         CustomMessages.sendMessage(player, "Info.multipleRequestsList");
+                        FancyMessage.send(player);
                     }
 
                 }
