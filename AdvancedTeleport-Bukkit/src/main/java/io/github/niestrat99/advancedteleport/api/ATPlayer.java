@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class ATPlayer {
 
@@ -289,6 +290,19 @@ public class ATPlayer {
             new ATPlayer(player.getUniqueId(), player.getName());
         });
         return null;
+    }
+
+    @NotNull
+    public static CompletableFuture<ATPlayer> getPlayerFuture(String name) {
+        if (players.containsKey(name.toLowerCase())) {
+            return CompletableFuture.completedFuture(players.get(name.toLowerCase()));
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
+            return new ATPlayer(player.getUniqueId(), player.getName());
+        }, task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task))
+                .thenApplyAsync(player -> player,
+                        task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task));
     }
 
     public static void removePlayer(Player player) {
