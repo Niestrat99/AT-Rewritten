@@ -65,7 +65,7 @@ public class TeleportTrackingManager implements Listener {
         if (e.getPlayer().hasMetadata("NPC")) return;
         String result = ConditionChecker.canTeleport(e.getFrom(), e.getTo(), null, e.getPlayer());
         if (!result.isEmpty()) {
-            e.getPlayer().sendMessage(result);
+            CustomMessages.sendMessage(e.getPlayer(), result);
             e.setCancelled(true);
             return;
         }
