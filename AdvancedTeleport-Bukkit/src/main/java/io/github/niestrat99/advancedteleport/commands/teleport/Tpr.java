@@ -47,6 +47,15 @@ public class Tpr implements ATCommand {
                             }
                         }
                     }
+                    if (args.length > 1) {
+                        if (sender.hasPermission("at.admin.tpr.other")) {
+                            player = Bukkit.getPlayer(args[1]);
+                            if (player == null) {
+                                CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                                return true;
+                            }
+                        }
+                    }
                     return randomTeleport(player, world);
                 }
             } else {
