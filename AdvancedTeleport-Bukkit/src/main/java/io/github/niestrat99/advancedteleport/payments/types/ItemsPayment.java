@@ -6,10 +6,12 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 public class ItemsPayment extends Payment {
 
-    public ItemsPayment(Material material ) {
+    // DIAMOND#{Count:10,tag:{display:{Name:"&b&lSetwarp Token"}}}
+    public ItemsPayment(Material material) {
 
     }
 
@@ -47,9 +49,11 @@ public class ItemsPayment extends Payment {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return false;
         for (NamespacedKey key : meta.getPersistentDataContainer().getKeys()) {
-
         }
         return false;
     }
 
+    public class NBTJSONRepresentation {
+
+    }
 }
