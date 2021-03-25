@@ -40,17 +40,21 @@ public class PointsPayment extends Payment {
     @Override
     public boolean canPay(Player player) {
         int requiredPoints = points;
+        System.out.println("Currently required number of points is " + requiredPoints + ".");
         if (levels != null) {
+            System.out.println("Using a levels payment, the required amount of levels is " + levels.getPaymentAmount() + ", player " + player.getName() + " has " + player.getLevel());
             if (levels.getPaymentAmount() > player.getLevel()) {
                 CustomMessages.sendMessage(player, "Error.notEnoughEXP", "{levels}", String.valueOf(levels.getPaymentAmount()));
                 return false;
             }
             int expPoints = getEXPBetweenLevels(player.getLevel());
             requiredPoints += expPoints;
+            System.out.println("A EXP gap of " + expPoints + " was found in " + player.getName() + ", this is how much you need to level up. The required amount is now " + requiredPoints + ".");
         }
         if (player.getTotalExperience() >= requiredPoints) {
             return true;
         } else {
+            System.out.println("The player " + player.getName() + " has " + player.getTotalExperience() + " EXP in total, the required amount is " + requiredPoints);
             CustomMessages.sendMessage(player, "Error.notEnoughEXPPoints", "{points}", String.valueOf(requiredPoints));
 
             return false;
