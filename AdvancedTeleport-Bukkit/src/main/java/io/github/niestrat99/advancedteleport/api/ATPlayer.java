@@ -300,9 +300,7 @@ public class ATPlayer {
         return CompletableFuture.supplyAsync(() -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
             return new ATPlayer(player.getUniqueId(), player.getName());
-        }, task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task))
-                .thenApplyAsync(player -> player,
-                        task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task));
+        }, CoreClass.async).thenApplyAsync(player -> player, CoreClass.sync);
     }
 
     public static void removePlayer(Player player) {

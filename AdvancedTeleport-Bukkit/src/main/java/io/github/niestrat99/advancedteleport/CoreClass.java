@@ -26,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 
 public class CoreClass extends JavaPlugin {
 
@@ -39,6 +40,9 @@ public class CoreClass extends JavaPlugin {
     private static CoreClass Instance;
     private static Permission perms = null;
     private int version;
+
+    public static Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
+    public static Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
 
     private NewConfig config;
 
