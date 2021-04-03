@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.home;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -20,25 +21,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class HomesCommand implements AsyncATCommand {
+public class HomesCommand implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (NewConfig.get().USE_HOMES.get()) {
             if (sender.hasPermission("at.member.homes")) {
-                if (args.length>0) {
+                if (args.length > 0) {
                     if (sender.hasPermission("at.admin.homes")) {
-                        OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
-                        ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                        // Homes haven't loaded yet
-                        if (atPlayer.getHomes() == null) {
-                            CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
-                            return true;
-                        }
-                        if (atPlayer.getHomes().size() > 0) {
-                            getHomes(sender, player);
-                            return true;
-                        }
+                        ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
+                            if (player.getHomes() == null || player.getHomes().size() == 0) {
+                                CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
+                                return;
+                            }
+                            getHomes(sender, player.getOfflinePlayer());
+                        });
+                        return true;
                     }
                 }
                 if (sender instanceof Player) {
