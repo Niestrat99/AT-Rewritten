@@ -67,7 +67,7 @@ public class TeleportTrackingManager implements Listener {
         if (e.getType().isRestricted()) {
             String result = ConditionChecker.canTeleport(e.getFromLocation(), e.getToLocation(), e.getType().getName(), e.getPlayer());
             if (!result.isEmpty()) {
-                e.getPlayer().sendMessage(result);
+                CustomMessages.sendMessage(e.getPlayer(), result);
                 e.setCancelled(true);
             }
         }
