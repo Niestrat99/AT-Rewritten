@@ -231,17 +231,16 @@ public class ATPlayer {
         // Player is offline, we'll assume an admin is getting the homes
         if (getPlayer() == null) return -1;
         for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
-            if (permission.getPermission().startsWith("at.member.homes.")) {
-                if (permission.getValue()) {
-                    String perm = permission.getPermission();
-                    String ending = perm.substring(perm.lastIndexOf(".") + 1);
-                    if (ending.equalsIgnoreCase("unlimited")) return -1;
-                    if (!ending.matches("^[0-9]+$")) continue;
-                    int homes = Integer.parseInt(ending);
-                    if (maxHomes < homes) {
-                        maxHomes = homes;
-                    }
+            if (permission.getPermission().startsWith("at.member.homes.") && permission.getValue()) {
+                String perm = permission.getPermission();
+                String ending = perm.substring(perm.lastIndexOf(".") + 1);
+                if (ending.equalsIgnoreCase("unlimited")) return -1;
+                if (!ending.matches("^[0-9]+$")) continue;
+                int homes = Integer.parseInt(ending);
+                if (maxHomes < homes) {
+                    maxHomes = homes;
                 }
+
             }
         }
         return maxHomes;
