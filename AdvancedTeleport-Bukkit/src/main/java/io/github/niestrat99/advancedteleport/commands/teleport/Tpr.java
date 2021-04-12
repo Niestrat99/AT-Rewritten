@@ -82,7 +82,7 @@ public class Tpr implements ATCommand {
             List<String> allowedWorlds = NewConfig.get().ALLOWED_WORLDS.get();
             if (!allowedWorlds.contains(world.getName())) {
                 if (!sender.hasPermission("at.admin.rtp.bypass-world")) {
-                    if (allowedWorlds.isEmpty()) {
+                    if (allowedWorlds.isEmpty() || !NewConfig.get().REDIRECT_TO_WORLD.get()) {
                         CustomMessages.sendMessage(sender, "Error.cantTPToWorld");
                         return true;
                     } else {

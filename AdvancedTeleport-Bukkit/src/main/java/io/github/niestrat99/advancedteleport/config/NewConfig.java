@@ -65,6 +65,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> USE_WORLD_BORDER;
     public ConfigOption<List<String>> AVOID_BLOCKS;
     public ConfigOption<Boolean> WHITELIST_WORLD;
+    public ConfigOption<Boolean> REDIRECT_TO_WORLD;
     public ConfigOption<List<String>> ALLOWED_WORLDS;
 
     public ConfigOption<Integer> DEFAULT_HOMES_LIMIT;
@@ -267,6 +268,8 @@ public class NewConfig extends CMFile {
         addDefault("avoid-blocks", new ArrayList<>(Arrays.asList("WATER", "LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")),
                 "Blocks that people must not be able to land in when using /tpr.");
         addDefault("whitelist-worlds", false, "Whether or not /tpr should only be used in the worlds listed below.");
+        addDefault("redirect-to-whitelisted-worlds", true, "Whether or not players should be directed to a whitelisted world when using /tpr.\n" +
+                "When this option is disabled and the player tries to use /tpr in a non-whitelisted world, the command simply won't work.");
         addDefault("allowed-worlds", new ArrayList<>(Arrays.asList("world", "world_nether")), "Worlds you can use /tpr in.\n" +
                 "If a player uses /tpr in a world that doesn't allow it, they will be teleported in the first world on the list instead.\n" +
                 "To make this feature effective, turn on \"whitelist-worlds\" above.");
@@ -502,6 +505,7 @@ public class NewConfig extends CMFile {
         USE_WORLD_BORDER = new ConfigOption<>("use-world-border");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");
         WHITELIST_WORLD = new ConfigOption<>("whitelist-worlds");
+        REDIRECT_TO_WORLD = new ConfigOption<>("redirect-to-whitelisted-worlds");
         ALLOWED_WORLDS = new ConfigOption<>("allowed-worlds");
 
         DEFAULT_HOMES_LIMIT = new ConfigOption<>("default-homes-limit");
