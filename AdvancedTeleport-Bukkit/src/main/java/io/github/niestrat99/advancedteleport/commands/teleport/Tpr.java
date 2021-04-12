@@ -9,8 +9,10 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
+import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -88,7 +90,8 @@ public class Tpr implements ATCommand {
                     } else {
                         for (String worldName : allowedWorlds) {
                             world = Bukkit.getWorld(worldName);
-                            if (world != null) break;
+                            String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0), new Location(world, 0, 0, 0), "tpr", player);
+                            if (world != null && conditionResult.isEmpty()) break;
                         }
                         if (world == null) {
                             CustomMessages.sendMessage(sender, "Error.cantTPToWorld");
@@ -101,6 +104,12 @@ public class Tpr implements ATCommand {
 
         if (searchingPlayers.contains(player.getUniqueId())) {
             CustomMessages.sendMessage(sender, "Error.alreadySearching");
+            return true;
+        }
+
+        String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0), new Location(world, 0, 0, 0), "tpr", player);
+        if (!conditionResult.isEmpty()) {
+            CustomMessages.sendMessage(player, conditionResult, "{world}", world.getName());
             return true;
         }
 
