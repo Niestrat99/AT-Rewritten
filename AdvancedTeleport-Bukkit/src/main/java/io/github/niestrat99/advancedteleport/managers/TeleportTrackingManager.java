@@ -52,7 +52,7 @@ public class TeleportTrackingManager implements Listener {
         if (e.getPlayer().hasMetadata("NPC")) return;
         String result = ConditionChecker.canTeleport(e.getFrom(), e.getTo(), null, e.getPlayer());
         if (!result.isEmpty()) {
-            CustomMessages.sendMessage(e.getPlayer(), result);
+            CustomMessages.sendMessage(e.getPlayer(), result, "{world}", e.getTo().getWorld().getName());
             e.setCancelled(true);
             return;
         }
@@ -67,7 +67,7 @@ public class TeleportTrackingManager implements Listener {
         if (e.getType().isRestricted()) {
             String result = ConditionChecker.canTeleport(e.getFromLocation(), e.getToLocation(), e.getType().getName(), e.getPlayer());
             if (!result.isEmpty()) {
-                CustomMessages.sendMessage(e.getPlayer(), result);
+                CustomMessages.sendMessage(e.getPlayer(), result, "{world}", e.getToLocation().getWorld().getName());
                 e.setCancelled(true);
             }
         }
