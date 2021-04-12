@@ -79,7 +79,7 @@ public class AtHelp implements ATCommand {
                     CustomMessages.sendMessage(sender, "Error.featureDisabled");
                 }
                 return true;
-            } else if (args[0].equalsIgnoreCase("homes")) {
+            } else if (args[0].equalsIgnoreCase("homes") || args[0].equalsIgnoreCase("homescommand")) {
                 if (NewConfig.get().USE_HOMES.get()) {
                     for (String str : CustomMessages.config.getConfig().getStringList("Help.homes")) {
                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
