@@ -84,8 +84,8 @@
         </repository>
 
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>cm-repo</id>
+            <url>https://ci.pluginwiki.us/plugin/repository/everything/</url>
         </repository>
     </repositories>
 
@@ -134,7 +134,7 @@
         <dependency>
             <groupId>com.github.Thatsmusic99</groupId>
             <artifactId>ConfigurationMaster</artifactId>
-            <version>v1.0</version>
+            <version>v1.0.1</version>
         </dependency>
 
         <dependency>

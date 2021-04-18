@@ -256,8 +256,12 @@ public class CustomMessages extends CMFile {
 
     }
 
+    public static String getStringA(String path) {
+        return translateString(config.getString(path));
+    }
+
     public static String getString(String path, String... placeholders) {
-        return translateString(config.getConfig().getString(path), placeholders);
+        return translateString(config.getString(path), placeholders);
     }
 
     public static String translateString(String str, String... placeholders) {

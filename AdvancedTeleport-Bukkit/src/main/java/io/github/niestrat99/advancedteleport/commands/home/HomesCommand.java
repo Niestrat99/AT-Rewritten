@@ -97,9 +97,9 @@ public class HomesCommand implements ATCommand {
     }
 
     private List<String> getTooltip(CommandSender sender, Home home) {
-        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getString("Tooltip.homes")));
+        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringA("Tooltip.homes")));
         if (sender.hasPermission("at.member.homes.location")) {
-            tooltip.addAll(Arrays.asList(CustomMessages.getString("Tooltip.location").split("\n")));
+            tooltip.addAll(Arrays.asList(CustomMessages.getStringA("Tooltip.location").split("\n")));
         }
         List<String> homeTooltip = new ArrayList<>(tooltip);
         for (int i = 0; i < homeTooltip.size(); i++) {
