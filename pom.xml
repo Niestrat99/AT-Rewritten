@@ -84,6 +84,11 @@
         </repository>
 
         <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
+        <repository>
             <id>cm-repo</id>
             <url>https://ci.pluginwiki.us/plugin/repository/everything/</url>
         </repository>
