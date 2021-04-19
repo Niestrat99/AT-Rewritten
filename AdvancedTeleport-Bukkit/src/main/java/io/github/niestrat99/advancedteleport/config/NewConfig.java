@@ -126,6 +126,8 @@ public class NewConfig extends CMFile {
                 "When this is disabled and user 1 receives requests from user 2 and then 3, they will only have user 3's request to respond to.");
         addDefault("notify-on-expire", true, "Let the player know when their request has timed out or been displaced by another user's request.\n" +
                 "Displacement only occurs when allow-multiple-requests is disabled.");
+        addDefault("tpa-restrict-movement-on", "requester");
+        addDefault("tpahere-restrict-movement-on", "requester");
 
         addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", "The number of seconds it takes for the teleportation to take place following confirmation.\n" +
                 "(i.e. \"You will teleport in 3 seconds!\")\n" +
@@ -273,6 +275,7 @@ public class NewConfig extends CMFile {
         addDefault("allowed-worlds", new ArrayList<>(Arrays.asList("world", "world_nether")), "Worlds you can use /tpr in.\n" +
                 "If a player uses /tpr in a world that doesn't allow it, they will be teleported in the first world on the list instead.\n" +
                 "To make this feature effective, turn on \"whitelist-worlds\" above.");
+
 
         addDefault("default-homes-limit", -1, "Homes", "The default maximum of homes people can have.\n" +
                 "This can be overridden by giving people permissions such as at.member.homes.10.\n" +
