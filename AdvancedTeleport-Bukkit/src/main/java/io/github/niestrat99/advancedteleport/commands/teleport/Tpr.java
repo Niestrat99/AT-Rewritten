@@ -9,8 +9,10 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
+import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,68 +29,90 @@ public class Tpr implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player)sender;
-            if (NewConfig.get().USE_RANDOMTP.get()) {
+        Player player;
+        if (NewConfig.get().USE_RANDOMTP.get()) {
+            if (sender.hasPermission("at.member.tpr")) {
+                if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
+                    player = Bukkit.getPlayer(args[1]);
+                    if (player == null) {
+                        CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                        return true;
+                    }
+                } else if (sender instanceof Player) {
+                    player = (Player) sender;
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
+                    return true;
+                }
+
                 if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                     CustomMessages.sendMessage(sender, "Error.onCountdown");
                     return true;
                 }
-                if (sender.hasPermission("at.member.tpr")) {
-                    World world = player.getWorld();
-                    if (args.length > 0) {
-                        if (sender.hasPermission("at.member.tpr.other")) {
-                            World otherWorld = Bukkit.getWorld(args[0]);
-                            if (otherWorld != null) {
-                                world = otherWorld;
-                            } else {
-                                CustomMessages.sendMessage(sender, "Error.noSuchWorld");
-                                return true;
-                            }
-                        }
+                World world = player.getWorld();
+                if (args.length > 0 && sender.hasPermission("at.member.tpr.other")) {
+                    World otherWorld = Bukkit.getWorld(args[0]);
+                    if (otherWorld != null) {
+                        world = otherWorld;
+                    } else {
+                        CustomMessages.sendMessage(sender, "Error.noSuchWorld");
+                        return true;
                     }
-                    return randomTeleport(player, world);
                 }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.featureDisabled");
-                return true;
+
+                return randomTeleport(player, sender, world);
             }
         } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
         }
+
         return true;
     }
 
     public static boolean randomTeleport(Player player, World world) {
+        return randomTeleport(player, player, world);
+    }
+
+    public static boolean randomTeleport(Player player, CommandSender sender, World world) {
         int cooldown = CooldownManager.secondsLeftOnCooldown("tpr", player);
         if (cooldown > 0) {
-            CustomMessages.sendMessage(player, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
             return true;
         }
         if (NewConfig.get().WHITELIST_WORLD.get()) {
             List<String> allowedWorlds = NewConfig.get().ALLOWED_WORLDS.get();
             if (!allowedWorlds.contains(world.getName())) {
-                if (!player.hasPermission("at.admin.rtp.bypass-world")) {
-                    if (allowedWorlds.isEmpty()) {
-                        CustomMessages.sendMessage(player, "Error.cantTPToWorld");
+                if (!sender.hasPermission("at.admin.rtp.bypass-world")) {
+                    if (allowedWorlds.isEmpty() || !NewConfig.get().REDIRECT_TO_WORLD.get()) {
+                        CustomMessages.sendMessage(sender, "Error.cantTPToWorld");
                         return true;
                     } else {
                         for (String worldName : allowedWorlds) {
                             world = Bukkit.getWorld(worldName);
-                            if (world != null) break;
+                            String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0), new Location(world, 0, 0, 0), "tpr", player);
+                            if (world != null && conditionResult.isEmpty()) break;
                         }
                         if (world == null) {
-                            CustomMessages.sendMessage(player, "Error.cantTPToWorld");
+                            CustomMessages.sendMessage(sender, "Error.cantTPToWorld");
                             return true;
                         }
                     }
                 }
             }
         }
+
         if (searchingPlayers.contains(player.getUniqueId())) {
-            CustomMessages.sendMessage(player, "Error.alreadySearching");
+            CustomMessages.sendMessage(sender, "Error.alreadySearching");
             return true;
         }
+
+        String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0), new Location(world, 0, 0, 0), "tpr", player);
+        if (!conditionResult.isEmpty()) {
+            CustomMessages.sendMessage(player, conditionResult, "{world}", world.getName());
+            return true;
+        }
+
         if (!PaymentManager.getInstance().canPay("tpr", player)) return false;
         CustomMessages.sendMessage(player, "Info.searching");
         searchingPlayers.add(player.getUniqueId());

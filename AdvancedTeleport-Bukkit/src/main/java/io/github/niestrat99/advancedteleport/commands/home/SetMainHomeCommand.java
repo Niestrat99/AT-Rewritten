@@ -25,18 +25,20 @@ public class SetMainHomeCommand extends AbstractHomeCommand implements AsyncATCo
                     if (args.length > 0) {
                         if (args.length > 1 && sender.hasPermission("at.admin.setmainhome")) {
                             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                            ATPlayer atTarget = ATPlayer.getPlayer(target);
-                            String homeName = args[1];
+                            if (target != player) {
+                                ATPlayer atTarget = ATPlayer.getPlayer(target);
+                                String homeName = args[1];
 
-                            if (atTarget.hasHome(homeName)) {
-                                atTarget.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
-                                        sender, "Info.setMainHomeOther", "Error.setMainHomeFail", "{home}", homeName, "{player}", args[0]));
-                            } else {
-                                atTarget.addHome(homeName, player.getLocation(), callback ->
-                                        atTarget.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
-                                                sender, "Info.setAndMadeMainHomeOther", "Error.setMainHomeFail", "{home}", homeName, "{player}", args[0])));
+                                if (atTarget.hasHome(homeName)) {
+                                    atTarget.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
+                                            sender, "Info.setMainHomeOther", "Error.setMainHomeFail", "{home}", homeName, "{player}", args[0]));
+                                } else {
+                                    atTarget.addHome(homeName, player.getLocation(), callback ->
+                                            atTarget.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
+                                                    sender, "Info.setAndMadeMainHomeOther", "Error.setMainHomeFail", "{home}", homeName, "{player}", args[0])));
+                                }
+                                return true;
                             }
-                            return true;
                         }
                         String homeName = args[0];
                         if (atPlayer.hasHome(homeName)) {

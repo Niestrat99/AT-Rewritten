@@ -3,10 +3,19 @@
   <parent>
     <artifactId>AdvancedTeleport</artifactId>
     <groupId>io.github.niestrat99</groupId>
-    <version>v5.4.6-SNAPSHOT-3</version>
+    <version>v5.4.7</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>AdvancedTP-Bukkit</artifactId>
+  <artifactId>AdvancedTeleport-Bukkit</artifactId>
+  <build>
+    <resources>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <finalName>AdvancedTeleport-Bukkit-${module.version}</finalName>
+  </build>
   <dependencies>
     <dependency>
       <groupId>org.spigotmc</groupId>

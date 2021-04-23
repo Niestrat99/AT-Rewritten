@@ -41,8 +41,8 @@ public class WorldRulesManager {
 
     public boolean canTeleport(Player player, Location toLoc) {
         String world = player.getLocation().getWorld().getName();
-        List<WorldRule> rulesFromWorld = this.rules.get(world);
-        List<WorldRule> rulesToWorld = this.rules.get(toLoc.getWorld().getName());
+        List<WorldRule> rulesFromWorld = this.rules.getOrDefault(world, this.rules.get("default"));
+        List<WorldRule> rulesToWorld = this.rules.getOrDefault(toLoc.getWorld().getName(), this.rules.get("default"));
 
         if (rulesFromWorld != null && !rulesFromWorld.isEmpty()) {
             for (WorldRule rule : rulesFromWorld) {

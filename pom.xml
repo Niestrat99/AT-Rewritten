@@ -7,10 +7,12 @@
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
     <packaging>pom</packaging>
-    <version>v5.4.6-SNAPSHOT-3</version>
+    <version>v5.4.7</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--suppress UnresolvedMavenProperty -->
+        <module.version>v5.4.7+DEV_${env.BUILD_NUMBER}</module.version>
     </properties>
 
     <modules>
@@ -61,6 +63,7 @@
                 </executions>
             </plugin>
         </plugins>
+        <finalName>AdvancedTeleport-${module.version}</finalName>
     </build>
 <!--  <modules>
 <module>AdvancedTP-Core</module>
@@ -83,6 +86,11 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+
+        <repository>
+            <id>cm-repo</id>
+            <url>https://ci.pluginwiki.us/plugin/repository/everything/</url>
         </repository>
     </repositories>
 
@@ -131,7 +139,7 @@
         <dependency>
             <groupId>com.github.Thatsmusic99</groupId>
             <artifactId>ConfigurationMaster</artifactId>
-            <version>v1.0</version>
+            <version>v1.0.1</version>
         </dependency>
 
         <dependency>

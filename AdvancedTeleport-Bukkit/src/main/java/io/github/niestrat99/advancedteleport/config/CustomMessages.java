@@ -206,7 +206,7 @@ public class CustomMessages extends CMFile {
                 "&6- Warps",
                 "&6- Spawn",
                 "&6- RandomTP",
-                "&6- HomesCommand")));
+                "&6- Homes")));
         config.addDefault("Help.mainHelpAdmin", new ArrayList<>(Collections.singletonList("&6- Admin")));
         config.addDefault("Help.teleport", new ArrayList<>(Arrays.asList("&b&lTeleport help",
                 "&6- /tpa <player> - Sends a request to teleport to the player.",
@@ -256,8 +256,12 @@ public class CustomMessages extends CMFile {
 
     }
 
+    public static String getStringA(String path) {
+        return translateString(config.getString(path));
+    }
+
     public static String getString(String path, String... placeholders) {
-        return translateString(config.getConfig().getString(path), placeholders);
+        return translateString(config.getString(path), placeholders);
     }
 
     public static String translateString(String str, String... placeholders) {

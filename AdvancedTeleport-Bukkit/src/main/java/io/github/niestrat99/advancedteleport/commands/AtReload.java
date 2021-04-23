@@ -26,7 +26,7 @@ public class AtReload implements AsyncATCommand {
                 NewConfig.get().reload();
                 CustomMessages.config.reload();
                 Spawn.reloadSpawn();
-                GUI.reloadConfig();
+                GUI.get().reload();
                 CooldownManager.init();
             } catch (IOException e) {
                 e.printStackTrace();
