@@ -62,6 +62,9 @@ public class RTPManager {
     }
 
     public static CompletableFuture<Location> addLocation(World world, boolean urgent) {
+        if (locQueue.get(world.getUID()).size() > 3) {
+            return CompletableFuture.completedFuture(locQueue.get(world.getUID()).poll());
+        }
         int[] coords = getRandomCoords(world);
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
             Block block = world.getHighestBlockAt(coords[0], coords[1], HeightMap.WORLD_SURFACE);
