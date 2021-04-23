@@ -113,14 +113,24 @@ public class Tpr implements ATCommand {
         }
 
         if (!PaymentManager.getInstance().canPay("tpr", player)) return false;
-        CustomMessages.sendMessage(player, "Info.searching");
-        searchingPlayers.add(player.getUniqueId());
-        RTPManager.getNextAvailableLocation(world).thenAccept(location -> {
+
+
+        Location nextLoc = RTPManager.getLocationUrgently(world);
+        if (nextLoc != null) {
             searchingPlayers.remove(player.getUniqueId());
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+            ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
             atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
-        });
+        } else {
+            CustomMessages.sendMessage(player, "Info.searching");
+            searchingPlayers.add(player.getUniqueId());
+            RTPManager.getNextAvailableLocation(world).thenAccept(location -> {
+                searchingPlayers.remove(player.getUniqueId());
+                ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+            });
+        }
         return true;
     }
 }

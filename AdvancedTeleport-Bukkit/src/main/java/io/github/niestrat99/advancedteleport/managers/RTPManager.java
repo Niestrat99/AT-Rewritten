@@ -25,9 +25,14 @@ public class RTPManager {
         locQueue = new HashMap<>();
         borderData = new HashMap<>();
         for (World loadedWorld : Bukkit.getWorlds()) {
-            addLocation(loadedWorld, false);
-            addLocation(loadedWorld, false);
-            addLocation(loadedWorld, false);
+            for (int i = 0; i < 3; i++) {
+                addLocation(loadedWorld, false).thenAccept(location -> {
+                    Queue<Location> queue = locQueue.get(loadedWorld.getUID());
+                    if (queue == null) queue = new ArrayDeque<>();
+                    queue.add(location);
+                    locQueue.put(loadedWorld.getUID(), queue);
+                });
+            }
             if (NewConfig.get().USE_WORLD_BORDER.get() && worldBorder != null) {
                 BorderData border = com.wimbli.WorldBorder.Config.Border(loadedWorld.getName());
                 if (border != null) {
@@ -42,19 +47,25 @@ public class RTPManager {
     }
 
     public static CompletableFuture<Location> getNextAvailableLocation(World world) {
-        Queue<Location> queue = locQueue.get(world.getUID());
+        final Queue<Location> queue = locQueue.get(world.getUID());
+        addLocation(world, false).thenAccept(location -> {
+            queue.add(location);
+            locQueue.put(world.getUID(), queue);
+        });
         if (queue == null || queue.isEmpty()) {
-            return addLocation(world, true).thenApply(loc -> loc);
+            return addLocation(world, true);
         } else {
-            Location loc = queue.poll();
-            addLocation(world, false);
-            return CompletableFuture.completedFuture(loc);
+            return CompletableFuture.completedFuture(queue.poll());
         }
     }
 
     public static Location getLocationUrgently(World world) {
         Queue<Location> queue = locQueue.get(world.getUID());
-        if (queue.isEmpty()) {
+        addLocation(world, false).thenAccept(location -> {
+            queue.add(location);
+            locQueue.put(world.getUID(), queue);
+        });
+        if (queue == null || queue.isEmpty()) {
             return null;
         } else {
             return queue.remove();
@@ -62,23 +73,18 @@ public class RTPManager {
     }
 
     public static CompletableFuture<Location> addLocation(World world, boolean urgent) {
-        if (locQueue.get(world.getUID()).size() > 3) {
+        if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > 3) {
             return CompletableFuture.completedFuture(locQueue.get(world.getUID()).poll());
         }
         int[] coords = getRandomCoords(world);
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
             Block block = world.getHighestBlockAt(coords[0], coords[1], HeightMap.WORLD_SURFACE);
             if (isValidLocation(block)) {
-                Queue<Location> queue = locQueue.get(world.getUID());
-                if (queue == null) queue = new ArrayDeque<>();
-                queue.add(block.getLocation().add(0.5, 1, 0.5));
-                System.out.println("Added " + block.getLocation() + " to " + world.getName() + ", new size: " + queue.size());
-                locQueue.put(world.getUID(), queue);
-                return block.getLocation();
+                return block.getLocation().add(0.5, 1, 0.5);
             } else {
                 return addLocation(world, urgent).join();
             }
-        }, CoreClass.async);
+        }, CoreClass.async).thenApplyAsync(loc -> loc, CoreClass.sync);
     }
 
     private static boolean isValidLocation(Block block) {
