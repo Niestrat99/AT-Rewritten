@@ -63,6 +63,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Integer> MINIMUM_X;
     public ConfigOption<Integer> MINIMUM_Z;
     public ConfigOption<Boolean> USE_WORLD_BORDER;
+    public ConfigOption<Boolean> RAPID_RESPONSE;
     public ConfigOption<List<String>> AVOID_BLOCKS;
     public ConfigOption<List<String>> AVOID_BIOMES;
     public ConfigOption<Boolean> WHITELIST_WORLD;
@@ -315,6 +316,7 @@ public class NewConfig extends CMFile {
                 "- bed - Teleports to the player's bed.\n" +
                 "- anchor - 1.16+ only, teleports to the player's respawn anchor. However, due to limitations with Spigot's API, it may or may not always work. (add Player#getRespawnAnchor pls)\n" +
                 "- warp:Warp Name - Teleports the player to a specified warp. For example, if you want to teleport to Hub, you'd type warp:Hub\n" +
+                "- tpr - Teleports the player to a random location. Can only be used when the rapid response system is enabled." +
                 "- {default} - Uses the default respawn option, which is spawn unless set differently.\n" +
                 "If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.");
 
@@ -509,6 +511,7 @@ public class NewConfig extends CMFile {
         MINIMUM_X = new ConfigOption<>("minimum-x");
         MINIMUM_Z = new ConfigOption<>("minimum-z");
         USE_WORLD_BORDER = new ConfigOption<>("use-world-border");
+        RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");
         AVOID_BIOMES = new ConfigOption<>("avoid-biomes");
         WHITELIST_WORLD = new ConfigOption<>("whitelist-worlds");
