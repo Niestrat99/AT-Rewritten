@@ -9,7 +9,9 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.papermc.lib.PaperLib;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -91,10 +93,28 @@ public class TeleportTrackingManager implements Listener {
             if (atPlayer.getPreviousLocation().getWorld() == null) return;
             ConfigurationSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
             String spawnCommand = deathManagement.getString(atPlayer.getPreviousLocation().getWorld().getName());
-            if (spawnCommand == null) {
+
+            if (spawnCommand == null || spawnCommand.equals("{default}")) {
                 spawnCommand = deathManagement.getString("default");
                 if (spawnCommand == null) return;
             }
+            if (spawnCommand.startsWith("tpr") && NewConfig.get().RAPID_RESPONSE.get()) {
+                World world = atPlayer.getPreviousLocation().getWorld();
+                if (spawnCommand.indexOf(':') != -1) {
+                    String worldStr = spawnCommand.substring(spawnCommand.indexOf(':'));
+                    if (!worldStr.isEmpty()) {
+                        world = Bukkit.getWorld(worldStr);
+                    }
+                }
+                if (world != null) {
+                    Location loc = RTPManager.getLocationUrgently(world);
+                    if (loc != null) {
+                        e.setRespawnLocation(loc);
+                        return;
+                    }
+                }
+            }
+
             switch (spawnCommand) {
                 case "spawn":
                     if (Spawn.getSpawnFile() != null) {
