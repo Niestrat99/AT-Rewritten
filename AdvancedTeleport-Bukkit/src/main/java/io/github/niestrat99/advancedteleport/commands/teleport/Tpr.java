@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
@@ -10,6 +11,8 @@ import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -114,23 +117,33 @@ public class Tpr implements ATCommand {
 
         if (!PaymentManager.getInstance().canPay("tpr", player)) return false;
 
-
-        Location nextLoc = RTPManager.getLocationUrgently(world);
-        if (nextLoc != null) {
-            searchingPlayers.remove(player.getUniqueId());
-            ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-            atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+        if (NewConfig.get().RAPID_RESPONSE.get() && PaperLib.isPaper()) {
+            Location nextLoc = RTPManager.getLocationUrgently(world);
+            if (nextLoc != null) {
+                ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+            } else {
+                CustomMessages.sendMessage(player, "Info.searching");
+                searchingPlayers.add(player.getUniqueId());
+                RTPManager.getNextAvailableLocation(world).thenAccept(location -> {
+                    searchingPlayers.remove(player.getUniqueId());
+                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                    ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                    atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+                });
+            }
         } else {
             CustomMessages.sendMessage(player, "Info.searching");
             searchingPlayers.add(player.getUniqueId());
-            RTPManager.getNextAvailableLocation(world).thenAccept(location -> {
+            RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world, location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
                 searchingPlayers.remove(player.getUniqueId());
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
                 atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
-            });
+            }));
         }
+
         return true;
     }
 }
