@@ -137,7 +137,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.Thatsmusic99</groupId>
+            <groupId>com.github.thatsmusic99</groupId>
             <artifactId>ConfigurationMaster</artifactId>
             <version>v1.0.2</version>
         </dependency>
