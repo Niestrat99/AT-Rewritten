@@ -12,7 +12,6 @@ import org.bukkit.block.Block;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static io.github.niestrat99.advancedteleport.CoreClass.worldBorder;
 
