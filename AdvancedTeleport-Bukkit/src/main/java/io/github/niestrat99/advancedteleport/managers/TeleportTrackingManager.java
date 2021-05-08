@@ -32,18 +32,20 @@ public class TeleportTrackingManager implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         if (e.getPlayer().hasMetadata("NPC")) return;
         Player player = e.getPlayer();
-        if (NewConfig.get().TELEPORT_TO_SPAWN_EVERY.get()
-                || (!player.hasPlayedBefore() && NewConfig.get().TELEPORT_TO_SPAWN_FIRST.get())) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (Spawn.getSpawnFile() != null) {
-                        PaperLib.teleportAsync(player, Spawn.getSpawnFile(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    } else {
-                        PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+        if (!player.hasPermission("at.admin.bypass.teleport-on-join")) {
+            if ((NewConfig.get().TELEPORT_TO_SPAWN_EVERY.get())
+                    || (!player.hasPlayedBefore() && NewConfig.get().TELEPORT_TO_SPAWN_FIRST.get())) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (Spawn.getSpawnFile() != null) {
+                            PaperLib.teleportAsync(player, Spawn.getSpawnFile(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                        } else {
+                            PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                        }
                     }
-                }
-            }.runTaskLater(CoreClass.getInstance(), 10);
+                }.runTaskLater(CoreClass.getInstance(), 10);
+            }
         }
     }
 

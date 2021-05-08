@@ -211,6 +211,7 @@ permissions:
       at.admin.info: true
       at.admin.bypass.distance-limit: true
       at.admin.sethome.bypass: true
+      at.admin.bypass.teleport-on-join: true
       at.admin.toggletp: true
       at.admin.bypass: true
       at.admin.tploc: true
