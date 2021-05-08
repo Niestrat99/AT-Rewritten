@@ -21,24 +21,7 @@ public class RTPManager {
         locQueue = new HashMap<>();
         borderData = new HashMap<>();
         for (World loadedWorld : Bukkit.getWorlds()) {
-            for (int i = 0; i < 3; i++) {
-                addLocation(loadedWorld, false).thenAccept(location -> {
-                    Queue<Location> queue = locQueue.get(loadedWorld.getUID());
-                    if (queue == null) queue = new ArrayDeque<>();
-                    queue.add(location);
-                    locQueue.put(loadedWorld.getUID(), queue);
-                });
-            }
-            if (NewConfig.get().USE_WORLD_BORDER.get() && worldBorder != null) {
-                BorderData border = com.wimbli.WorldBorder.Config.Border(loadedWorld.getName());
-                if (border != null) {
-                    borderData.put(loadedWorld.getUID(), new Double[]{
-                            border.getX() - border.getRadiusX(),
-                            border.getZ() - border.getRadiusZ(),
-                            border.getX() + border.getRadiusX(),
-                            border.getZ() + border.getRadiusZ()});
-                }
-            }
+            loadWorldData(loadedWorld);
         }
     }
 
@@ -69,7 +52,7 @@ public class RTPManager {
     }
 
     public static CompletableFuture<Location> addLocation(World world, boolean urgent) {
-        if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > 3) {
+        if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             return CompletableFuture.completedFuture(locQueue.get(world.getUID()).poll());
         }
         int[] coords = getRandomCoords(world);
@@ -87,6 +70,36 @@ public class RTPManager {
         if (block.getType().name().equals("AIR") || block.getType().name().equals("VOID_AIR")) return false;
         if (NewConfig.get().AVOID_BIOMES.get().contains(block.getBiome().name())) return false;
         return !NewConfig.get().AVOID_BLOCKS.get().contains(block.getType().name());
+    }
+
+    public static void loadWorldData(World world) {
+        if (!locQueue.containsKey(world.getUID())) {
+            for (int i = 0; i < NewConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
+                addLocation(world, false).thenAccept(location -> {
+                    Queue<Location> queue = locQueue.get(world.getUID());
+                    if (queue == null) queue = new ArrayDeque<>();
+                    queue.add(location);
+                    locQueue.put(world.getUID(), queue);
+                });
+            }
+        }
+        if (!borderData.containsKey(world.getUID())) {
+            if (NewConfig.get().USE_WORLD_BORDER.get() && worldBorder != null) {
+                BorderData border = com.wimbli.WorldBorder.Config.Border(world.getName());
+                if (border != null) {
+                    borderData.put(world.getUID(), new Double[]{
+                            border.getX() - border.getRadiusX(),
+                            border.getZ() - border.getRadiusZ(),
+                            border.getX() + border.getRadiusX(),
+                            border.getZ() + border.getRadiusZ()});
+                }
+            }
+        }
+    }
+
+    public static void unloadWorldData(World world) {
+        locQueue.remove(world.getUID());
+        borderData.remove(world.getUID());
     }
 
     private static Block doBinaryJump(World world, int[] coords) {
