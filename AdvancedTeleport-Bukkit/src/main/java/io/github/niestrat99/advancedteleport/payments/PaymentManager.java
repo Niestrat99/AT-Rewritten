@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.payments;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.payments.types.ItemsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.LevelsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
@@ -49,8 +50,10 @@ public class PaymentManager {
                 } else if (rawPayment.endsWith("EXP")) {
                     addPayment("exp", new PointsPayment(Integer.parseInt(points)), payments);
                 } else {
-                    if (CoreClass.getVault() != null) {
+                    if (CoreClass.getVault() != null && rawPayment.matches("^[0-9]+(\\.[0-9]+)?")) {
                         addPayment("vault", new VaultPayment(Double.parseDouble(rawPayment)), payments);
+                    } else {
+                        addPayment("item", ItemsPayment.getFromString(rawPayment), payments);
                     }
                 }
             } catch (Exception e) {
@@ -69,6 +72,16 @@ public class PaymentManager {
                 PointsPayment newPayment = new PointsPayment(0);
                 newPayment.addLevels((LevelsPayment) payment);
                 currentPayMethods.put("exp", newPayment);
+            }
+        } else if (type.equalsIgnoreCase("item")) {
+            if (payment == null) return;
+            ItemsPayment itemsPayment = (ItemsPayment) payment;
+            if (currentPayMethods.containsKey("item_" + itemsPayment.getMaterial().name())) {
+                ItemsPayment otherPayment = (ItemsPayment) currentPayMethods.get("item_" + itemsPayment.getMaterial().name());
+                otherPayment.setPaymentAmount(otherPayment.getPaymentAmount() + itemsPayment.getPaymentAmount());
+                currentPayMethods.put("item_" + itemsPayment.getMaterial().name(), otherPayment);
+            } else {
+                currentPayMethods.put("item_" + itemsPayment.getMaterial().name(), itemsPayment);
             }
         } else {
             if (currentPayMethods.containsKey(type)) {
