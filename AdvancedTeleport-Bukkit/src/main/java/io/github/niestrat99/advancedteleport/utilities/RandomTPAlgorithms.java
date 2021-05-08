@@ -17,51 +17,6 @@ public class RandomTPAlgorithms {
     private static HashMap<String, Algorithm> algorithms = new HashMap<>();
 
     public static void init() {
-        algorithms.put("linear", (player, world, callback) -> {
-            Location location = RandomCoords.generateCoords(world);
-            boolean validLocation = false;
-            while (!validLocation) {
-                if (location.getWorld().getEnvironment() == World.Environment.NETHER) { // We'll search up instead of down in the Nether!
-                    while (location.getBlock().getType() != Material.AIR) {
-                        location.add(0, 1, 0);
-                    }
-                } else {
-                    while (location.getBlock().getType() == Material.AIR) {
-                        location.subtract(0, 1, 0);
-                    }
-                }
-
-
-                boolean b = true;
-                for (String Material: NewConfig.get().AVOID_BLOCKS.get()) {
-                    if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
-                        if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
-                            location = RandomCoords.generateCoords(world);
-                            b = false;
-                            break;
-                        }
-                    } else {
-                        if (location.getBlock().getType().name().equalsIgnoreCase(Material)){
-                            location = RandomCoords.generateCoords(world);
-                            b = false;
-                            break;
-                        }
-                    }
-
-                }
-                if (!DistanceLimiter.canTeleport(player.getLocation(), location, "tpr") && !player.hasPermission("at.admin.bypass.distance-limit")) {
-                    b = false;
-                }
-                if (b) {
-                    location.add(0 , 2 , 0);
-                    validLocation = true;
-                }
-            }
-            if (callback != null) {
-                callback.onSuccess(location);
-            }
-        });
-
         algorithms.put("binary", (player, world, callback) -> {
             Runnable runnable = () -> {
                 // Generate random coordinates
@@ -143,51 +98,6 @@ public class RandomTPAlgorithms {
                 Thread thread = new Thread(runnable, "AdvancedTeleport RTP Worker");
                 thread.setPriority(3);
                 thread.start();
-            }
-        });
-
-        algorithms.put("jump", (player, world, callback) -> {
-            Location location = RandomCoords.generateCoords(world);
-            boolean validLocation = false;
-            while (!validLocation) {
-                if (location.getWorld().getEnvironment() == World.Environment.NETHER) { // We'll search up instead of down in the Nether!
-                    while (location.getBlock().getType() != Material.AIR) {
-                        location.add(0, 10, 0);
-                    }
-                } else {
-                    while (location.getBlock().getType() == Material.AIR) {
-                        location.subtract(0, 10, 0);
-                    }
-                }
-
-
-                boolean b = true;
-                for (String Material: NewConfig.get().AVOID_BLOCKS.get()) {
-                    if (location.getWorld().getEnvironment() == World.Environment.NETHER) {
-                        if (location.clone().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(Material)) {
-                            location = RandomCoords.generateCoords(world);
-                            b = false;
-                            break;
-                        }
-                    } else {
-                        if (location.getBlock().getType().name().equalsIgnoreCase(Material)){
-                            location = RandomCoords.generateCoords(world);
-                            b = false;
-                            break;
-                        }
-                    }
-
-                }
-                if (!DistanceLimiter.canTeleport(player.getLocation(), location, "tpr") && !player.hasPermission("at.admin.bypass.distance-limit")) {
-                    b = false;
-                }
-                if (b) {
-                    location.add(0 , 2 , 0);
-                    validLocation = true;
-                }
-            }
-            if (callback != null) {
-                callback.onSuccess(location);
             }
         });
     }

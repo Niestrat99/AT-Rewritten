@@ -63,7 +63,10 @@ public class NewConfig extends CMFile {
     public ConfigOption<Integer> MINIMUM_X;
     public ConfigOption<Integer> MINIMUM_Z;
     public ConfigOption<Boolean> USE_WORLD_BORDER;
+    public ConfigOption<Boolean> RAPID_RESPONSE;
+    public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> AVOID_BLOCKS;
+    public ConfigOption<List<String>> AVOID_BIOMES;
     public ConfigOption<Boolean> WHITELIST_WORLD;
     public ConfigOption<Boolean> REDIRECT_TO_WORLD;
     public ConfigOption<List<String>> ALLOWED_WORLDS;
@@ -267,8 +270,15 @@ public class NewConfig extends CMFile {
         addDefault("minimum-x", -5000, "The minimum X coordinate to go down to when selecting a random location.");
         addDefault("minimum-z", -5000, "The minimum Z coordinate to go down to when selecting a random location.");
         addDefault("use-world-border", true, "When WorldBorder is installed, AT will check the border of each world instead rather than using the minimum and maximum coordinates.");
+        addDefault("use-rapid-response", true, "Use the new rapid response system for RTP.\n" +
+                "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.\n" +
+                "This feature allows you to use the \"tpr\" death option in the death management section further down.\n" +
+                "IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.");
+        addDefault("prepared-locations-limit", 3, "How many locations can be prepared per world when using AT's Rapid Response system.\n" +
+                "These are immediately prepared upon startup and when a world is loaded.");
         addDefault("avoid-blocks", new ArrayList<>(Arrays.asList("WATER", "LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")),
                 "Blocks that people must not be able to land in when using /tpr.");
+        addDefault("avoid-biomes", new ArrayList<>(Arrays.asList("OCEAN", "DEEP_OCEAN")), "Biomes that the plugin should avoid when searching for a location.");
         addDefault("whitelist-worlds", false, "Whether or not /tpr should only be used in the worlds listed below.");
         addDefault("redirect-to-whitelisted-worlds", true, "Whether or not players should be directed to a whitelisted world when using /tpr.\n" +
                 "When this option is disabled and the player tries to use /tpr in a non-whitelisted world, the command simply won't work.");
@@ -312,6 +322,7 @@ public class NewConfig extends CMFile {
                 "- bed - Teleports to the player's bed.\n" +
                 "- anchor - 1.16+ only, teleports to the player's respawn anchor. However, due to limitations with Spigot's API, it may or may not always work. (add Player#getRespawnAnchor pls)\n" +
                 "- warp:Warp Name - Teleports the player to a specified warp. For example, if you want to teleport to Hub, you'd type warp:Hub\n" +
+                "- tpr - Teleports the player to a random location. Can only be used when the rapid response system is enabled." +
                 "- {default} - Uses the default respawn option, which is spawn unless set differently.\n" +
                 "If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.");
 
@@ -506,7 +517,10 @@ public class NewConfig extends CMFile {
         MINIMUM_X = new ConfigOption<>("minimum-x");
         MINIMUM_Z = new ConfigOption<>("minimum-z");
         USE_WORLD_BORDER = new ConfigOption<>("use-world-border");
+        RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
+        PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");
+        AVOID_BIOMES = new ConfigOption<>("avoid-biomes");
         WHITELIST_WORLD = new ConfigOption<>("whitelist-worlds");
         REDIRECT_TO_WORLD = new ConfigOption<>("redirect-to-whitelisted-worlds");
         ALLOWED_WORLDS = new ConfigOption<>("allowed-worlds");

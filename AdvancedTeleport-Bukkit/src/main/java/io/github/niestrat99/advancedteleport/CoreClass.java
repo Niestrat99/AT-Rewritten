@@ -7,10 +7,8 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.listeners.AtSigns;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
-import io.github.niestrat99.advancedteleport.managers.CommandManager;
-import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
-import io.github.niestrat99.advancedteleport.managers.TeleportTrackingManager;
+import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
+import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
@@ -114,6 +112,7 @@ public class CoreClass extends JavaPlugin {
             public void run() {
                 // Config.setupDefaults();
                 NBTReader.init();
+                RTPManager.init();
                 Object[] update = UpdateChecker.getUpdate();
                 if (update != null) {
                     getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));
@@ -137,6 +136,7 @@ public class CoreClass extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TeleportTrackingManager(), this);
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
+        getServer().getPluginManager().registerEvents(new WorldLoadListener(), this);
     }
 
     public static void playSound(String type, String subType, Player target) {
