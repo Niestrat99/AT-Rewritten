@@ -99,6 +99,10 @@ commands:
     description: Sets a spawn at your location.
     permission: at.admin.setspawn
     usage: /setspawn
+  mirrorspawn:
+    description: Mirrors spawn lol
+    permission: at.admin.mirrorspawn
+    usage: /mirrorspawn <To World>|[From World] [To World]
   atreload:
     description: Reloads the Config.
     permission: at.admin.reload
@@ -153,6 +157,8 @@ commands:
 permissions:
   at.member.warp.*:
     default: op
+  at.member.spawn.*:
+    default: false
   # Allows all member permissions
   at.member.*:
     default: op

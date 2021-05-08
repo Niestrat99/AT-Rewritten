@@ -38,8 +38,9 @@ public class TeleportTrackingManager implements Listener {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        if (Spawn.getSpawnFile() != null) {
-                            PaperLib.teleportAsync(player, Spawn.getSpawnFile(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                        Location spawn = Spawn.get().getSpawn(e.getPlayer());
+                        if (spawn != null) {
+                            PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
                         } else {
                             PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         }
@@ -99,8 +100,9 @@ public class TeleportTrackingManager implements Listener {
             }
             switch (spawnCommand) {
                 case "spawn":
-                    if (Spawn.getSpawnFile() != null) {
-                        e.setRespawnLocation(Spawn.getSpawnFile());
+                    Location spawn = Spawn.get().getSpawn(e.getPlayer());
+                    if (spawn != null) {
+                        e.setRespawnLocation(spawn);
                     }
                     break;
                 case "bed":

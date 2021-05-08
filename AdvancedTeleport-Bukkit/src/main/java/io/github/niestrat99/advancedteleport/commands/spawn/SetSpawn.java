@@ -19,13 +19,8 @@ public class SetSpawn implements AsyncATCommand {
             if (sender.hasPermission("at.admin.setspawn")){
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
-                    Location spawn = player.getLocation();
-                    try {
-                        Spawn.setSpawn(spawn);
-                        CustomMessages.sendMessage(sender, "Info.setSpawn");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    Spawn.get().setSpawn(player.getLocation());
+                    CustomMessages.sendMessage(sender, "Info.setSpawn");
                 } else {
                     CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }

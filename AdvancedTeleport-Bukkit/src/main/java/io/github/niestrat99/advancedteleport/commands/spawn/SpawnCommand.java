@@ -46,10 +46,8 @@ public class SpawnCommand implements ATCommand {
     }
 
     public static void spawn(Player player) {
-        Location spawn;
-        if (Spawn.getSpawnFile() != null) {
-            spawn = Spawn.getSpawnFile();
-        } else {
+        Location spawn = Spawn.get().getSpawn(player);
+        if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
         }
 
