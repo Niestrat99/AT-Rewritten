@@ -4,10 +4,7 @@ import com.wimbli.WorldBorder.BorderData;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.papermc.lib.PaperLib;
-import org.bukkit.Bukkit;
-import org.bukkit.HeightMap;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 
 import java.util.*;
@@ -77,7 +74,7 @@ public class RTPManager {
         }
         int[] coords = getRandomCoords(world);
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
-            Block block = world.getHighestBlockAt(coords[0], coords[1], HeightMap.WORLD_SURFACE);
+            Block block = doBinaryJump(world, coords);
             if (isValidLocation(block)) {
                 return block.getLocation().add(0.5, 1, 0.5);
             } else {
@@ -89,8 +86,57 @@ public class RTPManager {
     private static boolean isValidLocation(Block block) {
         if (block.getType().name().equals("AIR") || block.getType().name().equals("VOID_AIR")) return false;
         if (NewConfig.get().AVOID_BIOMES.get().contains(block.getBiome().name())) return false;
-        if (NewConfig.get().AVOID_BLOCKS.get().contains(block.getType().name())) return false;
-        return true;
+        return !NewConfig.get().AVOID_BLOCKS.get().contains(block.getType().name());
+    }
+
+    private static Block doBinaryJump(World world, int[] coords) {
+        Location location = new Location(world, coords[0], 128, coords[1]);
+        // This is how much we'll jump by at first
+        int jumpAmount = 128;
+        // However, if we're in the Nether...
+        if (world.getEnvironment() == World.Environment.NETHER) {
+            // We'll start at level 64 instead and start at a jump of 64.
+            location.setY(64);
+            jumpAmount = 64;
+        }
+        // Whether to go up or down.
+        boolean up = false;
+        // Temporary location.
+        Location tempLoc = location.clone();
+        // Whilst there's no valid location...
+        while (true) {
+            // Divide the amount to jump by 2.
+            jumpAmount = jumpAmount / 2;
+            // If we've hit a dead end with the jumps...
+            if (jumpAmount == 0) {
+                // Return an invalid location.
+                location.setY(0);
+                return location.getBlock();
+            }
+            // Clone the current location.
+            Location subTempLocation = tempLoc.clone();
+            // The current material we're looking at.
+            Material currentMat;
+            // If we're going up...
+            if (up) {
+                // Get the material
+                currentMat = subTempLocation.add(0, jumpAmount, 0).getBlock().getType();
+            } else {
+                currentMat = subTempLocation.subtract(0, jumpAmount, 0).getBlock().getType();
+            }
+            tempLoc = subTempLocation.clone();
+
+            if (currentMat != Material.AIR) {
+                if (subTempLocation.add(0, 1, 0).getBlock().getType() == Material.AIR
+                        && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
+                    return subTempLocation.add(0.5, -1, 0.5).getBlock();
+                } else {
+                    up = true;
+                }
+            } else {
+                up = false;
+            }
+        }
     }
 
     private static int[] getRandomCoords(World world) {
