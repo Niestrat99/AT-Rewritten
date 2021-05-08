@@ -123,7 +123,7 @@ public class RTPManager {
             // If we've hit a dead end with the jumps...
             if (jumpAmount == 0) {
                 // Return an invalid location.
-                location.setY(0);
+                location.setY(-3);
                 return location.getBlock();
             }
             // Clone the current location.
