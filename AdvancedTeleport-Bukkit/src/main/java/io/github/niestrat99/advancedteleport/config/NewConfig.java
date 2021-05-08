@@ -64,6 +64,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Integer> MINIMUM_Z;
     public ConfigOption<Boolean> USE_WORLD_BORDER;
     public ConfigOption<Boolean> RAPID_RESPONSE;
+    public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> AVOID_BLOCKS;
     public ConfigOption<List<String>> AVOID_BIOMES;
     public ConfigOption<Boolean> WHITELIST_WORLD;
@@ -271,6 +272,8 @@ public class NewConfig extends CMFile {
                 "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.\n" +
                 "This feature allows you to use the \"tpr\" death option in the death management section further down.\n" +
                 "IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.");
+        addDefault("prepared-locations-limit", 3, "How many locations can be prepared per world when using AT's Rapid Response system.\n" +
+                "These are immediately prepared upon startup and when a world is loaded.");
         addDefault("avoid-blocks", new ArrayList<>(Arrays.asList("WATER", "LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")),
                 "Blocks that people must not be able to land in when using /tpr.");
         addDefault("avoid-biomes", new ArrayList<>(Arrays.asList("OCEAN", "DEEP_OCEAN")), "Biomes that the plugin should avoid when searching for a location.");
@@ -512,6 +515,7 @@ public class NewConfig extends CMFile {
         MINIMUM_Z = new ConfigOption<>("minimum-z");
         USE_WORLD_BORDER = new ConfigOption<>("use-world-border");
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
+        PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");
         AVOID_BIOMES = new ConfigOption<>("avoid-biomes");
         WHITELIST_WORLD = new ConfigOption<>("whitelist-worlds");
