@@ -208,63 +208,99 @@ public class CustomMessages extends CMFile {
                 "\n&bY &8» &7{y}" +
                 "\n&bZ &8» &7{z}" +
                 "\n&bWorld &8» &7{world}");
-        addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
-                "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
-                "&6--[ &bCategories &6]--",
-                "&6- Teleport",
-                "&6- Warps",
-                "&6- Spawn",
-                "&6- RandomTP",
-                "&6- Homes")));
-        addDefault("Help.mainHelpAdmin", new ArrayList<>(Collections.singletonList("&6- Admin")));
-        addDefault("Help.teleport", new ArrayList<>(Arrays.asList("&b&lTeleport help",
-                "&6- /tpa <player> - Sends a request to teleport to the player.",
-                "&6- /tpahere <player> - Sends a request to the player to teleport to you",
-                "&6- /tpaccept - Accepts a player's teleport request.",
-                "&6- /tpdeny - Declines a player's teleport request.",
-                "&6- /tpcancel - Lets you cancel the request you have sent to a player.",
-                "&6- /toggletp - Lets you switch between /tpon and /tpoff.",
-                "&6- /tpon - Enables teleport requests to you.",
-                "&6- /tpoff - Disables teleport requests to you.",
-                "&6- /tpblock <player> - Blocks the player so that they cannot send you teleport requests anymore.",
-                "&6- /tpunblock <player> - Unblocks the player so that they can send you teleport requests.",
-                "&6- /back - Teleports you to your last location.",
-                "&6- /tpalist - Lists your teleport requests.")));
-        addDefault("Help.teleportAdmin", new ArrayList<>(Arrays.asList("&6- /tpo <player> - Instantly teleports you to the player.",
-                "&6- /tpohere <player> - Instantly teleports the player to you.",
-                "&6- /tpall - Sends a teleport request to every online player to teleport to you.",
-                "&6- /tploc <x|~> <y|~> <z|~> [Yaw|~] [Pitch|~] [World|~] [Player] [precise|noflight] - Teleports you or another player to a specified location.",
-                "&6- /tpoffline <player> - Teleports to an offline player.",
-                "&6- /tpofflinehere <player> - Teleports an offline player to you.")));
-        addDefault("Help.warps", new ArrayList<>(Arrays.asList("&b&lWarps help",
-                "&6- /warp <Warp> - Teleports you to an existing warp point.",
-                "&6- /warps - Gives you a list of warps.")));
-        addDefault("Help.warpsAdmin", new ArrayList<>(Arrays.asList(
-                "&6- /setwarp <Name> - Sets a warp at a given location.",
-                "&6- /delwarp <Warp> - Deletes a warp.",
-                "&6- /movewarp <Warp> - Moves a warp to your location.")));
-        addDefault("Help.spawn", new ArrayList<>(Arrays.asList("&b&lSpawn help",
-                "&6- /spawn - Teleports you to the spawn point.")));
-        addDefault("Help.spawnAdmin", new ArrayList<>(Arrays.asList("&6- /setspawn [Name] - Sets a spawn point - with a name if specified - at your location.",
-                "&6- /mirrorspawn <To Point>|[From World] [To Point] - Redirects people using /spawn in one world to another spawn point.",
-                "&6- /setmainspawn [Point] - Sets a specified spawnpoint to become the main spawnpoint. If it does not exist, it will be created if you have /setspawn permissions.",
-                "&6- /removespawn [Point] - Removes a specified spawnpoint. If none is specified, the one in your current world is removed.")));
-        addDefault("Help.randomTP", new ArrayList<>(Arrays.asList("&b&lRandomTP help",
-                "&6- /rtp - Teleports you to a random location.")));
-        addDefault("Help.homes", new ArrayList<>(Arrays.asList("&b&lHomes help",
-                "&6- /sethome <Home> - Sets a home point at your location.",
-                "&6- /delhome <Home> - Deletes a home point you've set.",
-                "&6- /home <Home> - Teleports you to your home.",
-                "&6- /homes - Gives you a list of homes you've set.",
-                "&6- /movehome <Home> - Moves one of your homes to your current location.",
-                "&6- /setmainhome <Home> - Sets a home at your location or makes an existing one your main home.")));
-        addDefault("Help.homesAdmin", new ArrayList<>(Arrays.asList("&6- /sethome <player> <home name> - Sets a home point at your location for the player.",
-                "&6- /delhome <player> <home name> - Deletes a home point of a player.",
-                "&6- /home <player> <home name> - Teleports you to a home point a player has set.",
-                "&6- /homes <player> - Gives you a list of homes of a player.")));
-        addDefault("Help.admin", new ArrayList<>(Arrays.asList("&b&lAdmin help",
-                "&6- /atinfo - Shows informations about this plugin.",
-                "&6- /atreload - Reloads all configuration files of this plugin.")));
+
+        addDefault("Descriptions.Subcommands.help", "Sends the help menu, providing a full list of commands.");
+        addDefault("Descriptions.Subcommands.info", "Sends information regarding the plugin.");
+        addDefault("Descriptions.Subcommands.import", "Imports data from another plugin so that it can be used within AT.");
+        addDefault("Descriptions.Subcommands.export", "Exports data within AT to another plugin.");
+        addDefault("Descriptions.Subcommands.reload", "Reloads the plugin's configuration.");
+        addDefault("Descriptions.at", "The core command for AT.");
+        addDefault("Descriptions.tpa", "Sends a request to teleport to the player.");
+        addDefault("Descriptions.tpahere", "Sends a request to the player to teleport to you.");
+        addDefault("Descriptions.tpyes", "Accepts a player's teleport request.");
+        addDefault("Descriptions.tpno", "Declines a player's teleport request.");
+        addDefault("Descriptions.tpcancel", "Cancels your teleport request to a player.");
+        addDefault("Descriptions.toggletp", "Either stops or allows players to send teleport requests to you.");
+        addDefault("Descriptions.tpon", "Allows players to send teleport requests to you.");
+        addDefault("Descriptions.tpoff", "Stops players from sending teleport requests to you.");
+        addDefault("Descriptions.tpblock", "Stops a specific player from sending teleport requests to you.");
+        addDefault("Descriptions.tpunblock", "Allows a blocked player to send you teleport requests again.");
+        addDefault("Descriptions.back", "Teleports you to your previous location.");
+        addDefault("Descriptions.tpalist", "Lists all of your current teleport requests.");
+        addDefault("Descriptions.tpo", "Instantly teleports you to a player.");
+        addDefault("Descriptions.tpohere", "Instantly teleports a player to you.");
+        addDefault("Descriptions.tpall", "Sends a teleport request to everyone in the server to you.");
+        addDefault("Descriptions.tploc", "Teleports you to a specific location.");
+        addDefault("Descriptions.tpoffline", "Teleports you to an offline player.");
+        addDefault("Descriptions.tpofflinehere", "Teleports an offline player to you.");
+        addDefault("Descriptions.tpr", "Teleports you to a random location.");
+        addDefault("Descriptions.warp", "Teleports you to a given warp point.");
+        addDefault("Descriptions.warps", "Gives you a list of warps you can teleport to.");
+        addDefault("Descriptions.setwarp", "Sets a warp at your location.");
+        addDefault("Descriptions.delwarp", "Deletes a warp.");
+        addDefault("Descriptions.movewarp", "Moves a warp to a new location.");
+        addDefault("Descriptions.spawn", "Teleports you to the spawnpoint.");
+        addDefault("Descriptions.setspawn", "Sets a spawn with a name when specified.");
+        addDefault("Descriptions.mirrorspawn", "Redirects people using /spawn in one world to another spawn point.");
+        addDefault("Descriptions.setmainspawn", "Sets a specified spawnpoint to become the main spawnpoint. If it does not exist, it will be created if you have /setspawn permissions.");
+        addDefault("Descriptions.removespawn", "Removes a specified spawnpoint. If none is specified, the one in your current world is removed.");
+        addDefault("Descriptions.home", "Teleports you to your home.");
+        addDefault("Descriptions.homes", "Gives you a list of homes you've set.");
+        addDefault("Descriptions.sethome", "Sets a home at your current location.");
+        addDefault("Descriptions.delhome", "Deletes a home.");
+        addDefault("Descriptions.movehome", "Moves a home to a new location.");
+        addDefault("Descriptions.setmainhome", "Sets a home at your location or makes an existing one your main home.");
+
+        addDefault("Usages.Subcommands.help", "/at help [Category|Page]");
+        addDefault("Usages.Subcommands.info", "/at info");
+        addDefault("Usages.Subcommands.import", "/at import <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
+        addDefault("Usages.Subcommands.export", "/at export <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
+        addDefault("Usages.Subcommands.reload", "/at reload");
+        addDefault("Usages.at", "/at <Command>");
+        addDefault("Usages.tpa", "/tpa <Player>");
+        addDefault("Usages.tpahere", "/tpahere <Player>");
+        addDefault("Usages.tpyes", "/tpyes [Player]");
+        addDefault("Usages.tpno", "/tpno [Player]");
+        addDefault("Usages.tpcancel", "/tpcancel [Player]");
+        addDefault("Usages.toggletp", "/toggletp");
+        addDefault("Usages.tpon", "/tpon");
+        addDefault("Usages.tpoff", "/tpoff");
+        addDefault("Usages.tpblock", "/tpblock <Player> [Reason]");
+        addDefault("Usages.tpunblock", "/tpunblock <Player>");
+        addDefault("Usages.back", "/back");
+        addDefault("Usages.tpalist", "/tpalist");
+        addDefault("Usages.tpo", "/tpo <Player>");
+        addDefault("Usages.tpohere", "/tpohere <Player>");
+        addDefault("Usages.tpall", "/tpall");
+        addDefault("Usages.tploc", "/tploc <x|~> <y|~> <z|~> [Yaw|~] [Pitch|~] [World|~] [Player] [precise|noflight]");
+        addDefault("Usages.tpoffline", "/tpoffline <Player>");
+        addDefault("Usages.tpofflinehere", "/tpofflinehere <Player>");
+        addDefault("Usages.tpr", "/tpr [World]");
+        addDefault("Usages.warp", "/warp <Warp>");
+        addDefault("Usages.warps", "/warps");
+        addDefault("Usages.setwarp", "/setwarp <Name>");
+        addDefault("Usages.delwarp", "/delwarp <Name>");
+        addDefault("Usages.movewarp", "/movewarp <Name>");
+        addDefault("Usages.spawn", "/spawn");
+        addDefault("Usages.setspawn", "/setspawn [ID]");
+        addDefault("Usages.mirrorspawn", "/mirrorspawn <To Point>|[From World] [To Point]");
+        addDefault("Usages.setmainspawn", "/setmainspawn [Point]");
+        addDefault("Usages.removespawn", "/removespawn [Point]");
+        addDefault("Usages.home", "/home [Home]");
+        addDefault("Usages.homes", "/homes");
+        addDefault("Usages.sethome", "/sethome <Name>");
+        addDefault("Usages.delhome", "/delhome <Home>");
+        addDefault("Usages.movehome", "/movehome <Home>");
+        addDefault("Usages.setmainhome", "/setmainhome <Home>");
+
+        addDefault("Usages-Admin.tpr", "/tpr [World] [Player]");
+        addDefault("Usages-Admin.home", "/home [Home]|<Player> <Home>");
+        addDefault("Usages-Admin.homes", "/homes [Player]");
+        addDefault("Usages-Admin.delhome", "/delhome <Home>|<Player> <Home>");
+        addDefault("Usages-Admin.sethome", "/sethome <Name>|<Player> <Name>");
+        addDefault("Usages-Admin.movehome", "/movehome <Home>|<Player> <Home>");
+        addDefault("Usages-Admin.setmainhome", "/setmainhome <Home>|<Player> <Home>");
+        addDefault("Usages-Admin.spawn", "/spawn <ID>");
 
     }
 

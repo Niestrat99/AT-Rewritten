@@ -1,5 +1,6 @@
-package io.github.niestrat99.advancedteleport.commands;
+package io.github.niestrat99.advancedteleport.commands.core;
 
+import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUI;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -11,25 +12,20 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.List;
 
-public class AtReload implements AsyncATCommand {
+public class ReloadCommand implements SubATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (!sender.hasPermission("at.admin.reload")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-        } else {
-            CustomMessages.sendMessage(sender, "Info.reloadingConfig");
-            NewConfig.get().reload();
-            CustomMessages.config.reload();
-            Spawn.get().reload();
-            GUI.get().reload();
-            CooldownManager.init();
-            CommandManager.registerCommands();
-            CustomMessages.sendMessage(sender, "Info.reloadedConfig");
-        }
+        CustomMessages.sendMessage(sender, "Info.reloadingConfig");
+        NewConfig.get().reload();
+        CustomMessages.config.reload();
+        Spawn.get().reload();
+        GUI.get().reload();
+        CooldownManager.init();
+        CommandManager.registerCommands();
+        CustomMessages.sendMessage(sender, "Info.reloadedConfig");
         return true;
     }
 
