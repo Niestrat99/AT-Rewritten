@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import org.bukkit.command.Command;
@@ -17,8 +18,8 @@ public class MirrorSpawn implements ATCommand {
                 String fromWorld = "";
                 String toWorld = "";
                 if (args.length == 0) {
-                    sender.sendMessage("Insufficient Arguments");
-                    return false;
+                    CustomMessages.sendMessage(sender, "Error.mirrorSpawnNoArguments");
+                    return true;
                 }
 
                 if (args.length == 1) {
@@ -26,7 +27,7 @@ public class MirrorSpawn implements ATCommand {
                     if (sender instanceof Player) {
                         fromWorld = ((Player) sender).getWorld().getName();
                     } else {
-                        sender.sendMessage("Must be a player");
+                        CustomMessages.sendMessage(sender, "Error.mirrorSpawnLackOfArguments");
                         return false;
                     }
                 }
@@ -36,7 +37,7 @@ public class MirrorSpawn implements ATCommand {
                     toWorld = args[1];
                 }
 
-                sender.sendMessage(Spawn.get().mirrorSpawn(fromWorld, toWorld));
+                CustomMessages.sendMessage(sender, Spawn.get().mirrorSpawn(fromWorld, toWorld), "{spawn}", toWorld, "{from}", fromWorld);
                 return true;
             }
         }

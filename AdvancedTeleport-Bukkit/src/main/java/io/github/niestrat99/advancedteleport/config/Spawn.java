@@ -94,17 +94,17 @@ public class Spawn extends CMFile {
                         set("spawns." + from, null);
                         set("spawns." + from + ".mirror", mirror);
                         save(true);
-                        return "Success";
+                        return "Info.mirroredSpawn";
                     } else {
-                        return "NoSuchSpawn";
+                        return "Error.noSuchSpawn";
                     }
                 } else {
-                    return "NoSuchSpawn";
+                    return "Error.noSuchSpawn";
                 }
             }
 
         } else {
-            return "NoSuchSpawn";
+            return "Error.noSuchSpawn";
         }
     }
 
@@ -156,13 +156,13 @@ public class Spawn extends CMFile {
         mainSpawn = location;
         set("main-spawn", id);
         save(true);
-        return "yay";
+        return "Info.setMainSpawn";
     }
 
     public String removeSpawn(String id) {
         set("spawns." + id, null);
         save(true);
-        return "Good";
+        return "Info.removedSpawn";
     }
 
     public boolean doesSpawnExist(String id) {

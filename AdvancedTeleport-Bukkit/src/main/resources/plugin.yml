@@ -100,7 +100,7 @@ commands:
     permission: at.admin.setspawn
     usage: /setspawn
   mirrorspawn:
-    description: Mirrors spawn lol
+    description: Redirects people using /spawn in one world to another spawn point.
     permission: at.admin.mirrorspawn
     usage: /mirrorspawn <To World>|[From World] [To World]
   removespawn:

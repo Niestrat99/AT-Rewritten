@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import org.bukkit.Location;
@@ -24,16 +25,16 @@ public class SetMainSpawn implements ATCommand {
                 boolean world = true;
                 if (args.length > 0) {
                     if (!args[0].matches("^[0-9A-Za-z\\-_]+$")) {
-                        sender.sendMessage("Bad");
-                        return false;
+                        CustomMessages.sendMessage(sender, "Error.nonAlphanumericSpawn");
+                        return true;
                     }
                     id = args[0];
                     world = false;
                 } else if (sender instanceof Player) {
                     id = ((Player) sender).getWorld().getName();
                 } else {
-                    sender.sendMessage("No");
-                    return false;
+                    CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawnConsole");
+                    return true;
                 }
 
                 Location loc;
@@ -44,21 +45,20 @@ public class SetMainSpawn implements ATCommand {
                             loc = ((Player) sender).getLocation();
                             Spawn.get().setSpawn(loc, id);
                         } else {
-                            sender.sendMessage("Bad");
-                            return false;
+                            CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
+                            return true;
                         }
                     } else {
-                        sender.sendMessage("Bad");
-                        return false;
+                        CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawnConsole");
+                        return true;
                     }
                 } else {
                     loc = Spawn.get().getSpawn(id);
                 }
-
-                sender.sendMessage(Spawn.get().setMainSpawn(id, loc));
+                CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id);
             }
         }
-        return false;
+        return true;
     }
 
     @Nullable

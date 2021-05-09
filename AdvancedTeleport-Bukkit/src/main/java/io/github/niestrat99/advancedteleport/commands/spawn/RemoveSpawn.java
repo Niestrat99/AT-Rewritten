@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import org.bukkit.command.Command;
@@ -24,8 +25,8 @@ public class RemoveSpawn implements ATCommand {
                     if (sender instanceof Player) {
                         removingSpawn = ((Player) sender).getWorld().getName();
                     } else {
-                        sender.sendMessage("No");
-                        return false;
+                        CustomMessages.sendMessage(sender, "Error.removeSpawnNoArgs");
+                        return true;
                     }
                 }
 
@@ -33,10 +34,10 @@ public class RemoveSpawn implements ATCommand {
                     removingSpawn = args[0];
                 }
                 if (!Spawn.get().doesSpawnExist(removingSpawn)) {
-                    sender.sendMessage("No such spawn");
-                    return false;
+                    CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "{spawn}", removingSpawn);
+                    return true;
                 }
-                sender.sendMessage(Spawn.get().removeSpawn(removingSpawn));
+                CustomMessages.sendMessage(sender, Spawn.get().removeSpawn(removingSpawn));
             }
         }
         return false;
