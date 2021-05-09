@@ -110,12 +110,18 @@ public class Spawn extends CMFile {
     public Location getSpawn(Player player) {
         String worldName = player.getWorld().getName();
         // Would do less looping
-        for (World world : Bukkit.getWorlds()) {
-            if (player.hasPermission("at.member.spawn." + world.getName())
-                    && player.isPermissionSet("at.member.spawn." + world.getName())) {
-                worldName = world.getName();
+        for (String spawn : getSpawns()) {
+            // Weird annoying bug >:(
+            if (player.hasPermission("at.member.spawn." + spawn)
+                    && player.isPermissionSet("at.member.spawn." + spawn)) {
+                worldName = spawn;
             }
         }
+        return getSpawn(worldName);
+    }
+
+    public Location getSpawn(String name) {
+        if (getConfig().get("spawns." + name) == null) return mainSpawn;
         ConfigurationSection spawns = getConfig().getConfigurationSection("spawns");
         ConfigurationSection toSection = spawns.getConfigurationSection(name);
         while (true) {

@@ -14,13 +14,23 @@ import java.io.IOException;
 public class SetSpawn implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (NewConfig.get().USE_SPAWN.get()) {
             if (sender.hasPermission("at.admin.setspawn")){
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
-                    Spawn.get().setSpawn(player.getLocation());
-                    CustomMessages.sendMessage(sender, "Info.setSpawn");
+                    String name = player.getWorld().getName();
+                    String message = "Info.setSpawn";
+                    if (args.length > 0 && sender.hasPermission("at.admin.setspawn.other")) {
+                        if (!args[0].matches("^[0-9a-zA-Z_\\-]+$")) {
+                            sender.sendMessage("Bad");
+                            return false;
+                        }
+                        name = args[0];
+                        message = "Info.setSpawnSpecial";
+                    }
+                    Spawn.get().setSpawn(player.getLocation(), name);
+                    CustomMessages.sendMessage(sender, message, name);
                 } else {
                     CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }

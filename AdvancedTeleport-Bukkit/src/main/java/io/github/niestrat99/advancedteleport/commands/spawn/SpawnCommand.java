@@ -12,15 +12,17 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SpawnCommand implements ATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (NewConfig.get().USE_SPAWN.get()) {
             if (sender.hasPermission("at.member.spawn")){
                 if (sender instanceof Player) {
@@ -34,7 +36,13 @@ public class SpawnCommand implements ATCommand {
                         CustomMessages.sendMessage(sender, "Error.onCountdown");
                         return true;
                     }
-                    spawn(player);
+                    String location = null;
+                    if (args.length > 0 && player.hasPermission("at.admin.spawn")) {
+                        if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
+                            location = args[0];
+                        }
+                    }
+                    spawn(player, location);
                 } else {
                     CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
@@ -45,8 +53,14 @@ public class SpawnCommand implements ATCommand {
         return true;
     }
 
-    public static void spawn(Player player) {
-        Location spawn = Spawn.get().getSpawn(player);
+    public static void spawn(Player player, String name) {
+        Location spawn;
+        if (name == null) {
+            spawn = Spawn.get().getSpawn(player);
+        } else {
+            spawn = Spawn.get().getSpawn(name);
+        }
+
         if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
         }
@@ -59,6 +73,11 @@ public class SpawnCommand implements ATCommand {
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        if (sender.hasPermission("at.admin.spawn") && sender instanceof Player && args.length == 1) {
+            List<String> spawns = new ArrayList<>();
+            StringUtil.copyPartialMatches(args[0], Spawn.get().getSpawns(), spawns);
+            return spawns;
+        }
         return null;
     }
 }
