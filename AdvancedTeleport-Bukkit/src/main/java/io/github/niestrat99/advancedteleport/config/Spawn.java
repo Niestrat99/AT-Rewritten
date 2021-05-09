@@ -52,7 +52,7 @@ public class Spawn extends CMFile {
         String mainSpawn = getString("main-spawn", "");
         ConfigurationSection spawns = getConfig().getConfigurationSection("spawns");
         if (spawns == null) return;
-        if (!spawns.contains(mainSpawn)) return;
+        if (!spawns.contains(mainSpawn) || mainSpawn.isEmpty()) return;
         this.mainSpawn = new Location(Bukkit.getWorld(getString("spawns." + mainSpawn + ".world")),
                 getDouble("spawns." + mainSpawn + ".x"),
                 getDouble("spawns." + mainSpawn + ".y"),
