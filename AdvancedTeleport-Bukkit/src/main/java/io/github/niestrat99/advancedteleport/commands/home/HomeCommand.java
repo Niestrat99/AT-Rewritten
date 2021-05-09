@@ -42,10 +42,8 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
 
                     if (args.length > 0) {
                         if (sender.hasPermission("at.admin.home")) {
-                            ATPlayer target = ATPlayer.getPlayer(args[0]);
                             if (args.length > 1) {
-                                if (target != null) {
-
+                                ATPlayer.getPlayerFuture(args[0]).thenAccept(target -> {
                                     HashMap<String, Home> homesOther = target.getHomes();
 
                                     Home home;
@@ -55,40 +53,34 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                                                 home = target.getBedSpawn();
                                                 if (home == null) {
                                                     CustomMessages.sendMessage(player, "Error.noBedHomeOther", "{player}", args[0]);
-                                                    return true;
+                                                    return;
                                                 }
                                             } else {
                                                 if (homesOther.containsKey(args[1])) {
                                                     home = homesOther.get(args[1]);
                                                 } else {
                                                     CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                                                    return true;
+                                                    return;
                                                 }
                                             }
-
                                             break;
                                         case "list":
                                             Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
-                                            return true;
+                                            return;
                                         default:
                                             if (homesOther.containsKey(args[1])) {
                                                 home = homesOther.get(args[1]);
                                             } else {
                                                 CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                                                return true;
+                                                return;
                                             }
                                     }
                                     Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
                                         PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                                         CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
                                     });
-
-                                } else {
-                                    CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
-                                }
-                                return true;
+                                });
                             }
-
                         }
                     } else {
 

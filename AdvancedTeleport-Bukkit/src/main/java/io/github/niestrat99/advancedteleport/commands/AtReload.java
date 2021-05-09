@@ -22,15 +22,11 @@ public class AtReload implements AsyncATCommand {
             CustomMessages.sendMessage(sender, "Error.noPermission");
         } else {
             CustomMessages.sendMessage(sender, "Info.reloadingConfig");
-            try {
-                NewConfig.get().reload();
-                CustomMessages.config.reload();
-                Spawn.reloadSpawn();
-                GUI.reloadConfig();
-                CooldownManager.init();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            NewConfig.get().reload();
+            CustomMessages.config.reload();
+            Spawn.get().reload();
+            GUI.get().reload();
+            CooldownManager.init();
             CommandManager.registerCommands();
             CustomMessages.sendMessage(sender, "Info.reloadedConfig");
         }

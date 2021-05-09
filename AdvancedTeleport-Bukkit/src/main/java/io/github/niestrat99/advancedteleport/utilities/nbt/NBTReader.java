@@ -31,6 +31,8 @@ public class NBTReader {
     private static String VERSION;
 
     public static void init() {
+        VERSION = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+
         DEDICATED_SERVER = getDedicatedServer();
         MAIN_FOLDER = getPlayerdataFolder();
 
@@ -42,7 +44,6 @@ public class NBTReader {
 
         WORLD_NBT_STORAGE = getWorldNBTStorage();
         CACHE = new HashMap<>();
-        VERSION = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
     }
 
     public static void addLeaveToCache(Player player) {
@@ -115,14 +116,36 @@ public class NBTReader {
             Field nbtField = console.getClass().getSuperclass().getDeclaredField("worldNBTStorage");
             return nbtField.get(console);
         } catch (NoSuchFieldException e) {
-           try {
-               Field worlds = console.getClass().getSuperclass().getDeclaredField("worlds");
-               List<Object> worldList = (List<Object>) worlds.get(console);
-               Object world = worldList.get(0);
+            Object world = null;
+            // Legacy
+            try {
+                Field worlds = console.getClass().getSuperclass().getDeclaredField("worlds");
+                List<Object> worldList = (List<Object>) worlds.get(console);
+                world = worldList.get(0);
+            } catch (IllegalAccessException | NoSuchFieldException ignored) {
+                // ignored
+            }
+            // Some point after 1.13 but before 1.16, a weird era
+            if (world == null) {
+                try {
+                    // Get world server method itself
+                    Class<?> dimensionMan = Class.forName("net.minecraft.server." + VERSION + ".DimensionManager");
+                    Method getDimension = console.getClass().getSuperclass().getDeclaredMethod("getWorldServer", dimensionMan);
+                    // Get overworld dimension field
+                    Field overworld = dimensionMan.getDeclaredField("OVERWORLD");
 
-               Method dataManager = world.getClass().getSuperclass().getDeclaredMethod("getDataManager");
-               return dataManager.invoke(world);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | NoSuchFieldException illegalAccessException) {
+                    world = getDimension.invoke(console, overworld.get(null));
+                } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchFieldException | NoSuchMethodException classNotFoundException) {
+                    classNotFoundException.printStackTrace();
+                }
+            }
+
+            if (world == null) return null;
+
+            try {
+                Method dataManager = world.getClass().getSuperclass().getDeclaredMethod("getDataManager");
+                return dataManager.invoke(world);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException illegalAccessException) {
                 illegalAccessException.printStackTrace();
             }
         } catch (IllegalAccessException e) {
