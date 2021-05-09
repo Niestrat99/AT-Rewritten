@@ -75,6 +75,10 @@ public abstract class SQLManager {
         return connection;
     }
 
+    public static String getTablePrefix() {
+        return tablePrefix;
+    }
+
     public String getStupidAutoIncrementThing() {
         return usingSqlite ? "AUTOINCREMENT" : "AUTO_INCREMENT";
     }

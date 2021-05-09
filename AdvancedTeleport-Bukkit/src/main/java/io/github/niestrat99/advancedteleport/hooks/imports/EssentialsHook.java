@@ -1,9 +1,13 @@
 package io.github.niestrat99.advancedteleport.hooks.imports;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
+import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
+import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
+import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import org.bukkit.Bukkit;
@@ -16,6 +20,9 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.UUID;
 
 /**
@@ -54,12 +61,56 @@ public class EssentialsHook extends ImportExportPlugin {
 
     @Override
     public void importHomes() {
+        debug("Importing homes...");
+        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
+        File userFolder = new File(essentials.getDataFolder(), "userdata");
+        if (!userFolder.exists() || !userFolder.isDirectory() || userFolder.listFiles() == null) {
+            debug("User data folder doesn't exist/wasn't found, skipping...");
+            return;
+        }
 
+        for (File file : userFolder.listFiles()) {
+            YamlConfiguration user = YamlConfiguration.loadConfiguration(file);
+            UUID uuid = UUID.fromString(file.getName().substring(0, file.getName().lastIndexOf(".")));
+            ConfigurationSection homes = user.getConfigurationSection("homes");
+            if (homes == null) continue;
+            for (String home : homes.getKeys(false)) {
+                ConfigurationSection homeSection = homes.getConfigurationSection(home);
+                String name = user.getString("lastAccountName");
+                if (homeSection == null) continue;
+                Location loc = getLocationFromSection(homeSection);
+                if (name != null && ATPlayer.getPlayer(name) != null) {
+                    ATPlayer.getPlayer(name).addHome(name, loc, null);
+                } else {
+                    HomeSQLManager.get().addHome(loc, uuid, home, null);
+                }
+            }
+        }
+        debug("Finished importing homes!");
     }
 
     @Override
     public void importLastLocations() {
+        debug("Importing last locations...");
+        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
+        File userFolder = new File(essentials.getDataFolder(), "userdata");
+        if (!userFolder.exists() || !userFolder.isDirectory() || userFolder.listFiles() == null) {
+            debug("User data folder doesn't exist/wasn't found, skipping...");
+            return;
+        }
 
+        for (File file : userFolder.listFiles()) {
+            YamlConfiguration user = YamlConfiguration.loadConfiguration(file);
+            String name = user.getString("lastAccountName");
+            ConfigurationSection lastLoc = user.getConfigurationSection("lastlocation");
+            if (lastLoc == null) continue;
+            if (name != null && ATPlayer.getPlayer(name) != null) {
+                ATPlayer.getPlayer(name).setPreviousLocation(getLocationFromSection(lastLoc));
+            } else {
+                PlayerSQLManager.get().setPreviousLocation(name, getLocationFromSection(lastLoc), null);
+            }
+        }
+        debug("Finished importing last locations!");
     }
 
     @Override
@@ -139,12 +190,41 @@ public class EssentialsHook extends ImportExportPlugin {
 
     @Override
     public void importPlayerInformation() {
+        debug("Importing player information...");
+        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
+        File userFolder = new File(essentials.getDataFolder(), "userdata");
+        if (!userFolder.exists() || !userFolder.isDirectory() || userFolder.listFiles() == null) {
+            debug("User data folder doesn't exist/wasn't found, skipping...");
+            return;
+        }
 
+        for (File file : userFolder.listFiles()) {
+            YamlConfiguration user = YamlConfiguration.loadConfiguration(file);
+            String name = user.getString("lastAccountName");
+            UUID uuid = UUID.fromString(file.getName().substring(0, file.getName().lastIndexOf(".")));
+            if (name != null && ATPlayer.getPlayer(name) != null) {
+                ATPlayer.getPlayer(name).setTeleportationEnabled(user.getBoolean("teleportenabled", true), null);
+            } else {
+                PlayerSQLManager.get().setTeleportationOn(uuid, user.getBoolean("teleportenabled", true), null);
+            }
+        }
+        debug("Imported player information!");
     }
 
     @Override
     public void exportHomes() {
+        debug("Exporting homes...");
+        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
 
+        try {
+            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM " + SQLManager.getTablePrefix() + "_homes");
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override
@@ -170,5 +250,16 @@ public class EssentialsHook extends ImportExportPlugin {
         float yaw = (float) section.getDouble("yaw");
         float pitch = (float) section.getDouble("pitch");
         return new Location(world, x, y, z, yaw, pitch);
+    }
+
+    private static ConfigurationSection getSectionFromLocation(Location location, ConfigurationSection parent, String name) {
+        ConfigurationSection section = parent.createSection(name);
+        section.set("world", location.getWorld().getName());
+        section.set("x", location.getX());
+        section.set("y", location.getY());
+        section.set("z", location.getZ());
+        section.set("yaw", location.getYaw());
+        section.set("pitch", location.getPitch());
+        return section;
     }
 }
