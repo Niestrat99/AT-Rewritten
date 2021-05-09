@@ -99,6 +99,18 @@ commands:
     description: Sets a spawn at your location.
     permission: at.admin.setspawn
     usage: /setspawn
+  mirrorspawn:
+    description: Redirects people using /spawn in one world to another spawn point.
+    permission: at.admin.mirrorspawn
+    usage: /mirrorspawn <To World>|[From World] [To World]
+  removespawn:
+    description: Removes a given spawnpoint.
+    permission: at.admin.removespawn
+    usage: /removespawn [ID]
+  setmainspawn:
+    description: Sets the main spawnpoint.
+    permission: at.admin.setmainspawn
+    usage: /setmainspawn [ID]
   atreload:
     description: Reloads the Config.
     permission: at.admin.reload
@@ -153,6 +165,10 @@ commands:
 permissions:
   at.member.warp.*:
     default: op
+  at.member.spawn:
+    default: true
+    children:
+      at.member.spawn.*: false
   # Allows all member permissions
   at.member.*:
     default: op
@@ -189,6 +205,7 @@ permissions:
       at.member.back.death: true
       at.member.warps.location: true
       at.member.homes.location: true
+      at.member.spawn.*: false
   at.admin.*:
     default: op
     description: Allows access to admin-based commands of the plugin.
@@ -202,7 +219,11 @@ permissions:
       at.admin.delwarp: true
       at.admin.warpsign: true
       at.admin.setspawn: true
+      at.admin.setspawn.other: true
+      at.admin.removespawn: true
+      at.admin.mirrorspawn: true
       at.admin.spawnsign: true
+      at.admin.setmainspawn: true
       at.admin.reload: true
       at.admin.sethome: true
       at.admin.delhome: true
@@ -211,6 +232,7 @@ permissions:
       at.admin.info: true
       at.admin.bypass.distance-limit: true
       at.admin.sethome.bypass: true
+      at.admin.bypass.teleport-on-join: true
       at.admin.toggletp: true
       at.admin.bypass: true
       at.admin.tploc: true

@@ -84,15 +84,11 @@ public class CoreClass extends JavaPlugin {
         System.out.println("Advanced Teleport is now enabling...");
         setupEconomy();
         setupPermissions();
-        try {
-            config = new NewConfig();
+        config = new NewConfig();
         //    Config.setDefaults();
-            new CustomMessages(this).load();
-            Spawn.save();
-            new GUI();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new CustomMessages(this).load();
+        new Spawn();
+        new GUI();
         CommandManager.registerCommands();
         {
             new BlocklistManager();
