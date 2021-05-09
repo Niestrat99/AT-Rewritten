@@ -37,9 +37,9 @@ public class Spawn extends CMFile {
         moveTo("spawnpoint.x", "spawns." + defaultName + ".x");
         moveTo("spawnpoint.y", "spawns." + defaultName + ".y");
         moveTo("spawnpoint.z", "spawns." + defaultName + ".z");
+        moveTo("spawnpoint.world", "spawns." + defaultName + ".world");
         moveTo("spawnpoint.yaw", "spawns." + defaultName + ".yaw");
         moveTo("spawnpoint.pitch", "spawns." + defaultName + ".pitch");
-        set("spawnpoint.world", null);
     }
 
     @Override
@@ -48,21 +48,22 @@ public class Spawn extends CMFile {
         if (spawns == null) return;
         if (spawns.getKeys(false).isEmpty()) return;
         String key = spawns.getKeys(false).iterator().next();
-        mainSpawn = new Location(Bukkit.getWorld(key),
-                getDouble("spawns." + key + ".x"),
-                getDouble("spawns." + key + ".y"),
-                getDouble("spawns." + key + ".z"),
-                getFloat("spawns." + key + ".yaw"),
-                getFloat("spawns." + key + ".pitch"));
+        this.mainSpawn = new Location(Bukkit.getWorld(getString("spawns." + mainSpawn + ".world")),
+                getDouble("spawns." + mainSpawn + ".x"),
+                getDouble("spawns." + mainSpawn + ".y"),
+                getDouble("spawns." + mainSpawn + ".z"),
+                getFloat("spawns." + mainSpawn + ".yaw"),
+                getFloat("spawns." + mainSpawn + ".pitch"));
     }
 
-    public void setSpawn(Location location) {
-        String worldName = location.getWorld().getName();
-        set("spawns." + worldName + ".x", location.getX());
-        set("spawns." + worldName + ".y", location.getY());
-        set("spawns." + worldName + ".z", location.getZ());
-        set("spawns." + worldName + ".yaw", location.getYaw());
-        set("spawns." + worldName + ".pitch", location.getPitch());
+    public void setSpawn(Location location, String name) {
+        set("spawns." + name + ".x", location.getX());
+        set("spawns." + name + ".y", location.getY());
+        set("spawns." + name + ".z", location.getZ());
+        set("spawns." + name + ".world", location.getWorld().getName());
+        set("spawns." + name + ".yaw", location.getYaw());
+        set("spawns." + name + ".pitch", location.getPitch());
+        set("spawns." + name + ".mirror", null);
         save(true);
         if (mainSpawn == null) {
             mainSpawn = location;
@@ -111,30 +112,29 @@ public class Spawn extends CMFile {
             }
         }
         ConfigurationSection spawns = getConfig().getConfigurationSection("spawns");
-        if (spawns != null && spawns.contains(worldName)) {
-            ConfigurationSection toSection = spawns.getConfigurationSection(worldName);
-            while (true) {
-                if (toSection != null) {
-                    if (toSection.getString("mirror") != null && !toSection.getString("mirror").isEmpty()) {
-                        worldName = toSection.getString("mirror");
-                        toSection = spawns.getConfigurationSection(worldName);
-                    } else if (toSection.contains("x")
-                            && toSection.contains("y")
-                            && toSection.contains("z")
-                            && toSection.contains("yaw")
-                            && toSection.contains("pitch")) {
-                        return new Location(Bukkit.getWorld(worldName),
-                                getDouble("spawns." + worldName + ".x"),
-                                getDouble("spawns." + worldName + ".y"),
-                                getDouble("spawns." + worldName + ".z"),
-                                getFloat("spawns." + worldName + ".yaw"),
-                                getFloat("spawns." + worldName + ".pitch"));
-                    } else {
-                        break;
-                    }
+        ConfigurationSection toSection = spawns.getConfigurationSection(name);
+        while (true) {
+            if (toSection != null) {
+                if (toSection.getString("mirror") != null && !toSection.getString("mirror").isEmpty()) {
+                    name = toSection.getString("mirror");
+                    toSection = spawns.getConfigurationSection(name);
+                } else if (toSection.contains("x")
+                        && toSection.contains("y")
+                        && toSection.contains("z")
+                        && toSection.contains("yaw")
+                        && toSection.contains("pitch")
+                        && toSection.contains("world")) {
+                    return new Location(Bukkit.getWorld(toSection.getString("world")),
+                            toSection.getDouble("x"),
+                            toSection.getDouble("y"),
+                            toSection.getDouble("z"),
+                            (float) toSection.getDouble( "yaw"),
+                            (float) toSection.getDouble("pitch"));
                 } else {
                     break;
                 }
+            } else {
+                break;
             }
         }
         return mainSpawn;
