@@ -236,7 +236,8 @@ public class CustomMessages extends CMFile {
                 "&6- /movewarp <Warp> - Moves a warp to your location.")));
         config.addDefault("Help.spawn", new ArrayList<>(Arrays.asList("&b&lSpawn help",
                 "- /spawn - Teleports you to the spawn point.")));
-        config.addDefault("Help.spawnAdmin", new ArrayList<>(Collections.singletonList("&6- /setspawn - Sets a spawn point at your location.")));
+        config.addDefault("Help.spawnAdmin", new ArrayList<>(Arrays.asList("&6- /setspawn [Name] - Sets a spawn point - with a name if specified - at your location.",
+                "&6- /mirrorspawn <To Point>|[From World] [To Point] - Redirects people using /spawn in one world to another spawn point.")));
         config.addDefault("Help.randomTP", new ArrayList<>(Arrays.asList("&b&lRandomTP help",
                 "&6- /rtp - Teleports you to a random location.")));
         addDefault("Help.homes", new ArrayList<>(Arrays.asList("&b&lHomes help",

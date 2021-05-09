@@ -91,6 +91,7 @@ public class Spawn extends CMFile {
                             && toSection.contains("z")
                             && toSection.contains("yaw")
                             && toSection.contains("pitch")) {
+                        set("spawns." + from, null);
                         set("spawns." + from + ".mirror", mirror);
                         save(true);
                         return "Success";
@@ -156,6 +157,22 @@ public class Spawn extends CMFile {
         set("main-spawn", id);
         save(true);
         return "yay";
+    }
+
+    public String removeSpawn(String id) {
+        set("spawns." + id, null);
+        save(true);
+        return "Good";
+    }
+
+    public boolean doesSpawnExist(String id) {
+        return get("spawns." + id) != null;
+    }
+
+    public List<String> getSpawns() {
+        ConfigurationSection section = getConfig().getConfigurationSection("spawns");
+        if (section == null) return new ArrayList<>();
+        return new ArrayList<>(section.getKeys(false));
     }
 
     public static Spawn get() {

@@ -165,8 +165,10 @@ commands:
 permissions:
   at.member.warp.*:
     default: op
-  at.member.spawn.*:
-    default: false
+  at.member.spawn:
+    default: true
+    children:
+      at.member.spawn.*: false
   # Allows all member permissions
   at.member.*:
     default: op
@@ -203,6 +205,7 @@ permissions:
       at.member.back.death: true
       at.member.warps.location: true
       at.member.homes.location: true
+      at.member.spawn.*: false
   at.admin.*:
     default: op
     description: Allows access to admin-based commands of the plugin.
@@ -218,6 +221,7 @@ permissions:
       at.admin.setspawn: true
       at.admin.setspawn.other: true
       at.admin.removespawn: true
+      at.admin.mirrorspawn: true
       at.admin.spawnsign: true
       at.admin.setmainspawn: true
       at.admin.reload: true
