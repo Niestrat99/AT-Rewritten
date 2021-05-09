@@ -1,72 +1,79 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.thatsmusic99.configurationmaster.CMFile;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class GUI {
+public class GUI extends CMFile {
 
-    public static File configFile = new File(CoreClass.getInstance().getDataFolder(),"guis.yml");
-    public static FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+    private static GUI instance;
 
-    public static void save() throws IOException {
-        config.save(configFile);
+    public GUI() {
+        super(CoreClass.getInstance(), "guis");
+        instance = this;
+        load();
     }
 
-    public static void setDefaults() {
+    @Override
+    public void loadTitle() {
+
+    }
+
+    @Override
+    public void loadDefaults() {
         //Warps Menu
-        config.addDefault("warps.slots", 27);
-        config.addDefault("warps.gui-enabled", false);
+        addDefault("warps.slots", 27);
+        addDefault("warps.gui-enabled", false);
         // Last Page icon
-        config.addDefault("warps.icons.last-page.name", "&bLast Page");
-        config.addDefault("warps.icons.last-page.item", "ARROW");
-        config.addDefault("warps.icons.last-page.tooltip", new ArrayList<>());
-        config.addDefault("warps.icons.last-page.slot", 18);
+        addDefault("warps.icons.last-page.name", "&bLast Page");
+        addDefault("warps.icons.last-page.item", "ARROW");
+        addDefault("warps.icons.last-page.tooltip", new ArrayList<>());
+        addDefault("warps.icons.last-page.slot", 18);
         // Next Page icon
-        config.addDefault("warps.icons.next-page.name", "&bNext Page");
-        config.addDefault("warps.icons.next-page.item", "ARROW");
-        config.addDefault("warps.icons.next-page.tooltip", new ArrayList<>());
-        config.addDefault("warps.icons.next-page.slot", 26);
+        addDefault("warps.icons.next-page.name", "&bNext Page");
+        addDefault("warps.icons.next-page.item", "ARROW");
+        addDefault("warps.icons.next-page.tooltip", new ArrayList<>());
+        addDefault("warps.icons.next-page.slot", 26);
+        addLenientSection("warps.warps");
         //Warps Menu Example
-        config.addDefault("warps.warps.warpName1.name", "&aWarp Name 1");
-        config.addDefault("warps.warps.warpName1.item", "DIAMOND_SWORD");
-        config.addDefault("warps.warps.warpName1.tooltip", Collections.singletonList("&7Teleports you to warpName1"));
-        config.addDefault("warps.warps.warpName1.slot", 11);
-        config.addDefault("warps.warps.warpName1.page", 0);
-        config.addDefault("warps.warps.warpName1.hide-if-no-permission", false);
+        addComment("warps.warps.warpName1", "This is an example icon in the GUI.\n" +
+                "The name - warpName1 - is the warp name used in /warp, e.g. /warp warpName1.");
+        addExample("warps.warps.warpName1.name", "&aWarp Name 1", "The display name for the warp's item in the GUI.");
+        addExample("warps.warps.warpName1.item", "DIAMOND_SWORD", "The item the warp is represented by in the GUI.\n" +
+                "If you are on a legacy version (< v1.13), you can specify extra data by adding a data-value option, which takes an integer:\n" +
+                "data-value: 1\n" +
+                "If you are using a player head item (SKULL_ITEM and data-value: 3 or PLAYER_HEAD in new versions), you can specify a texture:\n" +
+                "texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjQxNDQ5MDk3YjRiNzlhOWY2Y2FmNjM0NDQxOGYyMDM0ZGU0YmI5NzFmZWI3YThlNGFhY2JmYjkwNWFjZGNlZiJ9fX0=\n");
+        addExample("warps.warps.warpName1.tooltip", Collections.singletonList("&7Teleports you to warpName1"));
+        addExample("warps.warps.warpName1.slot", 11, "The slot (starting from 0) that the warp should appear in.");
+        addExample("warps.warps.warpName1.page", 0, "The page (starting from 0) that the warp should appear in.");
+        addExample("warps.warps.warpName1.hide-if-no-permission", false, "Whether the warp should be hidden from the user or not if they don't have permission to it.");
 
-        config.addDefault("warps.warps.warpName2.name", "&7Warp Name 2");
-        config.addDefault("warps.warps.warpName2.item", "IRON_PICKAXE");
-        config.addDefault("warps.warps.warpName2.tooltip", Collections.singletonList("&7Teleports you to warpName2"));
-        config.addDefault("warps.warps.warpName2.slot", 13);
-        config.addDefault("warps.warps.warpName2.page", 0);
-        config.addDefault("warps.warps.warpName2.hide-if-no-permission", true);
-        config.options().copyDefaults(true);
-        try {
-            save();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        addExample("warps.warps.warpName2.name", "&7Warp Name 2");
+        addExample("warps.warps.warpName2.item", "IRON_PICKAXE");
+        addExample("warps.warps.warpName2.tooltip", Collections.singletonList("&7Teleports you to warpName2"));
+        addExample("warps.warps.warpName2.slot", 13);
+        addExample("warps.warps.warpName2.page", 0);
+        addExample("warps.warps.warpName2.hide-if-no-permission", true);
     }
 
-    public static void reloadConfig() throws IOException {
-        if (configFile == null) {
-            configFile = new File(CoreClass.getInstance().getDataFolder(), "guis.yml");
-        }
-        config = YamlConfiguration.loadConfiguration(configFile);
-        setDefaults();
-        save();
+    public static GUI get() {
+        return instance;
     }
 
-    public static ConfigurationSection getWarpsMenu() { return config.getConfigurationSection("warps.warps"); }
-    public static int getWarpsMenuSlots() { return config.getInt("warps.slots"); }
-    public static boolean isUsingWarpsGUIMenu() { return config.getBoolean("warps.gui-enabled"); }
-    public static ConfigurationSection getLastPageIcon() { return config.getConfigurationSection("warps.icons.last-page"); }
-    public static ConfigurationSection getNextPageIcon() { return config.getConfigurationSection("warps.icons.next-page"); }
+    public static ConfigurationSection getWarpsMenu() { return get().getConfig().getConfigurationSection("warps.warps"); }
+    public static int getWarpsMenuSlots() { return get().getConfig().getInt("warps.slots"); }
+    public static boolean isUsingWarpsGUIMenu() { return get().getConfig().getBoolean("warps.gui-enabled"); }
+    public static ConfigurationSection getLastPageIcon() { return get().getConfig().getConfigurationSection("warps.icons.last-page"); }
+    public static ConfigurationSection getNextPageIcon() { return get().getConfig().getConfigurationSection("warps.icons.next-page"); }
+
+
 }

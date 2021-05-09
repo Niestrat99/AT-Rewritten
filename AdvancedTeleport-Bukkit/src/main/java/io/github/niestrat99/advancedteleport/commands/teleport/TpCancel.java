@@ -51,7 +51,7 @@ public class TpCancel implements ATCommand {
                                     TPRequest request = requests.getContentsInPage(1).get(i);
                                     new FancyMessage()
                                             .command("/tpcancel " + request.getResponder().getName())
-                                            .text(CustomMessages.getString("Info.multipleRequestsIndex")
+                                            .text(CustomMessages.getStringA("Info.multipleRequestsIndex")
                                                     .replaceAll("\\{player}", request.getResponder().getName()))
                                             .sendProposal(player, i);
                                 }

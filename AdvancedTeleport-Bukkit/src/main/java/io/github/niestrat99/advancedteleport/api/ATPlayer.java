@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class ATPlayer {
 
@@ -227,20 +228,41 @@ public class ATPlayer {
      */
     public int getHomesLimit() {
         int maxHomes = NewConfig.get().DEFAULT_HOMES_LIMIT.get();
+        // Whether or not the limit is being overriden by a per-world homes limit
+        boolean worldSpecific = false;
         // Player is offline, we'll assume an admin is getting the homes
         if (getPlayer() == null) return -1;
         for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
-            if (permission.getPermission().startsWith("at.member.homes.")) {
-                if (permission.getValue()) {
-                    String perm = permission.getPermission();
-                    String ending = perm.substring(perm.lastIndexOf(".") + 1);
-                    if (ending.equalsIgnoreCase("unlimited")) return -1;
-                    if (!ending.matches("^[0-9]+$")) continue;
-                    int homes = Integer.parseInt(ending);
-                    if (maxHomes < homes) {
-                        maxHomes = homes;
+            if (permission.getValue() && permission.getPermission().startsWith("at.member.homes.")) {
+                // Get the permission and all data following the base permission
+                String perm = permission.getPermission();
+                String endNode = perm.substring("at.member.homes.".length());
+                // If there's a world included
+                // If not, make sure there's no world limit overriding
+                if (endNode.lastIndexOf(".") != -1) {
+                    String[] data = endNode.split("\\.");
+                    // Make sure it's in the same world
+                    if (data[0].equals(getPlayer().getWorld().getName()) && data[1].matches("^[0-9]+$")) {
+                        int homes = Integer.parseInt(data[1]);
+                        // If there isn't already a world limit overriding this one, make it do so.
+                        // Otherwise, make sure this limit actually changes something
+                        if (!worldSpecific) {
+                            maxHomes = homes;
+                            worldSpecific = true;
+                        } else if (maxHomes < homes) {
+                            maxHomes = homes;
+                        }
                     }
+                } else if (worldSpecific) {
+                    continue;
                 }
+                if (endNode.equalsIgnoreCase("unlimited")) return -1;
+                if (!endNode.matches("^[0-9]+$")) continue;
+                int homes = Integer.parseInt(endNode);
+                if (maxHomes < homes) {
+                    maxHomes = homes;
+                }
+
             }
         }
         return maxHomes;
@@ -289,6 +311,17 @@ public class ATPlayer {
             new ATPlayer(player.getUniqueId(), player.getName());
         });
         return null;
+    }
+
+    @NotNull
+    public static CompletableFuture<ATPlayer> getPlayerFuture(String name) {
+        if (players.containsKey(name.toLowerCase())) {
+            return CompletableFuture.completedFuture(players.get(name.toLowerCase()));
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
+            return new ATPlayer(player.getUniqueId(), player.getName());
+        }, CoreClass.async).thenApplyAsync(player -> player, CoreClass.sync);
     }
 
     public static void removePlayer(Player player) {

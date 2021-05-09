@@ -46,8 +46,8 @@ public class CooldownManager {
         if (player.hasPermission("at.admin.bypass.cooldown")) return 0;
         List<ATRunnable> list = cooldown.get(getKey(command));
         for (ATRunnable runnable : list) {
-            if (runnable.uuid == player.getUniqueId()) {
-                return (int) Math.ceil((runnable.startingTime + runnable.ms * 1000 - System.currentTimeMillis()) / 1000);
+            if (runnable.uuid.toString().equals(player.getUniqueId().toString())) {
+                return (int) Math.ceil((runnable.startingTime + runnable.ms * 1000 - System.currentTimeMillis()) / 1000.0);
             }
         }
         return 0;

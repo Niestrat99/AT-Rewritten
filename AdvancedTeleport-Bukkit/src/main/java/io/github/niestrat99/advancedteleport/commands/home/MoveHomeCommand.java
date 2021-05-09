@@ -28,16 +28,16 @@ public class MoveHomeCommand extends AbstractHomeCommand implements AsyncATComma
                             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
                             // We'll just assume that the admin command overrides the homes limit.
                             if (args.length > 1) {
-                                ATPlayer atTarget = ATPlayer.getPlayer(args[0]);
-                                if (atTarget != null) {
+                                ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
                                     if (!atTarget.getHomes().containsKey(args[1])) {
                                         CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                                        return true;
+                                        return;
                                     }
-                                }
-                                HomeSQLManager.get().moveHome(player.getLocation(), target.getUniqueId(), args[1],
-                                        SQLManager.SQLCallback.getDefaultCallback(sender, "Info.movedHomeOther", "Error.moveHomeFail",
-                                                "{player}", args[0], "{home}", args[1]));
+                                    HomeSQLManager.get().moveHome(player.getLocation(), target.getUniqueId(), args[1],
+                                            SQLManager.SQLCallback.getDefaultCallback(sender, "Info.movedHomeOther", "Error.moveHomeFail",
+                                                    "{player}", args[0], "{home}", args[1]));
+
+                                });
 
                                 return true;
                             }

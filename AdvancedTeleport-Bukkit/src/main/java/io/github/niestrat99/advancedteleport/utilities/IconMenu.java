@@ -139,7 +139,9 @@ public class IconMenu implements Listener, InventoryHolder {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClosed(InventoryCloseEvent event){
-        destroy();
+        if (event.getInventory().getHolder() == this) {
+            destroy();
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

@@ -40,7 +40,7 @@ public class TpList implements AsyncATCommand {
                                         TPRequest request = requests.getContentsInPage(page).get(i);
                                         new FancyMessage()
                                                 .command("/tpayes " + request.getRequester().getName())
-                                                .text(CustomMessages.getString("Info.multipleRequestsIndex")
+                                                .text(CustomMessages.getStringA("Info.multipleRequestsIndex")
                                                         .replaceAll("\\{player}", request.getRequester().getName()))
                                                 .sendProposal(player, i);
                                     }
@@ -59,7 +59,7 @@ public class TpList implements AsyncATCommand {
                                 TPRequest request = requests.getContentsInPage(1).get(i);
                                 new FancyMessage()
                                         .command("/tpayes " + request.getRequester().getName())
-                                        .text(CustomMessages.getString("Info.multipleRequestsIndex")
+                                        .text(CustomMessages.getStringA("Info.multipleRequestsIndex")
                                                 .replaceAll("\\{player}", request.getRequester().getName()))
                                         .sendProposal(player, i);
                             }
