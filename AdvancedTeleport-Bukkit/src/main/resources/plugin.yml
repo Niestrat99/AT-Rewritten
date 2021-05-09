@@ -103,6 +103,10 @@ commands:
     description: Mirrors spawn lol
     permission: at.admin.mirrorspawn
     usage: /mirrorspawn <To World>|[From World] [To World]
+  removespawn:
+    description: Removes a given spawnpoint.
+    permission: at.admin.removespawn
+    usage: /removespawn [ID]
   atreload:
     description: Reloads the Config.
     permission: at.admin.reload
@@ -208,6 +212,7 @@ permissions:
       at.admin.delwarp: true
       at.admin.warpsign: true
       at.admin.setspawn: true
+      at.admin.removespawn: true
       at.admin.spawnsign: true
       at.admin.reload: true
       at.admin.sethome: true

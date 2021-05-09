@@ -3,9 +3,7 @@ package io.github.niestrat99.advancedteleport.managers;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.*;
 import io.github.niestrat99.advancedteleport.commands.home.*;
-import io.github.niestrat99.advancedteleport.commands.spawn.MirrorSpawn;
-import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
-import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
+import io.github.niestrat99.advancedteleport.commands.spawn.*;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -66,6 +64,7 @@ public class CommandManager {
         register("spawn", new SpawnCommand());
         register("setspawn", new SetSpawn());
         register("mirrorspawn", new MirrorSpawn());
+        register("removespawn", new RemoveSpawn());
     }
 
     private static void register(String name, ATCommand atCommand) {
