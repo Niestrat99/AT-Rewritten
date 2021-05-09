@@ -100,6 +100,7 @@ public class CoreClass extends JavaPlugin {
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
+        PluginHookManager.init();
 
         setupVersion();
         new Metrics(this, 5146);
