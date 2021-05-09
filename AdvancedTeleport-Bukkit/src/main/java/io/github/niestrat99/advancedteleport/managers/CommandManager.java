@@ -65,6 +65,7 @@ public class CommandManager {
         register("setspawn", new SetSpawn());
         register("mirrorspawn", new MirrorSpawn());
         register("removespawn", new RemoveSpawn());
+        register("setmainspawn", new SetMainSpawn());
     }
 
     private static void register(String name, ATCommand atCommand) {
