@@ -7,7 +7,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class Spawn extends CMFile {
 
@@ -27,6 +30,7 @@ public class Spawn extends CMFile {
 
     @Override
     public void loadDefaults() {
+        addDefault("main-spawn", "");
         addLenientSection("spawns");
     }
 
@@ -40,14 +44,15 @@ public class Spawn extends CMFile {
         moveTo("spawnpoint.world", "spawns." + defaultName + ".world");
         moveTo("spawnpoint.yaw", "spawns." + defaultName + ".yaw");
         moveTo("spawnpoint.pitch", "spawns." + defaultName + ".pitch");
+        set("main-spawn", defaultName);
     }
 
     @Override
     public void postSave() {
+        String mainSpawn = getString("main-spawn", "");
         ConfigurationSection spawns = getConfig().getConfigurationSection("spawns");
         if (spawns == null) return;
-        if (spawns.getKeys(false).isEmpty()) return;
-        String key = spawns.getKeys(false).iterator().next();
+        if (!spawns.contains(mainSpawn)) return;
         this.mainSpawn = new Location(Bukkit.getWorld(getString("spawns." + mainSpawn + ".world")),
                 getDouble("spawns." + mainSpawn + ".x"),
                 getDouble("spawns." + mainSpawn + ".y"),
@@ -66,7 +71,7 @@ public class Spawn extends CMFile {
         set("spawns." + name + ".mirror", null);
         save(true);
         if (mainSpawn == null) {
-            mainSpawn = location;
+            setMainSpawn(name, location);
         }
     }
 
@@ -138,6 +143,13 @@ public class Spawn extends CMFile {
             }
         }
         return mainSpawn;
+    }
+
+    public String setMainSpawn(String id, Location location) {
+        mainSpawn = location;
+        set("main-spawn", id);
+        save(true);
+        return "yay";
     }
 
     public static Spawn get() {

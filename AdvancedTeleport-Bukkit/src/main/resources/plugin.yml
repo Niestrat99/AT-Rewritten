@@ -107,6 +107,10 @@ commands:
     description: Removes a given spawnpoint.
     permission: at.admin.removespawn
     usage: /removespawn [ID]
+  setmainspawn:
+    description: Sets the main spawnpoint.
+    permission: at.admin.setmainspawn
+    usage: /setmainspawn [ID]
   atreload:
     description: Reloads the Config.
     permission: at.admin.reload
@@ -212,8 +216,10 @@ permissions:
       at.admin.delwarp: true
       at.admin.warpsign: true
       at.admin.setspawn: true
+      at.admin.setspawn.other: true
       at.admin.removespawn: true
       at.admin.spawnsign: true
+      at.admin.setmainspawn: true
       at.admin.reload: true
       at.admin.sethome: true
       at.admin.delhome: true
