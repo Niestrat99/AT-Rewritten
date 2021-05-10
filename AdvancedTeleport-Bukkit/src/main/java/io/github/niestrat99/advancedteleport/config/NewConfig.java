@@ -284,7 +284,10 @@ public class NewConfig extends CMFile {
                 "world.bentobox.acidisland.world.ChunkGeneratorWorld",
                 "world.bentobox.oneblock.generators.ChunkGeneratorWorld",
                 "com.wasteofplastic.askyblock.generators.ChunkGeneratorWorld",
-                "com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld")), "AT's Rapid Response system automatically loads locations for each world, but can be problematic on some worlds, mostly SkyBlock worlds.\n" +
+                "com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld", 
+                "b.a",
+                "com.chaseoes.voidworld.VoidWorld.VoidWorldGenerator",
+                "club.bastonbolado.voidgenerator.EmptyChunkGenerator")), "AT's Rapid Response system automatically loads locations for each world, but can be problematic on some worlds, mostly SkyBlock worlds.\n" +
                 "In response, this list acts as pro-active protection and ignores worlds generated using the following generators.\n" +
                 "This is provided as an option so you can have control over which worlds have locations load.");
         addDefault("avoid-blocks", new ArrayList<>(Arrays.asList("WATER", "LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")),
