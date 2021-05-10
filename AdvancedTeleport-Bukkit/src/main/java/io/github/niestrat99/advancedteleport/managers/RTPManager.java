@@ -73,6 +73,7 @@ public class RTPManager {
     }
 
     public static void loadWorldData(World world) {
+        if (world.getGenerator() != null && NewConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
         if (!locQueue.containsKey(world.getUID())) {
             for (int i = 0; i < NewConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
                 addLocation(world, false).thenAccept(location -> {

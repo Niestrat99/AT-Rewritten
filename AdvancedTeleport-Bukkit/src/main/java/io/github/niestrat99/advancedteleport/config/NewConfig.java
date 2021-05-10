@@ -65,6 +65,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> USE_WORLD_BORDER;
     public ConfigOption<Boolean> RAPID_RESPONSE;
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
+    public ConfigOption<List<String>> IGNORE_WORLD_GENS;
     public ConfigOption<List<String>> AVOID_BLOCKS;
     public ConfigOption<List<String>> AVOID_BIOMES;
     public ConfigOption<Boolean> WHITELIST_WORLD;
@@ -276,6 +277,16 @@ public class NewConfig extends CMFile {
                 "IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.");
         addDefault("prepared-locations-limit", 3, "How many locations can be prepared per world when using AT's Rapid Response system.\n" +
                 "These are immediately prepared upon startup and when a world is loaded.");
+        addDefault("ignore-world-generators", new ArrayList<>(Arrays.asList(
+                "us.talabrek.ultimateskyblock.world.SkyBlockChunkGenerator",
+                "us.talabrek.ultimateskyblock.world.SkyBlockNetherChunkGenerator",
+                "world.bentobox.bskyblock.generators.ChunkGeneratorWorld",
+                "world.bentobox.acidisland.world.ChunkGeneratorWorld",
+                "world.bentobox.oneblock.generators.ChunkGeneratorWorld",
+                "com.wasteofplastic.askyblock.generators.ChunkGeneratorWorld",
+                "com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld")), "AT's Rapid Response system automatically loads locations for each world, but can be problematic on some worlds, mostly SkyBlock worlds.\n" +
+                "In response, this list acts as pro-active protection and ignores worlds generated using the following generators.\n" +
+                "This is provided as an option so you can have control over which worlds have locations load.");
         addDefault("avoid-blocks", new ArrayList<>(Arrays.asList("WATER", "LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")),
                 "Blocks that people must not be able to land in when using /tpr.");
         addDefault("avoid-biomes", new ArrayList<>(Arrays.asList("OCEAN", "DEEP_OCEAN")), "Biomes that the plugin should avoid when searching for a location.");
@@ -519,6 +530,7 @@ public class NewConfig extends CMFile {
         USE_WORLD_BORDER = new ConfigOption<>("use-world-border");
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
         PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
+        IGNORE_WORLD_GENS = new ConfigOption<>("ignore-world-generators");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");
         AVOID_BIOMES = new ConfigOption<>("avoid-biomes");
         WHITELIST_WORLD = new ConfigOption<>("whitelist-worlds");
