@@ -40,14 +40,45 @@ public class Back implements ATCommand {
                         return true;
                     }
                     double originalY = loc.getY();
-                    while (!airMaterials.contains(loc.getBlock().getType().name())) {
+                    double originalX = loc.getX();
+                    double originalZ = loc.getZ();
+                    boolean abort = false;
+                    int radius = 5;
+                    ArrayList<Location> possiblelocs = new ArrayList<Location>();
+
+                    /**
+                     * I note, that this loop may has up to 10^3 = 1000 Calculations. But it fixes the issue, that users
+                     * complain, that they are ported at a different location.
+                     */
+                    Location t = new Location(loc.getWorld(), originalX,originalY,originalZ);
+                    for(int dx = 0-radius; dx<= radius; dx++){
+                        t.setX(originalX-dx);
+                        for(int dz=0-radius; dz<= radius; dz++){
+                            t.setZ(originalZ-dz);
+                            for(int dy= 0-radius; dy <= radius ; dy++){
+                                t.setX(originalY-dy);
+                                if(airMaterials.contains(t.getBlock().getType().name())){
+                                    possiblelocs.add(new Location(loc.getWorld(), originalX-dx, originalY-dy, originalZ-dz));
+                                }
+                            }
+                        }
+                    }
+                    while(possiblelocs.size()> 1){
+                        if(loc.distance(possiblelocs.get(1)) > loc.distance(possiblelocs.get(0))) possiblelocs.remove(1);
+                        else possiblelocs.remove(0);
+                    }
+                    if(possiblelocs.size() == 1) loc = possiblelocs.get(0);
+                    int lavablocks = 0;
+                    while (!airMaterials.contains(loc.getBlock().getType().name()) && possiblelocs.isEmpty()) {
                         // If we go beyond max height, stop and reset the Y value
-                        if (loc.getY() > loc.getWorld().getMaxHeight()) {
+                        if(loc.getBlock().getType().name().equalsIgnoreCase("Lava")) ++lavablocks;
+                        if (loc.getY() > loc.getWorld().getMaxHeight() || lavablocks > 5 ) {
                             loc.setY(originalY);
                             break;
                         }
                         loc.add(0.0, 1.0, 0.0);
                     }
+                    // The total count of operations in a worstcase is 128
 
                     if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back") && !player.hasPermission("at.admin.bypass.distance-limit")) {
                         CustomMessages.sendMessage(player, "Error.tooFarAway");

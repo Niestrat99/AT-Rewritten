@@ -79,6 +79,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<String> TPAHERE_REQUEST_SENT;
 
     public ConfigOption<List<String>> BACK_TELEPORT_CAUSES;
+    public ConfigOption<Integer> BACK_SEARCH_RADIUS;
 
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
@@ -522,6 +523,7 @@ public class NewConfig extends CMFile {
         TPAHERE_REQUEST_SENT = new ConfigOption<>("tpahere-request-sent");
 
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
+
 
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
