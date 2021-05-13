@@ -33,6 +33,16 @@ public abstract class ImportExportPlugin {
 
     public abstract void exportSpawn();
 
+    public abstract void exportPlayerInformation();
+
+    public void exportAll() {
+        exportPlayerInformation();
+        exportHomes();
+        exportLastLocations();
+        exportWarps();
+        exportSpawn();
+    }
+
     public void debug(String message) {
         CoreClass.getInstance().getLogger().log(Level.INFO, message);
     }

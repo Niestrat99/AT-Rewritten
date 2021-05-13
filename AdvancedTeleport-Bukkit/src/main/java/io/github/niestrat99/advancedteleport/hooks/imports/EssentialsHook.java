@@ -18,11 +18,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -215,16 +218,63 @@ public class EssentialsHook extends ImportExportPlugin {
     public void exportHomes() {
         debug("Exporting homes...");
         Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-
+        File userFolder = new File(essentials.getDataFolder(), "userdata");
+        if (!userFolder.exists()) {
+            userFolder.mkdirs();
+        }
         try {
             PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM " + SQLManager.getTablePrefix() + "_homes");
             ResultSet set = statement.executeQuery();
-            while (set.next()) {
 
+            HashMap<UUID, YamlConfiguration> configFiles = new HashMap<>();
+            while (set.next()) {
+                UUID uuid = UUID.fromString(set.getString("uuid_owner"));
+                String name = set.getString("home");
+                double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
+                float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
+                String world = set.getString("world");
+
+                YamlConfiguration userConf;
+
+                if (!configFiles.containsKey(uuid)) {
+                    File userFile = new File(userFolder, uuid + ".yml");
+                    if (!userFile.exists()) {
+                        try {
+                            userFile.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            continue;
+                        }
+                    }
+
+                    userConf = YamlConfiguration.loadConfiguration(userFile);
+                    configFiles.put(uuid, userConf);
+                } else {
+                    userConf = configFiles.get(uuid);
+                }
+
+                ConfigurationSection homes = userConf.getConfigurationSection("homes");
+                if (homes == null) {
+                    homes = userConf.createSection("homes");
+                }
+
+                ConfigurationSection home = homes.createSection(name);
+                home.set("x", pos[0]);
+                home.set("y", pos[1]);
+                home.set("z", pos[2]);
+                home.set("yaw", rot[0]);
+                home.set("pitch", rot[1]);
+                home.set("world", world);
             }
-        } catch (SQLException exception) {
+
+            for (UUID uuid : configFiles.keySet()) {
+                configFiles.get(uuid).save(new File(userFolder, uuid + ".yml"));
+            }
+            configFiles.clear();
+        } catch (SQLException | IOException exception) {
             exception.printStackTrace();
         }
+        debug("Finished exporting homes!");
     }
 
     @Override
@@ -240,6 +290,11 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public void exportSpawn() {
 
+    }
+
+    @Override
+    public void exportPlayerInformation() {
+        
     }
 
     private static Location getLocationFromSection(ConfigurationSection section) {
