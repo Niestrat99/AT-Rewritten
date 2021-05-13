@@ -2,10 +2,7 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.*;
-import io.github.niestrat99.advancedteleport.commands.core.HelpCommand;
-import io.github.niestrat99.advancedteleport.commands.core.ImportCommand;
-import io.github.niestrat99.advancedteleport.commands.core.InfoCommand;
-import io.github.niestrat99.advancedteleport.commands.core.ReloadCommand;
+import io.github.niestrat99.advancedteleport.commands.core.*;
 import io.github.niestrat99.advancedteleport.commands.home.*;
 import io.github.niestrat99.advancedteleport.commands.spawn.*;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
@@ -73,6 +70,7 @@ public class CommandManager {
         subcommands.put("help", new HelpCommand());
         subcommands.put("reload", new ReloadCommand());
         subcommands.put("info", new InfoCommand());
+        subcommands.put("export", new ExportCommand());
     }
 
     private static void register(String name, ATCommand atCommand) {
