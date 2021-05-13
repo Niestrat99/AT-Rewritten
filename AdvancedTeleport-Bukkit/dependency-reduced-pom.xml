@@ -3,7 +3,7 @@
   <parent>
     <artifactId>AdvancedTeleport</artifactId>
     <groupId>io.github.niestrat99</groupId>
-    <version>v5.4.7</version>
+    <version>v5.4.8</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>AdvancedTeleport-Bukkit</artifactId>
@@ -66,8 +66,14 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot</artifactId>
-      <version>1.16.2-R0.1-SNAPSHOT</version>
+      <version>1.16.5-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.thatsmusic99</groupId>
+      <artifactId>ConfigurationMaster</artifactId>
+      <version>v1.0.2</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.jetbrains</groupId>

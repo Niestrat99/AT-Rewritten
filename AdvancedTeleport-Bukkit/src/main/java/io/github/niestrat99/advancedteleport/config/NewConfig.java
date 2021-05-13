@@ -301,7 +301,9 @@ public class NewConfig extends CMFile {
         addDefault("used-teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")), "Back",
                 "The teleport causes that the plugin must listen to allow players to teleport back to the previous location.\n" +
                         "You can see a full list of these causes at https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html");
+        addDefault("back-search-radius", 5);
 
+        
         addDefault("teleport-to-spawn-on-first-join", true, "Spawn Management",
                 "Whether the player should be teleported to the spawnpoint when they join for the first time.");
         addDefault("teleport-to-spawn-on-every-join", false,
@@ -523,6 +525,7 @@ public class NewConfig extends CMFile {
         TPAHERE_REQUEST_SENT = new ConfigOption<>("tpahere-request-sent");
 
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
+        BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
 
 
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");

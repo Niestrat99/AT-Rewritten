@@ -42,20 +42,20 @@ public class Back implements ATCommand {
                     double originalY = loc.getY();
                     double originalX = loc.getX();
                     double originalZ = loc.getZ();
-                    boolean abort = false;
-                    int radius = 5;
-                    ArrayList<Location> possiblelocs = new ArrayList<Location>();
+                    int radius = NewConfig.get().BACK_SEARCH_RADIUS.get();
+                    ArrayList<Location> possiblelocs = new ArrayList<>();
 
-                    /**
-                     * I note, that this loop may has up to 10^3 = 1000 Calculations. But it fixes the issue, that users
+                    /*
+                     * I note, that this loop may has up to radius^3 Calculations. But it fixes the issue, that users
                      * complain, that they are ported at a different location.
+                     * Furthermore the default search radius of 5 equals 125 calculations which is acceptable
                      */
                     Location t = new Location(loc.getWorld(), originalX,originalY,originalZ);
-                    for(int dx = 0-radius; dx<= radius; dx++){
+                    for(int dx = -radius; dx<= radius; dx++){
                         t.setX(originalX-dx);
-                        for(int dz=0-radius; dz<= radius; dz++){
+                        for(int dz=-radius; dz<= radius; dz++){
                             t.setZ(originalZ-dz);
-                            for(int dy= 0-radius; dy <= radius ; dy++){
+                            for(int dy= -radius; dy <= radius ; dy++){
                                 t.setX(originalY-dy);
                                 if(airMaterials.contains(t.getBlock().getType().name())){
                                     possiblelocs.add(new Location(loc.getWorld(), originalX-dx, originalY-dy, originalZ-dz));
