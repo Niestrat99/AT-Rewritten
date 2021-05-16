@@ -301,7 +301,10 @@ public class NewConfig extends CMFile {
         addDefault("used-teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")), "Back",
                 "The teleport causes that the plugin must listen to allow players to teleport back to the previous location.\n" +
                         "You can see a full list of these causes at https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html");
-        addDefault("back-search-radius", 5);
+        addDefault("back-search-radius", 5, "The cubic radius to search for a safe block when using /back.\n" +
+                "If a player teleports from an unsafe location and uses /back to return to it, the plugin will search all blocks within this radius to see if it is a safe place for the player to be moved to.\n" +
+                "It is recommend to avoid setting this option too high as this can have a worst case execution time of O(n^3) (e.g. run 27 times, 64, 125, 216 and so on).\n" +
+                "To disable, either set to 0 or -1.");
 
         
         addDefault("teleport-to-spawn-on-first-join", true, "Spawn Management",
