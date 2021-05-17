@@ -56,9 +56,9 @@ public class Back implements ATCommand {
                         for(int dz=-radius; dz<= radius; dz++){
                             t.setZ(originalZ-dz);
                             for(int dy= -radius; dy <= radius ; dy++){
-                                t.setX(originalY-dy);
                                 if(airMaterials.contains(t.getBlock().getType().name())){
                                     possiblelocs.add(new Location(loc.getWorld(), originalX-dx, originalY-dy, originalZ-dz));
+                                t.setY(originalY-dy);
                                 }
                             }
                         }
