@@ -40,7 +40,7 @@
                     <artifactSet>
                         <includes>
                             <include>io.papermc:paperlib</include>
-                            <include>com.github.Thatsmusic99:ConfigurationMaster</include>
+                            <include>com.github.thatsmusic99:ConfigurationMaster</include>
                         </includes>
                     </artifactSet>
                     <relocations>
