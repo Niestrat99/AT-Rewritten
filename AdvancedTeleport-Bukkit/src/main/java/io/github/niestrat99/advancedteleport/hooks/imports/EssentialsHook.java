@@ -223,7 +223,8 @@ public class EssentialsHook extends ImportExportPlugin {
             userFolder.mkdirs();
         }
         try {
-            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM " + SQLManager.getTablePrefix() + "_homes");
+            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM ?");
+            statement.setString(1, SQLManager.getTablePrefix() + "_homes");
             ResultSet set = statement.executeQuery();
 
             HashMap<UUID, YamlConfiguration> configFiles = new HashMap<>();
@@ -284,7 +285,51 @@ public class EssentialsHook extends ImportExportPlugin {
 
     @Override
     public void exportWarps() {
+        debug("Exporting warps...");
+        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
+        File warpsFolder = new File(essentials.getDataFolder(), "warps");
+        if (!warpsFolder.exists()) {
+            warpsFolder.mkdirs();
+        }
+        try {
+            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM ?");
+            statement.setString(1, SQLManager.getTablePrefix() + "_warps");
+            ResultSet set = statement.executeQuery();
 
+            while (set.next()) {
+                UUID uuid = UUID.fromString(set.getString("uuid_creator"));
+                String name = set.getString("warp");
+                double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
+                float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
+                String world = set.getString("world");
+
+                File warpsFile = new File(warpsFolder, name + ".yml");
+                if (!warpsFile.exists()) {
+                    try {
+                        warpsFile.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        continue;
+                    }
+                }
+                YamlConfiguration warpConf = YamlConfiguration.loadConfiguration(warpsFile);
+
+                warpConf.set("x", pos[0]);
+                warpConf.set("y", pos[1]);
+                warpConf.set("z", pos[2]);
+                warpConf.set("yaw", rot[0]);
+                warpConf.set("pitch", rot[1]);
+                warpConf.set("world", world);
+                warpConf.set("name", name);
+                warpConf.set("lastowner", uuid);
+
+                warpConf.save(warpsFile);
+            }
+
+        } catch (SQLException | IOException exception) {
+            exception.printStackTrace();
+        }
+        debug("Finished exporting warps!");
     }
 
     @Override
