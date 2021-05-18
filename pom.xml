@@ -36,10 +36,11 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <includes>
                             <include>io.papermc:paperlib</include>
-                            <include>com.github.Thatsmusic99:ConfigurationMaster</include>
+                            <include>com.github.thatsmusic99:ConfigurationMaster</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -132,7 +133,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.16.2-R0.1-SNAPSHOT</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -140,6 +141,7 @@
             <groupId>com.github.thatsmusic99</groupId>
             <artifactId>ConfigurationMaster</artifactId>
             <version>v1.0.2</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
