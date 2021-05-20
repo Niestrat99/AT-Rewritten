@@ -28,31 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * ESSENTIALS FORMAT
- *
- * Spawn:
- * spawns:
- *   default: - Need to research further
- *     world: world
- *     x: 288.5618027389669
- *     y: 75.0
- *     z: 193.3904219678909
- *     yaw: 184.20215
- *     pitch: 14.849949
- *
- * Homes:
- *
- * Warps:
- * world: world
- * x: -270.74110040141517
- * y: 91.0
- * z: -51.6039130384459
- * yaw: -2.8515792
- * pitch: 29.249918
- * name: 'yes'
- * lastowner: 26f4567f-8007-3e0e-ac35-a5f13f41c4ca
- */
 public class EssentialsHook extends ImportExportPlugin {
 
     @Override
@@ -217,13 +192,14 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public void exportHomes() {
         debug("Exporting homes...");
+        debug("WARNING: Essentials does not have a \"main home\" system so all main homes in AT will be ignored when exporting.");
         Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
         File userFolder = new File(essentials.getDataFolder(), "userdata");
         if (!userFolder.exists()) {
             userFolder.mkdirs();
         }
         try {
-            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM ?");
+            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT uuid_owner, home, x, y, z, yaw, pitch, world FROM ?");
             statement.setString(1, SQLManager.getTablePrefix() + "_homes");
             ResultSet set = statement.executeQuery();
 
@@ -280,7 +256,47 @@ public class EssentialsHook extends ImportExportPlugin {
 
     @Override
     public void exportLastLocations() {
+        debug("Exporting previous locations...");
 
+        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
+        File userFolder = new File(essentials.getDataFolder(), "userdata");
+        if (!userFolder.exists()) {
+            userFolder.mkdirs();
+        }
+
+        try {
+            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT uuid, x, y, z, yaw, pitch, world FROM ?");
+            statement.setString(1, SQLManager.getTablePrefix() + "_players");
+            ResultSet set = statement.executeQuery();
+
+            while (set.next()) {
+                UUID uuid = UUID.fromString(set.getString("uuid"));
+                double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
+                float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
+                String world = set.getString("world");
+
+                File userFile = new File(userFolder, uuid.toString() + ".yml");
+                if (!userFile.exists()) {
+                    try {
+                        userFile.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        continue;
+                    }
+                }
+
+                YamlConfiguration userConf = YamlConfiguration.loadConfiguration(userFile);
+                userConf.set("lastlocation.world", world);
+                userConf.set("lastlocation.x", pos[0]);
+                userConf.set("lastlocation.y", pos[1]);
+                userConf.set("lastlocation.z", pos[2]);
+                userConf.set("lastlocation.yaw", rot[0]);
+                userConf.set("lastlocation.pitch", rot[1]);
+                userConf.save(userFile);
+            }
+        } catch (SQLException | IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -334,12 +350,72 @@ public class EssentialsHook extends ImportExportPlugin {
 
     @Override
     public void exportSpawn() {
+        debug("Exporting spawnpoints...");
+        debug("WARNING - any changes made to the spawnpoints may be dodgy due to the differences between Essentials and AT's spawn systems.");
+        debug("If you notice any problems, please fix them yourself.");
+        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
+        File spawnFile = new File(essentials.getDataFolder(), "spawn");
+        if (!spawnFile.exists()) {
+            try {
+                spawnFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
+        YamlConfiguration spawn = YamlConfiguration.loadConfiguration(spawnFile);
+        String mainSpawn = Spawn.get().getMainSpawn();
+        if (mainSpawn != null) {
+            Location mainSpawnLoc = Spawn.get().getSpawn(mainSpawn);
+            spawn.set("spawns.default.world", mainSpawnLoc.getWorld().getName());
+            spawn.set("spawns.default.x", mainSpawnLoc.getX());
+            spawn.set("spawns.default.y", mainSpawnLoc.getY());
+            spawn.set("spawns.default.z", mainSpawnLoc.getZ());
+            spawn.set("spawns.default.yaw", mainSpawnLoc.getYaw());
+            spawn.set("spawns.default.pitch", mainSpawnLoc.getPitch());
+        }
+        for (String atSpawn : Spawn.get().getSpawns()) {
+            for (String group : CoreClass.getPerms().getGroups()) {
+                if (CoreClass.getPerms().groupHas((World) null, group, atSpawn)) {
+                    Location spawnLoc = Spawn.get().getSpawn(atSpawn);
+                    spawn.set("spawns." + group + ".world", spawnLoc.getWorld().getName());
+                    spawn.set("spawns." + group + ".x", spawnLoc.getX());
+                    spawn.set("spawns." + group + ".y", spawnLoc.getY());
+                    spawn.set("spawns." + group + ".z", spawnLoc.getZ());
+                    spawn.set("spawns." + group + ".yaw", spawnLoc.getYaw());
+                    spawn.set("spawns." + group + ".pitch", spawnLoc.getPitch());
+                }
+            }
+        }
+        try {
+            spawn.save(spawnFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        debug("Finished exporting spawns!");
     }
 
     @Override
     public void exportPlayerInformation() {
-        
+        debug("Exporting player information...");
+        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
+        File userFolder = new File(essentials.getDataFolder(), "userdata");
+        if (!userFolder.exists()) {
+            userFolder.mkdirs();
+        }
+
+        try {
+            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT uuid, teleportation_on FROM ?");
+            statement.setString(1, SQLManager.getTablePrefix() + "_players");
+            ResultSet set = statement.executeQuery();
+
+            while (set.next()) {
+
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     private static Location getLocationFromSection(ConfigurationSection section) {
