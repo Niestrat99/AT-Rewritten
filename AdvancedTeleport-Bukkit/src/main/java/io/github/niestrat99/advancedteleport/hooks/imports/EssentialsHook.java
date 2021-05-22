@@ -60,7 +60,21 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (name != null && ATPlayer.getPlayer(name) != null) {
                     ATPlayer.getPlayer(name).addHome(name, loc, null);
                 } else {
-                    HomeSQLManager.get().addHome(loc, uuid, home, null);
+                    try {
+                        PreparedStatement query = SQLManager.getConnection().prepareStatement("SELECT uuid_owner FROM ? WHERE uuid-owner=? AND home=?");
+                        query.setString(1, SQLManager.getTablePrefix() + "_homes");
+                        query.setString(2, uuid.toString());
+                        query.setString(3, home);
+
+                        if (query.executeQuery().next()) {
+                            HomeSQLManager.get().moveHome(loc, uuid, home, null);
+                        } else {
+                            HomeSQLManager.get().addHome(loc, uuid, home, null);
+                        }
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+
                 }
             }
         }
@@ -115,7 +129,20 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (creatorStr != null) {
                     creator = UUID.fromString(creatorStr);
                 }
-                WarpSQLManager.get().addWarp(new Warp(creator, name, loc, created, updated), null);
+                try {
+                    PreparedStatement query = SQLManager.getConnection().prepareStatement("SELECT uuid_creator FROM ? WHERE uuid-creator=? AND warp=?");
+                    query.setString(1, SQLManager.getTablePrefix() + "_warps");
+                    query.setString(2, creatorStr);
+                    query.setString(3, name);
+
+                    if (query.executeQuery().next()) {
+                        WarpSQLManager.get().moveWarp(loc, name, null);
+                    } else {
+                        WarpSQLManager.get().addWarp(new Warp(creator, name, loc, created, updated), null);
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
             } catch (Exception ignored) {
             }
         }
@@ -151,7 +178,7 @@ public class EssentialsHook extends ImportExportPlugin {
                 Spawn.get().setMainSpawn("default", loc);
                 debug("Set main spawn");
             } else {
-                if (CoreClass.getPerms() != null) {
+                if (CoreClass.getPerms() != null && CoreClass.getPerms().hasGroupSupport()) {
                     CoreClass.getPerms().groupAdd((String) null, key, "at.member.spawn." + key);
                     debug("Added at.member.spawn." + key + " to group "+ key);
                 }
