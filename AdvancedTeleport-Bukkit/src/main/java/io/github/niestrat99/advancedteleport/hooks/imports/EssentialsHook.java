@@ -1,5 +1,10 @@
 package io.github.niestrat99.advancedteleport.hooks.imports;
 
+import com.earth2me.essentials.Essentials;
+import com.earth2me.essentials.User;
+import com.earth2me.essentials.UserMap;
+import com.earth2me.essentials.Warps;
+import com.earth2me.essentials.commands.WarpNotFoundException;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
@@ -10,6 +15,7 @@ import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import net.ess3.api.InvalidWorldException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -19,62 +25,65 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class EssentialsHook extends ImportExportPlugin {
 
+    private Essentials essentials;
+
     @Override
     public boolean canImport() {
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
+        this.essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         // Makes sure the plugin exists and because there's so many Ess clones out there, ensure it's the right one
         return essentials != null && essentials.getDescription().getMain().equals("com.earth2me.essentials.Essentials");
+    }
+
+    private User getUser(UUID uuid) {
+        try {
+            UserMap userMap = essentials.getUserMap();
+            if (userMap == null) return null;
+            return userMap.getUser(uuid);
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     @Override
     public void importHomes() {
         debug("Importing homes...");
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File userFolder = new File(essentials.getDataFolder(), "userdata");
-        if (!userFolder.exists() || !userFolder.isDirectory() || userFolder.listFiles() == null) {
-            debug("User data folder doesn't exist/wasn't found, skipping...");
-            return;
-        }
+        if (essentials == null) return;
+        UserMap userMap = essentials.getUserMap();
+        if (userMap == null) return;
 
-        for (File file : userFolder.listFiles()) {
-            YamlConfiguration user = YamlConfiguration.loadConfiguration(file);
-            UUID uuid = UUID.fromString(file.getName().substring(0, file.getName().lastIndexOf(".")));
-            ConfigurationSection homes = user.getConfigurationSection("homes");
-            if (homes == null) continue;
-            for (String home : homes.getKeys(false)) {
-                ConfigurationSection homeSection = homes.getConfigurationSection(home);
-                String name = user.getString("lastAccountName");
-                if (homeSection == null) continue;
-                Location loc = getLocationFromSection(homeSection);
-                if (name != null && ATPlayer.getPlayer(name) != null) {
-                    ATPlayer.getPlayer(name).addHome(name, loc, null);
-                } else {
-                    try {
-                        PreparedStatement query = SQLManager.getConnection().prepareStatement("SELECT uuid_owner FROM ? WHERE uuid-owner=? AND home=?");
-                        query.setString(1, SQLManager.getTablePrefix() + "_homes");
-                        query.setString(2, uuid.toString());
-                        query.setString(3, home);
+        for (UUID uuid : userMap.getAllUniqueUsers()) {
+            User user = getUser(uuid);
+            if (user == null) continue;
+            for (String home : user.getHomes()) {
+                try {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
+                    if (player != null) {
+                        if (!player.hasHome(home)) {
+                            player.addHome(home, user.getHome(home), null);
+                        } else {
+                            player.moveHome(home, user.getHome(home), null);
+                        }
+                    } else {
+                        PreparedStatement query = SQLManager.getConnection().prepareStatement("SELECT uuid_owner FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid-owner=? AND home=?");
+                        query.setString(1, uuid.toString());
+                        query.setString(2, home);
 
                         if (query.executeQuery().next()) {
-                            HomeSQLManager.get().moveHome(loc, uuid, home, null);
+                            HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, null);
                         } else {
-                            HomeSQLManager.get().addHome(loc, uuid, home, null);
+                            HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null);
                         }
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
                     }
 
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
         }
@@ -84,22 +93,18 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public void importLastLocations() {
         debug("Importing last locations...");
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File userFolder = new File(essentials.getDataFolder(), "userdata");
-        if (!userFolder.exists() || !userFolder.isDirectory() || userFolder.listFiles() == null) {
-            debug("User data folder doesn't exist/wasn't found, skipping...");
-            return;
-        }
+        if (essentials == null) return;
+        UserMap userMap = essentials.getUserMap();
+        if (userMap == null) return;
 
-        for (File file : userFolder.listFiles()) {
-            YamlConfiguration user = YamlConfiguration.loadConfiguration(file);
-            String name = user.getString("lastAccountName");
-            ConfigurationSection lastLoc = user.getConfigurationSection("lastlocation");
-            if (lastLoc == null) continue;
-            if (name != null && ATPlayer.getPlayer(name) != null) {
-                ATPlayer.getPlayer(name).setPreviousLocation(getLocationFromSection(lastLoc));
+        for (UUID uuid : userMap.getAllUniqueUsers()) {
+            User user = userMap.getUser(uuid);
+            if (user == null) continue;
+            ATPlayer player = ATPlayer.getPlayer(user.getName());
+            if (player != null) {
+                player.setPreviousLocation(user.getLastLocation());
             } else {
-                PlayerSQLManager.get().setPreviousLocation(name, getLocationFromSection(lastLoc), null);
+                PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLocation(), null);
             }
         }
         debug("Finished importing last locations!");
@@ -108,45 +113,25 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public void importWarps() {
         debug("Importing warps...");
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File warpsFolder = new File(essentials.getDataFolder(), "warps");
-        if (!warpsFolder.exists() || !warpsFolder.isDirectory() || warpsFolder.listFiles() == null) {
-            debug("Warps folder doesn't exist/wasn't found, skipping...");
-            return;
-        }
+        if (essentials == null) return;
+        Warps warps = essentials.getWarps();
+        if (warps == null) return;
 
-        for (File file : warpsFolder.listFiles()) {
+        for (String warp : warps.getList()) {
             try {
-                YamlConfiguration warpFile = YamlConfiguration.loadConfiguration(file);
-                String name = warpFile.getString("name");
-                if (name == null) continue;
-                Location loc = getLocationFromSection(warpFile);
-                BasicFileAttributes attributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-                long created = attributes.creationTime().toMillis();
-                long updated = attributes.lastModifiedTime().toMillis();
-                String creatorStr = warpFile.getString("lastowner");
-                UUID creator = null;
-                if (creatorStr != null) {
-                    creator = UUID.fromString(creatorStr);
+                if (Warp.getWarps().containsKey(warp)) {
+                    Warp.getWarps().get(warp).setLocation(warps.getWarp(warp), null);
+                } else {
+                    WarpSQLManager.get().addWarp(new Warp(warps.getLastOwner(warp),
+                            warp,
+                            warps.getWarp(warp),
+                            System.currentTimeMillis(),
+                            System.currentTimeMillis()), null);
                 }
-                try {
-                    PreparedStatement query = SQLManager.getConnection().prepareStatement("SELECT uuid_creator FROM ? WHERE uuid-creator=? AND warp=?");
-                    query.setString(1, SQLManager.getTablePrefix() + "_warps");
-                    query.setString(2, creatorStr);
-                    query.setString(3, name);
-
-                    if (query.executeQuery().next()) {
-                        WarpSQLManager.get().moveWarp(loc, name, null);
-                    } else {
-                        WarpSQLManager.get().addWarp(new Warp(creator, name, loc, created, updated), null);
-                    }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            } catch (Exception ignored) {
+            } catch (WarpNotFoundException | InvalidWorldException e) {
+                e.printStackTrace();
             }
         }
-
         debug("Finished importing warps!");
     }
 
@@ -196,23 +181,21 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public void importPlayerInformation() {
         debug("Importing player information...");
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File userFolder = new File(essentials.getDataFolder(), "userdata");
-        if (!userFolder.exists() || !userFolder.isDirectory() || userFolder.listFiles() == null) {
-            debug("User data folder doesn't exist/wasn't found, skipping...");
-            return;
-        }
+        if (essentials == null) return;
+        UserMap userMap = essentials.getUserMap();
+        if (userMap == null) return;
 
-        for (File file : userFolder.listFiles()) {
-            YamlConfiguration user = YamlConfiguration.loadConfiguration(file);
-            String name = user.getString("lastAccountName");
-            UUID uuid = UUID.fromString(file.getName().substring(0, file.getName().lastIndexOf(".")));
-            if (name != null && ATPlayer.getPlayer(name) != null) {
-                ATPlayer.getPlayer(name).setTeleportationEnabled(user.getBoolean("teleportenabled", true), null);
+        for (UUID uuid : userMap.getAllUniqueUsers()) {
+            User user = getUser(uuid);
+            if (user == null) continue;
+            ATPlayer player = ATPlayer.getPlayer(user.getName());
+            if (player == null) {
+                PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled(), null);
             } else {
-                PlayerSQLManager.get().setTeleportationOn(uuid, user.getBoolean("teleportenabled", true), null);
+                player.setTeleportationEnabled(user.isTeleportEnabled(), null);
             }
         }
+
         debug("Imported player information!");
     }
 
@@ -220,63 +203,36 @@ public class EssentialsHook extends ImportExportPlugin {
     public void exportHomes() {
         debug("Exporting homes...");
         debug("WARNING: Essentials does not have a \"main home\" system so all main homes in AT will be ignored when exporting.");
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File userFolder = new File(essentials.getDataFolder(), "userdata");
-        if (!userFolder.exists()) {
-            userFolder.mkdirs();
-        }
-        try {
-            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT uuid_owner, home, x, y, z, yaw, pitch, world FROM ?");
-            statement.setString(1, SQLManager.getTablePrefix() + "_homes");
-            ResultSet set = statement.executeQuery();
 
-            HashMap<UUID, YamlConfiguration> configFiles = new HashMap<>();
-            while (set.next()) {
-                UUID uuid = UUID.fromString(set.getString("uuid_owner"));
-                String name = set.getString("home");
-                double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
-                float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
-                String world = set.getString("world");
+        if (essentials == null) return;
+        UserMap userMap = essentials.getUserMap();
+        if (userMap == null) return;
 
-                YamlConfiguration userConf;
-
-                if (!configFiles.containsKey(uuid)) {
-                    File userFile = new File(userFolder, uuid + ".yml");
-                    if (!userFile.exists()) {
-                        try {
-                            userFile.createNewFile();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            continue;
-                        }
+        for (UUID uuid : userMap.getAllUniqueUsers()) {
+            User user = getUser(uuid);
+            if (user == null) continue;
+            ATPlayer player = ATPlayer.getPlayer(user.getName());
+            if (player != null) {
+                for (String home : player.getHomes().keySet()) {
+                    user.setHome(home, player.getHome(home).getLocation());
+                }
+            } else {
+                try {
+                    PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT home, x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid_owner = ?");
+                    statement.setString(1, uuid.toString());
+                    ResultSet set = statement.executeQuery();
+                    while (set.next()) {
+                        String name = set.getString("home");
+                        double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
+                        float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
+                        String world = set.getString("world");
+                        user.setHome(name, new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
                     }
 
-                    userConf = YamlConfiguration.loadConfiguration(userFile);
-                    configFiles.put(uuid, userConf);
-                } else {
-                    userConf = configFiles.get(uuid);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
-
-                ConfigurationSection homes = userConf.getConfigurationSection("homes");
-                if (homes == null) {
-                    homes = userConf.createSection("homes");
-                }
-
-                ConfigurationSection home = homes.createSection(name);
-                home.set("x", pos[0]);
-                home.set("y", pos[1]);
-                home.set("z", pos[2]);
-                home.set("yaw", rot[0]);
-                home.set("pitch", rot[1]);
-                home.set("world", world);
             }
-
-            for (UUID uuid : configFiles.keySet()) {
-                configFiles.get(uuid).save(new File(userFolder, uuid + ".yml"));
-            }
-            configFiles.clear();
-        } catch (SQLException | IOException exception) {
-            exception.printStackTrace();
         }
         debug("Finished exporting homes!");
     }
@@ -285,92 +241,48 @@ public class EssentialsHook extends ImportExportPlugin {
     public void exportLastLocations() {
         debug("Exporting previous locations...");
 
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File userFolder = new File(essentials.getDataFolder(), "userdata");
-        if (!userFolder.exists()) {
-            userFolder.mkdirs();
-        }
+        if (essentials == null) return;
+        UserMap userMap = essentials.getUserMap();
+        if (userMap == null) return;
 
-        try {
-            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT uuid, x, y, z, yaw, pitch, world FROM ?");
-            statement.setString(1, SQLManager.getTablePrefix() + "_players");
-            ResultSet set = statement.executeQuery();
-
-            while (set.next()) {
-                UUID uuid = UUID.fromString(set.getString("uuid"));
-                double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
-                float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
-                String world = set.getString("world");
-
-                File userFile = new File(userFolder, uuid.toString() + ".yml");
-                if (!userFile.exists()) {
-                    try {
-                        userFile.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        continue;
+        for (UUID uuid : userMap.getAllUniqueUsers()) {
+            User user = userMap.getUser(uuid);
+            ATPlayer player = ATPlayer.getPlayer(user.getName());
+            if (player != null) {
+                user.setLastLocation(player.getPreviousLocation());
+            } else {
+                try {
+                    PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid = ?");
+                    statement.setString(1, uuid.toString());
+                    ResultSet set = statement.executeQuery();
+                    // should run once but this is just standard
+                    while (set.next()) {
+                        double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
+                        float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
+                        String world = set.getString("world");
+                        user.setLastLocation(new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
                     }
-                }
 
-                YamlConfiguration userConf = YamlConfiguration.loadConfiguration(userFile);
-                userConf.set("lastlocation.world", world);
-                userConf.set("lastlocation.x", pos[0]);
-                userConf.set("lastlocation.y", pos[1]);
-                userConf.set("lastlocation.z", pos[2]);
-                userConf.set("lastlocation.yaw", rot[0]);
-                userConf.set("lastlocation.pitch", rot[1]);
-                userConf.save(userFile);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
             }
-        } catch (SQLException | IOException ex) {
-            ex.printStackTrace();
         }
     }
 
     @Override
     public void exportWarps() {
         debug("Exporting warps...");
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File warpsFolder = new File(essentials.getDataFolder(), "warps");
-        if (!warpsFolder.exists()) {
-            warpsFolder.mkdirs();
-        }
-        try {
-            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT * FROM ?");
-            statement.setString(1, SQLManager.getTablePrefix() + "_warps");
-            ResultSet set = statement.executeQuery();
+        if (essentials == null) return;
+        Warps warps = essentials.getWarps();
+        if (warps == null) return;
 
-            while (set.next()) {
-                UUID uuid = UUID.fromString(set.getString("uuid_creator"));
-                String name = set.getString("warp");
-                double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
-                float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
-                String world = set.getString("world");
-
-                File warpsFile = new File(warpsFolder, name + ".yml");
-                if (!warpsFile.exists()) {
-                    try {
-                        warpsFile.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        continue;
-                    }
-                }
-                YamlConfiguration warpConf = YamlConfiguration.loadConfiguration(warpsFile);
-
-                warpConf.set("x", pos[0]);
-                warpConf.set("y", pos[1]);
-                warpConf.set("z", pos[2]);
-                warpConf.set("yaw", rot[0]);
-                warpConf.set("pitch", rot[1]);
-                warpConf.set("world", world);
-                warpConf.set("name", name);
-                warpConf.set("lastowner", uuid);
-
-                warpConf.save(warpsFile);
+        for (Warp warp : Warp.getWarps().values()) {
+            try {
+                warps.setWarp(warp.getName(), warp.getLocation());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-        } catch (SQLException | IOException exception) {
-            exception.printStackTrace();
         }
         debug("Finished exporting warps!");
     }
@@ -425,23 +337,31 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public void exportPlayerInformation() {
         debug("Exporting player information...");
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File userFolder = new File(essentials.getDataFolder(), "userdata");
-        if (!userFolder.exists()) {
-            userFolder.mkdirs();
-        }
 
-        try {
-            PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT uuid, teleportation_on FROM ?");
-            statement.setString(1, SQLManager.getTablePrefix() + "_players");
-            ResultSet set = statement.executeQuery();
+        if (essentials == null) return;
+        UserMap userMap = essentials.getUserMap();
+        if (userMap == null) return;
 
-            while (set.next()) {
+        for (UUID uuid : userMap.getAllUniqueUsers()) {
+            User user = getUser(uuid);
+            if (user == null) continue;
+            ATPlayer player = ATPlayer.getPlayer(user.getName());
+            if (player != null) {
+                user.setTeleportEnabled(player.isTeleportationEnabled());
+            } else {
+                try {
+                    PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT teleportation_on FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
+                    statement.setString(1, uuid.toString());
+                    ResultSet set = statement.executeQuery();
+                    // also should run once but this is also just standard
+                    while (set.next()) {
+                        user.setTeleportEnabled(set.getBoolean("teleportation_on"));
+                    }
 
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
             }
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
         }
     }
 
