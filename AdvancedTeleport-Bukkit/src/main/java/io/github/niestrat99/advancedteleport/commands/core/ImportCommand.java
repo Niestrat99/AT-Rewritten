@@ -29,7 +29,7 @@ public class ImportCommand implements SubATCommand {
             }
             if (plugin.canImport()) {
                 if (args.length > 1) {
-                    CustomMessages.sendMessage(sender, "Info.importStarted");
+                    CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
                     Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                         switch (args[1].toLowerCase()) {
                             case "homes":
@@ -51,14 +51,14 @@ public class ImportCommand implements SubATCommand {
                                 plugin.importAll();
                                 break;
                         }
-                        CustomMessages.sendMessage(sender, "Info.importFinished");
+                        CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
                     });
 
                 } else {
-                    CustomMessages.sendMessage(sender, "Info.importStarted");
+                    CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
                     Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                         plugin.importAll();
-                        CustomMessages.sendMessage(sender, "Info.importFinished");
+                        CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
                     });
                 }
             } else {
