@@ -6,7 +6,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
 public class ItemsPayment extends Payment {
 
@@ -101,7 +100,7 @@ public class ItemsPayment extends Payment {
         return false;
     }
 
-    public class NBTJSONRepresentation {
+    public static class NBTJSONRepresentation {
 
     }
 }
