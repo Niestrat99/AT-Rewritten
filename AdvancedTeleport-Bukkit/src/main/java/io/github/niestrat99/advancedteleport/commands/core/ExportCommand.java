@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import org.bukkit.Bukkit;
@@ -23,12 +24,12 @@ public class ExportCommand implements SubATCommand {
             String pluginStr = args[0].toLowerCase();
             ImportExportPlugin plugin = PluginHookManager.getImportPlugin(pluginStr);
             if (plugin == null) {
-                sender.sendMessage("No plugin");
+                CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
                 return true;
             }
             if (plugin.canImport()) {
                 if (args.length > 1) {
-                    sender.sendMessage("Starting export...");
+                    CustomMessages.sendMessage(sender, "Info.exportStarted");
                     Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                         switch (args[1].toLowerCase()) {
                             case "homes":
@@ -50,16 +51,18 @@ public class ExportCommand implements SubATCommand {
                                 plugin.exportAll();
                                 break;
                         }
-                        sender.sendMessage("Exported everything!");
+                        CustomMessages.sendMessage(sender, "Info.exportFinished");
                     });
 
                 } else {
-                    sender.sendMessage("Starting export...");
+                    CustomMessages.sendMessage(sender, "Info.exportStarted");
                     Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                         plugin.exportAll();
-                        sender.sendMessage("Exported everything!");
+                        CustomMessages.sendMessage(sender, "Info.exportFinished");
                     });
                 }
+            } else {
+                CustomMessages.sendMessage(sender, "Error.cantExport", "{plugin}", args[0]);
             }
         }
         return false;

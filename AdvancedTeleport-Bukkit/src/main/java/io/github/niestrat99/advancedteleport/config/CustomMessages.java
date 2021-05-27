@@ -130,6 +130,9 @@ public class CustomMessages extends CMFile {
         addDefault("Error.cannotSetMainSpawnConsole", "&b↑ &8» &7You can only make existing spawnpoints into the main spawnpoint rather than create new ones since you are not a player!");
         addDefault("Error.nonAlphanumericSpawn", "&b↑ &8» &7Spawnpoints need to be alphanumeric!");
         addDefault("Error.removeSpawnNoArgs", "&b↑ &8» &7You have to specify a spawnpoint to remove!");
+        addDefault("Error.noSuchPlugin", "&b↑ &8» &7This plugin is not supported for importing/exporting yet!");
+        addDefault("Error.cantImport", "&b↑ &8» &7Can't import plugin data from &b{plugin} &7(make sure it's enabled and by the correct authors)!");
+        addDefault("Error.cantExport", "&b↑ &8» &7Can't export plugin data from &b{plugin} &7(make sure it's enabled and by the correct authors)!");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -201,6 +204,10 @@ public class CustomMessages extends CMFile {
         addDefault("Info.setMainSpawn", "&b↑ &8» &7Set the main spawnpoint to &b{spawn}&7! All players will teleport there if there are no overriding spawns/permissions.");
         addDefault("Info.removedSpawn", "&b↑ &8» &7Removed the spawnpoint &b{spawn}&7!");
         addDefault("Info.setSpawnSpecial", "&b↑ &8» &7Set spawnpoint &b{spawn}&7!");
+        addDefault("Info.importStarted", "&b↑ &8» &7Starting import from &b{plugin}&7...");
+        addDefault("Info.importFinished", "&b↑ &8» &7Finished import from &b{plugin}&7!");
+        addDefault("Info.exportStarted", "&b↑ &8» &7Starting export to &b{plugin}&7...");
+        addDefault("Info.exportFinished", "&b↑ &8» &7Finished export to &b{plugin}&7!");
 
         addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
         addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");

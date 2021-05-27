@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import org.bukkit.Bukkit;
@@ -23,12 +24,12 @@ public class ImportCommand implements SubATCommand {
             String pluginStr = args[0].toLowerCase();
             ImportExportPlugin plugin = PluginHookManager.getImportPlugin(pluginStr);
             if (plugin == null) {
-                sender.sendMessage("No plugin");
+                CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
                 return true;
             }
             if (plugin.canImport()) {
                 if (args.length > 1) {
-                    sender.sendMessage("Starting import...");
+                    CustomMessages.sendMessage(sender, "Info.importStarted");
                     Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                         switch (args[1].toLowerCase()) {
                             case "homes":
@@ -50,19 +51,21 @@ public class ImportCommand implements SubATCommand {
                                 plugin.importAll();
                                 break;
                         }
-                        sender.sendMessage("Imported everything!");
+                        CustomMessages.sendMessage(sender, "Info.importFinished");
                     });
 
                 } else {
-                    sender.sendMessage("Starting import...");
+                    CustomMessages.sendMessage(sender, "Info.importStarted");
                     Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                         plugin.importAll();
-                        sender.sendMessage("Imported everything!");
+                        CustomMessages.sendMessage(sender, "Info.importFinished");
                     });
                 }
+            } else {
+                CustomMessages.sendMessage(sender, "Error.cantImport", "{plugin}", args[0]);
             }
         }
-        return false;
+        return true;
     }
 
     @Nullable
