@@ -95,6 +95,7 @@ public class CustomMessages extends CMFile {
         addDefault("Error.homeAlreadySet", "&b↑ &8» &7You already have a home called &b{home}&7!");
         addDefault("Error.noWarpInput", "&b↑ &8» &7You have to include the warp's name!");
         addDefault("Error.noSuchWarp", "&b↑ &8» &7That warp doesn't exist!");
+        addDefault("Error.warpAlreadySet", "&b↑ &8» &7There is already a warp called &b{warp}&7!");
         addDefault("Error.noSuchWorld", "&b↑ &8» &7That world doesn't exist!");
         addDefault("Error.noLocation", "&b↑ &8» &7You don't have any location to teleport back to!");
         addDefault("Error.notAPlayer", "&b↑ &8» &7You must be a player to run this command!");
