@@ -5,6 +5,7 @@ import com.earth2me.essentials.User;
 import com.earth2me.essentials.UserMap;
 import com.earth2me.essentials.Warps;
 import com.earth2me.essentials.commands.WarpNotFoundException;
+import com.earth2me.essentials.spawn.EssentialsSpawn;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
@@ -24,7 +25,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -99,7 +99,9 @@ public class EssentialsHook extends ImportExportPlugin {
 
         for (UUID uuid : userMap.getAllUniqueUsers()) {
             User user = userMap.getUser(uuid);
-            if (user == null) continue;
+            if (user == null
+                    || user.getLastLocation() == null
+                    || user.getLastLocation().getWorld() == null) continue;
             ATPlayer player = ATPlayer.getPlayer(user.getName());
             if (player != null) {
                 player.setPreviousLocation(user.getLastLocation());
@@ -138,6 +140,9 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public void importSpawn() {
         debug("Importing spawnpoints...");
+        EssentialsSpawn spawnPlugin = (EssentialsSpawn) Bukkit.getPluginManager().getPlugin("EssentialsSpawn");
+        if (spawnPlugin == null || !spawnPlugin.isEnabled()) return;
+
         Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
         File spawnFileEss = new File(essentials.getDataFolder(), "spawn.yml");
         if (!spawnFileEss.exists() || !spawnFileEss.isFile()) {
@@ -246,7 +251,8 @@ public class EssentialsHook extends ImportExportPlugin {
         if (userMap == null) return;
 
         for (UUID uuid : userMap.getAllUniqueUsers()) {
-            User user = userMap.getUser(uuid);
+            User user = getUser(uuid);
+            if (user == null) continue;
             ATPlayer player = ATPlayer.getPlayer(user.getName());
             if (player != null) {
                 user.setLastLocation(player.getPreviousLocation());
@@ -292,45 +298,23 @@ public class EssentialsHook extends ImportExportPlugin {
         debug("Exporting spawnpoints...");
         debug("WARNING - any changes made to the spawnpoints may be dodgy due to the differences between Essentials and AT's spawn systems.");
         debug("If you notice any problems, please fix them yourself.");
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File spawnFile = new File(essentials.getDataFolder(), "spawn");
-        if (!spawnFile.exists()) {
-            try {
-                spawnFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        EssentialsSpawn spawnPlugin = (EssentialsSpawn) Bukkit.getPluginManager().getPlugin("EssentialsSpawn");
+        if (spawnPlugin == null || !spawnPlugin.isEnabled()) return;
 
-        YamlConfiguration spawn = YamlConfiguration.loadConfiguration(spawnFile);
         String mainSpawn = Spawn.get().getMainSpawn();
         if (mainSpawn != null) {
             Location mainSpawnLoc = Spawn.get().getSpawn(mainSpawn);
-            spawn.set("spawns.default.world", mainSpawnLoc.getWorld().getName());
-            spawn.set("spawns.default.x", mainSpawnLoc.getX());
-            spawn.set("spawns.default.y", mainSpawnLoc.getY());
-            spawn.set("spawns.default.z", mainSpawnLoc.getZ());
-            spawn.set("spawns.default.yaw", mainSpawnLoc.getYaw());
-            spawn.set("spawns.default.pitch", mainSpawnLoc.getPitch());
+            spawnPlugin.setSpawn(mainSpawnLoc, "default");
         }
         for (String atSpawn : Spawn.get().getSpawns()) {
             for (String group : CoreClass.getPerms().getGroups()) {
                 if (CoreClass.getPerms().groupHas((World) null, group, atSpawn)) {
                     Location spawnLoc = Spawn.get().getSpawn(atSpawn);
-                    spawn.set("spawns." + group + ".world", spawnLoc.getWorld().getName());
-                    spawn.set("spawns." + group + ".x", spawnLoc.getX());
-                    spawn.set("spawns." + group + ".y", spawnLoc.getY());
-                    spawn.set("spawns." + group + ".z", spawnLoc.getZ());
-                    spawn.set("spawns." + group + ".yaw", spawnLoc.getYaw());
-                    spawn.set("spawns." + group + ".pitch", spawnLoc.getPitch());
+                    spawnPlugin.setSpawn(spawnLoc, group);
                 }
             }
         }
-        try {
-            spawn.save(spawnFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         debug("Finished exporting spawns!");
     }
 
@@ -373,16 +357,5 @@ public class EssentialsHook extends ImportExportPlugin {
         float yaw = (float) section.getDouble("yaw");
         float pitch = (float) section.getDouble("pitch");
         return new Location(world, x, y, z, yaw, pitch);
-    }
-
-    private static ConfigurationSection getSectionFromLocation(Location location, ConfigurationSection parent, String name) {
-        ConfigurationSection section = parent.createSection(name);
-        section.set("world", location.getWorld().getName());
-        section.set("x", location.getX());
-        section.set("y", location.getY());
-        section.set("z", location.getZ());
-        section.set("yaw", location.getYaw());
-        section.set("pitch", location.getPitch());
-        return section;
     }
 }
