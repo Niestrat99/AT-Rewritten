@@ -63,13 +63,10 @@ public class RTPManager {
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
             Block block = doBinaryJump(world, coords);
             if (isValidLocation(block)) {
-                System.out.println("Succeeded.");
                 return block.getLocation().add(0.5, 1, 0.5);
             } else if (finalTries < 5 || urgent) {
-                System.out.println("Retrying.");
                 return addLocation(world, urgent, finalTries).join();
             } else {
-                System.out.println("Stopped.");
                 return null;
             }
         }, CoreClass.async).thenApplyAsync(loc -> loc, CoreClass.sync);
