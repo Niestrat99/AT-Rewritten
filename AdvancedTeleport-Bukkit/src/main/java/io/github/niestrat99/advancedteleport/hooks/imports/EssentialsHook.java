@@ -106,7 +106,7 @@ public class EssentialsHook extends ImportExportPlugin {
             if (player != null) {
                 player.setPreviousLocation(user.getLastLocation());
             } else {
-                PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLocation(), null);
+                PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation(), null);
             }
         }
         debug("Finished importing last locations!");
