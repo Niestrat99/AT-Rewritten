@@ -34,7 +34,7 @@ public class ItemsPayment extends Payment {
     public double getPlayerAmount(Player player) {
         int count = 0;
         for (ItemStack item : player.getInventory()) {
-            if (item.getType() == material && item.getDurability() == data) {
+            if (item != null && item.getType() == material && item.getDurability() == data) {
                 count += item.getAmount();
             }
         }
@@ -50,7 +50,20 @@ public class ItemsPayment extends Payment {
     public void setPlayerAmount(Player player) {
         int remaining = amount;
         for (ItemStack item : player.getInventory()) {
-
+            if (remaining == 0) break;
+            if (item != null && item.getType() == material && item.getDurability() == data) {
+                if (remaining >= item.getAmount()) {
+                    remaining -= item.getAmount();
+                    int first = player.getInventory().first(item);
+                    if (first == -1) {
+                        
+                    }
+                    player.getInventory().setItem(first, null);
+                } else {
+                    item.setAmount(item.getAmount() - remaining);
+                    remaining = 0;
+                }
+            }
         }
     }
 
