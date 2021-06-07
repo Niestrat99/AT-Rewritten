@@ -161,7 +161,9 @@ public class WarpSQLManager extends SQLManager {
                 statement.setLong(7, System.currentTimeMillis());
                 statement.setString(8, name);
                 statement.executeUpdate();
-                callback.onSuccess(true);
+                if (callback != null) {
+                    callback.onSuccess(true);
+                }
             } catch (SQLException exception) {
                 DataFailManager.get().addFailure(DataFailManager.Operation.MOVE_WARP,
                         newLocation.getWorld().getName(),
@@ -172,7 +174,9 @@ public class WarpSQLManager extends SQLManager {
                         String.valueOf(newLocation.getPitch()),
                         name);
                 exception.printStackTrace();
-                callback.onFail();
+                if (callback != null) {
+                    callback.onFail();
+                }
             }
         });
     }

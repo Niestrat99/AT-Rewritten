@@ -3,12 +3,7 @@ package io.github.niestrat99.advancedteleport.config;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.thatsmusic99.configurationmaster.CMFile;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 

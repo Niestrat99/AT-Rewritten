@@ -4,13 +4,11 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.thatsmusic99.configurationmaster.CMFile;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class Spawn extends CMFile {
 
@@ -157,6 +155,10 @@ public class Spawn extends CMFile {
         set("main-spawn", id);
         save(true);
         return "Info.setMainSpawn";
+    }
+
+    public String getMainSpawn() {
+        return getString("main-spawn");
     }
 
     public String removeSpawn(String id) {

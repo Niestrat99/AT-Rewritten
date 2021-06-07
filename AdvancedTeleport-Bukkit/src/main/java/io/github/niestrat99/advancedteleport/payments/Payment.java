@@ -19,7 +19,6 @@ public abstract class Payment {
     public boolean withdraw(Player player) {
         if (canPay(player)) {
             setPlayerAmount(player);
-
             return true;
         }
         return false;

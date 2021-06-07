@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--suppress UnresolvedMavenProperty -->
-        <module.version>v5.4.8+DEV_${env.BUILD_NUMBER}</module.version>
+        <module.version>5.5-SNAPSHOT-3</module.version>
     </properties>
 
     <modules>
@@ -93,6 +93,12 @@
             <id>cm-repo</id>
             <url>https://ci.pluginwiki.us/plugin/repository/everything/</url>
         </repository>
+
+        <repository>
+            <id>ess-releases</id>
+            <url>https://repo.essentialsx.net/releases/</url>
+        </repository>
+
     </repositories>
 
     <dependencies>
@@ -149,5 +155,18 @@
             <version>13.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>2.18.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsXSpawn</artifactId>
+            <version>2.16.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

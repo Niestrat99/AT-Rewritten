@@ -27,12 +27,13 @@ public class RTPManager {
 
     public static CompletableFuture<Location> getNextAvailableLocation(World world) {
         final Queue<Location> queue = locQueue.get(world.getUID());
-        addLocation(world, false).thenAccept(location -> {
+        addLocation(world, false, 0).thenAccept(location -> {
+            if (location == null) return;
             queue.add(location);
             locQueue.put(world.getUID(), queue);
         });
         if (queue == null || queue.isEmpty()) {
-            return addLocation(world, true);
+            return addLocation(world, true, 0);
         } else {
             return CompletableFuture.completedFuture(queue.poll());
         }
@@ -40,7 +41,8 @@ public class RTPManager {
 
     public static Location getLocationUrgently(World world) {
         Queue<Location> queue = locQueue.get(world.getUID());
-        addLocation(world, false).thenAccept(location -> {
+        addLocation(world, false, 0).thenAccept(location -> {
+            if (location == null) return;
             queue.add(location);
             locQueue.put(world.getUID(), queue);
         });
@@ -51,17 +53,21 @@ public class RTPManager {
         }
     }
 
-    public static CompletableFuture<Location> addLocation(World world, boolean urgent) {
+    public static CompletableFuture<Location> addLocation(World world, boolean urgent, int tries) {
+        tries++;
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             return CompletableFuture.completedFuture(locQueue.get(world.getUID()).poll());
         }
         int[] coords = getRandomCoords(world);
+        int finalTries = tries;
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
             Block block = doBinaryJump(world, coords);
             if (isValidLocation(block)) {
                 return block.getLocation().add(0.5, 1, 0.5);
+            } else if (finalTries < 5 || urgent) {
+                return addLocation(world, urgent, finalTries).join();
             } else {
-                return addLocation(world, urgent).join();
+                return null;
             }
         }, CoreClass.async).thenApplyAsync(loc -> loc, CoreClass.sync);
     }
@@ -78,7 +84,7 @@ public class RTPManager {
         if (world.getGenerator() != null && NewConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
         if (!locQueue.containsKey(world.getUID())) {
             for (int i = 0; i < NewConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
-                addLocation(world, false).thenAccept(location -> {
+                addLocation(world, false, 0).thenAccept(location -> {
                     Queue<Location> queue = locQueue.get(world.getUID());
                     if (queue == null) queue = new ArrayDeque<>();
                     queue.add(location);

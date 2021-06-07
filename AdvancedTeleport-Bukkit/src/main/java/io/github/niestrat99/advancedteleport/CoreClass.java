@@ -23,7 +23,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.IOException;
 import java.util.concurrent.Executor;
 
 public class CoreClass extends JavaPlugin {
@@ -100,6 +99,7 @@ public class CoreClass extends JavaPlugin {
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
+        PluginHookManager.init();
 
         setupVersion();
         new Metrics(this, 5146);

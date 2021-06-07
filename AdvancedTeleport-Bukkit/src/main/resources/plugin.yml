@@ -7,9 +7,13 @@ contributors: [SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan, Lucas
 softdepend: [Vault, Ultimate_Economy, ConfigurationMaster]
 loadbefore:
   - Essentials
+  - EssentialsSpawn
 api-version: 1.13
 
 commands:
+  at:
+    description: The core AT command.
+    permission: at.member.core
   warps:
     description: Gives you a list of warps.
     permission: at.member.warps
@@ -83,10 +87,6 @@ commands:
     description: Sends the targeted player a teleport request to where they are.
     permission: at.member.tpa
     usage: /tpa <Player>
-  athelp:
-    description: Sends you a list of commands.
-    permission: at.member.help
-    usage: /athelp [Category]
   tpalist:
     description: Lists your teleport requests.
     permission: at.member.list
@@ -111,10 +111,6 @@ commands:
     description: Sets the main spawnpoint.
     permission: at.admin.setmainspawn
     usage: /setmainspawn [ID]
-  atreload:
-    description: Reloads the Config.
-    permission: at.admin.reload
-    usage: /atreload
   sethome:
     description: Sets a home point at your location.
     permission: at.member.sethome
@@ -144,10 +140,6 @@ commands:
     description: Teleports you to your last location.
     permission: at.member.back
     usage: /back
-  atinfo:
-    description: Shows informations about this plugin.
-    permission: at.admin.info
-    usage: /atinfo
   tploc:
     description: Teleports you to a specified location.
     permission: at.admin.tploc
