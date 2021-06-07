@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.payments.types;
 
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.payments.Payment;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -33,12 +34,29 @@ public class ItemsPayment extends Payment {
     @Override
     public double getPlayerAmount(Player player) {
         int count = 0;
-        for (ItemStack item : player.getInventory()) {
-            if (item != null && item.getType() == material && item.getDurability() == data) {
+        for (ItemStack item : player.getInventory().all(material).values()) {
+            if (item.getDurability() == data) {
                 count += item.getAmount();
             }
         }
         return count;
+    }
+
+    @Override
+    public boolean canPay(Player player) {
+        boolean result = super.canPay(player);
+        if (!result) {
+            ItemMeta meta = new ItemStack(material).getItemMeta();
+            String name;
+            if (meta != null && meta.hasLocalizedName()) {
+                name = meta.getLocalizedName();
+            } else {
+                name = material.name();
+            }
+            CustomMessages.sendMessage(player, "Error.notEnoughItems", "{amount}", String.valueOf(amount),
+                    "{type}", name);
+        }
+        return result;
     }
 
     @Override
@@ -49,21 +67,29 @@ public class ItemsPayment extends Payment {
     @Override
     public void setPlayerAmount(Player player) {
         int remaining = amount;
-        for (ItemStack item : player.getInventory()) {
+        ItemMeta meta = new ItemStack(material).getItemMeta();
+        String name;
+        if (meta != null && meta.hasLocalizedName()) {
+            name = meta.getLocalizedName();
+        } else {
+            name = material.name();
+        }
+        for (int slot : player.getInventory().all(material).keySet()) {
             if (remaining == 0) break;
-            if (item != null && item.getType() == material && item.getDurability() == data) {
-                if (remaining >= item.getAmount()) {
-                    remaining -= item.getAmount();
-                    int first = player.getInventory().first(item);
-                    if (first == -1) {
-                        
-                    }
-                    player.getInventory().setItem(first, null);
-                } else {
-                    item.setAmount(item.getAmount() - remaining);
-                    remaining = 0;
-                }
+            ItemStack item = player.getInventory().getItem(slot);
+            if (item == null) continue;
+            if (remaining >= item.getAmount()) {
+                remaining -= item.getAmount();
+                player.getInventory().setItem(slot, null);
+            } else {
+                item.setAmount(item.getAmount() - remaining);
+                remaining = 0;
             }
+        }
+        if (amount > 0) {
+            CustomMessages.sendMessage(player, "Info.paymentItems",
+                    "{amount}", String.valueOf(amount),
+                    "{type}", name);
         }
     }
 
