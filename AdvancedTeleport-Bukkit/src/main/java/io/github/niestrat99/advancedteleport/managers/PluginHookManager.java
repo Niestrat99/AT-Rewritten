@@ -12,7 +12,7 @@ public class PluginHookManager {
     public static void init() {
         importPlugins = new HashMap<>();
 
-        importPlugins.put("essentials", new EssentialsHook());
+        load("essentials", EssentialsHook.class);
     }
 
     public static HashMap<String, ImportExportPlugin> getImportPlugins() {
@@ -21,5 +21,15 @@ public class PluginHookManager {
 
     public static ImportExportPlugin getImportPlugin(String name) {
         return importPlugins.get(name);
+    }
+
+    private static void load(String name, Class<? extends ImportExportPlugin> clazz) {
+        try {
+            importPlugins.put(name, clazz.newInstance());
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoClassDefFoundError ignored) {
+
+        }
     }
 }
