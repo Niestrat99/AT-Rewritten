@@ -101,6 +101,8 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                                 return true;
                             }
                             teleport(player, home);
+                        } else if (homes.isEmpty()) {
+                            CustomMessages.sendMessage(sender, "Error.noHomes");
                         } else {
                             CustomMessages.sendMessage(sender, "Error.noHomeInput");
                         }
