@@ -85,8 +85,6 @@ public class HomesCommand implements ATCommand {
             hList.text(""); //Removes trailing comma
         } else {
             hList.text(CustomMessages.getString(noHomes, "{player}", target.getName()));
-
-
         }
 
         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
