@@ -22,14 +22,17 @@ public class SetWarpCommand extends AbstractWarpCommand implements ATCommand {
                 Player player = (Player) sender;
                 Location warp = player.getLocation();
                 if (args.length > 0) {
-                    WarpSQLManager.get().addWarp(new Warp(player.getUniqueId(),
-                            args[0],
-                            warp,
-                            System.currentTimeMillis(),
-                            System.currentTimeMillis()), callback ->
-                                    CustomMessages.sendMessage(sender,"Info.setWarp", "{warp}", args[0]));
+                    if (!Warp.getWarps().containsKey(args[0])) {
+                        WarpSQLManager.get().addWarp(new Warp(player.getUniqueId(),
+                                args[0],
+                                warp,
+                                System.currentTimeMillis(),
+                                System.currentTimeMillis()), callback ->
+                                CustomMessages.sendMessage(sender,"Info.setWarp", "{warp}", args[0]));
 
-
+                    } else {
+                        CustomMessages.sendMessage(sender, "Error.warpAlreadySet", "{warp}", args[0]);
+                    }
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noWarpInput");
                 }

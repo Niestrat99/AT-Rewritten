@@ -260,7 +260,7 @@ public class IconMenu implements Listener, InventoryHolder {
         }
     }
 
-    public class OptionClickEvent {
+    public static class OptionClickEvent {
         private Player player;
         private int position;
         private Icon icon;

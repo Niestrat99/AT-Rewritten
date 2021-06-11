@@ -71,6 +71,14 @@ public abstract class SQLManager {
 
     public abstract void transferOldData();
 
+    public static Connection getConnection() {
+        return connection;
+    }
+
+    public static String getTablePrefix() {
+        return tablePrefix;
+    }
+
     public String getStupidAutoIncrementThing() {
         return usingSqlite ? "AUTOINCREMENT" : "AUTO_INCREMENT";
     }

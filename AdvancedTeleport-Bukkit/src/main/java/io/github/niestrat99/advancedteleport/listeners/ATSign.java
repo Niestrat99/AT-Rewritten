@@ -5,10 +5,10 @@ import org.bukkit.entity.Player;
 
 public abstract class ATSign {
 
-    private String requiredPermission;
-    private boolean enabled;
-    private String adminPermission;
-    private String name;
+    private final String requiredPermission;
+    private final boolean enabled;
+    private final String adminPermission;
+    private final String name;
 
     public ATSign(String name, boolean enabled) {
         this.requiredPermission = ("at.member." + name + ".use-sign").toLowerCase();

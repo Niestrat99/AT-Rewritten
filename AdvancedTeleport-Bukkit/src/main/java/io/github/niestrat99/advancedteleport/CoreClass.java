@@ -7,13 +7,12 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.listeners.AtSigns;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
-import io.github.niestrat99.advancedteleport.managers.CommandManager;
-import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
-import io.github.niestrat99.advancedteleport.managers.TeleportTrackingManager;
+import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
+import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
+import io.papermc.lib.PaperLib;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
@@ -24,8 +23,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
 
-import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 public class CoreClass extends JavaPlugin {
@@ -86,15 +92,11 @@ public class CoreClass extends JavaPlugin {
         System.out.println("Advanced Teleport is now enabling...");
         setupEconomy();
         setupPermissions();
-        try {
-            config = new NewConfig();
+        config = new NewConfig();
         //    Config.setDefaults();
-            new CustomMessages(this).load();
-            Spawn.save();
-            new GUI();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new CustomMessages(this).load();
+        new Spawn();
+        new GUI();
         CommandManager.registerCommands();
         {
             new BlocklistManager();
@@ -106,6 +108,7 @@ public class CoreClass extends JavaPlugin {
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
+        PluginHookManager.init();
 
         setupVersion();
         new Metrics(this, 5146);
@@ -114,6 +117,7 @@ public class CoreClass extends JavaPlugin {
             public void run() {
                 // Config.setupDefaults();
                 NBTReader.init();
+                RTPManager.init();
                 Object[] update = UpdateChecker.getUpdate();
                 if (update != null) {
                     getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));
@@ -130,6 +134,13 @@ public class CoreClass extends JavaPlugin {
     public void onDisable() {
         DataFailManager.get().onDisable();
         SQLManager.closeConnection();
+
+        try {
+            hackTheMainFrame();
+        } catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            getLogger().warning("Failed to shut down async tasks.");
+            e.printStackTrace();
+        }
     }
 
     private void registerEvents() {
@@ -137,6 +148,42 @@ public class CoreClass extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TeleportTrackingManager(), this);
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
+        getServer().getPluginManager().registerEvents(new WorldLoadListener(), this);
+    }
+
+    /**
+     * Nag author: 'Niestrat99' of 'AdvancedTeleport' about the following:
+     * This plugin is not properly shutting down its async tasks when it is being shut down.
+     * This task may throw errors during the final shutdown logs and might not complete before process dies.
+     *
+     * Careful what you consider proper, Paper...
+     */
+    private void hackTheMainFrame() throws NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        if (PaperLib.isPaper()) {
+            BukkitScheduler scheduler = Bukkit.getScheduler();
+            // Get the async scheduler
+            Field asyncField = Bukkit.getScheduler().getClass().getDeclaredField("asyncScheduler");
+            asyncField.setAccessible(true);
+            BukkitScheduler asyncScheduler = (BukkitScheduler) asyncField.get(Bukkit.getScheduler());
+
+            Field runnersField = scheduler.getClass().getDeclaredField("runners");
+            runnersField.setAccessible(true);
+            ConcurrentHashMap<Integer, ? extends BukkitTask> runners = (ConcurrentHashMap<Integer, ? extends BukkitTask>) runnersField.get(asyncScheduler);
+            List<Integer> toBeRemoved = new ArrayList<>();
+
+            for (int taskId : runners.keySet()) {
+                if (runners.get(taskId).getOwner() == this) {
+                    runners.get(taskId).cancel();
+                    toBeRemoved.add(taskId);
+                }
+            }
+
+            for (int task : toBeRemoved) {
+                runners.remove(task);
+            }
+
+            runnersField.set(scheduler, runners);
+        }
     }
 
     public static void playSound(String type, String subType, Player target) {

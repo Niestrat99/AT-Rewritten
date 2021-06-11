@@ -162,6 +162,10 @@ public class ATPlayer {
     }
 
     public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback) {
+        if (hasHome(name)) {
+            moveHome(name, location, callback);
+            return;
+        }
         homes.put(name, new Home(uuid, name, location, System.currentTimeMillis(), System.currentTimeMillis()));
         HomeSQLManager.get().addHome(location, uuid, name, callback);
     }

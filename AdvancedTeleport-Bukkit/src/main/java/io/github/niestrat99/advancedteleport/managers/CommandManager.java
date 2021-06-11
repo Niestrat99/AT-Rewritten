@@ -2,9 +2,9 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.*;
+import io.github.niestrat99.advancedteleport.commands.core.*;
 import io.github.niestrat99.advancedteleport.commands.home.*;
-import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
-import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
+import io.github.niestrat99.advancedteleport.commands.spawn.*;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -17,17 +17,15 @@ import org.bukkit.command.SimpleCommandMap;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class CommandManager {
 
+    public static LinkedHashMap<String, SubATCommand> subcommands = new LinkedHashMap<>();
+    public static LinkedHashMap<String, PluginCommand> registeredCommands = new LinkedHashMap<>();
+
     public static void registerCommands() {
-        register("athelp", new AtHelp());
-        register("atreload", new AtReload());
-        register("atinfo", new AtInfo());
+        register("at", new CoreCommand());
 
         register("back", new Back());
         register("toggletp", new ToggleTP());
@@ -64,6 +62,15 @@ public class CommandManager {
 
         register("spawn", new SpawnCommand());
         register("setspawn", new SetSpawn());
+        register("mirrorspawn", new MirrorSpawn());
+        register("removespawn", new RemoveSpawn());
+        register("setmainspawn", new SetMainSpawn());
+
+        subcommands.put("import", new ImportCommand());
+        subcommands.put("help", new HelpCommand());
+        subcommands.put("reload", new ReloadCommand());
+        subcommands.put("info", new InfoCommand());
+        subcommands.put("export", new ExportCommand());
     }
 
     private static void register(String name, ATCommand atCommand) {
@@ -134,7 +141,7 @@ public class CommandManager {
             command.setExecutor(atCommand);
         }
         command.setTabCompleter(atCommand);
-
+        registeredCommands.put(name, command);
     }
 
     private static CommandMap getMap() {

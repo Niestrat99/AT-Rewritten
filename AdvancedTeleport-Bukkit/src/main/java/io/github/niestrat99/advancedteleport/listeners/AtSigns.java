@@ -111,7 +111,11 @@ public class AtSigns implements Listener {
         signRegistry.put("spawn", new ATSign("Spawn", NewConfig.get().USE_SPAWN.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
-                SpawnCommand.spawn(player);
+                String world = player.getWorld().getName();
+                if (!sign.getLine(1).isEmpty()) {
+                    world = sign.getLine(1);
+                }
+                SpawnCommand.spawn(player, world);
             }
 
             @Override

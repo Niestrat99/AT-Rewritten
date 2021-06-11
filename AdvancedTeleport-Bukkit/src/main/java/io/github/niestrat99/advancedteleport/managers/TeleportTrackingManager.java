@@ -9,7 +9,9 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.papermc.lib.PaperLib;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,18 +34,21 @@ public class TeleportTrackingManager implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         if (e.getPlayer().hasMetadata("NPC")) return;
         Player player = e.getPlayer();
-        if (NewConfig.get().TELEPORT_TO_SPAWN_EVERY.get()
-                || (!player.hasPlayedBefore() && NewConfig.get().TELEPORT_TO_SPAWN_FIRST.get())) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (Spawn.getSpawnFile() != null) {
-                        PaperLib.teleportAsync(player, Spawn.getSpawnFile(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    } else {
-                        PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+        if (!player.hasPermission("at.admin.bypass.teleport-on-join")) {
+            if ((NewConfig.get().TELEPORT_TO_SPAWN_EVERY.get())
+                    || (!player.hasPlayedBefore() && NewConfig.get().TELEPORT_TO_SPAWN_FIRST.get())) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Location spawn = Spawn.get().getSpawn(e.getPlayer());
+                        if (spawn != null) {
+                            PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
+                        } else {
+                            PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                        }
                     }
-                }
-            }.runTaskLater(CoreClass.getInstance(), 10);
+                }.runTaskLater(CoreClass.getInstance(), 10);
+            }
         }
     }
 
@@ -91,14 +96,33 @@ public class TeleportTrackingManager implements Listener {
             if (atPlayer.getPreviousLocation().getWorld() == null) return;
             ConfigurationSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
             String spawnCommand = deathManagement.getString(atPlayer.getPreviousLocation().getWorld().getName());
-            if (spawnCommand == null) {
+
+            if (spawnCommand == null || spawnCommand.equals("{default}")) {
                 spawnCommand = deathManagement.getString("default");
                 if (spawnCommand == null) return;
             }
+            if (spawnCommand.startsWith("tpr") && NewConfig.get().RAPID_RESPONSE.get()) {
+                World world = atPlayer.getPreviousLocation().getWorld();
+                if (spawnCommand.indexOf(':') != -1) {
+                    String worldStr = spawnCommand.substring(spawnCommand.indexOf(':'));
+                    if (!worldStr.isEmpty()) {
+                        world = Bukkit.getWorld(worldStr);
+                    }
+                }
+                if (world != null) {
+                    Location loc = RTPManager.getLocationUrgently(world);
+                    if (loc != null) {
+                        e.setRespawnLocation(loc);
+                        return;
+                    }
+                }
+            }
+
             switch (spawnCommand) {
                 case "spawn":
-                    if (Spawn.getSpawnFile() != null) {
-                        e.setRespawnLocation(Spawn.getSpawnFile());
+                    Location spawn = Spawn.get().getSpawn(e.getPlayer());
+                    if (spawn != null) {
+                        e.setRespawnLocation(spawn);
                     }
                     break;
                 case "bed":

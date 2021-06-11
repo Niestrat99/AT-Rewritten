@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.config;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.thatsmusic99.configurationmaster.CMFile;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -11,12 +10,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
 import java.util.*;
 
 public class CustomMessages extends CMFile {
 
-    public static File ConfigFile = new File(CoreClass.getInstance().getDataFolder(),"custom-messages.yml");
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
 
@@ -98,15 +95,16 @@ public class CustomMessages extends CMFile {
         addDefault("Error.homeAlreadySet", "&b↑ &8» &7You already have a home called &b{home}&7!");
         addDefault("Error.noWarpInput", "&b↑ &8» &7You have to include the warp's name!");
         addDefault("Error.noSuchWarp", "&b↑ &8» &7That warp doesn't exist!");
+        addDefault("Error.warpAlreadySet", "&b↑ &8» &7There is already a warp called &b{warp}&7!");
         addDefault("Error.noSuchWorld", "&b↑ &8» &7That world doesn't exist!");
         addDefault("Error.noLocation", "&b↑ &8» &7You don't have any location to teleport back to!");
         addDefault("Error.notAPlayer", "&b↑ &8» &7You must be a player to run this command!");
-        config.addDefault("Error.noHomes", "&b↑ &8» &7You haven't got any homes!");
-        config.addDefault("Error.noHomesOtherPlayer", "&b↑ &8» &b{player} &7hasn't got any homes!");
-        config.addDefault("Error.tooFarAway", "&b↑ &8» &7The teleport destination is too far away so you can not teleport there!");
-        config.addDefault("Error.noRequestsSent", "&b↑ &8» &7Couldn't send a request to anyone :(");
-        config.addDefault("Error.onCountdown","&b↑ &8» &7You can't use this command whilst waiting to teleport!");
-        config.addDefault("Error.noPermissionWarp", "&b↑ &8» &7You can't warp to &b{warp}&7!");
+        addDefault("Error.noHomes", "&b↑ &8» &7You haven't got any homes!");
+        addDefault("Error.noHomesOtherPlayer", "&b↑ &8» &b{player} &7hasn't got any homes!");
+        addDefault("Error.tooFarAway", "&b↑ &8» &7The teleport destination is too far away so you can not teleport there!");
+        addDefault("Error.noRequestsSent", "&b↑ &8» &7Couldn't send a request to anyone :(");
+        addDefault("Error.onCountdown","&b↑ &8» &7You can't use this command whilst waiting to teleport!");
+        addDefault("Error.noPermissionWarp", "&b↑ &8» &7You can't warp to &b{warp}&7!");
         addDefault("Error.cantTPToWorld", "&b↑ &8» &7You can't randomly teleport in that world!");
        // config.addDefault("Error.invalidName", "&cHomes and warps may only have letters and numbers in the names!");
         addDefault("Error.cantTPToWorldLim", "&b↑ &8» &7You can't teleport to &b{world}&7!");
@@ -125,134 +123,195 @@ public class CustomMessages extends CMFile {
         addDefault("Error.failedOfflineTeleport", "&b↑ &8» &7Failed to teleport to offline player &b{player}&7!");
         addDefault("Error.failedOfflineTeleportHere", "&b↑ &8» &7Failed to teleport offline player &b{player} &7 to your location!");
         addDefault("Error.alreadySearching", "&b↑ &8» &7Already searching for a location to teleport to!");
+        addDefault("Error.mirrorSpawnNoArguments", "&b↑ &8» &7No worlds/spawn points have been specified!");
+        addDefault("Error.mirrorSpawnLackOfArguments", "&b↑ &8» &7You must be a player to only specify one world - please specify a world and a spawnpoint to mirror players to!");
+        addDefault("Error.noSuchSpawn", "&b↑ &8» &7There is no such spawn called &b{spawn}&7!");
+        addDefault("Error.cannotSetMainSpawn", "&b↑ &8» &7You can only make existing spawnpoints into the main spawnpoint rather than create new ones!");
+        addDefault("Error.cannotSetMainSpawnConsole", "&b↑ &8» &7You can only make existing spawnpoints into the main spawnpoint rather than create new ones since you are not a player!");
+        addDefault("Error.nonAlphanumericSpawn", "&b↑ &8» &7Spawnpoints need to be alphanumeric!");
+        addDefault("Error.removeSpawnNoArgs", "&b↑ &8» &7You have to specify a spawnpoint to remove!");
+        addDefault("Error.noSuchPlugin", "&b↑ &8» &7This plugin is not supported for importing/exporting yet!");
+        addDefault("Error.cantImport", "&b↑ &8» &7Can't import plugin data from &b{plugin} &7(make sure it's enabled and by the correct authors)!");
+        addDefault("Error.cantExport", "&b↑ &8» &7Can't export plugin data from &b{plugin} &7(make sure it's enabled and by the correct authors)!");
+        addDefault("Error.notEnoughItems", "&b↑ &8» &7You do not have enough items to teleport there!\n" +
+                "&b↑ &8» &7You need at least &b{amount} {type}(s)!");
 
-        config.addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
-        config.addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
-        config.addDefault("Info.tpAdminOff", "&b↑ &8» &7Successfully disabled teleport requests for &b{player}&7!");
-        config.addDefault("Info.tpAdminOn", "&b↑ &8» &7Successfully enabled teleport requests for &b{player}&7!");
-        config.addDefault("Info.requestSent", "&b↑ &8» &7Successfully sent request to &b{player}&7!" +
+        addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
+        addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
+        addDefault("Info.tpAdminOff", "&b↑ &8» &7Successfully disabled teleport requests for &b{player}&7!");
+        addDefault("Info.tpAdminOn", "&b↑ &8» &7Successfully enabled teleport requests for &b{player}&7!");
+        addDefault("Info.requestSent", "&b↑ &8» &7Successfully sent request to &b{player}&7!" +
                 "\n&b↑ &8» &7They've got &b{lifetime} &7to respond!" +
                 "\n&7To cancel the request use &b/tpcancel &7to cancel it." +
                 "\n" +
                 "\n                                [&7&l[CANCEL]](/tpcancel {player})" +
                 "\n&7");
-        config.addDefault("Info.tpaRequestReceived", "&b↑ &8» &7The player &b{player} &7wants to teleport to you!" +
+        addDefault("Info.tpaRequestReceived", "&b↑ &8» &7The player &b{player} &7wants to teleport to you!" +
                 "\n&b↑ &8» &7If you want to accept it, use &b/tpayes&7, but if not, use &b/tpano&7." +
                 "\n&b↑ &8» &7You've got &b{lifetime} &7to respond to it!" +
                 "\n" +
                 "\n                   [&a&l[ACCEPT]](/tpayes {player}|&aClick here to accept the request.)              [&c&l[DENY]](/tpano {player}|&cClick here to deny the request.)" +
                 "\n&7");
-        config.addDefault("Info.tpaRequestHere", "&b↑ &8» &7The player &b{player} &7wants to teleport you to them!" +
+        addDefault("Info.tpaRequestHere", "&b↑ &8» &7The player &b{player} &7wants to teleport you to them!" +
                 "\n&b↑ &8» &7If you want to accept it, use &b/tpayes&7, but if not, use &b/tpano&7." +
                 "\n&b↑ &8» &7You've got &b{lifetime} seconds &7to respond to it!" +
                 "\n" +
                 "\n                   [&a&l[ACCEPT]](/tpayes {player}|&aClick here to accept the request.)              [&c&l[DENY]](/tpano {player}|&cClick here to deny the request.)" +
                 "\n&7");
-        config.addDefault("Info.blockPlayer", "&b↑ &8» &b{player} &7has been blocked.");
-        config.addDefault("Info.tpCancel", "&b↑ &8» &7You have cancelled your teleport request.");
-        config.addDefault("Info.tpCancelResponder", "&b↑ &8» &b{player} &7has cancelled their teleport request.");
-        config.addDefault("Info.multipleRequestsCancel", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to cancel:");
-        config.addDefault("Info.multipleRequestsIndex", "&b> {player}");
-        config.addDefault("Info.multipleRequestsList", "&b↑ &8» &7Do /tpalist <Page Number> To check other requests.");
-        config.addDefault("Info.multipleRequestAccept", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to accept:");
-        config.addDefault("Info.multipleRequestDeny", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to deny:");
-        config.addDefault("Info.requestDeclined", "&b↑ &8» &7You've declined the teleport request!");
-        config.addDefault("Info.requestDeclinedResponder", "&b↑ &8» &b{player} &7has declined your teleport request!");
-        config.addDefault("Info.requestDisplaced", "&b↑ &8» &7Your request has been cancelled because &b{player} &7got another request!");
+        addDefault("Info.blockPlayer", "&b↑ &8» &b{player} &7has been blocked.");
+        addDefault("Info.tpCancel", "&b↑ &8» &7You have cancelled your teleport request.");
+        addDefault("Info.tpCancelResponder", "&b↑ &8» &b{player} &7has cancelled their teleport request.");
+        addDefault("Info.multipleRequestsCancel", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to cancel:");
+        addDefault("Info.multipleRequestsIndex", "&b> {player}");
+        addDefault("Info.multipleRequestsList", "&b↑ &8» &7Do /tpalist <Page Number> To check other requests.");
+        addDefault("Info.multipleRequestAccept", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to accept:");
+        addDefault("Info.multipleRequestDeny", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to deny:");
+        addDefault("Info.requestDeclined", "&b↑ &8» &7You've declined the teleport request!");
+        addDefault("Info.requestDeclinedResponder", "&b↑ &8» &b{player} &7has declined your teleport request!");
+        addDefault("Info.requestDisplaced", "&b↑ &8» &7Your request has been cancelled because &b{player} &7got another request!");
 
-        config.addDefault("Info.deletedHome", "&b↑ &8» &7Successfully deleted the home &b{home}&7!");
-        config.addDefault("Info.deletedHomeOther", "&b↑ &8» &7Successfully deleted the home &b{home} &7for &b{player}&7!");
-        config.addDefault("Info.setHome", "&b↑ &8» &7Successfully set the home &b{home}&7!");
-        config.addDefault("Info.setHomeOther", "&b↑ &8» &7Successfully set the home &b{home} &7for &b{player}&7!");
-        config.addDefault("Info.setSpawn", "&b↑ &8» &7Successfully set the spawnpoint!");
-        config.addDefault("Info.setWarp", "&b↑ &8» &7Successfully set the warp &b{warp}&7!");
-        config.addDefault("Info.deletedWarp", "&b↑ &8» &7Successfully deleted the warp &b{warp}&7!");
-        config.addDefault("Info.searching", "&b↑ &8» &7Searching for a location...");
-        config.addDefault("Info.unblockPlayer", "&b↑ &8» &7Successfully unblocked &b{player}&7!");
-        config.addDefault("Info.reloadingConfig", "&b↑ &8» &7Reloading &bAdvancedTeleport&7's config...");
-        config.addDefault("Info.reloadedConfig", "&b↑ &8» &7Finished reloading the config!");
-        config.addDefault("Info.warps", "&b&lWarps &8» &r");
-        config.addDefault("Info.homes", "&b&lHomes &8» &r");
-        config.addDefault("Info.homesOther", "&b&l{player}'s homes &8» &r");
-        config.addDefault("Info.requestAccepted", "&b↑ &8» &7You've accepted the teleport request!");
-        config.addDefault("Info.requestAcceptedResponder", "&b↑ &8» &b{player} &7has accepted the teleport request!");
-        config.addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b${amount} &7and now have &b${balance}&7!");
-        config.addDefault("Info.paymentEXP", "&b↑ &8» &7You have paid &b{amount} EXP Levels &7and now have &b{levels} &7levels!");
-        config.addDefault("Info.paymentPoints", "&b↑ &8» &7You have paid &b{amount} EXP Points &7and now have &b{points} &7points!");
-        config.addDefault("Info.createdWarpSign", "&b↑ &8» &7Successfully created the warp sign!");
-        config.addDefault("Info.createdRTPSign", "&b↑ &8» &7Successfully created the RandomTP sign!");
-        config.addDefault("Info.createdSpawnSign", "&b↑ &8» &7Successfully created the spawn sign!");
-        config.addDefault("Info.tpallRequestSent", "&b↑ &8» &7Successfully sent a teleport request to &b{amount} &7player(s)!");
-        config.addDefault("Info.teleportedToLoc", "&b↑ &8» &7Successfully teleported you to &b{x}&7, &b{y}&7, &b{z}&7! (Yaw: &b{yaw}&7, Pitch: &b{pitch}&7, World: &b{world}&7)");
-        config.addDefault("Info.teleportedToLocOther", "&b↑ &8» &7Successfully teleported &b{player} &7to &b{x}&7, &b{y}&7, &b{z}&7! (Yaw: &b{yaw}&7, Pitch: &b{pitch}&7, World: &b{world}&7)");
-        config.addDefault("Info.movedWarp", "&b↑ &8» &7Moved &b{warp} &7to your current location!");
-        config.addDefault("Info.movedHome", "&b↑ &8» &7Moved home &b{home} &7to your current location!");
-        config.addDefault("Info.movedHomeOther", "&b↑ &8» &7Moved &b{player}'s &7home &b{home} &7to your location!");
-        config.addDefault("Info.setMainHome", "&b↑ &8» &7Made &b{home} &7your main home!");
-        config.addDefault("Info.setAndMadeMainHome", "&b↑ &8» &7Set &b{home} &7at your current location and made it your main home!");
-        config.addDefault("Info.setMainHomeOther", "&b↑ &8» &7Made &b{home} {player}'s &7main home!");
-        config.addDefault("Info.setAndMadeMainHomeOther", "&b↑ &8» &7Set &b{home} &7for &b{player} &7at your current location and made it their main home!");
-        config.addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
-        config.addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");
-        config.addDefault("Tooltip.location", "" +
+        addDefault("Info.deletedHome", "&b↑ &8» &7Successfully deleted the home &b{home}&7!");
+        addDefault("Info.deletedHomeOther", "&b↑ &8» &7Successfully deleted the home &b{home} &7for &b{player}&7!");
+        addDefault("Info.setHome", "&b↑ &8» &7Successfully set the home &b{home}&7!");
+        addDefault("Info.setHomeOther", "&b↑ &8» &7Successfully set the home &b{home} &7for &b{player}&7!");
+        addDefault("Info.setSpawn", "&b↑ &8» &7Successfully set the spawnpoint!");
+        addDefault("Info.setWarp", "&b↑ &8» &7Successfully set the warp &b{warp}&7!");
+        addDefault("Info.deletedWarp", "&b↑ &8» &7Successfully deleted the warp &b{warp}&7!");
+        addDefault("Info.searching", "&b↑ &8» &7Searching for a location...");
+        addDefault("Info.unblockPlayer", "&b↑ &8» &7Successfully unblocked &b{player}&7!");
+        addDefault("Info.reloadingConfig", "&b↑ &8» &7Reloading &bAdvancedTeleport&7's config...");
+        addDefault("Info.reloadedConfig", "&b↑ &8» &7Finished reloading the config!");
+        addDefault("Info.warps", "&b&lWarps &8» &r");
+        addDefault("Info.homes", "&b&lHomes &8» &r");
+        addDefault("Info.homesOther", "&b&l{player}'s homes &8» &r");
+        addDefault("Info.requestAccepted", "&b↑ &8» &7You've accepted the teleport request!");
+        addDefault("Info.requestAcceptedResponder", "&b↑ &8» &b{player} &7has accepted the teleport request!");
+        addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b${amount} &7and now have &b${balance}&7!");
+        addDefault("Info.paymentEXP", "&b↑ &8» &7You have paid &b{amount} EXP Levels &7and now have &b{levels} &7levels!");
+        addDefault("Info.paymentPoints", "&b↑ &8» &7You have paid &b{amount} EXP Points &7and now have &b{points} &7points!");
+        addDefault("Info.createdWarpSign", "&b↑ &8» &7Successfully created the warp sign!");
+        addDefault("Info.createdRTPSign", "&b↑ &8» &7Successfully created the RandomTP sign!");
+        addDefault("Info.createdSpawnSign", "&b↑ &8» &7Successfully created the spawn sign!");
+        addDefault("Info.tpallRequestSent", "&b↑ &8» &7Successfully sent a teleport request to &b{amount} &7player(s)!");
+        addDefault("Info.teleportedToLoc", "&b↑ &8» &7Successfully teleported you to &b{x}&7, &b{y}&7, &b{z}&7! (Yaw: &b{yaw}&7, Pitch: &b{pitch}&7, World: &b{world}&7)");
+        addDefault("Info.teleportedToLocOther", "&b↑ &8» &7Successfully teleported &b{player} &7to &b{x}&7, &b{y}&7, &b{z}&7! (Yaw: &b{yaw}&7, Pitch: &b{pitch}&7, World: &b{world}&7)");
+        addDefault("Info.movedWarp", "&b↑ &8» &7Moved &b{warp} &7to your current location!");
+        addDefault("Info.movedHome", "&b↑ &8» &7Moved home &b{home} &7to your current location!");
+        addDefault("Info.movedHomeOther", "&b↑ &8» &7Moved &b{player}'s &7home &b{home} &7to your location!");
+        addDefault("Info.setMainHome", "&b↑ &8» &7Made &b{home} &7your main home!");
+        addDefault("Info.setAndMadeMainHome", "&b↑ &8» &7Set &b{home} &7at your current location and made it your main home!");
+        addDefault("Info.setMainHomeOther", "&b↑ &8» &7Made &b{home} {player}'s &7main home!");
+        addDefault("Info.setAndMadeMainHomeOther", "&b↑ &8» &7Set &b{home} &7for &b{player} &7at your current location and made it their main home!");
+        addDefault("Info.mirroredSpawn", "&b↑ &8» &7Mirrored &b{from}&7's spawnpoint to &b{spawn}&7!");
+        addDefault("Info.setMainSpawn", "&b↑ &8» &7Set the main spawnpoint to &b{spawn}&7! All players will teleport there if there are no overriding spawns/permissions.");
+        addDefault("Info.removedSpawn", "&b↑ &8» &7Removed the spawnpoint &b{spawn}&7!");
+        addDefault("Info.setSpawnSpecial", "&b↑ &8» &7Set spawnpoint &b{spawn}&7!");
+        addDefault("Info.importStarted", "&b↑ &8» &7Starting import from &b{plugin}&7...");
+        addDefault("Info.importFinished", "&b↑ &8» &7Finished import from &b{plugin}&7!");
+        addDefault("Info.exportStarted", "&b↑ &8» &7Starting export to &b{plugin}&7...");
+        addDefault("Info.exportFinished", "&b↑ &8» &7Finished export to &b{plugin}&7!");
+        addDefault("Info.paymentItems", "&b↑ &8» &7You have paid &b{amount} {type}(s) &7for that teleport!");
+
+        addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
+        addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");
+        addDefault("Tooltip.location", "" +
                 "\n&bX &8» &7{x}" +
                 "\n&bY &8» &7{y}" +
                 "\n&bZ &8» &7{z}" +
                 "\n&bWorld &8» &7{world}");
-        config.addDefault("Help.mainHelp", new ArrayList<>(Arrays.asList("&b&lAdvancedTeleport Help",
-                "&6Please type &b/athelp <category> &6to get a list of commands about this category.",
-                "&6--[ &bCategories &6]--",
-                "&6- Teleport",
-                "&6- Warps",
-                "&6- Spawn",
-                "&6- RandomTP",
-                "&6- Homes")));
-        config.addDefault("Help.mainHelpAdmin", new ArrayList<>(Collections.singletonList("&6- Admin")));
-        config.addDefault("Help.teleport", new ArrayList<>(Arrays.asList("&b&lTeleport help",
-                "&6- /tpa <player> - Sends a request to teleport to the player.",
-                "&6- /tpahere <player> - Sends a request to the player to teleport to you",
-                "&6- /tpaccept - Accepts a player's teleport request.",
-                "&6- /tpdeny - Declines a player's teleport request.",
-                "&6- /tpcancel - Lets you cancel the request you have sent to a player.",
-                "&6- /toggletp - Lets you switch between /tpon and /tpoff.",
-                "&6- /tpon - Enables teleport requests to you.",
-                "&6- /tpoff - Disables teleport requests to you.",
-                "&6- /tpblock <player> - Blocks the player so that they cannot send you teleport requests anymore.",
-                "&6- /tpunblock <player> - Unblocks the player so that they can send you teleport requests.",
-                "&6- /back - Teleports you to your last location.",
-                "&6- /tpalist - Lists your teleport requests.")));
-        config.addDefault("Help.teleportAdmin", new ArrayList<>(Arrays.asList("&6- /tpo <player> - Instantly teleports you to the player.",
-                "&6- /tpohere <player> - Instantly teleports the player to you.",
-                "&6- /tpall - Sends a teleport request to every online player to teleport to you.",
-                "&6- /tploc <x|~> <y|~> <z|~> [Yaw|~] [Pitch|~] [World|~] [Player] [precise|noflight] - Teleports you or another player to a specified location.",
-                "&6- /tpoffline <player> - Teleports to an offline player.",
-                "&6- /tpofflinehere <player> - Teleports an offline player to you.")));
-        config.addDefault("Help.warps", new ArrayList<>(Arrays.asList("&b&lWarps help",
-                "&6- /warp <Warp> - Teleports you to an existing warp point.",
-                "&6- /warps - Gives you a list of warps.")));
-        config.addDefault("Help.warpsAdmin", new ArrayList<>(Arrays.asList(
-                "&6- /setwarp <Name> - Sets a warp at a given location.",
-                "&6- /delwarp <Warp> - Deletes a warp.",
-                "&6- /movewarp <Warp> - Moves a warp to your location.")));
-        config.addDefault("Help.spawn", new ArrayList<>(Arrays.asList("&b&lSpawn help",
-                "- /spawn - Teleports you to the spawn point.")));
-        config.addDefault("Help.spawnAdmin", new ArrayList<>(Collections.singletonList("&6- /setspawn - Sets a spawn point at your location.")));
-        config.addDefault("Help.randomTP", new ArrayList<>(Arrays.asList("&b&lRandomTP help",
-                "&6- /rtp - Teleports you to a random location.")));
-        addDefault("Help.homes", new ArrayList<>(Arrays.asList("&b&lHomes help",
-                "&6- /sethome <Home> - Sets a home point at your location.",
-                "&6- /delhome <Home> - Deletes a home point you've set.",
-                "&6- /home <Home> - Teleports you to your home.",
-                "&6- /homes - Gives you a list of homes you've set.",
-                "&6- /movehome <Home> - Moves one of your homes to your current location.",
-                "&6- /setmainhome <Home> - Sets a home at your location or makes an existing one your main home.")));
-        addDefault("Help.homesAdmin", new ArrayList<>(Arrays.asList("&6- /sethome <player> <home name> - Sets a home point at your location for the player.",
-                "&6- /delhome <player> <home name> - Deletes a home point of a player.",
-                "&6- /home <player> <home name> - Teleports you to a home point a player has set.",
-                "&6- /homes <player> - Gives you a list of homes of a player.")));
-        addDefault("Help.admin", new ArrayList<>(Arrays.asList("&b&lAdmin help",
-                "&6- /atinfo - Shows informations about this plugin.",
-                "&6- /atreload - Reloads all configuration files of this plugin.")));
+
+        addDefault("Descriptions.Subcommands.help", "Sends the help menu, providing a full list of commands.");
+        addDefault("Descriptions.Subcommands.info", "Sends information regarding the plugin.");
+        addDefault("Descriptions.Subcommands.import", "Imports data from another plugin so that it can be used within AT.");
+        addDefault("Descriptions.Subcommands.export", "Exports data within AT to another plugin.");
+        addDefault("Descriptions.Subcommands.reload", "Reloads the plugin's configuration.");
+        addDefault("Descriptions.at", "The core command for AT.");
+        addDefault("Descriptions.tpa", "Sends a request to teleport to the player.");
+        addDefault("Descriptions.tpahere", "Sends a request to the player to teleport to you.");
+        addDefault("Descriptions.tpyes", "Accepts a player's teleport request.");
+        addDefault("Descriptions.tpno", "Declines a player's teleport request.");
+        addDefault("Descriptions.tpcancel", "Cancels your teleport request to a player.");
+        addDefault("Descriptions.toggletp", "Either stops or allows players to send teleport requests to you.");
+        addDefault("Descriptions.tpon", "Allows players to send teleport requests to you.");
+        addDefault("Descriptions.tpoff", "Stops players from sending teleport requests to you.");
+        addDefault("Descriptions.tpblock", "Stops a specific player from sending teleport requests to you.");
+        addDefault("Descriptions.tpunblock", "Allows a blocked player to send you teleport requests again.");
+        addDefault("Descriptions.back", "Teleports you to your previous location.");
+        addDefault("Descriptions.tpalist", "Lists all of your current teleport requests.");
+        addDefault("Descriptions.tpo", "Instantly teleports you to a player.");
+        addDefault("Descriptions.tpohere", "Instantly teleports a player to you.");
+        addDefault("Descriptions.tpall", "Sends a teleport request to everyone in the server to you.");
+        addDefault("Descriptions.tploc", "Teleports you to a specific location.");
+        addDefault("Descriptions.tpoffline", "Teleports you to an offline player.");
+        addDefault("Descriptions.tpofflinehere", "Teleports an offline player to you.");
+        addDefault("Descriptions.tpr", "Teleports you to a random location.");
+        addDefault("Descriptions.warp", "Teleports you to a given warp point.");
+        addDefault("Descriptions.warps", "Gives you a list of warps you can teleport to.");
+        addDefault("Descriptions.setwarp", "Sets a warp at your location.");
+        addDefault("Descriptions.delwarp", "Deletes a warp.");
+        addDefault("Descriptions.movewarp", "Moves a warp to a new location.");
+        addDefault("Descriptions.spawn", "Teleports you to the spawnpoint.");
+        addDefault("Descriptions.setspawn", "Sets a spawn with a name when specified.");
+        addDefault("Descriptions.mirrorspawn", "Redirects people using /spawn in one world to another spawn point.");
+        addDefault("Descriptions.setmainspawn", "Sets a specified spawnpoint to become the main spawnpoint. If it does not exist, it will be created if you have /setspawn permissions.");
+        addDefault("Descriptions.removespawn", "Removes a specified spawnpoint. If none is specified, the one in your current world is removed.");
+        addDefault("Descriptions.home", "Teleports you to your home.");
+        addDefault("Descriptions.homes", "Gives you a list of homes you've set.");
+        addDefault("Descriptions.sethome", "Sets a home at your current location.");
+        addDefault("Descriptions.delhome", "Deletes a home.");
+        addDefault("Descriptions.movehome", "Moves a home to a new location.");
+        addDefault("Descriptions.setmainhome", "Sets a home at your location or makes an existing one your main home.");
+
+        addDefault("Usages.Subcommands.help", "/at help [Category|Page]");
+        addDefault("Usages.Subcommands.info", "/at info");
+        addDefault("Usages.Subcommands.import", "/at import <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
+        addDefault("Usages.Subcommands.export", "/at export <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
+        addDefault("Usages.Subcommands.reload", "/at reload");
+        addDefault("Usages.at", "/at <Command>");
+        addDefault("Usages.tpa", "/tpa <Player>");
+        addDefault("Usages.tpahere", "/tpahere <Player>");
+        addDefault("Usages.tpyes", "/tpyes [Player]");
+        addDefault("Usages.tpno", "/tpno [Player]");
+        addDefault("Usages.tpcancel", "/tpcancel [Player]");
+        addDefault("Usages.toggletp", "/toggletp");
+        addDefault("Usages.tpon", "/tpon");
+        addDefault("Usages.tpoff", "/tpoff");
+        addDefault("Usages.tpblock", "/tpblock <Player> [Reason]");
+        addDefault("Usages.tpunblock", "/tpunblock <Player>");
+        addDefault("Usages.back", "/back");
+        addDefault("Usages.tpalist", "/tpalist");
+        addDefault("Usages.tpo", "/tpo <Player>");
+        addDefault("Usages.tpohere", "/tpohere <Player>");
+        addDefault("Usages.tpall", "/tpall");
+        addDefault("Usages.tploc", "/tploc <x|~> <y|~> <z|~> [Yaw|~] [Pitch|~] [World|~] [Player] [precise|noflight]");
+        addDefault("Usages.tpoffline", "/tpoffline <Player>");
+        addDefault("Usages.tpofflinehere", "/tpofflinehere <Player>");
+        addDefault("Usages.tpr", "/tpr [World]");
+        addDefault("Usages.warp", "/warp <Warp>");
+        addDefault("Usages.warps", "/warps");
+        addDefault("Usages.setwarp", "/setwarp <Name>");
+        addDefault("Usages.delwarp", "/delwarp <Name>");
+        addDefault("Usages.movewarp", "/movewarp <Name>");
+        addDefault("Usages.spawn", "/spawn");
+        addDefault("Usages.setspawn", "/setspawn [ID]");
+        addDefault("Usages.mirrorspawn", "/mirrorspawn <To Point>|[From World] [To Point]");
+        addDefault("Usages.setmainspawn", "/setmainspawn [Point]");
+        addDefault("Usages.removespawn", "/removespawn [Point]");
+        addDefault("Usages.home", "/home [Home]");
+        addDefault("Usages.homes", "/homes");
+        addDefault("Usages.sethome", "/sethome <Name>");
+        addDefault("Usages.delhome", "/delhome <Home>");
+        addDefault("Usages.movehome", "/movehome <Home>");
+        addDefault("Usages.setmainhome", "/setmainhome <Home>");
+
+        addDefault("Usages-Admin.tpr", "/tpr [World] [Player]");
+        addDefault("Usages-Admin.home", "/home [Home]|<Player> <Home>");
+        addDefault("Usages-Admin.homes", "/homes [Player]");
+        addDefault("Usages-Admin.delhome", "/delhome <Home>|<Player> <Home>");
+        addDefault("Usages-Admin.sethome", "/sethome <Name>|<Player> <Name>");
+        addDefault("Usages-Admin.movehome", "/movehome <Home>|<Player> <Home>");
+        addDefault("Usages-Admin.setmainhome", "/setmainhome <Home>|<Player> <Home>");
+        addDefault("Usages-Admin.spawn", "/spawn <ID>");
 
     }
 

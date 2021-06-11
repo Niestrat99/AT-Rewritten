@@ -79,4 +79,9 @@ public class ConditionChecker {
         }
         return players;
     }
+
+    public static <T> T validate(T object, String message) {
+        if (object != null) return object;
+        throw new NullPointerException(message);
+    }
 }
