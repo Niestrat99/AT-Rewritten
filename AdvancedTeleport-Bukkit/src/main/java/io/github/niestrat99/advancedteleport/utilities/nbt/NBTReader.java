@@ -111,11 +111,11 @@ public class NBTReader {
     private static Object getWorldNBTStorage() {
         Object console = DEDICATED_SERVER;
         try {
-
             // Get the NBT storage
-            Field nbtField = console.getClass().getSuperclass().getDeclaredField("worldNBTStorage");
+            Field nbtField = getAlternativeFields(console.getClass().getSuperclass(), "worldNBTStorage", "k");
+            nbtField.setAccessible(true);
             return nbtField.get(console);
-        } catch (NoSuchFieldException e) {
+        } catch (NullPointerException e) {
             Object world = null;
             // Legacy
             try {
@@ -129,13 +129,13 @@ public class NBTReader {
             if (world == null) {
                 try {
                     // Get world server method itself
-                    Class<?> dimensionMan = Class.forName("net.minecraft.server." + VERSION + ".DimensionManager");
+                    Class<?> dimensionMan = getClass("DimensionManager", "world.level.dimension.");
                     Method getDimension = console.getClass().getSuperclass().getDeclaredMethod("getWorldServer", dimensionMan);
                     // Get overworld dimension field
                     Field overworld = dimensionMan.getDeclaredField("OVERWORLD");
 
                     world = getDimension.invoke(console, overworld.get(null));
-                } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchFieldException | NoSuchMethodException classNotFoundException) {
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchFieldException | NoSuchMethodException classNotFoundException) {
                     classNotFoundException.printStackTrace();
                 }
             }
@@ -212,10 +212,10 @@ public class NBTReader {
         }
         if (nbtCompound == null) return;
 
-        Constructor<?> listConstructor = Class.forName("net.minecraft.server." + VERSION + ".NBTTagList").getDeclaredConstructor();
-        Constructor<?> nbtDouble = Class.forName("net.minecraft.server." + VERSION + ".NBTTagDouble").getDeclaredConstructor(double.class);
-        Constructor<?> nbtFloat = Class.forName("net.minecraft.server." + VERSION + ".NBTTagFloat").getDeclaredConstructor(float.class);
-        Constructor<?> nbtLong = Class.forName("net.minecraft.server." + VERSION + ".NBTTagLong").getDeclaredConstructor(long.class);
+        Constructor<?> listConstructor = getClass("NBTTagList", "nbt.").getDeclaredConstructor();
+        Constructor<?> nbtDouble = getClass("NBTTagDouble", "nbt.").getDeclaredConstructor(double.class);
+        Constructor<?> nbtFloat = getClass("NBTTagFloat", "nbt.").getDeclaredConstructor(float.class);
+        Constructor<?> nbtLong = getClass("NBTTagLong", "nbt.").getDeclaredConstructor(long.class);
         // You will NOT fool me! YOU HEAR ME??? YOU WILL NOT FOOL ME!!!!
         listConstructor.setAccessible(true);
         nbtDouble.setAccessible(true);
@@ -241,7 +241,7 @@ public class NBTReader {
 
         UUID worldUUID = location.getWorld().getUID();
 
-        Method set = nbtCompound.getClass().getDeclaredMethod("set", String.class, Class.forName("net.minecraft.server." + VERSION + ".NBTBase"));
+        Method set = nbtCompound.getClass().getDeclaredMethod("set", String.class, getClass("NBTBase", "nbt."));
 
         set.invoke(nbtCompound, "Pos", pos);
         set.invoke(nbtCompound, "Rotation", rot);
@@ -253,8 +253,8 @@ public class NBTReader {
         File file = (File) getDataFile.invoke(player);
         FileOutputStream outputStream = new FileOutputStream(file);
 
-        Class.forName("net.minecraft.server." + VERSION + ".NBTCompressedStreamTools")
-                .getDeclaredMethod("a", Class.forName("net.minecraft.server." + VERSION + ".NBTTagCompound"), OutputStream.class)
+        getClass("NBTCompressedStreamTools", "nbt.")
+                .getDeclaredMethod("a", getClass("NBTTagCompound", "nbt."), OutputStream.class)
                 .invoke(null, nbtCompound, outputStream);
     }
 
@@ -263,7 +263,7 @@ public class NBTReader {
         double[] posArray = new double[3];
         for (int i = 0; i < 3; i++) {
             Object nbtBase = list.get(i);
-            Field data = nbtBase.getClass().getDeclaredField("data");
+            Field data = getAlternativeFields(nbtBase.getClass(), "data", "w");
             data.setAccessible(true);
             posArray[i] = (double) data.get(nbtBase);
         }
@@ -276,7 +276,7 @@ public class NBTReader {
         float[] rotArray = new float[2];
         for (int i = 0; i < 2; i++) {
             Object nbtBase = list.get(i);
-            Field data = nbtBase.getClass().getDeclaredField("data");
+            Field data = getAlternativeFields(nbtBase.getClass(), "data", "w");
             data.setAccessible(true);
             rotArray[i] = (float) data.get(nbtBase);
         }
@@ -284,7 +284,7 @@ public class NBTReader {
     }
 
     private static List<Object> getListVariable(Object obj) throws IllegalAccessException, NoSuchFieldException {
-        Field list = obj.getClass().getDeclaredField("list");
+        Field list = getAlternativeFields(obj.getClass(), "list", "c");
         list.setAccessible(true);
         return (List<Object>) list.get(obj);
     }
@@ -299,6 +299,30 @@ public class NBTReader {
                     if (!subFile.isDirectory()) continue;
                     if (subFile.getName().equals("playerdata")) return subFile;
                 }
+            }
+        }
+        return null;
+    }
+
+    private static Class<?> getClass(String className, String specificLocation) {
+        try {
+            return Class.forName("net.minecraft." + specificLocation + className);
+        } catch (ClassNotFoundException ex) {
+            try {
+                return Class.forName("net.minecraft.server." + VERSION + "." + className);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    private static Field getAlternativeFields(Class<?> obj, String... fields) {
+        for (String fieldName : fields) {
+            try {
+                Field field = obj.getDeclaredField(fieldName);
+                return field;
+            } catch (NoSuchFieldException ignored) {
             }
         }
         return null;
