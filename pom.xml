@@ -147,6 +147,7 @@
             <groupId>com.github.thatsmusic99</groupId>
             <artifactId>ConfigurationMaster</artifactId>
             <version>v1.0.2</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
