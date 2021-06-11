@@ -131,8 +131,8 @@ public class NewConfig extends CMFile {
                 "When this is disabled and user 1 receives requests from user 2 and then 3, they will only have user 3's request to respond to.");
         addDefault("notify-on-expire", true, "Let the player know when their request has timed out or been displaced by another user's request.\n" +
                 "Displacement only occurs when allow-multiple-requests is disabled.");
-        addDefault("tpa-restrict-movement-on", "requester");
-        addDefault("tpahere-restrict-movement-on", "requester");
+        // addDefault("tpa-restrict-movement-on", "requester");
+        // addDefault("tpahere-restrict-movement-on", "requester");
 
         addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", "The number of seconds it takes for the teleportation to take place following confirmation.\n" +
                 "(i.e. \"You will teleport in 3 seconds!\")\n" +
@@ -174,8 +174,8 @@ public class NewConfig extends CMFile {
         addDefault("per-command-cooldowns.spawn", "default", "Cooldown for /spawn");
         addDefault("per-command-cooldowns.home", "default", "Cooldown for /home");
         addDefault("per-command-cooldowns.back", "default", "Cooldown for /back");
-        //addDefault("per-command-cooldowns.sethome", "default", "Cooldown for /sethome");
-        //addDefault("per-command-cooldowns.setwarp", "default", "Cooldown for /setwarp");
+        // addDefault("per-command-cooldowns.sethome", "default", "Cooldown for /sethome");
+        // addDefault("per-command-cooldowns.setwarp", "default", "Cooldown for /setwarp");
 
         addDefault("cost-amount", 100.0, "Teleportation Costs", "The amount it costs to teleport somewhere." +
                 "\nIf you want to use Vault Economy, use 100.0 to charge $100." +
