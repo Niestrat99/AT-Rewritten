@@ -6,12 +6,18 @@
 
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
-  <!--  <packaging>pom</packaging> -->
-    <version>5.3.4-SNAPSHOT-2</version>
+    <packaging>pom</packaging>
+    <version>v5.5</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--suppress UnresolvedMavenProperty -->
+        <module.version>5.5+DEV_${env.BUILD_NUMBER}</module.version>
     </properties>
+
+    <modules>
+        <module>AdvancedTeleport-Bukkit</module>
+    </modules>
 
     <build>
         <plugins>
@@ -30,15 +36,21 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <includes>
                             <include>io.papermc:paperlib</include>
+                            <include>com.github.thatsmusic99:ConfigurationMaster</include>
                         </includes>
                     </artifactSet>
                     <relocations>
                         <relocation>
                             <pattern>io.papermc</pattern>
                             <shadedPattern>io.github.niestrat99.advancedteleport.paperlib</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>io.github.thatsmusic99.configurationmaster</pattern>
+                            <shadedPattern>io.github.niestrat99.advancedteleport.configurationmaster</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -52,11 +64,12 @@
                 </executions>
             </plugin>
         </plugins>
+        <finalName>AdvancedTeleport-${module.version}</finalName>
     </build>
-  <!--  <modules>
-        <module>AdvancedTP-Core</module>
-        <module>AdvancedTP-Bukkit</module>
-    </modules> -->
+<!--  <modules>
+<module>AdvancedTP-Core</module>
+<module>AdvancedTP-Bukkit</module>
+</modules> -->
 
     <repositories>
         <!-- Spigot Repo -->
@@ -75,6 +88,17 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+
+        <repository>
+            <id>cm-repo</id>
+            <url>https://ci.pluginwiki.us/plugin/repository/everything/</url>
+        </repository>
+
+        <repository>
+            <id>ess-releases</id>
+            <url>https://repo.essentialsx.net/releases/</url>
+        </repository>
+
     </repositories>
 
     <dependencies>
@@ -82,7 +106,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.2-R0.1-SNAPSHOT</version>
+            <version>1.17-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -115,7 +139,34 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.16.2-R0.1-SNAPSHOT</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.thatsmusic99</groupId>
+            <artifactId>ConfigurationMaster</artifactId>
+            <version>v1.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>2.18.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsXSpawn</artifactId>
+            <version>2.16.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
