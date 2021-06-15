@@ -119,12 +119,12 @@ public class ItemsPayment extends Payment {
                 material = Material.getMaterial(parts[0]);
                 if (material == null) return null;
                 amount = 1;
-                if (parts[2].matches("^[0-9]+$")) {
-                    amount = Integer.parseInt(parts[2]);
+                if (parts[1].matches("^[0-9]+$")) {
+                    amount = Integer.parseInt(parts[1]);
                 }
                 byte data = 0;
-                if (parts[1].matches("^[0-9]+$")) {
-                    data = Byte.parseByte(parts[1]);
+                if (parts[2].matches("^[0-9]+$")) {
+                    data = Byte.parseByte(parts[2]);
                 }
                 return new ItemsPayment(material, data, amount);
         }

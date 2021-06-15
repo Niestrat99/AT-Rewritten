@@ -182,7 +182,7 @@ public class NewConfig extends CMFile {
                 "\nIf you want to use Minecraft EXP points, use 10EXP for 10 EXP Points." +
                 "\nIf you want to use Minecraft EXP levels, use 5LVL for 5 levels." +
                 "\nIf you want to use items, use the format MATERIAL:AMOUNT or MATERIAL:AMOUNT:BYTE." +
-                "\nFor example, on 1.13+, ORANGE_WOOL:3 for 3 orange wool, but on versions before 1.13, WOOL:1:3." +
+                "\nFor example, on 1.13+, ORANGE_WOOL:3 for 3 orange wool, but on versions before 1.13, WOOL:3:1." +
                 "\nIf you're on a legacy version and unsure on what byte to use, see https://minecraftitemids.com/types" +
                 "\nTo use multiple methods of charging, use a ; - e.g. '100.0;10LVL' for $100 and 10 EXP levels." +
                 "\nTo disable, just put an empty string, i.e. ''");
