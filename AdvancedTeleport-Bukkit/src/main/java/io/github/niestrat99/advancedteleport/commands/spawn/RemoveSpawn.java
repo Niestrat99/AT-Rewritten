@@ -37,7 +37,7 @@ public class RemoveSpawn implements ATCommand {
                     CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "{spawn}", removingSpawn);
                     return true;
                 }
-                CustomMessages.sendMessage(sender, Spawn.get().removeSpawn(removingSpawn));
+                CustomMessages.sendMessage(sender, Spawn.get().removeSpawn(removingSpawn), "{spawn}", removingSpawn);
             }
         }
         return false;
