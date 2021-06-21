@@ -107,7 +107,7 @@ public class PaymentManager {
 
     // Method used to manage payments
     public void withdraw(String command, Player player) {
-        if (!player.hasPermission("at.admin.bypass")) {
+        if (!player.hasPermission("at.admin.bypass.payment")) {
             for (Payment payment : teleportCosts.get(command).values()) {
                 payment.withdraw(player);
             }
