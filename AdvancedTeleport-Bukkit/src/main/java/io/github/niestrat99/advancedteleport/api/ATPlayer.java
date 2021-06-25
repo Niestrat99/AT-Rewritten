@@ -306,7 +306,7 @@ public class ATPlayer {
     }
 
     @Nullable
-    public static ATPlayer getPlayer(String name) {
+    public static ATPlayer getPlayer(@NotNull String name) {
         if (players.containsKey(name.toLowerCase())) {
             return players.get(name.toLowerCase());
         }

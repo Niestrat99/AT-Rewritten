@@ -59,10 +59,11 @@ public class EssentialsHook extends ImportExportPlugin {
         if (userMap == null) return;
 
         for (UUID uuid : userMap.getAllUniqueUsers()) {
-            User user = getUser(uuid);
-            if (user == null) continue;
-            for (String home : user.getHomes()) {
-                try {
+            try {
+                User user = getUser(uuid);
+                if (user == null) continue;
+                if (user.getName() == null) continue;
+                for (String home : user.getHomes()) {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     if (player != null) {
                         if (!player.hasHome(home)) {
@@ -81,11 +82,12 @@ public class EssentialsHook extends ImportExportPlugin {
                             HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null);
                         }
                     }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
                 }
+            } catch (Exception ex) {
+                debug("Failed to export previous locations for UUID " + uuid.toString() + ":");
+                ex.printStackTrace();
             }
+
         }
         debug("Finished importing homes!");
     }
@@ -98,15 +100,21 @@ public class EssentialsHook extends ImportExportPlugin {
         if (userMap == null) return;
 
         for (UUID uuid : userMap.getAllUniqueUsers()) {
-            User user = userMap.getUser(uuid);
-            if (user == null
-                    || user.getLastLocation() == null
-                    || user.getLastLocation().getWorld() == null) continue;
-            ATPlayer player = ATPlayer.getPlayer(user.getName());
-            if (player != null) {
-                player.setPreviousLocation(user.getLastLocation());
-            } else {
-                PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation(), null);
+            try {
+                User user = userMap.getUser(uuid);
+                if (user == null
+                        || user.getName() == null
+                        || user.getLastLocation() == null
+                        || user.getLastLocation().getWorld() == null) continue;
+                ATPlayer player = ATPlayer.getPlayer(user.getName());
+                if (player != null) {
+                    player.setPreviousLocation(user.getLastLocation());
+                } else {
+                    PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation(), null);
+                }
+            } catch (Exception ex) {
+                debug("Failed to export previous locations for UUID " + uuid.toString() + ":");
+                ex.printStackTrace();
             }
         }
         debug("Finished importing last locations!");
@@ -191,16 +199,21 @@ public class EssentialsHook extends ImportExportPlugin {
         if (userMap == null) return;
 
         for (UUID uuid : userMap.getAllUniqueUsers()) {
-            User user = getUser(uuid);
-            if (user == null) continue;
-            ATPlayer player = ATPlayer.getPlayer(user.getName());
-            if (player == null) {
-                PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled(), null);
-            } else {
-                player.setTeleportationEnabled(user.isTeleportEnabled(), null);
+            try {
+                User user = getUser(uuid);
+                if (user == null) continue;
+                if (user.getName() == null) continue;
+                ATPlayer player = ATPlayer.getPlayer(user.getName());
+                if (player == null) {
+                    PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled(), null);
+                } else {
+                    player.setTeleportationEnabled(user.isTeleportEnabled(), null);
+                }
+            } catch (Exception ex) {
+                debug("Failed to import player data for UUID " + uuid.toString() + ":");
+                ex.printStackTrace();
             }
         }
-
         debug("Imported player information!");
     }
 
@@ -214,15 +227,16 @@ public class EssentialsHook extends ImportExportPlugin {
         if (userMap == null) return;
 
         for (UUID uuid : userMap.getAllUniqueUsers()) {
-            User user = getUser(uuid);
-            if (user == null) continue;
-            ATPlayer player = ATPlayer.getPlayer(user.getName());
-            if (player != null) {
-                for (String home : player.getHomes().keySet()) {
-                    user.setHome(home, player.getHome(home).getLocation());
-                }
-            } else {
-                try {
+            try {
+                User user = getUser(uuid);
+                if (user == null) continue;
+                if (user.getName() == null) continue;
+                ATPlayer player = ATPlayer.getPlayer(user.getName());
+                if (player != null) {
+                    for (String home : player.getHomes().keySet()) {
+                        user.setHome(home, player.getHome(home).getLocation());
+                    }
+                } else {
                     PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT home, x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid_owner = ?");
                     statement.setString(1, uuid.toString());
                     ResultSet set = statement.executeQuery();
@@ -233,11 +247,12 @@ public class EssentialsHook extends ImportExportPlugin {
                         String world = set.getString("world");
                         user.setHome(name, new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
                     }
-
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
                 }
+            } catch (Exception ex) {
+                debug("Failed to export home data for UUID " + uuid.toString() + ":");
+                ex.printStackTrace();
             }
+
         }
         debug("Finished exporting homes!");
     }
@@ -251,13 +266,14 @@ public class EssentialsHook extends ImportExportPlugin {
         if (userMap == null) return;
 
         for (UUID uuid : userMap.getAllUniqueUsers()) {
-            User user = getUser(uuid);
-            if (user == null) continue;
-            ATPlayer player = ATPlayer.getPlayer(user.getName());
-            if (player != null) {
-                user.setLastLocation(player.getPreviousLocation());
-            } else {
-                try {
+            try {
+                User user = getUser(uuid);
+                if (user == null) continue;
+                if (user.getName() == null) continue;
+                ATPlayer player = ATPlayer.getPlayer(user.getName());
+                if (player != null) {
+                    user.setLastLocation(player.getPreviousLocation());
+                } else {
                     PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid = ?");
                     statement.setString(1, uuid.toString());
                     ResultSet set = statement.executeQuery();
@@ -268,12 +284,14 @@ public class EssentialsHook extends ImportExportPlugin {
                         String world = set.getString("world");
                         user.setLastLocation(new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
                     }
-
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
                 }
+            } catch (Exception ex) {
+                debug("Failed to export previous locations for UUID " + uuid.toString() + ":");
+                ex.printStackTrace();
             }
         }
+
+        debug("Finished exporting previous locations!");
     }
 
     @Override
@@ -287,6 +305,7 @@ public class EssentialsHook extends ImportExportPlugin {
             try {
                 warps.setWarp(warp.getName(), warp.getLocation());
             } catch (Exception e) {
+                debug("Failed to export warp " + warp.getName() + ":");
                 e.printStackTrace();
             }
         }
@@ -327,13 +346,14 @@ public class EssentialsHook extends ImportExportPlugin {
         if (userMap == null) return;
 
         for (UUID uuid : userMap.getAllUniqueUsers()) {
-            User user = getUser(uuid);
-            if (user == null) continue;
-            ATPlayer player = ATPlayer.getPlayer(user.getName());
-            if (player != null) {
-                user.setTeleportEnabled(player.isTeleportationEnabled());
-            } else {
-                try {
+            try {
+                User user = getUser(uuid);
+                if (user == null) continue;
+                if (user.getName() == null) continue;
+                ATPlayer player = ATPlayer.getPlayer(user.getName());
+                if (player != null) {
+                    user.setTeleportEnabled(player.isTeleportationEnabled());
+                } else {
                     PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT teleportation_on FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
                     statement.setString(1, uuid.toString());
                     ResultSet set = statement.executeQuery();
@@ -341,11 +361,12 @@ public class EssentialsHook extends ImportExportPlugin {
                     while (set.next()) {
                         user.setTeleportEnabled(set.getBoolean("teleportation_on"));
                     }
-
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
                 }
+            } catch (Exception ex) {
+                debug("Failed to export player information for UUID " + uuid.toString() + ":");
+                ex.printStackTrace();
             }
+
         }
     }
 
