@@ -7,6 +7,7 @@ import io.papermc.lib.PaperLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -20,6 +21,11 @@ public class RTPManager {
     public static void init() {
         locQueue = new HashMap<>();
         borderData = new HashMap<>();
+        try {
+            getPreviousLocations();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         for (World loadedWorld : Bukkit.getWorlds()) {
             loadWorldData(loadedWorld);
         }
@@ -82,28 +88,25 @@ public class RTPManager {
         if (locQueue == null) return;
         if (NewConfig.get().WHITELIST_WORLD.get() && !NewConfig.get().ALLOWED_WORLDS.get().contains(world.getName())) return;
         if (world.getGenerator() != null && NewConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
-        if (!locQueue.containsKey(world.getUID())) {
-            for (int i = 0; i < NewConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
-                addLocation(world, false, 0).thenAccept(location -> {
-                    Queue<Location> queue = locQueue.get(world.getUID());
-                    if (queue == null) queue = new ArrayDeque<>();
-                    queue.add(location);
-                    locQueue.put(world.getUID(), queue);
-                });
-            }
+        int size = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>()).size();
+
+        for (int i = size; i < NewConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
+            addLocation(world, false, 0).thenAccept(location -> {
+                Queue<Location> queue = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>());
+                queue.add(location);
+                locQueue.put(world.getUID(), queue);
+            });
         }
-        if (!borderData.containsKey(world.getUID())) {
-            if (NewConfig.get().USE_WORLD_BORDER.get() && worldBorder != null) {
-                BorderData border = com.wimbli.WorldBorder.Config.Border(world.getName());
-                if (border != null) {
-                    borderData.put(world.getUID(), new Double[]{
-                            border.getX() - border.getRadiusX(),
-                            border.getZ() - border.getRadiusZ(),
-                            border.getX() + border.getRadiusX(),
-                            border.getZ() + border.getRadiusZ()});
-                }
-            }
-        }
+
+        if (borderData.containsKey(world.getUID())) return;
+        if (worldBorder == null || !NewConfig.get().USE_WORLD_BORDER.get()) return;
+        BorderData border = com.wimbli.WorldBorder.Config.Border(world.getName());
+        if (border == null) return;
+        borderData.put(world.getUID(), new Double[]{
+                border.getX() - border.getRadiusX(),
+                border.getZ() - border.getRadiusZ(),
+                border.getX() + border.getRadiusX(),
+                border.getZ() + border.getRadiusZ()});
     }
 
     public static void unloadWorldData(World world) {
@@ -173,4 +176,41 @@ public class RTPManager {
         };
     }
 
+    public static void getPreviousLocations() throws IOException {
+        File rtpLocsFile = new File(CoreClass.getInstance().getDataFolder(), "rtp-locations.csv");
+        if (!rtpLocsFile.exists()) return;
+        BufferedReader reader = new BufferedReader(new FileReader(rtpLocsFile));
+        String currentLine;
+        while ((currentLine = reader.readLine()) != null) {
+            try {
+                String[] data = currentLine.split(",");
+                UUID worldUUID = UUID.fromString(data[0]);
+                World world = Bukkit.getWorld(worldUUID);
+                double[] loc = new double[]{Double.parseDouble(data[1]), Double.parseDouble(data[2]), Double.parseDouble(data[3])};
+                Queue<Location> queue = locQueue.getOrDefault(worldUUID, new ArrayDeque<>());
+                queue.add(new Location(world, loc[0], loc[1], loc[2]));
+                locQueue.put(worldUUID, queue);
+            } catch (Exception ignored) {
+            }
+        }
+        reader.close();
+        rtpLocsFile.delete();
+    }
+
+    public static void saveLocations() throws IOException {
+        File rtpLocsFile = new File(CoreClass.getInstance().getDataFolder(), "rtp-locations.csv");
+        if (!rtpLocsFile.exists()) rtpLocsFile.createNewFile();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(rtpLocsFile));
+        for (UUID worldUUID : locQueue.keySet()) {
+            Queue<Location> locations = locQueue.get(worldUUID);
+            while (locations.peek() != null) {
+                Location loc = locations.poll();
+                String locLine = loc.getWorld().getUID() +
+                        "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
+                writer.write(locLine);
+                writer.write("\n");
+            }
+        }
+        writer.close();
+    }
 }

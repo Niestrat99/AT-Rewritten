@@ -26,6 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -139,6 +140,12 @@ public class CoreClass extends JavaPlugin {
             hackTheMainFrame();
         } catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             getLogger().warning("Failed to shut down async tasks.");
+            e.printStackTrace();
+        }
+
+        try {
+            RTPManager.saveLocations();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
