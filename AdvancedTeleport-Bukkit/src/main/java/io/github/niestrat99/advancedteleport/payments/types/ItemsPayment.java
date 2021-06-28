@@ -104,11 +104,11 @@ public class ItemsPayment extends Payment {
             case 0:
                 return null;
             case 1:
-                Material material = Material.getMaterial(parts[0]);
+                Material material = Material.getMaterial(parts[0].toUpperCase());
                 if (material == null) return null;
                 return new ItemsPayment(material, (byte) 0, 1);
             case 2:
-                material = Material.getMaterial(parts[0]);
+                material = Material.getMaterial(parts[0].toUpperCase());
                 if (material == null) return null;
                 int amount = 1;
                 if (parts[1].matches("^[0-9]+$")) {
@@ -116,7 +116,7 @@ public class ItemsPayment extends Payment {
                 }
                 return new ItemsPayment(material, (byte) 0, amount);
             default:
-                material = Material.getMaterial(parts[0]);
+                material = Material.getMaterial(parts[0].toUpperCase());
                 if (material == null) return null;
                 amount = 1;
                 if (parts[1].matches("^[0-9]+$")) {
