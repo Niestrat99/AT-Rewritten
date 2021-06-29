@@ -211,6 +211,10 @@ public class CustomMessages extends CMFile {
         addDefault("Info.exportStarted", "&b↑ &8» &7Starting export to &b{plugin}&7...");
         addDefault("Info.exportFinished", "&b↑ &8» &7Finished export to &b{plugin}&7!");
         addDefault("Info.paymentItems", "&b↑ &8» &7You have paid &b{amount} {type}(s) &7for that teleport!");
+        addDefault("Info.updateInfo", "&b↑ &8» [&7AdvancedTeleport has an update available! " +
+                "Click/hover over this text for more information.]" +
+                "(&bCurrent Version &8» &7{version}|&bNew Version &8» &7{new-version}|&bTitle &8» &7{title}" +
+                "|https://www.spigotmc.org/resources/advancedteleport.64139/)");
 
         addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
         addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");

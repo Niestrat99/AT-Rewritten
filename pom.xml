@@ -12,7 +12,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--suppress UnresolvedMavenProperty -->
-        <module.version>5.5.2+DEV_${env.BUILD_NUMBER}</module.version>
+        <module.version>5.5.3+DEV_${env.BUILD_NUMBER}</module.version>
+        <jenkins.timestamp>${maven.build.timestamp}</jenkins.timestamp>
     </properties>
 
     <modules>

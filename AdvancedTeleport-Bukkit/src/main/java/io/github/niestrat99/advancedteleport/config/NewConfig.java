@@ -93,6 +93,9 @@ public class NewConfig extends CMFile {
     public ConfigOption<List<String>> DEFAULT_PERMISSIONS;
     public ConfigOption<Boolean> ALLOW_ADMIN_PERMS;
 
+    public ConfigOption<Boolean> CHECK_FOR_UPDATES;
+    public ConfigOption<Boolean> NOTIFY_ADMINS;
+
     private static NewConfig instance;
     private static List<String> defaults;
     /**
@@ -364,6 +367,11 @@ public class NewConfig extends CMFile {
                 "If you want to use admin permissions, it's often recommended to use a permissions plugin such as LuckPerms.\n" +
                 "Do not enable this if you are unsure of the risks this option proposes.");
 
+        addSection("Updates");
+        addDefault("check-for-updates", true, "Whether or not the plugin should check for updates.");
+        addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
+                "Anyone with the permission at.admin.notify will receive this notification.");
+
     }
 
     public static NewConfig get() {
@@ -570,6 +578,9 @@ public class NewConfig extends CMFile {
 
         DEFAULT_PERMISSIONS = new ConfigOption<>("default-permissions");
         ALLOW_ADMIN_PERMS = new ConfigOption<>("allow-admin-permissions-as-default-perms");
+
+        CHECK_FOR_UPDATES = new ConfigOption<>("check-for-updates");
+        NOTIFY_ADMINS = new ConfigOption<>("notify-admins-on-update");
 
         new PaymentManager();
         LimitationsManager.init();

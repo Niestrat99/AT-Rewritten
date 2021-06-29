@@ -47,6 +47,7 @@ public class CoreClass extends JavaPlugin {
     private static CoreClass Instance;
     private static Permission perms = null;
     private int version;
+    private Object[] updateInfo = null;
 
     public static Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
     public static Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
@@ -119,12 +120,16 @@ public class CoreClass extends JavaPlugin {
                 // Config.setupDefaults();
                 NBTReader.init();
                 RTPManager.init();
-                Object[] update = UpdateChecker.getUpdate();
-                if (update != null) {
-                    getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));
-                    getLogger().info(pltitle(ChatColor.AQUA + "Download link: https://www.spigotmc.org/resources/advanced-teleport.64139/"));
-                } else {
-                    getLogger().info(pltitle(ChatColor.AQUA + "Plugin is up to date!"));
+                if (NewConfig.get().CHECK_FOR_UPDATES.get()) {
+                    updateInfo = UpdateChecker.getUpdate();
+                    if (updateInfo != null) {
+                        getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!");
+                        getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion());
+                        getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + updateInfo[0]);
+                        getLogger().info(ChatColor.AQUA + "Download link: https://www.spigotmc.org/resources/advancedteleport.64139/");
+                    } else {
+                        getLogger().info(ChatColor.AQUA + "Plugin is up to date!");
+                    }
                 }
                 TpLoc.a();
             }
@@ -241,5 +246,9 @@ public class CoreClass extends JavaPlugin {
 
     public int getVersion() {
         return version;
+    }
+
+    public Object[] getUpdateInfo() {
+        return updateInfo;
     }
 }
