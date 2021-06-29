@@ -450,6 +450,7 @@ public class CustomMessages extends CMFile {
                     builder.text(str.substring(lastMarkdownPointer, startTextPointer - 1));
 
                     String command = "";
+                    String link = "";
                     List<String> tooltip = new ArrayList<>();
 
                     String fullCommand = str.substring(startCommandPointer, endCommandPointer);
@@ -460,6 +461,8 @@ public class CustomMessages extends CMFile {
                         for (String part : parts) {
                             if (part.startsWith("/") && command.isEmpty()) {
                                 command = part;
+                            } else if (part.startsWith("http")) {
+                                link = part;
                             } else if (!part.isEmpty()) {
                                 tooltip.add(part);
                             }
@@ -467,6 +470,8 @@ public class CustomMessages extends CMFile {
                     } else {
                         if (fullCommand.startsWith("/")) {
                             command = fullCommand;
+                        } else if (fullCommand.startsWith("http")) {
+                            link = fullCommand;
                         } else if (!fullCommand.isEmpty()) {
                             tooltip.add(fullCommand);
                         }
@@ -476,6 +481,9 @@ public class CustomMessages extends CMFile {
 
                     if (!command.isEmpty()) {
                         builder.command(command);
+                    }
+                    if (!link.isEmpty()) {
+                        builder.link(link);
                     }
 
                     builder.then();
