@@ -120,7 +120,7 @@ public class Spawn extends CMFile {
     }
 
     public Location getSpawn(String name) {
-        if (getConfig().get("spawns." + name) == null) return mainSpawn;
+        if (getConfig().get("spawns." + name) == null) return getProperMainSpawn();
         ConfigurationSection spawns = getConfig().getConfigurationSection("spawns");
         ConfigurationSection toSection = spawns.getConfigurationSection(name);
         while (true) {
@@ -165,6 +165,18 @@ public class Spawn extends CMFile {
         set("spawns." + id, null);
         save(true);
         return "Info.removedSpawn";
+    }
+
+    public Location getProperMainSpawn() {
+        if (mainSpawn == null || mainSpawn.getWorld() == null) {
+            mainSpawn = new Location(Bukkit.getWorld(getString("spawns." + getMainSpawn() + ".world")),
+                    getDouble("spawns." + getMainSpawn() + ".x"),
+                    getDouble("spawns." + getMainSpawn() + ".y"),
+                    getDouble("spawns." + getMainSpawn() + ".z"),
+                    getFloat("spawns." + getMainSpawn() + ".yaw"),
+                    getFloat("spawns." + getMainSpawn() + ".pitch"));
+        }
+        return mainSpawn;
     }
 
     public boolean doesSpawnExist(String id) {
