@@ -21,6 +21,7 @@ public class RTPManager {
     public static void init() {
         locQueue = new HashMap<>();
         borderData = new HashMap<>();
+        if (!PaperLib.isPaper()) return;
         try {
             getPreviousLocations();
         } catch (IOException e) {
@@ -60,6 +61,7 @@ public class RTPManager {
     }
 
     public static CompletableFuture<Location> addLocation(World world, boolean urgent, int tries) {
+        if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
         tries++;
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             return CompletableFuture.completedFuture(locQueue.get(world.getUID()).poll());
