@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -167,7 +168,9 @@ public class Spawn extends CMFile {
         return "Info.removedSpawn";
     }
 
+    @Nullable
     public Location getProperMainSpawn() {
+        if (getMainSpawn() == null || getMainSpawn().isEmpty()) return null;
         if (mainSpawn == null || mainSpawn.getWorld() == null) {
             mainSpawn = new Location(Bukkit.getWorld(getString("spawns." + getMainSpawn() + ".world")),
                     getDouble("spawns." + getMainSpawn() + ".x"),
