@@ -25,6 +25,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -72,14 +73,16 @@ public class EssentialsHook extends ImportExportPlugin {
                             player.moveHome(home, user.getHome(home), null);
                         }
                     } else {
-                        PreparedStatement query = SQLManager.getConnection().prepareStatement("SELECT uuid_owner FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid-owner=? AND home=?");
-                        query.setString(1, uuid.toString());
-                        query.setString(2, home);
+                        try (Connection connection = HomeSQLManager.get().implementConnection()) {
+                            PreparedStatement query = connection.prepareStatement("SELECT uuid_owner FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid-owner=? AND home=?");
+                            query.setString(1, uuid.toString());
+                            query.setString(2, home);
 
-                        if (query.executeQuery().next()) {
-                            HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, null);
-                        } else {
-                            HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null);
+                            if (query.executeQuery().next()) {
+                                HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, null);
+                            } else {
+                                HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null);
+                            }
                         }
                     }
                 }
@@ -237,16 +240,20 @@ public class EssentialsHook extends ImportExportPlugin {
                         user.setHome(home, player.getHome(home).getLocation());
                     }
                 } else {
-                    PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT home, x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid_owner = ?");
-                    statement.setString(1, uuid.toString());
-                    ResultSet set = statement.executeQuery();
-                    while (set.next()) {
-                        String name = set.getString("home");
-                        double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
-                        float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
-                        String world = set.getString("world");
-                        user.setHome(name, new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
+                    try (Connection connection = HomeSQLManager.get().implementConnection()) {
+                        PreparedStatement statement = connection.prepareStatement("SELECT home, x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid_owner = ?");
+                        statement.setString(1, uuid.toString());
+                        ResultSet set = statement.executeQuery();
+                        connection.close();
+                        while (set.next()) {
+                            String name = set.getString("home");
+                            double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
+                            float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
+                            String world = set.getString("world");
+                            user.setHome(name, new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
+                        }
                     }
+
                 }
             } catch (Exception ex) {
                 debug("Failed to export home data for UUID " + uuid.toString() + ":");
@@ -274,15 +281,18 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (player != null) {
                     user.setLastLocation(player.getPreviousLocation());
                 } else {
-                    PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid = ?");
-                    statement.setString(1, uuid.toString());
-                    ResultSet set = statement.executeQuery();
-                    // should run once but this is just standard
-                    while (set.next()) {
-                        double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
-                        float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
-                        String world = set.getString("world");
-                        user.setLastLocation(new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
+                    try (Connection connection = HomeSQLManager.get().implementConnection()) {
+                        PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid = ?");
+                        statement.setString(1, uuid.toString());
+                        ResultSet set = statement.executeQuery();
+                        connection.close();
+                        // should run once but this is just standard
+                        while (set.next()) {
+                            double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
+                            float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
+                            String world = set.getString("world");
+                            user.setLastLocation(new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
+                        }
                     }
                 }
             } catch (Exception ex) {
@@ -354,12 +364,15 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (player != null) {
                     user.setTeleportEnabled(player.isTeleportationEnabled());
                 } else {
-                    PreparedStatement statement = SQLManager.getConnection().prepareStatement("SELECT teleportation_on FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
-                    statement.setString(1, uuid.toString());
-                    ResultSet set = statement.executeQuery();
-                    // also should run once but this is also just standard
-                    while (set.next()) {
-                        user.setTeleportEnabled(set.getBoolean("teleportation_on"));
+                    try (Connection connection = HomeSQLManager.get().implementConnection()) {
+                        PreparedStatement statement = connection.prepareStatement("SELECT teleportation_on FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
+                        statement.setString(1, uuid.toString());
+                        ResultSet set = statement.executeQuery();
+                        connection.close();
+                        // also should run once but this is also just standard
+                        while (set.next()) {
+                            user.setTeleportEnabled(set.getBoolean("teleportation_on"));
+                        }
                     }
                 }
             } catch (Exception ex) {

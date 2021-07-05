@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +27,7 @@ public class WarpSQLManager extends SQLManager {
     @Override
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
+            try (Connection connection = implementConnection()) {
                 PreparedStatement createTable = connection.prepareStatement(
                         "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_warps " +
                         "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
@@ -87,7 +88,7 @@ public class WarpSQLManager extends SQLManager {
         long created = warp.getCreatedTime();
         long updated = warp.getUpdatedTime();
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
+            try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO " + tablePrefix + "_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
@@ -128,7 +129,7 @@ public class WarpSQLManager extends SQLManager {
 
     public void removeWarp(String name, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
+            try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement(
                         "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
                 statement.setString(1, name);
@@ -148,7 +149,7 @@ public class WarpSQLManager extends SQLManager {
 
     public void moveWarp(Location newLocation, String name, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
+            try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement(
                         "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ? WHERE warp = ?");
 
@@ -183,7 +184,7 @@ public class WarpSQLManager extends SQLManager {
 
     private void addWarps() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
+            try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "_warps");
                 ResultSet results = statement.executeQuery();
                 // For each warp...

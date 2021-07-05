@@ -29,7 +29,6 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -139,7 +138,6 @@ public class CoreClass extends JavaPlugin {
     @Override
     public void onDisable() {
         DataFailManager.get().onDisable();
-        SQLManager.closeConnection();
 
         try {
             hackTheMainFrame();
