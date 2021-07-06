@@ -102,10 +102,10 @@ public class NBTReader {
     }
 
     /**
-     * @see org.bukkit.craftbukkit.v1_16_R2.CraftServer - server object
-     * @see net.minecraft.server.v1_16_R2.DedicatedServer - console object
-     * @see net.minecraft.server.v1_16_R2.MinecraftServer - subclass of console
-     * @see net.minecraft.server.v1_16_R2.WorldNBTStorage - nbtStorage
+     * @see org.bukkit.craftbukkit.v1_16_R3.CraftServer - server object
+     * @see net.minecraft.server.v1_16_R3.DedicatedServer - console object
+     * @see net.minecraft.server.v1_16_R3.MinecraftServer - subclass of console
+     * @see net.minecraft.server.v1_16_R3.WorldNBTStorage - nbtStorage
      * @return
      */
     private static Object getWorldNBTStorage() {
@@ -173,7 +173,7 @@ public class NBTReader {
         getPlayerData.setAccessible(true);
         Object nbtCompound = getPlayerData.invoke(player);
         // Offline mode
-        if (nbtCompound == null || !Bukkit.getOnlineMode()) {
+        if (nbtCompound == null || (!Bukkit.getOnlineMode() && CoreClass.getInstance().getVersion() < 17)) {
             getPlayerData = WORLD_NBT_STORAGE.getClass().getDeclaredMethod("getPlayerData", String.class);
             nbtCompound = getPlayerData.invoke(WORLD_NBT_STORAGE, UUID.nameUUIDFromBytes(player.getName().getBytes()).toString());
         }
@@ -206,7 +206,7 @@ public class NBTReader {
         getPlayerData.setAccessible(true);
         Object nbtCompound = getPlayerData.invoke(player);
         // Offline mode
-        if (nbtCompound == null || !Bukkit.getOnlineMode()) {
+        if (nbtCompound == null || (!Bukkit.getOnlineMode() && CoreClass.getInstance().getVersion() < 17)) {
             getPlayerData = WORLD_NBT_STORAGE.getClass().getDeclaredMethod("getPlayerData", String.class);
             nbtCompound = getPlayerData.invoke(WORLD_NBT_STORAGE, UUID.nameUUIDFromBytes(player.getName().getBytes()).toString());
         }
