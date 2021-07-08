@@ -28,7 +28,7 @@ public class WarpSQLManager extends SQLManager {
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement createTable = connection.prepareStatement(
+                PreparedStatement createTable = prepareStatement(connection,
                         "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_warps " +
                         "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "warp VARCHAR(256) NOT NULL," +
@@ -89,7 +89,7 @@ public class WarpSQLManager extends SQLManager {
         long updated = warp.getUpdatedTime();
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = connection.prepareStatement(
+                PreparedStatement statement = prepareStatement(connection,
                         "INSERT INTO " + tablePrefix + "_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                 statement.setString(1, name);
@@ -130,7 +130,7 @@ public class WarpSQLManager extends SQLManager {
     public void removeWarp(String name, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = connection.prepareStatement(
+                PreparedStatement statement = prepareStatement(connection,
                         "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
                 statement.setString(1, name);
                 executeUpdate(statement);
@@ -150,7 +150,7 @@ public class WarpSQLManager extends SQLManager {
     public void moveWarp(Location newLocation, String name, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = connection.prepareStatement(
+                PreparedStatement statement = prepareStatement(connection,
                         "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ? WHERE warp = ?");
 
                 statement.setDouble(1, newLocation.getX());
@@ -185,7 +185,7 @@ public class WarpSQLManager extends SQLManager {
     private void addWarps() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "_warps");
+                PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
                 ResultSet results = executeQuery(statement);
                 // For each warp...
                 while (results.next()) {

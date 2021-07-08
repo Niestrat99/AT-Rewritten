@@ -78,6 +78,10 @@ public abstract class SQLManager {
         statement.executeUpdate();
     }
 
+    protected synchronized PreparedStatement prepareStatement(Connection connection, String sql) throws SQLException {
+        return connection.prepareStatement(sql);
+    }
+
     public interface SQLCallback<D> {
         void onSuccess(D data);
 
