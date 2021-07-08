@@ -50,7 +50,7 @@ public class PlayerSQLManager extends SQLManager {
                         "world VARCHAR(256))"
                 );
 
-                createTable.executeUpdate();
+                executeUpdate(createTable);
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
@@ -119,7 +119,7 @@ public class PlayerSQLManager extends SQLManager {
                 statement.setString(1, player.getName().toLowerCase());
                 statement.setLong(2, System.currentTimeMillis());
                 statement.setString(3, player.getUniqueId().toString());
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (previousLocationData.containsKey(player.getUniqueId())) {
                     ATPlayer.getPlayer(player).setPreviousLocation(previousLocationData.get(player.getUniqueId()));
 
@@ -140,7 +140,7 @@ public class PlayerSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement("SELECT name FROM " + tablePrefix + "_players WHERE uuid = ?");
                 statement.setString(1, player.getUniqueId().toString());
-                ResultSet results = statement.executeQuery();
+                ResultSet results = executeQuery(statement);
                 callback.onSuccess(results.next());
             } catch (SQLException exception) {
                 exception.printStackTrace();
@@ -164,7 +164,7 @@ public class PlayerSQLManager extends SQLManager {
                 statement.setString(1, player.getUniqueId().toString());
                 statement.setString(2, player.getName().toLowerCase());
                 statement.setLong(3, System.currentTimeMillis());
-                statement.executeUpdate();
+                executeUpdate(statement);
 
                 if (previousLocationData.containsKey(player.getUniqueId())) {
                     ATPlayer.getPlayer(player).setPreviousLocation(previousLocationData.get(player.getUniqueId()));
@@ -194,7 +194,7 @@ public class PlayerSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement("SELECT teleportation_on FROM " + tablePrefix + "_players WHERE uuid = ?");
                 statement.setString(1, uuid.toString());
-                ResultSet results = statement.executeQuery();
+                ResultSet results = executeQuery(statement);
                 if (results.next()) {
                     callback.onSuccess(results.getBoolean("teleportation_on"));
                     return;
@@ -212,7 +212,7 @@ public class PlayerSQLManager extends SQLManager {
                 PreparedStatement statement = connection.prepareStatement("UPDATE " + tablePrefix + "_players SET teleportation_on = ? WHERE uuid = ?");
                 statement.setBoolean(1, enabled);
                 statement.setString(2, uuid.toString());
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -229,7 +229,7 @@ public class PlayerSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + tablePrefix + "_players WHERE name = ?");
                 statement.setString(1, name.toLowerCase());
-                ResultSet results = statement.executeQuery();
+                ResultSet results = executeQuery(statement);
                 if (results.next()) {
                     try {
                         World world = Bukkit.getWorld(results.getString("world"));
@@ -264,7 +264,7 @@ public class PlayerSQLManager extends SQLManager {
                 statement.setString(6, location.getWorld().getName());
                 statement.setString(7, name.toLowerCase());
 
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -290,7 +290,7 @@ public class PlayerSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement("SELECT main_home FROM " + tablePrefix + "_players WHERE name = ?");
                 statement.setString(1, name.toLowerCase());
-                ResultSet results = statement.executeQuery();
+                ResultSet results = executeQuery(statement);
                 if (results.next()) {
                     callback.onSuccess(results.getString("main_home"));
                     return;
@@ -308,7 +308,7 @@ public class PlayerSQLManager extends SQLManager {
                 PreparedStatement statement = connection.prepareStatement("UPDATE " + tablePrefix + "_players SET main_home = ? WHERE uuid = ?");
                 statement.setString(1, home);
                 statement.setString(2, uuid.toString());
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }

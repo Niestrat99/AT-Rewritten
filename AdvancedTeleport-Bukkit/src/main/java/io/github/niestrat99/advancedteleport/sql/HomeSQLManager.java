@@ -42,7 +42,7 @@ public class HomeSQLManager extends SQLManager {
                         "icon VARCHAR(256) DEFAULT 'GRASS_BLOCK' NOT NULL," +
                         "timestamp_created BIGINT NOT NULL," +
                         "timestamp_updated BIGINT NOT NULL)");
-                createTable.executeUpdate();
+                executeUpdate(createTable);
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
@@ -97,7 +97,7 @@ public class HomeSQLManager extends SQLManager {
                 statement.setString(8, location.getWorld().getName());
                 statement.setLong(9, System.currentTimeMillis());
                 statement.setLong(10, System.currentTimeMillis());
-                statement.executeUpdate();
+                executeUpdate(statement);
 
                 if (callback != null) {
                     callback.onSuccess(true);
@@ -131,7 +131,7 @@ public class HomeSQLManager extends SQLManager {
 
                 statement.setString(1, owner.toString());
                 statement.setString(2, name);
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -162,7 +162,7 @@ public class HomeSQLManager extends SQLManager {
                 statement.setLong(7, System.currentTimeMillis());
                 statement.setString(8, owner.toString());
                 statement.setString(9, name);
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -190,7 +190,7 @@ public class HomeSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
                 statement.setString(1, ownerUUID);
-                ResultSet results = statement.executeQuery();
+                ResultSet results = executeQuery(statement);
                 // Create a list for all homes.
                 LinkedHashMap<String, Home> homes = new LinkedHashMap<>();
                 // For each home...

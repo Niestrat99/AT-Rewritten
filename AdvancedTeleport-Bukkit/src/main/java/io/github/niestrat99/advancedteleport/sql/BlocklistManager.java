@@ -34,7 +34,7 @@ public class BlocklistManager extends SQLManager {
                         "uuid_blocked VARCHAR(256) NOT NULL," +
                         "timestamp BIGINT NOT NULL," +
                         "reason TEXT)");
-                createTable.executeUpdate();
+                executeUpdate(createTable);
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
@@ -83,7 +83,7 @@ public class BlocklistManager extends SQLManager {
                 statement.setString(1, receiverUUID);
                 statement.setString(2, blockedUUID);
                 statement.setLong(3, System.currentTimeMillis());
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -102,7 +102,7 @@ public class BlocklistManager extends SQLManager {
                 PreparedStatement statement = connection.prepareStatement("DELETE FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?");
                 statement.setString(1, receiverUUID);
                 statement.setString(2, blockedUUID);
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -119,7 +119,7 @@ public class BlocklistManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ?");
                 statement.setString(1, receiverUUID);
-                ResultSet results = statement.executeQuery();
+                ResultSet results = executeQuery(statement);
                 // Create a list for all blocked players.
                 HashMap<UUID, BlockInfo> blockedPlayers = new HashMap<>();
                 // For each blocked player...

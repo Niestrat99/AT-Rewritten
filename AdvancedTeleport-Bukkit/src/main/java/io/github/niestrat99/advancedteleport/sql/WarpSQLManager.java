@@ -42,7 +42,7 @@ public class WarpSQLManager extends SQLManager {
                         "price VARCHAR(256)," +
                         "timestamp_created BIGINT NOT NULL," +
                         "timestamp_updated BIGINT NOT NULL)");
-                createTable.executeUpdate();
+                executeUpdate(createTable);
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
@@ -102,7 +102,7 @@ public class WarpSQLManager extends SQLManager {
                 statement.setString(8, location.getWorld().getName());
                 statement.setLong(9, created);
                 statement.setLong(10, updated);
-                statement.executeUpdate();
+                executeUpdate(statement);
 
                 if (callback != null) {
                     callback.onSuccess(true);
@@ -133,7 +133,7 @@ public class WarpSQLManager extends SQLManager {
                 PreparedStatement statement = connection.prepareStatement(
                         "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
                 statement.setString(1, name);
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -161,7 +161,7 @@ public class WarpSQLManager extends SQLManager {
                 statement.setString(6, newLocation.getWorld().getName());
                 statement.setLong(7, System.currentTimeMillis());
                 statement.setString(8, name);
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -186,7 +186,7 @@ public class WarpSQLManager extends SQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "_warps");
-                ResultSet results = statement.executeQuery();
+                ResultSet results = executeQuery(statement);
                 // For each warp...
                 while (results.next()) {
                     // Get the world.

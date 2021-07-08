@@ -5,9 +5,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.CommandSender;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public abstract class SQLManager {
 
@@ -70,6 +68,14 @@ public abstract class SQLManager {
 
     public String getStupidAutoIncrementThing() {
         return usingSqlite ? "AUTOINCREMENT" : "AUTO_INCREMENT";
+    }
+
+    protected synchronized ResultSet executeQuery(PreparedStatement statement) throws SQLException {
+        return statement.executeQuery();
+    }
+
+    protected synchronized void executeUpdate(PreparedStatement statement) throws SQLException {
+        statement.executeUpdate();
     }
 
     public interface SQLCallback<D> {
