@@ -4,7 +4,10 @@ import com.wimbli.WorldBorder.BorderData;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.papermc.lib.PaperLib;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import java.io.*;
@@ -17,6 +20,7 @@ public class RTPManager {
 
     private static HashMap<UUID, Queue<Location>> locQueue;
     private static HashMap<UUID, Double[]> borderData;
+    private static final List<String> airs = new ArrayList<>(Arrays.asList("AIR", "CAVE_AIR", "VOID_AIR"));
 
     public static void init() {
         locQueue = new HashMap<>();
@@ -81,7 +85,7 @@ public class RTPManager {
     }
 
     private static boolean isValidLocation(Block block) {
-        if (block.getType().name().equals("AIR") || block.getType().name().equals("VOID_AIR")) return false;
+        if (airs.contains(block.getType().name())) return false;
         if (NewConfig.get().AVOID_BIOMES.get().contains(block.getBiome().name())) return false;
         return !NewConfig.get().AVOID_BLOCKS.get().contains(block.getType().name());
     }
