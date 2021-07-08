@@ -7,14 +7,17 @@
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
     <packaging>pom</packaging>
-    <version>v5.4.6-SNAPSHOT-1</version>
+    <version>v5.5.3</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--suppress UnresolvedMavenProperty -->
+        <module.version>5.5.3+DEV_${env.BUILD_NUMBER}</module.version>
+        <jenkins.timestamp>${maven.build.timestamp}</jenkins.timestamp>
     </properties>
 
     <modules>
-        <module>AdvancedTP-Bukkit</module>
+        <module>AdvancedTeleport-Bukkit</module>
     </modules>
 
     <build>
@@ -34,10 +37,11 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <includes>
                             <include>io.papermc:paperlib</include>
-                            <include>com.github.Thatsmusic99:ConfigurationMaster</include>
+                            <include>com.github.thatsmusic99:ConfigurationMaster</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -61,6 +65,7 @@
                 </executions>
             </plugin>
         </plugins>
+        <finalName>AdvancedTeleport-${module.version}</finalName>
     </build>
 <!--  <modules>
 <module>AdvancedTP-Core</module>
@@ -84,6 +89,17 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+
+        <repository>
+            <id>cm-repo</id>
+            <url>https://ci.pluginwiki.us/plugin/repository/everything/</url>
+        </repository>
+
+        <repository>
+            <id>ess-releases</id>
+            <url>https://repo.essentialsx.net/releases/</url>
+        </repository>
+
     </repositories>
 
     <dependencies>
@@ -91,7 +107,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <version>1.17-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -115,7 +131,15 @@
         <dependency>
             <groupId>com.github.PryPurity</groupId>
             <artifactId>WorldBorder</artifactId>
-            <version>v2.1.0</version>
+            <version>v2.1.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ChunkyBorder Dependency -->
+        <dependency>
+            <groupId>com.github.pop4959</groupId>
+            <artifactId>ChunkyBorder</artifactId>
+            <version>52034550ef</version>
             <scope>provided</scope>
         </dependency>
 
@@ -124,14 +148,15 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.16.2-R0.1-SNAPSHOT</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.github.Thatsmusic99</groupId>
+            <groupId>com.github.thatsmusic99</groupId>
             <artifactId>ConfigurationMaster</artifactId>
-            <version>v1.0</version>
+            <version>v1.0.2</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -140,5 +165,18 @@
             <version>13.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>2.18.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsXSpawn</artifactId>
+            <version>2.16.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
