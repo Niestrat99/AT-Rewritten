@@ -167,6 +167,11 @@ public class CoreClass extends JavaPlugin {
      * This task may throw errors during the final shutdown logs and might not complete before process dies.
      *
      * Careful what you consider proper, Paper...
+     *
+     * FYI - any Paper devs that see this, is there a better way to work around this?
+     * AT freezes up due to the PaperLib#getChunkAtAsync method being held up, then floods the console, and considering the userbase...
+     * If there's a better way of handling this please either open an issue or DM @ Error#7365 because this method honestly sucks ass
+     * That or probably only make it so that it warns once per plugin.
      */
     private void hackTheMainFrame() throws NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         if (PaperLib.isPaper()) {
