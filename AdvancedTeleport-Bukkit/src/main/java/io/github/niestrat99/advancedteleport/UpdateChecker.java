@@ -23,7 +23,6 @@ public class UpdateChecker {
             JSONObject latestVersionObj = getURLResults(versionURL);
             if (latestVersionObj == null) return null;
             long latestTimestamp = (long) latestVersionObj.get("releaseDate") * 1000;
-            System.out.println("Latest timestamp: " + latestTimestamp + ", Internal Timestamp: " + getInternalTimestamp());
             if (latestTimestamp <= getInternalTimestamp()) return null;
             JSONObject updateDesc = getURLResults(descriptionURL);
             String updateName = (String) updateDesc.get("title");
