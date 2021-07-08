@@ -277,7 +277,6 @@ public class NewConfig extends CMFile {
         addDefault("maximum-z", 5000, "The maximum Z coordinate to go up to when selecting a random location.");
         addDefault("minimum-x", -5000, "The minimum X coordinate to go down to when selecting a random location.");
         addDefault("minimum-z", -5000, "The minimum Z coordinate to go down to when selecting a random location.");
-        addDefault("use-world-border", true, "When WorldBorder is installed, AT will check the border of each world instead rather than using the minimum and maximum coordinates.");
         addDefault("use-rapid-response", true, "Use the new rapid response system for RTP.\n" +
                 "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.\n" +
                 "This feature allows you to use the \"tpr\" death option in the death management section further down.\n" +

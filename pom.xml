@@ -131,7 +131,15 @@
         <dependency>
             <groupId>com.github.PryPurity</groupId>
             <artifactId>WorldBorder</artifactId>
-            <version>v2.1.0</version>
+            <version>v2.1.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ChunkyBorder Dependency -->
+        <dependency>
+            <groupId>com.github.pop4959</groupId>
+            <artifactId>ChunkyBorder</artifactId>
+            <version>52034550ef</version>
             <scope>provided</scope>
         </dependency>
 
