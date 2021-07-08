@@ -7,12 +7,22 @@ import java.util.HashMap;
 
 public class PluginHookManager {
 
-    private static HashMap<String, ImportExportPlugin> importPlugins;
+    private HashMap<String, ImportExportPlugin> importPlugins;
+    private HashMap<String, BorderPlugin> borderPlugins;
+    private static PluginHookManager instance;
 
-    public static void init() {
+    public PluginHookManager() {
+        instance = this;
+        init();
+    }
+
+    public void init() {
         importPlugins = new HashMap<>();
+    }
 
         load("essentials", EssentialsHook.class);
+    public static PluginHookManager get() {
+        return instance;
     }
 
     public static HashMap<String, ImportExportPlugin> getImportPlugins() {
