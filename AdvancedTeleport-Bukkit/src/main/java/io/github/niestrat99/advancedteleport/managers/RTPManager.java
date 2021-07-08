@@ -1,8 +1,8 @@
 package io.github.niestrat99.advancedteleport.managers;
 
-import com.wimbli.WorldBorder.BorderData;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,17 +14,13 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static io.github.niestrat99.advancedteleport.CoreClass.worldBorder;
-
 public class RTPManager {
 
     private static HashMap<UUID, Queue<Location>> locQueue;
-    private static HashMap<UUID, Double[]> borderData;
     private static final List<String> airs = new ArrayList<>(Arrays.asList("AIR", "CAVE_AIR", "VOID_AIR"));
 
     public static void init() {
         locQueue = new HashMap<>();
-        borderData = new HashMap<>();
         if (!PaperLib.isPaper()) return;
         try {
             getPreviousLocations();
@@ -70,7 +66,8 @@ public class RTPManager {
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             return CompletableFuture.completedFuture(locQueue.get(world.getUID()).poll());
         }
-        int[] coords = getRandomCoords(world);
+        Location location = RandomCoords.generateCoords(world);
+        int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};
         int finalTries = tries;
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
             Block block = doBinaryJump(world, coords);
@@ -103,21 +100,10 @@ public class RTPManager {
                 locQueue.put(world.getUID(), queue);
             });
         }
-
-        if (borderData.containsKey(world.getUID())) return;
-        if (worldBorder == null || !NewConfig.get().USE_WORLD_BORDER.get()) return;
-        BorderData border = com.wimbli.WorldBorder.Config.Border(world.getName());
-        if (border == null) return;
-        borderData.put(world.getUID(), new Double[]{
-                border.getX() - border.getRadiusX(),
-                border.getZ() - border.getRadiusZ(),
-                border.getX() + border.getRadiusX(),
-                border.getZ() + border.getRadiusZ()});
     }
 
     public static void unloadWorldData(World world) {
         locQueue.remove(world.getUID());
-        borderData.remove(world.getUID());
     }
 
     private static Block doBinaryJump(World world, int[] coords) {
@@ -168,18 +154,6 @@ public class RTPManager {
                 up = false;
             }
         }
-    }
-
-    private static int[] getRandomCoords(World world) {
-        Double[] bounds = borderData.getOrDefault(world.getUID(), new Double[]{
-                Double.valueOf(NewConfig.get().MINIMUM_X.get()),
-                Double.valueOf(NewConfig.get().MINIMUM_Z.get()),
-                Double.valueOf(NewConfig.get().MAXIMUM_X.get()),
-                Double.valueOf(NewConfig.get().MAXIMUM_Z.get())});
-        return new int[]{
-                (int) (new Random().nextInt((int)Math.round(bounds[2] - bounds[0]) + 1) + bounds[0]),
-                (int) (new Random().nextInt((int)Math.round(bounds[3] - bounds[1]) + 1) + bounds[1])
-        };
     }
 
     public static void getPreviousLocations() throws IOException {

@@ -62,7 +62,6 @@ public class NewConfig extends CMFile {
     public ConfigOption<Integer> MAXIMUM_Z;
     public ConfigOption<Integer> MINIMUM_X;
     public ConfigOption<Integer> MINIMUM_Z;
-    public ConfigOption<Boolean> USE_WORLD_BORDER;
     public ConfigOption<Boolean> RAPID_RESPONSE;
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> IGNORE_WORLD_GENS;
@@ -546,7 +545,6 @@ public class NewConfig extends CMFile {
         MAXIMUM_Z = new ConfigOption<>("maximum-z");
         MINIMUM_X = new ConfigOption<>("minimum-x");
         MINIMUM_Z = new ConfigOption<>("minimum-z");
-        USE_WORLD_BORDER = new ConfigOption<>("use-world-border");
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
         PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
         IGNORE_WORLD_GENS = new ConfigOption<>("ignore-world-generators");
