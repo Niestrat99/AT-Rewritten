@@ -22,7 +22,7 @@ public class TpaHere implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (sender instanceof Player){
+        if (sender instanceof Player) {
             if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
                 if (sender.hasPermission("at.member.here")) {
                     Player player = (Player) sender;
@@ -78,7 +78,6 @@ public class TpaHere implements ATCommand {
                         CustomMessages.sendMessage(sender, "Error.noPlayerInput");
                         return true;
                     }
-
                 }
             } else {
                 CustomMessages.sendMessage(sender, "Error.featureDisabled");

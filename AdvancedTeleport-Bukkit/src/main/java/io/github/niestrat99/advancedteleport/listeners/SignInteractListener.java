@@ -24,11 +24,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.HashMap;
 
-public class AtSigns implements Listener {
+public class SignInteractListener implements Listener {
 
     private final HashMap<String, ATSign> signRegistry;
 
-    public AtSigns() {
+    public SignInteractListener() {
         signRegistry = new HashMap<>();
         signRegistry.put("warps", new ATSign("Warps", NewConfig.get().USE_WARPS.get()) {
             @Override
@@ -45,9 +45,8 @@ public class AtSigns implements Listener {
         signRegistry.put("warp", new ATSign("Warp", NewConfig.get().USE_WARPS.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
-                if (Warp.getWarps().containsKey(sign.getLine(1))) {
-                    WarpCommand.warp(Warp.getWarps().get(sign.getLine(1)), player);
-                }
+                if (!Warp.getWarps().containsKey(sign.getLine(1))) return;
+                WarpCommand.warp(Warp.getWarps().get(sign.getLine(1)), player);
             }
 
             @Override
@@ -97,9 +96,8 @@ public class AtSigns implements Listener {
             @Override
             public void onInteract(Sign sign, Player player) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (atPlayer.getBedSpawn() != null) {
-                    HomeCommand.teleport(player, atPlayer.getBedSpawn());
-                }
+                if (atPlayer.getBedSpawn() == null) return;
+                HomeCommand.teleport(player, atPlayer.getBedSpawn());
             }
 
             @Override
@@ -155,26 +153,21 @@ public class AtSigns implements Listener {
 
     @EventHandler
     public void onSignInteract(PlayerInteractEvent event) {
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Player player = event.getPlayer();
-            Block clickedBlock = event.getClickedBlock();
-            BlockState blockState = clickedBlock.getState();
-            if (blockState instanceof Sign) {
-                Sign sign = (Sign) blockState;
-                String command = ChatColor.stripColor(sign.getLine(0));
-                if (command.length() > 2) {
-                    command = command.substring(1, command.length() - 1).toLowerCase();
-                }
-                if (signRegistry.containsKey(command)) {
-                    ATSign atSign = signRegistry.get(command);
-                    if (atSign.isEnabled()) {
-                        if (player.hasPermission(atSign.getRequiredPermission())) {
-                            atSign.onInteract(sign, player);
-                        }
-                    }
-                }
-            }
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        Player player = event.getPlayer();
+        Block clickedBlock = event.getClickedBlock();
+        BlockState blockState = clickedBlock.getState();
+        if (!(blockState instanceof Sign)) return;
+        Sign sign = (Sign) blockState;
+        String command = ChatColor.stripColor(sign.getLine(0));
+        if (command.length() > 2) {
+            command = command.substring(1, command.length() - 1).toLowerCase();
         }
+        if (!signRegistry.containsKey(command)) return;
+        ATSign atSign = signRegistry.get(command);
+        if (!atSign.isEnabled()) return;
+        if (!player.hasPermission(atSign.getRequiredPermission())) return;
+        atSign.onInteract(sign, player);
     }
 
     @EventHandler
@@ -182,26 +175,23 @@ public class AtSigns implements Listener {
         Block placeBlock = event.getBlock();
         BlockState state = placeBlock.getState();
         Player player = event.getPlayer();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            String command = ChatColor.stripColor(event.getLine(0));
-            if (command.length() > 2) {
-                command = command.substring(1, command.length() - 1).toLowerCase();
-            }
-            if (signRegistry.containsKey(command)) {
-                ATSign atSign = signRegistry.get(command);
-                if (atSign.isEnabled()) {
-                    if (player.hasPermission(atSign.getAdminPermission())) {
-                        sign.setLine(1, event.getLine(1));
-                        if (atSign.canCreate(sign, player)) {
-                            event.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[" + atSign.getName() + "]");
-                        }
-                    } else {
-                        CustomMessages.sendMessage(player, "Error.noPermissionSign");
-                        event.setCancelled(true);
-                    }
-                }
-            }
+        // Make sure it's a sign
+        if (!(state instanceof Sign)) return;
+        Sign sign = (Sign) state;
+        String command = ChatColor.stripColor(event.getLine(0));
+        if (command.length() > 2) {
+            command = command.substring(1, command.length() - 1).toLowerCase();
+        }
+        if (!signRegistry.containsKey(command)) return;
+        ATSign atSign = signRegistry.get(command);
+        if (!atSign.isEnabled()) return;
+        if (player.hasPermission(atSign.getAdminPermission())) {
+            sign.setLine(1, event.getLine(1));
+            if (!atSign.canCreate(sign, player)) return;
+            event.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[" + atSign.getName() + "]");
+        } else {
+            CustomMessages.sendMessage(player, "Error.noPermissionSign");
+            event.setCancelled(true);
         }
     }
 }
