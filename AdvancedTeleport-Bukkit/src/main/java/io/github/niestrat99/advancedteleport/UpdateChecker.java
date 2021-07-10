@@ -22,11 +22,13 @@ public class UpdateChecker {
         try {
             JSONObject latestVersionObj = getURLResults(versionURL);
             if (latestVersionObj == null) return null;
+            String newVersion = (String) latestVersionObj.get("name");
+            // we are a little stupid
+            if (newVersion.equals(CoreClass.getInstance().getDescription().getVersion())) return null;
             long latestTimestamp = (long) latestVersionObj.get("releaseDate") * 1000;
             if (latestTimestamp <= getInternalTimestamp()) return null;
             JSONObject updateDesc = getURLResults(descriptionURL);
             String updateName = (String) updateDesc.get("title");
-            String newVersion = (String) latestVersionObj.get("name");
             return new Object[]{newVersion, updateName};
         } catch (ParseException | IOException | java.text.ParseException e) {
             e.printStackTrace();
