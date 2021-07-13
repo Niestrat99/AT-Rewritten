@@ -30,8 +30,11 @@ public class UpdateChecker {
             JSONObject updateDesc = getURLResults(descriptionURL);
             String updateName = (String) updateDesc.get("title");
             return new Object[]{newVersion, updateName};
-        } catch (ParseException | IOException | java.text.ParseException e) {
+        } catch (ParseException | java.text.ParseException e) {
             e.printStackTrace();
+            return null;
+        } catch (IOException ex) {
+            CoreClass.getInstance().getLogger().severe("Failed to get plugin update information, is Spiget down?");
             return null;
         }
     }
