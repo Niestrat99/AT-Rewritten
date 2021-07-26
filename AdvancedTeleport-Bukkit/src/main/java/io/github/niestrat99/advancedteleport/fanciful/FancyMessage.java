@@ -13,6 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
+import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -460,10 +461,29 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 
 	private void sendProposal(CommandSender sender, String jsonString, int order) {
 		// ADDITION: Stops problems for Bedrock-connected players
-		if (!(sender instanceof Player) || sender.getName().startsWith("*") || sender.getName().startsWith(".")) {
+		/*
+		 * if floodgate is installed, we test if it is a floodgate player. This solves the problem of different prefixes.
+		 * We note, that this is more relyable than the previous method and solves any problem, beside the fact that the
+		 * sysadmin has to install floodgate on the backendservers in a bungeecord network. But this should be considered the easiest way.
+ 		 */
+
+		if(Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null){
+			try{
+				FloodgateApi instance = FloodgateApi.getInstance();
+				if (!(sender instanceof Player) || instance.isFloodgateId(((Player) sender).getUniqueId())) {
+					sender.sendMessage(toOldMessageFormat());
+					return;
+				}
+			} catch (Exception e){
+				// We note, that if we are here we just discard it, since solving a potential error is complicated
+			}
+		}
+		// This test is if there is no floodgate installed, but yet the invoker is not a player
+		if(!(sender instanceof Player)){
 			sender.sendMessage(toOldMessageFormat());
 			return;
 		}
+
 		Player player = (Player) sender;
 		List<FancyMessage> messages = messageOrder.get(player);
 		if (messages == null) {

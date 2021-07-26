@@ -4,7 +4,7 @@ version: ${module.version}
 description: A rapidly growing teleportation plugin looking to break the boundaries of traditional teleport plugins.
 authors: [Niestrat99, Thatsmusic99]
 contributors: [SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan, LucasMucGH (Github), jonas-t-s (Github)]
-softdepend: [Vault, Ultimate_Economy, ConfigurationMaster, WorldBorder, ChunkyBorder]
+softdepend: [Vault, Ultimate_Economy, ConfigurationMaster, WorldBorder, ChunkyBorder, Floodgate]
 loadbefore:
   - Essentials
   - EssentialsSpawn
