@@ -461,25 +461,11 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 
 	private void sendProposal(CommandSender sender, String jsonString, int order) {
 		// ADDITION: Stops problems for Bedrock-connected players
-		/*
-		 * if floodgate is installed, we test if it is a floodgate player. This solves the problem of different prefixes.
-		 * We note, that this is more relyable than the previous method and solves any problem, beside the fact that the
-		 * sysadmin has to install floodgate on the backendservers in a bungeecord network. But this should be considered the easiest way.
- 		 */
 
-		if(Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null){
-			try{
-				FloodgateApi instance = FloodgateApi.getInstance();
-				if (!(sender instanceof Player) || instance.isFloodgateId(((Player) sender).getUniqueId())) {
-					sender.sendMessage(toOldMessageFormat());
-					return;
-				}
-			} catch (Exception e){
-				// We note, that if we are here we just discard it, since solving a potential error is complicated
-			}
-		}
+
+
 		// This test is if there is no floodgate installed, but yet the invoker is not a player
-		if(!(sender instanceof Player)){
+		if(!(sender instanceof Player) && !isFloodgate(sender)){
 			sender.sendMessage(toOldMessageFormat());
 			return;
 		}
@@ -498,7 +484,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			List<FancyMessage> messages = messageOrder.get(sender);
 			if (messages != null) {
 				for (FancyMessage message : messages) {
-					if (!(sender instanceof Player) || sender.getName().startsWith("*") || sender.getName().startsWith(".")) {
+					if (!(sender instanceof Player) || isFloodgate(sender)) {
 						sender.sendMessage(message.toOldMessageFormat());
 						continue;
 					}
@@ -687,4 +673,27 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		return returnVal;
 	}
 
+	/**
+	 * This function tests if sender is a floodgateplayer
+	 * @param sender the CommandSender
+	 * @return true if sender is a floodgateplayer
+	 */
+	private static boolean isFloodgate(CommandSender sender){
+		/*
+		 * if floodgate is installed, we test if it is a floodgate player. This solves the problem of different prefixes.
+		 * We note, that this is more relyable than the previous method and solves any problem, beside the fact that the
+		 * sysadmin has to install floodgate on the backendservers in a bungeecord network. But this should be considered the easiest way.
+		 */
+		if(Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")){
+			try{
+				FloodgateApi instance = FloodgateApi.getInstance();
+				if(instance.isFloodgateId(((Player) sender).getUniqueId())) return true;
+
+			} catch (Exception e){
+				// We note, that if we are here we just discard it, since solving a potential error is complicated
+				return false;
+			}
+		}
+		return false;
+	}
 }
