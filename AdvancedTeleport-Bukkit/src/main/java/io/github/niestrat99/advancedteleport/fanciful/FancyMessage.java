@@ -460,7 +460,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 
 	private void sendProposal(CommandSender sender, String jsonString, int order) {
 		// ADDITION: Stops problems for Bedrock-connected players
-		if (!(sender instanceof Player) || sender.getName().startsWith("*")) {
+		if (!(sender instanceof Player) || sender.getName().startsWith("*") || sender.getName().startsWith(".")) {
 			sender.sendMessage(toOldMessageFormat());
 			return;
 		}
@@ -478,7 +478,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			List<FancyMessage> messages = messageOrder.get(sender);
 			if (messages != null) {
 				for (FancyMessage message : messages) {
-					if (!(sender instanceof Player) || sender.getName().startsWith("*")) {
+					if (!(sender instanceof Player) || sender.getName().startsWith("*") || sender.getName().startsWith(".")) {
 						sender.sendMessage(message.toOldMessageFormat());
 						continue;
 					}
