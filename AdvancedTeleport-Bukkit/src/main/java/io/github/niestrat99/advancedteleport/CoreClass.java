@@ -90,7 +90,7 @@ public class CoreClass extends JavaPlugin {
     @Override
     public void onEnable() {
         Instance = this;
-        System.out.println("Advanced Teleport is now enabling...");
+        getLogger().info("Advanced Teleport is now enabling...");
         setupEconomy();
         setupPermissions();
         config = new NewConfig();

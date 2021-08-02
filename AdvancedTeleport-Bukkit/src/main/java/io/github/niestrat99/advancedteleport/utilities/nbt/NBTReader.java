@@ -37,7 +37,7 @@ public class NBTReader {
         MAIN_FOLDER = getPlayerdataFolder();
 
         if (MAIN_FOLDER == null) {
-            System.out.println("Main world folder was not found.");
+            CoreClass.getInstance().getLogger().warning("Main world folder was not found.");
         } else {
             lastModified = MAIN_FOLDER.lastModified();
         }
