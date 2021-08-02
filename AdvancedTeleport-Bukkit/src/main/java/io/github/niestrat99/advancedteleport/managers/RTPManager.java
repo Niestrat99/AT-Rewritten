@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.managers;
 
+import com.google.common.collect.Sets;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
@@ -16,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public class RTPManager {
 
     private static HashMap<UUID, Queue<Location>> locQueue;
-    private static final List<String> airs = new ArrayList<>(Arrays.asList("AIR", "CAVE_AIR", "VOID_AIR"));
+    private static final HashSet<String> airs = Sets.newHashSet("AIR", "CAVE_AIR", "VOID_AIR");
 
     public static void init() {
         locQueue = new HashMap<>();
