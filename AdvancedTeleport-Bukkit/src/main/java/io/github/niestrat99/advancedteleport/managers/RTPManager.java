@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
@@ -70,7 +69,7 @@ public class RTPManager {
         int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};
         int finalTries = tries;
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
-            Block block = doBinaryJump(world, coords);
+            Block block = world.getHighestBlockAt(coords[0], coords[1]);
             if (isValidLocation(block)) {
                 return block.getLocation().add(0.5, 1, 0.5);
             } else if (finalTries < 5 || urgent) {
@@ -104,56 +103,6 @@ public class RTPManager {
 
     public static void unloadWorldData(World world) {
         locQueue.remove(world.getUID());
-    }
-
-    private static Block doBinaryJump(World world, int[] coords) {
-        Location location = new Location(world, coords[0], 128, coords[1]);
-        // This is how much we'll jump by at first
-        int jumpAmount = 128;
-        // However, if we're in the Nether...
-        if (world.getEnvironment() == World.Environment.NETHER) {
-            // We'll start at level 64 instead and start at a jump of 64.
-            location.setY(64);
-            jumpAmount = 64;
-        }
-        // Whether to go up or down.
-        boolean up = false;
-        // Temporary location.
-        Location tempLoc = location.clone();
-        // Whilst there's no valid location...
-        while (true) {
-            // Divide the amount to jump by 2.
-            jumpAmount = jumpAmount / 2;
-            // If we've hit a dead end with the jumps...
-            if (jumpAmount == 0) {
-                // Return an invalid location.
-                location.setY(-3);
-                return location.getBlock();
-            }
-            // Clone the current location.
-            Location subTempLocation = tempLoc.clone();
-            // The current material we're looking at.
-            Material currentMat;
-            // If we're going up...
-            if (up) {
-                // Get the material
-                currentMat = subTempLocation.add(0, jumpAmount, 0).getBlock().getType();
-            } else {
-                currentMat = subTempLocation.subtract(0, jumpAmount, 0).getBlock().getType();
-            }
-            tempLoc = subTempLocation.clone();
-
-            if (currentMat != Material.AIR) {
-                if (subTempLocation.add(0, 1, 0).getBlock().getType() == Material.AIR
-                        && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                    return subTempLocation.add(0.5, -1, 0.5).getBlock();
-                } else {
-                    up = true;
-                }
-            } else {
-                up = false;
-            }
-        }
     }
 
     public static void getPreviousLocations() throws IOException {
