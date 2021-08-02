@@ -20,6 +20,9 @@ public abstract class AbstractWarpCommand implements ATCommand {
         for (String warp : io.github.niestrat99.advancedteleport.api.Warp.getWarps().keySet()) {
             if (sender.hasPermission("at.member.warp." + warp.toLowerCase())) {
                 warps.add(warp);
+            } else if (!sender.isPermissionSet("at.member.warp." + warp.toLowerCase())
+                    && sender.hasPermission("at.member.warp.*")) {
+                warps.add(warp);
             }
         }
         StringUtil.copyPartialMatches(args[0], warps, results);
