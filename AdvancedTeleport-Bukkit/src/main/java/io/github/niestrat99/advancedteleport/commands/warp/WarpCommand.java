@@ -10,7 +10,6 @@ import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jetbrains.annotations.NotNull;
 
 public class WarpCommand extends AbstractWarpCommand {
@@ -53,13 +52,9 @@ public class WarpCommand extends AbstractWarpCommand {
     }
 
     public static void warp(Warp warp, Player player) {
-        boolean found = false;
-        if (player.hasPermission("at.member.warp.*")) found = true;
-        for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
-            if (permission.getPermission().equalsIgnoreCase("at.member.warp." + warp.getName().toLowerCase())) {
-                found = permission.getValue();
-                break;
-            }
+        boolean found = player.hasPermission("at.member.warp.*");
+        if (player.isPermissionSet("at.member.warp." + warp.getName().toLowerCase())) {
+            found = player.hasPermission("at.member.warp." + warp.getName().toLowerCase());
         }
         if (!found) {
             CustomMessages.sendMessage(player, "Error.noPermissionWarp", "{warp}", warp.getName());
