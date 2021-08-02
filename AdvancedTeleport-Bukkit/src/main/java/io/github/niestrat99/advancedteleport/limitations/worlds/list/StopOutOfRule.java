@@ -22,6 +22,6 @@ public class StopOutOfRule extends WorldRule {
         // If not inclusive (0) and contains world (0), deny
         // If not inclusive (0) and doesn't contain world (1), allow
         // If inclusive (1) and doesn't contain world (0), deny
-        return inclusive ^ worlds.contains(toWorld);
+        return (inclusive ^ worlds.contains(toWorld)) || player.getWorld().getName().equals(toWorld);
     }
 }
