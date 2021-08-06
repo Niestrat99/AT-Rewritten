@@ -63,6 +63,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Integer> MINIMUM_X;
     public ConfigOption<Integer> MINIMUM_Z;
     public ConfigOption<Boolean> RAPID_RESPONSE;
+    public ConfigOption<Boolean> USE_VANILLA_BORDER;
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> IGNORE_WORLD_GENS;
     public ConfigOption<List<String>> AVOID_BLOCKS;
@@ -280,6 +281,8 @@ public class NewConfig extends CMFile {
                 "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.\n" +
                 "This feature allows you to use the \"tpr\" death option in the death management section further down.\n" +
                 "IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.");
+        addDefault("use-vanilla-border", false, "Whether the plugin should use the Vanilla world border as a viable option for managing /tpr boundaries.\n" +
+                "The plugin automatically hooks into WorldBorder and ChunkyBorder.");
         addDefault("prepared-locations-limit", 3, "How many locations can be prepared per world when using AT's Rapid Response system.\n" +
                 "These are immediately prepared upon startup and when a world is loaded.");
         addDefault("ignore-world-generators", new ArrayList<>(Arrays.asList(
@@ -546,6 +549,7 @@ public class NewConfig extends CMFile {
         MINIMUM_X = new ConfigOption<>("minimum-x");
         MINIMUM_Z = new ConfigOption<>("minimum-z");
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
+        USE_VANILLA_BORDER = new ConfigOption<>("use-vanilla-border");
         PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
         IGNORE_WORLD_GENS = new ConfigOption<>("ignore-world-generators");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");
@@ -566,7 +570,6 @@ public class NewConfig extends CMFile {
 
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
-
 
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
