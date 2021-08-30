@@ -80,7 +80,7 @@ per-command-warm-ups:
   # Warm-up timer for /tpahere
   tpahere: default
   # Warm-up timer for /tpr, or /rtp.
-  tpr: default
+  tpr: false
   # Warm-up timer for /warp
   warp: default
   # Warm-up timer for /spawn
@@ -88,7 +88,7 @@ per-command-warm-ups:
   # Warm-up timer for /home
   home: default
   # Warm-up timer for /back
-  back: default
+  back: false
 
 ###############
 #  Cooldowns  #
@@ -125,7 +125,7 @@ per-command-cooldowns:
   # Cooldown for /tpahere
   tpahere: default
   # Cooldown for /tpr, or /rtp.
-  tpr: default
+  tpr: false
   # Cooldown for /warp
   warp: default
   # Cooldown for /spawn
@@ -133,7 +133,7 @@ per-command-cooldowns:
   # Cooldown for /home
   home: default
   # Cooldown for /back
-  back: default
+  back: false
 
 #########################
 #  Teleportation Costs  #
@@ -157,7 +157,7 @@ per-command-cost:
   # Cost for /tpahere.
   tpahere: default
   # Cost for /tpr, or /rtp.
-  tpr: default
+  tpr: false
   # Cost for /warp
   warp: default
   # Cost for /spawn
@@ -165,7 +165,7 @@ per-command-cost:
   # Cost for /home
   home: default
   # Cost for /back
-  back: default
+  back: false
 
 #################
 #  SQL Storage  #
@@ -216,7 +216,7 @@ per-command-distance-limitations:
   # Distance limit for /tpahere
   tpahere: default
   # Distance limit for /tpr
-  tpr: default
+  tpr: false
   # Distance limit for /warp
   warp: default
   # Distance limit for /spawn
@@ -224,7 +224,7 @@ per-command-distance-limitations:
   # Distance limit for /home
   home: default
   # Distance limit for /back
-  back: default
+  back: false
 
 ###############################
 #  Teleportation Limitations  #
