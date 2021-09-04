@@ -37,7 +37,8 @@ public class SpawnCommand implements ATCommand {
                         return true;
                     }
                     String location = null;
-                    if (args.length > 0 && player.hasPermission("at.admin.spawn")) {
+                    if (args.length > 0 &&
+                            (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
                         if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
                             location = args[0];
                         }
