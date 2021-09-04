@@ -11,11 +11,14 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CustomMessages extends CMFile {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
+    private static Pattern HEX_PATTERN = Pattern.compile("&x[0-9a-fA-F]");
 
     public CustomMessages(Plugin plugin) {
         super(plugin, "custom-messages");
@@ -341,8 +344,14 @@ public class CustomMessages extends CMFile {
 
             }
         }
-
         return str;
+    }
+
+    private static String translateColors(String str) {
+        Matcher matcher;
+        while ((matcher = HEX_PATTERN.matcher(str)).matches()) {
+
+        }
     }
 
     public static void sendMessage(CommandSender sender, String path, String... placeholders) {
