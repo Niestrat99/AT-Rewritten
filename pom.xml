@@ -103,6 +103,11 @@
             <id>opencollab-snapshot</id>
             <url>https://repo.opencollab.dev/maven-snapshots/</url>
         </repository>
+
+        <repository>
+            <id>mojang-authlib</id>
+            <url>https://libraries.minecraft.net/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -149,9 +154,9 @@
         <!-- This is a dependency because AT uses GameProfiles internally. This requires you to have run BuildTools on your machine. -->
         <!-- I hope that with GenesisLib I will remove the need for this. -->
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <groupId>com.mojang</groupId>
+            <artifactId>authlib</artifactId>
+            <version>2.3.31</version>
             <scope>provided</scope>
         </dependency>
 
