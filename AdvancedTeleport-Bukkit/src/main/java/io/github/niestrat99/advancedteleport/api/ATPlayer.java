@@ -18,6 +18,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,6 +50,10 @@ public class ATPlayer {
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
+        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+            FloodgateApi api = FloodgateApi.getInstance();
+            if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
+        }
         this.homes = new LinkedHashMap<>();
         this.blockedUsers = new HashMap<>();
 
