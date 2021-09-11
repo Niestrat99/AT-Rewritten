@@ -684,7 +684,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		 * We note, that this is more relyable than the previous method and solves any problem, beside the fact that the
 		 * sysadmin has to install floodgate on the backendservers in a bungeecord network. But this should be considered the easiest way.
 		 */
-		if(Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")){
+		if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
 			try{
 				FloodgateApi instance = FloodgateApi.getInstance();
 				if(instance.isFloodgateId(((Player) sender).getUniqueId())) return true;
