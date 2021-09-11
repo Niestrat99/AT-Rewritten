@@ -27,7 +27,7 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
             if (sender.hasPermission("at.member.home")) {
                 if (sender instanceof Player) {
                     ATPlayer atPlayer = ATPlayer.getPlayer((Player)sender);
-                    Player player = atPlayer.getPlayer();
+                    Player player = (Player) sender;
 
                     HashMap<String, Home> homes = atPlayer.getHomes();
                     if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
