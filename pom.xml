@@ -108,6 +108,11 @@
             <id>mojang-authlib</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
+
+        <repository>
+            <id>pl3x-repo</id>
+            <url>https://repo.pl3x.net/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -192,6 +197,14 @@
             <groupId>org.geysermc.floodgate</groupId>
             <artifactId>api</artifactId>
             <version>2.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- pl3xmap -->
+        <dependency>
+            <groupId>net.pl3x.map</groupId>
+            <artifactId>pl3xmap-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
