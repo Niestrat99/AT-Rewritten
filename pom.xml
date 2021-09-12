@@ -125,6 +125,10 @@
             <id>sk89-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
+        <repository>
+            <id>pl3x-repo</id>
+            <url>https://repo.pl3x.net/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -248,6 +252,14 @@
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
             <version>7.0.7</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- pl3xmap -->
+        <dependency>
+            <groupId>net.pl3x.map</groupId>
+            <artifactId>pl3xmap-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
