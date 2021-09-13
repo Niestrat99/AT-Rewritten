@@ -294,11 +294,15 @@ public class NBTReader {
         if (!root.exists()) return null;
         if (!root.isDirectory()) return null;
         for (File file : root.listFiles()) {
-            if (file.isDirectory()) {
-                for (File subFile : file.listFiles()) {
-                    if (!subFile.isDirectory()) continue;
-                    if (subFile.getName().equals("playerdata")) return subFile;
+            try {
+                if (file.isDirectory()) {
+                    for (File subFile : file.listFiles()) {
+                        if (!subFile.isDirectory()) continue;
+                        if (subFile.getName().equals("playerdata")) return subFile;
+                    }
                 }
+            } catch (NullPointerException ex) {
+                CoreClass.getInstance().getLogger().warning("Failed to get files of directory " + file.getName() + " in " + root.getName());
             }
         }
         return null;
