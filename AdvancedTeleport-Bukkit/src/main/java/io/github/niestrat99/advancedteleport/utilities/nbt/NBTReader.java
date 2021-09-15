@@ -143,7 +143,7 @@ public class NBTReader {
             if (world == null) return null;
 
             try {
-                Method dataManager = world.getClass().getSuperclass().getDeclaredMethod("getDataManager");
+                Method dataManager = world.getClass().getDeclaredMethod("getDataManager");
                 return dataManager.invoke(world);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException illegalAccessException) {
                 illegalAccessException.printStackTrace();
