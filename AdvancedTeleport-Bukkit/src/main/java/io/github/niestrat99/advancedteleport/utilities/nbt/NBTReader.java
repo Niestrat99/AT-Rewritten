@@ -145,8 +145,15 @@ public class NBTReader {
             try {
                 Method dataManager = world.getClass().getDeclaredMethod("getDataManager");
                 return dataManager.invoke(world);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException illegalAccessException) {
-                illegalAccessException.printStackTrace();
+            } catch (NoSuchMethodException ex) {
+                try {
+                    Method dataManager = world.getClass().getSuperclass().getDeclaredMethod("getDataManager");
+                    return dataManager.invoke(world);
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exc) {
+                    exc.printStackTrace();
+                }
+            } catch (InvocationTargetException | IllegalAccessException invocationTargetException) {
+                invocationTargetException.printStackTrace();
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
