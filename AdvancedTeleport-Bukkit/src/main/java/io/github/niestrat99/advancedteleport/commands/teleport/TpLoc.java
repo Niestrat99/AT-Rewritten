@@ -30,124 +30,128 @@ public class TpLoc implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            if (sender.hasPermission("at.admin.tploc")) {
-                if (sender instanceof Player) {
-                    Player player = (Player) sender;
-                    if (args.length > 2) {
-                        // Get the x, y and z coordinates
-                        double[] loc = new double[3];
-                        for (int i = 0; i < 3; i++) {
-                            if (args[i].equalsIgnoreCase("~")) {
-                                switch (i) {
-                                    case 0:
-                                        loc[i] = player.getLocation().getX();
-                                        break;
-                                    case 1:
-                                        loc[i] = player.getLocation().getY();
-                                        break;
-                                    case 2:
-                                        loc[i] = player.getLocation().getZ();
-                                        break;
-                                }
-                            } else if (location.matcher(args[i]).matches()) {
-                                loc[i] = Double.parseDouble(args[i]);
-                            } else {
-                                CustomMessages.sendMessage(player, "Error.invalidArgs");
-                                return false;
-                            }
-                        }
 
-                        // Get the yaw and pitch
-                        float yaw = player.getLocation().getYaw();
-                        float pitch = player.getLocation().getPitch();
-                        if (args.length > 3 && !args[3].equalsIgnoreCase("~") ) {
-                            if (location.matcher(args[3]).matches()) {
-                                yaw = Float.parseFloat(args[3]);
-                                if (args.length > 4 && !args[4].equalsIgnoreCase("~")) {
-                                    if (location.matcher(args[4]).matches()) {
-                                        pitch = Float.parseFloat(args[4]);
-                                    } else {
-                                        CustomMessages.sendMessage(player, "Error.invalidArgs");
-                                        return false;
-                                    }
-                                }
-                            } else {
-                                CustomMessages.sendMessage(player, "Error.invalidArgs");
-                                return false;
-                            }
-                        }
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+        if (!sender.hasPermission("at.admin.tploc")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
 
-                        // Get the world
-                        World world = player.getWorld();
-                        if (args.length > 5 && !args[5].equalsIgnoreCase("~")) {
-                            world = Bukkit.getWorld(args[5]);
-                            if (world == null) {
-                                player.sendMessage("no-world");
-                                return false;
-                            }
-                        }
-                        Location location = new Location(world, loc[0], loc[1], loc[2], yaw, pitch);
+        Player player = (Player) sender;
+        if (args.length <= 2) {
+            CustomMessages.sendMessage(player, "Error.tooFewArguments");
+            return false;
+        }
+        // Get the x, y and z coordinates
+        double[] loc = new double[3];
+        for (int i = 0; i < 3; i++) {
+            if (args[i].equalsIgnoreCase("~")) {
+                switch (i) {
+                    case 0:
+                        loc[i] = player.getLocation().getX();
+                        break;
+                    case 1:
+                        loc[i] = player.getLocation().getY();
+                        break;
+                    case 2:
+                        loc[i] = player.getLocation().getZ();
+                        break;
+                }
+            } else if (location.matcher(args[i]).matches()) {
+                loc[i] = Double.parseDouble(args[i]);
+            } else {
+                CustomMessages.sendMessage(player, "Error.invalidArgs");
+                return false;
+            }
+        }
 
-                        // Get the player
-                        Player target = player;
-                        if (args.length > 6) {
-                            if (player.hasPermission("at.admin.tploc.others")) {
-                                target = Bukkit.getPlayer(args[6]);
-                                if (target == null || !target.isOnline()) {
-                                    CustomMessages.sendMessage(player, "Error.noSuchPlayer");
-                                    return true;
-                                }
-                            }
-                        }
-
-                        // Should the player be flying or not?
-                        boolean allowFlight = true;
-                        if (args.length > 7) {
-                            if (target.hasPermission("at.admin.tploc.safe-teleport") && target.getAllowFlight()) {
-                                if (args[7].equalsIgnoreCase("precise")) {
-                                    target.setFlying(true);
-                                    allowFlight = true;
-                                } else if (args[7].equalsIgnoreCase("noflight")) {
-                                    target.setFlying(false);
-                                    allowFlight = false;
-                                }
-                            }
-                        }
-
-                        ATTeleportEvent event = new ATTeleportEvent(target, location, target.getLocation(), "", ATTeleportEvent.TeleportType.TPLOC);
-                        if (!event.isCancelled()) {
-                            Location blockBelow = location.clone().add(0, -1, 0);
-                            if (allowFlight && target.getAllowFlight() && target.hasPermission("at.admin.tploc.safe-teleport") && blockBelow.getBlock().getType() == Material.AIR) {
-                                target.setFlying(true);
-                            }
-                            PaperLib.teleportAsync(target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
-                            if (player != target) {
-                                CustomMessages.sendMessage(player, "Info.teleportedToLocOther",
-                                        "{x}", String.valueOf(loc[0]),
-                                        "{y}", String.valueOf(loc[1]),
-                                        "{z}", String.valueOf(loc[2]),
-                                        "{yaw}", String.valueOf(yaw),
-                                        "{pitch}", String.valueOf(pitch),
-                                        "{world}", world.getName(),
-                                        "{player}", args[6]);
-                            } else {
-                                CustomMessages.sendMessage(player, "Info.teleportedToLoc",
-                                        "{x}", String.valueOf(loc[0]),
-                                        "{y}", String.valueOf(loc[1]),
-                                        "{z}", String.valueOf(loc[2]),
-                                        "{yaw}", String.valueOf(yaw),
-                                        "{pitch}", String.valueOf(pitch),
-                                        "{world}", world.getName());
-                            }
-                        }
+        // Get the yaw and pitch
+        float yaw = player.getLocation().getYaw();
+        float pitch = player.getLocation().getPitch();
+        if (args.length > 3 && !args[3].equalsIgnoreCase("~")) {
+            if (location.matcher(args[3]).matches()) {
+                yaw = Float.parseFloat(args[3]);
+                if (args.length > 4 && !args[4].equalsIgnoreCase("~")) {
+                    if (location.matcher(args[4]).matches()) {
+                        pitch = Float.parseFloat(args[4]);
                     } else {
-                        CustomMessages.sendMessage(player, "Error.tooFewArguments");
+                        CustomMessages.sendMessage(player, "Error.invalidArgs");
                         return false;
                     }
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
+            } else {
+                CustomMessages.sendMessage(player, "Error.invalidArgs");
+                return false;
+            }
+        }
+
+        // Get the world
+        World world = player.getWorld();
+        if (args.length > 5 && !args[5].equalsIgnoreCase("~")) {
+            world = Bukkit.getWorld(args[5]);
+            if (world == null) {
+                player.sendMessage("no-world");
+                return false;
+            }
+        }
+        Location location = new Location(world, loc[0], loc[1], loc[2], yaw, pitch);
+
+        // Get the player
+        Player target = player;
+        if (args.length > 6) {
+            if (player.hasPermission("at.admin.tploc.others")) {
+                target = Bukkit.getPlayer(args[6]);
+                if (target == null || !target.isOnline()) {
+                    CustomMessages.sendMessage(player, "Error.noSuchPlayer");
+                    return true;
+                }
+            }
+        }
+
+        // Should the player be flying or not?
+        boolean allowFlight = true;
+        if (args.length > 7) {
+            if (target.hasPermission("at.admin.tploc.safe-teleport") && target.getAllowFlight()) {
+                if (args[7].equalsIgnoreCase("precise")) {
+                    target.setFlying(true);
+                } else if (args[7].equalsIgnoreCase("noflight")) {
+                    target.setFlying(false);
+                    allowFlight = false;
+                }
+            }
+        }
+
+        ATTeleportEvent event = new ATTeleportEvent(target, location, target.getLocation(), "", ATTeleportEvent.TeleportType.TPLOC);
+        if (!event.isCancelled()) {
+            Location blockBelow = location.clone().add(0, -1, 0);
+            if (allowFlight && target.getAllowFlight() && target.hasPermission("at.admin.tploc.safe-teleport") && blockBelow.getBlock().getType() == Material.AIR) {
+                target.setFlying(true);
+            }
+            PaperLib.teleportAsync(target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
+            if (player != target) {
+                CustomMessages.sendMessage(player, "Info.teleportedToLocOther",
+                        "{x}", String.valueOf(loc[0]),
+                        "{y}", String.valueOf(loc[1]),
+                        "{z}", String.valueOf(loc[2]),
+                        "{yaw}", String.valueOf(yaw),
+                        "{pitch}", String.valueOf(pitch),
+                        "{world}", world.getName(),
+                        "{player}", args[6]);
+            } else {
+                CustomMessages.sendMessage(player, "Info.teleportedToLoc",
+                        "{x}", String.valueOf(loc[0]),
+                        "{y}", String.valueOf(loc[1]),
+                        "{z}", String.valueOf(loc[2]),
+                        "{yaw}", String.valueOf(yaw),
+                        "{pitch}", String.valueOf(pitch),
+                        "{world}", world.getName());
             }
         }
         return true;

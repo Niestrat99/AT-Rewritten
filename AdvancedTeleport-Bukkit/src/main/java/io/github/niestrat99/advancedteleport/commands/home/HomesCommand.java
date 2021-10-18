@@ -24,31 +24,29 @@ public class HomesCommand implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.get().USE_HOMES.get()) {
-            if (sender.hasPermission("at.member.homes")) {
-                if (args.length > 0) {
-                    if (sender.hasPermission("at.admin.homes")) {
-                        ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
-                            if (player.getHomes() == null || player.getHomes().size() == 0) {
-                                CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
-                                return;
-                            }
-                            getHomes(sender, player.getOfflinePlayer());
-                        });
-                        return true;
-                    }
-                }
-                if (sender instanceof Player) {
-                    getHomes(sender, (Player) sender);
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
-                }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noPermission");
-            }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
         }
+        if (!NewConfig.get().USE_HOMES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+        if (!sender.hasPermission("at.member.homes")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+        if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
+            ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
+                if (player.getHomes() == null || player.getHomes().size() == 0) {
+                    CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
+                    return;
+                }
+                getHomes(sender, player.getOfflinePlayer());
+            });
+            return true;
+        }
+        CustomMessages.sendMessage(sender, "Error.notAPlayer");
         return true;
     }
 

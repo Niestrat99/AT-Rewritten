@@ -13,22 +13,26 @@ public class TpOn implements AsyncATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player)sender;
-            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-                if (sender.hasPermission("at.member.on")) {
-                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    if (!atPlayer.isTeleportationEnabled()) {
-                        atPlayer.setTeleportationEnabled(true, callback -> CustomMessages.sendMessage(sender, "Info.tpOn"));
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.alreadyOn");
-                    }
-                }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            }
-        } else {
+        if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+        if (!sender.hasPermission("at.member.on")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+        Player player = (Player) sender;
+        if (sender.hasPermission("at.member.on")) {
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (!atPlayer.isTeleportationEnabled()) {
+                atPlayer.setTeleportationEnabled(true, callback -> CustomMessages.sendMessage(sender, "Info.tpOn"));
+            } else {
+                CustomMessages.sendMessage(sender, "Error.alreadyOn");
+            }
         }
         return true;
     }

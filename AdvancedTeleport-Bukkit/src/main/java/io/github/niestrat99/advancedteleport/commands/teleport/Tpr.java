@@ -27,48 +27,48 @@ import java.util.UUID;
 
 public class Tpr implements ATCommand {
 
-    private static List<UUID> searchingPlayers = new ArrayList<>();
+    private static final List<UUID> searchingPlayers = new ArrayList<>();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player;
-        if (NewConfig.get().USE_RANDOMTP.get()) {
-            if (sender.hasPermission("at.member.tpr")) {
-                if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
-                    player = Bukkit.getPlayer(args[1]);
-                    if (player == null) {
-                        CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
-                        return true;
-                    }
-                } else if (sender instanceof Player) {
-                    player = (Player) sender;
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
-                    return true;
-                }
-
-                if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                    CustomMessages.sendMessage(sender, "Error.onCountdown");
-                    return true;
-                }
-                World world = player.getWorld();
-                if (args.length > 0 && sender.hasPermission("at.member.tpr.other")) {
-                    World otherWorld = Bukkit.getWorld(args[0]);
-                    if (otherWorld != null) {
-                        world = otherWorld;
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.noSuchWorld");
-                        return true;
-                    }
-                }
-
-                return randomTeleport(player, sender, world);
-            }
-        } else {
+        if (!NewConfig.get().USE_RANDOMTP.get()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
+        if (!sender.hasPermission("at.member.tpr")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+        if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
+            player = Bukkit.getPlayer(args[1]);
+            if (player == null) {
+                CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                return true;
+            }
+        } else if (sender instanceof Player) {
+            player = (Player) sender;
+        } else {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
 
+        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+            CustomMessages.sendMessage(sender, "Error.onCountdown");
+            return true;
+        }
+        World world = player.getWorld();
+        if (args.length > 0 && sender.hasPermission("at.member.tpr.other")) {
+            World otherWorld = Bukkit.getWorld(args[0]);
+            if (otherWorld != null) {
+                world = otherWorld;
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noSuchWorld");
+                return true;
+            }
+        }
+
+        randomTeleport(player, sender, world);
         return true;
     }
 

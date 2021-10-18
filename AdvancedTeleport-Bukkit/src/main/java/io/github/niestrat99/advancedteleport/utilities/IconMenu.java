@@ -33,15 +33,15 @@ import java.util.regex.Pattern;
 public class IconMenu implements Listener, InventoryHolder {
 
     // Used to catch out textures which just use the hex value of the skin
-    private static Pattern HEX_PATTERN = Pattern.compile("^[0-9a-fA-F]+$");
+    private static final Pattern HEX_PATTERN = Pattern.compile("^[0-9a-fA-F]+$");
     // Title of the inventory
-    private String title;
+    private final String title;
     // Size of the inventory, must be a multiple of 9
-    private int size;
+    private final int size;
     // Current page the user is on
     private int currentPage;
     // Number of pages
-    private int pageCount;
+    private final int pageCount;
 
     //
     private OptionPage[] optionPages;
@@ -59,7 +59,7 @@ public class IconMenu implements Listener, InventoryHolder {
         this.player = null;
         this.inventory = null;
         this.optionPages = new OptionPage[pageCount];
-        for(int i = 0; i < optionPages.length; i++){
+        for (int i = 0; i < optionPages.length; i++) {
             optionPages[i] = new OptionPage(size);
         }
         this.currentPage = 0;
@@ -84,13 +84,13 @@ public class IconMenu implements Listener, InventoryHolder {
     }
 
     public void openNextPage() {
-        if (this.currentPage+1 >= pageCount) return;
+        if (this.currentPage + 1 >= pageCount) return;
         this.currentPage++;
         this.updatePage();
     }
 
     public void openPreviousPage() {
-        if (this.currentPage-1 < 0) return;
+        if (this.currentPage - 1 < 0) return;
         this.currentPage--;
         this.updatePage();
     }
@@ -111,7 +111,7 @@ public class IconMenu implements Listener, InventoryHolder {
             Icon icon = this.optionPages[currentPage].optionIcons[i];
             if (icon != null) {
                 inventory.setItem(i, icon.item);
-            }else {
+            } else {
                 inventory.clear(i);
             }
         }
@@ -130,15 +130,15 @@ public class IconMenu implements Listener, InventoryHolder {
     }
 
     private static class OptionPage {
-        private Icon[] optionIcons;
+        private final Icon[] optionIcons;
 
-        public OptionPage(int size){
+        public OptionPage(int size) {
             this.optionIcons = new Icon[size];
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onInventoryClosed(InventoryCloseEvent event){
+    public void onInventoryClosed(InventoryCloseEvent event) {
         if (event.getInventory().getHolder() == this) {
             destroy();
         }
@@ -147,32 +147,32 @@ public class IconMenu implements Listener, InventoryHolder {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent event) {
         // Checking if the holder is an instance of IconMenu to prevent potential conflict title comparison can cause.
-        if (event.getInventory().getHolder() == this) {
-            // Cancel the event, stopping the player pick up the item.
-            event.setCancelled(true);
-            // Get the raw slot (NOT the slot)
-            int slot = event.getRawSlot();
-            OptionPage currentPage = this.optionPages[this.currentPage];
-            // Make sure the slot is inside the custom inventory, and that the icon clicked isn't null
-            if (slot >= 0 && slot < size && currentPage.optionIcons[slot] != null) {
-                CoreClass plugin = this.core;
-                Icon icon = currentPage.optionIcons[slot];
-                OptionClickEvent e = new OptionClickEvent((Player) event.getWhoClicked(), slot, icon);
-                final Player p = (Player)event.getWhoClicked();
-                icon.activate(p, e);
-                if (e.willClose()) {
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, p::closeInventory, 1);
-                }
-                if (e.willDestroy()) {
-                    destroy();
-                }
+        if (event.getInventory().getHolder() != this) return;
+        // Cancel the event, stopping the player pick up the item.
+        event.setCancelled(true);
+        // Get the raw slot (NOT the slot)
+        int slot = event.getRawSlot();
+        OptionPage currentPage = this.optionPages[this.currentPage];
+        // Make sure the slot is inside the custom inventory, and that the icon clicked isn't null
+        if (slot >= 0 && slot < size && currentPage.optionIcons[slot] != null) {
+            CoreClass plugin = this.core;
+            Icon icon = currentPage.optionIcons[slot];
+            OptionClickEvent e = new OptionClickEvent((Player) event.getWhoClicked(), slot, icon);
+            final Player p = (Player) event.getWhoClicked();
+            icon.activate(p, e);
+            if (e.willClose()) {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, p::closeInventory, 1);
+            }
+            if (e.willDestroy()) {
+                destroy();
             }
         }
+
     }
 
     @Override
     public Inventory getInventory() {
-        return null;
+        return inventory;
     }
 
     public interface OptionClickEventHandler {
@@ -181,7 +181,7 @@ public class IconMenu implements Listener, InventoryHolder {
 
     public static class Icon {
 
-        private ItemStack item;
+        private final ItemStack item;
         private String[] commands;
         private OptionClickEventHandler handler;
 
@@ -214,7 +214,7 @@ public class IconMenu implements Listener, InventoryHolder {
                 if (texture.startsWith("http")) {
                     // Just stick it into the JSON format.
                     data = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", texture).getBytes());
-                // However, if the hex pattern after the URL is used instead:
+                    // However, if the hex pattern after the URL is used instead:
                 } else if (HEX_PATTERN.matcher(texture).matches()) {
                     // Just add the extra bit in front.
                     data = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"http://textures.minecraft.net/texture/%s\"}}}", texture).getBytes());
@@ -261,9 +261,9 @@ public class IconMenu implements Listener, InventoryHolder {
     }
 
     public static class OptionClickEvent {
-        private Player player;
-        private int position;
-        private Icon icon;
+        private final Player player;
+        private final int position;
+        private final Icon icon;
         private boolean close;
         private boolean destroy;
 
