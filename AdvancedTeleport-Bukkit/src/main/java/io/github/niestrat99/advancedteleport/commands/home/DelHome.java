@@ -31,19 +31,18 @@ public class DelHome extends AbstractHomeCommand implements AsyncATCommand {
             CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
-            if (args.length > 0) {
-                if (sender.hasPermission("at.admin.delhome")) {
-                    if (args.length > 1) {
-                        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                        delHome(target, player, args[1]);
-                        return true;
-                    }
+        if (args.length > 0) {
+            if (sender.hasPermission("at.admin.delhome")) {
+                if (args.length > 1) {
+                    OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                    delHome(target, player, args[1]);
+                    return true;
                 }
-                delHome(player, args[0]);
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noHomeInput");
             }
-
+            delHome(player, args[0]);
+        } else {
+            CustomMessages.sendMessage(sender, "Error.noHomeInput");
+        }
         return true;
     }
 
