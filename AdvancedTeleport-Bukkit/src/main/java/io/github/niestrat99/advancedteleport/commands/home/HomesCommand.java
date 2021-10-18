@@ -24,10 +24,12 @@ public class HomesCommand implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!(sender instanceof Player)) {
+
+        if (args.length == 0 && !(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
+
         if (!NewConfig.get().USE_HOMES.get()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
@@ -37,6 +39,7 @@ public class HomesCommand implements ATCommand {
             return true;
         }
         if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
+
             ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
                 if (player.getHomes() == null || player.getHomes().size() == 0) {
                     CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
