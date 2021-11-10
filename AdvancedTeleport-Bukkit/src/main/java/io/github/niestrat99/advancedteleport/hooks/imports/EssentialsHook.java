@@ -368,7 +368,6 @@ public class EssentialsHook extends ImportExportPlugin {
                         PreparedStatement statement = connection.prepareStatement("SELECT teleportation_on FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
                         statement.setString(1, uuid.toString());
                         ResultSet set = statement.executeQuery();
-                        connection.close();
                         // also should run once but this is also just standard
                         while (set.next()) {
                             user.setTeleportEnabled(set.getBoolean("teleportation_on"));
