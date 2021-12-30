@@ -1,6 +1,5 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
@@ -21,7 +20,7 @@ import java.util.List;
 
 public class Back implements ATCommand {
 
-    private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR"));
+    private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR", "STATIONARY_WATER"));
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, String s,
