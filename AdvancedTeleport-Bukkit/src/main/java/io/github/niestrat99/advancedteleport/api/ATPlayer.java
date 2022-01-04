@@ -347,6 +347,10 @@ public class ATPlayer {
 
     public void setPreviousLocation(Location previousLoc) {
         this.previousLoc = previousLoc;
-        PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
+        if (getPlayer() != null && getPlayer().isOnline()) {
+            PlayerSQLManager.get().setPreviousLocation(getPlayer().getName(), previousLoc, null);
+        } else {
+            PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
+        }
     }
 }
