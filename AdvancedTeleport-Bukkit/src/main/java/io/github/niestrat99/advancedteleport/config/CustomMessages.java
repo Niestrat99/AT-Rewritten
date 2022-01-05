@@ -30,9 +30,9 @@ public class CustomMessages extends CMFile {
 
         addComment("Teleport.eventBeforeTP_title", "This is an example use for titles and subtitles in the plugin." +
                 "\nThis feature is supported only if you're on version 1.8.8 or newer.");
-        addExample("Teleport.eventBeforeTP_title.length" , 80, "How many seconds (in ticks) the header should last. This is not including fading.");
-        addExample("Teleport.eventBeforeTP_title.fade-in" , 0, "How many seconds (in ticks) the header should take to fade in.");
-        addExample("Teleport.eventBeforeTP_title.fade-out" , 10, "How many seconds (in ticks) the header should take to fade out.");
+        addExample("Teleport.eventBeforeTP_title.length" , 80 /*, "How many seconds (in ticks) the header should last. This is not including fading." */);
+        addExample("Teleport.eventBeforeTP_title.fade-in" , 0 /*, "How many seconds (in ticks) the header should take to fade in." */);
+        addExample("Teleport.eventBeforeTP_title.fade-out" , 10 /*, "How many seconds (in ticks) the header should take to fade out." */);
         addExample("Teleport.eventBeforeTP_title.0", "&7&lTeleporting...");
         addExample("Teleport.eventBeforeTP_title.20", "&b> &7&lTeleporting... &b<");
         addExample("Teleport.eventBeforeTP_title.40", "&b>> &7&lTeleporting... &b<<");
