@@ -37,15 +37,24 @@ public class Tpr implements ATCommand {
         if (NewConfig.get().USE_RANDOMTP.get()) {
             if (sender.hasPermission("at.member.tpr")) {
                 if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
-                    players = new ArrayList<>();
-                    for (Entity e : Bukkit.selectEntities(sender, args[1])) {
-                        if (e instanceof Player) {
-                            players.add((Player) e);
+                    if (sender.hasPermission("at.admin.tpr.other.selector")) {
+                        players = new ArrayList<>();
+                        for (Entity e : Bukkit.selectEntities(sender, args[1])) {
+                            if (e instanceof Player) {
+                                players.add((Player) e);
+                            }
                         }
-                    }
-                    if (players.isEmpty()) {
-                        CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
-                        return true;
+                        if (players.isEmpty()) {
+                            CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                            return true;
+                        }
+                    } else {
+                        Player player = Bukkit.getPlayer(args[1]);
+                        if (player == null) {
+                            CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                            return true;
+                        }
+                        players = Collections.singletonList(player);
                     }
                 } else if (sender instanceof Player) {
                     players = Collections.singletonList((Player) sender);
