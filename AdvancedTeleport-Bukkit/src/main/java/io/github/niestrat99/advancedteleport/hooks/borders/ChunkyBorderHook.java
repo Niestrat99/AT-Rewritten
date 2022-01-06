@@ -19,7 +19,7 @@ public class ChunkyBorderHook extends BorderPlugin {
         if (provider == null) return false;
         chunkyBorder = provider.getProvider();
         // Check if it's enabled - player may not have Chunky installed
-        return chunkyBorder.isEnabled() && chunkyBorder.getBorders().containsKey(world.getName());
+        return chunkyBorder.getBorders().containsKey(world.getName());
     }
 
     @Override
