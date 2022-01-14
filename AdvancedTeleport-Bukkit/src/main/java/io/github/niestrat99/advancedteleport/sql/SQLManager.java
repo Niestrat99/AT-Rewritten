@@ -5,75 +5,62 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.CommandSender;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public abstract class SQLManager {
 
-    protected static Connection connection;
     protected static String tablePrefix;
-    protected static boolean usingSqlite;
+    protected static volatile boolean usingSqlite;
 
     public SQLManager() {
-        if (connection == null) {
-            tablePrefix = NewConfig.get().TABLE_PREFIX.get();
-            if (!tablePrefix.matches("^[_A-Za-z0-9]+$")) {
-                CoreClass.getInstance().getLogger().warning("Table prefix " + tablePrefix + " is not alphanumeric. Using advancedtp...");
-                tablePrefix = "advancedtp";
-            }
-            if (NewConfig.get().USE_MYSQL.get()) {
-                try {
-                    Class.forName("com.mysql.jdbc.Driver");
-                    connection = DriverManager.getConnection("jdbc:mysql://"
-                            + NewConfig.get().MYSQL_HOST.get() + ":"
-                            + NewConfig.get().MYSQL_PORT.get() + "/"
-                            + NewConfig.get().MYSQL_DATABASE.get() + "?useSSL=false&autoReconnect=true",
-                            NewConfig.get().USERNAME.get(),
-                            NewConfig.get().PASSWORD.get());
-                    usingSqlite = false;
-                } catch (ClassNotFoundException | SQLException e) {
-                    e.printStackTrace();
-                    loadSqlite();
-                }
-
-
-            } else {
-                loadSqlite();
-            }
+        tablePrefix = NewConfig.get().TABLE_PREFIX.get();
+        if (!tablePrefix.matches("^[_A-Za-z0-9]+$")) {
+            CoreClass.getInstance().getLogger().warning("Table prefix " + tablePrefix + " is not alphanumeric. Using advancedtp...");
+            tablePrefix = "advancedtp";
         }
+        implementConnection();
         createTable();
     }
 
-    private void loadSqlite() {
+    private Connection loadSqlite() {
         // Load JDBC
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + CoreClass.getInstance().getDataFolder() + "/data.db");
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + CoreClass.getInstance().getDataFolder() + "/data.db");
             usingSqlite = true;
+            return connection;
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
+        return null;
     }
-    
-    public static void closeConnection() {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-            }
-        }
 
+    public Connection implementConnection() {
+        Connection connection;
+        if (NewConfig.get().USE_MYSQL.get()) {
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+                connection = DriverManager.getConnection("jdbc:mysql://"
+                                + NewConfig.get().MYSQL_HOST.get() + ":"
+                                + NewConfig.get().MYSQL_PORT.get() + "/"
+                                + NewConfig.get().MYSQL_DATABASE.get() + "?useSSL=false&autoReconnect=true",
+                        NewConfig.get().USERNAME.get(),
+                        NewConfig.get().PASSWORD.get());
+                usingSqlite = false;
+                return connection;
+            } catch (ClassNotFoundException | SQLException e) {
+                e.printStackTrace();
+                connection = loadSqlite();
+            }
+        } else {
+            connection = loadSqlite();
+        }
+        return connection;
     }
 
     public abstract void createTable();
 
     public abstract void transferOldData();
-
-    public static Connection getConnection() {
-        return connection;
-    }
 
     public static String getTablePrefix() {
         return tablePrefix;
@@ -81,6 +68,18 @@ public abstract class SQLManager {
 
     public String getStupidAutoIncrementThing() {
         return usingSqlite ? "AUTOINCREMENT" : "AUTO_INCREMENT";
+    }
+
+    protected synchronized ResultSet executeQuery(PreparedStatement statement) throws SQLException {
+        return statement.executeQuery();
+    }
+
+    protected synchronized void executeUpdate(PreparedStatement statement) throws SQLException {
+        statement.executeUpdate();
+    }
+
+    protected synchronized PreparedStatement prepareStatement(Connection connection, String sql) throws SQLException {
+        return connection.prepareStatement(sql);
     }
 
     public interface SQLCallback<D> {

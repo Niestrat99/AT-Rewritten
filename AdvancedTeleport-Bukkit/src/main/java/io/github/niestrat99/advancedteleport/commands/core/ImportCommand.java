@@ -22,48 +22,49 @@ public class ImportCommand implements SubATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length > 0) {
             String pluginStr = args[0].toLowerCase();
-            ImportExportPlugin plugin = PluginHookManager.getImportPlugin(pluginStr);
+            ImportExportPlugin plugin = PluginHookManager.get().getImportPlugin(pluginStr);
             if (plugin == null) {
                 CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
                 return true;
             }
-            if (plugin.canImport()) {
-                if (args.length > 1) {
-                    CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
-                    Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                        switch (args[1].toLowerCase()) {
-                            case "homes":
-                                plugin.importHomes();
-                                break;
-                            case "warps":
-                                plugin.importWarps();
-                                break;
-                            case "lastlocs":
-                                plugin.importLastLocations();
-                                break;
-                            case "spawns":
-                                plugin.importSpawn();
-                                break;
-                            case "players":
-                                plugin.importPlayerInformation();
-                                break;
-                            default:
-                                plugin.importAll();
-                                break;
-                        }
-                        CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
-                    });
-
-                } else {
-                    CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
-                    Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                        plugin.importAll();
-                        CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
-                    });
-                }
-            } else {
+            if (!plugin.canImport()) {
                 CustomMessages.sendMessage(sender, "Error.cantImport", "{plugin}", args[0]);
+                return true;
             }
+            if (args.length > 1) {
+                CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
+                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                    switch (args[1].toLowerCase()) {
+                        case "homes":
+                            plugin.importHomes();
+                            break;
+                        case "warps":
+                            plugin.importWarps();
+                            break;
+                        case "lastlocs":
+                            plugin.importLastLocations();
+                            break;
+                        case "spawns":
+                            plugin.importSpawn();
+                            break;
+                        case "players":
+                            plugin.importPlayerInformation();
+                            break;
+                        default:
+                            plugin.importAll();
+                            break;
+                    }
+                    CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
+                });
+
+            } else {
+                CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
+                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                    plugin.importAll();
+                    CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
+                });
+            }
+
         }
         return true;
     }
@@ -74,7 +75,7 @@ public class ImportCommand implements SubATCommand {
         List<String> results = new ArrayList<>();
         List<String> possibilities = new ArrayList<>();
         if (args.length == 1) {
-            possibilities.addAll(PluginHookManager.getImportPlugins().keySet());
+            possibilities.addAll(PluginHookManager.get().getImportPlugins().keySet());
         }
         if (args.length == 2) {
             possibilities.addAll(Arrays.asList("all", "homes", "lastlocs", "warps", "spawns", "players"));

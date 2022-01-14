@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,8 +27,8 @@ public class WarpSQLManager extends SQLManager {
     @Override
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
-                PreparedStatement createTable = connection.prepareStatement(
+            try (Connection connection = implementConnection()) {
+                PreparedStatement createTable = prepareStatement(connection,
                         "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_warps " +
                         "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "warp VARCHAR(256) NOT NULL," +
@@ -41,7 +42,7 @@ public class WarpSQLManager extends SQLManager {
                         "price VARCHAR(256)," +
                         "timestamp_created BIGINT NOT NULL," +
                         "timestamp_updated BIGINT NOT NULL)");
-                createTable.executeUpdate();
+                executeUpdate(createTable);
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
@@ -87,8 +88,8 @@ public class WarpSQLManager extends SQLManager {
         long created = warp.getCreatedTime();
         long updated = warp.getUpdatedTime();
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
-                PreparedStatement statement = connection.prepareStatement(
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection,
                         "INSERT INTO " + tablePrefix + "_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                 statement.setString(1, name);
@@ -101,7 +102,7 @@ public class WarpSQLManager extends SQLManager {
                 statement.setString(8, location.getWorld().getName());
                 statement.setLong(9, created);
                 statement.setLong(10, updated);
-                statement.executeUpdate();
+                executeUpdate(statement);
 
                 if (callback != null) {
                     callback.onSuccess(true);
@@ -128,11 +129,11 @@ public class WarpSQLManager extends SQLManager {
 
     public void removeWarp(String name, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
-                PreparedStatement statement = connection.prepareStatement(
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection,
                         "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
                 statement.setString(1, name);
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -148,8 +149,8 @@ public class WarpSQLManager extends SQLManager {
 
     public void moveWarp(Location newLocation, String name, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
-                PreparedStatement statement = connection.prepareStatement(
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection,
                         "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ? WHERE warp = ?");
 
                 statement.setDouble(1, newLocation.getX());
@@ -160,7 +161,7 @@ public class WarpSQLManager extends SQLManager {
                 statement.setString(6, newLocation.getWorld().getName());
                 statement.setLong(7, System.currentTimeMillis());
                 statement.setString(8, name);
-                statement.executeUpdate();
+                executeUpdate(statement);
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
@@ -183,9 +184,9 @@ public class WarpSQLManager extends SQLManager {
 
     private void addWarps() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try {
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "_warps");
-                ResultSet results = statement.executeQuery();
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
+                ResultSet results = executeQuery(statement);
                 // For each warp...
                 while (results.next()) {
                     // Get the world.

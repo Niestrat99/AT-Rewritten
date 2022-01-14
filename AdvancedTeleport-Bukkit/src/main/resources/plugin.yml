@@ -3,11 +3,9 @@ name: AdvancedTeleport
 version: ${module.version}
 description: A rapidly growing teleportation plugin looking to break the boundaries of traditional teleport plugins.
 authors: [Niestrat99, Thatsmusic99]
-contributors: [SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan, LucasMucGH (Github), jonas-t-s (Github)]
-softdepend: [Vault, Ultimate_Economy, ConfigurationMaster]
-loadbefore:
-  - Essentials
-  - EssentialsSpawn
+contributors: [SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan, LucasMucGH (Github), jonas-t-s (Github), Geolykt (Github)]
+softdepend: [Vault, Ultimate_Economy, ConfigurationMaster, WorldBorder, ChunkyBorder, floodgate]
+loadbefore: [Essentials, EssentialsSpawn]
 api-version: 1.13
 
 commands:
@@ -239,4 +237,6 @@ permissions:
       at.admin.sign.bed.create: true
       at.admin.tpoffline: true
       at.admin.tpofflinehere: true
+      at.admin.tpr.other: true
+      at.admin.tpr.other.selector: true
       at.member.homes.unlimited: true

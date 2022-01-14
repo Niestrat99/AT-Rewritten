@@ -15,34 +15,36 @@ public class Tpo implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            if (sender.hasPermission("at.admin.tpo")) {
-                if (sender instanceof Player) {
-                    Player player = (Player) sender;
-                    if (args.length > 0) {
-                        if (args[0].equalsIgnoreCase(player.getName())){
-                            CustomMessages.sendMessage(sender, "Error.requestSentToSelf");
-                            return true;
-                        }
-                        Player target = Bukkit.getPlayer(args[0]);
-                        if (target == null) {
-                            CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
-                        } else {
-                            CustomMessages.sendMessage(sender, "Teleport.teleporting", "{player}", target.getName());
-                            PaperLib.teleportAsync(player, target.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                        }
-                        return true;
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.noPlayerInput");
-                    }
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
-                }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noPermission");
-            }
-        } else {
+
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+
+        if (!sender.hasPermission("at.admin.tpo")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        if (args.length == 0) {
+            CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            return true;
+        }
+        if (args[0].equalsIgnoreCase(player.getName())) {
+            CustomMessages.sendMessage(sender, "Error.requestSentToSelf");
+            return true;
+        }
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null) {
+            CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+        } else {
+            CustomMessages.sendMessage(sender, "Teleport.teleporting", "{player}", target.getName());
+            PaperLib.teleportAsync(player, target.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
         }
         return true;
     }

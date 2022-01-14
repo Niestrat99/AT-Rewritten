@@ -158,7 +158,7 @@ public class CommandManager {
         try {
             Field commands = SimpleCommandMap.class.getDeclaredField("knownCommands");
             commands.setAccessible(true);
-            return (HashMap) commands.get(map);
+            return (HashMap<String, Command>) commands.get(map);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }

@@ -1,11 +1,12 @@
 package io.github.niestrat99.advancedteleport;
 
+import com.wimbli.WorldBorder.WorldBorder;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUI;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
-import io.github.niestrat99.advancedteleport.listeners.AtSigns;
+import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
 import io.github.niestrat99.advancedteleport.managers.*;
@@ -18,7 +19,6 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
-import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,9 +26,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,11 +41,12 @@ public class CoreClass extends JavaPlugin {
         return ChatColor.translateAlternateColorCodes('&', title);
     }
 
-    private static Economy Vault;
+    private static Economy vault;
     public static WorldBorder worldBorder;
     private static CoreClass Instance;
     private static Permission perms = null;
     private int version;
+    private Object[] updateInfo = null;
 
     public static Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
     public static Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
@@ -57,7 +58,7 @@ public class CoreClass extends JavaPlugin {
     }
 
     public static Economy getVault() {
-        return Vault;
+        return vault;
     }
 
     public static WorldBorder getWorldBorder() {
@@ -72,8 +73,8 @@ public class CoreClass extends JavaPlugin {
         if (rsp == null) {
             return false;
         }
-        Vault = rsp.getProvider();
-        return Vault != null;
+        vault = rsp.getProvider();
+        return vault != null;
     }
 
     private boolean setupPermissions() {
@@ -89,7 +90,7 @@ public class CoreClass extends JavaPlugin {
     @Override
     public void onEnable() {
         Instance = this;
-        System.out.println("Advanced Teleport is now enabling...");
+        getLogger().info("Advanced Teleport is now enabling...");
         setupEconomy();
         setupPermissions();
         config = new NewConfig();
@@ -108,32 +109,31 @@ public class CoreClass extends JavaPlugin {
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
-        PluginHookManager.init();
+        new PluginHookManager();
 
         setupVersion();
         new Metrics(this, 5146);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                // Config.setupDefaults();
-                NBTReader.init();
-                RTPManager.init();
-                Object[] update = UpdateChecker.getUpdate();
-                if (update != null) {
-                    getServer().getConsoleSender().sendMessage(pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!") + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion()) + "\n" + pltitle(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + update[0]));
-                    getLogger().info(pltitle(ChatColor.AQUA + "Download link: https://www.spigotmc.org/resources/advanced-teleport.64139/"));
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            NBTReader.init();
+            RTPManager.init();
+            if (NewConfig.get().CHECK_FOR_UPDATES.get()) {
+                updateInfo = UpdateChecker.getUpdate();
+                if (updateInfo != null) {
+                    getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!");
+                    getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion());
+                    getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + updateInfo[0]);
+                    getLogger().info(ChatColor.AQUA + "Download link: https://www.spigotmc.org/resources/advancedteleport.64139/");
                 } else {
-                    getLogger().info(pltitle(ChatColor.AQUA + "Plugin is up to date!"));
+                    getLogger().info(ChatColor.AQUA + "Plugin is up to date!");
                 }
-                TpLoc.a();
             }
-        }.runTaskAsynchronously(this);
+            TpLoc.a();
+        });
     }
 
     @Override
     public void onDisable() {
         DataFailManager.get().onDisable();
-        SQLManager.closeConnection();
 
         try {
             hackTheMainFrame();
@@ -141,10 +141,16 @@ public class CoreClass extends JavaPlugin {
             getLogger().warning("Failed to shut down async tasks.");
             e.printStackTrace();
         }
+
+        try {
+            RTPManager.saveLocations();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void registerEvents() {
-        getServer().getPluginManager().registerEvents(new AtSigns(), this);
+        getServer().getPluginManager().registerEvents(new SignInteractListener(), this);
         getServer().getPluginManager().registerEvents(new TeleportTrackingManager(), this);
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
@@ -157,6 +163,11 @@ public class CoreClass extends JavaPlugin {
      * This task may throw errors during the final shutdown logs and might not complete before process dies.
      *
      * Careful what you consider proper, Paper...
+     *
+     * FYI - any Paper devs that see this, is there a better way to work around this?
+     * AT freezes up due to the PaperLib#getChunkAtAsync method being held up, then floods the console, and considering the userbase...
+     * If there's a better way of handling this please either open an issue or DM @ Error#7365 because this method honestly sucks ass
+     * That or probably only make it so that it warns once per plugin.
      */
     private void hackTheMainFrame() throws NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         if (PaperLib.isPaper()) {
@@ -234,5 +245,9 @@ public class CoreClass extends JavaPlugin {
 
     public int getVersion() {
         return version;
+    }
+
+    public Object[] getUpdateInfo() {
+        return updateInfo;
     }
 }

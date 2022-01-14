@@ -55,12 +55,13 @@ public class MovementManager implements Listener {
         BukkitRunnable movementtimer = new BukkitRunnable() {
             @Override
             public void run() {
+                if (!PaymentManager.getInstance().canPay(command, payingPlayer)) return;
                 PaperLib.teleportAsync(teleportingPlayer, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                 movement.remove(uuid);
                 CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
                 PaymentManager.getInstance().withdraw(command, payingPlayer);
                 // If the cooldown is to be applied after only after a teleport takes place, apply it now
-                if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+                if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
                     CooldownManager.addToCooldown(command, payingPlayer);
                 }
             }

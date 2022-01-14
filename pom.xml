@@ -7,12 +7,13 @@
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
     <packaging>pom</packaging>
-    <version>v5.5</version>
+    <version>v5.5.7</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--suppress UnresolvedMavenProperty -->
-        <module.version>5.5+DEV_${env.BUILD_NUMBER}</module.version>
+        <module.version>5.5.7+DEV_${env.BUILD_NUMBER}</module.version>
+        <jenkins.timestamp>${maven.build.timestamp}</jenkins.timestamp>
     </properties>
 
     <modules>
@@ -98,7 +99,15 @@
             <id>ess-releases</id>
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
+        <repository>
+            <id>opencollab-snapshot</id>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
+        </repository>
 
+        <repository>
+            <id>mojang-authlib</id>
+            <url>https://libraries.minecraft.net/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -130,23 +139,31 @@
         <dependency>
             <groupId>com.github.PryPurity</groupId>
             <artifactId>WorldBorder</artifactId>
-            <version>v2.1.0</version>
+            <version>v2.1.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ChunkyBorder Dependency -->
+        <dependency>
+            <groupId>com.github.pop4959</groupId>
+            <artifactId>ChunkyBorder</artifactId>
+            <version>52034550ef</version>
             <scope>provided</scope>
         </dependency>
 
         <!-- This is a dependency because AT uses GameProfiles internally. This requires you to have run BuildTools on your machine. -->
         <!-- I hope that with GenesisLib I will remove the need for this. -->
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <groupId>com.mojang</groupId>
+            <artifactId>authlib</artifactId>
+            <version>2.3.31</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.github.thatsmusic99</groupId>
             <artifactId>ConfigurationMaster</artifactId>
-            <version>v1.0.2</version>
+            <version>v1.0.3</version>
             <scope>compile</scope>
         </dependency>
 
@@ -167,6 +184,14 @@
             <groupId>net.ess3</groupId>
             <artifactId>EssentialsXSpawn</artifactId>
             <version>2.16.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Dependency floodgate -->
+        <dependency>
+            <groupId>org.geysermc.floodgate</groupId>
+            <artifactId>api</artifactId>
+            <version>2.1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

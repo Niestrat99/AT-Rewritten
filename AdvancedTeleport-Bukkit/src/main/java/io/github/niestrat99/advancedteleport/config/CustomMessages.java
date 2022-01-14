@@ -30,9 +30,9 @@ public class CustomMessages extends CMFile {
 
         addComment("Teleport.eventBeforeTP_title", "This is an example use for titles and subtitles in the plugin." +
                 "\nThis feature is supported only if you're on version 1.8.8 or newer.");
-        addExample("Teleport.eventBeforeTP_title.length" , 80, "How many seconds (in ticks) the header should last. This is not including fading.");
-        addExample("Teleport.eventBeforeTP_title.fade-in" , 0, "How many seconds (in ticks) the header should take to fade in.");
-        addExample("Teleport.eventBeforeTP_title.fade-out" , 10, "How many seconds (in ticks) the header should take to fade out.");
+        addExample("Teleport.eventBeforeTP_title.length" , 80 /*, "How many seconds (in ticks) the header should last. This is not including fading." */);
+        addExample("Teleport.eventBeforeTP_title.fade-in" , 0 /*, "How many seconds (in ticks) the header should take to fade in." */);
+        addExample("Teleport.eventBeforeTP_title.fade-out" , 10 /*, "How many seconds (in ticks) the header should take to fade out." */);
         addExample("Teleport.eventBeforeTP_title.0", "&7&lTeleporting...");
         addExample("Teleport.eventBeforeTP_title.20", "&b> &7&lTeleporting... &b<");
         addExample("Teleport.eventBeforeTP_title.40", "&b>> &7&lTeleporting... &b<<");
@@ -211,6 +211,10 @@ public class CustomMessages extends CMFile {
         addDefault("Info.exportStarted", "&b↑ &8» &7Starting export to &b{plugin}&7...");
         addDefault("Info.exportFinished", "&b↑ &8» &7Finished export to &b{plugin}&7!");
         addDefault("Info.paymentItems", "&b↑ &8» &7You have paid &b{amount} {type}(s) &7for that teleport!");
+        addDefault("Info.updateInfo", "&b↑ &8» [&7AdvancedTeleport has an update available! " +
+                "Click/hover over this text for more information.]" +
+                "(&bCurrent Version &8» &7{version}|&bNew Version &8» &7{new-version}|&bTitle &8» &7{title}" +
+                "|https://www.spigotmc.org/resources/advancedteleport.64139/)");
 
         addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
         addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");
@@ -450,6 +454,7 @@ public class CustomMessages extends CMFile {
                     builder.text(str.substring(lastMarkdownPointer, startTextPointer - 1));
 
                     String command = "";
+                    String link = "";
                     List<String> tooltip = new ArrayList<>();
 
                     String fullCommand = str.substring(startCommandPointer, endCommandPointer);
@@ -460,6 +465,8 @@ public class CustomMessages extends CMFile {
                         for (String part : parts) {
                             if (part.startsWith("/") && command.isEmpty()) {
                                 command = part;
+                            } else if (part.startsWith("http")) {
+                                link = part;
                             } else if (!part.isEmpty()) {
                                 tooltip.add(part);
                             }
@@ -467,6 +474,8 @@ public class CustomMessages extends CMFile {
                     } else {
                         if (fullCommand.startsWith("/")) {
                             command = fullCommand;
+                        } else if (fullCommand.startsWith("http")) {
+                            link = fullCommand;
                         } else if (!fullCommand.isEmpty()) {
                             tooltip.add(fullCommand);
                         }
@@ -476,6 +485,9 @@ public class CustomMessages extends CMFile {
 
                     if (!command.isEmpty()) {
                         builder.command(command);
+                    }
+                    if (!link.isEmpty()) {
+                        builder.link(link);
                     }
 
                     builder.then();

@@ -62,8 +62,8 @@ public class NewConfig extends CMFile {
     public ConfigOption<Integer> MAXIMUM_Z;
     public ConfigOption<Integer> MINIMUM_X;
     public ConfigOption<Integer> MINIMUM_Z;
-    public ConfigOption<Boolean> USE_WORLD_BORDER;
     public ConfigOption<Boolean> RAPID_RESPONSE;
+    public ConfigOption<Boolean> USE_VANILLA_BORDER;
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> IGNORE_WORLD_GENS;
     public ConfigOption<List<String>> AVOID_BLOCKS;
@@ -92,6 +92,9 @@ public class NewConfig extends CMFile {
 
     public ConfigOption<List<String>> DEFAULT_PERMISSIONS;
     public ConfigOption<Boolean> ALLOW_ADMIN_PERMS;
+
+    public ConfigOption<Boolean> CHECK_FOR_UPDATES;
+    public ConfigOption<Boolean> NOTIFY_ADMINS;
 
     private static NewConfig instance;
     private static List<String> defaults;
@@ -181,8 +184,8 @@ public class NewConfig extends CMFile {
                 "\nIf you want to use Vault Economy, use 100.0 to charge $100." +
                 "\nIf you want to use Minecraft EXP points, use 10EXP for 10 EXP Points." +
                 "\nIf you want to use Minecraft EXP levels, use 5LVL for 5 levels." +
-                "\nIf you want to use items, use the format MATERIAL:AMOUNT or MATERIAL:BYTE:AMOUNT." +
-                "\nFor example, on 1.13+, ORANGE_WOOL:3 for 3 orange wool, but on versions before 1.13, WOOL:1:3." +
+                "\nIf you want to use items, use the format MATERIAL:AMOUNT or MATERIAL:AMOUNT:BYTE." +
+                "\nFor example, on 1.13+, ORANGE_WOOL:3 for 3 orange wool, but on versions before 1.13, WOOL:3:1." +
                 "\nIf you're on a legacy version and unsure on what byte to use, see https://minecraftitemids.com/types" +
                 "\nTo use multiple methods of charging, use a ; - e.g. '100.0;10LVL' for $100 and 10 EXP levels." +
                 "\nTo disable, just put an empty string, i.e. ''");
@@ -249,7 +252,7 @@ public class NewConfig extends CMFile {
         addLenientSection("world-rules");
         addDefault("world-rules.default", "stop-teleportation-within");
         addExample("world-rules.world", "default");
-        addExample("world-rules.world_nether", "stop-teleportation-into!world", "Stops people teleporting into the Nether if they're not coming from \"world\"");
+        addExample("world-rules.world_nether", "stop-teleportation-into!world" /*, "Stops people teleporting into the Nether if they're not coming from \"world\"" */);
 
         addComment("command-rules", "The teleportation rules defined for each AT command.\n" +
                 "Rules include:\n" +
@@ -274,11 +277,12 @@ public class NewConfig extends CMFile {
         addDefault("maximum-z", 5000, "The maximum Z coordinate to go up to when selecting a random location.");
         addDefault("minimum-x", -5000, "The minimum X coordinate to go down to when selecting a random location.");
         addDefault("minimum-z", -5000, "The minimum Z coordinate to go down to when selecting a random location.");
-        addDefault("use-world-border", true, "When WorldBorder is installed, AT will check the border of each world instead rather than using the minimum and maximum coordinates.");
         addDefault("use-rapid-response", true, "Use the new rapid response system for RTP.\n" +
                 "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.\n" +
                 "This feature allows you to use the \"tpr\" death option in the death management section further down.\n" +
                 "IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.");
+        addDefault("use-vanilla-border", false, "Whether the plugin should use the Vanilla world border as a viable option for managing /tpr boundaries.\n" +
+                "The plugin automatically hooks into WorldBorder and ChunkyBorder.");
         addDefault("prepared-locations-limit", 3, "How many locations can be prepared per world when using AT's Rapid Response system.\n" +
                 "These are immediately prepared upon startup and when a world is loaded.");
         addDefault("ignore-world-generators", new ArrayList<>(Arrays.asList(
@@ -363,6 +367,11 @@ public class NewConfig extends CMFile {
         addDefault("allow-admin-permissions-as-default-perms", false, "Allows admin permissions to be allowed as default permissions by default.\n" +
                 "If you want to use admin permissions, it's often recommended to use a permissions plugin such as LuckPerms.\n" +
                 "Do not enable this if you are unsure of the risks this option proposes.");
+
+        addSection("Updates");
+        addDefault("check-for-updates", true, "Whether or not the plugin should check for updates.");
+        addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
+                "Anyone with the permission at.admin.notify will receive this notification.");
 
     }
 
@@ -539,8 +548,8 @@ public class NewConfig extends CMFile {
         MAXIMUM_Z = new ConfigOption<>("maximum-z");
         MINIMUM_X = new ConfigOption<>("minimum-x");
         MINIMUM_Z = new ConfigOption<>("minimum-z");
-        USE_WORLD_BORDER = new ConfigOption<>("use-world-border");
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
+        USE_VANILLA_BORDER = new ConfigOption<>("use-vanilla-border");
         PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
         IGNORE_WORLD_GENS = new ConfigOption<>("ignore-world-generators");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");
@@ -562,7 +571,6 @@ public class NewConfig extends CMFile {
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
 
-
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
 
@@ -570,6 +578,9 @@ public class NewConfig extends CMFile {
 
         DEFAULT_PERMISSIONS = new ConfigOption<>("default-permissions");
         ALLOW_ADMIN_PERMS = new ConfigOption<>("allow-admin-permissions-as-default-perms");
+
+        CHECK_FOR_UPDATES = new ConfigOption<>("check-for-updates");
+        NOTIFY_ADMINS = new ConfigOption<>("notify-admins-on-update");
 
         new PaymentManager();
         LimitationsManager.init();

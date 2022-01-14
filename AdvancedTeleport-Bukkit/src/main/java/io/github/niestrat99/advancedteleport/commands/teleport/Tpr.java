@@ -18,58 +18,73 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 public class Tpr implements ATCommand {
 
-    private static List<UUID> searchingPlayers = new ArrayList<>();
+    private static final List<UUID> searchingPlayers = new ArrayList<>();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        Player player;
-        if (NewConfig.get().USE_RANDOMTP.get()) {
-            if (sender.hasPermission("at.member.tpr")) {
-                if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
-                    player = Bukkit.getPlayer(args[1]);
-                    if (player == null) {
-                        CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
-                        return true;
-                    }
-                } else if (sender instanceof Player) {
-                    player = (Player) sender;
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
-                    return true;
-                }
-
-                if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                    CustomMessages.sendMessage(sender, "Error.onCountdown");
-                    return true;
-                }
-                World world = player.getWorld();
-                if (args.length > 0 && sender.hasPermission("at.member.tpr.other")) {
-                    World otherWorld = Bukkit.getWorld(args[0]);
-                    if (otherWorld != null) {
-                        world = otherWorld;
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.noSuchWorld");
-                        return true;
-                    }
-                }
-
-                return randomTeleport(player, sender, world);
-            }
-        } else {
+        List<Player> players;
+        if (!NewConfig.get().USE_RANDOMTP.get()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
+        if (!sender.hasPermission("at.member.tpr")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+        if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
+            if (sender.hasPermission("at.admin.tpr.other.selector")) {
+                players = new ArrayList<>();
+                for (Entity e : Bukkit.selectEntities(sender, args[1])) {
+                if (e instanceof Player) {
+                    players.add((Player) e);
+                }
+            } else {
+                Player player = Bukkit.getPlayer(args[1]);
+                if (player == null) {
+                    CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                    return true;
+                }
+                players = Collections.singletonList(player);
+            }
+            if (players.isEmpty()) {
+                CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                return true;
+            }
+        } else if (sender instanceof Player) {
+            players = Collections.singletonList((Player) sender);
+        } else {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
 
-        return true;
+        for (Player player : players) {
+            if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+                CustomMessages.sendMessage(player, "Error.onCountdown");
+                continue;
+            }
+            World world = player.getWorld();
+            if (args.length > 0 && sender.hasPermission("at.member.tpr.other")) {
+                World otherWorld = Bukkit.getWorld(args[0]);
+                if (otherWorld != null) {
+                    world = otherWorld;
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noSuchWorld");
+                    return true;
+                }
+            }
+            randomTeleport(player, sender, world);
+        }
     }
 
     public static boolean randomTeleport(Player player, World world) {

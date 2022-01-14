@@ -21,44 +21,47 @@ public class SetHomeCommand implements AsyncATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (NewConfig.get().USE_HOMES.get()) {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (sender.hasPermission("at.member.sethome")) {
-                    if (args.length > 0) {
-                        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                        if (sender.hasPermission("at.admin.sethome") && player != target) {
-                            // We'll just assume that the admin command overrides the homes limit.
-                            if (args.length > 1) {
-                                setHome(player, target.getUniqueId(), args[1], args[0]);
-                                return true;
-                            }
-                        }
 
-                        if (atPlayer.canSetMoreHomes()) {
-                            setHome(player, args[0]);
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (!NewConfig.get().USE_HOMES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+        if (!sender.hasPermission("at.member.sethome")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
 
-                        } else {
-                            CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
-                        }
-                    } else {
-                        int limit = atPlayer.getHomesLimit();
-                        if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
-                            setHome(player, "home");
-                        } else {
-                            CustomMessages.sendMessage(sender, "Error.noHomeInput");
-                        }
-                    }
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.noPermission");
+        Player player = (Player) sender;
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+
+        if (args.length > 0) {
+            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+            if (sender.hasPermission("at.admin.sethome") && player != target) {
+                // We'll just assume that the admin command overrides the homes limit.
+                if (args.length > 1) {
+                    setHome(player, target.getUniqueId(), args[1], args[0]);
+                    return true;
                 }
+            }
+
+            if (atPlayer.canSetMoreHomes()) {
+                setHome(player, args[0]);
             } else {
-                CustomMessages.sendMessage(sender, "Error.notAPlayer");
+                CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
             }
         } else {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            int limit = atPlayer.getHomesLimit();
+            if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
+                setHome(player, "home");
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            }
         }
+
         return true;
     }
 
@@ -84,8 +87,6 @@ public class SetHomeCommand implements AsyncATCommand {
                 "Error.setHomeFail", "{home}", homeName, "{player}", playerName));
 
     }
-
-
 
     @Nullable
     @Override

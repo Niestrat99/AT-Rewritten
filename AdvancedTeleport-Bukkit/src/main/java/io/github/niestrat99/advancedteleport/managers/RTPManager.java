@@ -1,25 +1,30 @@
 package io.github.niestrat99.advancedteleport.managers;
 
-import com.wimbli.WorldBorder.BorderData;
+import com.google.common.collect.Sets;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-
-import static io.github.niestrat99.advancedteleport.CoreClass.worldBorder;
 
 public class RTPManager {
 
     private static HashMap<UUID, Queue<Location>> locQueue;
-    private static HashMap<UUID, Double[]> borderData;
+    private static final HashSet<String> airs = Sets.newHashSet("AIR", "CAVE_AIR", "VOID_AIR");
 
     public static void init() {
         locQueue = new HashMap<>();
-        borderData = new HashMap<>();
+        if (!PaperLib.isPaper()) return;
+        try {
+            getPreviousLocations();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         for (World loadedWorld : Bukkit.getWorlds()) {
             loadWorldData(loadedWorld);
         }
@@ -54,14 +59,16 @@ public class RTPManager {
     }
 
     public static CompletableFuture<Location> addLocation(World world, boolean urgent, int tries) {
+        if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
         tries++;
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             return CompletableFuture.completedFuture(locQueue.get(world.getUID()).poll());
         }
-        int[] coords = getRandomCoords(world);
+        Location location = RandomCoords.generateCoords(world);
+        int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};
         int finalTries = tries;
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
-            Block block = doBinaryJump(world, coords);
+            Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : world.getHighestBlockAt(coords[0], coords[1]);
             if (isValidLocation(block)) {
                 return block.getLocation().add(0.5, 1, 0.5);
             } else if (finalTries < 5 || urgent) {
@@ -70,45 +77,6 @@ public class RTPManager {
                 return null;
             }
         }, CoreClass.async).thenApplyAsync(loc -> loc, CoreClass.sync);
-    }
-
-    private static boolean isValidLocation(Block block) {
-        if (block.getType().name().equals("AIR") || block.getType().name().equals("VOID_AIR")) return false;
-        if (NewConfig.get().AVOID_BIOMES.get().contains(block.getBiome().name())) return false;
-        return !NewConfig.get().AVOID_BLOCKS.get().contains(block.getType().name());
-    }
-
-    public static void loadWorldData(World world) {
-        if (locQueue == null) return;
-        if (NewConfig.get().WHITELIST_WORLD.get() && !NewConfig.get().ALLOWED_WORLDS.get().contains(world.getName())) return;
-        if (world.getGenerator() != null && NewConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
-        if (!locQueue.containsKey(world.getUID())) {
-            for (int i = 0; i < NewConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
-                addLocation(world, false, 0).thenAccept(location -> {
-                    Queue<Location> queue = locQueue.get(world.getUID());
-                    if (queue == null) queue = new ArrayDeque<>();
-                    queue.add(location);
-                    locQueue.put(world.getUID(), queue);
-                });
-            }
-        }
-        if (!borderData.containsKey(world.getUID())) {
-            if (NewConfig.get().USE_WORLD_BORDER.get() && worldBorder != null) {
-                BorderData border = com.wimbli.WorldBorder.Config.Border(world.getName());
-                if (border != null) {
-                    borderData.put(world.getUID(), new Double[]{
-                            border.getX() - border.getRadiusX(),
-                            border.getZ() - border.getRadiusZ(),
-                            border.getX() + border.getRadiusX(),
-                            border.getZ() + border.getRadiusZ()});
-                }
-            }
-        }
-    }
-
-    public static void unloadWorldData(World world) {
-        locQueue.remove(world.getUID());
-        borderData.remove(world.getUID());
     }
 
     private static Block doBinaryJump(World world, int[] coords) {
@@ -161,16 +129,66 @@ public class RTPManager {
         }
     }
 
-    private static int[] getRandomCoords(World world) {
-        Double[] bounds = borderData.getOrDefault(world.getUID(), new Double[]{
-                Double.valueOf(NewConfig.get().MINIMUM_X.get()),
-                Double.valueOf(NewConfig.get().MINIMUM_Z.get()),
-                Double.valueOf(NewConfig.get().MAXIMUM_X.get()),
-                Double.valueOf(NewConfig.get().MAXIMUM_Z.get())});
-        return new int[]{
-                (int) (new Random().nextInt((int)Math.round(bounds[2] - bounds[0]) + 1) + bounds[0]),
-                (int) (new Random().nextInt((int)Math.round(bounds[3] - bounds[1]) + 1) + bounds[1])
-        };
+    private static boolean isValidLocation(Block block) {
+        if (airs.contains(block.getType().name())) return false;
+        if (NewConfig.get().AVOID_BIOMES.get().contains(block.getBiome().name())) return false;
+        return !NewConfig.get().AVOID_BLOCKS.get().contains(block.getType().name());
     }
 
+    public static void loadWorldData(World world) {
+        if (locQueue == null) return;
+        if (NewConfig.get().WHITELIST_WORLD.get() && !NewConfig.get().ALLOWED_WORLDS.get().contains(world.getName())) return;
+        if (world.getGenerator() != null && NewConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
+        int size = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>()).size();
+
+        for (int i = size; i < NewConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
+            addLocation(world, false, 0).thenAccept(location -> {
+                Queue<Location> queue = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>());
+                queue.add(location);
+                locQueue.put(world.getUID(), queue);
+            });
+        }
+    }
+
+    public static void unloadWorldData(World world) {
+        locQueue.remove(world.getUID());
+    }
+
+    public static void getPreviousLocations() throws IOException {
+        File rtpLocsFile = new File(CoreClass.getInstance().getDataFolder(), "rtp-locations.csv");
+        if (!rtpLocsFile.exists()) return;
+        BufferedReader reader = new BufferedReader(new FileReader(rtpLocsFile));
+        String currentLine;
+        while ((currentLine = reader.readLine()) != null) {
+            try {
+                String[] data = currentLine.split(",");
+                UUID worldUUID = UUID.fromString(data[0]);
+                World world = Bukkit.getWorld(worldUUID);
+                double[] loc = new double[]{Double.parseDouble(data[1]), Double.parseDouble(data[2]), Double.parseDouble(data[3])};
+                Queue<Location> queue = locQueue.getOrDefault(worldUUID, new ArrayDeque<>());
+                queue.add(new Location(world, loc[0], loc[1], loc[2]));
+                locQueue.put(worldUUID, queue);
+            } catch (Exception ignored) {
+            }
+        }
+        reader.close();
+        rtpLocsFile.delete();
+    }
+
+    public static void saveLocations() throws IOException {
+        File rtpLocsFile = new File(CoreClass.getInstance().getDataFolder(), "rtp-locations.csv");
+        if (!rtpLocsFile.exists()) rtpLocsFile.createNewFile();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(rtpLocsFile));
+        for (UUID worldUUID : locQueue.keySet()) {
+            Queue<Location> locations = locQueue.get(worldUUID);
+            while (locations.peek() != null) {
+                Location loc = locations.poll();
+                String locLine = worldUUID.toString() +
+                        "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
+                writer.write(locLine);
+                writer.write("\n");
+            }
+        }
+        writer.close();
+    }
 }
