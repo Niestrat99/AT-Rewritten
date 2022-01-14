@@ -46,8 +46,9 @@ public class Tpr implements ATCommand {
             if (sender.hasPermission("at.admin.tpr.other.selector")) {
                 players = new ArrayList<>();
                 for (Entity e : Bukkit.selectEntities(sender, args[1])) {
-                if (e instanceof Player) {
-                    players.add((Player) e);
+                    if (e instanceof Player) {
+                        players.add((Player) e);
+                    }
                 }
             } else {
                 Player player = Bukkit.getPlayer(args[1]);
@@ -85,6 +86,7 @@ public class Tpr implements ATCommand {
             }
             randomTeleport(player, sender, world);
         }
+        return true;
     }
 
     public static boolean randomTeleport(Player player, World world) {
