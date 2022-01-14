@@ -15,8 +15,8 @@ public class ConditionChecker {
     /**
      * Determines whether a player is capable of teleporting to the target player.
      *
-     * @param player the player requesting the teleport
-     * @param target the player being teleported to
+     * @param player  the player requesting the teleport
+     * @param target  the player being teleported to
      * @param command the command being used
      * @return if the string is empty, the player can teleport, otherwise, state why
      */
@@ -28,7 +28,8 @@ public class ConditionChecker {
         // Are you serious rn
         if (target == player) return "Error.requestSentToSelf";
         // If the player can't be seen, check permissions
-        if (!player.hasPermission("at.admin.request-in-vanish") && !target.canSee(player)) return "Error.cantTPToPlayer";
+        if (!player.hasPermission("at.admin.request-in-vanish") && !target.canSee(player))
+            return "Error.cantTPToPlayer";
         // Check if the distance/worlds are a limit
         // if someone removes this for uk and germany that would be great
         String teleportLims = canTeleport(player.getLocation(), target.getLocation(), command, player);
@@ -47,26 +48,23 @@ public class ConditionChecker {
 
     public static String canTeleport(Location fromLoc, Location toLoc, String command, Player teleportingPlayer) {
         // Check if the player is too far away
-        if (NewConfig.get().ENABLE_DISTANCE_LIMITATIONS.get()) {
-            if (!teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")) {
-                if (fromLoc.getWorld() == toLoc.getWorld()) {
-                    if (!DistanceLimiter.canTeleport(toLoc, fromLoc, command)) {
-                        return "Error.tooFarAway";
-                    }
-                }
-            }
+        if (NewConfig.get().ENABLE_DISTANCE_LIMITATIONS.get()
+                && !teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")
+                && fromLoc.getWorld() == toLoc.getWorld()
+                && !DistanceLimiter.canTeleport(toLoc, fromLoc, command)
+        ) {
+            return "Error.tooFarAway";
         }
 
         // Check if the player is able to teleport between/within worlds
-        if (NewConfig.get().ENABLE_TELEPORT_LIMITATIONS.get()) {
-            if (!teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
-                if (!NewConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return "";
-                if (!LimitationsManager.canTeleport(teleportingPlayer, toLoc, command)) {
-                    return "Error.cantTPToWorldLim";
-                }
+        if (NewConfig.get().ENABLE_TELEPORT_LIMITATIONS.get()
+                && !teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")
+        ) {
+            if (!NewConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return "";
+            if (!LimitationsManager.canTeleport(teleportingPlayer, toLoc, command)) {
+                return "Error.cantTPToWorldLim";
             }
         }
-
         return "";
     }
 

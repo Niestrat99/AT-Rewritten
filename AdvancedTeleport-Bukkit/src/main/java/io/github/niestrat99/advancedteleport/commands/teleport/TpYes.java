@@ -15,22 +15,32 @@ public class TpYes implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (sender.hasPermission("at.member.yes")) {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                TPRequest request = TeleportTests.teleportTests(player, args, "tpayes");
-                if (request != null) {
-                    // It's not null, we've already run the tests to make sure it isn't
-                    AcceptRequest.acceptRequest(request);
-                    // If the cooldown is to be applied after the request is accepted, apply it now
-                    if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
-                        CooldownManager.addToCooldown(request.getType() == TPRequest.TeleportType.TPAHERE ? "tpahere" : "tpa", request.getRequester());
-                    }
-                }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.notAPlayer");
+
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+
+        if (!sender.hasPermission("at.member.yes")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        TPRequest request = TeleportTests.teleportTests(player, args, "tpayes");
+        if (request != null) {
+            // It's not null, we've already run the tests to make sure it isn't
+            AcceptRequest.acceptRequest(request);
+            // If the cooldown is to be applied after the request is accepted, apply it now
+            if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
+                CooldownManager.addToCooldown(request.getType() == TPRequest.TeleportType.TPAHERE ? "tpahere" : "tpa", request.getRequester());
             }
         }
+
         return true;
     }
 }

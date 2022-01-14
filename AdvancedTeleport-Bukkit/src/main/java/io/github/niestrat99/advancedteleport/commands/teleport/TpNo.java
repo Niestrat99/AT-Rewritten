@@ -15,29 +15,34 @@ public class TpNo implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            if (sender.hasPermission("at.member.no")) {
-                if (sender instanceof Player) {
-                    Player player = (Player) sender;
-                    TPRequest request = TeleportTests.teleportTests(player, args, "tpano");
-                    if (request != null) {
-                        Player target;
-                        if (args.length > 0) {
-                            target = Bukkit.getPlayer(args[0]);
-                        } else {
-                            target = request.getRequester();
-                        }
-                        CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", "{player}", player.getName());
-                        CustomMessages.sendMessage(player, "Info.requestDeclined");
-                        request.destroy();
-                    }
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
-                }
-            }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
         }
+        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+
+        if (!sender.hasPermission("at.member.no")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        TPRequest request = TeleportTests.teleportTests(player, args, "tpano");
+        if (request != null) {
+            Player target;
+            if (args.length > 0) {
+                target = Bukkit.getPlayer(args[0]);
+            } else {
+                target = request.getRequester();
+            }
+            CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", "{player}", player.getName());
+            CustomMessages.sendMessage(player, "Info.requestDeclined");
+            request.destroy();
+        }
+
         return true;
     }
 }

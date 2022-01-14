@@ -13,21 +13,27 @@ public class TpOff implements AsyncATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-                if (sender.hasPermission("at.member.off")) {
-                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    if (atPlayer.isTeleportationEnabled()) {
-                        atPlayer.setTeleportationEnabled(false, callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
 
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.alreadyOff");
-                    }
-                }
-            }
-        } else {
+        if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+
+        if (!sender.hasPermission("at.member.off")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+        if (atPlayer.isTeleportationEnabled()) {
+            atPlayer.setTeleportationEnabled(false, callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
+        } else {
+            CustomMessages.sendMessage(sender, "Error.alreadyOff");
         }
         return true;
     }

@@ -22,70 +22,70 @@ public class Tpa implements ATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-                if (sender.hasPermission("at.member.tpa")) {
-                    UUID playerUuid = player.getUniqueId();
-                    int cooldown = CooldownManager.secondsLeftOnCooldown("tpa", player);
-                    if (cooldown > 0) {
-                        CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-                        return true;
-                    }
-                    if (MovementManager.getMovement().containsKey(playerUuid)) {
-                        CustomMessages.sendMessage(player, "Error.onCountdown");
-                        return true;
-                    }
-                    if (args.length > 0) {
-                        Player target = Bukkit.getPlayer(args[0]);
-                        String result = ConditionChecker.canTeleport(player, target, "tpa");
-                        if (result.isEmpty()) {
-                            if (PaymentManager.getInstance().canPay("tpa", player)) {
-                                int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        Player player = (Player) sender;
+        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+        if (sender.hasPermission("at.member.tpa")) {
+            UUID playerUuid = player.getUniqueId();
+            int cooldown = CooldownManager.secondsLeftOnCooldown("tpa", player);
+            if (cooldown > 0) {
+                CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+                return true;
+            }
+            if (MovementManager.getMovement().containsKey(playerUuid)) {
+                CustomMessages.sendMessage(player, "Error.onCountdown");
+                return true;
+            }
+            if (args.length == 0) {
+                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                return true;
+            }
+            Player target = Bukkit.getPlayer(args[0]);
+            String result = ConditionChecker.canTeleport(player, target, "tpa");
+            if (!result.isEmpty()) {
+                CustomMessages.sendMessage(player, result, "{player}", args[0], "{world}", target == null ? "<No Such World>" : target.getWorld().getName());
+                return true;
+            }
+            if (PaymentManager.getInstance().canPay("tpa", player)) {
+                int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
 
-                                CustomMessages.sendMessage(sender, "Info.requestSent",
-                                        "{player}", target.getName(),
-                                        "{lifetime}", String.valueOf(requestLifetime));
+                CustomMessages.sendMessage(sender, "Info.requestSent",
+                        "{player}", target.getName(),
+                        "{lifetime}", String.valueOf(requestLifetime));
 
-                                CoreClass.playSound("tpa", "sent", player);
+                CoreClass.playSound("tpa", "sent", player);
 
-                                CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
-                                        "{player}", sender.getName(),
-                                        "{lifetime}", String.valueOf(requestLifetime));
+                CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
+                        "{player}", sender.getName(),
+                        "{lifetime}", String.valueOf(requestLifetime));
 
-                                CoreClass.playSound("tpa", "received", target);
+                CoreClass.playSound("tpa", "received", target);
 
-                                BukkitRunnable run = new BukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                                            CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}", target.getName());
-                                        }
-                                        TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
-                                    }
-                                };
-                                run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20); // 60 seconds
-                                TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA); // Creates a new teleport request.
-                                TPRequest.addRequest(request);
-                                // If the cooldown is to be applied after request, apply it now
-                                if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
-                                    CooldownManager.addToCooldown("tpa", player);
-                                }
-                                return true;
-                            }
-                        } else {
-                            CustomMessages.sendMessage(player, result, "{player}", args[0], "{world}", target == null ? "<No Such World>" :  target.getWorld().getName());
-                            return true;
+                BukkitRunnable run = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                            CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}", target.getName());
                         }
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.noPlayerInput");
-                        return true;
+                        TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
                     }
+                };
+                run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
+                TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPA); // Creates a new teleport request.
+                TPRequest.addRequest(request);
+                // If the cooldown is to be applied after request, apply it now
+                if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+                    CooldownManager.addToCooldown("tpa", player);
                 }
                 return true;
             }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+
         }
         return true;
     }

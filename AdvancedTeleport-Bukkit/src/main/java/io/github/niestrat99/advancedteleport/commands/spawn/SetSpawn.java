@@ -12,31 +12,34 @@ public class SetSpawn implements AsyncATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.get().USE_SPAWN.get()) {
-            if (sender.hasPermission("at.admin.setspawn")){
-                if (sender instanceof Player) {
-                    Player player = (Player) sender;
-                    String name = player.getWorld().getName();
-                    String message = "Info.setSpawn";
-                    if (args.length > 0 && sender.hasPermission("at.admin.setspawn.other")) {
-                        if (!args[0].matches("^[0-9a-zA-Z_\\-]+$")) {
-                            CustomMessages.sendMessage(sender, "Error.nonAlphanumericSpawn");
-                            return false;
-                        }
-                        name = args[0];
-                        message = "Info.setSpawnSpecial";
-                    }
-                    Spawn.get().setSpawn(player.getLocation(), name);
-                    CustomMessages.sendMessage(sender, message, "{spawn}", name);
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
-                }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noPermission");
-            }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
         }
+        if (!NewConfig.get().USE_SPAWN.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+        if (!sender.hasPermission("at.admin.setspawn")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        String name = player.getWorld().getName();
+        String message = "Info.setSpawn";
+        if (args.length > 0 && sender.hasPermission("at.admin.setspawn.other")) {
+            if (!args[0].matches("^[0-9a-zA-Z_\\-]+$")) {
+                CustomMessages.sendMessage(sender, "Error.nonAlphanumericSpawn");
+                return false;
+            }
+            name = args[0];
+            message = "Info.setSpawnSpecial";
+        }
+        Spawn.get().setSpawn(player.getLocation(), name);
+        CustomMessages.sendMessage(sender, message, "{spawn}", name);
+
         return true;
     }
 }

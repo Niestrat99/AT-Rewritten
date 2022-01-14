@@ -17,23 +17,25 @@ public class CoreCommand implements ATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
         SubATCommand help = CommandManager.subcommands.get("help");
-        if (sender.hasPermission("at.member.core")) {
-            if (args.length > 0) {
-                String command = args[0].toLowerCase();
-                if (!CommandManager.subcommands.containsKey(command)) {
-                    help.onCommand(sender, cmd, s, args);
-                    return true;
-                }
-                if (sender.hasPermission("at.member.core." + command)) {
-                    CommandManager.subcommands.get(command).onCommand(sender, cmd, s, Arrays.copyOfRange(args, 1, args.length));
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.noPermission");
-                }
-
-            } else {
-                help.onCommand(sender, cmd, s, args);
-            }
+        if (!sender.hasPermission("at.member.core")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
         }
+        if (args.length == 0) {
+            help.onCommand(sender, cmd, s, args);
+            return true;
+        }
+        String command = args[0].toLowerCase();
+        if (!CommandManager.subcommands.containsKey(command)) {
+            help.onCommand(sender, cmd, s, args);
+            return true;
+        }
+        if (sender.hasPermission("at.member.core." + command)) {
+            CommandManager.subcommands.get(command).onCommand(sender, cmd, s, Arrays.copyOfRange(args, 1, args.length));
+        } else {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+        }
+
         return true;
     }
 

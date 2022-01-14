@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -108,7 +109,7 @@ public class HelpCommand implements SubATCommand {
             sender.sendMessage("Invalid page");
             return true;
         }
-        sender.sendMessage("§b・．§7━━━━━━━━━━━ §8❰ §b§lAdvanced Teleport §7" + page + "/" + commandList.getTotalPages() + " §8❱ §7━━━━━━━━━━━§b．・");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&b・．&7━━━━━━━━━━━ &8❰ §b§lAdvanced Teleport &7" + page + "/" + commandList.getTotalPages() + " &8❱ &7━━━━━━━━━━━&b．・") );
         for (String command : commandList.getContentsInPage(page)) {
             String commandStr = CustomMessages.getStringA("Usages." + command);
             if (sender.hasPermission("at.admin." + command)
@@ -119,7 +120,7 @@ public class HelpCommand implements SubATCommand {
                 }
             }
             String description = CustomMessages.getStringA("Descriptions." + command);
-            sender.sendMessage("§8» §b" + commandStr + " §8~ §7" + description);
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8» &b" + commandStr + " &8~ &7" + description));
         }
         return true;
     }

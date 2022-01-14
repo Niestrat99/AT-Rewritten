@@ -6,11 +6,11 @@ public class PagedLists<T> {
 
     // Util by Thatsmusic99
 
-    private List<T> list;
-    private int pages;
-    private int contents;
+    private final List<T> list;
+    private final int pages;
+    private final int contents;
     private int currentPage;
-    private int contentsPerPage;
+    private final int contentsPerPage;
 
     public PagedLists(List<T> list, int contentsPerPage) {
         if (contentsPerPage < 1) {
