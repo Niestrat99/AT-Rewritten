@@ -252,7 +252,7 @@ public class NewConfig extends CMFile {
         addLenientSection("world-rules");
         addDefault("world-rules.default", "stop-teleportation-within");
         addExample("world-rules.world", "default");
-        addExample("world-rules.world_nether", "stop-teleportation-into!world", "Stops people teleporting into the Nether if they're not coming from \"world\"");
+        addExample("world-rules.world_nether", "stop-teleportation-into!world" /*, "Stops people teleporting into the Nether if they're not coming from \"world\"" */);
 
         addComment("command-rules", "The teleportation rules defined for each AT command.\n" +
                 "Rules include:\n" +

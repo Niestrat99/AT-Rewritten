@@ -188,12 +188,12 @@ public class NBTReader {
         // Double ID: 6
         // String ID: 5
         // Float ID:
-        Method getList = nbtCompound.getClass().getDeclaredMethod("getList", String.class, int.class);
+        Method getList = getAlternativeMethods(new String[]{"getList", "c"}, nbtCompound.getClass(), String.class, int.class);
 
         Object pos = getList.invoke(nbtCompound, "Pos", 6);
         Object rotation = getList.invoke(nbtCompound, "Rotation", 5);
 
-        Method getWorld = nbtCompound.getClass().getDeclaredMethod("getLong", String.class);
+        Method getWorld = getAlternativeMethods(new String[]{"getLong", "i"}, nbtCompound.getClass(), String.class);
 
         long worldUUIDMost = (long) getWorld.invoke(nbtCompound, "WorldUUIDMost");
         long worldUUIDLeast = (long) getWorld.invoke(nbtCompound, "WorldUUIDLeast");
@@ -248,7 +248,7 @@ public class NBTReader {
 
         UUID worldUUID = location.getWorld().getUID();
 
-        Method set = nbtCompound.getClass().getDeclaredMethod("set", String.class, getClass("NBTBase", "nbt."));
+        Method set = getAlternativeMethods(new String[]{"set", "a"}, nbtCompound.getClass(), String.class, getClass("NBTBase", "nbt."));
 
         set.invoke(nbtCompound, "Pos", pos);
         set.invoke(nbtCompound, "Rotation", rot);
@@ -334,6 +334,17 @@ public class NBTReader {
                 Field field = obj.getDeclaredField(fieldName);
                 return field;
             } catch (NoSuchFieldException ignored) {
+            }
+        }
+        return null;
+    }
+
+    private static Method getAlternativeMethods(String[] names, Class<?> target, Class<?>... fields) {
+        for (String name : names) {
+            try {
+                Method method = target.getDeclaredMethod(name, fields);
+                return method;
+            } catch (NoSuchMethodException ignored) {
             }
         }
         return null;
