@@ -125,14 +125,14 @@ public class PurgeCommand implements SubATCommand {
         if (args.length == 1) {
             StringUtil.copyPartialMatches(args[0], Arrays.asList("homes", "warps"), results);
 
-        } else if (args.length == 2 ) {
+        } else if (args.length == 2) {
             StringUtil.copyPartialMatches(args[1], Arrays.asList("player", "world"), results);
 
-        } else if (args.length == 3 ) {
+        } else if (args.length == 3) {
             if (args[1].equalsIgnoreCase("player")) {
                 List<String> players = new ArrayList<>();
                 Bukkit.getOnlinePlayers().forEach(player -> players.add(player.getName()));
-                StringUtil.copyPartialMatches(args[2], players , results);
+                StringUtil.copyPartialMatches(args[2], players, results);
 
             } else if (args[1].equalsIgnoreCase("world")) {
                 List<String> worlds = new ArrayList<>();
