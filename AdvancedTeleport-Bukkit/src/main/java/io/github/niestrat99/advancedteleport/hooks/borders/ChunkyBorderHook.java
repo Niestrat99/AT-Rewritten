@@ -14,7 +14,7 @@ public class ChunkyBorderHook extends BorderPlugin {
 
     @Override
     public boolean canUse(World world) {
-        if (Bukkit.getPluginManager().isPluginEnabled("ChunkyBorder")) return false;
+        if (!Bukkit.getPluginManager().isPluginEnabled("ChunkyBorder")) return false;
         RegisteredServiceProvider<ChunkyBorder> provider = Bukkit.getServer().getServicesManager().getRegistration(ChunkyBorder.class);
         if (provider == null) return false;
         chunkyBorder = provider.getProvider();
