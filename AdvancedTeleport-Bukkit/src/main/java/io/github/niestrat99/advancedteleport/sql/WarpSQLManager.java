@@ -230,7 +230,7 @@ public class WarpSQLManager extends SQLManager {
     public void purgeWarps(UUID creatorID, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE uuid_owner = ?");
+                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE creator_uuid = ?");
                 statement.setString(1, creatorID.toString());
 
                 executeUpdate(statement);
