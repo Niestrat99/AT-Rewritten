@@ -212,12 +212,10 @@ public class WarpSQLManager extends SQLManager {
         });
     }
 
-    public CompletableFuture<Void> purgeWarps(String worldName) {
-        return CompletableFuture.runAsync(() -> {});
+    public void purgeWarps(String worldName, SQLCallback<Void> callback) {
     }
 
-    public CompletableFuture<Void> purgeWarps(UUID creatorID) {
-        return CompletableFuture.runAsync(() -> {});
+    public void purgeWarps(UUID creatorID, SQLCallback<Void> callback) {
     }
 
     public static WarpSQLManager get() {

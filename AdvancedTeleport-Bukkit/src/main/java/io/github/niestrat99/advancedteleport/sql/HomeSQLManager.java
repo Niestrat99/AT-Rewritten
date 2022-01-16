@@ -223,12 +223,21 @@ public class HomeSQLManager extends SQLManager {
         });
     }
 
-    public CompletableFuture<Void> purgeHomes(String worldName) {
-        return CompletableFuture.runAsync(() -> {});
+    public void purgeHomes(String worldName, SQLCallback<Void> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE `world` = ?");
+                statement.setString(1, worldName);
+
+                executeUpdate(statement);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        });
     }
 
-    public CompletableFuture<Void> purgeHomes(UUID owner) {
-        return CompletableFuture.runAsync(() -> {});
+    public void purgeHomes(UUID owner, SQLCallback<Void> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {});
     }
 
     public static HomeSQLManager get() {
