@@ -230,7 +230,7 @@ public class HomeSQLManager extends SQLManager {
                 statement.setString(1, worldName);
 
                 executeUpdate(statement);
-                if (callback != null) callback.onSuccess();
+                if (callback != null) callback.onSuccess(null);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
                 if (callback != null) callback.onFail();
@@ -245,7 +245,7 @@ public class HomeSQLManager extends SQLManager {
                 statement.setString(1, owner.toString());
 
                 executeUpdate(statement);
-                if (callback != null) callback.onSuccess();
+                if (callback != null) callback.onSuccess(null);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
                 if (callback != null) callback.onFail();
