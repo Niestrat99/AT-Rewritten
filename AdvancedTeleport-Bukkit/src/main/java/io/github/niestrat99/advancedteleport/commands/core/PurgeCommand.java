@@ -79,7 +79,7 @@ public class PurgeCommand implements SubATCommand {
         } else if (args[1].equalsIgnoreCase("player")) {
             Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                 OfflinePlayer player = Bukkit.getOfflinePlayer(args[2]);
-                if (player.getName() != null) {
+                if (player.getName() == null) {
                     CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
                     return;
                 }

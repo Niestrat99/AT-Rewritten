@@ -271,11 +271,13 @@ public class CustomMessages extends CMFile {
         addDefault("Descriptions.delhome", "Deletes a home.");
         addDefault("Descriptions.movehome", "Moves a home to a new location.");
         addDefault("Descriptions.setmainhome", "Sets a home at your location or makes an existing one your main home.");
+        addDefault("Descriptions.purge", "Removes all warps or homes for the specified player or world.");
 
         addDefault("Usages.Subcommands.help", "/at help [Category|Page]");
         addDefault("Usages.Subcommands.info", "/at info");
         addDefault("Usages.Subcommands.import", "/at import <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
         addDefault("Usages.Subcommands.export", "/at export <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
+        addDefault("Usages.Subcommands.purge", "/at purge <Homes|Warps> <Player|World> <Player Name|World Name>");
         addDefault("Usages.Subcommands.reload", "/at reload");
         addDefault("Usages.at", "/at <Command>");
         addDefault("Usages.tpa", "/tpa <Player>");

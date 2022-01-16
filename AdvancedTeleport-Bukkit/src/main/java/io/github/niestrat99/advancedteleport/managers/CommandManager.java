@@ -71,6 +71,7 @@ public class CommandManager {
         subcommands.put("reload", new ReloadCommand());
         subcommands.put("info", new InfoCommand());
         subcommands.put("export", new ExportCommand());
+        subcommands.put("purge", new PurgeCommand());
     }
 
     private static void register(String name, ATCommand atCommand) {
