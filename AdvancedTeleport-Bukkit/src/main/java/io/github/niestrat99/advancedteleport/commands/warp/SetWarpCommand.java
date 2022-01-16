@@ -23,7 +23,7 @@ public class SetWarpCommand extends AbstractWarpCommand implements ATCommand {
             return true;
         }
 
-        if (sender.hasPermission("at.admin.setwarp")) {
+        if (!sender.hasPermission("at.admin.setwarp")) {
             CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
