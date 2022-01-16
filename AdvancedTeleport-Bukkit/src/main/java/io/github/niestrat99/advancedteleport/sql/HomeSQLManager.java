@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class HomeSQLManager extends SQLManager {
 
@@ -220,6 +221,14 @@ public class HomeSQLManager extends SQLManager {
                 callback.onFail();
             }
         });
+    }
+
+    public CompletableFuture<Void> purgeHomes(String worldName) {
+        return CompletableFuture.runAsync(() -> {});
+    }
+
+    public CompletableFuture<Void> purgeHomes(UUID owner) {
+        return CompletableFuture.runAsync(() -> {});
     }
 
     public static HomeSQLManager get() {

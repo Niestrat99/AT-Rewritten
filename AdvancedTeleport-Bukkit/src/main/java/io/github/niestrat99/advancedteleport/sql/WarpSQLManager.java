@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class WarpSQLManager extends SQLManager {
 
@@ -209,6 +210,14 @@ public class WarpSQLManager extends SQLManager {
                 exception.printStackTrace();
             }
         });
+    }
+
+    public CompletableFuture<Void> purgeWarps(String worldName) {
+        return CompletableFuture.runAsync(() -> {});
+    }
+
+    public CompletableFuture<Void> purgeWarps(UUID creatorID) {
+        return CompletableFuture.runAsync(() -> {});
     }
 
     public static WarpSQLManager get() {
