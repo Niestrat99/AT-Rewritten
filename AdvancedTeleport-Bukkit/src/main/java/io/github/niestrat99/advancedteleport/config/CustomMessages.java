@@ -118,6 +118,8 @@ public class CustomMessages extends CMFile {
         addDefault("Error.deleteHomeFail", "&b↑ &8» &7The home has been deleted but the data has not been stored successfully. The plugin will try to fix this itself.");
         addDefault("Error.setHomeFail", "&b↑ &8» &7The home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
         addDefault("Error.deleteWarpFail", "&b↑ &8» &7The warp has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.purgeWarpsFail", "&b↑ &8» &7Could not purge warps. Please check the console for more information.");
+        addDefault("Error.purgeHomesFail", "&b↑ &8» &7Could not purge homes. Please check the console for more information.");
         addDefault("Error.homesNotLoaded", "&b↑ &8» &7Homes for this player haven't loaded yet, please wait a little bit (even just a second) before trying this again!");
         addDefault("Error.noOfflineLocation", "&b↑ &8» &7No offline location was found for &b{player}&7!");
         addDefault("Error.failedOfflineTeleport", "&b↑ &8» &7Failed to teleport to offline player &b{player}&7!");
@@ -177,6 +179,10 @@ public class CustomMessages extends CMFile {
         addDefault("Info.setSpawn", "&b↑ &8» &7Successfully set the spawnpoint!");
         addDefault("Info.setWarp", "&b↑ &8» &7Successfully set the warp &b{warp}&7!");
         addDefault("Info.deletedWarp", "&b↑ &8» &7Successfully deleted the warp &b{warp}&7!");
+        addDefault("Info.purgeWarpsWorld", "&b↑ &8» &7Successfully purged warps in &b{world}&7!");
+        addDefault("Info.purgeWarpsCreator", "&b↑ &8» &7Successfully purged warps created by &b{player}&7!");
+        addDefault("Info.purgeHomesWorld", "&b↑ &8» &7Successfully purged homes in &b{world}&7!");
+        addDefault("Info.purgeHomesCreator", "&b↑ &8» &7Successfully purged homes created for &b{player}&7!");
         addDefault("Info.searching", "&b↑ &8» &7Searching for a location...");
         addDefault("Info.unblockPlayer", "&b↑ &8» &7Successfully unblocked &b{player}&7!");
         addDefault("Info.reloadingConfig", "&b↑ &8» &7Reloading &bAdvancedTeleport&7's config...");
@@ -265,11 +271,13 @@ public class CustomMessages extends CMFile {
         addDefault("Descriptions.delhome", "Deletes a home.");
         addDefault("Descriptions.movehome", "Moves a home to a new location.");
         addDefault("Descriptions.setmainhome", "Sets a home at your location or makes an existing one your main home.");
+        addDefault("Descriptions.purge", "Removes all warps or homes for the specified player or world.");
 
         addDefault("Usages.Subcommands.help", "/at help [Category|Page]");
         addDefault("Usages.Subcommands.info", "/at info");
         addDefault("Usages.Subcommands.import", "/at import <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
         addDefault("Usages.Subcommands.export", "/at export <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
+        addDefault("Usages.Subcommands.purge", "/at purge <Homes|Warps> <Player|World> <Player Name|World Name>");
         addDefault("Usages.Subcommands.reload", "/at reload");
         addDefault("Usages.at", "/at <Command>");
         addDefault("Usages.tpa", "/tpa <Player>");

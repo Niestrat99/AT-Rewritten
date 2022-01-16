@@ -60,6 +60,7 @@ public class HelpCommand implements SubATCommand {
                     subcommands.add("export");
                     subcommands.add("info");
                     subcommands.add("reload");
+                    subcommands.add("purge");
                     break;
                 case "homes":
                     commands.add("delhome");

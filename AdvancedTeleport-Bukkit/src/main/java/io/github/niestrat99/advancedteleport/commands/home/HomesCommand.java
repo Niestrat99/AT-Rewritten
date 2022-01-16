@@ -48,8 +48,10 @@ public class HomesCommand implements ATCommand {
                 getHomes(sender, player.getOfflinePlayer());
             });
             return true;
+        } else if (sender instanceof Player) {
+            getHomes(sender, (Player) sender);
         }
-        CustomMessages.sendMessage(sender, "Error.notAPlayer");
+
         return true;
     }
 

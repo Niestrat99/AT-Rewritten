@@ -341,6 +341,10 @@ public class ATPlayer {
         players.remove(player.getName());
     }
 
+    public static boolean isPlayerCached(String name) {
+        return players.containsKey(name.toLowerCase());
+    }
+
     public Location getPreviousLocation() {
         return previousLoc;
     }
