@@ -226,7 +226,7 @@ public class HomeSQLManager extends SQLManager {
     public void purgeHomes(String worldName, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE `world` = ?");
+                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes WHERE world = ?");
                 statement.setString(1, worldName);
 
                 executeUpdate(statement);
