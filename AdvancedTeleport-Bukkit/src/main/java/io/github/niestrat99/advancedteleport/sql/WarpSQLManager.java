@@ -247,7 +247,7 @@ public class WarpSQLManager extends SQLManager {
                 }
                 set.close();
 
-                statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE creator_uuid = ?");
+                statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
                 statement.setString(1, creatorID.toString());
 
                 executeUpdate(statement);
