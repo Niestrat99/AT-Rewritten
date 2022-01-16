@@ -1,9 +1,12 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
+import io.github.niestrat99.advancedteleport.api.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -226,7 +229,19 @@ public class HomeSQLManager extends SQLManager {
     public void purgeHomes(String worldName, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes WHERE world = ?");
+                PreparedStatement statement = prepareStatement(connection, "SELECT uuid_owner, home FROM " + tablePrefix + "_homes WHERE world = ?");
+                statement.setString(1, worldName);
+
+                ResultSet set = statement.executeQuery();
+
+                while (set.next()) {
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(set.getString("uuid_owner")));
+                    if (player.getName() != null && !ATPlayer.isPlayerCached(player.getName())) continue;
+                    ATPlayer.getPlayer(player).removeHome(set.getString("home"), null);
+                }
+                set.close();
+
+                statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes WHERE world = ?");
                 statement.setString(1, worldName);
 
                 executeUpdate(statement);
@@ -241,6 +256,21 @@ public class HomeSQLManager extends SQLManager {
     public void purgeHomes(UUID owner, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
+
+                OfflinePlayer player = Bukkit.getOfflinePlayer(owner);
+                if (player.getName() != null && ATPlayer.isPlayerCached(player.getName())) {
+                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                    PreparedStatement statement = prepareStatement(connection, "SELECT home FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
+                    statement.setString(1, owner.toString());
+
+                    ResultSet set = statement.executeQuery();
+
+                    while (set.next()) {
+                        atPlayer.removeHome(set.getString("home"), null);
+                    }
+                    set.close();
+                }
+
                 PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
                 statement.setString(1, owner.toString());
 

@@ -215,7 +215,16 @@ public class WarpSQLManager extends SQLManager {
     public void purgeWarps(String worldName, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE world = ?");
+                PreparedStatement statement = prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE world = ?");
+                statement.setString(1, worldName);
+
+                ResultSet set = statement.executeQuery();
+                while (set.next()) {
+                    Warp.getWarps().remove(set.getString("warp"));
+                }
+                set.close();
+
+                statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE world = ?");
                 statement.setString(1, worldName);
 
                 executeUpdate(statement);
@@ -230,7 +239,16 @@ public class WarpSQLManager extends SQLManager {
     public void purgeWarps(UUID creatorID, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE creator_uuid = ?");
+                PreparedStatement statement = prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE creator_uuid = ?");
+                statement.setString(1, creatorID.toString());
+
+                ResultSet set = statement.executeQuery();
+                while (set.next()) {
+                    Warp.getWarps().remove(set.getString("warp"));
+                }
+                set.close();
+
+                statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE creator_uuid = ?");
                 statement.setString(1, creatorID.toString());
 
                 executeUpdate(statement);
