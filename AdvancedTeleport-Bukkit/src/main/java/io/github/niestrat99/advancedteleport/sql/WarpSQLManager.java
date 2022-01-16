@@ -213,9 +213,33 @@ public class WarpSQLManager extends SQLManager {
     }
 
     public void purgeWarps(String worldName, SQLCallback<Void> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE world = ?");
+                statement.setString(1, worldName);
+
+                executeUpdate(statement);
+                if (callback != null) callback.onSuccess();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+                if (callback != null) callback.onFail();
+            }
+        });
     }
 
     public void purgeWarps(UUID creatorID, SQLCallback<Void> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE uuid_owner = ?");
+                statement.setString(1, creatorID.toString());
+
+                executeUpdate(statement);
+                if (callback != null) callback.onSuccess();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+                if (callback != null) callback.onFail();
+            }
+        });
     }
 
     public static WarpSQLManager get() {

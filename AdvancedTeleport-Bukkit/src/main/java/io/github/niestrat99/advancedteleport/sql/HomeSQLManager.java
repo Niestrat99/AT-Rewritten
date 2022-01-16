@@ -230,14 +230,27 @@ public class HomeSQLManager extends SQLManager {
                 statement.setString(1, worldName);
 
                 executeUpdate(statement);
+                if (callback != null) callback.onSuccess();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
+                if (callback != null) callback.onFail();
             }
         });
     }
 
     public void purgeHomes(UUID owner, SQLCallback<Void> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {});
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
+                statement.setString(1, owner.toString());
+
+                executeUpdate(statement);
+                if (callback != null) callback.onSuccess();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+                if (callback != null) callback.onFail();
+            }
+        });
     }
 
     public static HomeSQLManager get() {
