@@ -18,7 +18,7 @@ public class DeleteWarpCommand extends AbstractWarpCommand implements AsyncATCom
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        if (sender.hasPermission("at.admin.movewarp")) {
+        if (!sender.hasPermission("at.admin.delwarp")) {
             CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }

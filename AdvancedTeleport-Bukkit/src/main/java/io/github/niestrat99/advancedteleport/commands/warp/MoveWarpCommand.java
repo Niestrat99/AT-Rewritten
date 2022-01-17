@@ -17,7 +17,7 @@ public class MoveWarpCommand extends AbstractWarpCommand {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        if (sender.hasPermission("at.admin.movewarp")) {
+        if (!sender.hasPermission("at.admin.movewarp")) {
             CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
