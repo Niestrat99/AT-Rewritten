@@ -49,7 +49,7 @@ public class CommandManager {
 
         register("home", new HomeCommand());
         register("sethome", new SetHomeCommand());
-        register("delhome", new DelHome());
+        register("delhome", new DelHomeCommand());
         register("homes", new HomesCommand());
         register("movehome", new MoveHomeCommand());
         register("setmainhome", new SetMainHomeCommand());
