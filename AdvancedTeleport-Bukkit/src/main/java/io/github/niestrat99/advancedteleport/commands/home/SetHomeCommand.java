@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -78,8 +79,17 @@ public class SetHomeCommand implements AsyncATCommand {
         ATPlayer atPlayer = ATPlayer.getPlayer(settingPlayer);
 
         if (atPlayer.getHome(homeName) != null) {
-            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "{home}", homeName);
+            if (NewConfig.get().OVERWRITE_SETHOME.get()) {
+                if (!sender.hasPermission("at.member.movehome")) { CustomMessages.sendMessage(sender, "Error.noPermission"); return; }
+                // If the player has permission to do this then hey, congratulations!
+                atPlayer.moveHome(homeName, sender.getLocation(), SQLManager.SQLCallback.getDefaultCallback(sender,
+                        sender.getUniqueId() == player ? "Info.movedHome" : "Info.movedHomeOther",
+                        "Error.moveHomeFail", "{home}", homeName, "{player}", playerName));
+            } else {
+                CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "{home}", homeName);
+            }
             return;
+
         }
 
         atPlayer.addHome(homeName, sender.getLocation(), SQLManager.SQLCallback.getDefaultCallback(sender,

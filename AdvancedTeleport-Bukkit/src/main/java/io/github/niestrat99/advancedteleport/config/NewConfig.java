@@ -76,6 +76,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> ADD_BED_TO_HOMES;
     public ConfigOption<Boolean> DENY_HOMES_IF_OVER_LIMIT;
     public ConfigOption<Boolean> HIDE_HOMES_IF_DENIED;
+    public ConfigOption<Boolean> OVERWRITE_SETHOME;
 
     public ConfigOption<String> TPA_REQUEST_RECEIVED;
     public ConfigOption<String> TPA_REQUEST_SENT;
@@ -318,6 +319,7 @@ public class NewConfig extends CMFile {
                 "For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.");
         addDefault("hide-homes-if-denied", false, "If homes should be hidden from /homes should they be denied access.\n" +
                 "If this is false, they will be greyed out in the /homes list.");
+        addDefault("overwrite-sethome", false, "When enabled, setting homes with a name that already exists in your list gets overwritten.");
 
         addDefault("tpa-request-received", "none", "Notifications/Sounds",
                 "The sound played when a player receives a teleportation (tpa) request.\n" +
