@@ -185,6 +185,7 @@ permissions:
       at.member.home: true
       at.member.homes: true
       at.member.setmainhome: true
+      at.member.movehome: true
       at.member.tpa: true
       at.member.back: true
       at.member.spawn.use-sign: true
@@ -196,6 +197,7 @@ permissions:
       at.member.warps.location: true
       at.member.homes.location: true
       at.member.spawn.*: false
+      at.member.core.*: false
   at.admin.*:
     default: op
     description: Allows access to admin-based commands of the plugin.
@@ -203,23 +205,17 @@ permissions:
       at.admin.tpohere: true
       at.admin.all: true
       at.admin.tpo: true
-      at.admin.help: true
-      at.admin.rtpsign: true
       at.admin.setwarp: true
       at.admin.delwarp: true
-      at.admin.warpsign: true
       at.admin.setspawn: true
       at.admin.setspawn.other: true
       at.admin.removespawn: true
       at.admin.mirrorspawn: true
-      at.admin.spawnsign: true
       at.admin.setmainspawn: true
-      at.admin.reload: true
       at.admin.sethome: true
       at.admin.delhome: true
       at.admin.homes: true
       at.admin.home: true
-      at.admin.info: true
       at.admin.bypass.distance-limit: true
       at.admin.sethome.bypass: true
       at.admin.bypass.teleport-on-join: true
@@ -229,7 +225,7 @@ permissions:
       at.admin.tploc.others: true
       at.admin.bypass.timer: true
       at.admin.bypass.cooldown: true
-      at.admin.request-in-teleport: true
+      at.admin.request-in-vanish: true
       at.admin.sign.spawn.create: true
       at.admin.sign.randomtp.create: true
       at.admin.sign.warp.create: true

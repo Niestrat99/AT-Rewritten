@@ -51,8 +51,8 @@ public class SetMainSpawn implements ATCommand {
 
         Location loc;
         if (!Spawn.get().doesSpawnExist(id)) {
-            if (sender.hasPermission("at.member.setspawn")
-                    && (world || sender.hasPermission("at.member.setspawn.other"))) {
+            if (sender.hasPermission("at.admin.setspawn")
+                    && (world || sender.hasPermission("at.admin.setspawn.other"))) {
                 loc = ((Player) sender).getLocation();
                 Spawn.get().setSpawn(loc, id);
             } else {
