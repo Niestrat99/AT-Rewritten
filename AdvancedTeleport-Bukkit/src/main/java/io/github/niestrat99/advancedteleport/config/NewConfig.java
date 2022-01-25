@@ -564,6 +564,7 @@ public class NewConfig extends CMFile {
         ADD_BED_TO_HOMES = new ConfigOption<>("add-bed-to-homes");
         DENY_HOMES_IF_OVER_LIMIT = new ConfigOption<>("deny-homes-if-over-limit");
         HIDE_HOMES_IF_DENIED = new ConfigOption<>("hide-homes-if-denied");
+        OVERWRITE_SETHOME = new ConfigOption<>("overwrite-sethome");
 
         TPA_REQUEST_RECEIVED = new ConfigOption<>("tpa-request-received");
         TPA_REQUEST_SENT = new ConfigOption<>("tpa-request-sent");
