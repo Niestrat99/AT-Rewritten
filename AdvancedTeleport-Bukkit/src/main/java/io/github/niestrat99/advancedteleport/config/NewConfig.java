@@ -47,6 +47,9 @@ public class NewConfig extends CMFile {
     public ConfigOption<String> USERNAME;
     public ConfigOption<String> PASSWORD;
     public ConfigOption<String> TABLE_PREFIX;
+    public ConfigOption<Boolean> USE_SSL;
+    public ConfigOption<Boolean> AUTO_RECONNECT;
+    public ConfigOption<Boolean> ALLOW_PUBLIC_KEY_RETRIEVAL;
 
     public ConfigOption<Boolean> ENABLE_DISTANCE_LIMITATIONS;
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
@@ -212,6 +215,10 @@ public class NewConfig extends CMFile {
         addDefault("mysql-password", "password", "The password to use when connecting.");
         addDefault("mysql-table-prefix", "advancedtp", "The prefix of all AT tables. \n" +
                 "If you're on Bungee, you may want to add your server's name to the end.");
+        addDefault("use-ssl", false, "Whether or not to connect to the MySQL server using SSL.");
+        addDefault("auto-reconnect", true, "Whether or not the plugin should reconnect to the MySQL server when a connection is closed.");
+        addDefault("allow-public-key-retrieval", false, "Whether or not to enable public key retrieval. \n" +
+                "Please do not enable it without being explicitly told by one of the developers.");
 
         addDefault("enable-distance-limitations", false, "Distance Limitations",
                 "Enables the distance limiter to stop players teleporting over a large distance.\n" +
@@ -533,6 +540,9 @@ public class NewConfig extends CMFile {
         USERNAME = new ConfigOption<>("mysql-username");
         PASSWORD = new ConfigOption<>("mysql-password");
         TABLE_PREFIX = new ConfigOption<>("mysql-table-prefix");
+        USE_SSL = new ConfigOption<>("use-ssl");
+        AUTO_RECONNECT = new ConfigOption<>("auto-reconnect");
+        ALLOW_PUBLIC_KEY_RETRIEVAL = new ConfigOption<>("allow-public-key-retrieval");
 
         ENABLE_DISTANCE_LIMITATIONS = new ConfigOption<>("enable-distance-limitations");
         MAXIMUM_TELEPORT_DISTANCE = new ConfigOption<>("maximum-teleport-distance");
