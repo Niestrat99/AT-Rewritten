@@ -15,11 +15,7 @@ public class DistanceLimiter {
         }
         if (NewConfig.get().ENABLE_DISTANCE_LIMITATIONS.get() && allowedDistance > 0) {
             if (loc1.getWorld() != loc2.getWorld()) return true;
-            // ((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1))^0.5
-            double distance = Math.pow((Math.pow(loc2.getX() - loc1.getX(), 2)
-                    + Math.pow(loc2.getY() - loc1.getY(), 2)
-                    + Math.pow(loc2.getZ() - loc1.getZ(), 2)), 0.5);
-            return distance < allowedDistance;
+            return loc1.distanceSquared(loc2) < allowedDistance * allowedDistance;
         }
         return true;
     }

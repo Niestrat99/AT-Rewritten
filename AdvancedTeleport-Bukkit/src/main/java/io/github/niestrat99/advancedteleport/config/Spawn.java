@@ -77,33 +77,24 @@ public class Spawn extends CMFile {
     public String mirrorSpawn(String from, String to) {
         ConfigurationSection section = getConfig().getConfigurationSection("spawns");
         String mirror = to;
-        if (section != null && section.contains(to)) {
-            ConfigurationSection toSection = section.getConfigurationSection(to);
-            while (true) {
-                if (toSection != null) {
-                    if (toSection.getString("mirror") != null && !toSection.getString("mirror").isEmpty()) {
-                        // honest to god intellij shut up
-                        mirror = toSection.getString("mirror");
-                        toSection = section.getConfigurationSection(mirror);
-                    } else if (toSection.contains("x")
-                            && toSection.contains("y")
-                            && toSection.contains("z")
-                            && toSection.contains("yaw")
-                            && toSection.contains("pitch")) {
-                        set("spawns." + from, null);
-                        set("spawns." + from + ".mirror", mirror);
-                        save(true);
-                        return "Info.mirroredSpawn";
-                    } else {
-                        return "Error.noSuchSpawn";
-                    }
-                } else {
-                    return "Error.noSuchSpawn";
-                }
+        if (!(section != null && section.contains(to))) return "Error.noSuchSpawn";
+        ConfigurationSection toSection = section.getConfigurationSection(to);
+        while (true) {
+            if (toSection == null) return "Error.noSuchSpawn";
+            if (toSection.getString("mirror") != null && !toSection.getString("mirror").isEmpty()) {
+                // honest to god intellij shut up
+                mirror = toSection.getString("mirror");
+                toSection = section.getConfigurationSection(mirror);
+            } else if (toSection.contains("x")
+                    && toSection.contains("y")
+                    && toSection.contains("z")
+                    && toSection.contains("yaw")
+                    && toSection.contains("pitch")) {
+                set("spawns." + from, null);
+                set("spawns." + from + ".mirror", mirror);
+                save(true);
+                return "Info.mirroredSpawn";
             }
-
-        } else {
-            return "Error.noSuchSpawn";
         }
     }
 
@@ -139,7 +130,7 @@ public class Spawn extends CMFile {
                             toSection.getDouble("x"),
                             toSection.getDouble("y"),
                             toSection.getDouble("z"),
-                            (float) toSection.getDouble( "yaw"),
+                            (float) toSection.getDouble("yaw"),
                             (float) toSection.getDouble("pitch"));
                 } else {
                     break;

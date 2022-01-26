@@ -41,7 +41,7 @@ public class CoreClass extends JavaPlugin {
         return ChatColor.translateAlternateColorCodes('&', title);
     }
 
-    private static Economy Vault;
+    private static Economy vault;
     public static WorldBorder worldBorder;
     private static CoreClass Instance;
     private static Permission perms = null;
@@ -58,7 +58,7 @@ public class CoreClass extends JavaPlugin {
     }
 
     public static Economy getVault() {
-        return Vault;
+        return vault;
     }
 
     public static WorldBorder getWorldBorder() {
@@ -73,8 +73,8 @@ public class CoreClass extends JavaPlugin {
         if (rsp == null) {
             return false;
         }
-        Vault = rsp.getProvider();
-        return Vault != null;
+        vault = rsp.getProvider();
+        return vault != null;
     }
 
     private boolean setupPermissions() {
@@ -113,26 +113,22 @@ public class CoreClass extends JavaPlugin {
 
         setupVersion();
         new Metrics(this, 5146);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                // Config.setupDefaults();
-                NBTReader.init();
-                RTPManager.init();
-                if (NewConfig.get().CHECK_FOR_UPDATES.get()) {
-                    updateInfo = UpdateChecker.getUpdate();
-                    if (updateInfo != null) {
-                        getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!");
-                        getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion());
-                        getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + updateInfo[0]);
-                        getLogger().info(ChatColor.AQUA + "Download link: https://www.spigotmc.org/resources/advancedteleport.64139/");
-                    } else {
-                        getLogger().info(ChatColor.AQUA + "Plugin is up to date!");
-                    }
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            NBTReader.init();
+            RTPManager.init();
+            if (NewConfig.get().CHECK_FOR_UPDATES.get()) {
+                updateInfo = UpdateChecker.getUpdate();
+                if (updateInfo != null) {
+                    getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!");
+                    getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "Current version you're using: " + ChatColor.WHITE + getDescription().getVersion());
+                    getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "Latest version available: " + ChatColor.WHITE + updateInfo[0]);
+                    getLogger().info(ChatColor.AQUA + "Download link: https://www.spigotmc.org/resources/advancedteleport.64139/");
+                } else {
+                    getLogger().info(ChatColor.AQUA + "Plugin is up to date!");
                 }
-                TpLoc.a();
             }
-        }.runTaskAsynchronously(this);
+            TpLoc.a();
+        });
     }
 
     @Override

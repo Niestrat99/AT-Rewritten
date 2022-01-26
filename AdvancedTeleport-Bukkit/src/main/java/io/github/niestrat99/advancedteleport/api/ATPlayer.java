@@ -52,6 +52,10 @@ public class ATPlayer {
         this.uuid = uuid;
         if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
             FloodgateApi api = FloodgateApi.getInstance();
+            if (api == null) {
+                CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
+                return;
+            }
             if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
         }
         this.homes = new LinkedHashMap<>();
@@ -337,12 +341,20 @@ public class ATPlayer {
         players.remove(player.getName());
     }
 
+    public static boolean isPlayerCached(String name) {
+        return players.containsKey(name.toLowerCase());
+    }
+
     public Location getPreviousLocation() {
         return previousLoc;
     }
 
     public void setPreviousLocation(Location previousLoc) {
         this.previousLoc = previousLoc;
-        PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
+        if (getPlayer() != null && getPlayer().isOnline()) {
+            PlayerSQLManager.get().setPreviousLocation(getPlayer().getName(), previousLoc, null);
+        } else {
+            PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
+        }
     }
 }

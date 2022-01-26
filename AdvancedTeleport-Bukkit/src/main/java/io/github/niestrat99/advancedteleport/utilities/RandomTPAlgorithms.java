@@ -14,7 +14,7 @@ public class RandomTPAlgorithms {
     // Currently, this is all WIP.
     // In the future, users will be able to choose between different RTP algorithms.
     // By default, this uses the binary search algorithm, of which has yielded the most positive results.
-    private static HashMap<String, Algorithm> algorithms = new HashMap<>();
+    private static final HashMap<String, Algorithm> algorithms = new HashMap<>();
 
     public static void init() {
         algorithms.put("binary", (player, world, callback) -> {

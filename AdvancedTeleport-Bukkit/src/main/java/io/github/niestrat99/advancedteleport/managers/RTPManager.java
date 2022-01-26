@@ -183,7 +183,7 @@ public class RTPManager {
             Queue<Location> locations = locQueue.get(worldUUID);
             while (locations.peek() != null) {
                 Location loc = locations.poll();
-                String locLine = loc.getWorld().getUID() +
+                String locLine = worldUUID.toString() +
                         "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
                 writer.write(locLine);
                 writer.write("\n");

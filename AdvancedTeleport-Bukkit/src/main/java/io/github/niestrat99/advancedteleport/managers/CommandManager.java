@@ -49,7 +49,7 @@ public class CommandManager {
 
         register("home", new HomeCommand());
         register("sethome", new SetHomeCommand());
-        register("delhome", new DelHome());
+        register("delhome", new DelHomeCommand());
         register("homes", new HomesCommand());
         register("movehome", new MoveHomeCommand());
         register("setmainhome", new SetMainHomeCommand());
@@ -71,6 +71,7 @@ public class CommandManager {
         subcommands.put("reload", new ReloadCommand());
         subcommands.put("info", new InfoCommand());
         subcommands.put("export", new ExportCommand());
+        subcommands.put("purge", new PurgeCommand());
     }
 
     private static void register(String name, ATCommand atCommand) {

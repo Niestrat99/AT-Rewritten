@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.popcraft.chunkyborder.BorderData;
 import org.popcraft.chunkyborder.ChunkyBorder;
 
@@ -13,9 +14,12 @@ public class ChunkyBorderHook extends BorderPlugin {
 
     @Override
     public boolean canUse(World world) {
-        chunkyBorder = (ChunkyBorder) Bukkit.getPluginManager().getPlugin("ChunkyBorder");
+        if (!Bukkit.getPluginManager().isPluginEnabled("ChunkyBorder")) return false;
+        RegisteredServiceProvider<ChunkyBorder> provider = Bukkit.getServer().getServicesManager().getRegistration(ChunkyBorder.class);
+        if (provider == null) return false;
+        chunkyBorder = provider.getProvider();
         // Check if it's enabled - player may not have Chunky installed
-        return chunkyBorder != null && chunkyBorder.isEnabled() && chunkyBorder.getBorders().containsKey(world.getName());
+        return chunkyBorder.getBorders().containsKey(world.getName());
     }
 
     @Override

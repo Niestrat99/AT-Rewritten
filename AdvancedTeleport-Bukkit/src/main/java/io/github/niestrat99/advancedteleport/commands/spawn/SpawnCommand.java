@@ -23,34 +23,37 @@ public class SpawnCommand implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (NewConfig.get().USE_SPAWN.get()) {
-            if (sender.hasPermission("at.member.spawn")){
-                if (sender instanceof Player) {
-                    Player player = (Player) sender;
-                    int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
-                    if (cooldown > 0) {
-                        CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-                        return true;
-                    }
-                    if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                        CustomMessages.sendMessage(sender, "Error.onCountdown");
-                        return true;
-                    }
-                    String location = null;
-                    if (args.length > 0 &&
-                            (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
-                        if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
-                            location = args[0];
-                        }
-                    }
-                    spawn(player, location);
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
-                }
-            }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
         }
+        if (!NewConfig.get().USE_SPAWN.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+        if (!sender.hasPermission("at.member.spawn")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
+        if (cooldown > 0) {
+            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            return true;
+        }
+        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+            CustomMessages.sendMessage(sender, "Error.onCountdown");
+            return true;
+        }
+        String location = null;
+        if (args.length > 0 &&
+                (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
+            if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
+                location = args[0];
+            }
+        }
+        spawn(player, location);
         return true;
     }
 
@@ -61,13 +64,10 @@ public class SpawnCommand implements ATCommand {
         } else {
             spawn = Spawn.get().getSpawn(name);
         }
-
-        if (spawn == null) {
+        if (spawn == null)
             spawn = player.getWorld().getSpawnLocation();
-        }
 
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
-
         ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn", NewConfig.get().WARM_UPS.SPAWN.get());
     }
 

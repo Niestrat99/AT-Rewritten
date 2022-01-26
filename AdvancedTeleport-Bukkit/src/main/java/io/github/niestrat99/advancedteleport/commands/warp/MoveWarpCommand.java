@@ -12,28 +12,27 @@ public class MoveWarpCommand extends AbstractWarpCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (sender.hasPermission("at.admin.movewarp")) {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                Location warpLoc = player.getLocation();
-                if (args.length > 0) {
-                    Warp warp = Warp.getWarps().get(args[0]);
-                    if (warp != null) {
-                        warp.setLocation(warpLoc, callback -> CustomMessages.sendMessage(sender, "Info.movedWarp", "{warp}", args[0]));
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.noSuchWarp");
-                    }
 
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.noWarpInput");
-                }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
         }
-
+        if (!sender.hasPermission("at.admin.movewarp")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+        if (args.length == 0) {
+            CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            return true;
+        }
+        Player player = (Player) sender;
+        Location warpLoc = player.getLocation();
+        Warp warp = Warp.getWarps().get(args[0]);
+        if (warp != null) {
+            warp.setLocation(warpLoc, callback -> CustomMessages.sendMessage(sender, "Info.movedWarp", "{warp}", args[0]));
+        } else {
+            CustomMessages.sendMessage(sender, "Error.noSuchWarp");
+        }
         return true;
     }
 
