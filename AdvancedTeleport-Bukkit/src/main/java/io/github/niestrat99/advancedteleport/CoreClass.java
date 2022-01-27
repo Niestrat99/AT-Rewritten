@@ -1,8 +1,8 @@
 package io.github.niestrat99.advancedteleport;
 
 import com.wimbli.WorldBorder.WorldBorder;
-import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
 import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.fanciful.sql.*;
 import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
 import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;

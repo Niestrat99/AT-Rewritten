@@ -1,4 +1,4 @@
-package io.github.niestrat99.advancedteleport.sql;
+package io.github.niestrat99.advancedteleport.fanciful.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;

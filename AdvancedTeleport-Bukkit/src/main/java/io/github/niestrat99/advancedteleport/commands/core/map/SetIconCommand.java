@@ -6,7 +6,7 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
-import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
+import io.github.niestrat99.advancedteleport.fanciful.sql.MetadataSQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

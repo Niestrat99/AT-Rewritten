@@ -8,8 +8,8 @@ import io.github.niestrat99.advancedteleport.api.events.spawn.SwitchMainSpawnEve
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
 import io.github.niestrat99.advancedteleport.config.Spawn;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
-import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import io.github.niestrat99.advancedteleport.fanciful.sql.SQLManager;
+import io.github.niestrat99.advancedteleport.fanciful.sql.WarpSQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;

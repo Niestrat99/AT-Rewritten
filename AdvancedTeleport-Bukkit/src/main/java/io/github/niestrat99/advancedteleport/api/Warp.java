@@ -2,8 +2,8 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
-import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import io.github.niestrat99.advancedteleport.fanciful.sql.SQLManager;
+import io.github.niestrat99.advancedteleport.fanciful.sql.WarpSQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;

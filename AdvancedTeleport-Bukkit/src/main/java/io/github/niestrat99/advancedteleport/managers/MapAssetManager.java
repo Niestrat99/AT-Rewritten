@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
-import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
+import io.github.niestrat99.advancedteleport.fanciful.sql.MetadataSQLManager;
 
 import java.io.File;
 import java.io.FileInputStream;

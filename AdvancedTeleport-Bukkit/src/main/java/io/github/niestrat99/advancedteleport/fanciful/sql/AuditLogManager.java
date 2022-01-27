@@ -1,4 +1,4 @@
-package io.github.niestrat99.advancedteleport.sql;
+package io.github.niestrat99.advancedteleport.fanciful.sql;
 
 public class AuditLogManager extends SQLManager {
 
