@@ -234,7 +234,7 @@ public class HomeSQLManager extends SQLManager {
 
                 while (set.next()) {
                     OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(set.getString("uuid_owner")));
-                    if (player.getName() != null && !ATPlayer.isPlayerCached(player.getName())) continue;
+                    if (player.getName() == null || !ATPlayer.isPlayerCached(player.getName())) continue;
                     ATPlayer.getPlayer(player).removeHome(set.getString("home"), null);
                 }
                 set.close();
