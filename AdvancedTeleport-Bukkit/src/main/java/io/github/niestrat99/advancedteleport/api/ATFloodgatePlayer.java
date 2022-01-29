@@ -65,8 +65,8 @@ public class ATFloodgatePlayer extends ATPlayer {
                 CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid.toString() + " is null, WHY?");
                 return;
             }
-            getPlayer().performCommand(response.getClickedButtonId() == 0 ? "advancedteleport:tpyes " + sender.getName()
-                    : "advancedteleport:tpno " + sender.getName());
+            getPlayer().performCommand(response.getClickedButtonId() == 0 ? "advanedteleport:tpayes " + sender.getName()
+                    : "advancedteleport:tpano " + sender.getName());
         });
 
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
