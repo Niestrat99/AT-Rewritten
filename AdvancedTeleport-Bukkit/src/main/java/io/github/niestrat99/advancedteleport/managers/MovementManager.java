@@ -11,6 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -52,6 +54,10 @@ public class MovementManager implements Listener {
 
     public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, Player payingPlayer, String... placeholders) {
         UUID uuid = teleportingPlayer.getUniqueId();
+        // When this config is enabled the teleporting player will receive a blindness effect until it gets teleported.
+        if (NewConfig.get().BLINDNESS_ON_WARMUP.get()) {
+            teleportingPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, warmUp * 20 + 20, 0, false, false));
+        }
         BukkitRunnable movementtimer = new BukkitRunnable() {
             @Override
             public void run() {

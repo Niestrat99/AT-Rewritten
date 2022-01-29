@@ -31,6 +31,8 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
     public PerCommandOption<Integer> WARM_UPS;
 
+    public ConfigOption<Boolean> BLINDNESS_ON_WARMUP;
+
     public ConfigOption<Integer> COOLDOWN_TIMER_DURATION;
     public ConfigOption<Boolean> ADD_COOLDOWN_DURATION_TO_WARM_UP;
     public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS;
@@ -155,6 +157,8 @@ public class NewConfig extends CMFile {
         addDefault("per-command-warm-ups.spawn", "default", "Warm-up timer for /spawn");
         addDefault("per-command-warm-ups.home", "default", "Warm-up timer for /home");
         addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
+
+        addDefault("blindness-on-warmup", false, "Adds a blindness effect while countdown is playing.");
 
         addDefault("cooldown-duration", 5, "Cooldowns", "How long before the user can use a command again.\n" +
                 "This stops users spamming commands repeatedly.\n" +
@@ -516,6 +520,8 @@ public class NewConfig extends CMFile {
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
         WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
 
+        BLINDNESS_ON_WARMUP = new ConfigOption<>("blindness-on-warmup");
+
         COOLDOWN_TIMER_DURATION = new ConfigOption<>("cooldown-duration");
         ADD_COOLDOWN_DURATION_TO_WARM_UP = new ConfigOption<>("add-cooldown-duration-to-warm-up");
         APPLY_COOLDOWN_TO_ALL_COMMANDS = new ConfigOption<>("apply-cooldown-to-all-commands");
@@ -580,6 +586,8 @@ public class NewConfig extends CMFile {
         TPA_REQUEST_SENT = new ConfigOption<>("tpa-request-sent");
         TPAHERE_REQUEST_RECEIVED = new ConfigOption<>("tpahere-request-received");
         TPAHERE_REQUEST_SENT = new ConfigOption<>("tpahere-request-sent");
+
+        // TODO Place Blindness Effect here
 
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
