@@ -1,6 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -61,9 +63,15 @@ public class Tpa implements ATCommand {
 
                 CoreClass.playSound("tpa", "sent", player);
 
-                CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
-                        "{player}", sender.getName(),
-                        "{lifetime}", String.valueOf(requestLifetime));
+                ATPlayer targetPlayer = ATPlayer.getPlayer(target);
+
+                if (targetPlayer instanceof ATFloodgatePlayer) {
+                    ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPA(player);
+                } else {
+                    CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
+                            "{player}", sender.getName(),
+                            "{lifetime}", String.valueOf(requestLifetime));
+                }
 
                 CoreClass.playSound("tpa", "received", target);
 
