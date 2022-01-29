@@ -38,7 +38,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ATPlayer {
 
-    private UUID uuid;
+    protected UUID uuid;
     @NotNull
     private LinkedHashMap<String, Home> homes;
     @NotNull
@@ -691,8 +691,9 @@ public class ATPlayer {
     @NotNull
     public static ATPlayer getPlayer(@NotNull Player player) {
         Objects.requireNonNull(player, "Player must not be null.");
-        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) :
-                new ATPlayer(player);
+        if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
+        if (FloodgateApi.getInstance().isFloodgateId(player.getUniqueId())) return new ATFloodgatePlayer(player);
+        return new ATPlayer(player);
     }
 
     /**

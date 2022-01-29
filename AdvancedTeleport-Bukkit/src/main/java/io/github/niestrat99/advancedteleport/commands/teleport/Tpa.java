@@ -5,6 +5,8 @@ import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportRequestEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
@@ -60,9 +62,15 @@ public class Tpa extends TeleportATCommand {
 
                         CoreClass.playSound("tpa", "sent", player);
 
-                        CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
-                                "{player}", sender.getName(),
-                                "{lifetime}", String.valueOf(requestLifetime));
+                        ATPlayer targetPlayer = ATPlayer.getPlayer(target);
+
+                        if (targetPlayer instanceof ATFloodgatePlayer) {
+                            ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPA(player);
+                        } else {
+                            CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
+                                    "{player}", sender.getName(),
+                                    "{lifetime}", String.valueOf(requestLifetime));
+                        }
 
                         CoreClass.playSound("tpa", "received", target);
 
