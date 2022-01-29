@@ -8,21 +8,26 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SpawnCommand implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        List<Player> players;
+
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
@@ -34,6 +39,41 @@ public class SpawnCommand implements ATCommand {
         if (!sender.hasPermission("at.member.spawn")) {
             CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
+        }
+
+        if (args.length > 1 && sender.hasPermission("at.admin.spawn.other")) {
+            if (sender.hasPermission("at.admin.spawn.other.selector")) {
+                players = new ArrayList<>();
+                for (Entity e : Bukkit.selectEntities(sender, args[1])) {
+                    if (e instanceof Player) {
+                        players.add((Player) e);
+                    }
+                }
+            } else {
+                Player player = Bukkit.getPlayer(args[1]);
+                if (player == null) {
+                    CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                    return true;
+                }
+                players = Collections.singletonList(player);
+            }
+            if (players.isEmpty()) {
+                CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                return true;
+            }
+        } else if (sender instanceof Player) {
+            players = Collections.singletonList((Player) sender);
+        } else {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+
+        for (Player player : players) {
+            if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+                CustomMessages.sendMessage(sender,"Erorr.onCountdown");
+                continue;
+            }
+            
         }
 
         Player player = (Player) sender;

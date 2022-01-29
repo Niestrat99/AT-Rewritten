@@ -42,6 +42,7 @@ public class Tpr implements ATCommand {
             CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
+
         if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
             if (sender.hasPermission("at.admin.tpr.other.selector")) {
                 players = new ArrayList<>();
