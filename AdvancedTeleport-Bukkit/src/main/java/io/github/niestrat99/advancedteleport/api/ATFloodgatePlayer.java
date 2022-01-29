@@ -1,9 +1,12 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.CustomForm;
 import org.geysermc.cumulus.SimpleForm;
+import org.geysermc.cumulus.response.CustomFormResponse;
+import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +16,7 @@ import java.util.UUID;
 
 public class ATFloodgatePlayer extends ATPlayer {
 
-    private UUID floodgateUuid;
+    private final UUID floodgateUuid;
 
     public ATFloodgatePlayer(Player player) {
         super(player);
@@ -36,6 +39,16 @@ public class ATFloodgatePlayer extends ATPlayer {
                 .dropdown("Select a player to TPA to.", players.toArray(new String[0]))
                 .build();
 
+        form.setResponseHandler(responseData -> {
+            CustomFormResponse response = form.parseResponse(responseData);
+            if (getPlayer() == null) {
+                CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid.toString() + " is null, WHY?");
+                return;
+            }
+
+
+        });
+
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
 
@@ -46,6 +59,16 @@ public class ATFloodgatePlayer extends ATPlayer {
                 .button("Accept")
                 .button("Deny")
                 .build();
+
+        form.setResponseHandler(responseData -> {
+            SimpleFormResponse response = form.parseResponse(responseData);
+            if (getPlayer() == null) {
+                CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid.toString() + " is null, WHY?");
+                return;
+            }
+            getPlayer().performCommand(response.getClickedButtonId() == 0 ? "advanedteleport:tpayes " + sender.getName()
+                    : "advancedteleport:tpano " + sender.getName());
+        });
 
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
