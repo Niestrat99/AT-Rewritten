@@ -307,7 +307,7 @@ public class ATPlayer {
     @NotNull
     public static ATPlayer getPlayer(Player player) {
         if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
-        if (FloodgateApi.getInstance().isFloodgateId(player.getUniqueId())) return new ATFloodgatePlayer(player);
+        if (FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) return new ATFloodgatePlayer(player);
         return new ATPlayer(player);
     }
 

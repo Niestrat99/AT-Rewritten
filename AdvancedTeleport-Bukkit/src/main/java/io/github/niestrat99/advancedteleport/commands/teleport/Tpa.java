@@ -45,7 +45,12 @@ public class Tpa implements ATCommand {
                 return true;
             }
             if (args.length == 0) {
-                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                if (atPlayer instanceof ATFloodgatePlayer) {
+                    ((ATFloodgatePlayer) atPlayer).sendTPAForm();
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                }
                 return true;
             }
             Player target = Bukkit.getPlayer(args[0]);

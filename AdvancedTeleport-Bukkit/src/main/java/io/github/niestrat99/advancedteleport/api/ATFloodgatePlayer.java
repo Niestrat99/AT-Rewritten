@@ -46,7 +46,10 @@ public class ATFloodgatePlayer extends ATPlayer {
                 return;
             }
 
+            int index = response.getDropdown(0);
+            String player = players.get(index);
 
+            getPlayer().performCommand("advancedteleport:tpa " + player);
         });
 
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
@@ -66,8 +69,8 @@ public class ATFloodgatePlayer extends ATPlayer {
                 CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid.toString() + " is null, WHY?");
                 return;
             }
-            getPlayer().performCommand(response.getClickedButtonId() == 0 ? "advanedteleport:tpayes " + sender.getName()
-                    : "advancedteleport:tpano " + sender.getName());
+            getPlayer().performCommand(response.getClickedButtonId() == 0 ? "advancedteleport:tpyes " + sender.getName()
+                    : "advancedteleport:tpno " + sender.getName());
         });
 
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
@@ -80,6 +83,16 @@ public class ATFloodgatePlayer extends ATPlayer {
                 .button("Accept")
                 .button("Deny")
                 .build();
+
+        form.setResponseHandler(responseData -> {
+            SimpleFormResponse response = form.parseResponse(responseData);
+            if (getPlayer() == null) {
+                CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid.toString() + " is null, WHY?");
+                return;
+            }
+            getPlayer().performCommand(response.getClickedButtonId() == 0 ? "advancedteleport:tpyes " + sender.getName()
+                    : "advancedteleport:tpno " + sender.getName());
+        });
 
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
