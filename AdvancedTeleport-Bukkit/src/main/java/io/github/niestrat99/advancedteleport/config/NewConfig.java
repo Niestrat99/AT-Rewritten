@@ -67,6 +67,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Integer> MINIMUM_Z;
     public ConfigOption<Boolean> RAPID_RESPONSE;
     public ConfigOption<Boolean> USE_VANILLA_BORDER;
+    public ConfigOption<Boolean> USE_PLUGIN_BORDERS;
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> IGNORE_WORLD_GENS;
     public ConfigOption<List<String>> AVOID_BLOCKS;
@@ -289,8 +290,9 @@ public class NewConfig extends CMFile {
                 "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.\n" +
                 "This feature allows you to use the \"tpr\" death option in the death management section further down.\n" +
                 "IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.");
-        addDefault("use-vanilla-border", false, "Whether the plugin should use the Vanilla world border as a viable option for managing /tpr boundaries.\n" +
-                "The plugin automatically hooks into WorldBorder and ChunkyBorder.");
+        addDefault("use-vanilla-border", false, "Whether the plugin should use the Vanilla world border as a viable option for managing /tpr boundaries.");
+        addDefault("use-plugin-borders", true, "Whether the plugin should use plugin world borders for managing /tpr boundaries.\n" +
+                "Currently supported plugins are WorldBorder and ChunkyBorder.");
         addDefault("prepared-locations-limit", 3, "How many locations can be prepared per world when using AT's Rapid Response system.\n" +
                 "These are immediately prepared upon startup and when a world is loaded.");
         addDefault("ignore-world-generators", new ArrayList<>(Arrays.asList(
@@ -562,6 +564,7 @@ public class NewConfig extends CMFile {
         MINIMUM_Z = new ConfigOption<>("minimum-z");
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
         USE_VANILLA_BORDER = new ConfigOption<>("use-vanilla-border");
+        USE_PLUGIN_BORDERS = new ConfigOption<>("use-plugin-borders");
         PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
         IGNORE_WORLD_GENS = new ConfigOption<>("ignore-world-generators");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");

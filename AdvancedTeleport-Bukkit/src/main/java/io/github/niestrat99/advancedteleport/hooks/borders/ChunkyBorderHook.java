@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.hooks.borders;
 
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,6 +15,7 @@ public class ChunkyBorderHook extends BorderPlugin {
 
     @Override
     public boolean canUse(World world) {
+        if (!NewConfig.get().USE_PLUGIN_BORDERS.get()) return false;
         if (!Bukkit.getPluginManager().isPluginEnabled("ChunkyBorder")) return false;
         RegisteredServiceProvider<ChunkyBorder> provider = Bukkit.getServer().getServicesManager().getRegistration(ChunkyBorder.class);
         if (provider == null) return false;
