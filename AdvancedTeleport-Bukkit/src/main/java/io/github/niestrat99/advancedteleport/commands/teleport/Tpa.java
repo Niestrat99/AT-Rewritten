@@ -1,18 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-<<<<<<< HEAD
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportRequestEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-=======
-import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
-import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
->>>>>>> d94601f (Implemented form for tpa requests)
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
@@ -79,7 +73,6 @@ public class Tpa extends TeleportATCommand {
 
            CoreClass.playSound("tpa", "sent", player);
 
-<<<<<<< HEAD
             ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
             if (targetPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
@@ -89,17 +82,6 @@ public class Tpa extends TeleportATCommand {
                         "{player}", sender.getName(),
                         "{lifetime}", String.valueOf(requestLifetime));
             }
-=======
-                ATPlayer targetPlayer = ATPlayer.getPlayer(target);
-
-                if (targetPlayer instanceof ATFloodgatePlayer) {
-                    ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPA(player);
-                } else {
-                    CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
-                            "{player}", sender.getName(),
-                            "{lifetime}", String.valueOf(requestLifetime));
-                }
->>>>>>> d94601f (Implemented form for tpa requests)
 
             CoreClass.playSound("tpa", "received", target);
 

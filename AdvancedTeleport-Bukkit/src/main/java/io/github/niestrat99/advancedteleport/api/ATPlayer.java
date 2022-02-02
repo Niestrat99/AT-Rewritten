@@ -704,7 +704,6 @@ public class ATPlayer {
      * @throws NullPointerException if the player is null.
      */
     @NotNull
-<<<<<<< HEAD
     public static ATPlayer getPlayer(@NotNull Player player) {
         Objects.requireNonNull(player, "Player must not be null.");
         if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
@@ -716,11 +715,6 @@ public class ATPlayer {
             }
             if (api.isFloodgateId(player.getUniqueId())) return new ATFloodgatePlayer(player);
         }
-=======
-    public static ATPlayer getPlayer(Player player) {
-        if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
-        if (FloodgateApi.getInstance().isFloodgateId(player.getUniqueId())) return new ATFloodgatePlayer(player);
->>>>>>> d94601f (Implemented form for tpa requests)
         return new ATPlayer(player);
     }
 
