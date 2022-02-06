@@ -31,6 +31,8 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
     public PerCommandOption<Integer> WARM_UPS;
 
+    public ConfigOption<Boolean> BLINDNESS_ON_WARMUP;
+
     public ConfigOption<Integer> COOLDOWN_TIMER_DURATION;
     public ConfigOption<Boolean> ADD_COOLDOWN_DURATION_TO_WARM_UP;
     public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS;
@@ -156,6 +158,8 @@ public class NewConfig extends CMFile {
         addDefault("per-command-warm-ups.spawn", "default", "Warm-up timer for /spawn");
         addDefault("per-command-warm-ups.home", "default", "Warm-up timer for /home");
         addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
+
+        addDefault("blindness-on-warmup", false, "Gives the teleporting player a blindness effect whilst waiting to teleport.");
 
         addDefault("cooldown-duration", 5, "Cooldowns", "How long before the user can use a command again.\n" +
                 "This stops users spamming commands repeatedly.\n" +
@@ -517,6 +521,8 @@ public class NewConfig extends CMFile {
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
         WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
+
+        BLINDNESS_ON_WARMUP = new ConfigOption<>("blindness-on-warmup");
 
         COOLDOWN_TIMER_DURATION = new ConfigOption<>("cooldown-duration");
         ADD_COOLDOWN_DURATION_TO_WARM_UP = new ConfigOption<>("add-cooldown-duration-to-warm-up");
