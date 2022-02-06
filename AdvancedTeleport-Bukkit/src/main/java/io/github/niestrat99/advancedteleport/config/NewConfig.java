@@ -158,7 +158,7 @@ public class NewConfig extends CMFile {
         addDefault("per-command-warm-ups.home", "default", "Warm-up timer for /home");
         addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
 
-        addDefault("blindness-on-warmup", false, "Adds a blindness effect while countdown is playing.");
+        addDefault("blindness-on-warmup", false, "Gives the teleporting player a blindness effect whilst waiting to teleport.");
 
         addDefault("cooldown-duration", 5, "Cooldowns", "How long before the user can use a command again.\n" +
                 "This stops users spamming commands repeatedly.\n" +
@@ -586,8 +586,6 @@ public class NewConfig extends CMFile {
         TPA_REQUEST_SENT = new ConfigOption<>("tpa-request-sent");
         TPAHERE_REQUEST_RECEIVED = new ConfigOption<>("tpahere-request-received");
         TPAHERE_REQUEST_SENT = new ConfigOption<>("tpahere-request-sent");
-
-        // TODO Place Blindness Effect here
 
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
