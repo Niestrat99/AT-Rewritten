@@ -111,6 +111,7 @@ public class CommandManager {
                 // Let another plugin take over
                 Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                     Iterator<String> commandIterator = commands.keySet().iterator();
+                    HashMap<String, Command> pendingChanges = new HashMap<>();
                     // Ignore warning, can yield CME
                     while (commandIterator.hasNext()) {
                         String otherCmd = commandIterator.next();
@@ -118,10 +119,12 @@ public class CommandManager {
                         if (parts.length < 2) continue;
                         if (parts[1].equals(alias)) {
                             if (parts[0].equals("advancedteleport")) continue;
-                            commands.put(alias, commands.get(otherCmd));
+                            pendingChanges.put(alias, commands.get(otherCmd));
                             break;
                         }
                     }
+
+                    commands.putAll(pendingChanges);
                 });
             }
             return;
