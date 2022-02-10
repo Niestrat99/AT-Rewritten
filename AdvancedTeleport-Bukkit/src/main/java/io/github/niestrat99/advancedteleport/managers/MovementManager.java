@@ -31,7 +31,7 @@ public class MovementManager implements Listener {
             Location locFrom = event.getFrom();
             if (locTo.getBlockX() == locFrom.getBlockX() // If the player rotated instead of moved
                     && locTo.getBlockY() == locFrom.getBlockY()
-                    && locTo.getBlockZ() == locTo.getBlockZ()) {
+                    && locTo.getBlockZ() == locFrom.getBlockZ()) {
                 return;
             }
         }
