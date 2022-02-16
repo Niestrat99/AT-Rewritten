@@ -96,58 +96,71 @@ public class TeleportTrackingManager implements Listener {
             if (atPlayer.getPreviousLocation().getWorld() == null) return;
             ConfigurationSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
             String spawnCommand = deathManagement.getString(atPlayer.getPreviousLocation().getWorld().getName());
-
-            if (spawnCommand == null || spawnCommand.equals("{default}")) {
-                spawnCommand = deathManagement.getString("default");
-                if (spawnCommand == null) return;
-            }
-            if (spawnCommand.startsWith("tpr") && NewConfig.get().RAPID_RESPONSE.get()) {
-                World world = atPlayer.getPreviousLocation().getWorld();
-                if (spawnCommand.indexOf(':') != -1) {
-                    String worldStr = spawnCommand.substring(spawnCommand.indexOf(':'));
-                    if (!worldStr.isEmpty()) {
-                        world = Bukkit.getWorld(worldStr);
-                    }
-                }
-                if (world != null) {
-                    Location loc = RTPManager.getLocationUrgently(world);
-                    if (loc != null) {
-                        e.setRespawnLocation(loc);
-                        return;
-                    }
-                }
+            if (spawnCommand == null) return;
+            for (String command : spawnCommand.split(";")) {
+                if (handleSpawn(e, command)) break;
             }
 
-            switch (spawnCommand) {
-                case "spawn":
-                    Location spawn = Spawn.get().getSpawn(e.getPlayer());
-                    if (spawn != null) {
-                        e.setRespawnLocation(spawn);
-                    }
-                    break;
-                case "bed":
-                    if (!e.isBedSpawn() && e.getPlayer().getBedSpawnLocation() != null) {
-                        e.setRespawnLocation(e.getPlayer().getBedSpawnLocation());
-                    }
-                    break;
-                case "anchor":
-                    // Vanilla just handles that
-                    break;
-                default:
-                    if (spawnCommand.startsWith("warp:")) {
-                        try {
-                            String warp = spawnCommand.split(":")[1];
-                            if (Warp.getWarps().containsKey(warp)) {
-                                e.setRespawnLocation(Warp.getWarps().get(warp).getLocation());
-                            } else {
-                                CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + atPlayer.getPreviousLocation().getWorld());
-                            }
-                        } catch (IndexOutOfBoundsException ex) {
-                            CoreClass.getInstance().getLogger().warning("Malformed warp name for death in " + atPlayer.getPreviousLocation().getWorld());
-                        }
-                    }
+        }
+    }
+
+    private static boolean handleSpawn(PlayerRespawnEvent e, String spawnCommand) {
+        ATPlayer atPlayer = ATPlayer.getPlayer(e.getPlayer());
+        ConfigurationSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
+        if (spawnCommand.equals("{default}")) {
+            spawnCommand = deathManagement.getString("default");
+            if (spawnCommand == null) return false;
+        }
+        if (spawnCommand.startsWith("tpr") && NewConfig.get().RAPID_RESPONSE.get()) {
+            World world = atPlayer.getPreviousLocation().getWorld();
+            if (spawnCommand.indexOf(':') != -1) {
+                String worldStr = spawnCommand.substring(spawnCommand.indexOf(':'));
+                if (!worldStr.isEmpty()) {
+                    world = Bukkit.getWorld(worldStr);
+                }
+            }
+            if (world != null) {
+                Location loc = RTPManager.getLocationUrgently(world);
+                if (loc != null) {
+                    e.setRespawnLocation(loc);
+                    return true;
+                }
             }
         }
+
+        switch (spawnCommand) {
+            case "spawn":
+                Location spawn = Spawn.get().getSpawn(e.getPlayer());
+                if (spawn != null) {
+                    e.setRespawnLocation(spawn);
+                    return true;
+                }
+                break;
+            case "bed":
+                if (!e.isBedSpawn() && e.getPlayer().getBedSpawnLocation() != null) {
+                    e.setRespawnLocation(e.getPlayer().getBedSpawnLocation());
+                    return true;
+                }
+                break;
+            case "anchor":
+                // Vanilla just handles that
+                break;
+            default:
+                if (spawnCommand.startsWith("warp:")) {
+                    try {
+                        String warp = spawnCommand.split(":")[1];
+                        if (Warp.getWarps().containsKey(warp)) {
+                            e.setRespawnLocation(Warp.getWarps().get(warp).getLocation());
+                            return true;
+                        } else {
+                            CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + atPlayer.getPreviousLocation().getWorld());
+                        }
+                    } catch (IndexOutOfBoundsException ex) {
+                        CoreClass.getInstance().getLogger().warning("Malformed warp name for death in " + atPlayer.getPreviousLocation().getWorld());
+                    }
+                }
+        }
+        return false;
     }
 
     public static Location getLastLocation(UUID uuid) {
