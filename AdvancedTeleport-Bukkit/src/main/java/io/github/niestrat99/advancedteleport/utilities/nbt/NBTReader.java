@@ -49,8 +49,7 @@ public class NBTReader {
         File dataFile = getPlayerFile(uuid);
 
         if (dataFile == null) return null;
-        CoreClass.getInstance().getLogger().info("Reading " + dataFile.getPath() + "...");
-        CompoundBinaryTag tag = BinaryTagIO.reader().read(dataFile.toPath());
+        CompoundBinaryTag tag = BinaryTagIO.reader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
         ListBinaryTag posTag = tag.getList("Pos");
         ListBinaryTag rotTag = tag.getList("Rotation");
         long worldUUIDMost = tag.getLong("WorldUUIDMost");
@@ -90,7 +89,7 @@ public class NBTReader {
         File dataFile = getPlayerFile(uuid);
 
         if (dataFile == null) return;
-        CompoundBinaryTag tag = BinaryTagIO.reader().read(dataFile.toPath());
+        CompoundBinaryTag tag = BinaryTagIO.reader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
         ListBinaryTag posTag = ListBinaryTag.empty();
         posTag.add(DoubleBinaryTag.of(location.getX()));
         posTag.add(DoubleBinaryTag.of(location.getY()));
