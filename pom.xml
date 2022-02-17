@@ -42,6 +42,7 @@
                         <includes>
                             <include>io.papermc:paperlib</include>
                             <include>com.github.thatsmusic99:ConfigurationMaster</include>
+                            <include>net.kyori:adventure-nbt</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -124,6 +125,14 @@
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
             <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Adventure NBT Dependency -->
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-nbt</artifactId>
+            <version>4.9.3</version>
             <scope>compile</scope>
         </dependency>
 

@@ -114,7 +114,6 @@ public class CoreClass extends JavaPlugin {
         setupVersion();
         new Metrics(this, 5146);
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            NBTReader.init();
             RTPManager.init();
             if (NewConfig.get().CHECK_FOR_UPDATES.get()) {
                 updateInfo = UpdateChecker.getUpdate();
