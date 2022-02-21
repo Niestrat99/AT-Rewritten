@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
@@ -57,6 +58,12 @@ public class HomesCommand implements ATCommand {
 
     private void getHomes(CommandSender sender, OfflinePlayer target) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
+
+        if (atPlayer instanceof ATFloodgatePlayer) {
+            ((ATFloodgatePlayer) atPlayer).sendHomeForm();
+            return;
+        }
+
         FancyMessage hList = new FancyMessage();
 
         String infoPath = "Info.homes";

@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
@@ -75,7 +76,11 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
             } else if (homes.isEmpty()) {
                 CustomMessages.sendMessage(sender, "Error.noHomes");
             } else {
-                CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                if (atPlayer instanceof ATFloodgatePlayer) {
+                    ((ATFloodgatePlayer) atPlayer).sendHomeForm();
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                }
             }
             return true;
         }
