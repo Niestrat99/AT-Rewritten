@@ -23,7 +23,7 @@ public class ATFloodgatePlayer extends ATPlayer {
         floodgateUuid = FloodgateApi.getInstance().getPlayer(player.getUniqueId()).getCorrectUniqueId();
     }
 
-    public void sendTPAForm() {
+    public void sendTPAForm(boolean here) {
         List<String> players = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player == getPlayer()) continue;
@@ -36,7 +36,7 @@ public class ATFloodgatePlayer extends ATPlayer {
 
         CustomForm form = CustomForm.builder()
                 .title("TPA Request")
-                .dropdown("Select a player to TPA to.", players.toArray(new String[0]))
+                .dropdown("Select a player to send a TPA request to.", players.toArray(new String[0]))
                 .build();
 
         form.setResponseHandler(responseData -> {
@@ -49,7 +49,7 @@ public class ATFloodgatePlayer extends ATPlayer {
             int index = response.getDropdown(0);
             String player = players.get(index);
 
-            getPlayer().performCommand("advancedteleport:tpa " + player);
+            getPlayer().performCommand((here ? "advancedteleport:tpa " : "advancedteleport:tpahere ") + player);
         });
 
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);

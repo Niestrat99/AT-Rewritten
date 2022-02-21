@@ -5,6 +5,9 @@ import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportRequestEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
@@ -26,42 +29,52 @@ public class TpaHere extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            UUID playerUuid = player.getUniqueId();
-            int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
-            if (cooldown > 0) {
-                CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-                return true;
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        Player player = (Player) sender;
+        UUID playerUuid = player.getUniqueId();
+        int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
+        if (cooldown > 0) {
+            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            return true;
+        }
+        if (MovementManager.getMovement().containsKey(playerUuid)) {
+            CustomMessages.sendMessage(player, "Error.onCountdown");
+            return true;
+        }
+        if (args.length == 0) {
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) atPlayer).sendTPAForm(true);
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
             }
-            if (MovementManager.getMovement().containsKey(playerUuid)) {
-                CustomMessages.sendMessage(player, "Error.onCountdown");
-                return true;
+            return true;
+        }
+        Player target = Bukkit.getPlayer(args[0]);
+        String result = ConditionChecker.canTeleport(player, target, "tpahere");
+        if (!result.isEmpty()) {
+            CustomMessages.sendMessage(player, result, "{player}", args[0], "{world}", target == null ? "<No Such World>" : target.getWorld().getName());
+            return true;
+        }
+        if (PaymentManager.getInstance().canPay("tpahere", player)) {
+            int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
+            CustomMessages.sendMessage(sender, "Info.requestSent",
+                    "{player}", target.getName(), "{lifetime}", String.valueOf(requestLifetime));
+            CoreClass.playSound("tpahere", "sent", player);
+            ATPlayer targetPlayer = ATPlayer.getPlayer(target);
+
+            if (targetPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPAHere(player);
+            } else {
+                CustomMessages.sendMessage(target, "Info.tpaRequestHere",
+                        "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
             }
-            if (args.length > 0) {
-                Player target = Bukkit.getPlayer(args[0]);
-                String result = ConditionChecker.canTeleport(player, target, "tpahere");
-                if (result.isEmpty()) {
-                    assert target != null;
-                    if (PaymentManager.getInstance().canPay("tpahere", player)) {
 
-                        TeleportRequestEvent event = new TeleportRequestEvent(target, player, TeleportRequestType.TPAHERE);
-                        Bukkit.getPluginManager().callEvent(event);
-                        if (event.isCancelled()) {
-                            // Cannot send request
-                            return true;
-                        }
 
-                        int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
-                        CustomMessages.sendMessage(sender, "Info.requestSent",
-                                "{player}", target.getName(), "{lifetime}", String.valueOf(requestLifetime));
-
-                        CoreClass.playSound("tpahere", "sent", player);
-
-                        CustomMessages.sendMessage(target, "Info.tpaRequestHere",
-                                "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
-
-                        CoreClass.playSound("tpahere", "received", target);
+            CoreClass.playSound("tpahere", "received", target);
 
                         BukkitRunnable run = new BukkitRunnable() {
                             @Override
@@ -84,18 +97,6 @@ public class TpaHere extends TeleportATCommand {
                             CooldownManager.addToCooldown("tpahere", player);
                         }
                         return true;
-                    }
-                } else {
-                    CustomMessages.sendMessage(player, result, "{player}", args[0], "{world}", target == null ? "<No " +
-                            "Such World>" : target.getWorld().getName());
-                    return true;
-                }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
-                return true;
-            }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
         return true;
     }
