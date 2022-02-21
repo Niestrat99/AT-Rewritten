@@ -1,6 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -46,7 +48,12 @@ public class TpaHere implements ATCommand {
             return true;
         }
         if (args.length == 0) {
-            CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) atPlayer).sendTPAForm(true);
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            }
             return true;
         }
         Player target = Bukkit.getPlayer(args[0]);
@@ -62,8 +69,14 @@ public class TpaHere implements ATCommand {
 
             CoreClass.playSound("tpahere", "sent", player);
 
-            CustomMessages.sendMessage(target, "Info.tpaRequestHere",
-                    "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
+            ATPlayer targetPlayer = ATPlayer.getPlayer(target);
+
+            if (targetPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPAHere(player);
+            } else {
+                CustomMessages.sendMessage(target, "Info.tpaRequestHere",
+                        "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
+            }
 
             CoreClass.playSound("tpahere", "received", target);
 

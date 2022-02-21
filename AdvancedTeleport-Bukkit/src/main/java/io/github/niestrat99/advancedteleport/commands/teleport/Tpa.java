@@ -47,7 +47,7 @@ public class Tpa implements ATCommand {
             if (args.length == 0) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 if (atPlayer instanceof ATFloodgatePlayer) {
-                    ((ATFloodgatePlayer) atPlayer).sendTPAForm();
+                    ((ATFloodgatePlayer) atPlayer).sendTPAForm(false);
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noPlayerInput");
                 }
