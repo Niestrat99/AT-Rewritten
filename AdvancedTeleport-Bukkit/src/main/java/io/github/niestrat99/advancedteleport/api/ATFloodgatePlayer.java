@@ -97,6 +97,30 @@ public class ATFloodgatePlayer extends ATPlayer {
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
 
+    public void sendHomeForm() {
+        String[] homes = new String[getHomes().size()];
+        int i = 0;
+        for (String home : getHomes().keySet()) {
+            homes[i] = home;
+            i++;
+        }
+
+        CustomForm form = CustomForm.builder().title("Homes").dropdown("Select a home to teleport to.", homes).build();
+
+        form.setResponseHandler(responseData -> {
+            CustomFormResponse response = form.parseResponse(responseData);
+            if (getPlayer() == null) {
+                CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid.toString() + " is null, WHY?");
+                return;
+            }
+
+            int index = response.getDropdown(0);
+            String home = homes[index];
+
+            getPlayer().performCommand("advancedteleport:home " + home);
+        });
+    }
+
     @Nullable
     @Override
     public Player getPlayer() {
