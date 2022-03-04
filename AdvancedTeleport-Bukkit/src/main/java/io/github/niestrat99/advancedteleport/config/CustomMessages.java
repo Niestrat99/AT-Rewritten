@@ -78,7 +78,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Error.notEnoughEXPPoints", "&b↑ &8» &7You do not have enough EXP Points to teleport there!" +
                 "\n&b↑ &8» &7You need at least &b{points} &7EXP points!");
         addDefault("Error.notEnoughMoney", "&b↑ &8» &7You do not have enough money to teleport there!" +
-                "\n&b↑ &8» &7You need at least &b${amount}&7!");
+                "\n&b↑ &8» &7You need at least &b{amount}&7!");
         addDefault("Error.requestExpired", "&b↑ &8» &7Your teleport request to &b{player} &7has expired!");
         addDefault("Error.noPlayerInput", "&b↑ &8» &7You must include a player name!");
         addDefault("Error.blockSelf", "&b↑ &8» &7You can't block yourself!");
@@ -195,7 +195,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Info.homesOther", "&b&l{player}'s homes &8» &r");
         addDefault("Info.requestAccepted", "&b↑ &8» &7You've accepted the teleport request!");
         addDefault("Info.requestAcceptedResponder", "&b↑ &8» &b{player} &7has accepted the teleport request!");
-        addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b${amount} &7and now have &b${balance}&7!");
+        addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b{amount} &7and now have &b{balance}&7!");
         addDefault("Info.paymentEXP", "&b↑ &8» &7You have paid &b{amount} EXP Levels &7and now have &b{levels} &7levels!");
         addDefault("Info.paymentPoints", "&b↑ &8» &7You have paid &b{amount} EXP Points &7and now have &b{points} &7points!");
         addDefault("Info.createdWarpSign", "&b↑ &8» &7Successfully created the warp sign!");
