@@ -191,6 +191,8 @@ public class NewConfig extends CMFile {
 
         addDefault("cost-amount", 100.0, "Teleportation Costs", "The amount it costs to teleport somewhere." +
                 "\nIf you want to use Vault Economy, use 100.0 to charge $100." +
+                "\nIf you have multiple plugins hooking into Vault, enter the plugin name in front separated by a colon, e.g. Essentials:100.50" +
+                "\nDo note some plugins require Vault support to be toggled on manually." +
                 "\nIf you want to use Minecraft EXP points, use 10EXP for 10 EXP Points." +
                 "\nIf you want to use Minecraft EXP levels, use 5LVL for 5 levels." +
                 "\nIf you want to use items, use the format MATERIAL:AMOUNT or MATERIAL:AMOUNT:BYTE." +

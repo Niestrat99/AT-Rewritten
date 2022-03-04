@@ -28,8 +28,7 @@ public class CustomMessages extends CMFile {
         addLenientSection("Teleport");
         addDefault("Teleport.eventBeforeTP" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7, please do not move!");
 
-        addComment("Teleport.eventBeforeTP_title", "This is an example use for titles and subtitles in the plugin." +
-                "\nThis feature is supported only if you're on version 1.8.8 or newer.");
+        addComment("Teleport.eventBeforeTP_title");
         addExample("Teleport.eventBeforeTP_title.length" , 80 /*, "How many seconds (in ticks) the header should last. This is not including fading." */);
         addExample("Teleport.eventBeforeTP_title.fade-in" , 0 /*, "How many seconds (in ticks) the header should take to fade in." */);
         addExample("Teleport.eventBeforeTP_title.fade-out" , 10 /*, "How many seconds (in ticks) the header should take to fade out." */);
@@ -80,7 +79,7 @@ public class CustomMessages extends CMFile {
         addDefault("Error.notEnoughEXPPoints", "&b↑ &8» &7You do not have enough EXP Points to teleport there!" +
                 "\n&b↑ &8» &7You need at least &b{points} &7EXP points!");
         addDefault("Error.notEnoughMoney", "&b↑ &8» &7You do not have enough money to teleport there!" +
-                "\n&b↑ &8» &7You need at least &b${amount}&7!");
+                "\n&b↑ &8» &7You need at least &b{amount}&7!");
         addDefault("Error.requestExpired", "&b↑ &8» &7Your teleport request to &b{player} &7has expired!");
         addDefault("Error.noPlayerInput", "&b↑ &8» &7You must include a player name!");
         addDefault("Error.blockSelf", "&b↑ &8» &7You can't block yourself!");
@@ -192,7 +191,7 @@ public class CustomMessages extends CMFile {
         addDefault("Info.homesOther", "&b&l{player}'s homes &8» &r");
         addDefault("Info.requestAccepted", "&b↑ &8» &7You've accepted the teleport request!");
         addDefault("Info.requestAcceptedResponder", "&b↑ &8» &b{player} &7has accepted the teleport request!");
-        addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b${amount} &7and now have &b${balance}&7!");
+        addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b{amount} &7and now have &b{balance}&7!");
         addDefault("Info.paymentEXP", "&b↑ &8» &7You have paid &b{amount} EXP Levels &7and now have &b{levels} &7levels!");
         addDefault("Info.paymentPoints", "&b↑ &8» &7You have paid &b{amount} EXP Points &7and now have &b{points} &7points!");
         addDefault("Info.createdWarpSign", "&b↑ &8» &7Successfully created the warp sign!");

@@ -6,15 +6,13 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUI;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
-import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
+import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
 import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
-import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
-import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,7 +20,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -41,7 +38,6 @@ public class CoreClass extends JavaPlugin {
         return ChatColor.translateAlternateColorCodes('&', title);
     }
 
-    private static Economy vault;
     public static WorldBorder worldBorder;
     private static CoreClass Instance;
     private static Permission perms = null;
@@ -57,24 +53,8 @@ public class CoreClass extends JavaPlugin {
         return Instance;
     }
 
-    public static Economy getVault() {
-        return vault;
-    }
-
     public static WorldBorder getWorldBorder() {
         return worldBorder;
-    }
-
-    private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        vault = rsp.getProvider();
-        return vault != null;
     }
 
     private boolean setupPermissions() {
@@ -91,7 +71,6 @@ public class CoreClass extends JavaPlugin {
     public void onEnable() {
         Instance = this;
         getLogger().info("Advanced Teleport is now enabling...");
-        setupEconomy();
         setupPermissions();
         config = new NewConfig();
         //    Config.setDefaults();

@@ -9,10 +9,12 @@ import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PaymentManager {
 
-    private HashMap<String, HashMap<String, Payment>> teleportCosts;
+    private final HashMap<String, HashMap<String, Payment>> teleportCosts;
 
     private static PaymentManager instance;
 
@@ -39,8 +41,12 @@ public class PaymentManager {
         for (String rawPayment : rawPayments) {
             try {
                 if (rawPayment.length() - 3 <= 0) {
-                    if (CoreClass.getVault() != null) {
-                        addPayment("vault", new VaultPayment(Double.parseDouble(rawPayment)), payments);
+                    Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
+                    if (matcher.matches()) {
+                        String plugin = matcher.group(1);
+                        double payment = Double.parseDouble(matcher.group(2));
+                        addPayment("vault:" + plugin, new VaultPayment(payment,
+                                plugin == null ? null : plugin.substring(0, plugin.length() - 1)), payments);
                     }
                     continue;
                 }
@@ -50,14 +56,19 @@ public class PaymentManager {
                 } else if (rawPayment.endsWith("EXP")) {
                     addPayment("exp", new PointsPayment(Integer.parseInt(points)), payments);
                 } else {
-                    if (CoreClass.getVault() != null && rawPayment.matches("^[0-9]+(\\.[0-9]+)?")) {
-                        addPayment("vault", new VaultPayment(Double.parseDouble(rawPayment)), payments);
+                    Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
+                    if (matcher.matches()) {
+                        String plugin = matcher.group(1);
+                        double payment = Double.parseDouble(matcher.group(2));
+                        addPayment("vault:" + plugin, new VaultPayment(payment,
+                                plugin == null ? null : plugin.substring(0, plugin.length() - 1)), payments);
                     } else {
                         addPayment("item", ItemsPayment.getFromString(rawPayment), payments);
                     }
                 }
             } catch (Exception e) {
                 CoreClass.getInstance().getLogger().warning("Failed to parse payment " + rawPayment + " for command " + command + "!");
+                CoreClass.getInstance().getLogger().warning("Error message: " + e.getMessage());
             }
         }
         teleportCosts.put(command, payments);
