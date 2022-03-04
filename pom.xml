@@ -109,6 +109,11 @@
             <id>mojang-authlib</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
+
+        <repository>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -201,6 +206,13 @@
             <groupId>org.geysermc.floodgate</groupId>
             <artifactId>api</artifactId>
             <version>2.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.esophose</groupId>
+            <artifactId>playerparticles</artifactId>
+            <version>7.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
