@@ -24,7 +24,7 @@ public class Back implements ATCommand {
     private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR", "STATIONARY_WATER"));
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, String s,
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
