@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -24,13 +25,21 @@ public class Back extends TeleportATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] strings) {
+                             @NotNull String[] args) {
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
         Player player = (Player) sender;
+        if (args.length > 0 && sender.hasPermission("at.admin.back")) {
+            player = Bukkit.getPlayer(args[0]);
+            if (player == null) {
+                CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                return true;
+            }
+        }
+
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         int cooldown = CooldownManager.secondsLeftOnCooldown("back", player);
         if (cooldown > 0) {
@@ -95,10 +104,13 @@ public class Back extends TeleportATCommand {
             return true;
         }
 
-        ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back",
-                ATTeleportEvent.TeleportType.BACK);
-        atPlayer.teleport(event, "back", "Teleport.teleportingToLastLoc", NewConfig.get().WARM_UPS.BACK.get());
-
+        ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
+        if (sender != player) {
+            CustomMessages.sendMessage(player, "Teleport.teleportingToLastLoc");
+            player.teleport(loc);
+        } else {
+            atPlayer.teleport(event, "back", "Teleport.teleportingToLastLoc");
+        }
         return true;
     }
 
