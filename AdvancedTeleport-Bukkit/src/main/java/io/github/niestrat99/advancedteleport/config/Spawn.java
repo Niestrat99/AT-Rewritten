@@ -70,14 +70,15 @@ public class Spawn extends ATConfig {
 
     public String mirrorSpawn(String from, String to) {
         ConfigSection section = getConfigSection("spawns");
-        String mirror;
-        if (!(section != null && section.contains(to))) return "Error.noSuchSpawn";
+        String mirror = to;
+        if (section == null || !section.contains(to)) return "Error.noSuchSpawn";
         ConfigSection toSection = section.getConfigSection(to);
         while (true) {
             if (toSection == null) return "Error.noSuchSpawn";
-            mirror = toSection.getString("mirror");
-            if (mirror != null && !mirror.isEmpty()) {
-                toSection = section.getConfigSection(mirror);
+            String alternateMirror = toSection.getString("mirror");
+            if (alternateMirror != null && !alternateMirror.isEmpty() && !alternateMirror.equals(mirror)) {
+                mirror = alternateMirror;
+                toSection = section.getConfigSection(alternateMirror);
             } else if (toSection.contains("x")
                     && toSection.contains("y")
                     && toSection.contains("z")
@@ -115,8 +116,9 @@ public class Spawn extends ATConfig {
         ConfigSection toSection = spawns.getConfigSection(name);
         while (true) {
             if (toSection != null) {
-                name = toSection.getString("mirror");
-                if (name != null && !name.isEmpty()) {
+                String priorName = toSection.getString("mirror");
+                if (priorName != null && !priorName.isEmpty() && !priorName.equals(name)) {
+                    name = priorName;
                     toSection = spawns.getConfigSection(name);
                 } else if (toSection.contains("x")
                         && toSection.contains("y")
