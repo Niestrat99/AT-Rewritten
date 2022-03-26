@@ -9,6 +9,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+
 public class MirrorSpawn implements ATCommand {
 
     @Override
@@ -45,7 +47,8 @@ public class MirrorSpawn implements ATCommand {
             toWorld = args[1];
         }
 
-        CustomMessages.sendMessage(sender, Spawn.get().mirrorSpawn(fromWorld, toWorld), "{spawn}", toWorld, "{from}", fromWorld);
+        CustomMessages.sendMessage(sender, Spawn.get().mirrorSpawn(fromWorld, toWorld), "{spawn}", toWorld,
+                "{from}", fromWorld);
         return true;
 
     }

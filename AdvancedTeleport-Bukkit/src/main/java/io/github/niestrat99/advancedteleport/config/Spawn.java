@@ -1,36 +1,31 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.thatsmusic99.configurationmaster.CMFile;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Spawn extends CMFile {
+public class Spawn extends ATConfig {
 
     private static Spawn instance;
     private Location mainSpawn;
 
-    public Spawn() {
-        super(CoreClass.getInstance(), "spawn");
+    public Spawn() throws IOException {
+        super("spawn.yml");
         instance = this;
         load();
     }
 
     @Override
-    public void loadTitle() {
-
-    }
-
-    @Override
     public void loadDefaults() {
         addDefault("main-spawn", "");
-        addLenientSection("spawns");
+        makeSectionLenient("spawns");
     }
 
     @Override
@@ -49,7 +44,7 @@ public class Spawn extends CMFile {
     @Override
     public void postSave() {
         String mainSpawn = getString("main-spawn", "");
-        ConfigurationSection spawns = getConfig().getConfigurationSection("spawns");
+        ConfigSection spawns = getConfigSection("spawns");
         if (spawns == null) return;
         if (!spawns.contains(mainSpawn) || mainSpawn.isEmpty()) return;
         this.mainSpawn = new Location(Bukkit.getWorld(getString("spawns." + mainSpawn + ".world")),
@@ -60,7 +55,7 @@ public class Spawn extends CMFile {
                 getFloat("spawns." + mainSpawn + ".pitch"));
     }
 
-    public void setSpawn(Location location, String name) {
+    public void setSpawn(Location location, String name) throws IOException {
         set("spawns." + name + ".x", location.getX());
         set("spawns." + name + ".y", location.getY());
         set("spawns." + name + ".z", location.getZ());
@@ -68,23 +63,22 @@ public class Spawn extends CMFile {
         set("spawns." + name + ".yaw", location.getYaw());
         set("spawns." + name + ".pitch", location.getPitch());
         set("spawns." + name + ".mirror", null);
-        save(true);
+        save();
         if (mainSpawn == null) {
             setMainSpawn(name, location);
         }
     }
 
     public String mirrorSpawn(String from, String to) {
-        ConfigurationSection section = getConfig().getConfigurationSection("spawns");
-        String mirror = to;
+        ConfigSection section = getConfigSection("spawns");
+        String mirror;
         if (!(section != null && section.contains(to))) return "Error.noSuchSpawn";
-        ConfigurationSection toSection = section.getConfigurationSection(to);
+        ConfigSection toSection = section.getConfigSection(to);
         while (true) {
             if (toSection == null) return "Error.noSuchSpawn";
-            if (toSection.getString("mirror") != null && !toSection.getString("mirror").isEmpty()) {
-                // honest to god intellij shut up
-                mirror = toSection.getString("mirror");
-                toSection = section.getConfigurationSection(mirror);
+            mirror = toSection.getString("mirror");
+            if (mirror != null && !mirror.isEmpty()) {
+                toSection = section.getConfigSection(mirror);
             } else if (toSection.contains("x")
                     && toSection.contains("y")
                     && toSection.contains("z")
@@ -92,7 +86,12 @@ public class Spawn extends CMFile {
                     && toSection.contains("pitch")) {
                 set("spawns." + from, null);
                 set("spawns." + from + ".mirror", mirror);
-                save(true);
+                try {
+                    save();
+                } catch (IOException e) {
+                    CoreClass.getInstance().getLogger().severe("Failed to mirror spawn from " + from + " to " + to + ": " + e.getMessage());
+                    return "Error.mirrorSpawnFail";
+                }
                 return "Info.mirroredSpawn";
             }
         }
@@ -112,14 +111,14 @@ public class Spawn extends CMFile {
     }
 
     public Location getSpawn(String name) {
-        if (getConfig().get("spawns." + name) == null) return getProperMainSpawn();
-        ConfigurationSection spawns = getConfig().getConfigurationSection("spawns");
-        ConfigurationSection toSection = spawns.getConfigurationSection(name);
+        if (get("spawns." + name) == null) return getProperMainSpawn();
+        ConfigSection spawns = getConfigSection("spawns");
+        ConfigSection toSection = spawns.getConfigSection(name);
         while (true) {
             if (toSection != null) {
-                if (toSection.getString("mirror") != null && !toSection.getString("mirror").isEmpty()) {
-                    name = toSection.getString("mirror");
-                    toSection = spawns.getConfigurationSection(name);
+                name = toSection.getString("mirror");
+                if (name != null && !name.isEmpty()) {
+                    toSection = spawns.getConfigSection(name);
                 } else if (toSection.contains("x")
                         && toSection.contains("y")
                         && toSection.contains("z")
@@ -145,7 +144,12 @@ public class Spawn extends CMFile {
     public String setMainSpawn(String id, Location location) {
         mainSpawn = location;
         set("main-spawn", id);
-        save(true);
+        try {
+            save();
+        } catch (IOException e) {
+            CoreClass.getInstance().getLogger().severe("Failed to set main spawnpoint " + id + ": " + e.getMessage());
+            return "Error.setMainSpawnFail";
+        }
         return "Info.setMainSpawn";
     }
 
@@ -155,7 +159,12 @@ public class Spawn extends CMFile {
 
     public String removeSpawn(String id) {
         set("spawns." + id, null);
-        save(true);
+        try {
+            save();
+        } catch (IOException e) {
+            CoreClass.getInstance().getLogger().severe("Failed to remove spawnpoint " + id + ": " + e.getMessage());
+            return "Error.removeSpawnFail";
+        }
         return "Info.removedSpawn";
     }
 
@@ -178,7 +187,7 @@ public class Spawn extends CMFile {
     }
 
     public List<String> getSpawns() {
-        ConfigurationSection section = getConfig().getConfigurationSection("spawns");
+        ConfigSection section = getConfigSection("spawns");
         if (section == null) return new ArrayList<>();
         return new ArrayList<>(section.getKeys(false));
     }

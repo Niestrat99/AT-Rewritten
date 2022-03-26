@@ -7,12 +7,12 @@
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
     <packaging>pom</packaging>
-    <version>v5.6</version>
+    <version>v5.6.1</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--suppress UnresolvedMavenProperty -->
-        <module.version>5.6+DEV_${env.BUILD_NUMBER}</module.version>
+        <module.version>5.6.1+DEV_${env.BUILD_NUMBER}</module.version>
         <jenkins.timestamp>${maven.build.timestamp}</jenkins.timestamp>
     </properties>
 
@@ -41,7 +41,7 @@
                     <artifactSet>
                         <includes>
                             <include>io.papermc:paperlib</include>
-                            <include>com.github.thatsmusic99:ConfigurationMaster</include>
+                            <include>com.github.thatsmusic99:ConfigurationMaster-API</include>
                             <include>net.kyori:adventure-nbt</include>
                         </includes>
                     </artifactSet>
@@ -171,8 +171,8 @@
 
         <dependency>
             <groupId>com.github.thatsmusic99</groupId>
-            <artifactId>ConfigurationMaster</artifactId>
-            <version>v1.0.3</version>
+            <artifactId>ConfigurationMaster-API</artifactId>
+            <version>v2.0.0-BETA-3</version>
             <scope>compile</scope>
         </dependency>
 

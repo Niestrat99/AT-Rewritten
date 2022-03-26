@@ -25,10 +25,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.UUID;
 
 public class EssentialsHook extends ImportExportPlugin {
@@ -172,7 +172,13 @@ public class EssentialsHook extends ImportExportPlugin {
         for (String key : spawns.getKeys(false)) {
             ConfigurationSection spawnSection = spawns.getConfigurationSection(key);
             Location loc = getLocationFromSection(spawnSection);
-            Spawn.get().setSpawn(loc, key);
+            try {
+                Spawn.get().setSpawn(loc, key);
+            } catch (IOException e) {
+                CoreClass.getInstance().getLogger().severe("Failed to set spawn " + key + ": " + e.getMessage());
+                e.printStackTrace();
+                continue;
+            }
             debug("Set spawn for " + key);
             if (key.equals("default")) {
                 setMainSpawn = true;

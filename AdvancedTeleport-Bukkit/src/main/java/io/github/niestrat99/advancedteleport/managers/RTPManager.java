@@ -23,7 +23,7 @@ public class RTPManager {
         try {
             getPreviousLocations();
         } catch (IOException e) {
-            e.printStackTrace();
+            CoreClass.getInstance().getLogger().severe("Failed to load previous RTP locations, generating new ones: " + e.getMessage());
         }
         for (World loadedWorld : Bukkit.getWorlds()) {
             loadWorldData(loadedWorld);

@@ -1,12 +1,13 @@
 package io.github.niestrat99.advancedteleport.config;
 
-import io.github.thatsmusic99.configurationmaster.CMFile;
 import org.bukkit.plugin.Plugin;
 
-public class NBTRepresentations extends CMFile {
+import java.io.IOException;
 
-    public NBTRepresentations(Plugin plugin) {
-        super(plugin, "item-nbt-data-types");
+public class NBTRepresentations extends ATConfig {
+
+    public NBTRepresentations() throws IOException {
+        super("item-nbt-data-types.yml");
     }
 
     @Override
@@ -25,11 +26,6 @@ public class NBTRepresentations extends CMFile {
         addExample("tag.CanDestroy", "TAG_CONTAINER_ARRAY:STRING");
         addExample("tag.CustomModelData", "INTEGER");
         addExample("tag.CanPlaceOn", "TAG_CONTAINER_ARRAY:STRING");
-
-    }
-
-    @Override
-    public void loadTitle() {
 
     }
 }
