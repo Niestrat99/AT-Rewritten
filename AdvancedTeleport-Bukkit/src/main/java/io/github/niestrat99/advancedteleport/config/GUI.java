@@ -13,7 +13,6 @@ public class GUI extends ATConfig {
     public GUI() throws IOException {
         super("guis.yml");
         instance = this;
-        load();
     }
 
     @Override

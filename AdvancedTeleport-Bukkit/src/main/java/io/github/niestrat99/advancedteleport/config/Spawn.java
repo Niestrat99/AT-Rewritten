@@ -19,7 +19,6 @@ public class Spawn extends ATConfig {
     public Spawn() throws IOException {
         super("spawn.yml");
         instance = this;
-        load();
     }
 
     @Override
