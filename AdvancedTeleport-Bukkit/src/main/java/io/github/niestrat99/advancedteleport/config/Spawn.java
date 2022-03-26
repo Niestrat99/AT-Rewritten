@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.config;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -68,7 +69,7 @@ public class Spawn extends ATConfig {
         }
     }
 
-    public String mirrorSpawn(String from, String to) throws IOException {
+    public String mirrorSpawn(String from, String to) {
         ConfigSection section = getConfigSection("spawns");
         String mirror;
         if (!(section != null && section.contains(to))) return "Error.noSuchSpawn";
@@ -85,7 +86,12 @@ public class Spawn extends ATConfig {
                     && toSection.contains("pitch")) {
                 set("spawns." + from, null);
                 set("spawns." + from + ".mirror", mirror);
-                save();
+                try {
+                    save();
+                } catch (IOException e) {
+                    CoreClass.getInstance().getLogger().severe("Failed to mirror spawn from " + from + " to " + to + ": " + e.getMessage());
+                    return "Error.mirrorSpawnFail";
+                }
                 return "Info.mirroredSpawn";
             }
         }
@@ -135,10 +141,15 @@ public class Spawn extends ATConfig {
         return mainSpawn;
     }
 
-    public String setMainSpawn(String id, Location location) throws IOException {
+    public String setMainSpawn(String id, Location location) {
         mainSpawn = location;
         set("main-spawn", id);
-        save();
+        try {
+            save();
+        } catch (IOException e) {
+            CoreClass.getInstance().getLogger().severe("Failed to set main spawnpoint " + id + ": " + e.getMessage());
+            return "Error.setMainSpawnFail";
+        }
         return "Info.setMainSpawn";
     }
 
@@ -146,9 +157,14 @@ public class Spawn extends ATConfig {
         return getString("main-spawn");
     }
 
-    public String removeSpawn(String id) throws IOException {
+    public String removeSpawn(String id) {
         set("spawns." + id, null);
-        save();
+        try {
+            save();
+        } catch (IOException e) {
+            CoreClass.getInstance().getLogger().severe("Failed to remove spawnpoint " + id + ": " + e.getMessage());
+            return "Error.removeSpawnFail";
+        }
         return "Info.removedSpawn";
     }
 

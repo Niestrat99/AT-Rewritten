@@ -46,6 +46,7 @@ public class HomeSQLManager extends SQLManager {
                         "timestamp_updated BIGINT NOT NULL)");
                 executeUpdate(createTable);
             } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the homes table.");
                 exception.printStackTrace();
             }
             transferOldData();

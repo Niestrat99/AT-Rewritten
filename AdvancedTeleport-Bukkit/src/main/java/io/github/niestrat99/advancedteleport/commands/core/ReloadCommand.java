@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.core;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
@@ -23,7 +24,7 @@ public class ReloadCommand implements SubATCommand {
             try {
                 config.reload();
             } catch (IOException ex) {
-                // TODO send message
+                CoreClass.getInstance().getLogger().warning("Failed to load " + config.getFile().getName() + ": " + ex.getMessage());
                 ex.printStackTrace();
             }
         }

@@ -47,12 +47,8 @@ public class MirrorSpawn implements ATCommand {
             toWorld = args[1];
         }
 
-        try {
-            CustomMessages.sendMessage(sender, Spawn.get().mirrorSpawn(fromWorld, toWorld), "{spawn}", toWorld,
-                        "{from}", fromWorld);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        CustomMessages.sendMessage(sender, Spawn.get().mirrorSpawn(fromWorld, toWorld), "{spawn}", toWorld,
+                "{from}", fromWorld);
         return true;
 
     }

@@ -175,18 +175,14 @@ public class EssentialsHook extends ImportExportPlugin {
             try {
                 Spawn.get().setSpawn(loc, key);
             } catch (IOException e) {
+                CoreClass.getInstance().getLogger().severe("Failed to set spawn " + key + ": " + e.getMessage());
                 e.printStackTrace();
                 continue;
             }
             debug("Set spawn for " + key);
             if (key.equals("default")) {
                 setMainSpawn = true;
-                try {
-                    Spawn.get().setMainSpawn("default", loc);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    continue;
-                }
+                Spawn.get().setMainSpawn("default", loc);
                 debug("Set main spawn");
             } else {
                 if (CoreClass.getPerms() != null && CoreClass.getPerms().hasGroupSupport()) {
@@ -198,11 +194,7 @@ public class EssentialsHook extends ImportExportPlugin {
 
         if (!setMainSpawn) {
             debug("Removed main spawn");
-            try {
-                Spawn.get().setMainSpawn(null, null);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Spawn.get().setMainSpawn(null, null);
         }
 
         debug("Finished importing spawns");

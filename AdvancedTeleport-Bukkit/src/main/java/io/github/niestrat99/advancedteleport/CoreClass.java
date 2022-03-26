@@ -2,10 +2,7 @@ package io.github.niestrat99.advancedteleport;
 
 import com.wimbli.WorldBorder.WorldBorder;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.GUI;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
@@ -28,6 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -48,8 +46,6 @@ public class CoreClass extends JavaPlugin {
 
     public static Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
     public static Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
-
-    private NewConfig config;
 
     public static CoreClass getInstance() {
         return Instance;
@@ -91,14 +87,16 @@ public class CoreClass extends JavaPlugin {
         getLogger().info("Advanced Teleport is now enabling...");
         setupEconomy();
         setupPermissions();
-        try {
-            config = new NewConfig();
-            new CustomMessages().load();
-            new Spawn();
-            new GUI();
-        } catch (IOException ex) {
-            // TODO make more granular
-            ex.printStackTrace();
+        for (Class<? extends ATConfig> config : Arrays.asList(NewConfig.class, CustomMessages.class, Spawn.class, GUI.class)) {
+            try {
+                config.getDeclaredConstructor().newInstance();
+            } catch (NoSuchMethodException ex) {
+                getLogger().severe(config.getSimpleName() + " is not properly formed, it shouldn't take any constructor arguments. Please inform the developer.");
+            } catch (InvocationTargetException | InstantiationException e) {
+                getLogger().severe("Failed to load " + config.getSimpleName() + ": " + e.getCause().getMessage());
+            } catch (IllegalAccessException e) {
+                getLogger().severe("Failed to load " + config.getSimpleName() + ", why is the constructor not accessible? Please inform the developer.");
+            }
         }
 
         CommandManager.registerCommands();
@@ -147,7 +145,7 @@ public class CoreClass extends JavaPlugin {
         try {
             RTPManager.saveLocations();
         } catch (IOException e) {
-            e.printStackTrace();
+            getLogger().warning("Failed to save RTP locations: " + e.getMessage());
         }
     }
 
@@ -234,10 +232,6 @@ public class CoreClass extends JavaPlugin {
 
     public static Permission getPerms() {
         return perms;
-    }
-
-    public NewConfig getConfiguration() {
-        return config;
     }
 
     private void setupVersion() {

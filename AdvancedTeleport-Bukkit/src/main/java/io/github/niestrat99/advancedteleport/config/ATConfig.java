@@ -11,17 +11,13 @@ public abstract class ATConfig extends ConfigFile {
 
     public ATConfig(@NotNull String name) throws IOException {
         super(getOrCreateFile(name));
+        load();
     }
 
-    public void load() {
+    public void load() throws IOException {
         loadDefaults();
         moveToNew();
-        try {
-            save();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        save();
         postSave();
     }
 
@@ -42,7 +38,9 @@ public abstract class ATConfig extends ConfigFile {
     }
 
     protected static File getOrCreateFile(String name) {
-        File file = new File(CoreClass.getInstance().getDataFolder(), name);
+        File dataFolder = CoreClass.getInstance().getDataFolder();
+        if (!dataFolder.exists()) dataFolder.mkdirs();
+        File file = new File(dataFolder, name);
         try {
             if (!file.exists()) file.createNewFile();
             return file;

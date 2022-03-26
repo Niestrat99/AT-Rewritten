@@ -67,12 +67,7 @@ public class SetMainSpawn implements ATCommand {
         } else {
             loc = Spawn.get().getSpawn(id);
         }
-        try {
-            CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id);
         return true;
     }
 

@@ -135,6 +135,9 @@ public class CustomMessages extends ATConfig {
         addDefault("Error.cantExport", "&b↑ &8» &7Can't export plugin data from &b{plugin} &7(make sure it's enabled and by the correct authors)!");
         addDefault("Error.notEnoughItems", "&b↑ &8» &7You do not have enough items to teleport there!\n" +
                 "&b↑ &8» &7You need at least &b{amount} {type}(s)!");
+        addDefault("Error.mirrorSpawnFail", "&b↑ &8» &7Failed to mirror &b{from}&7's spawnpoint to &b{spawn}&7!");
+        addDefault("Error.removeSpawnFail", "&b↑ &8» &7Failed to remove the spawnpoint &b{spawn}&7!");
+        addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
