@@ -25,10 +25,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.UUID;
 
 public class EssentialsHook extends ImportExportPlugin {
@@ -172,11 +172,21 @@ public class EssentialsHook extends ImportExportPlugin {
         for (String key : spawns.getKeys(false)) {
             ConfigurationSection spawnSection = spawns.getConfigurationSection(key);
             Location loc = getLocationFromSection(spawnSection);
-            Spawn.get().setSpawn(loc, key);
+            try {
+                Spawn.get().setSpawn(loc, key);
+            } catch (IOException e) {
+                e.printStackTrace();
+                continue;
+            }
             debug("Set spawn for " + key);
             if (key.equals("default")) {
                 setMainSpawn = true;
-                Spawn.get().setMainSpawn("default", loc);
+                try {
+                    Spawn.get().setMainSpawn("default", loc);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    continue;
+                }
                 debug("Set main spawn");
             } else {
                 if (CoreClass.getPerms() != null && CoreClass.getPerms().hasGroupSupport()) {
@@ -188,7 +198,11 @@ public class EssentialsHook extends ImportExportPlugin {
 
         if (!setMainSpawn) {
             debug("Removed main spawn");
-            Spawn.get().setMainSpawn(null, null);
+            try {
+                Spawn.get().setMainSpawn(null, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         debug("Finished importing spawns");

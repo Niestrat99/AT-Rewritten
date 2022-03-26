@@ -2,37 +2,35 @@ package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
-import io.github.thatsmusic99.configurationmaster.CMFile;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.IOException;
 import java.util.*;
 
-public class CustomMessages extends CMFile {
+public class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
 
-    public CustomMessages(Plugin plugin) {
-        super(plugin, "custom-messages");
-        setDescription(null);
+    public CustomMessages() throws IOException {
+        super("custom-messages.yml");
         config = this;
         titleManager = new HashMap<>();
     }
 
     public void loadDefaults() {
-        addLenientSection("Teleport");
+        makeSectionLenient("Teleport");
         addDefault("Teleport.eventBeforeTP" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7, please do not move!");
 
         addComment("Teleport.eventBeforeTP_title", "This is an example use for titles and subtitles in the plugin." +
                 "\nThis feature is supported only if you're on version 1.8.8 or newer.");
-        addExample("Teleport.eventBeforeTP_title.length" , 80 /*, "How many seconds (in ticks) the header should last. This is not including fading." */);
-        addExample("Teleport.eventBeforeTP_title.fade-in" , 0 /*, "How many seconds (in ticks) the header should take to fade in." */);
-        addExample("Teleport.eventBeforeTP_title.fade-out" , 10 /*, "How many seconds (in ticks) the header should take to fade out." */);
+        addExample("Teleport.eventBeforeTP_title.length" , 80 , "How many seconds (in ticks) the header should last. This is not including fading.");
+        addExample("Teleport.eventBeforeTP_title.fade-in" , 0 , "How many seconds (in ticks) the header should take to fade in.");
+        addExample("Teleport.eventBeforeTP_title.fade-out" , 10 , "How many seconds (in ticks) the header should take to fade out.");
         addExample("Teleport.eventBeforeTP_title.0", "&7&lTeleporting...");
         addExample("Teleport.eventBeforeTP_title.20", "&b> &7&lTeleporting... &b<");
         addExample("Teleport.eventBeforeTP_title.40", "&b>> &7&lTeleporting... &b<<");
@@ -59,7 +57,7 @@ public class CustomMessages extends CMFile {
         addDefault("Teleport.teleportedToOfflinePlayer", "&b↑ &8» &7Teleported to offline player &b{player}&7!");
         addDefault("Teleport.teleportedOfflinePlayerHere", "&b↑ &8» &7Teleported offline player &b{player} &7to your location!");
 
-        addLenientSection("Error");
+        makeSectionLenient("Error");
         addDefault("Error.noPermission", "&b↑ &8» &7You do not have permission to use this command!");
         addDefault("Error.noPermissionSign", "&b↑ &8» &7You do not have permission to make this sign!");
         addDefault("Error.featureDisabled", "&b↑ &8» &7This feature has been disabled!");
@@ -354,21 +352,21 @@ public class CustomMessages extends CMFile {
     }
 
     public static void sendMessage(CommandSender sender, String path, String... placeholders) {
-        if (config.getConfig() == null) return;
+        if (config == null) return;
         if (supportsTitles() && sender instanceof Player) {
             Player player = (Player) sender;
 
-            ConfigurationSection titles = config.getConfig().getConfigurationSection(path + "_title");
-            ConfigurationSection subtitles = config.getConfig().getConfigurationSection(path + "_subtitle");
+            ConfigSection titles = config.getConfigSection(path + "_title");
+            ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
             if (titles != null || subtitles != null) {
 
                 // Fade in, stay, out
                 int[] titleInfo = new int[]{0, 0, 0};
 
                 if (titles != null) {
-                    titleInfo[0] = titles.getInt("fade-in");
-                    titleInfo[1] = titles.getInt("length");
-                    titleInfo[2] = titles.getInt("fade-out");
+                    titleInfo[0] = titles.getInteger("fade-in");
+                    titleInfo[1] = titles.getInteger("length");
+                    titleInfo[2] = titles.getInteger("fade-out");
                 }
 
                 BukkitRunnable runnable = new BukkitRunnable() {
@@ -405,13 +403,13 @@ public class CustomMessages extends CMFile {
                 runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
         }
-        if (config.getConfig().get(path) instanceof List) {
-            List<String> messages = config.getConfig().getStringList(path);
+        if (config.get(path) instanceof List) {
+            List<String> messages = config.getStringList(path);
             for (int i = 0; i < messages.size(); i++) {
                 getFancyMessage(translateString(messages.get(i), placeholders)).sendProposal(sender, i);
             }
         } else {
-            String[] messages = translateString(config.getConfig().getString(path), placeholders).split("\n");
+            String[] messages = translateString(config.getString(path), placeholders).split("\n");
             for (int i = 0; i < messages.length; i++) {
                 getFancyMessage(messages[i]).sendProposal(sender, i);
             }

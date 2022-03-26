@@ -12,7 +12,6 @@ import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
 import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
-import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -22,7 +21,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -93,11 +91,16 @@ public class CoreClass extends JavaPlugin {
         getLogger().info("Advanced Teleport is now enabling...");
         setupEconomy();
         setupPermissions();
-        config = new NewConfig();
-        //    Config.setDefaults();
-        new CustomMessages(this).load();
-        new Spawn();
-        new GUI();
+        try {
+            config = new NewConfig();
+            new CustomMessages().load();
+            new Spawn();
+            new GUI();
+        } catch (IOException ex) {
+            // TODO make more granular
+            ex.printStackTrace();
+        }
+
         CommandManager.registerCommands();
         {
             new BlocklistManager();

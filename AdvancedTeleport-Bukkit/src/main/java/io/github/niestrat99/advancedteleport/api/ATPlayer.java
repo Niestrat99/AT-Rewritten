@@ -47,6 +47,8 @@ public class ATPlayer {
     }
 
     public ATPlayer(@Nullable UUID uuid, @Nullable String name) {
+        this.homes = new LinkedHashMap<>();
+        this.blockedUsers = new HashMap<>();
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
@@ -58,8 +60,6 @@ public class ATPlayer {
             }
             if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
         }
-        this.homes = new LinkedHashMap<>();
-        this.blockedUsers = new HashMap<>();
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> {
@@ -201,7 +201,7 @@ public class ATPlayer {
     }
 
     /**
-     * Whether or not the player has a main home or not.
+     * Whether the player has a main home or not.
      *
      * @return true if the player has a main home that exists.
      */

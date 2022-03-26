@@ -3,17 +3,19 @@ package io.github.niestrat99.advancedteleport.config;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
-import io.github.thatsmusic99.configurationmaster.CMFile;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
+import io.github.thatsmusic99.configurationmaster.api.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class NewConfig extends CMFile {
+public class NewConfig extends ATConfig {
 
     public ConfigOption<Boolean> USE_BASIC_TELEPORT_FEATURES;
     public ConfigOption<Boolean> USE_WARPS;
@@ -60,7 +62,7 @@ public class NewConfig extends CMFile {
 
     public ConfigOption<Boolean> ENABLE_TELEPORT_LIMITATIONS;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS_LIMITS;
-    public ConfigOption<ConfigurationSection> WORLD_RULES;
+    public ConfigOption<ConfigSection> WORLD_RULES;
     public PerCommandOption<String> COMMAND_RULES;
 
     public ConfigOption<Integer> MAXIMUM_X;
@@ -95,7 +97,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
 
-    public ConfigOption<ConfigurationSection> DEATH_MANAGEMENT;
+    public ConfigOption<ConfigSection> DEATH_MANAGEMENT;
 
     public ConfigOption<List<String>> DEFAULT_PERMISSIONS;
     public ConfigOption<Boolean> ALLOW_ADMIN_PERMS;
@@ -108,11 +110,19 @@ public class NewConfig extends CMFile {
     /**
      *
      */
-    public NewConfig() {
-        super(CoreClass.getInstance(), "config");
-        addLink("SpigotMC", "https://www.spigotmc.org/resources/advanced-teleport.64139/");
-        addLink("Wiki", "https://github.com/Niestrat99/AT-Rewritten/wiki");
-        addLink("Discord", "https://discord.gg/mgWbbN4");
+    public NewConfig() throws IOException {
+        super("config.yml");
+        setTitle(new Title().withWidth(100).addSolidLine()
+                .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
+                .addLine("Made by Niestrat99 and Thatsmusic99", Title.Pos.CENTER)
+                .addLine("")
+                .addSolidLine('-')
+                .addLine("A rapidly growing teleportation plugin looking to break the boundaries of traditional teleport plugins.")
+                .addLine("")
+                .addLine("SpigotMC - https://www.spigotmc.org/resources/advanced-teleport.64139/")
+                .addLine("Wiki - https://github.com/Niestrat99/AT-Rewritten/wiki")
+                .addLine("Discord - https://discord.gg/mgWbbN4")
+                .addSolidLine());
         load();
     }
 
@@ -262,7 +272,7 @@ public class NewConfig extends CMFile {
                 "To do the opposite (i.e. initiates the rule when users are not in the specified world), use !, e.g. stop-teleportation-into!world stops teleportation into a specific world if they are not in \"world\". If ! and : are used in the same rule, then : is given top priority." +
                 "To make this rule work with multiple worlds, use a comma (,), e.g. stop-teleportation-into:world,world_nether");
 
-        addLenientSection("world-rules");
+        makeSectionLenient("world-rules");
         addDefault("world-rules.default", "stop-teleportation-within");
         addExample("world-rules.world", "default");
         addExample("world-rules.world_nether", "stop-teleportation-into!world" /*, "Stops people teleporting into the Nether if they're not coming from \"world\"" */);
@@ -368,7 +378,7 @@ public class NewConfig extends CMFile {
                 "- {default} - Uses the default respawn option, which is spawn unless set differently.\n" +
                 "If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.");
 
-        addLenientSection("death-management");
+        makeSectionLenient("death-management");
         addDefault("death-management.default", "spawn");
         addExample("death-management.world", "{default}");
         addExample("death-management.special-world", "warp:Special");
@@ -421,10 +431,10 @@ public class NewConfig extends CMFile {
         moveTo("distance-limiter.distance-limit", "maximum-teleport-distance");
         moveTo("distance-limiter.monitor-all-teleports", "monitor-all-teleports-distance");
 
-        boolean defaultVault = getConfig().getBoolean("booleans.useVault");
-        boolean defaultEXP = getConfig().getBoolean("booleans.EXPPayment");
-        int defaultEXPAmount = getConfig().getInt("payments.exp.teleportPrice");
-        double defaultPrice = getConfig().getDouble("payments.vault.teleportPrice");
+        boolean defaultVault = getBoolean("booleans.useVault");
+        boolean defaultEXP = getBoolean("booleans.EXPPayment");
+        int defaultEXPAmount = getInteger("payments.exp.teleportPrice");
+        double defaultPrice = getDouble("payments.vault.teleportPrice");
 
         StringBuilder builder = new StringBuilder();
         if (defaultVault) {
@@ -442,12 +452,12 @@ public class NewConfig extends CMFile {
         }
         for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
             try {
-                Object vault = getConfig().get("payments.vault." + command + ".price");
-                Object exp = getConfig().get("payments.exp." + command + ".price");
-                boolean vaultOn = getConfig().get("payments.vault." + command + ".enabled").equals("default")
-                        ? defaultVault : getConfig().getBoolean("payments.vault." + command + ".enabled");
-                boolean expOn = getConfig().get("payments.exp." + command + ".enabled").equals("default")
-                        ? defaultEXP : getConfig().getBoolean("payments.exp." + command + ".enabled");
+                Object vault = get("payments.vault." + command + ".price");
+                Object exp = get("payments.exp." + command + ".price");
+                boolean vaultOn = get("payments.vault." + command + ".enabled").equals("default")
+                        ? defaultVault : getBoolean("payments.vault." + command + ".enabled");
+                boolean expOn = get("payments.exp." + command + ".enabled").equals("default")
+                        ? defaultEXP : getBoolean("payments.exp." + command + ".enabled");
                 StringBuilder paymentCombination = new StringBuilder();
                 if (vaultOn) {
                     if (vault.equals("default")) {
@@ -672,13 +682,13 @@ public class NewConfig extends CMFile {
 
         public T get() {
             if (defaultPath != null && !defaultPath.isEmpty()) {
-                if (instance.getConfig().get(path).equals("default")) {
-                    return (T) instance.getConfig().get(defaultPath);
+                if (instance.get(path).equals("default")) {
+                    return (T) instance.get(defaultPath);
                 } else {
-                    return (T) instance.getConfig().get(path);
+                    return (T) instance.get(path);
                 }
             } else {
-                return (T) instance.getConfig().get(path);
+                return (T) instance.get(path);
             }
 
         }

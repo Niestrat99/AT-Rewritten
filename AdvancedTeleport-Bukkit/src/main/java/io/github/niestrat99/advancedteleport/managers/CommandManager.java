@@ -109,7 +109,7 @@ public class CommandManager {
                 commands.remove(alias);
                 commands.remove("advancedteleport:" + alias);
                 // Let another plugin take over
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), () -> {
                     Iterator<String> commandIterator = commands.keySet().iterator();
                     HashMap<String, Command> pendingChanges = new HashMap<>();
                     // Ignore warning, can yield CME
@@ -125,7 +125,7 @@ public class CommandManager {
                     }
 
                     commands.putAll(pendingChanges);
-                });
+                }, 100);
             }
             return;
         }

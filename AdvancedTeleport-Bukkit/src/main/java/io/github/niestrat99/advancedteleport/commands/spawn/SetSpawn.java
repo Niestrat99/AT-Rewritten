@@ -8,6 +8,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.IOException;
+
 public class SetSpawn implements AsyncATCommand {
 
     @Override
@@ -37,9 +39,12 @@ public class SetSpawn implements AsyncATCommand {
             name = args[0];
             message = "Info.setSpawnSpecial";
         }
-        Spawn.get().setSpawn(player.getLocation(), name);
-        CustomMessages.sendMessage(sender, message, "{spawn}", name);
-
+        try {
+            Spawn.get().setSpawn(player.getLocation(), name);
+            CustomMessages.sendMessage(sender, message, "{spawn}", name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 }

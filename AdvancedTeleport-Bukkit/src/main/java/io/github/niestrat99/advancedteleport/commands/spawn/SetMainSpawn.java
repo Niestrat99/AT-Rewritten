@@ -12,6 +12,7 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +55,11 @@ public class SetMainSpawn implements ATCommand {
             if (sender.hasPermission("at.admin.setspawn")
                     && (world || sender.hasPermission("at.admin.setspawn.other"))) {
                 loc = ((Player) sender).getLocation();
-                Spawn.get().setSpawn(loc, id);
+                try {
+                    Spawn.get().setSpawn(loc, id);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
                 return true;
@@ -62,7 +67,11 @@ public class SetMainSpawn implements ATCommand {
         } else {
             loc = Spawn.get().getSpawn(id);
         }
-        CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id);
+        try {
+            CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return true;
     }

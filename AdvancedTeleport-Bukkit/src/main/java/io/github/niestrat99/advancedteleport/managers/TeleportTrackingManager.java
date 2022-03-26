@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -94,7 +95,7 @@ public class TeleportTrackingManager implements Listener {
         if (NewConfig.get().USE_SPAWN.get()) {
             if (atPlayer.getPreviousLocation() == null) return;
             if (atPlayer.getPreviousLocation().getWorld() == null) return;
-            ConfigurationSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
+            ConfigSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
             String spawnCommand = deathManagement.getString(atPlayer.getPreviousLocation().getWorld().getName());
             if (spawnCommand == null) return;
             for (String command : spawnCommand.split(";")) {
@@ -106,7 +107,7 @@ public class TeleportTrackingManager implements Listener {
 
     private static boolean handleSpawn(PlayerRespawnEvent e, String spawnCommand) {
         ATPlayer atPlayer = ATPlayer.getPlayer(e.getPlayer());
-        ConfigurationSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
+        ConfigSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
         if (spawnCommand.equals("{default}")) {
             spawnCommand = deathManagement.getString("default");
             if (spawnCommand == null) return false;
