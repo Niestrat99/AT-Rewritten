@@ -25,6 +25,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * A wrapper class used to represent a player. An ATPlayer stores information such as their homes, the players they
+ * have blocked, whether they have teleportation enabled, their main home, and previous location.
+ */
 public class ATPlayer {
 
     private UUID uuid;
@@ -133,6 +137,15 @@ public class ATPlayer {
         return blockedUsers.containsKey(otherPlayer.getUniqueId());
     }
 
+    /**
+     * Gets the information regarding the block relationship between this player and someone else. This only gets
+     * information if this player has blocked the other, not vice versa. To do this, get the ATPlayer object of the
+     * other player and check if they have blocked this player using {@link ATPlayer#hasBlocked(OfflinePlayer)}.
+     *
+     * @param otherPlayer The other player.
+     * @return A BlockInfo object if this player has blocked the other player, but null if they haven't.
+     */
+    @Nullable
     public BlockInfo getBlockInfo(OfflinePlayer otherPlayer) {
         return blockedUsers.get(otherPlayer.getUniqueId());
     }
@@ -197,9 +210,9 @@ public class ATPlayer {
     }
 
     /**
-     * Whether or not the player has a main home or not.
+     * Whether the player has a main home.
      *
-     * @return true if the player has a main home that exists.
+     * @return true if the player has a main home that exists, false if not.
      */
     public boolean hasMainHome() {
         return mainHome != null && !mainHome.isEmpty() && homes.containsKey(mainHome);
@@ -277,6 +290,13 @@ public class ATPlayer {
         return maxHomes;
     }
 
+    /**
+     * Whether the player can access a specified home or not. A player may lose home access if `deny-homes-if-over-limit`
+     * is set to true in the config.yml file, and if they used to have a higher homes limit than they currently have.
+     *
+     * @param home The home having access checked.
+     * @return true if the player can access the home, false if they cannot.
+     */
     public boolean canAccessHome(Home home) {
         if (getHomesLimit() == -1) return true;
         if (!NewConfig.get().DENY_HOMES_IF_OVER_LIMIT.get()) return true;
@@ -288,13 +308,22 @@ public class ATPlayer {
         return false;
     }
 
+    /**
+     * Whether the player has a home with the specified name.
+     *
+     * @param name The name of the home.
+     * @return true if the player has a home named as specified, false if they do not.
+     */
     public boolean hasHome(String name) {
         return homes.containsKey(name);
     }
 
     /**
+     * Whether the player can set more homes. If {@link ATPlayer#getHomesLimit()} returns -1, then they can set
+     * unlimited homes. If it isn't, then the number of homes the player has is compared to the homes limit. If it is
+     * fewer than the homes limit, they can set more homes.
      *
-     * @return
+     * @return true if the player can set more homes, false if they can not.
      */
     public boolean canSetMoreHomes() {
         return getHomesLimit() == -1 || homes.size() < getHomesLimit();
