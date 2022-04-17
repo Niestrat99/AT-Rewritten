@@ -1,16 +1,18 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Location;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a player's private teleportation point, known as a home.
  */
-public class Home {
+public class Home implements NamedLocation {
 
     // The UUID of the home owner.
     private UUID owner;
@@ -27,7 +29,7 @@ public class Home {
     private final SimpleDateFormat format;
 
     /**
-     * Creates a home object. Please note this does not add a home to the saved data; instead, use {@link ATPlayer#addHome(String, Location, SQLManager.SQLCallback)}.
+     * Creates a home object. Please note this does not add a home to the saved data; instead, use {@link ATPlayer#addHome(String, Location)}.
      *
      * @param owner The owner of the house.
      * @param name The name of the house.
@@ -78,12 +80,31 @@ public class Home {
      * Sets the location of the house. This also updates the last updated timestamp.
      *
      * @param location The new location that the home will be set to.
+     * @deprecated use {@link Home#move(Location)} instead.
      */
+    @Deprecated
     public void setLocation(Location location) {
+        move(location);
+    }
+
+    /**
+     * Sets the location of the house to a different location. This also updates the last updated timestamp.
+     *
+     * @param location The new location that the home will be set to.
+     * @return true if the move succeeded, false if it failed.
+     */
+    public CompletableFuture<Boolean> move(Location location) {
         this.location = location;
 
         this.updatedTime = System.currentTimeMillis();
         this.updatedTimeFormatted = format.format(new Date(updatedTime));
+
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            HomeSQLManager.get().moveHome(location, owner, name, callback);
+            return callback.data;
+        });
+
     }
 
     /**
@@ -104,10 +125,20 @@ public class Home {
         return createdTime;
     }
 
+    /**
+     * Gets the formatted timestamp of when the home was created. This is formatted as dd MMM yyyy HH:mm:ss.
+     *
+     * @return the formatted timestamp of when the home was created.
+     */
     public String getCreatedTimeFormatted() {
         return createdTimeFormatted;
     }
 
+    /**
+     * Gets the formatted timestamp of when the home was last updated. This is formatted as dd MMM yyyy HH:mm:ss.
+     *
+     * @return the formatted timestamp of when the home was last update.
+     */
     public String getUpdatedTimeFormatted() {
         return updatedTimeFormatted;
     }

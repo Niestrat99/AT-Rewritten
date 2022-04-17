@@ -5,10 +5,6 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,7 +21,6 @@ public class MoveHomeCommand extends AbstractHomeCommand implements AsyncATComma
                 if (sender.hasPermission("at.member.movehome")) {
                     if (args.length > 0) {
                         if (sender.hasPermission("at.admin.movehome")) {
-                            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
                             // We'll just assume that the admin command overrides the homes limit.
                             if (args.length > 1) {
                                 ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
@@ -33,9 +28,9 @@ public class MoveHomeCommand extends AbstractHomeCommand implements AsyncATComma
                                         CustomMessages.sendMessage(sender, "Error.noSuchHome");
                                         return;
                                     }
-                                    HomeSQLManager.get().moveHome(player.getLocation(), target.getUniqueId(), args[1],
-                                            SQLManager.SQLCallback.getDefaultCallback(sender, "Info.movedHomeOther", "Error.moveHomeFail",
-                                                    "{player}", args[0], "{home}", args[1]));
+                                    atTarget.moveHome(args[1], player.getLocation()).thenAcceptAsync(result ->
+                                            CustomMessages.sendMessage(sender, result ? "Info.movedHomeOther" :
+                                            "Error.moveHomeFail", "{player}", args[0], "{home}", args[1]));
 
                                 });
 
@@ -50,9 +45,9 @@ public class MoveHomeCommand extends AbstractHomeCommand implements AsyncATComma
                             return true;
                         }
 
-                        atPlayer.moveHome(args[0], player.getLocation(),
-                                SQLManager.SQLCallback.getDefaultCallback(
-                                        sender, "Info.movedHome", "Error.moveHomeFail", "{home}", args[0]));
+                        atPlayer.moveHome(args[0], player.getLocation()).thenAcceptAsync(result ->
+                                CustomMessages.sendMessage(sender, result ? "Info.movedHome" : "Error.moveHomeFail",
+                                        "{home}", args[0]));
 
 
                     } else {

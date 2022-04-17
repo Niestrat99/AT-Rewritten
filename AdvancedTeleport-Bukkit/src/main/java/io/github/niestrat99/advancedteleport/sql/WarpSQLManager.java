@@ -127,88 +127,82 @@ public class WarpSQLManager extends SQLManager {
     }
 
     public void removeWarp(String name, SQLCallback<Boolean> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,
-                        "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
-                statement.setString(1, name);
-                executeUpdate(statement);
-                if (callback != null) {
-                    callback.onSuccess(true);
-                }
-            } catch (SQLException exception) {
-                DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_WARP, name);
-                exception.printStackTrace();
-                if (callback != null) {
-                    callback.onFail();
-                }
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection,
+                    "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
+            statement.setString(1, name);
+            executeUpdate(statement);
+            if (callback != null) {
+                callback.onSuccess(true);
             }
-        });
+        } catch (SQLException exception) {
+            DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_WARP, name);
+            exception.printStackTrace();
+            if (callback != null) {
+                callback.onFail();
+            }
+        }
     }
 
     public void moveWarp(Location newLocation, String name, SQLCallback<Boolean> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,
-                        "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, " +
-                                "timestamp_updated = ? WHERE warp = ?");
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection,
+                    "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, " +
+                            "timestamp_updated = ? WHERE warp = ?");
 
-                statement.setDouble(1, newLocation.getX());
-                statement.setDouble(2, newLocation.getY());
-                statement.setDouble(3, newLocation.getZ());
-                statement.setDouble(4, newLocation.getYaw());
-                statement.setDouble(5, newLocation.getPitch());
-                statement.setString(6, newLocation.getWorld().getName());
-                statement.setLong(7, System.currentTimeMillis());
-                statement.setString(8, name);
-                executeUpdate(statement);
-                if (callback != null) {
-                    callback.onSuccess(true);
-                }
-            } catch (SQLException exception) {
-                DataFailManager.get().addFailure(DataFailManager.Operation.MOVE_WARP,
-                        newLocation.getWorld().getName(),
-                        String.valueOf(newLocation.getX()),
-                        String.valueOf(newLocation.getY()),
-                        String.valueOf(newLocation.getZ()),
-                        String.valueOf(newLocation.getYaw()),
-                        String.valueOf(newLocation.getPitch()),
-                        name);
-                exception.printStackTrace();
-                if (callback != null) {
-                    callback.onFail();
-                }
+            statement.setDouble(1, newLocation.getX());
+            statement.setDouble(2, newLocation.getY());
+            statement.setDouble(3, newLocation.getZ());
+            statement.setDouble(4, newLocation.getYaw());
+            statement.setDouble(5, newLocation.getPitch());
+            statement.setString(6, newLocation.getWorld().getName());
+            statement.setLong(7, System.currentTimeMillis());
+            statement.setString(8, name);
+            executeUpdate(statement);
+            if (callback != null) {
+                callback.onSuccess(true);
             }
-        });
+        } catch (SQLException exception) {
+            DataFailManager.get().addFailure(DataFailManager.Operation.MOVE_WARP,
+                    newLocation.getWorld().getName(),
+                    String.valueOf(newLocation.getX()),
+                    String.valueOf(newLocation.getY()),
+                    String.valueOf(newLocation.getZ()),
+                    String.valueOf(newLocation.getYaw()),
+                    String.valueOf(newLocation.getPitch()),
+                    name);
+            exception.printStackTrace();
+            if (callback != null) {
+                callback.onFail();
+            }
+        }
     }
 
     private void addWarps() {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
-                ResultSet results = executeQuery(statement);
-                // For each warp...
-                while (results.next()) {
-                    // Get the world.
-                    World world = Bukkit.getWorld(results.getString("world"));
-                    if (world == null) continue;
-                    // Create the warp object and it'll register itself.
-                    String creator = results.getString("uuid_creator");
-                    new Warp(creator == null ? null : UUID.fromString(creator),
-                            results.getString("warp"),
-                            new Location(world,
-                                    results.getDouble("x"),
-                                    results.getDouble("y"),
-                                    results.getDouble("z"),
-                                    results.getFloat("yaw"),
-                                    results.getFloat("pitch")),
-                            results.getLong("timestamp_created"),
-                            results.getLong("timestamp_updated"));
-                }
-            } catch (SQLException exception) {
-                exception.printStackTrace();
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
+            ResultSet results = executeQuery(statement);
+            // For each warp...
+            while (results.next()) {
+                // Get the world.
+                World world = Bukkit.getWorld(results.getString("world"));
+                if (world == null) continue;
+                // Create the warp object and it'll register itself.
+                String creator = results.getString("uuid_creator");
+                new Warp(creator == null ? null : UUID.fromString(creator),
+                        results.getString("warp"),
+                        new Location(world,
+                                results.getDouble("x"),
+                                results.getDouble("y"),
+                                results.getDouble("z"),
+                                results.getFloat("yaw"),
+                                results.getFloat("pitch")),
+                        results.getLong("timestamp_created"),
+                        results.getLong("timestamp_updated"));
             }
-        });
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
     }
 
     public static WarpSQLManager get() {

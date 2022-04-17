@@ -19,7 +19,7 @@ public class TpOff implements AsyncATCommand {
                 if (sender.hasPermission("at.member.off")) {
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
                     if (atPlayer.isTeleportationEnabled()) {
-                        atPlayer.setTeleportationEnabled(false, callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
+                        atPlayer.setTeleportationEnabled(false).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
 
                     } else {
                         CustomMessages.sendMessage(sender, "Error.alreadyOff");

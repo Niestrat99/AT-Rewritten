@@ -36,18 +36,18 @@ public class PlayerSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 PreparedStatement createTable = prepareStatement(connection,
                         "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_players " +
-                        "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
-                        "uuid VARCHAR(256) NOT NULL, " +
-                        "name VARCHAR(256) NOT NULL," +
-                        "timestamp_last_joined BIGINT NOT NULL," +
-                        "main_home VARCHAR(256)," +
-                        "teleportation_on BIT DEFAULT 1 NOT NULL, " +
-                        "x DOUBLE, " +
-                        "y DOUBLE, " +
-                        "z DOUBLE, " +
-                        "yaw FLOAT, " +
-                        "pitch FLOAT, " +
-                        "world VARCHAR(256))"
+                                "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
+                                "uuid VARCHAR(256) NOT NULL, " +
+                                "name VARCHAR(256) NOT NULL," +
+                                "timestamp_last_joined BIGINT NOT NULL," +
+                                "main_home VARCHAR(256)," +
+                                "teleportation_on BIT DEFAULT 1 NOT NULL, " +
+                                "x DOUBLE, " +
+                                "y DOUBLE, " +
+                                "z DOUBLE, " +
+                                "yaw FLOAT, " +
+                                "pitch FLOAT, " +
+                                "world VARCHAR(256))"
                 );
 
                 executeUpdate(createTable);
@@ -112,33 +112,33 @@ public class PlayerSQLManager extends SQLManager {
     }
 
     public void updatePlayerInformation(OfflinePlayer player, SQLCallback<Boolean> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                if (player.getName() == null) return;
-                PreparedStatement statement = prepareStatement(connection, "UPDATE " + tablePrefix + "_players SET name = ?, timestamp_last_joined = ? WHERE uuid = ?");
-                statement.setString(1, player.getName().toLowerCase());
-                statement.setLong(2, System.currentTimeMillis());
-                statement.setString(3, player.getUniqueId().toString());
-                executeUpdate(statement);
-                if (previousLocationData.containsKey(player.getUniqueId())) {
-                    ATPlayer.getPlayer(player).setPreviousLocation(previousLocationData.get(player.getUniqueId()));
+        try (Connection connection = implementConnection()) {
+            if (player.getName() == null) return;
+            PreparedStatement statement = prepareStatement(connection, "UPDATE " + tablePrefix + "_players SET name =" +
+                    " ?, timestamp_last_joined = ? WHERE uuid = ?");
+            statement.setString(1, player.getName().toLowerCase());
+            statement.setLong(2, System.currentTimeMillis());
+            statement.setString(3, player.getUniqueId().toString());
+            executeUpdate(statement);
+            if (previousLocationData.containsKey(player.getUniqueId())) {
+                ATPlayer.getPlayer(player).setPreviousLocation(previousLocationData.get(player.getUniqueId()));
 
-                    removeLastLocation(player.getUniqueId());
-                }
-                if (callback != null) {
-                    callback.onSuccess(true);
-                }
-            } catch (SQLException exception) {
-                DataFailManager.get().addFailure(DataFailManager.Operation.UPDATE_PLAYER, player.getUniqueId().toString());
-                exception.printStackTrace();
+                removeLastLocation(player.getUniqueId());
             }
-        });
+            if (callback != null) {
+                callback.onSuccess(true);
+            }
+        } catch (SQLException exception) {
+            DataFailManager.get().addFailure(DataFailManager.Operation.UPDATE_PLAYER, player.getUniqueId().toString());
+            exception.printStackTrace();
+        }
     }
 
     public void isPlayerInDatabase(OfflinePlayer player, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,"SELECT name FROM " + tablePrefix + "_players WHERE uuid = ?");
+                PreparedStatement statement = prepareStatement(connection, "SELECT name FROM " + tablePrefix +
+                        "_players WHERE uuid = ?");
                 statement.setString(1, player.getUniqueId().toString());
                 ResultSet results = executeQuery(statement);
                 callback.onSuccess(results.next());
@@ -192,7 +192,8 @@ public class PlayerSQLManager extends SQLManager {
     public void isTeleportationOn(UUID uuid, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,"SELECT teleportation_on FROM " + tablePrefix + "_players WHERE uuid = ?");
+                PreparedStatement statement = prepareStatement(connection,
+                        "SELECT teleportation_on FROM " + tablePrefix + "_players WHERE uuid = ?");
                 statement.setString(1, uuid.toString());
                 ResultSet results = executeQuery(statement);
                 if (results.next()) {
@@ -209,7 +210,8 @@ public class PlayerSQLManager extends SQLManager {
     public void setTeleportationOn(UUID uuid, boolean enabled, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "UPDATE " + tablePrefix + "_players SET teleportation_on = ? WHERE uuid = ?");
+                PreparedStatement statement = prepareStatement(connection, "UPDATE " + tablePrefix + "_players SET " +
+                        "teleportation_on = ? WHERE uuid = ?");
                 statement.setBoolean(1, enabled);
                 statement.setString(2, uuid.toString());
                 executeUpdate(statement);
@@ -217,7 +219,8 @@ public class PlayerSQLManager extends SQLManager {
                     callback.onSuccess(true);
                 }
             } catch (SQLException exception) {
-                DataFailManager.get().addFailure(DataFailManager.Operation.CHANGE_TELEPORTATION, uuid.toString(), String.valueOf(enabled));
+                DataFailManager.get().addFailure(DataFailManager.Operation.CHANGE_TELEPORTATION, uuid.toString(),
+                        String.valueOf(enabled));
                 callback.onFail();
                 exception.printStackTrace();
             }
@@ -227,7 +230,8 @@ public class PlayerSQLManager extends SQLManager {
     public void getPreviousLocation(String name, SQLCallback<Location> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "SELECT x, y, z, yaw, pitch, world FROM " + tablePrefix + "_players WHERE name = ?");
+                PreparedStatement statement = prepareStatement(connection,
+                        "SELECT x, y, z, yaw, pitch, world FROM " + tablePrefix + "_players WHERE name = ?");
                 statement.setString(1, name.toLowerCase());
                 ResultSet results = executeQuery(statement);
                 if (results.next()) {
@@ -255,7 +259,8 @@ public class PlayerSQLManager extends SQLManager {
     public void setPreviousLocation(String name, Location location, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "UPDATE " + tablePrefix + "_players SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ? WHERE name = ?");
+                PreparedStatement statement = prepareStatement(connection, "UPDATE " + tablePrefix + "_players SET x " +
+                        "= ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ? WHERE name = ?");
                 statement.setDouble(1, location.getX());
                 statement.setDouble(2, location.getY());
                 statement.setDouble(3, location.getZ());
@@ -288,7 +293,8 @@ public class PlayerSQLManager extends SQLManager {
     public void getMainHome(String name, SQLCallback<String> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "SELECT main_home FROM " + tablePrefix + "_players WHERE name = ?");
+                PreparedStatement statement = prepareStatement(connection, "SELECT main_home FROM " + tablePrefix +
+                        "_players WHERE name = ?");
                 statement.setString(1, name.toLowerCase());
                 ResultSet results = executeQuery(statement);
                 if (results.next()) {
@@ -305,7 +311,8 @@ public class PlayerSQLManager extends SQLManager {
     public void setMainHome(UUID uuid, String home, SQLCallback<Boolean> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "UPDATE " + tablePrefix + "_players SET main_home = ? WHERE uuid = ?");
+                PreparedStatement statement = prepareStatement(connection, "UPDATE " + tablePrefix + "_players SET " +
+                        "main_home = ? WHERE uuid = ?");
                 statement.setString(1, home);
                 statement.setString(2, uuid.toString());
                 executeUpdate(statement);

@@ -23,12 +23,12 @@ public class ToggleTP implements AsyncATCommand {
                             if (target != null) {
                                 ATPlayer atPlayer = ATPlayer.getPlayer(target);
                                 if (atPlayer.isTeleportationEnabled()) {
-                                    atPlayer.setTeleportationEnabled(false, callback -> {
+                                    atPlayer.setTeleportationEnabled(false).thenAcceptAsync(result -> {
                                         CustomMessages.sendMessage(sender, "Info.tpAdminOff");
                                         CustomMessages.sendMessage(target, "Info.tpOff");
                                     });
                                 } else {
-                                    atPlayer.setTeleportationEnabled(true, callback -> {
+                                    atPlayer.setTeleportationEnabled(false).thenAcceptAsync(result -> {
                                         CustomMessages.sendMessage(sender, "Info.tpAdminOn");
                                         CustomMessages.sendMessage(target, "Info.tpOn");
                                     });
@@ -41,9 +41,9 @@ public class ToggleTP implements AsyncATCommand {
                         Player player = (Player) sender;
                         ATPlayer atPlayer = ATPlayer.getPlayer(player);
                         if (atPlayer.isTeleportationEnabled()) {
-                            atPlayer.setTeleportationEnabled(false, callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
+                            atPlayer.setTeleportationEnabled(false).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
                         } else {
-                            atPlayer.setTeleportationEnabled(true, callback -> CustomMessages.sendMessage(sender, "Info.tpOn"));
+                            atPlayer.setTeleportationEnabled(true).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOn"));
                         }
                     }
                 }

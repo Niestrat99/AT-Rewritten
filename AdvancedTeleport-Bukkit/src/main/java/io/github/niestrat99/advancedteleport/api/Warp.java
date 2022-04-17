@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class Warp {
+public class Warp implements NamedLocation {
 
     private UUID creator;
     private String name;

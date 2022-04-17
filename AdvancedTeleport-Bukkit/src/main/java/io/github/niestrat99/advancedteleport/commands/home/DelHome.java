@@ -51,9 +51,11 @@ public class DelHome extends AbstractHomeCommand implements AsyncATCommand {
             CustomMessages.sendMessage(sender, "Error.noSuchHome");
             return;
         }
-        atPlayer.removeHome(name, SQLManager.SQLCallback.getDefaultCallback(sender,
-                sender.getUniqueId() == player.getUniqueId() ? "Info.deletedHome" : "Info.deletedHomeOther",
-                "Error.setHomeFail", "{home}", name, "{player}", player.getName()));
+
+        atPlayer.removeHome(name).thenAccept(result ->
+                CustomMessages.sendMessage(sender, result ? (sender.getUniqueId() == player.getUniqueId() ?
+                        "Info.deletedHome" : "Info.deletedHomeOther") : "Error.deleteHomeFail",
+                "{home}", name, "{player}", player.getName()));
     }
 
     private void delHome(Player player, String name) {

@@ -68,9 +68,9 @@ public class EssentialsHook extends ImportExportPlugin {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     if (player != null) {
                         if (!player.hasHome(home)) {
-                            player.addHome(home, user.getHome(home), null);
+                            player.addHome(home, user.getHome(home));
                         } else {
-                            player.moveHome(home, user.getHome(home), null);
+                            player.moveHome(home, user.getHome(home));
                         }
                     } else {
                         try (Connection connection = HomeSQLManager.get().implementConnection()) {
@@ -210,7 +210,7 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (player == null) {
                     PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled(), null);
                 } else {
-                    player.setTeleportationEnabled(user.isTeleportEnabled(), null);
+                    player.setTeleportationEnabled(user.isTeleportEnabled());
                 }
             } catch (Exception ex) {
                 debug("Failed to import player data for UUID " + uuid.toString() + ":");

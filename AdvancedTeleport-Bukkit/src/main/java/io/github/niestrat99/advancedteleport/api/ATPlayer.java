@@ -120,9 +120,19 @@ public class ATPlayer {
         return isTeleportationEnabled;
     }
 
+    @Deprecated
     public void setTeleportationEnabled(boolean teleportationEnabled, SQLManager.SQLCallback<Boolean> callback) {
-        isTeleportationEnabled = teleportationEnabled;
-        PlayerSQLManager.get().setTeleportationOn(uuid, teleportationEnabled, callback);
+        setTeleportationEnabled(teleportationEnabled);
+        callback.onSuccess(true);
+    }
+
+    public CompletableFuture<Boolean> setTeleportationEnabled(boolean teleportationEnabled) {
+        this.isTeleportationEnabled = teleportationEnabled;
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            PlayerSQLManager.get().setTeleportationOn(uuid, teleportationEnabled, callback);
+            return callback.data;
+        });
     }
 
     /*
@@ -152,26 +162,63 @@ public class ATPlayer {
         return blockedUsers.get(otherPlayer.getUniqueId());
     }
 
+    /**
+     *
+     * @param otherPlayer
+     * @param callback
+     */
+    @Deprecated
     public void blockUser(@NotNull OfflinePlayer otherPlayer, SQLManager.SQLCallback<Boolean> callback) {
-        blockUser(otherPlayer, null, callback);
+        blockUser(otherPlayer, (String) null);
+        callback.onSuccess(true);
     }
 
+    @Deprecated
     public void blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason,
                           SQLManager.SQLCallback<Boolean> callback) {
-        blockUser(otherPlayer.getUniqueId(), reason, callback);
+        blockUser(otherPlayer.getUniqueId(), reason);
+        callback.onSuccess(true);
     }
 
+    @Deprecated
     public void blockUser(@NotNull UUID otherUUID, @Nullable String reason, SQLManager.SQLCallback<Boolean> callback) {
+        blockUser(otherUUID, reason);
+        callback.onSuccess(true);
+    }
+
+    public CompletableFuture<Boolean> blockUser(@NotNull OfflinePlayer otherPlayer) {
+        return blockUser(otherPlayer.getUniqueId(), null);
+    }
+
+    public CompletableFuture<Boolean> blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason) {
+        return blockUser(otherPlayer.getUniqueId(), reason);
+    }
+
+    public CompletableFuture<Boolean> blockUser(@NotNull UUID otherUUID, @Nullable String reason) {
         // Add the user to the list of blocked users.
         blockedUsers.put(otherUUID, new BlockInfo(uuid, otherUUID, reason, System.currentTimeMillis()));
         // Add the entry to the SQL database.
-        BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason, callback);
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason, callback);
+            return callback.data;
+        }, CoreClass.async);
     }
 
+    @Deprecated
     public void unblockUser(@NotNull UUID otherUUID, SQLManager.SQLCallback<Boolean> callback) {
+        unblockUser(otherUUID);
+        callback.onSuccess(true);
+    }
+
+    public CompletableFuture<Boolean> unblockUser(@NotNull UUID otherUUID) {
         blockedUsers.remove(otherUUID);
 
-        BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString(), callback);
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString(), callback);
+            return callback.data;
+        });
     }
 
     /*
@@ -182,6 +229,7 @@ public class ATPlayer {
         return homes;
     }
 
+    @Deprecated
     public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback) {
         if (hasHome(name)) {
             moveHome(name, location, callback);
@@ -191,14 +239,41 @@ public class ATPlayer {
         HomeSQLManager.get().addHome(location, uuid, name, callback);
     }
 
-    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
-        homes.get(name).setLocation(newLocation);
-        HomeSQLManager.get().moveHome(newLocation, uuid, name, callback);
+    public CompletableFuture<Boolean> addHome(String name, Location location) {
+        if (hasHome(name)) {
+            return moveHome(name, location);
+        }
+        homes.put(name, new Home(uuid, name, location, System.currentTimeMillis(), System.currentTimeMillis()));
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            HomeSQLManager.get().addHome(location, uuid, name, callback);
+            return callback.data;
+        });
     }
 
+    @Deprecated
+    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
+        homes.get(name).setLocation(newLocation);
+        callback.onSuccess(true);
+    }
+
+    public CompletableFuture<Boolean> moveHome(String name, Location newLocation) {
+        return homes.get(name).move(newLocation);
+    }
+
+    @Deprecated
     public void removeHome(String name, SQLManager.SQLCallback<Boolean> callback) {
         homes.remove(name);
         HomeSQLManager.get().removeHome(uuid, name, callback);
+    }
+
+    public CompletableFuture<Boolean> removeHome(String name) {
+        homes.remove(name);
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            HomeSQLManager.get().removeHome(uuid, name, callback);
+            return callback.data;
+        });
     }
 
     public Home getHome(String name) {
@@ -225,8 +300,8 @@ public class ATPlayer {
         return homes.get(mainHome);
     }
 
-    public void setMainHome(String name, SQLManager.SQLCallback<Boolean> callback) {
-        if (!homes.containsKey(name)) return;
+    public CompletableFuture<Boolean> setMainHome(String name) {
+        if (!homes.containsKey(name)) return CompletableFuture.completedFuture(false);
         this.mainHome = name;
         LinkedHashMap<String, Home> tempHomes = new LinkedHashMap<>();
         tempHomes.put(name, homes.get(name));
@@ -236,7 +311,17 @@ public class ATPlayer {
         }
         homes = tempHomes;
 
-        PlayerSQLManager.get().setMainHome(uuid, name, callback);
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            PlayerSQLManager.get().setMainHome(uuid, name, callback);
+            return callback.data;
+        });
+    }
+
+    @Deprecated
+    public void setMainHome(String name, SQLManager.SQLCallback<Boolean> callback) {
+        setMainHome(name);
+        callback.onSuccess(true);
     }
 
     /**

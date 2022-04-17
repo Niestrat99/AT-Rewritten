@@ -7,6 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * Represents
+ */
 public class BlockInfo {
 
     private UUID receiverUUID;
@@ -38,6 +41,9 @@ public class BlockInfo {
         return receiverUUID;
     }
 
+    public long getTime() {
+        return time;
+    }
 
     public UUID getBlockedUUID() {
         return blockedUUID;

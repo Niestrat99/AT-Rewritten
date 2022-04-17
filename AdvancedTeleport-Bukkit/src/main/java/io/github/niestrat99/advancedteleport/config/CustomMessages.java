@@ -135,6 +135,8 @@ public class CustomMessages extends CMFile {
         addDefault("Error.cantExport", "&b↑ &8» &7Can't export plugin data from &b{plugin} &7(make sure it's enabled and by the correct authors)!");
         addDefault("Error.notEnoughItems", "&b↑ &8» &7You do not have enough items to teleport there!\n" +
                 "&b↑ &8» &7You need at least &b{amount} {type}(s)!");
+        addDefault("Error.blockFail", "&b↑ &8» &7Failed to save the block against &b{player}&7!");
+        addDefault("Error.unblockFail", "&b↑ &8» &7Failed to save the block removal against &b{player}&7!");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");

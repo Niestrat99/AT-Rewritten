@@ -42,5 +42,10 @@ public class AdvancedTeleportAPI {
         public void onSuccess(D data) {
             this.data = data;
         }
+
+        @Override
+        public void onFail() {
+            this.data = null;
+        }
     }
 }

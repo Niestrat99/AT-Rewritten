@@ -5,7 +5,6 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -16,7 +15,8 @@ import org.jetbrains.annotations.NotNull;
 public class TpBlockCommand implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, String s, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] args) {
         // If teleporting features are enabled...
         if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
             // If the user has permission...
@@ -43,27 +43,18 @@ public class TpBlockCommand implements AsyncATCommand {
                                 return;
                             }
 
-                            SQLManager.SQLCallback<Boolean> callback = new SQLManager.SQLCallback<Boolean>() {
-                                @Override
-                                public void onSuccess(Boolean data) {
-                                    CustomMessages.sendMessage(sender, "Info.blockPlayer", "{player}", args[0]);
-
-                                }
-
-                                @Override
-                                public void onFail() {
-                                    sender.sendMessage("Failed to save block");
-                                }
-                            };
-
                             if (args.length > 1) {
                                 StringBuilder reason = new StringBuilder();
                                 for (int i = 1; i < args.length; i++) {
                                     reason.append(args[i]).append(" ");
                                 }
-                                atPlayer.blockUser(target, reason.toString().trim(), callback);
+                                atPlayer.blockUser(target, reason.toString().trim()).thenAcceptAsync(result ->
+                                        CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
+                                        "{player}", args[0]));
                             } else {
-                                atPlayer.blockUser(target, callback);
+                                atPlayer.blockUser(target).thenAcceptAsync(result ->
+                                        CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
+                                                "{player}", args[0]));
                             }
 
                         });

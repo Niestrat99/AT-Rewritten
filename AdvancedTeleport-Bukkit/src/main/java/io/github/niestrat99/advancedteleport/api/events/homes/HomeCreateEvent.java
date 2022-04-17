@@ -12,11 +12,13 @@ public class HomeCreateEvent extends Event implements Cancellable {
     private boolean cancelled = false;
     private Player player;
     private Home home;
+    private boolean isMainHome;
     private static final HandlerList handlers = new HandlerList();
 
-    public HomeCreateEvent(Player player, Home home) {
+    public HomeCreateEvent(Player player, Home home, boolean isMainHome) {
         this.player = player;
         this.home = home;
+        this.isMainHome = isMainHome;
     }
 
     @Override
@@ -37,5 +39,21 @@ public class HomeCreateEvent extends Event implements Cancellable {
 
     public static HandlerList getHandlerList() {
         return handlers;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public Home getHome() {
+        return home;
+    }
+
+    public boolean isMainHome() {
+        return isMainHome;
+    }
+
+    public void setMainHome(boolean flag) {
+        this.isMainHome = flag;
     }
 }
