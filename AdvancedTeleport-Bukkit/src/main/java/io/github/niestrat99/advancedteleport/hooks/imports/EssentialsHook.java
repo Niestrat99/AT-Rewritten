@@ -133,7 +133,7 @@ public class EssentialsHook extends ImportExportPlugin {
         for (String warp : warps.getList()) {
             try {
                 if (Warp.getWarps().containsKey(warp)) {
-                    Warp.getWarps().get(warp).setLocation(warps.getWarp(warp), null);
+                    Warp.getWarps().get(warp).setLocation(warps.getWarp(warp));
                 } else {
                     WarpSQLManager.get().addWarp(new Warp(warps.getLastOwner(warp),
                             warp,

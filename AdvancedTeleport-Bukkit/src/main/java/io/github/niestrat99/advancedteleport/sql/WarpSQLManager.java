@@ -30,18 +30,18 @@ public class WarpSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 PreparedStatement createTable = prepareStatement(connection,
                         "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_warps " +
-                        "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
-                        "warp VARCHAR(256) NOT NULL," +
-                        "uuid_creator VARCHAR(256), " +
-                        "x DOUBLE NOT NULL," +
-                        "y DOUBLE NOT NULL," +
-                        "z DOUBLE NOT NULL," +
-                        "yaw FLOAT NOT NULL," +
-                        "pitch FLOAT NOT NULL," +
-                        "world VARCHAR(256) NOT NULL," +
-                        "price VARCHAR(256)," +
-                        "timestamp_created BIGINT NOT NULL," +
-                        "timestamp_updated BIGINT NOT NULL)");
+                                "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
+                                "warp VARCHAR(256) NOT NULL," +
+                                "uuid_creator VARCHAR(256), " +
+                                "x DOUBLE NOT NULL," +
+                                "y DOUBLE NOT NULL," +
+                                "z DOUBLE NOT NULL," +
+                                "yaw FLOAT NOT NULL," +
+                                "pitch FLOAT NOT NULL," +
+                                "world VARCHAR(256) NOT NULL," +
+                                "price VARCHAR(256)," +
+                                "timestamp_created BIGINT NOT NULL," +
+                                "timestamp_updated BIGINT NOT NULL)");
                 executeUpdate(createTable);
             } catch (SQLException exception) {
                 exception.printStackTrace();
@@ -87,44 +87,43 @@ public class WarpSQLManager extends SQLManager {
         String name = warp.getName();
         long created = warp.getCreatedTime();
         long updated = warp.getUpdatedTime();
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,
-                        "INSERT INTO " + tablePrefix + "_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection,
+                    "INSERT INTO " + tablePrefix + "_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, " +
+                            "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-                statement.setString(1, name);
-                statement.setString(2, creator == null ? null : creator.toString());
-                statement.setDouble(3, location.getX());
-                statement.setDouble(4, location.getY());
-                statement.setDouble(5, location.getZ());
-                statement.setDouble(6, location.getYaw());
-                statement.setDouble(7, location.getPitch());
-                statement.setString(8, location.getWorld().getName());
-                statement.setLong(9, created);
-                statement.setLong(10, updated);
-                executeUpdate(statement);
+            statement.setString(1, name);
+            statement.setString(2, creator == null ? null : creator.toString());
+            statement.setDouble(3, location.getX());
+            statement.setDouble(4, location.getY());
+            statement.setDouble(5, location.getZ());
+            statement.setDouble(6, location.getYaw());
+            statement.setDouble(7, location.getPitch());
+            statement.setString(8, location.getWorld().getName());
+            statement.setLong(9, created);
+            statement.setLong(10, updated);
+            executeUpdate(statement);
 
-                if (callback != null) {
-                    callback.onSuccess(true);
-                }
-            } catch (SQLException exception) {
-                DataFailManager.get().addFailure(DataFailManager.Operation.ADD_WARP,
-                        location.getWorld().getName(),
-                        String.valueOf(location.getX()),
-                        String.valueOf(location.getY()),
-                        String.valueOf(location.getZ()),
-                        String.valueOf(location.getYaw()),
-                        String.valueOf(location.getPitch()),
-                        name,
-                        creator == null ? null : creator.toString(),
-                        String.valueOf(created),
-                        String.valueOf(updated));
-                exception.printStackTrace();
-                if (callback != null) {
-                    callback.onFail();
-                }
+            if (callback != null) {
+                callback.onSuccess(true);
             }
-        });
+        } catch (SQLException exception) {
+            DataFailManager.get().addFailure(DataFailManager.Operation.ADD_WARP,
+                    location.getWorld().getName(),
+                    String.valueOf(location.getX()),
+                    String.valueOf(location.getY()),
+                    String.valueOf(location.getZ()),
+                    String.valueOf(location.getYaw()),
+                    String.valueOf(location.getPitch()),
+                    name,
+                    creator == null ? null : creator.toString(),
+                    String.valueOf(created),
+                    String.valueOf(updated));
+            exception.printStackTrace();
+            if (callback != null) {
+                callback.onFail();
+            }
+        }
     }
 
     public void removeWarp(String name, SQLCallback<Boolean> callback) {
@@ -151,7 +150,8 @@ public class WarpSQLManager extends SQLManager {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
                 PreparedStatement statement = prepareStatement(connection,
-                        "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ? WHERE warp = ?");
+                        "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, " +
+                                "timestamp_updated = ? WHERE warp = ?");
 
                 statement.setDouble(1, newLocation.getX());
                 statement.setDouble(2, newLocation.getY());

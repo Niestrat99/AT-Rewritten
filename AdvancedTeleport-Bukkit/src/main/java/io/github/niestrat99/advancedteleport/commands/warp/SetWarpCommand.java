@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -23,13 +24,8 @@ public class SetWarpCommand extends AbstractWarpCommand implements ATCommand {
                 Location warp = player.getLocation();
                 if (args.length > 0) {
                     if (!Warp.getWarps().containsKey(args[0])) {
-                        WarpSQLManager.get().addWarp(new Warp(player.getUniqueId(),
-                                args[0],
-                                warp,
-                                System.currentTimeMillis(),
-                                System.currentTimeMillis()), callback ->
+                        AdvancedTeleportAPI.setWarp(args[0], player.getUniqueId(), warp).thenAcceptAsync(result ->
                                 CustomMessages.sendMessage(sender,"Info.setWarp", "{warp}", args[0]));
-
                     } else {
                         CustomMessages.sendMessage(sender, "Error.warpAlreadySet", "{warp}", args[0]);
                     }

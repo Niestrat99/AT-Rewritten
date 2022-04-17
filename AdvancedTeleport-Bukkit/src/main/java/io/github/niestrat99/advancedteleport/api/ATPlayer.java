@@ -43,7 +43,6 @@ public class ATPlayer {
     private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
     /**
-     *
      * @param player
      */
     public ATPlayer(Player player) {
@@ -54,7 +53,7 @@ public class ATPlayer {
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
-        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
             FloodgateApi api = FloodgateApi.getInstance();
             if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
         }
@@ -95,7 +94,8 @@ public class ATPlayer {
         Player player = event.getPlayer();
         if (!event.isCancelled()) {
             if (PaymentManager.getInstance().canPay(command, player)) {
-                // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
+                // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr),
+                // apply it now
                 String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
 
                 if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
@@ -103,10 +103,12 @@ public class ATPlayer {
                 }
 
                 if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp, "{home}", event.getLocName(), "{warp}", event.getLocName());
+                    MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp,
+                            "{home}", event.getLocName(), "{warp}", event.getLocName());
                 } else {
                     PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}", event.getLocName());
+                    CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
+                            event.getLocName());
                     PaymentManager.getInstance().withdraw(command, player);
                 }
             }
@@ -154,7 +156,8 @@ public class ATPlayer {
         blockUser(otherPlayer, null, callback);
     }
 
-    public void blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason, SQLManager.SQLCallback<Boolean> callback) {
+    public void blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason,
+                          SQLManager.SQLCallback<Boolean> callback) {
         blockUser(otherPlayer.getUniqueId(), reason, callback);
     }
 
@@ -238,11 +241,12 @@ public class ATPlayer {
 
     /**
      * Used to get the permission for how many homes a player can have.
-     *
+     * <p>
      * If there is no permission, then it's assumed that the number of homes they can have is limitless (-1).
-     *
-     * If they have at.member.homes.unlimited, then well, they have unlimited homes, what were you expecting, a plasma TV?
-     *
+     * <p>
+     * If they have at.member.homes.unlimited, then well, they have unlimited homes, what were you expecting, a
+     * plasma TV?
+     * <p>
      * e.g.
      * - at.member.homes.5
      * - at.member.homes.40
@@ -331,12 +335,14 @@ public class ATPlayer {
 
     @NotNull
     public static ATPlayer getPlayer(Player player) {
-        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) : new ATPlayer(player);
+        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) :
+                new ATPlayer(player);
     }
 
     @NotNull
     public static ATPlayer getPlayer(OfflinePlayer player) {
-        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) : new ATPlayer(player.getUniqueId(), player.getName());
+        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) :
+                new ATPlayer(player.getUniqueId(), player.getName());
     }
 
     @Nullable
