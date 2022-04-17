@@ -7,7 +7,9 @@ import org.bukkit.Location;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class Warp {
 
@@ -23,6 +25,10 @@ public class Warp {
     private static HashMap<String, Warp> warps = new HashMap<>();
 
     public Warp(UUID creator, String name, Location location, long createdTime, long updatedTime) {
+        Objects.requireNonNull(name, "The warp name must not be null.");
+        Objects.requireNonNull(location, "The warp location must not be null.");
+        if (name.isEmpty()) throw new IllegalArgumentException("The warp name must not be empty.");
+
         this.name = name;
         this.location = location;
         this.creator = creator;
@@ -32,8 +38,6 @@ public class Warp {
         this.format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
         this.createdTimeFormatted = format.format(new Date(createdTime));
         this.updatedTimeFormatted = format.format(new Date(updatedTime));
-
-        warps.put(name, this);
     }
 
     public String getName() {
@@ -48,6 +52,7 @@ public class Warp {
         return creator;
     }
 
+    @Deprecated
     public void setLocation(Location location, SQLManager.SQLCallback<Boolean> callback) {
         this.location = location;
         this.updatedTime = System.currentTimeMillis();
@@ -55,6 +60,18 @@ public class Warp {
         this.updatedTimeFormatted = format.format(new Date(updatedTime));
 
         WarpSQLManager.get().moveWarp(location, name, callback);
+    }
+
+    public CompletableFuture<Boolean> setLocation(Location location) {
+        this.location = location;
+        this.updatedTime = System.currentTimeMillis();
+
+        this.updatedTimeFormatted = format.format(new Date(updatedTime));
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            WarpSQLManager.get().moveWarp(location, name, callback);
+            return callback.data;
+        });
     }
 
     public long getCreatedTime() {
@@ -66,11 +83,25 @@ public class Warp {
     }
 
     public static HashMap<String, Warp> getWarps() {
-        return warps;
+        return new HashMap<>(warps);
     }
 
+    static void registerWarp(Warp warp) {
+        warps.put(warp.name, warp);
+    }
+
+    @Deprecated
     public void delete(SQLManager.SQLCallback<Boolean> callback) {
         warps.remove(name);
         WarpSQLManager.get().removeWarp(name, callback);
+    }
+
+    public CompletableFuture<Boolean> delete() {
+        warps.remove(name);
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            WarpSQLManager.get().removeWarp(name, callback);
+            return callback.data;
+        });
     }
 }
