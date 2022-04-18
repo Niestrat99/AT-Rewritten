@@ -65,4 +65,8 @@ public class RandomCoords {
         }
     }
 
+    public static void reload() {
+        coordCache.clear();
+    }
+
 }
