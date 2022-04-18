@@ -12,12 +12,20 @@ import java.util.Random;
 
 public class RandomCoords {
 
-    private static final Map<String, Integer[]> coordCache = new HashMap<>();
+    private static final Map<String, double[]> coordCache = new HashMap<>();
 
     private static final Random random = new Random();
 
     public static double getRandomCoords(double min, double max){
         return random.nextInt((int)Math.round(max - min)+1)+min ;
+    }
+
+    public static Location getRandCoords(World world, double[] coords, int y) {
+        Location loc = new Location(world, getRandomCoords(coords[0], coords[1]), y, getRandomCoords(coords[2], coords[3]));
+        if (PluginHookManager.get().isClaimed(loc)) { // Should look into a limiter, so we don't get stuck in a loop somehow
+            return getRandCoords(world, coords, y);
+        }
+        return loc;
     }
 
     public static Location generateCoords(World world) {
@@ -31,7 +39,6 @@ public class RandomCoords {
                 String xStr = x.contains(world.getName()) ? x.getString(world.getName()) : x.getString("default");
                 String zStr = x.contains(world.getName()) ? z.getString(world.getName()) : z.getString("default");
 
-
                 if (xStr != null || zStr != null) {
                     Integer[] coordsInt = new Integer[4];
 
@@ -41,18 +48,19 @@ public class RandomCoords {
                     String[] zSplit = zStr != null ? zStr.split(";") : xStr.split(";"); // Use the X coord if Z isn't present for some reason
                     setIntegers(coordsInt, zSplit, 2, 3);
 
-                    coordCache.put(world.getName(), coordsInt);
+                    double[] coordsDouble = new double[]{coordsInt[0], coordsInt[1], coordsInt[2], coordsInt[3]}; // Is there a better way of doing this?
+                    coordCache.put(world.getName(), coordsDouble);
                 }
             }
 
-            Integer[] coordsInt = coordCache.get(world.getName());
-            coords = new double[]{
-                    getRandomCoords(coordsInt != null ? coordsInt[0] : NewConfig.get().MINIMUM_X.get(), coordsInt != null ? coordsInt[1] : NewConfig.get().MAXIMUM_X.get()),
-                    getRandomCoords(coordsInt != null ? coordsInt[2] : NewConfig.get().MINIMUM_Z.get(), coordsInt != null ? coordsInt[3] : NewConfig.get().MAXIMUM_Z.get())
-            };
+            double[] coordsDouble = coordCache.get(world.getName());
+
+            coords = coordsDouble != null
+                    ? coordsDouble
+                    : new double[]{NewConfig.get().MINIMUM_X.get(), NewConfig.get().MAXIMUM_X.get(), NewConfig.get().MINIMUM_Z.get(), NewConfig.get().MAXIMUM_Z.get()};
         }
         int y = world.getEnvironment() == World.Environment.NETHER ? 0 : 255;
-        return new Location(world, coords[0], y, coords[1]);
+        return getRandCoords(world, coords, y);
     }
 
     private static void setIntegers(Integer[] array, String[] strArray, int c1, int c2) {
