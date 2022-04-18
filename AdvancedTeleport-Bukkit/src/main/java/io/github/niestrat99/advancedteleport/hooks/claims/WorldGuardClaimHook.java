@@ -21,7 +21,7 @@ public class WorldGuardClaimHook extends ClaimPlugin {
 
     @Override
     public boolean canUse(World world) {
-        if (!NewConfig.get().PREVENT_CLAIM_LOCATIONS.get()) return false;
+        if (!NewConfig.get().PROTECT_CLAIM_LOCATIONS.get()) return false;
         if (!Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) return false;
         RegisteredServiceProvider<WorldGuard> provider = Bukkit.getServer().getServicesManager().getRegistration(WorldGuard.class);
         if (provider == null) return false;

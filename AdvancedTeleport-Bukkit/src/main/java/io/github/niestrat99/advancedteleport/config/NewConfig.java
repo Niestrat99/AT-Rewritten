@@ -74,8 +74,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> RAPID_RESPONSE;
     public ConfigOption<Boolean> USE_VANILLA_BORDER;
     public ConfigOption<Boolean> USE_PLUGIN_BORDERS;
-
-    public ConfigOption<Boolean> PREVENT_CLAIM_LOCATIONS;
+    public ConfigOption<Boolean> PROTECT_CLAIM_LOCATIONS;
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> IGNORE_WORLD_GENS;
     public ConfigOption<List<String>> AVOID_BLOCKS;
@@ -653,6 +652,8 @@ public class NewConfig extends ATConfig {
         WORLD_RULES = new ConfigOption<>("world-rules");
         COMMAND_RULES = new PerCommandOption<>("command-rules", "");
 
+        X = new ConfigOption<>("x");
+        Z = new ConfigOption<>("z");
         MAXIMUM_X = new ConfigOption<>("maximum-x");
         MAXIMUM_Z = new ConfigOption<>("maximum-z");
         MINIMUM_X = new ConfigOption<>("minimum-x");
@@ -660,6 +661,7 @@ public class NewConfig extends ATConfig {
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
         USE_VANILLA_BORDER = new ConfigOption<>("use-vanilla-border");
         USE_PLUGIN_BORDERS = new ConfigOption<>("use-plugin-borders");
+        PROTECT_CLAIM_LOCATIONS = new ConfigOption<>("protect-claim-locations");
         PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
         IGNORE_WORLD_GENS = new ConfigOption<>("ignore-world-generators");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");
