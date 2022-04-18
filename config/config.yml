@@ -278,9 +278,27 @@ command-rules:
 #  RandomTP  #
 ##############
 
+# Defines the range of X coordinates that players can teleport to.
+# Using a value for example 5000 would automatically set the minimum to -5000.
+# These are able to be defined for each world by name.
+# Split the values with a semi colon (;).
+x:
+  default: 5000;-5000
+  world_the_end: 5000;-5000
+
+# Defines the range of Z coordinates that players can teleport to.
+# Using a value for example 5000 would automatically set the minimum to -5000.
+# These are able to be defined for each world by name.
+# Split the values with a semi colon (;).
+z:
+  default: 5000;-5000
+  world_the_end: 10000;-10000
+
+# Deprecated
 # The maximum X coordinate to go up to when selecting a random location.
 maximum-x: 5000
 
+# Deprecated
 # The maximum Z coordinate to go up to when selecting a random location.
 maximum-z: 5000
 

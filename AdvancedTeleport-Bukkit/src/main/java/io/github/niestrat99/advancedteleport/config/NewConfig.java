@@ -64,10 +64,13 @@ public class NewConfig extends ATConfig {
     public ConfigOption<ConfigSection> WORLD_RULES;
     public PerCommandOption<String> COMMAND_RULES;
 
-    public ConfigOption<Integer> MAXIMUM_X;
-    public ConfigOption<Integer> MAXIMUM_Z;
-    public ConfigOption<Integer> MINIMUM_X;
-    public ConfigOption<Integer> MINIMUM_Z;
+
+    public ConfigOption<ConfigSection> X;
+    public ConfigOption<ConfigSection> Z;
+    @Deprecated public ConfigOption<Integer> MAXIMUM_X;
+    @Deprecated public ConfigOption<Integer> MAXIMUM_Z;
+    @Deprecated public ConfigOption<Integer> MINIMUM_X;
+    @Deprecated public ConfigOption<Integer> MINIMUM_Z;
     public ConfigOption<Boolean> RAPID_RESPONSE;
     public ConfigOption<Boolean> USE_VANILLA_BORDER;
     public ConfigOption<Boolean> USE_PLUGIN_BORDERS;
