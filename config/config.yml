@@ -281,7 +281,8 @@ command-rules:
 # Defines the range of X coordinates that players can teleport to.
 # Using a value for example 5000 would automatically set the minimum to -5000.
 # These are able to be defined for each world by name.
-# Split the values with a semi colon (;).
+# Split the values with a semicolon (;).
+# If a world is defined here but not in the z section, the x values will be reused for the z coords.
 x:
   default: 5000;-5000
   world_the_end: 5000;-5000
@@ -289,7 +290,8 @@ x:
 # Defines the range of Z coordinates that players can teleport to.
 # Using a value for example 5000 would automatically set the minimum to -5000.
 # These are able to be defined for each world by name.
-# Split the values with a semi colon (;).
+# Split the values with a semicolon (;).
+# If a world is defined here but not in the z section, the x values will be reused for the z coords.
 z:
   default: 5000;-5000
   world_the_end: 10000;-10000
