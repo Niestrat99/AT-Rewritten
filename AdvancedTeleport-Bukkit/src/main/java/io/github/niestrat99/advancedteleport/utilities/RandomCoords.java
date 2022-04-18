@@ -6,9 +6,13 @@ import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class RandomCoords {
+
+    private static final Map<String, Integer[]> coordCache = new HashMap<>();
 
     private static final Random random = new Random();
 
@@ -19,34 +23,46 @@ public class RandomCoords {
     public static Location generateCoords(World world) {
         double[] coords = PluginHookManager.get().getRandomCoords(world);
         if (coords == null) {
-            ConfigSection x = NewConfig.get().X.get();
-            ConfigSection z = NewConfig.get().Z.get();
+            if (!coordCache.containsKey(world.getName())) {
 
-            String xStr = x.contains(world.getName()) ? x.getString(world.getName()) : x.getString("default");
-            String zStr = x.contains(world.getName()) ? z.getString(world.getName()) : z.getString("default");
+                ConfigSection x = NewConfig.get().X.get();
+                ConfigSection z = NewConfig.get().Z.get();
 
-            Integer[] xInt = null;
-            Integer[] zInt = null;
-            if (xStr != null) {
-                String[] split = xStr.split(";");
-                xInt = split.length > 1
-                        ? new Integer[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])}
-                        : new Integer[]{Integer.parseInt(split[0]), Integer.parseInt(String.format("-%s", split[0]))};
+                String xStr = x.contains(world.getName()) ? x.getString(world.getName()) : x.getString("default");
+                String zStr = x.contains(world.getName()) ? z.getString(world.getName()) : z.getString("default");
+
+
+                if (xStr != null || zStr != null) {
+                    Integer[] coordsInt = new Integer[4];
+
+                    String[] xSplit = xStr != null ? xStr.split(";") : zStr.split(";"); // Use the Z coord if X isn't present for some reason
+                    setIntegers(coordsInt, xSplit, 0, 1);
+
+                    String[] zSplit = zStr != null ? zStr.split(";") : xStr.split(";"); // Use the X coord if Z isn't present for some reason
+                    setIntegers(coordsInt, zSplit, 2, 3);
+
+                    coordCache.put(world.getName(), coordsInt);
+                }
             }
-            if (zStr != null) {
-                String[] split = zStr.split(";");
-                zInt = split.length > 1
-                        ? new Integer[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])}
-                        : new Integer[]{Integer.parseInt(split[0]), Integer.parseInt(String.format("-%s", split[0]))};
-            }
 
+            Integer[] coordsInt = coordCache.get(world.getName());
             coords = new double[]{
-                    getRandomCoords(xInt != null ? xInt[0] : NewConfig.get().MINIMUM_X.get(), xInt != null ? xInt[1] : NewConfig.get().MAXIMUM_X.get()),
-                    getRandomCoords(zInt != null ? zInt[0] : NewConfig.get().MINIMUM_Z.get(), zInt != null ? zInt[1] : NewConfig.get().MAXIMUM_Z.get())
+                    getRandomCoords(coordsInt != null ? coordsInt[0] : NewConfig.get().MINIMUM_X.get(), coordsInt != null ? coordsInt[1] : NewConfig.get().MAXIMUM_X.get()),
+                    getRandomCoords(coordsInt != null ? coordsInt[2] : NewConfig.get().MINIMUM_Z.get(), coordsInt != null ? coordsInt[3] : NewConfig.get().MAXIMUM_Z.get())
             };
         }
         int y = world.getEnvironment() == World.Environment.NETHER ? 0 : 255;
         return new Location(world, coords[0], y, coords[1]);
+    }
+
+    private static void setIntegers(Integer[] array, String[] strArray, int c1, int c2) {
+        if (strArray.length > 1) {
+            array[c1] = Integer.parseInt(strArray[0]);
+            array[c2] = Integer.parseInt(strArray[1]);
+        } else {
+            array[c1] = Integer.parseInt(strArray[0]);
+            array[c2] = Integer.parseInt(String.format("-%s", strArray[0]));
+        }
     }
 
 }
