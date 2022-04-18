@@ -313,6 +313,10 @@ minimum-z: -5000
 # When WorldBorder is installed, AT will check the border of each world instead rather than using the minimum and maximum coordinates.
 use-world-border: true
 
+# If enabled checks if the player is in either an unclaimed area or that they have build permission in the area.
+# Supported plugins are Lands, WorldGuard, and GriefPrevention.
+protect-claim-locations: true
+
 # Use the new rapid response system for RTP.
 # This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.
 # This feature allows you to use the "tpr" death option in the death management section further down.
