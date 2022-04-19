@@ -6,6 +6,8 @@ import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -62,7 +64,11 @@ public class Warp implements NamedLocation {
     }
 
     public CompletableFuture<Boolean> setLocation(Location location) {
-        WarpMoveEvent event = new WarpMoveEvent(this, location);
+        return setLocation(location, (CommandSender) null);
+    }
+
+    public CompletableFuture<Boolean> setLocation(Location location, @Nullable CommandSender sender) {
+        WarpMoveEvent event = new WarpMoveEvent(this, location, sender);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return CompletableFuture.completedFuture(false);
 
@@ -85,6 +91,7 @@ public class Warp implements NamedLocation {
         return updatedTime;
     }
 
+    @Deprecated
     public static HashMap<String, Warp> getWarps() {
         return new HashMap<>(warps);
     }
@@ -95,12 +102,12 @@ public class Warp implements NamedLocation {
 
     @Deprecated
     public void delete(SQLManager.SQLCallback<Boolean> callback) {
-        delete();
+        delete((CommandSender) null);
         callback.onSuccess(true);
     }
 
-    public CompletableFuture<Boolean> delete() {
-        WarpDeleteEvent event = new WarpDeleteEvent(this);
+    public CompletableFuture<Boolean> delete(@Nullable CommandSender sender) {
+        WarpDeleteEvent event = new WarpDeleteEvent(this, sender);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return CompletableFuture.completedFuture(false);
 
@@ -110,5 +117,9 @@ public class Warp implements NamedLocation {
             WarpSQLManager.get().removeWarp(name, callback);
             return callback.data;
         });
+    }
+
+    public CompletableFuture<Boolean> delete() {
+        return delete((CommandSender) null);
     }
 }

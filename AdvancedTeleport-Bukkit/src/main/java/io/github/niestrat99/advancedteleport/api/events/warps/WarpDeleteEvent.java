@@ -1,19 +1,24 @@
 package io.github.niestrat99.advancedteleport.api.events.warps;
 
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.api.events.CancellableATEvent;
+import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class WarpDeleteEvent extends CancellableATEvent {
+public class WarpDeleteEvent extends TrackableATEvent {
 
+    @NotNull
     private final Warp warp;
     private static final HandlerList handlers = new HandlerList();
 
-    public WarpDeleteEvent(Warp warp) {
+    public WarpDeleteEvent(@NotNull Warp warp, @Nullable CommandSender sender) {
+        super(sender);
         this.warp = warp;
     }
 
+    @NotNull
     public Warp getWarp() {
         return warp;
     }

@@ -79,7 +79,7 @@ public class SetHomeCommand implements AsyncATCommand {
             return;
         }
 
-        atPlayer.addHome(homeName, sender.getLocation()).thenAccept(result -> CustomMessages.sendMessage(sender, result ?
+        atPlayer.addHome(homeName, sender.getLocation(), sender).thenAccept(result -> CustomMessages.sendMessage(sender, result ?
                 (sender.getUniqueId() == player ? "Info.setHome" : "Info.setHomeOther") : "Error.setHomeFail",
                 "{home}", homeName, "{player}", playerName));
 

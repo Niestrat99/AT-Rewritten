@@ -1,28 +1,35 @@
 package io.github.niestrat99.advancedteleport.api.events.homes;
 
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
+import io.github.niestrat99.advancedteleport.api.Home;
+import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class HomeDeleteEvent extends Event implements Cancellable {
+public class HomeDeleteEvent extends TrackableATEvent {
 
-    private boolean cancelled = false;
     private static final HandlerList handlers = new HandlerList();
+    @NotNull
+    private final Home home;
 
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
+    public HomeDeleteEvent(@NotNull Home home, @Nullable CommandSender sender) {
+        super(sender);
+        this.home = home;
     }
 
-    @Override
-    public void setCancelled(boolean b) {
-        cancelled = b;
+    @NotNull
+    public Home getHome() {
+        return home;
     }
 
     @NotNull
     @Override
     public HandlerList getHandlers() {
+        return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

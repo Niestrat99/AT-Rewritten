@@ -23,8 +23,8 @@ public class SetWarpCommand extends AbstractWarpCommand implements ATCommand {
                 Player player = (Player) sender;
                 Location warp = player.getLocation();
                 if (args.length > 0) {
-                    if (!Warp.getWarps().containsKey(args[0])) {
-                        AdvancedTeleportAPI.setWarp(args[0], player.getUniqueId(), warp).thenAcceptAsync(result ->
+                    if (!AdvancedTeleportAPI.getWarps().containsKey(args[0])) {
+                        AdvancedTeleportAPI.setWarp(args[0], player, warp).thenAcceptAsync(result ->
                                 CustomMessages.sendMessage(sender,"Info.setWarp", "{warp}", args[0]));
                     } else {
                         CustomMessages.sendMessage(sender, "Error.warpAlreadySet", "{warp}", args[0]);

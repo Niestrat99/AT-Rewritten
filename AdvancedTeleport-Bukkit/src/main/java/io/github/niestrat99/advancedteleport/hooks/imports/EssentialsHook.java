@@ -8,6 +8,7 @@ import com.earth2me.essentials.commands.WarpNotFoundException;
 import com.earth2me.essentials.spawn.EssentialsSpawn;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
@@ -22,13 +23,13 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.UUID;
 
 public class EssentialsHook extends ImportExportPlugin {
@@ -68,7 +69,7 @@ public class EssentialsHook extends ImportExportPlugin {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     if (player != null) {
                         if (!player.hasHome(home)) {
-                            player.addHome(home, user.getHome(home));
+                            player.addHome(home, user.getHome(home), (Player) null);
                         } else {
                             player.moveHome(home, user.getHome(home));
                         }
@@ -132,8 +133,8 @@ public class EssentialsHook extends ImportExportPlugin {
 
         for (String warp : warps.getList()) {
             try {
-                if (Warp.getWarps().containsKey(warp)) {
-                    Warp.getWarps().get(warp).setLocation(warps.getWarp(warp));
+                if (AdvancedTeleportAPI.getWarps().containsKey(warp)) {
+                    AdvancedTeleportAPI.getWarps().get(warp).setLocation(warps.getWarp(warp));
                 } else {
                     WarpSQLManager.get().addWarp(new Warp(warps.getLastOwner(warp),
                             warp,
@@ -311,7 +312,7 @@ public class EssentialsHook extends ImportExportPlugin {
         Warps warps = essentials.getWarps();
         if (warps == null) return;
 
-        for (Warp warp : Warp.getWarps().values()) {
+        for (Warp warp : AdvancedTeleportAPI.getWarps().values()) {
             try {
                 warps.setWarp(warp.getName(), warp.getLocation());
             } catch (Exception e) {

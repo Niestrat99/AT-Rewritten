@@ -52,7 +52,7 @@ public class DelHome extends AbstractHomeCommand implements AsyncATCommand {
             return;
         }
 
-        atPlayer.removeHome(name).thenAccept(result ->
+        atPlayer.removeHome(name, sender).thenAccept(result ->
                 CustomMessages.sendMessage(sender, result ? (sender.getUniqueId() == player.getUniqueId() ?
                         "Info.deletedHome" : "Info.deletedHomeOther") : "Error.deleteHomeFail",
                 "{home}", name, "{player}", player.getName()));
