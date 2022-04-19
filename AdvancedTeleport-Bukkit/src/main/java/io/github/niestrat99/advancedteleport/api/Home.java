@@ -28,7 +28,7 @@ public class Home implements NamedLocation {
     private final SimpleDateFormat format;
 
     /**
-     * Creates a home object. Please note this does not add a home to the saved data; instead, use {@link ATPlayer#addHome(String, Location)}.
+     * Creates a home object. Please note this does not add a home to the saved data; instead, use {@link ATPlayer#addHome(String, Location, org.bukkit.entity.Player)}.
      *
      * @param owner The owner of the house.
      * @param name The name of the house.
