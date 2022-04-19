@@ -1,7 +1,10 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
+import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import java.text.SimpleDateFormat;
@@ -92,11 +95,15 @@ public class Warp implements NamedLocation {
 
     @Deprecated
     public void delete(SQLManager.SQLCallback<Boolean> callback) {
-        warps.remove(name);
-        WarpSQLManager.get().removeWarp(name, callback);
+        delete();
+        callback.onSuccess(true);
     }
 
     public CompletableFuture<Boolean> delete() {
+        WarpDeleteEvent event = new WarpDeleteEvent(this);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+
         warps.remove(name);
         return CompletableFuture.supplyAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
