@@ -43,10 +43,10 @@ public class RandomCoords {
                     double[] coordsDouble = new double[4];
 
                     String[] xSplit = xStr != null ? xStr.split(";") : zStr.split(";"); // Use the Z coord if X isn't present for some reason
-                    setArray(coordsDouble, xSplit, 0, 1);
+                    setArray(coordsDouble, xSplit, 1, 0);
 
                     String[] zSplit = zStr != null ? zStr.split(";") : xStr.split(";"); // Use the X coord if Z isn't present for some reason
-                    setArray(coordsDouble, zSplit, 2, 3);
+                    setArray(coordsDouble, zSplit, 3, 2);
 
                     coordCache.put(world.getName(), coordsDouble);
                 }
