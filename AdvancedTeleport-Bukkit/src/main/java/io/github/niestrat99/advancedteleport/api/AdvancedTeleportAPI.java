@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,12 +21,14 @@ public class AdvancedTeleportAPI {
         if (!location.isWorldLoaded()) throw new IllegalArgumentException("The world the warp is being set in must be loaded.");
         // Create an event.
         WarpCreateEvent event = new WarpCreateEvent(name, creator, location);
+        Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return CompletableFuture.completedFuture(false);
         // Create the warp object.
         Warp warp = new Warp(event.getCreator(), event.getName(), event.getLocation(), System.currentTimeMillis(), System.currentTimeMillis());
         // Get registering
         return CompletableFuture.supplyAsync(() -> {
             FlattenedCallback<Boolean> callback = new FlattenedCallback<>();
+            Warp.registerWarp(warp);
             WarpSQLManager.get().addWarp(warp, callback);
             return callback.data;
         }, CoreClass.async).thenApplyAsync(data -> data, CoreClass.sync);
