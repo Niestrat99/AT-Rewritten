@@ -40,15 +40,14 @@ public class RandomCoords {
                 String zStr = x.contains(world.getName()) ? z.getString(world.getName()) : z.getString("default");
 
                 if (xStr != null || zStr != null) {
-                    Integer[] coordsInt = new Integer[4];
+                    double[] coordsDouble = new double[4];
 
                     String[] xSplit = xStr != null ? xStr.split(";") : zStr.split(";"); // Use the Z coord if X isn't present for some reason
-                    setIntegers(coordsInt, xSplit, 0, 1);
+                    setArray(coordsDouble, xSplit, 0, 1);
 
                     String[] zSplit = zStr != null ? zStr.split(";") : xStr.split(";"); // Use the X coord if Z isn't present for some reason
-                    setIntegers(coordsInt, zSplit, 2, 3);
+                    setArray(coordsDouble, zSplit, 2, 3);
 
-                    double[] coordsDouble = new double[]{coordsInt[0], coordsInt[1], coordsInt[2], coordsInt[3]}; // Is there a better way of doing this?
                     coordCache.put(world.getName(), coordsDouble);
                 }
             }
@@ -63,7 +62,7 @@ public class RandomCoords {
         return getRandCoords(world, coords, y);
     }
 
-    private static void setIntegers(Integer[] array, String[] strArray, int c1, int c2) {
+    private static void setArray(double[] array, String[] strArray, int c1, int c2) {
         if (strArray.length > 1) {
             array[c1] = Integer.parseInt(strArray[0]);
             array[c2] = Integer.parseInt(strArray[1]);
