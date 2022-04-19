@@ -2,6 +2,10 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.api.events.homes.HomeCreateEvent;
+import io.github.niestrat99.advancedteleport.api.events.homes.HomeDeleteEvent;
+import io.github.niestrat99.advancedteleport.api.events.homes.SwitchMainHomeEvent;
+import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocationChangeEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
@@ -15,6 +19,7 @@ import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -66,7 +71,7 @@ public class ATPlayer {
             // Do this after to be safe
             PlayerSQLManager.get().getMainHome(name, result -> {
                 if (result != null && !result.isEmpty()) {
-                    setMainHome(result, null);
+                    setMainHome(result);
                 }
             });
             // Add the bed spawn home
@@ -92,27 +97,24 @@ public class ATPlayer {
 
     public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp) {
         Player player = event.getPlayer();
-        if (!event.isCancelled()) {
-            if (PaymentManager.getInstance().canPay(command, player)) {
-                // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr),
-                // apply it now
-                String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
+        if (event.isCancelled()) return;
+        if (!PaymentManager.getInstance().canPay(command, player)) return;
+        // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr),
+        // apply it now
+        String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
 
-                if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
-                    CooldownManager.addToCooldown(command, player);
-                }
+        if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+            CooldownManager.addToCooldown(command, player);
+        }
 
-                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp,
-                            "{home}", event.getLocName(), "{warp}", event.getLocName());
-                } else {
-                    PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
-                            event.getLocName());
-                    PaymentManager.getInstance().withdraw(command, player);
-                }
-            }
-
+        if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+            MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp,
+                    "{home}", event.getLocName(), "{warp}", event.getLocName());
+        } else {
+            PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+            CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
+                    event.getLocName());
+            PaymentManager.getInstance().withdraw(command, player);
         }
     }
 
@@ -162,11 +164,6 @@ public class ATPlayer {
         return blockedUsers.get(otherPlayer.getUniqueId());
     }
 
-    /**
-     *
-     * @param otherPlayer
-     * @param callback
-     */
     @Deprecated
     public void blockUser(@NotNull OfflinePlayer otherPlayer, SQLManager.SQLCallback<Boolean> callback) {
         blockUser(otherPlayer, (String) null);
@@ -231,19 +228,26 @@ public class ATPlayer {
 
     @Deprecated
     public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback) {
-        if (hasHome(name)) {
-            moveHome(name, location, callback);
-            return;
-        }
-        homes.put(name, new Home(uuid, name, location, System.currentTimeMillis(), System.currentTimeMillis()));
-        HomeSQLManager.get().addHome(location, uuid, name, callback);
+        addHome(name, location, getPlayer());
+        callback.onSuccess(true);
     }
 
     public CompletableFuture<Boolean> addHome(String name, Location location) {
+        return addHome(name, location, (Player) null);
+    }
+
+    public CompletableFuture<Boolean> addHome(String name, Location location, Player creator) {
         if (hasHome(name)) {
             return moveHome(name, location);
         }
-        homes.put(name, new Home(uuid, name, location, System.currentTimeMillis(), System.currentTimeMillis()));
+
+        HomeCreateEvent event = new HomeCreateEvent(getOfflinePlayer(), name, location, creator);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+
+        homes.put(name, new Home(event.getPlayer().getUniqueId(), event.getName(), event.getLocation(),
+                System.currentTimeMillis(), System.currentTimeMillis()));
+
         return CompletableFuture.supplyAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             HomeSQLManager.get().addHome(location, uuid, name, callback);
@@ -253,7 +257,7 @@ public class ATPlayer {
 
     @Deprecated
     public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
-        homes.get(name).setLocation(newLocation);
+        moveHome(name, newLocation);
         callback.onSuccess(true);
     }
 
@@ -263,11 +267,19 @@ public class ATPlayer {
 
     @Deprecated
     public void removeHome(String name, SQLManager.SQLCallback<Boolean> callback) {
-        homes.remove(name);
-        HomeSQLManager.get().removeHome(uuid, name, callback);
+        removeHome(name);
+        callback.onSuccess(true);
     }
 
     public CompletableFuture<Boolean> removeHome(String name) {
+        return removeHome(name, (CommandSender) null);
+    }
+
+    public CompletableFuture<Boolean> removeHome(String name, CommandSender sender) {
+        HomeDeleteEvent event = new HomeDeleteEvent(homes.get(name), sender);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+
         homes.remove(name);
         return CompletableFuture.supplyAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
@@ -301,7 +313,15 @@ public class ATPlayer {
     }
 
     public CompletableFuture<Boolean> setMainHome(String name) {
+        return setMainHome(name, (CommandSender) null);
+    }
+
+    public CompletableFuture<Boolean> setMainHome(String name, CommandSender sender) {
         if (!homes.containsKey(name)) return CompletableFuture.completedFuture(false);
+        SwitchMainHomeEvent event = new SwitchMainHomeEvent(homes.get(mainHome), homes.get(name), sender);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+
         this.mainHome = name;
         LinkedHashMap<String, Home> tempHomes = new LinkedHashMap<>();
         tempHomes.put(name, homes.get(name));
@@ -380,7 +400,8 @@ public class ATPlayer {
     }
 
     /**
-     * Whether the player can access a specified home or not. A player may lose home access if `deny-homes-if-over-limit`
+     * Whether the player can access a specified home or not. A player may lose home access if
+     * `deny-homes-if-over-limit`
      * is set to true in the config.yml file, and if they used to have a higher homes limit than they currently have.
      *
      * @param home The home having access checked.
@@ -431,6 +452,7 @@ public class ATPlayer {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation") // for Bukkit#getOfflinePlayer
     public static ATPlayer getPlayer(@NotNull String name) {
         if (players.containsKey(name.toLowerCase())) {
             return players.get(name.toLowerCase());
@@ -443,6 +465,7 @@ public class ATPlayer {
     }
 
     @NotNull
+    @SuppressWarnings("deprecation") // for Bukkit#getOfflinePlayer
     public static CompletableFuture<ATPlayer> getPlayerFuture(String name) {
         if (players.containsKey(name.toLowerCase())) {
             return CompletableFuture.completedFuture(players.get(name.toLowerCase()));
@@ -464,5 +487,18 @@ public class ATPlayer {
     public void setPreviousLocation(Location previousLoc) {
         this.previousLoc = previousLoc;
         PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
+    }
+
+    public CompletableFuture<Boolean> setPreviousLocationNew(Location previousLoc) {
+        PreviousLocationChangeEvent event = new PreviousLocationChangeEvent(getOfflinePlayer(), previousLoc,
+                this.previousLoc);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+
+        return CompletableFuture.supplyAsync(() -> {
+            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
+            return callback.data;
+        });
     }
 }
