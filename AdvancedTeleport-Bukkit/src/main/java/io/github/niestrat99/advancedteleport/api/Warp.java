@@ -57,15 +57,15 @@ public class Warp implements NamedLocation {
 
     @Deprecated
     public void setLocation(Location location, SQLManager.SQLCallback<Boolean> callback) {
-        this.location = location;
-        this.updatedTime = System.currentTimeMillis();
-
-        this.updatedTimeFormatted = format.format(new Date(updatedTime));
-
-        WarpSQLManager.get().moveWarp(location, name, callback);
+        setLocation(location);
+        callback.onSuccess(true);
     }
 
     public CompletableFuture<Boolean> setLocation(Location location) {
+        WarpMoveEvent event = new WarpMoveEvent(this, location);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+
         this.location = location;
         this.updatedTime = System.currentTimeMillis();
 
