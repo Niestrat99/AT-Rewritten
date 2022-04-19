@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Location;
 
 import java.text.SimpleDateFormat;
