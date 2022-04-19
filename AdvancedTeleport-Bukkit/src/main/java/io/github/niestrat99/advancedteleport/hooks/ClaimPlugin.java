@@ -10,6 +10,4 @@ public abstract class ClaimPlugin {
     public abstract boolean canUse(World world);
 
     public abstract boolean isClaimed(Location location);
-
-    public abstract boolean isPermitted(Location location, Player player);
 }
