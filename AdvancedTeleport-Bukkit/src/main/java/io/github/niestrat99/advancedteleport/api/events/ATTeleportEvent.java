@@ -3,10 +3,11 @@ package io.github.niestrat99.advancedteleport.api.events;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+/**
+ * Fired when a player is teleporting using AT.
+ */
 public class ATTeleportEvent extends CancellableATEvent {
 
     private static final HandlerList handlers = new HandlerList();

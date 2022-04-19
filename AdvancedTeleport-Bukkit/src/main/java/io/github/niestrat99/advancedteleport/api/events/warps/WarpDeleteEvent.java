@@ -7,6 +7,9 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The event fired when a warp is deleted.
+ */
 public class WarpDeleteEvent extends TrackableATEvent {
 
     @NotNull
@@ -18,6 +21,11 @@ public class WarpDeleteEvent extends TrackableATEvent {
         this.warp = warp;
     }
 
+    /**
+     * Returns the warp being deleted.
+     *
+     * @return the warp being deleted.
+     */
     @NotNull
     public Warp getWarp() {
         return warp;

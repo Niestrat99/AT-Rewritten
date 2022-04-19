@@ -7,6 +7,9 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The event fired when a home is deleted.
+ */
 public class HomeDeleteEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -18,6 +21,11 @@ public class HomeDeleteEvent extends TrackableATEvent {
         this.home = home;
     }
 
+    /**
+     * Gives the home object in question.
+     *
+     * @return the home being deleted.
+     */
     @NotNull
     public Home getHome() {
         return home;

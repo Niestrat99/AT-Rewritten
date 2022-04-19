@@ -8,11 +8,16 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
+/**
+ * The event fired when a warp is moved.
+ */
 public class WarpMoveEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
     @NotNull
-    private Warp warp;
+    private final Warp warp;
     @NotNull
     private Location location;
 
@@ -22,15 +27,35 @@ public class WarpMoveEvent extends TrackableATEvent {
         this.location = location;
     }
 
+    /**
+     * Gives the warp to be moved.
+     *
+     * @return the warp to be moved.
+     */
     @NotNull
     public Warp getWarp() {
         return warp;
     }
 
+    /**
+     * Sets the location the warp is being moved to.
+     *
+     * @param location the location to be moved to.
+     * @throws NullPointerException if the location is null.
+     * @throws IllegalStateException if the location's world is not loaded.
+     */
     public void setLocation(@NotNull Location location) {
+        // Location checks
+        Objects.requireNonNull(location, "The new location must not be null.");
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The new location's world is not loaded.");
         this.location = location;
     }
 
+    /**
+     * Gets the location the warp is moving to.
+     *
+     * @return the upcoming location of the warp.
+     */
     @NotNull
     public Location getLocation() {
         return location;

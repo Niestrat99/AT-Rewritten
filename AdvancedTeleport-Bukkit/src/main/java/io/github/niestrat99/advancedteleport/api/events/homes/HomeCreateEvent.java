@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 /**
- * The event fired when a player - or admin - creates a new home
+ * The event fired when a player - or admin - creates a new home.
  */
 public class HomeCreateEvent extends TrackableATEvent {
 
@@ -49,33 +49,68 @@ public class HomeCreateEvent extends TrackableATEvent {
         return handlers;
     }
 
+    /**
+     * Gets the owner of the home.
+     *
+     * @return the owner of the home.
+     */
     @NotNull
     public OfflinePlayer getPlayer() {
         return player;
     }
 
+    /**
+     * Gets the location of the home.
+     *
+     * @return the location of the home.
+     */
     @NotNull
     public Location getLocation() {
         return location;
     }
 
+    /**
+     * Gets the name of the home.
+     *
+     * @return the name of the home.
+     */
     @NotNull
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the name of the home.
+     *
+     * @param name the new name to be used.
+     * @throws NullPointerException if the name is null.
+     * @throws IllegalArgumentException if the name is empty.
+     */
     public void setName(@NotNull String name) {
         Objects.requireNonNull(name, "The home name must not be null.");
         if (name.isEmpty()) throw new IllegalArgumentException("The home name must not be empty.");
         this.name = name;
     }
 
+    /**
+     * Sets the location of the home.
+     *
+     * @param location the new location of the home.
+     * @throws NullPointerException if the location is null.
+     * @throws IllegalStateException if the location's world isn't loaded.
+     */
     public void setLocation(@NotNull Location location) {
         Objects.requireNonNull(location, "The location must not be null.");
         if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
         this.location = location;
     }
 
+    /**
+     * Sets the owner of the home.
+     *
+     * @param player the new owner of the home.
+     * @throws NullPointerException if the player is null.
+     */
     public void setPlayer(@NotNull OfflinePlayer player) {
         Objects.requireNonNull(player, "The player must not be null.");
         this.player = player;
