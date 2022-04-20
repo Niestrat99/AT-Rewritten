@@ -4,7 +4,6 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -20,44 +19,38 @@ import java.util.UUID;
 public class SetHomeCommand implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (NewConfig.get().USE_HOMES.get()) {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (sender.hasPermission("at.member.sethome")) {
-                    if (args.length > 0) {
-                        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                        if (sender.hasPermission("at.admin.sethome") && player != target) {
-                            // We'll just assume that the admin command overrides the homes limit.
-                            if (args.length > 1) {
-                                setHome(player, target.getUniqueId(), args[1], args[0]);
-                                return true;
-                            }
-                        }
-
-                        if (atPlayer.canSetMoreHomes()) {
-                            setHome(player, args[0]);
-
-                        } else {
-                            CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
-                        }
-                    } else {
-                        int limit = atPlayer.getHomesLimit();
-                        if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
-                            setHome(player, "home");
-                        } else {
-                            CustomMessages.sendMessage(sender, "Error.noHomeInput");
-                        }
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (args.length > 0) {
+                OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                if (sender.hasPermission("at.admin.sethome") && player != target) {
+                    // We'll just assume that the admin command overrides the homes limit.
+                    if (args.length > 1) {
+                        setHome(player, target.getUniqueId(), args[1], args[0]);
+                        return true;
                     }
+                }
+
+                if (atPlayer.canSetMoreHomes()) {
+                    setHome(player, args[0]);
+
                 } else {
-                    CustomMessages.sendMessage(sender, "Error.noPermission");
+                    CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
                 }
             } else {
-                CustomMessages.sendMessage(sender, "Error.notAPlayer");
+                int limit = atPlayer.getHomesLimit();
+                if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
+                    setHome(player, "home");
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                }
             }
         } else {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
         return true;
     }
@@ -80,16 +73,26 @@ public class SetHomeCommand implements AsyncATCommand {
         }
 
         atPlayer.addHome(homeName, sender.getLocation(), sender).thenAccept(result -> CustomMessages.sendMessage(sender, result ?
-                (sender.getUniqueId() == player ? "Info.setHome" : "Info.setHomeOther") : "Error.setHomeFail",
+                        (sender.getUniqueId() == player ? "Info.setHome" : "Info.setHomeOther") : "Error.setHomeFail",
                 "{home}", homeName, "{player}", playerName));
 
     }
 
 
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_HOMES.get();
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.sethome";
+    }
 
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command,
+                                      @NotNull String s, @NotNull String[] strings) {
         return new ArrayList<>();
     }
 }

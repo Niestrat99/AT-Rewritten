@@ -27,49 +27,42 @@ import java.util.UUID;
 
 public class Tpr implements ATCommand {
 
-    private static List<UUID> searchingPlayers = new ArrayList<>();
+    private static final List<UUID> searchingPlayers = new ArrayList<>();
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         Player player;
-        if (NewConfig.get().USE_RANDOMTP.get()) {
-            if (sender.hasPermission("at.member.tpr")) {
-                if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
-                    player = Bukkit.getPlayer(args[1]);
-                    if (player == null) {
-                        CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
-                        return true;
-                    }
-                } else if (sender instanceof Player) {
-                    player = (Player) sender;
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
-                    return true;
-                }
-
-                if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                    CustomMessages.sendMessage(sender, "Error.onCountdown");
-                    return true;
-                }
-                World world = player.getWorld();
-                if (args.length > 0 && sender.hasPermission("at.member.tpr.other")) {
-                    World otherWorld = Bukkit.getWorld(args[0]);
-                    if (otherWorld != null) {
-                        world = otherWorld;
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.noSuchWorld");
-                        return true;
-                    }
-                }
-
-                return randomTeleport(player, sender, world);
+        if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
+            player = Bukkit.getPlayer(args[1]);
+            if (player == null) {
+                CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                return true;
             }
+        } else if (sender instanceof Player) {
+            player = (Player) sender;
         } else {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
 
-        return true;
+        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+            CustomMessages.sendMessage(sender, "Error.onCountdown");
+            return true;
+        }
+        World world = player.getWorld();
+        if (args.length > 0 && sender.hasPermission("at.member.tpr.other")) {
+            World otherWorld = Bukkit.getWorld(args[0]);
+            if (otherWorld != null) {
+                world = otherWorld;
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noSuchWorld");
+                return true;
+            }
+        }
+
+        return randomTeleport(player, sender, world);
     }
 
     public static boolean randomTeleport(Player player, World world) {
@@ -92,7 +85,8 @@ public class Tpr implements ATCommand {
                     } else {
                         for (String worldName : allowedWorlds) {
                             world = Bukkit.getWorld(worldName);
-                            String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0), new Location(world, 0, 0, 0), "tpr", player);
+                            String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0,
+                                    0, 0), new Location(world, 0, 0, 0), "tpr", player);
                             if (world != null && conditionResult.isEmpty()) break;
                         }
                         if (world == null) {
@@ -109,7 +103,8 @@ public class Tpr implements ATCommand {
             return true;
         }
 
-        String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0), new Location(world, 0, 0, 0), "tpr", player);
+        String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0),
+                new Location(world, 0, 0, 0), "tpr", player);
         if (!conditionResult.isEmpty()) {
             CustomMessages.sendMessage(player, conditionResult, "{world}", world.getName());
             return true;
@@ -121,29 +116,46 @@ public class Tpr implements ATCommand {
             Location nextLoc = RTPManager.getLocationUrgently(world);
             if (nextLoc != null) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+                ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "",
+                        ATTeleportEvent.TeleportType.TPR);
+                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace",
+                        NewConfig.get().WARM_UPS.TPR.get());
             } else {
                 CustomMessages.sendMessage(player, "Info.searching");
                 searchingPlayers.add(player.getUniqueId());
                 RTPManager.getNextAvailableLocation(world).thenAccept(location -> {
                     searchingPlayers.remove(player.getUniqueId());
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                    atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+                    ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "",
+                            ATTeleportEvent.TeleportType.TPR);
+                    atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace",
+                            NewConfig.get().WARM_UPS.TPR.get());
                 });
             }
         } else {
             CustomMessages.sendMessage(player, "Info.searching");
             searchingPlayers.add(player.getUniqueId());
-            RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world, location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
+            RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world,
+                    location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
                 searchingPlayers.remove(player.getUniqueId());
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+                ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "",
+                        ATTeleportEvent.TeleportType.TPR);
+                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace",
+                        NewConfig.get().WARM_UPS.TPR.get());
             }));
         }
 
         return true;
+    }
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_RANDOMTP.get();
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.tpr";
     }
 }

@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import org.bukkit.Bukkit;
@@ -40,7 +41,7 @@ public class ConditionChecker {
         if (atTarget.hasBlocked(player)) return "Error.tpBlock";
         // If a request has already been sent
         if (command.equalsIgnoreCase("tpa") || command.equalsIgnoreCase("tpahere")) {
-            if (TPRequest.getRequestByReqAndResponder(target, player) != null) return "Error.alreadySentRequest";
+            if (TeleportRequest.getRequestByReqAndResponder(target, player) != null) return "Error.alreadySentRequest";
         }
         return "";
     }

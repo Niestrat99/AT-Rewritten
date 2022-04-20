@@ -26,13 +26,8 @@ public class WarpsCommand implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (NewConfig.get().USE_WARPS.get()) {
-            if (sender.hasPermission("at.member.warps")){
-                sendWarps(sender);
-            }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-        }
+        if (!canProceed(sender)) return true;
+        sendWarps(sender);
         return true;
     }
 
@@ -152,5 +147,15 @@ public class WarpsCommand implements ATCommand {
                     .replaceAll("\\{world}", warpLoc.getWorld().getName()));
         }
         return homeTooltip;
+    }
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_WARPS.get();
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.warps";
     }
 }

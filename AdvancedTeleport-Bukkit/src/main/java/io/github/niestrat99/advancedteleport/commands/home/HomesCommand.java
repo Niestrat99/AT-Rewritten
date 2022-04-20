@@ -14,6 +14,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,33 +24,37 @@ import java.util.List;
 public class HomesCommand implements ATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (NewConfig.get().USE_HOMES.get()) {
-            if (sender.hasPermission("at.member.homes")) {
-                if (args.length > 0) {
-                    if (sender.hasPermission("at.admin.homes")) {
-                        ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
-                            if (player.getHomes() == null || player.getHomes().size() == 0) {
-                                CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
-                                return;
-                            }
-                            getHomes(sender, player.getOfflinePlayer());
-                        });
-                        return true;
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
+        if (args.length > 0) {
+            if (sender.hasPermission("at.admin.homes")) {
+                ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
+                    if (player.getHomes() == null || player.getHomes().size() == 0) {
+                        CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
+                        return;
                     }
-                }
-                if (sender instanceof Player) {
-                    getHomes(sender, (Player) sender);
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.notAPlayer");
-                }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noPermission");
+                    getHomes(sender, player.getOfflinePlayer());
+                });
+                return true;
             }
+        }
+        if (sender instanceof Player) {
+            getHomes(sender, (Player) sender);
         } else {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
         return true;
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.homes";
+    }
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_HOMES.get();
     }
 
     private void getHomes(CommandSender sender, OfflinePlayer target) {
