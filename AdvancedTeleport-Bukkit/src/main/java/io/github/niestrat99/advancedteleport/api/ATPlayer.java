@@ -43,19 +43,20 @@ public class ATPlayer {
     @NotNull
     private HashMap<UUID, BlockInfo> blockedUsers;
     private boolean isTeleportationEnabled;
+    @Nullable
     private String mainHome;
+    @Nullable
     private Location previousLoc;
 
     private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
-    /**
-     * @param player
-     */
     public ATPlayer(Player player) {
         this(player.getUniqueId(), player.getName());
     }
 
     public ATPlayer(@Nullable UUID uuid, @Nullable String name) {
+        this.homes = new LinkedHashMap<>();
+        this.blockedUsers = new HashMap<>();
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
@@ -63,8 +64,6 @@ public class ATPlayer {
             FloodgateApi api = FloodgateApi.getInstance();
             if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
         }
-        this.homes = new LinkedHashMap<>();
-        this.blockedUsers = new HashMap<>();
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> {
@@ -87,15 +86,29 @@ public class ATPlayer {
         players.put(name.toLowerCase(), this);
     }
 
+    /**
+     * Gets the Bukkit player object representing this ATPlayer.
+     *
+     * @return the Bukkit player representing this ATPlayer. This is null if the player is not online.
+     */
     @Nullable
     public Player getPlayer() {
         return Bukkit.getPlayer(uuid);
     }
 
+    /**
+     * Gets the offline Bukkit player object representing this ATPlayer.
+     *
+     * @return the offline Bukkit player representing this ATPlayer.
+     */
+    @NotNull
     public OfflinePlayer getOfflinePlayer() {
         return Bukkit.getOfflinePlayer(uuid);
     }
 
+    /**
+     * Internal use only.
+     */
     public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp) {
         Player player = event.getPlayer();
         if (event.isCancelled()) return;
@@ -119,10 +132,20 @@ public class ATPlayer {
         }
     }
 
+    /**
+     * Returns whether teleportation is enabled for the player.
+     *
+     * @return true if teleportation is enabled, false if it is disabled.
+     */
     public boolean isTeleportationEnabled() {
         return isTeleportationEnabled;
     }
 
+    /**
+     *
+     * @param teleportationEnabled
+     * @param callback
+     */
     @Deprecated
     public void setTeleportationEnabled(boolean teleportationEnabled, SQLManager.SQLCallback<Boolean> callback) {
         setTeleportationEnabled(teleportationEnabled);
@@ -174,12 +197,28 @@ public class ATPlayer {
         return blockedUsers.get(otherPlayer.getUniqueId());
     }
 
+    /**
+     * Makes this ATPlayer block another player, stopping the other player from sending teleportation requests to them.
+     *
+     * @param otherPlayer the player being blocked.
+     * @param callback what to do after the player has been blocked.
+     * @deprecated use {@link #blockUser(OfflinePlayer)} instead.
+     */
     @Deprecated
     public void blockUser(@NotNull OfflinePlayer otherPlayer, SQLManager.SQLCallback<Boolean> callback) {
         blockUser(otherPlayer, (String) null);
         callback.onSuccess(true);
     }
 
+    /**
+     * Makes this ATPlayer block another player with a specified reason, stopping the other player from sending
+     * teleportation requests to them.
+     *
+     * @param otherPlayer the player being blocked.
+     * @param reason the reason the player has been blocked. Can be null.
+     * @param callback what to do after the player has been blocked.
+     * @deprecated use {@link #blockUser(OfflinePlayer, String)} instead.
+     */
     @Deprecated
     public void blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason,
                           SQLManager.SQLCallback<Boolean> callback) {
@@ -187,20 +226,51 @@ public class ATPlayer {
         callback.onSuccess(true);
     }
 
+    /**
+     * Makes this ATPLayer block another player with the specified UUID with a given reason, stopping the other player
+     * from sending teleportation requests to them.
+     *
+     * @param otherUUID the player's UUID to be blocked.
+     * @param reason the reason the player has been blocked. Can be null.
+     * @param callback what to do after the player has been blocked.
+     * @deprecated use {@link #blockUser(UUID, String)} instead.
+     */
     @Deprecated
     public void blockUser(@NotNull UUID otherUUID, @Nullable String reason, SQLManager.SQLCallback<Boolean> callback) {
         blockUser(otherUUID, reason);
         callback.onSuccess(true);
     }
 
+    /**
+     * Makes this ATPlayer block another player, stopping the other player from sending teleportation requests to them.
+     *
+     * @param otherPlayer the player being blocked.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> blockUser(@NotNull OfflinePlayer otherPlayer) {
         return blockUser(otherPlayer.getUniqueId(), null);
     }
 
+    /**
+     * Makes this ATPlayer block another player with a specified reason, stopping the other player from sending
+     * teleportation requests to them.
+     *
+     * @param otherPlayer the player being blocked.
+     * @param reason the reason the player has been blocked. Can be null.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason) {
         return blockUser(otherPlayer.getUniqueId(), reason);
     }
 
+    /**
+     * Makes this ATPLayer block another player with the specified UUID with a given reason, stopping the other player
+     * from sending teleportation requests to them.
+     *
+     * @param otherUUID the player's UUID to be blocked.
+     * @param reason the reason the player has been blocked. Can be null.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> blockUser(@NotNull UUID otherUUID, @Nullable String reason) {
         // Add the user to the list of blocked users.
         blockedUsers.put(otherUUID, new BlockInfo(uuid, otherUUID, reason, System.currentTimeMillis()));
@@ -212,12 +282,25 @@ public class ATPlayer {
         }, CoreClass.async);
     }
 
+    /**
+     * Makes this player unblock a player with the specified UUID.
+     *
+     * @param otherUUID the UUID of the player to be unblocked.
+     * @param callback what to do after the player has been unblocked.
+     * @deprecated use {@link #unblockUser(UUID)} instead.
+     */
     @Deprecated
     public void unblockUser(@NotNull UUID otherUUID, SQLManager.SQLCallback<Boolean> callback) {
         unblockUser(otherUUID);
         callback.onSuccess(true);
     }
 
+    /**
+     * Makes this player unblock a player with the specified UUID.
+     *
+     * @param otherUUID the UUID of the player to be unblocked.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> unblockUser(@NotNull UUID otherUUID) {
         blockedUsers.remove(otherUUID);
 
