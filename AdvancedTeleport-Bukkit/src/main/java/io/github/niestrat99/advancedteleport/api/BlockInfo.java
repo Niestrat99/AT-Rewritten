@@ -12,11 +12,11 @@ import java.util.UUID;
  */
 public class BlockInfo {
 
-    private UUID receiverUUID;
-    private UUID blockedUUID;
+    private final UUID receiverUUID;
+    private final UUID blockedUUID;
     private String reason;
-    private long time;
-    private String formattedTime;
+    private final long time;
+    private final String formattedTime;
 
     public BlockInfo(UUID receiver, UUID blocked, String reason, long time) {
         receiverUUID = receiver;
@@ -51,6 +51,10 @@ public class BlockInfo {
 
     public String getReason() {
         return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     public String getFormattedTime() {

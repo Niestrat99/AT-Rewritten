@@ -17,12 +17,12 @@ public class PreviousLocationChangeEvent extends CancellableATEvent {
     private static final HandlerList handlers = new HandlerList();
     @NotNull
     private OfflinePlayer player;
-    @NotNull
+    @Nullable
     private Location newLocation;
     @Nullable
     private final Location oldLocation;
 
-    public PreviousLocationChangeEvent(@NotNull OfflinePlayer player, @NotNull Location newLocation, @Nullable Location oldLocation) {
+    public PreviousLocationChangeEvent(@NotNull OfflinePlayer player, @Nullable Location newLocation, @Nullable Location oldLocation) {
         Objects.requireNonNull(player, "The player must not be null.");
         // Location checks
         Objects.requireNonNull(newLocation, "The new location must not be null.");
@@ -46,9 +46,9 @@ public class PreviousLocationChangeEvent extends CancellableATEvent {
     /**
      * Gets the new location that will become the player's previous location. This is not where the player currently is.
      *
-     * @return the new location that is to be the previous location.
+     * @return the new location that is to be the previous location. Can be null if modified
      */
-    @NotNull
+    @Nullable
     public Location getNewLocation() {
         return newLocation;
     }
@@ -66,14 +66,9 @@ public class PreviousLocationChangeEvent extends CancellableATEvent {
     /**
      * Sets the location that will become the player's previous location.
      *
-     * @param newLocation the location to become the player's previous location.
-     * @throws NullPointerException if newLocation is null.
-     * @throws IllegalStateException if the world of newLocation is not loaded.
+     * @param newLocation the location to become the player's previous location. Can be null.
      */
-    public void setNewLocation(@NotNull Location newLocation) {
-        // Location checks
-        Objects.requireNonNull(newLocation, "The new location must not be null.");
-        if (!newLocation.isWorldLoaded()) throw new IllegalStateException("The new location's world is not loaded.");
+    public void setNewLocation(@Nullable Location newLocation) {
         this.newLocation = newLocation;
     }
 

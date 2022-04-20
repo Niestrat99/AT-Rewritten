@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.HomeCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.HomeDeleteEvent;
+import io.github.niestrat99.advancedteleport.api.events.homes.HomeMoveEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.SwitchMainHomeEvent;
 import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocationChangeEvent;
 import io.github.niestrat99.advancedteleport.api.events.players.ToggleTeleportationEvent;
@@ -50,10 +51,16 @@ public class ATPlayer {
 
     private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
+    /**
+     * Internal use only.
+     */
     public ATPlayer(Player player) {
         this(player.getUniqueId(), player.getName());
     }
 
+    /**
+     * Internal use only.
+     */
     public ATPlayer(@Nullable UUID uuid, @Nullable String name) {
         this.homes = new LinkedHashMap<>();
         this.blockedUsers = new HashMap<>();
@@ -133,7 +140,8 @@ public class ATPlayer {
     }
 
     /**
-     * Returns whether teleportation is enabled for the player.
+     * Returns whether teleportation is enabled for the player. This allows the player to receive teleportation requests
+     * if set to true.
      *
      * @return true if teleportation is enabled, false if it is disabled.
      */
@@ -142,9 +150,11 @@ public class ATPlayer {
     }
 
     /**
+     * Toggles teleportation for the player, setting it to a specific status.
      *
-     * @param teleportationEnabled
-     * @param callback
+     * @param teleportationEnabled true to enable teleportation, false to disable it.
+     * @param callback what to do after teleportation has been changed.
+     * @deprecated use {@link #setTeleportationEnabled(boolean)} instead.
      */
     @Deprecated
     public void setTeleportationEnabled(boolean teleportationEnabled, SQLManager.SQLCallback<Boolean> callback) {
@@ -152,10 +162,23 @@ public class ATPlayer {
         callback.onSuccess(true);
     }
 
+    /**
+     * Toggles teleportation for the player, setting it to a specific status.
+     *
+     * @param teleportationEnabled true to enable teleportation, false to disable it.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> setTeleportationEnabled(boolean teleportationEnabled) {
         return setTeleportationEnabled(teleportationEnabled, (CommandSender) null);
     }
 
+    /**
+     * Toggles teleportation for the player, setting it to a specific status.
+     *
+     * @param teleportationEnabled true to enable teleportation, false to disable it.
+     * @param sender the command sender that triggered the action.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> setTeleportationEnabled(boolean teleportationEnabled, CommandSender sender) {
         ToggleTeleportationEvent event = new ToggleTeleportationEvent(sender, getOfflinePlayer(), teleportationEnabled,
                 isTeleportationEnabled ^ teleportationEnabled);
@@ -315,20 +338,48 @@ public class ATPlayer {
      * HOMES FUNCTIONALITY
      */
 
+    /**
+     * Returns a hashmap of homes, where the key is the home name, and the value is the home object.
+     *
+     * @return a hashmap of homes.
+     */
     public HashMap<String, Home> getHomes() {
-        return homes;
+        return new HashMap<>(homes);
     }
 
+    /**
+     * Adds a home to the player's home list.
+     *
+     * @param name the name of the home.
+     * @param location the location of the home.
+     * @param callback what to do after the home has been added.
+     * @deprecated use {@link #addHome(String, Location)} instead.
+     */
     @Deprecated
-    public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback) {
+    public void addHome(@NotNull String name, @NotNull Location location, SQLManager.SQLCallback<Boolean> callback) {
         addHome(name, location, getPlayer());
         callback.onSuccess(true);
     }
 
+    /**
+     * Adds a home to the player's home list.
+     *
+     * @param name the name of the home.
+     * @param location the location of the home.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> addHome(String name, Location location) {
         return addHome(name, location, (Player) null);
     }
 
+    /**
+     * Adds a home to the player's home list.
+     *
+     * @param name the name of the home.
+     * @param location the location of the home.
+     * @param creator the player who created the home.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> addHome(String name, Location location, Player creator) {
         if (hasHome(name)) {
             return moveHome(name, location);
@@ -348,43 +399,107 @@ public class ATPlayer {
         });
     }
 
+    /**
+     * Moves a specified home to a new location.
+     *
+     * @param name the name of the home.
+     * @param newLocation the new location of the home.
+     * @param callback what to do after the home has been moved.
+     * @deprecated use {@link #moveHome(String, Location)} instead.
+     */
     @Deprecated
     public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
         moveHome(name, newLocation);
         callback.onSuccess(true);
     }
 
+    /**
+     * Moves a specified home to a new location.
+     *
+     * @param name the name of the home.
+     * @param newLocation the new location of the home.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> moveHome(String name, Location newLocation) {
-        return homes.get(name).move(newLocation);
+        return moveHome(name, newLocation, (CommandSender) null);
     }
 
+    /**
+     * Moves a specified home to a new location.
+     *
+     * @param name the name of the home.
+     * @param newLocation the new location of the home.
+     * @return a completable future of whether the action failed or succeeded.
+     */
+    public CompletableFuture<Boolean> moveHome(String name, Location newLocation, CommandSender sender) {
+        if (!homes.containsKey(name)) return CompletableFuture.completedFuture(false);
+        HomeMoveEvent event = new HomeMoveEvent(homes.get(name), newLocation, sender);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+
+        return event.getHome().move(event.getLocation());
+    }
+
+    /**
+     * Removes a specified home.
+     *
+     * @param name the name of the home.
+     * @param callback what to do after the home has been added.
+     * @deprecated use {@link #removeHome(String)} instead.
+     */
     @Deprecated
     public void removeHome(String name, SQLManager.SQLCallback<Boolean> callback) {
         removeHome(name);
         callback.onSuccess(true);
     }
 
+    /**
+     * Removes a specified home.
+     *
+     * @param name the name of the home.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> removeHome(String name) {
         return removeHome(name, (CommandSender) null);
     }
 
+    /**
+     * Removes a specified home.
+     *
+     * @param name the name of the home.
+     * @param sender the command sender that triggered the event.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> removeHome(String name, CommandSender sender) {
         HomeDeleteEvent event = new HomeDeleteEvent(homes.get(name), sender);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return CompletableFuture.completedFuture(false);
 
-        homes.remove(name);
+        homes.remove(event.getHome().getName());
         return CompletableFuture.supplyAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            HomeSQLManager.get().removeHome(uuid, name, callback);
+            HomeSQLManager.get().removeHome(uuid, event.getHome().getName(), callback);
             return callback.data;
         });
     }
 
-    public Home getHome(String name) {
+    /**
+     * Returns a specified home object from the name.
+     *
+     * @param name the name of the home.
+     * @return the home object itself, null if it doesn't exist.
+     * @throws NullPointerException if name is null.
+     */
+    public Home getHome(@NotNull String name) {
+        Objects.requireNonNull(name, "Home name cannot be null.");
         return homes.get(name);
     }
 
+    /**
+     * Gets the bed home object of the player.
+     *
+     * @return if the player has a bed spawn set, return the home object, else return null.
+     */
+    @Nullable
     public Home getBedSpawn() {
         if (getOfflinePlayer().getBedSpawnLocation() != null) {
             return new Home(uuid, "bed", getOfflinePlayer().getBedSpawnLocation(), -1, -1);
@@ -401,14 +516,32 @@ public class ATPlayer {
         return mainHome != null && !mainHome.isEmpty() && homes.containsKey(mainHome);
     }
 
+    /**
+     * Returns the main home of the player as a home object.
+     *
+     * @return the main home as a home object, or null if it does not exist.
+     */
     public Home getMainHome() {
-        return homes.get(mainHome);
+        return mainHome == null ? null : homes.get(mainHome);
     }
 
+    /**
+     * Sets the main home of the player.
+     *
+     * @param name the name of the home to be used.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> setMainHome(String name) {
         return setMainHome(name, (CommandSender) null);
     }
 
+    /**
+     * Sets the main home of the player.
+     *
+     * @param name the name of the home to be used.
+     * @param sender the command sender that triggered the event.
+     * @return a completable future of whether the action failed or succeeded.
+     */
     public CompletableFuture<Boolean> setMainHome(String name, CommandSender sender) {
         if (!homes.containsKey(name)) return CompletableFuture.completedFuture(false);
         SwitchMainHomeEvent event = new SwitchMainHomeEvent(homes.get(mainHome), homes.get(name), sender);
@@ -431,6 +564,13 @@ public class ATPlayer {
         });
     }
 
+    /**
+     * Sets the main home of the player.
+     *
+     * @param name the name of the home to be used.
+     * @param callback what to do after the home has been added.
+     * @deprecated use {@link #setMainHome(String)} instead.
+     */
     @Deprecated
     public void setMainHome(String name, SQLManager.SQLCallback<Boolean> callback) {
         setMainHome(name);
@@ -532,18 +672,42 @@ public class ATPlayer {
         return getHomesLimit() == -1 || homes.size() < getHomesLimit();
     }
 
+    /**
+     * Gets an instance of an ATPlayer by using the player object.
+     *
+     * @param player the player to get an ATPlayer instance of.
+     * @return an ATPlayer object representing the player.
+     * @throws NullPointerException if the player is null.
+     */
     @NotNull
-    public static ATPlayer getPlayer(Player player) {
+    public static ATPlayer getPlayer(@NotNull Player player) {
+        Objects.requireNonNull(player, "Player must not be null.");
         return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) :
                 new ATPlayer(player);
     }
 
+    /**
+     * Gets an instance of an ATPlayer by using the player object.
+     *
+     * @param player the player to get an ATPlayer instance of.
+     * @return an ATPlayer object representing the player.
+     * @throws NullPointerException if the player or their name is null.
+     */
     @NotNull
-    public static ATPlayer getPlayer(OfflinePlayer player) {
-        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) :
-                new ATPlayer(player.getUniqueId(), player.getName());
+    public static ATPlayer getPlayer(@NotNull OfflinePlayer player) {
+        Objects.requireNonNull(player, "Player must not be null.");
+        String name = player.getName();
+        Objects.requireNonNull(name, "Player name must not be null.");
+        return players.containsKey(name.toLowerCase()) ? players.get(name.toLowerCase()) :
+                new ATPlayer(player.getUniqueId(), name);
     }
 
+    /**
+     * Gets an instance of an ATPlayer by using their name.
+     *
+     * @param name the player name to get an ATPlayer instance of.
+     * @return an ATPlayer object representing the player, but null if they haven't immediately loaded.
+     */
     @Nullable
     @SuppressWarnings("deprecation") // for Bukkit#getOfflinePlayer
     public static ATPlayer getPlayer(@NotNull String name) {
@@ -557,6 +721,12 @@ public class ATPlayer {
         return null;
     }
 
+    /**
+     * Gets an instance of an ATPlayer by using their name.
+     *
+     * @param name the player name to get an ATPlayer instance of.
+     * @return an ATPlayer object representing the player within a CompletableFuture.
+     */
     @NotNull
     @SuppressWarnings("deprecation") // for Bukkit#getOfflinePlayer
     public static CompletableFuture<ATPlayer> getPlayerFuture(String name) {
@@ -569,20 +739,43 @@ public class ATPlayer {
         }, CoreClass.async).thenApplyAsync(player -> player, CoreClass.sync);
     }
 
+    /**
+     * Internal use only
+     */
     public static void removePlayer(Player player) {
         players.remove(player.getName());
     }
 
+    /**
+     * Gets the previous location of the player.
+     *
+     * @return the location the player was last at before teleporting. Can be null if they literally never teleported
+     * before.
+     */
     public Location getPreviousLocation() {
         return previousLoc;
     }
 
-    public void setPreviousLocation(Location previousLoc) {
-        this.previousLoc = previousLoc;
-        PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
+    /**
+     * Sets the player's previous location.
+     *
+     * @param previousLoc the new previous location to use.
+     * @param callback what to do after the home has been added.
+     * @deprecated use {@link #setPreviousLocation(Location)} instead.
+     */
+    @Deprecated
+    public void setPreviousLocation(@Nullable Location previousLoc, SQLManager.SQLCallback<Boolean> callback) {
+        setPreviousLocation(previousLoc);
+        callback.onSuccess(true);
     }
 
-    public CompletableFuture<Boolean> setPreviousLocationNew(Location previousLoc) {
+    /**
+     * Sets the player's previous location.
+     *
+     * @param previousLoc the new previous location to use.
+     * @return a completable future of whether the action failed or succeeded.
+     */
+    public CompletableFuture<Boolean> setPreviousLocation(@Nullable Location previousLoc) {
         PreviousLocationChangeEvent event = new PreviousLocationChangeEvent(getOfflinePlayer(), previousLoc,
                 this.previousLoc);
         Bukkit.getPluginManager().callEvent(event);
