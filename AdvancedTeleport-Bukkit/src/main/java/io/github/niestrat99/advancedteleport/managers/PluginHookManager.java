@@ -64,6 +64,7 @@ public class PluginHookManager {
             map.put(name, clazz.getConstructor().newInstance());
         } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
+        } catch (NoClassDefFoundError ignored) { // Why are you like this essentials?
         }
     }
 
