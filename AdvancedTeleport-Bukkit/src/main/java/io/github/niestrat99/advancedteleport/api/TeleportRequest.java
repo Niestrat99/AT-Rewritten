@@ -1,4 +1,4 @@
-package io.github.niestrat99.advancedteleport.utilities;
+package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -8,15 +8,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TPRequest {
+public class TeleportRequest {
 
-    private static List<TPRequest> requestList = new ArrayList<>();
-    private Player requester; // The player sending the request.
-    private Player responder; // The player receiving it.
-    private BukkitRunnable timer;
-    private TeleportType type;
+    private static final List<TeleportRequest> requestList = new ArrayList<>();
+    private final Player requester; // The player sending the request.
+    private final Player responder; // The player receiving it.
+    private final BukkitRunnable timer;
+    private final TeleportRequestType type;
 
-    public TPRequest(Player requester, Player responder, BukkitRunnable timer, TeleportType type) {
+    public TeleportRequest(Player requester, Player responder, BukkitRunnable timer, TeleportRequestType type) {
         this.requester = requester;
         this.responder = responder;
         this.timer = timer;
@@ -35,7 +35,7 @@ public class TPRequest {
         return responder;
     }
 
-    public TeleportType getType() {
+    public TeleportRequestType getType() {
         return type;
     }
 
@@ -44,9 +44,9 @@ public class TPRequest {
         TPA
     }
 
-    public static List<TPRequest> getRequests(Player responder) {
-        List<TPRequest> requests = new ArrayList<>();
-        for (TPRequest request : requestList) {
+    public static List<TeleportRequest> getRequests(Player responder) {
+        List<TeleportRequest> requests = new ArrayList<>();
+        for (TeleportRequest request : requestList) {
             if (request.responder == responder) {
                 requests.add(request);
             }
@@ -54,9 +54,9 @@ public class TPRequest {
         return requests;
     }
 
-    public static List<TPRequest> getRequestsByRequester(Player requester) {
-        List<TPRequest> requests = new ArrayList<>(); // Requests that the requester has pending
-        for (TPRequest request : requestList) {
+    public static List<TeleportRequest> getRequestsByRequester(Player requester) {
+        List<TeleportRequest> requests = new ArrayList<>(); // Requests that the requester has pending
+        for (TeleportRequest request : requestList) {
             if (request.getRequester() == requester) {
                 requests.add(request);
             }
@@ -64,8 +64,8 @@ public class TPRequest {
         return requests;
     }
 
-    public static TPRequest getRequestByReqAndResponder(Player responder, Player requester) {
-        for (TPRequest request : requestList) {
+    public static TeleportRequest getRequestByReqAndResponder(Player responder, Player requester) {
+        for (TeleportRequest request : requestList) {
             if (request.getRequester() == requester && request.getResponder() == responder) {
                 return request;
             }
@@ -73,9 +73,9 @@ public class TPRequest {
         return null;
     }
 
-    public static void addRequest(TPRequest request) {
+    public static void addRequest(TeleportRequest request) {
         if (!NewConfig.get().USE_MULTIPLE_REQUESTS.get()) {
-            for (TPRequest otherRequest : getRequests(request.responder)) {
+            for (TeleportRequest otherRequest : getRequests(request.responder)) {
                 if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
                     CustomMessages.sendMessage(otherRequest.requester, "Info.requestDisplaced", "{player}", request.responder.getName());
                 }
@@ -85,7 +85,7 @@ public class TPRequest {
         requestList.add(request);
     }
 
-    public static void removeRequest(TPRequest request) {
+    public static void removeRequest(TeleportRequest request) {
         requestList.remove(request);
     }
 
