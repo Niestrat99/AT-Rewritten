@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,16 +15,21 @@ import java.util.concurrent.CompletableFuture;
 public class Home implements NamedLocation {
 
     // The UUID of the home owner.
-    private UUID owner;
+    @NotNull
+    private final UUID owner;
     // The name of the home.
-    private String name;
+    @NotNull
+    private final String name;
     // The location of the home.
+    @NotNull
     private Location location;
     // When the home was made.
-    private long createdTime;
+    private final long createdTime;
     // When the home was last updated.
     private long updatedTime;
-    private String createdTimeFormatted;
+    @NotNull
+    private final String createdTimeFormatted;
+    @NotNull
     private String updatedTimeFormatted;
     private final SimpleDateFormat format;
 
@@ -36,7 +42,7 @@ public class Home implements NamedLocation {
      * @param createdTime When the house was created in milliseconds.
      * @param updatedTime When the house was last updated in milliseconds.
      */
-    public Home(UUID owner, String name, Location location, long createdTime, long updatedTime) {
+    public Home(@NotNull UUID owner, @NotNull String name, @NotNull Location location, long createdTime, long updatedTime) {
         this.name = name;
         this.owner = owner;
         this.location = location;
@@ -53,6 +59,7 @@ public class Home implements NamedLocation {
      *
      * @return the location of the house.
      */
+    @NotNull
     public Location getLocation() {
         return location;
     }
@@ -62,6 +69,7 @@ public class Home implements NamedLocation {
      *
      * @return the name of the house.
      */
+    @NotNull
     public String getName() {
         return name;
     }
@@ -71,6 +79,7 @@ public class Home implements NamedLocation {
      *
      * @return the home's owner UUID.
      */
+    @NotNull
     public UUID getOwner() {
         return owner;
     }
@@ -82,7 +91,7 @@ public class Home implements NamedLocation {
      * @deprecated use {@link Home#move(Location)} instead.
      */
     @Deprecated
-    public void setLocation(Location location) {
+    public void setLocation(@NotNull Location location) {
         move(location);
     }
 
@@ -92,7 +101,7 @@ public class Home implements NamedLocation {
      * @param location The new location that the home will be set to.
      * @return true if the move succeeded, false if it failed.
      */
-    public CompletableFuture<Boolean> move(Location location) {
+    public CompletableFuture<Boolean> move(@NotNull Location location) {
         this.location = location;
 
         this.updatedTime = System.currentTimeMillis();
@@ -129,6 +138,7 @@ public class Home implements NamedLocation {
      *
      * @return the formatted timestamp of when the home was created.
      */
+    @NotNull
     public String getCreatedTimeFormatted() {
         return createdTimeFormatted;
     }
@@ -138,6 +148,7 @@ public class Home implements NamedLocation {
      *
      * @return the formatted timestamp of when the home was last update.
      */
+    @NotNull
     public String getUpdatedTimeFormatted() {
         return updatedTimeFormatted;
     }
