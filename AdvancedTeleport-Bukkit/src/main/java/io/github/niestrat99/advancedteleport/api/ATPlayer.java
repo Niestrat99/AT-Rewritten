@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.api.events.homes.HomeCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.HomeDeleteEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.SwitchMainHomeEvent;
 import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocationChangeEvent;
+import io.github.niestrat99.advancedteleport.api.events.players.ToggleTeleportationEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
@@ -129,6 +130,15 @@ public class ATPlayer {
     }
 
     public CompletableFuture<Boolean> setTeleportationEnabled(boolean teleportationEnabled) {
+        return setTeleportationEnabled(teleportationEnabled, (CommandSender) null);
+    }
+
+    public CompletableFuture<Boolean> setTeleportationEnabled(boolean teleportationEnabled, CommandSender sender) {
+        ToggleTeleportationEvent event = new ToggleTeleportationEvent(sender, getOfflinePlayer(), teleportationEnabled,
+                isTeleportationEnabled ^ teleportationEnabled);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+
         this.isTeleportationEnabled = teleportationEnabled;
         return CompletableFuture.supplyAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
