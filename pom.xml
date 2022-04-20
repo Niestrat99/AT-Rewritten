@@ -119,6 +119,12 @@
             <id>mojang-authlib</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
+
+        <!-- World Guard Repo -->
+        <repository>
+            <id>sk89-repo</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -218,6 +224,30 @@
             <groupId>org.geysermc.floodgate</groupId>
             <artifactId>api</artifactId>
             <version>2.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Dependency Lands -->
+        <dependency>
+            <groupId>com.github.angeschossen</groupId>
+            <artifactId>LandsAPI</artifactId>
+            <version>6.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Dependency Grief Prevention -->
+        <dependency>
+            <groupId>com.github.TechFortress</groupId>
+            <artifactId>GriefPrevention</artifactId>
+            <version>16.18</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Dependency World Guard -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.0.7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
