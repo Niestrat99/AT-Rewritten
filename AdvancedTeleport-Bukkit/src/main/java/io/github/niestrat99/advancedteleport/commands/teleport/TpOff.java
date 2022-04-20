@@ -12,23 +12,32 @@ import org.jetbrains.annotations.NotNull;
 public class TpOff implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-                if (sender.hasPermission("at.member.off")) {
-                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    if (atPlayer.isTeleportationEnabled()) {
-                        atPlayer.setTeleportationEnabled(false).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
-
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.alreadyOff");
-                    }
-                }
-            }
-        } else {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
+        if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
         }
+        Player player = (Player) sender;
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+        if (atPlayer.isTeleportationEnabled()) {
+            atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
+
+        } else {
+            CustomMessages.sendMessage(sender, "Error.alreadyOff");
+        }
+
         return true;
+    }
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get();
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.off";
     }
 }
