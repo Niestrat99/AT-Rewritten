@@ -69,6 +69,10 @@ public class ATPlayer {
         this.uuid = uuid;
         if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
             FloodgateApi api = FloodgateApi.getInstance();
+            if (api == null) {
+                CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
+                return;
+            }
             if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
         }
 
@@ -745,6 +749,13 @@ public class ATPlayer {
      */
     public static void removePlayer(Player player) {
         players.remove(player.getName());
+    }
+
+    /**
+     * Internal use only
+     */
+    public static boolean isPlayerCached(String name) {
+        return players.containsKey(name.toLowerCase());
     }
 
     /**

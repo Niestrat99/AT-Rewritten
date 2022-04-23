@@ -37,6 +37,7 @@ public class BlocklistManager extends SQLManager {
                         "reason TEXT)");
                 executeUpdate(createTable);
             } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the blocklist table.");
                 exception.printStackTrace();
             }
             transferOldData();

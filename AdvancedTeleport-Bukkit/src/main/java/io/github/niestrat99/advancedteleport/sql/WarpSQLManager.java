@@ -44,6 +44,7 @@ public class WarpSQLManager extends SQLManager {
                                 "timestamp_updated BIGINT NOT NULL)");
                 executeUpdate(createTable);
             } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the warps table.");
                 exception.printStackTrace();
             }
             transferOldData();

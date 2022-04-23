@@ -20,6 +20,7 @@ public class SetMainSpawn extends SpawnATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
                              @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         String id;
         boolean world = true;
         if (args.length > 0) {
@@ -36,23 +37,16 @@ public class SetMainSpawn extends SpawnATCommand {
             return true;
         }
 
-        Location loc;
+        Location loc = ((Player) sender).getLocation();
         if (!Spawn.get().doesSpawnExist(id)) {
-            if (sender instanceof Player) {
-                if (sender.hasPermission("at.member.setspawn")
-                        && (world || sender.hasPermission("at.member.setspawn.other"))) {
-                    loc = ((Player) sender).getLocation();
-                    AdvancedTeleportAPI.setSpawn(id, sender, loc).join();
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
-                    return true;
-                }
+            if (sender.hasPermission("at.admin.setspawn")
+                    && (world || sender.hasPermission("at.admin.setspawn.other"))) {
+
+                AdvancedTeleportAPI.setSpawn(id, sender, loc).join();
             } else {
-                CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawnConsole");
+                CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
                 return true;
             }
-        } else {
-            loc = Spawn.get().getSpawn(id);
         }
         AdvancedTeleportAPI.setMainSpawn(id, sender).thenAcceptAsync(result ->
                 CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id));

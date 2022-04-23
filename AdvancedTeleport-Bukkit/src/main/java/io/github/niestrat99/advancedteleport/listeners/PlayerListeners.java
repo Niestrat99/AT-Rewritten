@@ -32,7 +32,6 @@ public class PlayerListeners implements Listener {
     public void onPlayerLeave(PlayerQuitEvent event) {
         if (event.getPlayer().hasMetadata("NPC")) return;
         ATPlayer.removePlayer(event.getPlayer());
-        NBTReader.addLeaveToCache(event.getPlayer());
     }
 
 

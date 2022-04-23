@@ -52,6 +52,7 @@ public class PlayerSQLManager extends SQLManager {
 
                 executeUpdate(createTable);
             } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the players table.");
                 exception.printStackTrace();
             }
             transferOldData();
@@ -334,6 +335,7 @@ public class PlayerSQLManager extends SQLManager {
             try {
                 lastLocations.save(lastLocFile);
             } catch (IOException e) {
+                CoreClass.getInstance().getLogger().severe("Failed to remove the last location of " + uuid + ": " + e.getMessage());
                 e.printStackTrace();
             }
         }

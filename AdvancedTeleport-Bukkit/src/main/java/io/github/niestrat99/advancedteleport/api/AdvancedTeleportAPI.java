@@ -54,7 +54,7 @@ public class AdvancedTeleportAPI {
         if (event.isCancelled()) return CompletableFuture.completedFuture(false);
         // Get registering
         return CompletableFuture.supplyAsync(() -> {
-            Spawn.get().setSpawn(event.getLocation(), event.getName());
+            AdvancedTeleportAPI.setSpawn(event.getName(), sender, event.getLocation());
             return true;
         });
     }

@@ -31,6 +31,7 @@ public class UpdateChecker {
             String updateName = (String) updateDesc.get("title");
             return new Object[]{newVersion, updateName};
         } catch (ParseException | java.text.ParseException e) {
+            CoreClass.getInstance().getLogger().severe("Failed to parse update information.");
             e.printStackTrace();
             return null;
         } catch (IOException ex) {

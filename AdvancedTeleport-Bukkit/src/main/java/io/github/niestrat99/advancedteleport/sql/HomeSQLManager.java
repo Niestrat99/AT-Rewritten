@@ -47,6 +47,7 @@ public class HomeSQLManager extends SQLManager {
                         "timestamp_updated BIGINT NOT NULL)");
                 executeUpdate(createTable);
             } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the homes table.");
                 exception.printStackTrace();
             }
             transferOldData();
@@ -229,8 +230,8 @@ public class HomeSQLManager extends SQLManager {
 
                 while (set.next()) {
                     OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(set.getString("uuid_owner")));
-                    if (player.getName() != null && !ATPlayer.isPlayerCached(player.getName())) continue;
-                    ATPlayer.getPlayer(player).removeHome(set.getString("home"), null);
+                    if (player.getName() == null || !ATPlayer.isPlayerCached(player.getName())) continue;
+                    ATPlayer.getPlayer(player).removeHome(set.getString("home"));
                 }
                 set.close();
 
@@ -259,7 +260,7 @@ public class HomeSQLManager extends SQLManager {
                     ResultSet set = statement.executeQuery();
 
                     while (set.next()) {
-                        atPlayer.removeHome(set.getString("home"), null);
+                        atPlayer.removeHome(set.getString("home"));
                     }
                     set.close();
                 }
