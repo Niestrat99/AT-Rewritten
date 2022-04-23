@@ -182,7 +182,7 @@ public class Warp implements NamedLocation {
      * Returns all registered warps.
      *
      * @return a hashmap where the key is the warp names, and the value is the warp objects themselves.
-     * @deprecated use {@link AdvancedTeleportAPI#getWarps()} instead.
+     * @deprecated use {@link AdvancedTeleportAPI#getWarps()} instead, this will eventually become internal use only.
      */
     @Deprecated
     public static HashMap<String, Warp> getWarps() {
