@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
+import io.github.niestrat99.advancedteleport.api.events.players.TeleportRequestEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -41,7 +42,16 @@ public class Tpa extends TeleportATCommand {
                 Player target = Bukkit.getPlayer(args[0]);
                 String result = ConditionChecker.canTeleport(player, target, "tpa");
                 if (result.isEmpty()) {
+                    assert target != null;
                     if (PaymentManager.getInstance().canPay("tpa", player)) {
+
+                        TeleportRequestEvent event = new TeleportRequestEvent(target, player, TeleportRequestType.TPA);
+                        Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) {
+                            // Cannot send request
+                            return true;
+                        }
+
                         int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
 
                         CustomMessages.sendMessage(sender, "Info.requestSent",

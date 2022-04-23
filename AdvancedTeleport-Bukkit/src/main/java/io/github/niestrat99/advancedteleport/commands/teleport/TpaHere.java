@@ -1,8 +1,9 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.api.events.players.TeleportRequestEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -10,7 +11,6 @@ import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -42,7 +42,16 @@ public class TpaHere extends TeleportATCommand {
                 Player target = Bukkit.getPlayer(args[0]);
                 String result = ConditionChecker.canTeleport(player, target, "tpahere");
                 if (result.isEmpty()) {
+                    assert target != null;
                     if (PaymentManager.getInstance().canPay("tpahere", player)) {
+
+                        TeleportRequestEvent event = new TeleportRequestEvent(target, player, TeleportRequestType.TPAHERE);
+                        Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) {
+                            // Cannot send request
+                            return true;
+                        }
+
                         int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
                         CustomMessages.sendMessage(sender, "Info.requestSent",
                                 "{player}", target.getName(), "{lifetime}", String.valueOf(requestLifetime));
@@ -65,7 +74,7 @@ public class TpaHere extends TeleportATCommand {
                                         player));
                             }
                         };
-                        run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20); // 60 seconds
+                        run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
                         TeleportRequest request = new TeleportRequest(player, target, run,
                                 TeleportRequestType.TPAHERE); // Creates a new teleport request.
                         TeleportRequest.addRequest(request);
