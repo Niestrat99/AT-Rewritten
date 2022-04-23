@@ -51,7 +51,7 @@ public class WarpCommand extends AbstractWarpCommand {
                 warp(warp, player, false);
             }
         } else {
-            CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
         return true;
     }

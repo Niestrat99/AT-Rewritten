@@ -23,6 +23,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -69,7 +70,7 @@ public class EssentialsHook extends ImportExportPlugin {
                     if (ATPlayer.isPlayerCached(user.getName())) {
                         ATPlayer player = ATPlayer.getPlayer(user.getName());
                         if (!player.hasHome(home)) {
-                            player.addHome(home, user.getHome(home), null, false);
+                            player.addHome(home, user.getHome(home), (Player) null);
                         } else {
                             player.moveHome(home, user.getHome(home));
                         }

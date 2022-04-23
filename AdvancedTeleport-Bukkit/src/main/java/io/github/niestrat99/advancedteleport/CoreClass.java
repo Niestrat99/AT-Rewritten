@@ -102,6 +102,7 @@ public class CoreClass extends JavaPlugin {
             }
         }
 
+        CommandManager.registerCommands();
         {
             new BlocklistManager();
             new HomeSQLManager();
@@ -132,7 +133,6 @@ public class CoreClass extends JavaPlugin {
                     getLogger().info(ChatColor.AQUA + "Plugin is up to date!");
                 }
             }
-            TpLoc.a();
         });
     }
 

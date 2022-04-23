@@ -81,7 +81,6 @@ public class SetHomeCommand implements ATCommand {
 
     }
 
-
     @Override
     public boolean getRequiredFeature() {
         return NewConfig.get().USE_HOMES.get();

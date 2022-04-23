@@ -71,16 +71,16 @@ public class TpaHere extends TeleportATCommand {
                         "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
             }
             BukkitRunnable run = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                            CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}",
-                                    target.getName());
+                @Override
+                public void run() {
+                    if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                        CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}",
+                                target.getName());
 
-                            TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target,
-                                    player));
-                        }
+                        TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target,
+                                player));
                     }
+                }
             };
             run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
             TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPAHERE); // Creates a new teleport request.
@@ -90,7 +90,6 @@ public class TpaHere extends TeleportATCommand {
             if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
                 CooldownManager.addToCooldown("tpahere", player);
             }
-            return true;
         }
         return true;
     }

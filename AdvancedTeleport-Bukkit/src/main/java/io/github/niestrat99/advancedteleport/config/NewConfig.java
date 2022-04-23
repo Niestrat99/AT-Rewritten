@@ -75,6 +75,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> USE_VANILLA_BORDER;
     public ConfigOption<Boolean> USE_PLUGIN_BORDERS;
     public ConfigOption<Boolean> PROTECT_CLAIM_LOCATIONS;
+
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> IGNORE_WORLD_GENS;
     public ConfigOption<List<String>> AVOID_BLOCKS;
@@ -370,6 +371,7 @@ public class NewConfig extends ATConfig {
         addDefault("maximum-z", 5000, "Deprecated\n # The maximum Z coordinate to go up to when selecting a random location.");
         addDefault("minimum-x", -5000, "Deprecated\n # The minimum X coordinate to go down to when selecting a random location.");
         addDefault("minimum-z", -5000, "Deprecated\n # The minimum Z coordinate to go down to when selecting a random location.");
+
         addDefault("use-rapid-response", true, "Use the new rapid response system for RTP.\n" +
                 "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, " +
                 "meaning they are ready for use and can instantly TP a player.\n" +
@@ -400,11 +402,10 @@ public class NewConfig extends ATConfig {
                 "b.a",
                 "com.chaseoes.voidworld.VoidWorld.VoidWorldGenerator",
                 "club.bastonbolado.voidgenerator.EmptyChunkGenerator",
-                "de.xtkq.voidgen.generator.interfaces.ChunkGen")), "AT's Rapid Response system automatically " +
-                "loads locations for each world, but can be problematic on some worlds, mostly SkyBlock worlds.\n" +
-                "In response, this list acts as pro-active protection and ignores worlds generated using the " +
-                "following generators.\n" +
-                "This is provided as an option so you can have control over which worlds have locations load.");
+                "de.xtkq.voidgen.generator.interfaces.ChunkGen")), """
+                AT's Rapid Response system automatically loads locations for each world, but can be problematic on some worlds, mostly SkyBlock worlds.
+                In response, this list acts as pro-active protection and ignores worlds generated using the following generators.
+                This is provided as an option so you can have control over which worlds have locations load.""");
         addDefault("avoid-blocks", new ArrayList<>(Arrays.asList("WATER", "LAVA", "STATIONARY_WATER",
                         "STATIONARY_LAVA")),
                 "Blocks that people must not be able to land in when using /tpr.");
@@ -415,21 +416,21 @@ public class NewConfig extends ATConfig {
                 "whitelisted world when using /tpr.\n" +
                 "When this option is disabled and the player tries to use /tpr in a non-whitelisted world, the " +
                 "command simply won't work.");
-        addDefault("allowed-worlds", new ArrayList<>(Arrays.asList("world", "world_nether")), "Worlds you can use " +
-                "/tpr in.\n" +
-                "If a player uses /tpr in a world that doesn't allow it, they will be teleported in the first world " +
-                "on the list instead.\n" +
-                "To make this feature effective, turn on \"whitelist-worlds\" above.");
+        addDefault("allowed-worlds", new ArrayList<>(Arrays.asList("world", "world_nether")), """
+                Worlds you can use /tpr in.
+                If a player uses /tpr in a world that doesn't allow it, they will be teleported in the first world on the list instead.
+                To make this feature effective, turn on "whitelist-worlds" above.""");
 
 
-        addDefault("default-homes-limit", -1, "Homes", "The default maximum of homes people can have.\n" +
-                "This can be overridden by giving people permissions such as at.member.homes.10.\n" +
-                "To disable this, use -1 as provided by default.");
+        addDefault("default-homes-limit", -1, "Homes", """
+                The default maximum of homes people can have.
+                This can be overridden by giving people permissions such as at.member.homes.10.
+                To disable this, use -1 as provided by default.""");
         addDefault("add-bed-to-homes", true, "Whether or not the bed home should be added to /homes.");
-        addDefault("deny-homes-if-over-limit", false, "Whether or not players should be denied access to some of " +
-                "their homes if they exceed their homes limit.\n" +
-                "The homes denied access to will end up being their most recently set homes.\n" +
-                "For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.");
+        addDefault("deny-homes-if-over-limit", false, """
+                Whether or not players should be denied access to some of their homes if they exceed their homes limit.
+                The homes denied access to will end up being their most recently set homes.
+                For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.""");
         addDefault("hide-homes-if-denied", false, "If homes should be hidden from /homes should they be denied access" +
                 ".\n" +
                 "If this is false, they will be greyed out in the /homes list.");
@@ -437,14 +438,12 @@ public class NewConfig extends ATConfig {
                 "list gets overwritten.");
 
         addDefault("tpa-request-received", "none", "Notifications/Sounds",
-                "The sound played when a player receives a teleportation (tpa) request.\n" +
-                        "For 1.16+, check https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html for a list " +
-                        "of sounds you can use\n" +
-                        "For 1.15 and below, check https://www.spigotmc" +
-                        ".org/threads/sounds-spigot-1-7-1-14-4-sound-enums.340452/ for a list of sounds down to 1.7" +
-                        ".\n" +
-                        "(Friendly reminder that 1.7.x is not supported though!)\n" +
-                        "Set to \"none\" if you want no sound playing.");
+                """
+                        The sound played when a player receives a teleportation (tpa) request.
+                        For 1.16+, check https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html for a list of sounds you can use
+                        For 1.15 and below, check https://www.spigotmc.org/threads/sounds-spigot-1-7-1-14-4-sound-enums.340452/ for a list of sounds down to 1.7.
+                        (Friendly reminder that 1.7.x is not supported though!)
+                        Set to "none" if you want no sound playing.""");
         addDefault("tpa-request-sent", "none", "The sound played when a player sends a teleportation (tpa) request.");
         addDefault("tpahere-request-received", "none", "The sound played when a player receives a teleportation " +
                 "(tpahere) request.");
@@ -456,12 +455,11 @@ public class NewConfig extends ATConfig {
                         "location.\n" +
                         "You can see a full list of these causes at https://hub.spigotmc" +
                         ".org/javadocs/spigot/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html");
-        addDefault("back-search-radius", 5, "The cubic radius to search for a safe block when using /back.\n" +
-                "If a player teleports from an unsafe location and uses /back to return to it, the plugin will search" +
-                " all blocks within this radius to see if it is a safe place for the player to be moved to.\n" +
-                "It is recommend to avoid setting this option too high as this can have a worst case execution time " +
-                "of O(n^3) (e.g. run 27 times, 64, 125, 216 and so on).\n" +
-                "To disable, either set to 0 or -1.");
+        addDefault("back-search-radius", 5, """
+                The cubic radius to search for a safe block when using /back.
+                If a player teleports from an unsafe location and uses /back to return to it, the plugin will search all blocks within this radius to see if it is a safe place for the player to be moved to.
+                It is recommend to avoid setting this option too high as this can have a worst case execution time of O(n^3) (e.g. run 27 times, 64, 125, 216 and so on).
+                To disable, either set to 0 or -1.""");
 
         addSection("Map Plugin Integration");
         addComment("At this time, AdvancedTeleport supports dynmap and squaremap.\n" +
@@ -517,26 +515,25 @@ public class NewConfig extends ATConfig {
 
         addDefault("default-permissions", new ArrayList<>(Arrays.asList("at.member.*", "at.member.warp.*", "at.member.warp.sign.*")),
                 "Permissions",
-                "The default permissions given to users without OP.\n" +
-                        "By default, Advanced Teleport allows users without OP to use all member features.\n" +
-                        "This allows for permission management without a permissions plugin, especially if a user " +
-                        "doesn't understand how such plugins work.\n" +
-                        "However, if you have a permissions plugin and Vault installed, you cannot make admin " +
-                        "permissions work by default.");
-        addDefault("allow-admin-permissions-as-default-perms", false, "Allows admin permissions to be allowed as " +
-                "default permissions by default.\n" +
-                "If you want to use admin permissions, it's often recommended to use a permissions plugin such as " +
-                "LuckPerms.\n" +
-                "Do not enable this if you are unsure of the risks this option proposes.");
+                """
+                        The default permissions given to users without OP.
+                        By default, Advanced Teleport allows users without OP to use all member features.
+                        This allows for permission management without a permissions plugin, especially if a user doesn't understand how such plugins work.
+                        However, if you have a permissions plugin and Vault installed, you cannot make admin permissions work by default.""");
+        addDefault("allow-admin-permissions-as-default-perms", false, """
+                Allows admin permissions to be allowed as default permissions by default.
+                If you want to use admin permissions, it's often recommended to use a permissions plugin such as LuckPerms.
+                Do not enable this if you are unsure of the risks this option proposes.""");
 
         addSection("Updates");
         addDefault("check-for-updates", true, "Whether or not the plugin should check for updates.");
         addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
                 "Anyone with the permission at.admin.notify will receive this notification.");
         addDefault("debug", false, "Used for debugging purposes.");
-        addDefault("use-floodgate-forms", true, "Whether to use Cumulus forms for Bedrock players.\n" +
-                "These work by having a Bedrock player type in the command itself (such as /warp, /tpa, /setwarp), then fill in the rest of the commands through a form.\n" +
-                "This only works when Geyser and Floodgate are used on the server. This improves accessibility for mobile or console players.");
+        addDefault("use-floodgate-forms", true, """
+                Whether to use Cumulus forms for Bedrock players.
+                These work by having a Bedrock player type in the command itself (such as /warp, /tpa, /setwarp), then fill in the rest of the commands through a form.
+                This only works when Geyser and Floodgate are used on the server. This improves accessibility for mobile or console players.""");
 
     }
 

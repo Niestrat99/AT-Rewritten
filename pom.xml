@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.niestrat99</groupId>
+    <artifactId>AdvancedTeleport</artifactId>
+    <packaging>pom</packaging>
+    <version>v5.6.2</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--suppress UnresolvedMavenProperty -->
+        <module.version>5.6.2+DEV_${env.BUILD_NUMBER}</module.version>
+        <jenkins.timestamp>${maven.build.timestamp}</jenkins.timestamp>
+    </properties>
+
+    <modules>
+        <module>AdvancedTeleport-Bukkit</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- Maven wants this otherwise it screams at me -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <artifactSet>
+                        <includes>
+                            <include>io.papermc:paperlib</include>
+                            <include>com.github.thatsmusic99:ConfigurationMaster-API</include>
+                            <include>net.kyori:adventure-nbt</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>io.papermc</pattern>
+                            <shadedPattern>io.github.niestrat99.advancedteleport.paperlib</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>io.github.thatsmusic99.configurationmaster</pattern>
+                            <shadedPattern>io.github.niestrat99.advancedteleport.configurationmaster</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <finalName>AdvancedTeleport-${module.version}</finalName>
+    </build>
+<!--  <modules>
+<module>AdvancedTP-Core</module>
+<module>AdvancedTP-Bukkit</module>
+</modules> -->
+
+    <repositories>
+        <!-- Spigot Repo -->
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+
+        <!-- Paper Repo -->
+        <repository>
+            <id>papermc</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
+        <repository>
+            <id>cm-repo</id>
+            <url>https://ci.pluginwiki.us/plugin/repository/everything/</url>
+        </repository>
+
+        <repository>
+            <id>ess-releases</id>
+            <url>https://repo.essentialsx.net/releases/</url>
+        </repository>
+        <repository>
+            <id>opencollab-snapshot</id>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
+        </repository>
+
+        <repository>
+            <id>mojang-authlib</id>
+            <url>https://libraries.minecraft.net/</url>
+        </repository>
+
+        <repository>
+            <id>squaremap-snapshots</id>
+            <url>https://repo.jpenilla.xyz/snapshots/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Spigot Dependency -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.17-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- PaperLib Dependency -->
+        <dependency>
+            <groupId>io.papermc</groupId>
+            <artifactId>paperlib</artifactId>
+            <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Adventure NBT Dependency -->
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-nbt</artifactId>
+            <version>4.9.3</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Vault Dependency -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- WorldBorder (v1.15+) Dependency -->
+        <dependency>
+            <groupId>com.github.PryPurity</groupId>
+            <artifactId>WorldBorder</artifactId>
+            <version>v2.1.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ChunkyBorder Dependency -->
+        <dependency>
+            <groupId>com.github.pop4959</groupId>
+            <artifactId>ChunkyBorder</artifactId>
+            <version>52034550ef</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- This is a dependency because AT uses GameProfiles internally. This requires you to have run BuildTools on your machine. -->
+        <!-- I hope that with GenesisLib I will remove the need for this. -->
+        <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>authlib</artifactId>
+            <version>2.3.31</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.thatsmusic99</groupId>
+            <artifactId>ConfigurationMaster-API</artifactId>
+            <version>v2.0.0-BETA-3</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>2.18.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsXSpawn</artifactId>
+            <version>2.16.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Dependency floodgate -->
+        <dependency>
+            <groupId>org.geysermc.floodgate</groupId>
+            <artifactId>api</artifactId>
+            <version>2.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- squaremap -->
+        <dependency>
+            <groupId>xyz.jpenilla</groupId>
+            <artifactId>squaremap-api</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

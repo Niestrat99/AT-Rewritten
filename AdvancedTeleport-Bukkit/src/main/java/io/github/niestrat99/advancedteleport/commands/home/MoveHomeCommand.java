@@ -20,10 +20,8 @@ public class MoveHomeCommand extends AbstractHomeCommand {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-
         Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-
         if (args.length == 0) {
             if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendMoveHomeForm();

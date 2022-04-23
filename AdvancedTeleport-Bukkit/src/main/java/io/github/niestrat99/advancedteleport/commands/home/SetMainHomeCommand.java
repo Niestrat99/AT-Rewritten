@@ -77,20 +77,18 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
             } else {
                 CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
             }
+        } else if (atPlayer.canSetMoreHomes()) {
+            atPlayer.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
+                if (!result) {
+                    CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                    return;
+                }
+                atPlayer.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
+                        CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHome" : "Error.setMainHomeFail",
+                                "{home}", homeName));
+            });
         } else {
-            if (atPlayer.canSetMoreHomes()) {
-                atPlayer.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
-                    if (!result) {
-                        CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
-                        return;
-                    }
-                    atPlayer.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
-                            CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHome" : "Error.setMainHomeFail",
-                                    "{home}", homeName));
-                });
-            } else {
-                CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
-            }
+            CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
         }
         return true;
     }

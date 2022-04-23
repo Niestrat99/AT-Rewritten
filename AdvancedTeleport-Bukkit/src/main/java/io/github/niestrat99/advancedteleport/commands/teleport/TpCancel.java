@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import org.bukkit.Bukkit;
@@ -100,11 +99,10 @@ public class TpCancel extends TeleportATCommand {
                 CustomMessages.sendMessage(player, "Info.tpCancel");
                 request.destroy();
             }
-            return true;
         } else {
             CustomMessages.sendMessage(sender, "Error.noRequests");
-            return true;
         }
+        return true;
     }
 
     @Override

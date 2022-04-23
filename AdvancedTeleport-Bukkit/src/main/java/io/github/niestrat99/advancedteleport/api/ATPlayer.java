@@ -365,7 +365,7 @@ public class ATPlayer {
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Boolean> addHome(String name, Location location) {
-        return addHome(name, location, getPlayer(), true);
+        return addHome(name, location, (Player) null);
     }
 
     /**
@@ -525,7 +525,11 @@ public class ATPlayer {
 
     /**
 <<<<<<< HEAD
+<<<<<<< HEAD
      * Whether the player has a main home or not.
+=======
+     * Whether the player has a main home.
+>>>>>>> 42381dd (Improved API and more events (#78))
 =======
      * Whether the player has a main home.
 >>>>>>> 42381dd (Improved API and more events (#78))

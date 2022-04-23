@@ -44,7 +44,6 @@ public class TpHereOffline extends TeleportATCommand {
         } else {
             Bukkit.getServer().dispatchCommand(sender, "tpohere " + args[0]);
         }
-
         return true;
     }
 

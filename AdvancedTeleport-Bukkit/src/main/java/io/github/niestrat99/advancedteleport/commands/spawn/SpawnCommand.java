@@ -54,12 +54,15 @@ public class SpawnCommand extends SpawnATCommand {
             if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
                 location = args[0];
             }
+            spawn(player, location);
+        } else {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
-        spawn(player, location);
         return true;
     }
 
     public static void spawn(Player player, String name) {
+
         Location spawn = Spawn.get().getSpawn(name, player, false);
         if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();

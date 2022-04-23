@@ -49,9 +49,7 @@ public class TpUnblock extends TeleportATCommand {
                     CustomMessages.sendMessage(sender, result ? "Info.unblockPlayer" : "Error.unblockFail",
                             "{player}", args[0]), CoreClass.async);
 
-
         });
-
         return true;
     }
 
