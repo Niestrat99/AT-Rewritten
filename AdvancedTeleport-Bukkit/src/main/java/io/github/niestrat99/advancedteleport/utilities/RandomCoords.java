@@ -9,9 +9,10 @@ import java.util.Random;
 
 public class RandomCoords {
 
+    private static final Random random = new Random();
+
     public static double getRandomCoords(double min, double max){
-        Random r = new Random();
-        return r.nextInt((int)Math.round(max - min)+1)+min ;
+        return random.nextInt((int)Math.round(max - min)+1)+min ;
     }
 
     public static Location generateCoords(World world) {

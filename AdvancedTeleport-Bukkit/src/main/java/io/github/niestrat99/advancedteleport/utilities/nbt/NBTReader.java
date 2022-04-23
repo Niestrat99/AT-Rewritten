@@ -143,10 +143,17 @@ public class NBTReader {
             if (world == null) return null;
 
             try {
-                Method dataManager = world.getClass().getSuperclass().getDeclaredMethod("getDataManager");
+                Method dataManager = world.getClass().getDeclaredMethod("getDataManager");
                 return dataManager.invoke(world);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException illegalAccessException) {
-                illegalAccessException.printStackTrace();
+            } catch (NoSuchMethodException ex) {
+                try {
+                    Method dataManager = world.getClass().getSuperclass().getDeclaredMethod("getDataManager");
+                    return dataManager.invoke(world);
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exc) {
+                    exc.printStackTrace();
+                }
+            } catch (InvocationTargetException | IllegalAccessException invocationTargetException) {
+                invocationTargetException.printStackTrace();
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -181,12 +188,12 @@ public class NBTReader {
         // Double ID: 6
         // String ID: 5
         // Float ID:
-        Method getList = nbtCompound.getClass().getDeclaredMethod("getList", String.class, int.class);
+        Method getList = getAlternativeMethods(new String[]{"getList", "c"}, nbtCompound.getClass(), String.class, int.class);
 
         Object pos = getList.invoke(nbtCompound, "Pos", 6);
         Object rotation = getList.invoke(nbtCompound, "Rotation", 5);
 
-        Method getWorld = nbtCompound.getClass().getDeclaredMethod("getLong", String.class);
+        Method getWorld = getAlternativeMethods(new String[]{"getLong", "i"}, nbtCompound.getClass(), String.class);
 
         long worldUUIDMost = (long) getWorld.invoke(nbtCompound, "WorldUUIDMost");
         long worldUUIDLeast = (long) getWorld.invoke(nbtCompound, "WorldUUIDLeast");
@@ -241,7 +248,7 @@ public class NBTReader {
 
         UUID worldUUID = location.getWorld().getUID();
 
-        Method set = nbtCompound.getClass().getDeclaredMethod("set", String.class, getClass("NBTBase", "nbt."));
+        Method set = getAlternativeMethods(new String[]{"set", "a"}, nbtCompound.getClass(), String.class, getClass("NBTBase", "nbt."));
 
         set.invoke(nbtCompound, "Pos", pos);
         set.invoke(nbtCompound, "Rotation", rot);
@@ -294,11 +301,15 @@ public class NBTReader {
         if (!root.exists()) return null;
         if (!root.isDirectory()) return null;
         for (File file : root.listFiles()) {
-            if (file.isDirectory()) {
-                for (File subFile : file.listFiles()) {
-                    if (!subFile.isDirectory()) continue;
-                    if (subFile.getName().equals("playerdata")) return subFile;
+            try {
+                if (file.isDirectory()) {
+                    for (File subFile : file.listFiles()) {
+                        if (!subFile.isDirectory()) continue;
+                        if (subFile.getName().equals("playerdata")) return subFile;
+                    }
                 }
+            } catch (NullPointerException ex) {
+                CoreClass.getInstance().getLogger().warning("Failed to get files of directory " + file.getName() + " in " + root.getName());
             }
         }
         return null;
@@ -323,6 +334,17 @@ public class NBTReader {
                 Field field = obj.getDeclaredField(fieldName);
                 return field;
             } catch (NoSuchFieldException ignored) {
+            }
+        }
+        return null;
+    }
+
+    private static Method getAlternativeMethods(String[] names, Class<?> target, Class<?>... fields) {
+        for (String name : names) {
+            try {
+                Method method = target.getDeclaredMethod(name, fields);
+                return method;
+            } catch (NoSuchMethodException ignored) {
             }
         }
         return null;

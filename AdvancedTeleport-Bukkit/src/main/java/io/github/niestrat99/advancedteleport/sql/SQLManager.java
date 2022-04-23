@@ -40,12 +40,14 @@ public abstract class SQLManager {
         if (NewConfig.get().USE_MYSQL.get()) {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                connection = DriverManager.getConnection("jdbc:mysql://"
-                                + NewConfig.get().MYSQL_HOST.get() + ":"
-                                + NewConfig.get().MYSQL_PORT.get() + "/"
-                                + NewConfig.get().MYSQL_DATABASE.get() + "?useSSL=false&autoReconnect=true",
-                        NewConfig.get().USERNAME.get(),
-                        NewConfig.get().PASSWORD.get());
+                String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
+                        NewConfig.get().MYSQL_HOST.get(),
+                        NewConfig.get().MYSQL_PORT.get(),
+                        NewConfig.get().MYSQL_DATABASE.get(),
+                        NewConfig.get().USE_SSL.get(),
+                        NewConfig.get().AUTO_RECONNECT.get(),
+                        NewConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get());
+                connection = DriverManager.getConnection(url, NewConfig.get().USERNAME.get(), NewConfig.get().PASSWORD.get());
                 usingSqlite = false;
                 return connection;
             } catch (ClassNotFoundException | SQLException e) {

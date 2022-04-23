@@ -47,6 +47,9 @@ public class NewConfig extends CMFile {
     public ConfigOption<String> USERNAME;
     public ConfigOption<String> PASSWORD;
     public ConfigOption<String> TABLE_PREFIX;
+    public ConfigOption<Boolean> USE_SSL;
+    public ConfigOption<Boolean> AUTO_RECONNECT;
+    public ConfigOption<Boolean> ALLOW_PUBLIC_KEY_RETRIEVAL;
 
     public ConfigOption<Boolean> ENABLE_DISTANCE_LIMITATIONS;
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
@@ -76,6 +79,7 @@ public class NewConfig extends CMFile {
     public ConfigOption<Boolean> ADD_BED_TO_HOMES;
     public ConfigOption<Boolean> DENY_HOMES_IF_OVER_LIMIT;
     public ConfigOption<Boolean> HIDE_HOMES_IF_DENIED;
+    public ConfigOption<Boolean> OVERWRITE_SETHOME;
 
     public ConfigOption<String> TPA_REQUEST_RECEIVED;
     public ConfigOption<String> TPA_REQUEST_SENT;
@@ -212,6 +216,10 @@ public class NewConfig extends CMFile {
         addDefault("mysql-password", "password", "The password to use when connecting.");
         addDefault("mysql-table-prefix", "advancedtp", "The prefix of all AT tables. \n" +
                 "If you're on Bungee, you may want to add your server's name to the end.");
+        addDefault("use-ssl", false, "Whether or not to connect to the MySQL server using SSL.");
+        addDefault("auto-reconnect", true, "Whether or not the plugin should reconnect to the MySQL server when a connection is closed.");
+        addDefault("allow-public-key-retrieval", false, "Whether or not to enable public key retrieval. \n" +
+                "Please do not enable it without being explicitly told by one of the developers.");
 
         addDefault("enable-distance-limitations", false, "Distance Limitations",
                 "Enables the distance limiter to stop players teleporting over a large distance.\n" +
@@ -252,7 +260,7 @@ public class NewConfig extends CMFile {
         addLenientSection("world-rules");
         addDefault("world-rules.default", "stop-teleportation-within");
         addExample("world-rules.world", "default");
-        addExample("world-rules.world_nether", "stop-teleportation-into!world", "Stops people teleporting into the Nether if they're not coming from \"world\"");
+        addExample("world-rules.world_nether", "stop-teleportation-into!world" /*, "Stops people teleporting into the Nether if they're not coming from \"world\"" */);
 
         addComment("command-rules", "The teleportation rules defined for each AT command.\n" +
                 "Rules include:\n" +
@@ -318,6 +326,7 @@ public class NewConfig extends CMFile {
                 "For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.");
         addDefault("hide-homes-if-denied", false, "If homes should be hidden from /homes should they be denied access.\n" +
                 "If this is false, they will be greyed out in the /homes list.");
+        addDefault("overwrite-sethome", false, "When enabled, setting homes with a name that already exists in your list gets overwritten.");
 
         addDefault("tpa-request-received", "none", "Notifications/Sounds",
                 "The sound played when a player receives a teleportation (tpa) request.\n" +
@@ -533,6 +542,9 @@ public class NewConfig extends CMFile {
         USERNAME = new ConfigOption<>("mysql-username");
         PASSWORD = new ConfigOption<>("mysql-password");
         TABLE_PREFIX = new ConfigOption<>("mysql-table-prefix");
+        USE_SSL = new ConfigOption<>("use-ssl");
+        AUTO_RECONNECT = new ConfigOption<>("auto-reconnect");
+        ALLOW_PUBLIC_KEY_RETRIEVAL = new ConfigOption<>("allow-public-key-retrieval");
 
         ENABLE_DISTANCE_LIMITATIONS = new ConfigOption<>("enable-distance-limitations");
         MAXIMUM_TELEPORT_DISTANCE = new ConfigOption<>("maximum-teleport-distance");
@@ -562,6 +574,7 @@ public class NewConfig extends CMFile {
         ADD_BED_TO_HOMES = new ConfigOption<>("add-bed-to-homes");
         DENY_HOMES_IF_OVER_LIMIT = new ConfigOption<>("deny-homes-if-over-limit");
         HIDE_HOMES_IF_DENIED = new ConfigOption<>("hide-homes-if-denied");
+        OVERWRITE_SETHOME = new ConfigOption<>("overwrite-sethome");
 
         TPA_REQUEST_RECEIVED = new ConfigOption<>("tpa-request-received");
         TPA_REQUEST_SENT = new ConfigOption<>("tpa-request-sent");

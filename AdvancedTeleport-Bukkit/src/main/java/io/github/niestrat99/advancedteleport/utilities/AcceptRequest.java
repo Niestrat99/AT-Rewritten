@@ -28,27 +28,25 @@ public class AcceptRequest {
                 teleport(player, request.getRequester(), "tpa");
             }
         }
-
         request.destroy();
     }
 
     private static void teleport(Player toPlayer, Player fromPlayer, String type) {
         final Location toLocation = toPlayer.getLocation();
         ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toLocation, fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
-        if (!event.isCancelled()) {
-            int warmUp = NewConfig.get().WARM_UPS.valueOf(type).get();
-            Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
-            if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
-                MovementManager.createMovementTimer(fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
-            } else {
-                PaperLib.teleportAsync(fromPlayer, toLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
-                CustomMessages.sendMessage(fromPlayer, "Teleport.eventTeleport");
-                PaymentManager.getInstance().withdraw(type, payingPlayer);
-                // If the cooldown is to be applied after only after a teleport takes place, apply it now
-                if(NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
-                    CooldownManager.addToCooldown(type, payingPlayer);
-                }
-            }
+        if (event.isCancelled()) return;
+        int warmUp = NewConfig.get().WARM_UPS.valueOf(type).get();
+        Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
+        if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
+            MovementManager.createMovementTimer(fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
+            return;
+        }
+        PaperLib.teleportAsync(fromPlayer, toLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
+        CustomMessages.sendMessage(fromPlayer, "Teleport.eventTeleport");
+        PaymentManager.getInstance().withdraw(type, payingPlayer);
+        // If the cooldown is to be applied after only after a teleport takes place, apply it now
+        if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+            CooldownManager.addToCooldown(type, payingPlayer);
         }
     }
 }
