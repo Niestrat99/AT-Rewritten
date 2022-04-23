@@ -1,8 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Spawn;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -35,7 +38,17 @@ public class RemoveSpawn extends SpawnATCommand {
             CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "{spawn}", removingSpawn);
             return true;
         }
-        CustomMessages.sendMessage(sender, Spawn.get().removeSpawn(removingSpawn), "{spawn}", removingSpawn);
+
+        SpawnRemoveEvent event = new SpawnRemoveEvent(removingSpawn, sender);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            // Could not cancel event at this time
+            return true;
+        }
+
+        String finalRemovingSpawn = removingSpawn;
+        AdvancedTeleportAPI.removeSpawn(removingSpawn, sender).thenAcceptAsync(result ->
+                CustomMessages.sendMessage(sender, "Info.removedSpawn", "{spawn}", finalRemovingSpawn));
         return false;
     }
 

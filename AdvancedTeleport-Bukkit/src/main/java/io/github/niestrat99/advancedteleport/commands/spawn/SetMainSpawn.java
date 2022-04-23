@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Spawn;
@@ -41,7 +42,7 @@ public class SetMainSpawn extends SpawnATCommand {
                 if (sender.hasPermission("at.member.setspawn")
                         && (world || sender.hasPermission("at.member.setspawn.other"))) {
                     loc = ((Player) sender).getLocation();
-                    Spawn.get().setSpawn(loc, id);
+                    AdvancedTeleportAPI.setSpawn(id, sender, loc).join();
                 } else {
                     CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
                     return true;
@@ -53,7 +54,8 @@ public class SetMainSpawn extends SpawnATCommand {
         } else {
             loc = Spawn.get().getSpawn(id);
         }
-        CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id);
+        AdvancedTeleportAPI.setMainSpawn(id, sender).thenAcceptAsync(result ->
+                CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id));
         return true;
     }
 

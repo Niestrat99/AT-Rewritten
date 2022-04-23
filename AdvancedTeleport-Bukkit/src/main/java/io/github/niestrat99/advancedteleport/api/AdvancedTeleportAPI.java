@@ -1,7 +1,12 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnCreateEvent;
+import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnMirrorEvent;
+import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
+import io.github.niestrat99.advancedteleport.api.events.spawn.SwitchMainSpawnEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
+import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Bukkit;
@@ -38,6 +43,54 @@ public class AdvancedTeleportAPI {
 
     public static HashMap<String, Warp> getWarps() {
         return new HashMap<>(Warp.getWarps());
+    }
+
+    public static CompletableFuture<Boolean> setSpawn(@NotNull String name, @Nullable CommandSender sender, @NotNull Location location) {
+        Objects.requireNonNull(location, "The spawn location must not be null.");
+        if (!location.isWorldLoaded()) throw new IllegalArgumentException("The world the spawn is being set in must be loaded.");
+        // Create an event.
+        SpawnCreateEvent event = new SpawnCreateEvent(name, sender, location);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        // Get registering
+        return CompletableFuture.supplyAsync(() -> {
+            Spawn.get().setSpawn(event.getLocation(), event.getName());
+            return true;
+        });
+    }
+
+    public static CompletableFuture<Boolean> setMainSpawn(@NotNull String newName, @Nullable CommandSender sender) {
+        // Create an event
+        SwitchMainSpawnEvent event = new SwitchMainSpawnEvent(Spawn.get().getMainSpawn(), newName, sender);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        // Get switching
+        return CompletableFuture.supplyAsync(() -> {
+            Location spawn = Spawn.get().getSpawn(newName);
+            Spawn.get().setMainSpawn(newName, spawn);
+            return true;
+        });
+    }
+
+    public static CompletableFuture<Boolean> removeSpawn(@NotNull String name, @Nullable CommandSender sender) {
+        SpawnRemoveEvent event = new SpawnRemoveEvent(name, sender);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        // Remove the warp
+        return CompletableFuture.supplyAsync(() -> {
+            Spawn.get().removeSpawn(name);
+            return true;
+        });
+    }
+
+    public static CompletableFuture<Boolean> mirrorSpawn(@NotNull String fromWorld, @NotNull String toWorld, @Nullable CommandSender sender) {
+        SpawnMirrorEvent event = new SpawnMirrorEvent(fromWorld, toWorld, sender);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        // Do the mirroring
+        return CompletableFuture.supplyAsync(() -> {
+            return Spawn.get().mirrorSpawn(fromWorld, toWorld).equals("Info.mirroredSpawn");
+        });
     }
 
     static class FlattenedCallback<D> implements SQLManager.SQLCallback<D> {

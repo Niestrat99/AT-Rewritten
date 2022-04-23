@@ -1,8 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Spawn;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -36,8 +36,11 @@ public class MirrorSpawn extends SpawnATCommand {
             toWorld = args[1];
         }
 
-        CustomMessages.sendMessage(sender, Spawn.get().mirrorSpawn(fromWorld, toWorld), "{spawn}", toWorld, "{from}",
-                fromWorld);
+        String finalToWorld = toWorld;
+        String finalFromWorld = fromWorld;
+        AdvancedTeleportAPI.mirrorSpawn(fromWorld, toWorld, sender).thenAcceptAsync(result ->
+                CustomMessages.sendMessage(sender, result ? "Info.mirroredSpawn" : "Error.noSpawn", "{spawn}",
+                finalToWorld, "{from}", finalFromWorld));
         return true;
     }
 

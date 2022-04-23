@@ -1,9 +1,9 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Spawn;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,8 +27,10 @@ public class SetSpawn extends SpawnATCommand {
                         name = args[0];
                         message = "Info.setSpawnSpecial";
                     }
-                    Spawn.get().setSpawn(player.getLocation(), name);
-                    CustomMessages.sendMessage(sender, message, "{spawn}", name);
+                    String finalName = name;
+                    String finalMessage = message;
+                    AdvancedTeleportAPI.setSpawn(name, player, player.getLocation()).thenAcceptAsync(result ->
+                            CustomMessages.sendMessage(sender, finalMessage, "{spawn}", finalName));
                 } else {
                     CustomMessages.sendMessage(sender, "Error.notAPlayer");
                 }
