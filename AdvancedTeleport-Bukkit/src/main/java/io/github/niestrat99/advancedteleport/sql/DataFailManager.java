@@ -41,6 +41,7 @@ public class DataFailManager {
                 }
                 failCsv.delete();
             } catch (IOException e) {
+                CoreClass.getInstance().getLogger().severe("Failed to read the failure CSV file: " + e.getMessage());
                 e.printStackTrace();
             }
 
@@ -153,6 +154,7 @@ public class DataFailManager {
                 failCsv.delete();
             }
         } catch (IOException e) {
+            CoreClass.getInstance().getLogger().severe("Failed to write to the failure CSV file: " + e.getMessage());
             e.printStackTrace();
         }
 

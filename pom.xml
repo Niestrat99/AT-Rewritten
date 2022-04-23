@@ -7,12 +7,12 @@
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
     <packaging>pom</packaging>
-    <version>v5.5.8</version>
+    <version>v5.6.2</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--suppress UnresolvedMavenProperty -->
-        <module.version>5.5.8+DEV_${env.BUILD_NUMBER}</module.version>
+        <module.version>5.6.2+DEV_${env.BUILD_NUMBER}</module.version>
         <jenkins.timestamp>${maven.build.timestamp}</jenkins.timestamp>
     </properties>
 
@@ -41,7 +41,8 @@
                     <artifactSet>
                         <includes>
                             <include>io.papermc:paperlib</include>
-                            <include>com.github.thatsmusic99:ConfigurationMaster</include>
+                            <include>com.github.thatsmusic99:ConfigurationMaster-API</include>
+                            <include>net.kyori:adventure-nbt</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -110,8 +111,8 @@
         </repository>
 
         <repository>
-            <id>pl3x-repo</id>
-            <url>https://repo.pl3x.net/</url>
+            <id>squaremap-snapshots</id>
+            <url>https://repo.jpenilla.xyz/snapshots/</url>
         </repository>
     </repositories>
 
@@ -129,6 +130,14 @@
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
             <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Adventure NBT Dependency -->
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-nbt</artifactId>
+            <version>4.9.3</version>
             <scope>compile</scope>
         </dependency>
 
@@ -167,8 +176,8 @@
 
         <dependency>
             <groupId>com.github.thatsmusic99</groupId>
-            <artifactId>ConfigurationMaster</artifactId>
-            <version>v1.0.3</version>
+            <artifactId>ConfigurationMaster-API</artifactId>
+            <version>v2.0.0-BETA-3</version>
             <scope>compile</scope>
         </dependency>
 
@@ -200,11 +209,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- pl3xmap -->
+        <!-- squaremap -->
         <dependency>
-            <groupId>net.pl3x.map</groupId>
-            <artifactId>pl3xmap-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <groupId>xyz.jpenilla</groupId>
+            <artifactId>squaremap-api</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

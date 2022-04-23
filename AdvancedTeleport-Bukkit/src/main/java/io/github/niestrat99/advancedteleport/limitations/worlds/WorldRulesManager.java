@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopIntoRule;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopOutOfRule;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopWithinRule;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -18,7 +19,7 @@ public class WorldRulesManager {
 
     public WorldRulesManager() {
         rules = new HashMap<>();
-        ConfigurationSection worlds = NewConfig.get().WORLD_RULES.get();
+        ConfigSection worlds = NewConfig.get().WORLD_RULES.get();
         for (String world : worlds.getKeys(false)) {
             addWorld(world, worlds.getString(world));
         }

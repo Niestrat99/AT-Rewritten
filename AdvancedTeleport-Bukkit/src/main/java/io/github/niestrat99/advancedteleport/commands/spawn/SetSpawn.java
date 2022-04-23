@@ -1,14 +1,15 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Spawn;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-public class SetSpawn implements AsyncATCommand {
+public class SetSpawn extends SpawnATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -37,9 +38,16 @@ public class SetSpawn implements AsyncATCommand {
             name = args[0];
             message = "Info.setSpawnSpecial";
         }
-        Spawn.get().setSpawn(player.getLocation(), name);
-        CustomMessages.sendMessage(sender, message, "{spawn}", name);
+        String finalName = name;
+        String finalMessage = message;
+        AdvancedTeleportAPI.setSpawn(name, player, player.getLocation()).thenAcceptAsync(result ->
+                CustomMessages.sendMessage(sender, finalMessage, "{spawn}", finalName));
 
         return true;
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.admin.setspawn";
     }
 }

@@ -7,7 +7,7 @@ import io.github.niestrat99.advancedteleport.hooks.borders.ChunkyBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.VanillaBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.WorldBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
-import io.github.niestrat99.advancedteleport.hooks.maps.Pl3xmapHook;
+import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import org.bukkit.World;
 
@@ -36,7 +36,7 @@ public class PluginHookManager {
         loadBorderPlugin("chunkyborder", ChunkyBorderHook.class);
         loadBorderPlugin("vanilla", VanillaBorderHook.class);
 
-        loadMapPlugin("pl3xmap", Pl3xmapHook.class);
+        loadMapPlugin("pl3xmap", SquaremapHook.class);
 
         for (MapPlugin plugin : mapPlugins.values()) {
             if (plugin.canEnable()) plugin.enable();

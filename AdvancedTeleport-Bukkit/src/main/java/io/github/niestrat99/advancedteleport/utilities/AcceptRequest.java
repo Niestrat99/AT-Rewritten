@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
+import io.github.niestrat99.advancedteleport.api.TeleportRequest;
+import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -13,14 +15,14 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class AcceptRequest {
 
-    public static void acceptRequest(TPRequest request) {
+    public static void acceptRequest(TeleportRequest request) {
         Player player = request.getResponder();
 
         CustomMessages.sendMessage(request.getRequester(), "Info.requestAcceptedResponder", "{player}", player.getName());
         CustomMessages.sendMessage(player, "Info.requestAccepted");
         // Check again
         if (PaymentManager.getInstance().canPay(request.getType().name().toLowerCase().replaceAll("_", ""), request.getRequester())) {
-            if (request.getType() == TPRequest.TeleportType.TPAHERE) {
+            if (request.getType() == TeleportRequestType.TPAHERE) {
                 teleport(request.getRequester(), player, "tpahere");
             } else {
                 teleport(player, request.getRequester(), "tpa");
