@@ -1,11 +1,9 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -21,48 +19,46 @@ import java.util.UUID;
 public class SetHomeCommand implements AsyncATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-        if (!NewConfig.get().USE_HOMES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.sethome")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
-
-        Player player = (Player) sender;
-        ATPlayer atPlayer = ATPlayer.getPlayer(player);
-
-        if (args.length > 0) {
-            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-            if (sender.hasPermission("at.admin.sethome") && player != target) {
-                // We'll just assume that the admin command overrides the homes limit.
-                if (args.length > 1) {
-                    setHome(player, target.getUniqueId(), args[1], args[0]);
-                    return true;
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (args.length > 0) {
+                OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                if (sender.hasPermission("at.admin.sethome") && player != target) {
+                    // We'll just assume that the admin command overrides the homes limit.
+                    if (args.length > 1) {
+                        setHome(player, target.getUniqueId(), args[1], args[0]);
+                        return true;
+                    }
                 }
+
+                if (atPlayer.canSetMoreHomes()) {
+                    setHome(player, args[0]);
+
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
+                }
+<<<<<<< HEAD
             }
 
             if (atPlayer.canSetMoreHomes() || (NewConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
                 setHome(player, args[0]);
+=======
+>>>>>>> d8e14ed (Improved API and more events (#78))
             } else {
-                CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
+                int limit = atPlayer.getHomesLimit();
+                if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
+                    setHome(player, "home");
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                }
             }
         } else {
-            int limit = atPlayer.getHomesLimit();
-            if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
-                setHome(player, "home");
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noHomeInput");
-            }
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
-
         return true;
     }
 
@@ -79,28 +75,31 @@ public class SetHomeCommand implements AsyncATCommand {
         ATPlayer atPlayer = ATPlayer.getPlayer(settingPlayer);
 
         if (atPlayer.getHome(homeName) != null) {
-            if (NewConfig.get().OVERWRITE_SETHOME.get()) {
-                if (!sender.hasPermission("at.member.movehome")) { CustomMessages.sendMessage(sender, "Error.noPermission"); return; }
-                // If the player has permission to do this then hey, congratulations!
-                atPlayer.moveHome(homeName, sender.getLocation(), SQLManager.SQLCallback.getDefaultCallback(sender,
-                        sender.getUniqueId() == player ? "Info.movedHome" : "Info.movedHomeOther",
-                        "Error.moveHomeFail", "{home}", homeName, "{player}", playerName));
-            } else {
-                CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "{home}", homeName);
-            }
+            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "{home}", homeName);
             return;
-
         }
 
-        atPlayer.addHome(homeName, sender.getLocation(), SQLManager.SQLCallback.getDefaultCallback(sender,
-                sender.getUniqueId() == player ? "Info.setHome" : "Info.setHomeOther",
-                "Error.setHomeFail", "{home}", homeName, "{player}", playerName));
+        atPlayer.addHome(homeName, sender.getLocation(), sender).thenAccept(result -> CustomMessages.sendMessage(sender, result ?
+                        (sender.getUniqueId() == player ? "Info.setHome" : "Info.setHomeOther") : "Error.setHomeFail",
+                "{home}", homeName, "{player}", playerName));
 
+    }
+
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_HOMES.get();
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.sethome";
     }
 
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command,
+                                      @NotNull String s, @NotNull String[] strings) {
         return new ArrayList<>();
     }
 }

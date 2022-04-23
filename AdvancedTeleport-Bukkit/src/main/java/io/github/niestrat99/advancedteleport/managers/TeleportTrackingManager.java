@@ -104,12 +104,16 @@ public class TeleportTrackingManager implements Listener {
             for (String command : spawnCommand.split(";")) {
                 if (handleSpawn(e, command)) break;
             }
-
         }
     }
 
     private static boolean handleSpawn(PlayerRespawnEvent e, String spawnCommand) {
         ATPlayer atPlayer = ATPlayer.getPlayer(e.getPlayer());
+        ConfigSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
+        if (spawnCommand.equals("{default}")) {
+            spawnCommand = deathManagement.getString("default");
+            if (spawnCommand == null) return false;
+        }
         if (spawnCommand.startsWith("tpr") && NewConfig.get().RAPID_RESPONSE.get()) {
             World world = atPlayer.getPreviousLocation().getWorld();
             if (spawnCommand.indexOf(':') != -1) {

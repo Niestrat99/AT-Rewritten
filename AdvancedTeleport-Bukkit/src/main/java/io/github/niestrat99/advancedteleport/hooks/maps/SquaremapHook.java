@@ -2,22 +2,19 @@ package io.github.niestrat99.advancedteleport.hooks.maps;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
-import net.pl3x.map.api.Key;
-import net.pl3x.map.api.LayerProvider;
-import net.pl3x.map.api.Pl3xMap;
-import net.pl3x.map.api.Pl3xMapProvider;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
+import xyz.jpenilla.squaremap.api.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
-public class Pl3xmapHook extends MapPlugin {
+public class SquaremapHook extends MapPlugin {
 
-    private Pl3xMap provider;
+    private Squaremap provider;
     private LayerProvider WARP_LAYER;
     private LayerProvider HOME_LAYER;
     private LayerProvider SPAWN_LAYER;
@@ -31,10 +28,20 @@ public class Pl3xmapHook extends MapPlugin {
     @Override
     public void enable() {
         // Get the API provider
-        provider = Pl3xMapProvider.get();
+        provider = SquaremapProvider.get();
 
         registerImage("warp_default", CoreClass.getInstance().getResource("warp-default.png"));
         registerImage("home_default", CoreClass.getInstance().getResource("home-default.png"));
+        registerImage("spawn_default", CoreClass.getInstance().getResource("spawn-default.png"));
+
+        SimpleLayerProvider warpProvider = SimpleLayerProvider.builder("Warps")
+                .showControls(true)
+                .defaultHidden(false)
+                .build();
+
+        for (World world : Bukkit.getWorlds()) {
+
+        }
     }
 
     private void checkIcons(String subfolder) {

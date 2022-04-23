@@ -159,27 +159,25 @@ public class HomeSQLManager extends SQLManager {
     }
 
     public void removeHome(UUID owner, String name, SQLCallback<Boolean> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,
-                        "DELETE FROM " + tablePrefix + "_homes WHERE uuid_owner = ? AND home = ?");
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection,
+                    "DELETE FROM " + tablePrefix + "_homes WHERE uuid_owner = ? AND home = ?");
 
-                statement.setString(1, owner.toString());
-                statement.setString(2, name);
-                executeUpdate(statement);
-                if (callback != null) {
-                    callback.onSuccess(true);
-                }
-            } catch (SQLException exception) {
-                DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_HOME,
-                        owner.toString(),
-                        name);
-                exception.printStackTrace();
-                if (callback != null) {
-                    callback.onFail();
-                }
+            statement.setString(1, owner.toString());
+            statement.setString(2, name);
+            executeUpdate(statement);
+            if (callback != null) {
+                callback.onSuccess(true);
             }
-        });
+        } catch (SQLException exception) {
+            DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_HOME,
+                    owner.toString(),
+                    name);
+            exception.printStackTrace();
+            if (callback != null) {
+                callback.onFail();
+            }
+        }
     }
 
     public void moveHome(Location newLocation, UUID owner, String name, SQLCallback<Boolean> callback) {
@@ -233,40 +231,38 @@ public class HomeSQLManager extends SQLManager {
     }
 
     public void getHomes(String ownerUUID, SQLCallback<LinkedHashMap<String, Home>> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,
-                        "SELECT * FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
-                statement.setString(1, ownerUUID);
-                ResultSet results = executeQuery(statement);
-                // Create a list for all homes.
-                LinkedHashMap<String, Home> homes = new LinkedHashMap<>();
-                // For each home...
-                while (results.next()) {
-                    // Get the world.
-                    World world = Bukkit.getWorld(results.getString("world"));
-                    if (world == null) continue;
-                    // Create the home object
-                    Home home = new Home(UUID.fromString(ownerUUID),
-                            results.getString("home"),
-                            new Location(world,
-                                    results.getDouble("x"),
-                                    results.getDouble("y"),
-                                    results.getDouble("z"),
-                                    results.getFloat("yaw"),
-                                    results.getFloat("pitch")),
-                            results.getLong("timestamp_created"),
-                            results.getLong("timestamp_updated"));
-                    // Add it to the list.
-                    homes.put(results.getString("home"), home);
-                }
-                // Go back to the main thread and return the list.
-                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> callback.onSuccess(homes));
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-                callback.onFail();
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection,
+                    "SELECT * FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
+            statement.setString(1, ownerUUID);
+            ResultSet results = executeQuery(statement);
+            // Create a list for all homes.
+            LinkedHashMap<String, Home> homes = new LinkedHashMap<>();
+            // For each home...
+            while (results.next()) {
+                // Get the world.
+                World world = Bukkit.getWorld(results.getString("world"));
+                if (world == null) continue;
+                // Create the home object
+                Home home = new Home(UUID.fromString(ownerUUID),
+                        results.getString("home"),
+                        new Location(world,
+                                results.getDouble("x"),
+                                results.getDouble("y"),
+                                results.getDouble("z"),
+                                results.getFloat("yaw"),
+                                results.getFloat("pitch")),
+                        results.getLong("timestamp_created"),
+                        results.getLong("timestamp_updated"));
+                // Add it to the list.
+                homes.put(results.getString("home"), home);
             }
-        });
+            // Go back to the main thread and return the list.
+            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> callback.onSuccess(homes));
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+            callback.onFail();
+        }
     }
 
     public void purgeHomes(String worldName, SQLCallback<Void> callback) {
@@ -281,7 +277,7 @@ public class HomeSQLManager extends SQLManager {
                 while (set.next()) {
                     OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(set.getString("uuid_owner")));
                     if (player.getName() == null || !ATPlayer.isPlayerCached(player.getName())) continue;
-                    ATPlayer.getPlayer(player).removeHome(set.getString("home"), null);
+                    ATPlayer.getPlayer(player).removeHome(set.getString("home"));
                 }
                 set.close();
 
@@ -311,7 +307,7 @@ public class HomeSQLManager extends SQLManager {
                     ResultSet set = statement.executeQuery();
 
                     while (set.next()) {
-                        atPlayer.removeHome(set.getString("home"), null);
+                        atPlayer.removeHome(set.getString("home"));
                     }
                     set.close();
                 }
