@@ -8,6 +8,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+/**
+ * The event fired when a spawnpoint is mirrored to another world.
+ */
 public class SpawnMirrorEvent extends TrackableATEvent {
 
     private String fromWorld;

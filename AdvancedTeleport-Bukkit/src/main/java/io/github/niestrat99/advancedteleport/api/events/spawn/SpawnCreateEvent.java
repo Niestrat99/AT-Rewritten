@@ -9,6 +9,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+/**
+ * The event fired when a new spawnpoint is created.
+ */
 public class SpawnCreateEvent extends TrackableATEvent {
 
     @NotNull

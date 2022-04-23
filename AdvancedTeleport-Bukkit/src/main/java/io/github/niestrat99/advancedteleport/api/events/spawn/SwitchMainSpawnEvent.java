@@ -8,6 +8,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+/**
+ * The event fired when the main spawnpoint is switched.
+ */
 public class SwitchMainSpawnEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();

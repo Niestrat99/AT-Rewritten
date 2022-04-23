@@ -6,6 +6,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * The event fired when someone cancels their teleportation request.
+ */
 public class TeleportCancelEvent extends CancellableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
