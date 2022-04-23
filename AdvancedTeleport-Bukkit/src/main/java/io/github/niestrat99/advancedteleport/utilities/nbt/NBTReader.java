@@ -8,7 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 public class NBTReader {

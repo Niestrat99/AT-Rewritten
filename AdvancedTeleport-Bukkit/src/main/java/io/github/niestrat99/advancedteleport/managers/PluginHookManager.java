@@ -12,8 +12,7 @@ import io.github.niestrat99.advancedteleport.hooks.claims.LandsClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import org.bukkit.Location;
-import io.github.niestrat99.advancedteleport.hooks.maps.Pl3xmapHook;
-import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
+import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import org.bukkit.World;
 
 import java.lang.reflect.InvocationTargetException;
@@ -51,7 +50,7 @@ public class PluginHookManager {
         loadPlugin(claimPlugins, "lands", LandsClaimHook.class);
         loadPlugin(claimPlugins, "griefprevention", GriefPreventionClaimHook.class);
 
-        // loadMapPlugin("pl3xmap", Pl3xmapHook.class);
+        loadMapPlugin("pl3xmap", SquaremapHook.class);
 
         for (MapPlugin plugin : mapPlugins.values()) {
             if (plugin.canEnable()) plugin.enable();

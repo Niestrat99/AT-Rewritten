@@ -29,7 +29,10 @@ public class ReloadCommand implements SubATCommand {
                 ex.printStackTrace();
             }
         }
+<<<<<<< HEAD
         RandomCoords.reload();
+=======
+>>>>>>> 42381dd (Improved API and more events (#78))
         CooldownManager.init();
         CommandManager.registerCommands();
         CustomMessages.sendMessage(sender, "Info.reloadedConfig");

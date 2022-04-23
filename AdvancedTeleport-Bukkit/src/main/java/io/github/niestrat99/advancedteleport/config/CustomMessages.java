@@ -138,6 +138,8 @@ public class CustomMessages extends ATConfig {
         addDefault("Error.mirrorSpawnFail", "&b↑ &8» &7Failed to mirror &b{from}&7's spawnpoint to &b{spawn}&7!");
         addDefault("Error.removeSpawnFail", "&b↑ &8» &7Failed to remove the spawnpoint &b{spawn}&7!");
         addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
+        addDefault("Error.blockFail", "&b↑ &8» &7Failed to save the block against &b{player}&7!");
+        addDefault("Error.unblockFail", "&b↑ &8» &7Failed to save the block removal against &b{player}&7!");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -356,7 +358,7 @@ public class CustomMessages extends ATConfig {
 
     public static void sendMessage(CommandSender sender, String path, String... placeholders) {
         if (config == null) return;
-        if (false && supportsTitles() && sender instanceof Player) {
+        if (supportsTitles() && sender instanceof Player) {
             Player player = (Player) sender;
 
             ConfigSection titles = config.getConfigSection(path + "_title");

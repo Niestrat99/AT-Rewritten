@@ -117,6 +117,7 @@ public class Spawn extends ATConfig {
                         && toSection.contains("yaw")
                         && toSection.contains("pitch")
                         && toSection.contains("world");
+
                 boolean hasMirror = priorName != null && !priorName.isEmpty() && !priorName.equals(name);
                 if (hasCoords) {
                     if (hasMirror && (requiresPermission

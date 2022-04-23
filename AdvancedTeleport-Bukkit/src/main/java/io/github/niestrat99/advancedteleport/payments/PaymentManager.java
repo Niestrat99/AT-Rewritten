@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class PaymentManager {
 
-    private HashMap<String, HashMap<String, Payment>> teleportCosts;
+    private final HashMap<String, HashMap<String, Payment>> teleportCosts;
 
     private static PaymentManager instance;
 
