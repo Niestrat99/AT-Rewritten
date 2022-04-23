@@ -434,6 +434,7 @@ public class ATPlayer {
     public CompletableFuture<Boolean> moveHome(String name, Location newLocation, CommandSender sender) {
         if (!homes.containsKey(name)) return CompletableFuture.completedFuture(false);
         HomeMoveEvent event = new HomeMoveEvent(homes.get(name), newLocation, sender);
+        Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return CompletableFuture.completedFuture(false);
 
         return event.getHome().move(event.getLocation());
