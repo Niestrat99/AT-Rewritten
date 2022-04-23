@@ -1,46 +1,51 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.api.TeleportRequest;
+import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
+import io.github.niestrat99.advancedteleport.api.events.players.TeleportAcceptEvent;
+import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.AcceptRequest;
-import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import io.github.niestrat99.advancedteleport.utilities.TeleportTests;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-public class TpYes implements ATCommand {
+public class TpYes extends TeleportATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-
-        if (!sender.hasPermission("at.member.yes")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
-
-        Player player = (Player) sender;
-        TPRequest request = TeleportTests.teleportTests(player, args, "tpayes");
-        if (request != null) {
-            // It's not null, we've already run the tests to make sure it isn't
-            AcceptRequest.acceptRequest(request);
-            // If the cooldown is to be applied after the request is accepted, apply it now
-            if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
-                CooldownManager.addToCooldown(request.getType() == TPRequest.TeleportType.TPAHERE ? "tpahere" : "tpa", request.getRequester());
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] args) {
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            TeleportRequest request = TeleportTests.teleportTests(player, args, "tpayes");
+            if (request != null) {
+                TeleportAcceptEvent event = new TeleportAcceptEvent(request.getResponder(), request.getRequester(), request.getType());
+                Bukkit.getPluginManager().callEvent(event);
+                if (event.isCancelled()) {
+                    // Could not accept request.
+                    return true;
+                }
+                // It's not null, we've already run the tests to make sure it isn't
+                AcceptRequest.acceptRequest(request);
+                // If the cooldown is to be applied after the request is accepted, apply it now
+                if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
+                    CooldownManager.addToCooldown(request.getType() == TeleportRequestType.TPAHERE ? "tpahere" :
+                            "tpa", request.getRequester());
+                }
             }
+        } else {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
-
         return true;
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.yes";
     }
 }
