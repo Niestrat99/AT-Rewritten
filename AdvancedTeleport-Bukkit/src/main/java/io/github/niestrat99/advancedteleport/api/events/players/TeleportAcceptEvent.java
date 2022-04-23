@@ -25,16 +25,31 @@ public class TeleportAcceptEvent extends CancellableATEvent {
         this.requestType = requestType;
     }
 
+    /**
+     * The player that is receiving the teleport request, i.e. the player who accepted it.
+     *
+     * @return the player that accepted the teleport request.
+     */
     @NotNull
     public Player getReceivingPlayer() {
         return receivingPlayer;
     }
 
+    /**
+     * The player that sent the teleport request in the first place.
+     *
+     * @return the player that sent the original teleport request.
+     */
     @NotNull
     public Player getSendingPlayer() {
         return sendingPlayer;
     }
 
+    /**
+     * Gets the type of request represented by the teleport request.
+     *
+     * @return TPA if the request was created via /tpa, or TPAHERE if the request was created via /tpahere.
+     */
     @NotNull
     public TeleportRequestType getRequestType() {
         return requestType;
