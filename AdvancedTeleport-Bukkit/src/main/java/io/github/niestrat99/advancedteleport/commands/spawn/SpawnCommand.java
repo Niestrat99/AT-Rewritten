@@ -46,7 +46,7 @@ public class SpawnCommand implements ATCommand {
             CustomMessages.sendMessage(sender, "Error.onCountdown");
             return true;
         }
-        String location = null;
+        String location = player.getWorld().getName();
         if (args.length > 0 &&
                 (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
             if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
@@ -59,14 +59,10 @@ public class SpawnCommand implements ATCommand {
 
     public static void spawn(Player player, String name) {
         Location spawn;
-        if (name == null) {
-            spawn = Spawn.get().getSpawn(player);
-        } else {
-            spawn = Spawn.get().getSpawn(name);
-        }
-        if (spawn == null)
+        spawn = Spawn.get().getSpawn(name);
+        if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
-
+        }
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn", NewConfig.get().WARM_UPS.SPAWN.get());
     }
