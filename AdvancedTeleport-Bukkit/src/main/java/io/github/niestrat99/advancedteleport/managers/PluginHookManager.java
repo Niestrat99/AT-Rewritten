@@ -36,7 +36,7 @@ public class PluginHookManager {
         loadBorderPlugin("chunkyborder", ChunkyBorderHook.class);
         loadBorderPlugin("vanilla", VanillaBorderHook.class);
 
-        loadMapPlugin("pl3xmap", SquaremapHook.class);
+        loadMapPlugin("squaremap", SquaremapHook.class);
 
         for (MapPlugin plugin : mapPlugins.values()) {
             if (plugin.canEnable()) plugin.enable();
