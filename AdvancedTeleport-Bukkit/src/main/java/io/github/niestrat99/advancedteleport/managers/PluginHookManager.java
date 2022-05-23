@@ -50,7 +50,7 @@ public class PluginHookManager {
         loadPlugin(claimPlugins, "lands", LandsClaimHook.class);
         loadPlugin(claimPlugins, "griefprevention", GriefPreventionClaimHook.class);
 
-        loadMapPlugin("pl3xmap", SquaremapHook.class);
+        loadMapPlugin("squaremap", SquaremapHook.class);
 
         for (MapPlugin plugin : mapPlugins.values()) {
             if (plugin.canEnable()) plugin.enable();

@@ -77,7 +77,9 @@ public class WarpSQLManager extends SQLManager {
                     warpSection.getDouble("z"),
                     (float) warpSection.getDouble("yaw"),
                     (float) warpSection.getDouble("pitch"));
-            addWarp(new Warp(null, warp, location, -1, -1), null);
+            Warp warpObj = new Warp(null, warp, location, -1, -1);
+            addWarp(warpObj, null);
+            Warp.registerWarp(warpObj);
         }
 
         file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "warps-backup.yml"));
@@ -192,7 +194,7 @@ public class WarpSQLManager extends SQLManager {
                 if (world == null) continue;
                 // Create the warp object and it'll register itself.
                 String creator = results.getString("uuid_creator");
-                new Warp(creator == null ? null : UUID.fromString(creator),
+                Warp.registerWarp(new Warp(creator == null ? null : UUID.fromString(creator),
                         results.getString("warp"),
                         new Location(world,
                                 results.getDouble("x"),
@@ -201,7 +203,7 @@ public class WarpSQLManager extends SQLManager {
                                 results.getFloat("yaw"),
                                 results.getFloat("pitch")),
                         results.getLong("timestamp_created"),
-                        results.getLong("timestamp_updated"));
+                        results.getLong("timestamp_updated")));
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
