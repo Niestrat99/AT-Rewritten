@@ -97,6 +97,13 @@ public class NewConfig extends ATConfig {
     public ConfigOption<List<String>> BACK_TELEPORT_CAUSES;
     public ConfigOption<Integer> BACK_SEARCH_RADIUS;
 
+    public ConfigOption<Boolean> ADD_SPAWNS;
+    public ConfigOption<Boolean> ADD_WARPS;
+    public ConfigOption<Boolean> ADD_HOMES;
+    public ConfigOption<String> DEFAULT_SPAWN_ICON;
+    public ConfigOption<String> DEFAULT_WARP_ICON;
+    public ConfigOption<String> DEFAULT_HOME_ICON;
+
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
@@ -458,6 +465,19 @@ public class NewConfig extends ATConfig {
                 "of O(n^3) (e.g. run 27 times, 64, 125, 216 and so on).\n" +
                 "To disable, either set to 0 or -1.");
 
+        addSection("Map Plugin Integration");
+        addComment("At this time, AdvancedTeleport supports dynmap and squaremap.\n" +
+                "If you are using dynmap, the plugin has extra icons you can use as ");
+        addDefault("add-spawns", true, "Whether to make spawnpoints visible for everyone on the map.");
+        addDefault("add-warps", true, "Whether to make warps visible for everyone on the map.");
+        addDefault("add-homes", false, "Whether to make all homes visible for everyone on the map.");
+        addDefault("default-spawn-icon", "inbuilt", "Selects the default icon to use for spawns.\n" +
+                "If none is found, then the default internal icon is used.\n" +
+                "If your map plugin has inbuilt icons too, you can specify the IDs of those.");
+        addDefault("default-warp-icon", "inbuilt", "Selects the default icon for warps.\n" +
+                "If none is found, then the default internal icon is used.");
+        addDefault("default-home-icon", "inbuilt", "Selects the default icon for homes.\n" +
+                "If none is found, then the default internal icon is used.");
 
         addDefault("teleport-to-spawn-on-first-join", true, "Spawn Management",
                 "Whether the player should be teleported to the spawnpoint when they join for the first time.");
@@ -718,6 +738,13 @@ public class NewConfig extends ATConfig {
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
 
+        ADD_SPAWNS = new ConfigOption<>("add-spawns");
+        ADD_WARPS = new ConfigOption<>("add-warps");
+        ADD_HOMES = new ConfigOption<>("add-homes");
+        DEFAULT_SPAWN_ICON = new ConfigOption<>("default-spawn-icon");
+        DEFAULT_WARP_ICON = new ConfigOption<>("default-warp-icon");
+        DEFAULT_HOME_ICON = new ConfigOption<>("default-home-icon");
+
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
@@ -860,5 +887,12 @@ public class NewConfig extends ATConfig {
         public ConfigOption<T>[] values() {
             return (ConfigOption<T>[]) new ConfigOption[]{TPA, TPAHERE, TPR, WARP, SPAWN, HOME, BACK};
         }
+    }
+
+    public static class MapOptions {
+        private boolean enabled;
+        private String defaultIcon;
+        private boolean shownByDefault;
+
     }
 }
