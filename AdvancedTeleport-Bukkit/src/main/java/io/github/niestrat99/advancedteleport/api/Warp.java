@@ -189,7 +189,7 @@ public class Warp implements NamedLocation {
         return new HashMap<>(warps);
     }
 
-    static void registerWarp(Warp warp) {
+    public static void registerWarp(Warp warp) {
         warps.put(warp.name, warp);
     }
 

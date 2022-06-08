@@ -88,9 +88,8 @@ public class AdvancedTeleportAPI {
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return CompletableFuture.completedFuture(false);
         // Do the mirroring
-        return CompletableFuture.supplyAsync(() -> {
-            return Spawn.get().mirrorSpawn(fromWorld, toWorld).equals("Info.mirroredSpawn");
-        });
+        return CompletableFuture.supplyAsync(() ->
+                Spawn.get().mirrorSpawn(fromWorld, toWorld).equals("Info.mirroredSpawn"));
     }
 
     static class FlattenedCallback<D> implements SQLManager.SQLCallback<D> {

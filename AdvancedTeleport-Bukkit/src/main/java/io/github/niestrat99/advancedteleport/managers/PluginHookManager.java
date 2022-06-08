@@ -42,16 +42,16 @@ public class PluginHookManager {
         loadPlugin(importPlugins, "essentials", EssentialsHook.class);
 
         // World border Plugins
-        loadBorderPlugin("worldborder", WorldBorderHook.class);
-        loadBorderPlugin("chunkyborder", ChunkyBorderHook.class);
-        loadBorderPlugin("vanilla", VanillaBorderHook.class);
+        loadPlugin(borderPlugins, "worldborder", WorldBorderHook.class);
+        loadPlugin(borderPlugins, "chunkyborder", ChunkyBorderHook.class);
+        loadPlugin(borderPlugins, "vanilla", VanillaBorderHook.class);
 
         // Claim Plugins
         loadPlugin(claimPlugins, "worldguard", WorldGuardClaimHook.class);
         loadPlugin(claimPlugins, "lands", LandsClaimHook.class);
         loadPlugin(claimPlugins, "griefprevention", GriefPreventionClaimHook.class);
 
-        loadMapPlugin("pl3xmap", SquaremapHook.class);
+        loadPlugin(mapPlugins, "squaremap", SquaremapHook.class);
 
         for (MapPlugin plugin : mapPlugins.values()) {
             if (plugin.canEnable()) plugin.enable();
@@ -92,7 +92,10 @@ public class PluginHookManager {
     public double[] getRandomCoords(World world) {
         for (BorderPlugin plugin : borderPlugins.values()) {
             if (!plugin.canUse(world)) continue;
-            return new double[]{plugin.getMinX(world), plugin.getMaxX(world), plugin.getMinZ(world), plugin.getMaxZ(world)};
+            return new double[]{
+                    RandomCoords.getRandomCoords(plugin.getMinX(world), plugin.getMaxX(world)),
+                    RandomCoords.getRandomCoords(plugin.getMinZ(world), plugin.getMaxZ(world))
+            };
         }
         return null;
     }
