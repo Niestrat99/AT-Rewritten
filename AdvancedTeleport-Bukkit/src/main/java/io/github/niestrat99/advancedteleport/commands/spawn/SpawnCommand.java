@@ -22,7 +22,7 @@ import java.util.List;
 public class SpawnCommand extends SpawnATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, 
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
