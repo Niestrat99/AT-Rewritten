@@ -123,6 +123,7 @@ public class CommandManager {
                             break;
                         }
                     }
+                    commands.putAll(pendingChanges);
                 }, 100);
             }
             return;

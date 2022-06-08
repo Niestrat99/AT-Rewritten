@@ -75,7 +75,6 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> USE_VANILLA_BORDER;
     public ConfigOption<Boolean> USE_PLUGIN_BORDERS;
     public ConfigOption<Boolean> PROTECT_CLAIM_LOCATIONS;
-
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> IGNORE_WORLD_GENS;
     public ConfigOption<List<String>> AVOID_BLOCKS;
@@ -348,7 +347,6 @@ public class NewConfig extends ATConfig {
         addDefault("command-rules.home", "");
         addDefault("command-rules.back", "");
 
-
         addSection("RandomTP");
         makeSectionLenient("x");
         addDefault("x.default", "5000;-5000");
@@ -374,7 +372,6 @@ public class NewConfig extends ATConfig {
         addDefault("maximum-z", 5000, "Deprecated\n # The maximum Z coordinate to go up to when selecting a random location.");
         addDefault("minimum-x", -5000, "Deprecated\n # The minimum X coordinate to go down to when selecting a random location.");
         addDefault("minimum-z", -5000, "Deprecated\n # The minimum Z coordinate to go down to when selecting a random location.");
-
         addDefault("use-rapid-response", true, "Use the new rapid response system for RTP.\n" +
                 "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, " +
                 "meaning they are ready for use and can instantly TP a player.\n" +

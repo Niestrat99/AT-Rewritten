@@ -213,6 +213,7 @@ public class WarpSQLManager extends SQLManager {
     }
 
     public CompletableFuture<Integer> getWarpId(String name) {
+<<<<<<< HEAD:AdvancedTeleport-Bukkit/src/main/java/io/github/niestrat99/advancedteleport/fanciful/sql/WarpSQLManager.java
         return CompletableFuture.supplyAsync(() -> getWarpIdSync(name), CoreClass.async);
     }
 
@@ -229,6 +230,22 @@ public class WarpSQLManager extends SQLManager {
             throwables.printStackTrace();
         }
         return -1;
+=======
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection,
+                        "SELECT id FROM " + tablePrefix + "_warps WHERE warp = ?;");
+                statement.setString(1, name);
+                ResultSet set = executeQuery(statement);
+                if (set.next()) {
+                    return set.getInt("id");
+                }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            return -1;
+        }, CoreClass.async);
+>>>>>>> 9a7be5e (Update map branch (#80)):AdvancedTeleport-Bukkit/src/main/java/io/github/niestrat99/advancedteleport/sql/WarpSQLManager.java
     }
 
     public void purgeWarps(String worldName, SQLCallback<Void> callback) {

@@ -4,7 +4,7 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import org.bukkit.Location;
 
-import java.io.InputStream
+import java.io.InputStream;
 
 public abstract class MapPlugin {
 

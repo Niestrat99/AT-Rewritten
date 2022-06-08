@@ -15,10 +15,10 @@ import io.github.niestrat99.advancedteleport.hooks.claims.LandsClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import io.github.niestrat99.advancedteleport.hooks.maps.DynmapHook;
+import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.fanciful.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.fanciful.sql.WarpSQLManager;
-import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.lang.reflect.InvocationTargetException;
@@ -31,8 +31,8 @@ public class PluginHookManager {
 
     private HashMap<String, ImportExportPlugin> importPlugins;
     private HashMap<String, BorderPlugin> borderPlugins;
-    private HashMap<String, MapPlugin> mapPlugins;
     private HashMap<String, ClaimPlugin> claimPlugins;
+    private HashMap<String, MapPlugin> mapPlugins;
     private static PluginHookManager instance;
 
     public PluginHookManager() {
