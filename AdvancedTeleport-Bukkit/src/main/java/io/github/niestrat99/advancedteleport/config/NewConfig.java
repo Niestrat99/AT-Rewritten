@@ -337,7 +337,6 @@ public class NewConfig extends ATConfig {
         addDefault("command-rules.home", "");
         addDefault("command-rules.back", "");
 
-
         addSection("RandomTP");
         makeSectionLenient("x");
         addDefault("x.default", "5000;-5000");

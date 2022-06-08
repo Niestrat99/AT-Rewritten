@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.managers;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
+import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.hooks.borders.ChunkyBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.VanillaBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.WorldBorderHook;
@@ -11,6 +12,8 @@ import io.github.niestrat99.advancedteleport.hooks.claims.LandsClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import org.bukkit.Location;
+import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
+import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import org.bukkit.World;
 
 import java.lang.reflect.InvocationTargetException;
@@ -21,6 +24,7 @@ public class PluginHookManager {
     private HashMap<String, ImportExportPlugin> importPlugins;
     private HashMap<String, BorderPlugin> borderPlugins;
     private HashMap<String, ClaimPlugin> claimPlugins;
+    private HashMap<String, MapPlugin> mapPlugins;
     private static PluginHookManager instance;
 
     public PluginHookManager() {
@@ -32,19 +36,26 @@ public class PluginHookManager {
         importPlugins = new HashMap<>();
         borderPlugins = new HashMap<>();
         claimPlugins = new HashMap<>();
+        mapPlugins = new HashMap<>();
 
         // Import plugins
         loadPlugin(importPlugins, "essentials", EssentialsHook.class);
 
         // World border Plugins
-        loadPlugin(borderPlugins, "worldborder", WorldBorderHook.class);
-        loadPlugin(borderPlugins, "chunkyborder", ChunkyBorderHook.class);
-        loadPlugin(borderPlugins, "vanilla", VanillaBorderHook.class);
+        loadBorderPlugin("worldborder", WorldBorderHook.class);
+        loadBorderPlugin("chunkyborder", ChunkyBorderHook.class);
+        loadBorderPlugin("vanilla", VanillaBorderHook.class);
 
         // Claim Plugins
         loadPlugin(claimPlugins, "worldguard", WorldGuardClaimHook.class);
         loadPlugin(claimPlugins, "lands", LandsClaimHook.class);
         loadPlugin(claimPlugins, "griefprevention", GriefPreventionClaimHook.class);
+
+        loadMapPlugin("pl3xmap", SquaremapHook.class);
+
+        for (MapPlugin plugin : mapPlugins.values()) {
+            if (plugin.canEnable()) plugin.enable();
+        }
     }
 
     public static PluginHookManager get() {
@@ -65,6 +76,16 @@ public class PluginHookManager {
         } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (NoClassDefFoundError ignored) { // Why are you like this essentials?
+        }
+    }
+
+    private void loadMapPlugin(String name, Class<? extends MapPlugin> clazz) {
+        try {
+            mapPlugins.put(name, clazz.newInstance());
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoClassDefFoundError ignored) {
+
         }
     }
 

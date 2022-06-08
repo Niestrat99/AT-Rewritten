@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
@@ -19,10 +19,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpawnCommand implements ATCommand {
+public class SpawnCommand extends SpawnATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, 
+                             @NotNull String[] args) {
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
@@ -52,14 +53,15 @@ public class SpawnCommand implements ATCommand {
             if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
                 location = args[0];
             }
+            spawn(player, location);
+        } else {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
-        spawn(player, location);
         return true;
     }
 
     public static void spawn(Player player, String name) {
-        Location spawn;
-        spawn = Spawn.get().getSpawn(name);
+        Location spawn = Spawn.get().getSpawn(name);
         if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
         }
@@ -67,9 +69,15 @@ public class SpawnCommand implements ATCommand {
         ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn", NewConfig.get().WARM_UPS.SPAWN.get());
     }
 
+    @Override
+    public String getPermission() {
+        return "at.member.spawn";
+    }
+
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                                      @NotNull String[] args) {
         if (sender.hasPermission("at.admin.spawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
             StringUtil.copyPartialMatches(args[0], Spawn.get().getSpawns(), spawns);
