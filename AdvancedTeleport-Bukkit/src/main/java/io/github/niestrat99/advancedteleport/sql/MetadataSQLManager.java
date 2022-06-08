@@ -61,11 +61,11 @@ public class MetadataSQLManager extends SQLManager {
         return null;
     }
 
-    public List<String> getAllValues(Connection connection, int dataId, String type, String key) throws SQLException {
+    public List<String> getAllValues(Connection connection, String dataId, String type, String key) throws SQLException {
         List<String> results = new ArrayList<>();
         PreparedStatement statement = prepareStatement(connection,
                 "SELECT value FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;");
-        statement.setInt(1, dataId);
+        statement.setString(1, dataId);
         statement.setString(2, type);
         statement.setString(3, key);
         ResultSet set = executeQuery(statement);
@@ -74,6 +74,7 @@ public class MetadataSQLManager extends SQLManager {
         }
         return results;
     }
+
 
     public boolean addMetadata(Connection connection, String dataId, String type, String key, String value) throws SQLException {
         PreparedStatement statement = prepareStatement(connection,
@@ -86,10 +87,10 @@ public class MetadataSQLManager extends SQLManager {
         return true;
     }
 
-    public boolean deleteMetadata(Connection connection, int dataId, String type, String key) throws SQLException {
+    public boolean deleteMetadata(Connection connection, String dataId, String type, String key) throws SQLException {
         PreparedStatement statement = prepareStatement(connection,
                 "DELETE FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;");
-        statement.setInt(1, dataId);
+        statement.setString(1, dataId);
         statement.setString(2, type);
         statement.setString(3, key);
         executeUpdate(statement);
@@ -166,7 +167,7 @@ public class MetadataSQLManager extends SQLManager {
         return WarpSQLManager.get().getWarpId(warpName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;
-                return deleteMetadata(connection, id, "WARP", key);
+                return deleteMetadata(connection, String.valueOf(id), "WARP", key);
             } catch (SQLException throwables) {
                 throw new RuntimeException(throwables);
             }
@@ -177,7 +178,7 @@ public class MetadataSQLManager extends SQLManager {
         return HomeSQLManager.get().getHomeId(homeName, owner).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;
-                return deleteMetadata(connection, id, "HOME", key);
+                return deleteMetadata(connection, String.valueOf(id), "HOME", key);
             } catch (SQLException throwables) {
                 throw new RuntimeException(throwables);
             }

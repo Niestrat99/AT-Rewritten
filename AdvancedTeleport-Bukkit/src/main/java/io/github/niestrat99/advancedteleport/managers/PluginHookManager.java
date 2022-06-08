@@ -14,17 +14,11 @@ import io.github.niestrat99.advancedteleport.hooks.claims.GriefPreventionClaimHo
 import io.github.niestrat99.advancedteleport.hooks.claims.LandsClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
-<<<<<<< HEAD
 import io.github.niestrat99.advancedteleport.hooks.maps.DynmapHook;
+import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
-import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import org.bukkit.Location;
-import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
-import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
-=======
-import org.bukkit.Location;
->>>>>>> 4f8b335 (Feature: Improved RTP min and max coords + per world settings + claim plugin hooks (#76))
 import org.bukkit.World;
 
 import java.lang.reflect.InvocationTargetException;
@@ -37,11 +31,8 @@ public class PluginHookManager {
 
     private HashMap<String, ImportExportPlugin> importPlugins;
     private HashMap<String, BorderPlugin> borderPlugins;
-<<<<<<< HEAD
     private HashMap<String, MapPlugin> mapPlugins;
-=======
     private HashMap<String, ClaimPlugin> claimPlugins;
->>>>>>> 4f8b335 (Feature: Improved RTP min and max coords + per world settings + claim plugin hooks (#76))
     private static PluginHookManager instance;
 
     public PluginHookManager() {
@@ -52,16 +43,7 @@ public class PluginHookManager {
     public void init() {
         importPlugins = new HashMap<>();
         borderPlugins = new HashMap<>();
-<<<<<<< HEAD
         mapPlugins = new HashMap<>();
-
-        loadPlugin(importPlugins, "essentials", EssentialsHook.class);
-
-        // World border Plugins
-        loadBorderPlugin("worldborder", WorldBorderHook.class);
-        loadBorderPlugin("chunkyborder", ChunkyBorderHook.class);
-        loadBorderPlugin("vanilla", VanillaBorderHook.class);
-=======
         claimPlugins = new HashMap<>();
 
         // Import plugins
@@ -71,13 +53,11 @@ public class PluginHookManager {
         loadPlugin(borderPlugins, "worldborder", WorldBorderHook.class);
         loadPlugin(borderPlugins, "chunkyborder", ChunkyBorderHook.class);
         loadPlugin(borderPlugins, "vanilla", VanillaBorderHook.class);
->>>>>>> 4f8b335 (Feature: Improved RTP min and max coords + per world settings + claim plugin hooks (#76))
 
         // Claim Plugins
         loadPlugin(claimPlugins, "worldguard", WorldGuardClaimHook.class);
         loadPlugin(claimPlugins, "lands", LandsClaimHook.class);
         loadPlugin(claimPlugins, "griefprevention", GriefPreventionClaimHook.class);
-<<<<<<< HEAD
 
         loadPlugin(mapPlugins, "squaremap", SquaremapHook.class);
         loadPlugin(mapPlugins, "dynmap", DynmapHook.class);
@@ -90,8 +70,6 @@ public class PluginHookManager {
                 addIcons(NewConfig.get().MAP_SPAWNS.isEnabled(), CompletableFuture.completedFuture(Spawn.get().getSpawns()), (spawn) -> plugin.addSpawn(spawn, Spawn.get().getSpawn(spawn)));
             }
         }
-=======
->>>>>>> 4f8b335 (Feature: Improved RTP min and max coords + per world settings + claim plugin hooks (#76))
     }
 
     public static PluginHookManager get() {
@@ -106,21 +84,14 @@ public class PluginHookManager {
         return importPlugins.get(name);
     }
 
-<<<<<<< HEAD
     public HashMap<String, MapPlugin> getMapPlugins() {
         return mapPlugins;
     }
 
     private <T> void loadPlugin(HashMap<String, T> map, String name, Class<? extends T> clazz) {
         try {
-            map.put(name, clazz.newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
-=======
-    private <T> void loadPlugin(HashMap<String, T> map, String name, Class<? extends T> clazz) {
-        try {
             map.put(name, clazz.getConstructor().newInstance());
         } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
->>>>>>> 4f8b335 (Feature: Improved RTP min and max coords + per world settings + claim plugin hooks (#76))
             e.printStackTrace();
         } catch (NoClassDefFoundError ignored) { // Why are you like this essentials?
         }
@@ -141,7 +112,6 @@ public class PluginHookManager {
         }
         return false;
     }
-<<<<<<< HEAD
 
     private <T> void addIcons(boolean requirement, CompletableFuture<List<T>> pois, Consumer<T> handler) {
         if (!requirement) return;
@@ -151,6 +121,4 @@ public class PluginHookManager {
             }
         }, CoreClass.sync);
     }
-=======
->>>>>>> 4f8b335 (Feature: Improved RTP min and max coords + per world settings + claim plugin hooks (#76))
 }

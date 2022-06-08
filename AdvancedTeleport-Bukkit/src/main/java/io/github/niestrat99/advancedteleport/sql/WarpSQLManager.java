@@ -213,20 +213,7 @@ public class WarpSQLManager extends SQLManager {
     }
 
     public CompletableFuture<Integer> getWarpId(String name) {
-        return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,
-                        "SELECT id FROM " + tablePrefix + "_warps WHERE warp = ?;");
-                statement.setString(1, name);
-                ResultSet set = executeQuery(statement);
-                if (set.next()) {
-                    return set.getInt("id");
-                }
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-            return -1;
-        }, CoreClass.async);
+        return CompletableFuture.supplyAsync(() -> getWarpIdSync(name), CoreClass.async);
     }
 
     public int getWarpIdSync(String name) {
