@@ -52,7 +52,6 @@
                             <include>io.papermc:paperlib</include>
                             <include>com.github.thatsmusic99:ConfigurationMaster-API</include>
                             <include>net.kyori:adventure-nbt</include>
-                            <include>net.kyori:examination-api</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -120,11 +119,6 @@
             <url>https://libraries.minecraft.net/</url>
         </repository>
 
-        <!-- World Guard Repo -->
-        <repository>
-            <id>sk89-repo</id>
-            <url>https://maven.enginehub.org/repo/</url>
-        </repository>
         <repository>
             <id>squaremap-snapshots</id>
             <url>https://repo.jpenilla.xyz/snapshots/</url>

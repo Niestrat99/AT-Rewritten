@@ -62,10 +62,7 @@ public class RTPManager {
         if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
         tries++;
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
-            Location loc = locQueue.get(world.getUID()).poll();
-            if (!PluginHookManager.get().isClaimed(loc)) {
-                return CompletableFuture.completedFuture(loc);
-            }
+            return CompletableFuture.completedFuture(locQueue.get(world.getUID()).poll());
         }
         Location location = RandomCoords.generateCoords(world);
         int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};

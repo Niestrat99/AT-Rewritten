@@ -278,29 +278,9 @@ command-rules:
 #  RandomTP  #
 ##############
 
-# Defines the range of X coordinates that players can teleport to.
-# Using a value for example 5000 would automatically set the minimum to -5000.
-# These are able to be defined for each world by name.
-# Split the values with a semicolon (;).
-# If a world is defined here but not in the z section, the x values will be reused for the z coords.
-x:
-  default: 5000;-5000
-  world_the_end: 5000;-5000
-
-# Defines the range of Z coordinates that players can teleport to.
-# Using a value for example 5000 would automatically set the minimum to -5000.
-# These are able to be defined for each world by name.
-# Split the values with a semicolon (;).
-# If a world is defined here but not in the z section, the x values will be reused for the z coords.
-z:
-  default: 5000;-5000
-  world_the_end: 10000;-10000
-
-# Deprecated
 # The maximum X coordinate to go up to when selecting a random location.
 maximum-x: 5000
 
-# Deprecated
 # The maximum Z coordinate to go up to when selecting a random location.
 maximum-z: 5000
 
@@ -312,10 +292,6 @@ minimum-z: -5000
 
 # When WorldBorder is installed, AT will check the border of each world instead rather than using the minimum and maximum coordinates.
 use-world-border: true
-
-# If enabled checks if the player is in either an unclaimed area or that they have build permission in the area.
-# Supported plugins are Lands, WorldGuard, and GriefPrevention.
-protect-claim-locations: true
 
 # Use the new rapid response system for RTP.
 # This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.
