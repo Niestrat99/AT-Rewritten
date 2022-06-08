@@ -1,0 +1,238 @@
+--- a/net/minecraft/world/entity/ambient/Bat.java
++++ b/net/minecraft/world/entity/ambient/Bat.java
+@@ -27,8 +27,10 @@
+ import net.minecraft.world.level.LevelAccessor;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory; // CraftBukkit
+ 
+ public class Bat extends AmbientCreature {
++
+     public static final float FLAP_DEGREES_PER_TICK = 74.48451F;
+     public static final int TICKS_PER_FLAP = Mth.ceil(2.4166098F);
+     private static final EntityDataAccessor<Byte> DATA_ID_FLAGS = SynchedEntityData.defineId(Bat.class, EntityDataSerializers.BYTE);
+@@ -44,13 +46,13 @@
+ 
+     @Override
+     public boolean isFlapping() {
+-        return !this.isResting() && this.tickCount % TICKS_PER_FLAP == 0;
++        return !this.isResting() && this.tickCount % Bat.TICKS_PER_FLAP == 0;
+     }
+ 
+     @Override
+     protected void defineSynchedData() {
+         super.defineSynchedData();
+-        this.entityData.define(DATA_ID_FLAGS, (byte)0);
++        this.entityData.define(Bat.DATA_ID_FLAGS, (byte) 0);
+     }
+ 
+     @Override
+@@ -80,32 +82,31 @@
+     }
+ 
+     @Override
+-    public boolean isPushable() {
++    public boolean isCollidable(boolean ignoreClimbing) { // Paper
+         return false;
+     }
+ 
+     @Override
+-    protected void doPush(Entity entity) {
+-    }
++    protected void doPush(Entity entity) {}
+ 
+     @Override
+-    protected void pushEntities() {
+-    }
++    protected void pushEntities() {}
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 6.0D);
+     }
+ 
+     public boolean isResting() {
+-        return (this.entityData.get(DATA_ID_FLAGS) & 1) != 0;
++        return ((Byte) this.entityData.get(Bat.DATA_ID_FLAGS) & 1) != 0;
+     }
+ 
+     public void setResting(boolean roosting) {
+-        byte b = this.entityData.get(DATA_ID_FLAGS);
++        byte b0 = (Byte) this.entityData.get(Bat.DATA_ID_FLAGS);
++
+         if (roosting) {
+-            this.entityData.set(DATA_ID_FLAGS, (byte)(b | 1));
++            this.entityData.set(Bat.DATA_ID_FLAGS, (byte) (b0 | 1));
+         } else {
+-            this.entityData.set(DATA_ID_FLAGS, (byte)(b & -2));
++            this.entityData.set(Bat.DATA_ID_FLAGS, (byte) (b0 & -2));
+         }
+ 
+     }
+@@ -115,7 +116,7 @@
+         super.tick();
+         if (this.isResting()) {
+             this.setDeltaMovement(Vec3.ZERO);
+-            this.setPosRaw(this.getX(), (double)Mth.floor(this.getY()) + 1.0D - (double)this.getBbHeight(), this.getZ());
++            this.setPosRaw(this.getX(), (double) Mth.floor(this.getY()) + 1.0D - (double) this.getBbHeight(), this.getZ());
+         } else {
+             this.setDeltaMovement(this.getDeltaMovement().multiply(1.0D, 0.6D, 1.0D));
+         }
+@@ -125,26 +126,36 @@
+     @Override
+     protected void customServerAiStep() {
+         super.customServerAiStep();
+-        BlockPos blockPos = this.blockPosition();
+-        BlockPos blockPos2 = blockPos.above();
++        BlockPos blockposition = this.blockPosition();
++        BlockPos blockposition1 = blockposition.above();
++
+         if (this.isResting()) {
+-            boolean bl = this.isSilent();
+-            if (this.level.getBlockState(blockPos2).isRedstoneConductor(this.level, blockPos)) {
++            boolean flag = this.isSilent();
++
++            if (this.level.getBlockState(blockposition1).isRedstoneConductor(this.level, blockposition)) {
+                 if (this.random.nextInt(200) == 0) {
+-                    this.yHeadRot = (float)this.random.nextInt(360);
++                    this.yHeadRot = (float) this.random.nextInt(360);
+                 }
+ 
+-                if (this.level.getNearestPlayer(BAT_RESTING_TARGETING, this) != null) {
+-                    this.setResting(false);
+-                    if (!bl) {
+-                        this.level.levelEvent((Player)null, 1025, blockPos, 0);
++                if (this.level.getNearestPlayer(Bat.BAT_RESTING_TARGETING, this) != null) {
++                    // CraftBukkit Start - Call BatToggleSleepEvent
++                    if (CraftEventFactory.handleBatToggleSleepEvent(this, true)) {
++                        this.setResting(false);
++                        if (!flag) {
++                            this.level.levelEvent((Player) null, 1025, blockposition, 0);
++                        }
+                     }
++                    // CraftBukkit End
+                 }
+             } else {
+-                this.setResting(false);
+-                if (!bl) {
+-                    this.level.levelEvent((Player)null, 1025, blockPos, 0);
++                // CraftBukkit Start - Call BatToggleSleepEvent
++                if (CraftEventFactory.handleBatToggleSleepEvent(this, true)) {
++                    this.setResting(false);
++                    if (!flag) {
++                        this.level.levelEvent((Player) null, 1025, blockposition, 0);
++                    }
+                 }
++                // CraftBukkit End - Call BatToggleSleepEvent
+             }
+         } else {
+             if (this.targetPosition != null && (!this.level.isEmptyBlock(this.targetPosition) || this.targetPosition.getY() <= this.level.getMinBuildHeight())) {
+@@ -152,21 +163,27 @@
+             }
+ 
+             if (this.targetPosition == null || this.random.nextInt(30) == 0 || this.targetPosition.closerToCenterThan(this.position(), 2.0D)) {
+-                this.targetPosition = new BlockPos(this.getX() + (double)this.random.nextInt(7) - (double)this.random.nextInt(7), this.getY() + (double)this.random.nextInt(6) - 2.0D, this.getZ() + (double)this.random.nextInt(7) - (double)this.random.nextInt(7));
++                this.targetPosition = new BlockPos(this.getX() + (double) this.random.nextInt(7) - (double) this.random.nextInt(7), this.getY() + (double) this.random.nextInt(6) - 2.0D, this.getZ() + (double) this.random.nextInt(7) - (double) this.random.nextInt(7));
+             }
+ 
+-            double d = (double)this.targetPosition.getX() + 0.5D - this.getX();
+-            double e = (double)this.targetPosition.getY() + 0.1D - this.getY();
+-            double f = (double)this.targetPosition.getZ() + 0.5D - this.getZ();
+-            Vec3 vec3 = this.getDeltaMovement();
+-            Vec3 vec32 = vec3.add((Math.signum(d) * 0.5D - vec3.x) * (double)0.1F, (Math.signum(e) * (double)0.7F - vec3.y) * (double)0.1F, (Math.signum(f) * 0.5D - vec3.z) * (double)0.1F);
+-            this.setDeltaMovement(vec32);
+-            float g = (float)(Mth.atan2(vec32.z, vec32.x) * (double)(180F / (float)Math.PI)) - 90.0F;
+-            float h = Mth.wrapDegrees(g - this.getYRot());
++            double d0 = (double) this.targetPosition.getX() + 0.5D - this.getX();
++            double d1 = (double) this.targetPosition.getY() + 0.1D - this.getY();
++            double d2 = (double) this.targetPosition.getZ() + 0.5D - this.getZ();
++            Vec3 vec3d = this.getDeltaMovement();
++            Vec3 vec3d1 = vec3d.add((Math.signum(d0) * 0.5D - vec3d.x) * 0.10000000149011612D, (Math.signum(d1) * 0.699999988079071D - vec3d.y) * 0.10000000149011612D, (Math.signum(d2) * 0.5D - vec3d.z) * 0.10000000149011612D);
++
++            this.setDeltaMovement(vec3d1);
++            float f = (float) (Mth.atan2(vec3d1.z, vec3d1.x) * 57.2957763671875D) - 90.0F;
++            float f1 = Mth.wrapDegrees(f - this.getYRot());
++
+             this.zza = 0.5F;
+-            this.setYRot(this.getYRot() + h);
+-            if (this.random.nextInt(100) == 0 && this.level.getBlockState(blockPos2).isRedstoneConductor(this.level, blockPos2)) {
+-                this.setResting(true);
++            this.setYRot(this.getYRot() + f1);
++            if (this.random.nextInt(100) == 0 && this.level.getBlockState(blockposition1).isRedstoneConductor(this.level, blockposition1)) {
++                // CraftBukkit Start - Call BatToggleSleepEvent
++                if (CraftEventFactory.handleBatToggleSleepEvent(this, false)) {
++                    this.setResting(true);
++                }
++                // CraftBukkit End
+             }
+         }
+ 
+@@ -183,8 +200,7 @@
+     }
+ 
+     @Override
+-    protected void checkFallDamage(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition) {
+-    }
++    protected void checkFallDamage(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition) {}
+ 
+     @Override
+     public boolean isIgnoringBlockTriggers() {
+@@ -197,7 +213,11 @@
+             return false;
+         } else {
+             if (!this.level.isClientSide && this.isResting()) {
+-                this.setResting(false);
++                // CraftBukkit Start - Call BatToggleSleepEvent
++                if (CraftEventFactory.handleBatToggleSleepEvent(this, true)) {
++                    this.setResting(false);
++                }
++                // CraftBukkit End - Call BatToggleSleepEvent
+             }
+ 
+             return super.hurt(source, amount);
+@@ -207,13 +227,13 @@
+     @Override
+     public void readAdditionalSaveData(CompoundTag nbt) {
+         super.readAdditionalSaveData(nbt);
+-        this.entityData.set(DATA_ID_FLAGS, nbt.getByte("BatFlags"));
++        this.entityData.set(Bat.DATA_ID_FLAGS, nbt.getByte("BatFlags"));
+     }
+ 
+     @Override
+     public void addAdditionalSaveData(CompoundTag nbt) {
+         super.addAdditionalSaveData(nbt);
+-        nbt.putByte("BatFlags", this.entityData.get(DATA_ID_FLAGS));
++        nbt.putByte("BatFlags", (Byte) this.entityData.get(Bat.DATA_ID_FLAGS));
+     }
+ 
+     public static boolean checkBatSpawnRules(EntityType<Bat> type, LevelAccessor world, MobSpawnType spawnReason, BlockPos pos, RandomSource random) {
+@@ -221,21 +241,23 @@
+             return false;
+         } else {
+             int i = world.getMaxLocalRawBrightness(pos);
+-            int j = 4;
+-            if (isHalloween()) {
+-                j = 7;
++            byte b0 = 4;
++
++            if (Bat.isHalloween()) {
++                b0 = 7;
+             } else if (random.nextBoolean()) {
+                 return false;
+             }
+ 
+-            return i > random.nextInt(j) ? false : checkMobSpawnRules(type, world, spawnReason, pos, random);
++            return i > random.nextInt(b0) ? false : checkMobSpawnRules(type, world, spawnReason, pos, random);
+         }
+     }
+ 
+     private static boolean isHalloween() {
+-        LocalDate localDate = LocalDate.now();
+-        int i = localDate.get(ChronoField.DAY_OF_MONTH);
+-        int j = localDate.get(ChronoField.MONTH_OF_YEAR);
++        LocalDate localdate = LocalDate.now();
++        int i = localdate.get(ChronoField.DAY_OF_MONTH);
++        int j = localdate.get(ChronoField.MONTH_OF_YEAR);
++
+         return j == 10 && i >= 20 || j == 11 && i <= 3;
+     }
+ 

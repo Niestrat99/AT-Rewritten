@@ -1,0 +1,506 @@
+--- a/net/minecraft/world/entity/animal/allay/Allay.java
++++ b/net/minecraft/world/entity/animal/allay/Allay.java
+@@ -2,7 +2,10 @@
+ 
+ import com.google.common.collect.ImmutableList;
+ import com.mojang.logging.LogUtils;
++import com.mojang.serialization.DataResult;
+ import com.mojang.serialization.Dynamic;
++import java.util.Iterator;
++import java.util.Objects;
+ import java.util.Optional;
+ import java.util.UUID;
+ import java.util.function.BiConsumer;
+@@ -69,6 +72,7 @@
+ import org.slf4j.Logger;
+ 
+ public class Allay extends PathfinderMob implements InventoryCarrier {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+     private static final int VIBRATION_EVENT_LISTENER_RANGE = 16;
+     private static final Vec3i ITEM_PICKUP_REACH = new Vec3i(1, 1, 1);
+@@ -82,33 +86,42 @@
+     private static final EntityDataAccessor<Boolean> DATA_DANCING = SynchedEntityData.defineId(Allay.class, EntityDataSerializers.BOOLEAN);
+     private static final EntityDataAccessor<Boolean> DATA_CAN_DUPLICATE = SynchedEntityData.defineId(Allay.class, EntityDataSerializers.BOOLEAN);
+     protected static final ImmutableList<SensorType<? extends Sensor<? super Allay>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.HURT_BY, SensorType.NEAREST_ITEMS);
+-    protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.PATH, MemoryModuleType.LOOK_TARGET, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.HURT_BY, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, MemoryModuleType.LIKED_PLAYER, MemoryModuleType.LIKED_NOTEBLOCK_POSITION, MemoryModuleType.LIKED_NOTEBLOCK_COOLDOWN_TICKS, MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS, MemoryModuleType.IS_PANICKING);
+-    public static final ImmutableList<Float> THROW_SOUND_PITCHES = ImmutableList.of(0.5625F, 0.625F, 0.75F, 0.9375F, 1.0F, 1.0F, 1.125F, 1.25F, 1.5F, 1.875F, 2.0F, 2.25F, 2.5F, 3.0F, 3.75F, 4.0F);
++    protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.PATH, MemoryModuleType.LOOK_TARGET, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.HURT_BY, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, MemoryModuleType.LIKED_PLAYER, MemoryModuleType.LIKED_NOTEBLOCK_POSITION, MemoryModuleType.LIKED_NOTEBLOCK_COOLDOWN_TICKS, MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS, MemoryModuleType.IS_PANICKING, new MemoryModuleType[0]);
++    public static final ImmutableList<Float> THROW_SOUND_PITCHES = ImmutableList.of(0.5625F, 0.625F, 0.75F, 0.9375F, 1.0F, 1.0F, 1.125F, 1.25F, 1.5F, 1.875F, 2.0F, 2.25F, new Float[]{2.5F, 3.0F, 3.75F, 4.0F});
+     private final DynamicGameEventListener<VibrationListener> dynamicVibrationListener;
+     private final VibrationListener.VibrationListenerConfig vibrationListenerConfig;
+     private final DynamicGameEventListener<Allay.JukeboxListener> dynamicJukeboxListener;
+     private final SimpleContainer inventory = new SimpleContainer(1);
+-    private @Nullable BlockPos jukeboxPos;
+-    private long duplicationCooldown;
++    @Nullable
++    public BlockPos jukeboxPos; // PAIL private -> public
++    public long duplicationCooldown; // PAIL private -> public
+     private float holdingItemAnimationTicks;
+     private float holdingItemAnimationTicks0;
+     private float dancingAnimationTicks;
+     private float spinningAnimationTicks;
+     private float spinningAnimationTicks0;
++    public boolean forceDancing = false; // CraftBukkit
+ 
+     public Allay(EntityType<? extends Allay> type, Level world) {
+         super(type, world);
+         this.moveControl = new FlyingMoveControl(this, 20, true);
+         this.setCanPickUpLoot(this.canPickUpLoot());
+-        PositionSource positionSource = new EntityPositionSource(this, this.getEyeHeight());
++        EntityPositionSource entitypositionsource = new EntityPositionSource(this, this.getEyeHeight());
++
+         this.vibrationListenerConfig = new Allay.AllayVibrationListenerConfig();
+-        this.dynamicVibrationListener = new DynamicGameEventListener<>(new VibrationListener(positionSource, 16, this.vibrationListenerConfig, (VibrationListener.ReceivingEvent)null, 0.0F, 0));
+-        this.dynamicJukeboxListener = new DynamicGameEventListener<>(new Allay.JukeboxListener(positionSource, GameEvent.JUKEBOX_PLAY.getNotificationRadius()));
++        this.dynamicVibrationListener = new DynamicGameEventListener<>(new VibrationListener(entitypositionsource, 16, this.vibrationListenerConfig, (VibrationListener.ReceivingEvent) null, 0.0F, 0));
++        this.dynamicJukeboxListener = new DynamicGameEventListener<>(new Allay.JukeboxListener(entitypositionsource, GameEvent.JUKEBOX_PLAY.getNotificationRadius()));
+     }
+ 
++    // CraftBukkit start
++    public void setCanDuplicate(boolean canDuplicate) {
++        this.entityData.set(Allay.DATA_CAN_DUPLICATE, canDuplicate);
++    }
++    // CraftBukkit end
++
+     @Override
+     protected Brain.Provider<Allay> brainProvider() {
+-        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
++        return Brain.provider(Allay.MEMORY_TYPES, Allay.SENSOR_TYPES);
+     }
+ 
+     @Override
+@@ -118,27 +131,28 @@
+ 
+     @Override
+     public Brain<Allay> getBrain() {
+-        return super.getBrain();
++        return (Brain<Allay>) super.getBrain(); // CraftBukkit - decompile error
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 20.0D).add(Attributes.FLYING_SPEED, (double)0.1F).add(Attributes.MOVEMENT_SPEED, (double)0.1F).add(Attributes.ATTACK_DAMAGE, 2.0D).add(Attributes.FOLLOW_RANGE, 48.0D);
++        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 20.0D).add(Attributes.FLYING_SPEED, 0.10000000149011612D).add(Attributes.MOVEMENT_SPEED, 0.10000000149011612D).add(Attributes.ATTACK_DAMAGE, 2.0D).add(Attributes.FOLLOW_RANGE, 48.0D);
+     }
+ 
+     @Override
+     protected PathNavigation createNavigation(Level world) {
+-        FlyingPathNavigation flyingPathNavigation = new FlyingPathNavigation(this, world);
+-        flyingPathNavigation.setCanOpenDoors(false);
+-        flyingPathNavigation.setCanFloat(true);
+-        flyingPathNavigation.setCanPassDoors(true);
+-        return flyingPathNavigation;
++        FlyingPathNavigation navigationflying = new FlyingPathNavigation(this, world);
++
++        navigationflying.setCanOpenDoors(false);
++        navigationflying.setCanFloat(true);
++        navigationflying.setCanPassDoors(true);
++        return navigationflying;
+     }
+ 
+     @Override
+     protected void defineSynchedData() {
+         super.defineSynchedData();
+-        this.entityData.define(DATA_DANCING, false);
+-        this.entityData.define(DATA_CAN_DUPLICATE, true);
++        this.entityData.define(Allay.DATA_DANCING, false);
++        this.entityData.define(Allay.DATA_CAN_DUPLICATE, true);
+     }
+ 
+     @Override
+@@ -147,7 +161,7 @@
+             if (this.isInWater()) {
+                 this.moveRelative(0.02F, movementInput);
+                 this.move(MoverType.SELF, this.getDeltaMovement());
+-                this.setDeltaMovement(this.getDeltaMovement().scale((double)0.8F));
++                this.setDeltaMovement(this.getDeltaMovement().scale(0.800000011920929D));
+             } else if (this.isInLava()) {
+                 this.moveRelative(0.02F, movementInput);
+                 this.move(MoverType.SELF, this.getDeltaMovement());
+@@ -155,7 +169,7 @@
+             } else {
+                 this.moveRelative(this.getSpeed(), movementInput);
+                 this.move(MoverType.SELF, this.getDeltaMovement());
+-                this.setDeltaMovement(this.getDeltaMovement().scale((double)0.91F));
++                this.setDeltaMovement(this.getDeltaMovement().scale(0.9100000262260437D));
+             }
+         }
+ 
+@@ -174,10 +188,13 @@
+ 
+     @Override
+     public boolean hurt(DamageSource source, float amount) {
+-        Entity optional = source.getEntity();
+-        if (optional instanceof Player player) {
++        Entity entity = source.getEntity();
++
++        if (entity instanceof Player) {
++            Player entityhuman = (Player) entity;
+             Optional<UUID> optional = this.getBrain().getMemory(MemoryModuleType.LIKED_PLAYER);
+-            if (optional.isPresent() && player.getUUID().equals(optional.get())) {
++
++            if (optional.isPresent() && entityhuman.getUUID().equals(optional.get())) {
+                 return false;
+             }
+         }
+@@ -186,12 +203,10 @@
+     }
+ 
+     @Override
+-    protected void playStepSound(BlockPos pos, BlockState state) {
+-    }
++    protected void playStepSound(BlockPos pos, BlockState state) {}
+ 
+     @Override
+-    protected void checkFallDamage(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition) {
+-    }
++    protected void checkFallDamage(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition) {}
+ 
+     @Override
+     protected SoundEvent getAmbientSound() {
+@@ -216,7 +231,7 @@
+     @Override
+     protected void customServerAiStep() {
+         this.level.getProfiler().push("allayBrain");
+-        this.getBrain().tick((ServerLevel)this.level, this);
++        this.getBrain().tick((ServerLevel) this.level, this);
+         this.level.getProfiler().pop();
+         this.level.getProfiler().push("allayActivityUpdate");
+         AllayAi.updateActivity(this);
+@@ -228,7 +243,7 @@
+     public void aiStep() {
+         super.aiStep();
+         if (!this.level.isClientSide && this.isAlive() && this.tickCount % 10 == 0) {
+-            this.heal(1.0F);
++            this.heal(1.0F, org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason.REGEN); // CraftBukkit
+         }
+ 
+         if (this.isDancing() && this.shouldStopDancing() && this.tickCount % 20 == 0) {
+@@ -266,7 +281,7 @@
+                 this.spinningAnimationTicks0 = 0.0F;
+             }
+         } else {
+-            this.dynamicVibrationListener.getListener().tick(this.level);
++            ((VibrationListener) this.dynamicVibrationListener.getListener()).tick(this.level);
+         }
+ 
+     }
+@@ -291,33 +306,43 @@
+ 
+     @Override
+     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+-        ItemStack itemStack = player.getItemInHand(hand);
+-        ItemStack itemStack2 = this.getItemInHand(InteractionHand.MAIN_HAND);
+-        if (this.isDancing() && this.isDuplicationItem(itemStack) && this.canDuplicate()) {
+-            this.duplicateAllay();
+-            this.level.broadcastEntityEvent(this, (byte)18);
+-            this.level.playSound(player, this, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.NEUTRAL, 2.0F, 1.0F);
+-            this.removeInteractionItem(player, itemStack);
++        ItemStack itemstack = player.getItemInHand(hand);
++        ItemStack itemstack1 = this.getItemInHand(InteractionHand.MAIN_HAND);
++
++        if (this.isDancing() && this.isDuplicationItem(itemstack) && this.canDuplicate()) {
++            // CraftBukkit start - handle cancel duplication
++            Allay allay = this.duplicateAllay();
++            if (allay == null) {
++                return InteractionResult.SUCCESS;
++            }
++            // CraftBukkit end
++            this.level.broadcastEntityEvent(this, (byte) 18);
++            this.level.playSound(player, (Entity) this, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.NEUTRAL, 2.0F, 1.0F);
++            this.removeInteractionItem(player, itemstack);
+             return InteractionResult.SUCCESS;
+-        } else if (itemStack2.isEmpty() && !itemStack.isEmpty()) {
+-            ItemStack itemStack3 = itemStack.copy();
+-            itemStack3.setCount(1);
+-            this.setItemInHand(InteractionHand.MAIN_HAND, itemStack3);
+-            this.removeInteractionItem(player, itemStack);
+-            this.level.playSound(player, this, SoundEvents.ALLAY_ITEM_GIVEN, SoundSource.NEUTRAL, 2.0F, 1.0F);
+-            this.getBrain().setMemory(MemoryModuleType.LIKED_PLAYER, player.getUUID());
++        } else if (itemstack1.isEmpty() && !itemstack.isEmpty()) {
++            ItemStack itemstack2 = itemstack.copy();
++
++            itemstack2.setCount(1);
++            this.setItemInHand(InteractionHand.MAIN_HAND, itemstack2);
++            this.removeInteractionItem(player, itemstack);
++            this.level.playSound(player, (Entity) this, SoundEvents.ALLAY_ITEM_GIVEN, SoundSource.NEUTRAL, 2.0F, 1.0F);
++            this.getBrain().setMemory(MemoryModuleType.LIKED_PLAYER, player.getUUID()); // CraftBukkit - decompile error
+             return InteractionResult.SUCCESS;
+-        } else if (!itemStack2.isEmpty() && hand == InteractionHand.MAIN_HAND && itemStack.isEmpty()) {
++        } else if (!itemstack1.isEmpty() && hand == InteractionHand.MAIN_HAND && itemstack.isEmpty()) {
+             this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+-            this.level.playSound(player, this, SoundEvents.ALLAY_ITEM_TAKEN, SoundSource.NEUTRAL, 2.0F, 1.0F);
++            this.level.playSound(player, (Entity) this, SoundEvents.ALLAY_ITEM_TAKEN, SoundSource.NEUTRAL, 2.0F, 1.0F);
+             this.swing(InteractionHand.MAIN_HAND);
++            Iterator iterator = this.getInventory().removeAllItems().iterator();
+ 
+-            for(ItemStack itemStack4 : this.getInventory().removeAllItems()) {
+-                BehaviorUtils.throwItem(this, itemStack4, this.position());
++            while (iterator.hasNext()) {
++                ItemStack itemstack3 = (ItemStack) iterator.next();
++
++                BehaviorUtils.throwItem(this, itemstack3, this.position());
+             }
+ 
+             this.getBrain().eraseMemory(MemoryModuleType.LIKED_PLAYER);
+-            player.addItem(itemStack2);
++            player.addItem(itemstack1);
+             return InteractionResult.SUCCESS;
+         } else {
+             return super.mobInteract(player, hand);
+@@ -344,13 +369,14 @@
+ 
+     @Override
+     protected Vec3i getPickupReach() {
+-        return ITEM_PICKUP_REACH;
++        return Allay.ITEM_PICKUP_REACH;
+     }
+ 
+     @Override
+     public boolean wantsToPickUp(ItemStack stack) {
+-        ItemStack itemStack = this.getItemInHand(InteractionHand.MAIN_HAND);
+-        return !itemStack.isEmpty() && itemStack.sameItemStackIgnoreDurability(stack) && this.inventory.canAddItem(stack) && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
++        ItemStack itemstack1 = this.getItemInHand(InteractionHand.MAIN_HAND);
++
++        return !itemstack1.isEmpty() && itemstack1.sameItemStackIgnoreDurability(stack) && this.inventory.canAddItem(stack) && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+     }
+ 
+     @Override
+@@ -371,26 +397,30 @@
+ 
+     @Override
+     public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerLevel> callback) {
+-        Level var3 = this.level;
+-        if (var3 instanceof ServerLevel serverLevel) {
+-            callback.accept(this.dynamicVibrationListener, serverLevel);
+-            callback.accept(this.dynamicJukeboxListener, serverLevel);
++        Level world = this.level;
++
++        if (world instanceof ServerLevel) {
++            ServerLevel worldserver = (ServerLevel) world;
++
++            callback.accept(this.dynamicVibrationListener, worldserver);
++            callback.accept(this.dynamicJukeboxListener, worldserver);
+         }
+ 
+     }
+ 
+     public boolean isDancing() {
+-        return this.entityData.get(DATA_DANCING);
++        return (Boolean) this.entityData.get(Allay.DATA_DANCING);
+     }
+ 
+     public void setDancing(boolean dancing) {
+         if (!this.level.isClientSide) {
+-            this.entityData.set(DATA_DANCING, dancing);
++            this.entityData.set(Allay.DATA_DANCING, dancing);
+         }
+     }
+ 
+     private boolean shouldStopDancing() {
+-        return this.jukeboxPos == null || !this.jukeboxPos.closerToCenterThan(this.position(), (double)GameEvent.JUKEBOX_PLAY.getNotificationRadius()) || !this.level.getBlockState(this.jukeboxPos).is(Blocks.JUKEBOX);
++        if (this.forceDancing) {return false;} // CraftBukkit
++        return this.jukeboxPos == null || !this.jukeboxPos.closerToCenterThan(this.position(), (double) GameEvent.JUKEBOX_PLAY.getNotificationRadius()) || !this.level.getBlockState(this.jukeboxPos).is(Blocks.JUKEBOX);
+     }
+ 
+     public float getHoldingItemAnimationProgress(float f) {
+@@ -399,6 +429,7 @@
+ 
+     public boolean isSpinning() {
+         float f = this.dancingAnimationTicks % 55.0F;
++
+         return f < 15.0F;
+     }
+ 
+@@ -410,9 +441,10 @@
+     protected void dropEquipment() {
+         super.dropEquipment();
+         this.inventory.removeAllItems().forEach(this::spawnAtLocation);
+-        ItemStack itemStack = this.getItemBySlot(EquipmentSlot.MAINHAND);
+-        if (!itemStack.isEmpty() && !EnchantmentHelper.hasVanishingCurse(itemStack)) {
+-            this.spawnAtLocation(itemStack);
++        ItemStack itemstack = this.getItemBySlot(EquipmentSlot.MAINHAND);
++
++        if (!itemstack.isEmpty() && !EnchantmentHelper.hasVanishingCurse(itemstack)) {
++            this.spawnAtLocation(itemstack);
+             this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+         }
+ 
+@@ -427,8 +459,12 @@
+     public void addAdditionalSaveData(CompoundTag nbt) {
+         super.addAdditionalSaveData(nbt);
+         nbt.put("Inventory", this.inventory.createTag());
+-        VibrationListener.codec(this.vibrationListenerConfig).encodeStart(NbtOps.INSTANCE, this.dynamicVibrationListener.getListener()).resultOrPartial(LOGGER::error).ifPresent((tag) -> {
+-            nbt.put("listener", tag);
++        DataResult<net.minecraft.nbt.Tag> dataresult = VibrationListener.codec(this.vibrationListenerConfig).encodeStart(NbtOps.INSTANCE, (VibrationListener) this.dynamicVibrationListener.getListener()); // CraftBukkit - decompile error
++        Logger logger = Allay.LOGGER;
++
++        Objects.requireNonNull(logger);
++        dataresult.resultOrPartial(logger::error).ifPresent((nbtbase) -> {
++            nbt.put("listener", nbtbase);
+         });
+         nbt.putLong("DuplicationCooldown", this.duplicationCooldown);
+         nbt.putBoolean("CanDuplicate", this.canDuplicate());
+@@ -439,13 +475,17 @@
+         super.readAdditionalSaveData(nbt);
+         this.inventory.fromTag(nbt.getList("Inventory", 10));
+         if (nbt.contains("listener", 10)) {
+-            VibrationListener.codec(this.vibrationListenerConfig).parse(new Dynamic<>(NbtOps.INSTANCE, nbt.getCompound("listener"))).resultOrPartial(LOGGER::error).ifPresent((vibrationListener) -> {
+-                this.dynamicVibrationListener.updateListener(vibrationListener, this.level);
++            DataResult<VibrationListener> dataresult = VibrationListener.codec(this.vibrationListenerConfig).parse(new Dynamic(NbtOps.INSTANCE, nbt.getCompound("listener"))); // CraftBukkit - decompile error
++            Logger logger = Allay.LOGGER;
++
++            Objects.requireNonNull(logger);
++            dataresult.resultOrPartial(logger::error).ifPresent((vibrationlistener) -> {
++                this.dynamicVibrationListener.updateListener(vibrationlistener, this.level);
+             });
+         }
+ 
+-        this.duplicationCooldown = (long)nbt.getInt("DuplicationCooldown");
+-        this.entityData.set(DATA_CAN_DUPLICATE, nbt.getBoolean("CanDuplicate"));
++        this.duplicationCooldown = nbt.getLong("DuplicationCooldown"); // Paper - Load as long
++        this.entityData.set(Allay.DATA_CAN_DUPLICATE, nbt.getBoolean("CanDuplicate"));
+     }
+ 
+     @Override
+@@ -455,14 +495,15 @@
+ 
+     @Override
+     public Iterable<BlockPos> iteratePathfindingStartNodeCandidatePositions() {
+-        AABB aABB = this.getBoundingBox();
+-        int i = Mth.floor(aABB.minX - 0.5D);
+-        int j = Mth.floor(aABB.maxX + 0.5D);
+-        int k = Mth.floor(aABB.minZ - 0.5D);
+-        int l = Mth.floor(aABB.maxZ + 0.5D);
+-        int m = Mth.floor(aABB.minY - 0.5D);
+-        int n = Mth.floor(aABB.maxY + 0.5D);
+-        return BlockPos.betweenClosed(i, m, k, j, n, l);
++        AABB axisalignedbb = this.getBoundingBox();
++        int i = Mth.floor(axisalignedbb.minX - 0.5D);
++        int j = Mth.floor(axisalignedbb.maxX + 0.5D);
++        int k = Mth.floor(axisalignedbb.minZ - 0.5D);
++        int l = Mth.floor(axisalignedbb.maxZ + 0.5D);
++        int i1 = Mth.floor(axisalignedbb.minY - 0.5D);
++        int j1 = Mth.floor(axisalignedbb.maxY + 0.5D);
++
++        return BlockPos.betweenClosed(i, i1, k, j, j1, l);
+     }
+ 
+     private void updateDuplicationCooldown() {
+@@ -471,34 +512,35 @@
+         }
+ 
+         if (!this.level.isClientSide() && this.duplicationCooldown == 0L && !this.canDuplicate()) {
+-            this.entityData.set(DATA_CAN_DUPLICATE, true);
++            this.entityData.set(Allay.DATA_CAN_DUPLICATE, true);
+         }
+ 
+     }
+ 
+     private boolean isDuplicationItem(ItemStack stack) {
+-        return DUPLICATION_ITEM.test(stack);
++        return Allay.DUPLICATION_ITEM.test(stack);
+     }
+ 
+-    private void duplicateAllay() {
+-        Allay allay = EntityType.ALLAY.create(this.level);
++    public Allay duplicateAllay() { // CraftBukkit - return allay and private -> public
++        Allay allay = (Allay) EntityType.ALLAY.create(this.level);
++
+         if (allay != null) {
+             allay.moveTo(this.position());
+             allay.setPersistenceRequired();
+             allay.resetDuplicationCooldown();
+             this.resetDuplicationCooldown();
+-            this.level.addFreshEntity(allay);
++            this.level.addFreshEntity(allay, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DUPLICATION); // CraftBukkit - reason for duplicated allay
+         }
+-
++        return allay; // CraftBukkit
+     }
+ 
+-    private void resetDuplicationCooldown() {
++    public void resetDuplicationCooldown() { // PAIL private -> public
+         this.duplicationCooldown = 6000L;
+-        this.entityData.set(DATA_CAN_DUPLICATE, false);
++        this.entityData.set(Allay.DATA_CAN_DUPLICATE, false);
+     }
+ 
+-    private boolean canDuplicate() {
+-        return this.entityData.get(DATA_CAN_DUPLICATE);
++    public boolean canDuplicate() { // PAIL private -> public
++        return (Boolean) this.entityData.get(Allay.DATA_CAN_DUPLICATE);
+     }
+ 
+     private void removeInteractionItem(Player player, ItemStack stack) {
+@@ -510,13 +552,13 @@
+ 
+     @Override
+     public Vec3 getLeashOffset() {
+-        return new Vec3(0.0D, (double)this.getEyeHeight() * 0.6D, (double)this.getBbWidth() * 0.1D);
++        return new Vec3(0.0D, (double) this.getEyeHeight() * 0.6D, (double) this.getBbWidth() * 0.1D);
+     }
+ 
+     @Override
+     public void handleEntityEvent(byte status) {
+         if (status == 18) {
+-            for(int i = 0; i < 3; ++i) {
++            for (int i = 0; i < 3; ++i) {
+                 this.spawnHeartParticle();
+             }
+         } else {
+@@ -526,22 +568,28 @@
+     }
+ 
+     private void spawnHeartParticle() {
+-        double d = this.random.nextGaussian() * 0.02D;
+-        double e = this.random.nextGaussian() * 0.02D;
+-        double f = this.random.nextGaussian() * 0.02D;
+-        this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d, e, f);
++        double d0 = this.random.nextGaussian() * 0.02D;
++        double d1 = this.random.nextGaussian() * 0.02D;
++        double d2 = this.random.nextGaussian() * 0.02D;
++
++        this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d0, d1, d2);
+     }
+ 
+-    class AllayVibrationListenerConfig implements VibrationListener.VibrationListenerConfig {
++    private class AllayVibrationListenerConfig implements VibrationListener.VibrationListenerConfig {
++
++        AllayVibrationListenerConfig() {}
++
+         @Override
+         public boolean shouldListen(ServerLevel world, GameEventListener listener, BlockPos pos, GameEvent event, GameEvent.Context emitter) {
+             if (Allay.this.getLevel() == world && !Allay.this.isRemoved() && !Allay.this.isNoAi()) {
+                 Optional<GlobalPos> optional = Allay.this.getBrain().getMemory(MemoryModuleType.LIKED_NOTEBLOCK_POSITION);
++
+                 if (optional.isEmpty()) {
+                     return true;
+                 } else {
+-                    GlobalPos globalPos = optional.get();
+-                    return globalPos.dimension().equals(world.dimension()) && globalPos.pos().equals(pos);
++                    GlobalPos globalpos = (GlobalPos) optional.get();
++
++                    return globalpos.dimension().equals(world.dimension()) && globalpos.pos().equals(pos);
+                 }
+             } else {
+                 return false;
+@@ -562,13 +610,14 @@
+         }
+     }
+ 
+-    class JukeboxListener implements GameEventListener {
++    private class JukeboxListener implements GameEventListener {
++
+         private final PositionSource listenerSource;
+         private final int listenerRadius;
+ 
+-        public JukeboxListener(PositionSource positionSource, int range) {
+-            this.listenerSource = positionSource;
+-            this.listenerRadius = range;
++        public JukeboxListener(PositionSource positionsource, int i) {
++            this.listenerSource = positionsource;
++            this.listenerRadius = i;
+         }
+ 
+         @Override

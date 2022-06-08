@@ -1,0 +1,43 @@
+--- a/net/minecraft/world/entity/ItemBasedSteering.java
++++ b/net/minecraft/world/entity/ItemBasedSteering.java
+@@ -6,6 +6,7 @@
+ import net.minecraft.util.RandomSource;
+ 
+ public class ItemBasedSteering {
++
+     private static final int MIN_BOOST_TIME = 140;
+     private static final int MAX_BOOST_TIME = 700;
+     private final SynchedEntityData entityData;
+@@ -24,7 +25,7 @@
+     public void onSynced() {
+         this.boosting = true;
+         this.boostTime = 0;
+-        this.boostTimeTotal = this.entityData.get(this.boostTimeAccessor);
++        this.boostTimeTotal = (Integer) this.entityData.get(this.boostTimeAccessor);
+     }
+ 
+     public boolean boost(RandomSource random) {
+@@ -39,6 +40,15 @@
+         }
+     }
+ 
++    // CraftBukkit add setBoostTicks(int)
++    public void setBoostTicks(int ticks) {
++        this.boosting = true;
++        this.boostTime = 0;
++        this.boostTimeTotal = ticks;
++        this.entityData.set(this.boostTimeAccessor, this.boostTimeTotal);
++    }
++    // CraftBukkit end
++
+     public void addAdditionalSaveData(CompoundTag nbt) {
+         nbt.putBoolean("Saddle", this.hasSaddle());
+     }
+@@ -52,6 +62,6 @@
+     }
+ 
+     public boolean hasSaddle() {
+-        return this.entityData.get(this.hasSaddleAccessor);
++        return (Boolean) this.entityData.get(this.hasSaddleAccessor);
+     }
+ }

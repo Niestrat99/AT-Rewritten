@@ -1,0 +1,71 @@
+--- a/net/minecraft/world/level/block/state/StateHolder.java
++++ b/net/minecraft/world/level/block/state/StateHolder.java
+@@ -39,11 +39,13 @@
+     private final ImmutableMap<Property<?>, Comparable<?>> values;
+     private Table<Property<?>, Comparable<?>, S> neighbours;
+     protected final MapCodec<S> propertiesCodec;
++    protected final io.papermc.paper.util.table.ZeroCollidingReferenceStateTable optimisedTable; // Paper - optimise state lookup
+ 
+     protected StateHolder(O owner, ImmutableMap<Property<?>, Comparable<?>> entries, MapCodec<S> codec) {
+         this.owner = owner;
+         this.values = entries;
+         this.propertiesCodec = codec;
++        this.optimisedTable = new io.papermc.paper.util.table.ZeroCollidingReferenceStateTable(this, entries); // Paper - optimise state lookup
+     }
+ 
+     public <T extends Comparable<T>> S cycle(Property<T> property) {
+@@ -84,11 +86,11 @@
+     }
+ 
+     public <T extends Comparable<T>> boolean hasProperty(Property<T> property) {
+-        return this.values.containsKey(property);
++        return this.optimisedTable.get(property) != null; // Paper - optimise state lookup
+     }
+ 
+     public <T extends Comparable<T>> T getValue(Property<T> property) {
+-        Comparable<?> comparable = this.values.get(property);
++        Comparable<?> comparable = this.optimisedTable.get(property); // Paper - optimise state lookup
+         if (comparable == null) {
+             throw new IllegalArgumentException("Cannot get property " + property + " as it does not exist in " + this.owner);
+         } else {
+@@ -97,24 +99,18 @@
+     }
+ 
+     public <T extends Comparable<T>> Optional<T> getOptionalValue(Property<T> property) {
+-        Comparable<?> comparable = this.values.get(property);
++        Comparable<?> comparable = this.optimisedTable.get(property); // Paper - optimise state lookup
+         return comparable == null ? Optional.empty() : Optional.of(property.getValueClass().cast(comparable));
+     }
+ 
+     public <T extends Comparable<T>, V extends T> S setValue(Property<T> property, V value) {
+-        Comparable<?> comparable = this.values.get(property);
+-        if (comparable == null) {
+-            throw new IllegalArgumentException("Cannot set property " + property + " as it does not exist in " + this.owner);
+-        } else if (comparable == value) {
+-            return (S)this;
+-        } else {
+-            S object = this.neighbours.get(property, value);
+-            if (object == null) {
+-                throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on " + this.owner + ", it is not an allowed value");
+-            } else {
+-                return object;
+-            }
++        // Paper start - optimise state lookup
++        final S ret = (S)this.optimisedTable.get(property, value);
++        if (ret == null) {
++            throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on " + this.owner + ", it is not an allowed value");
+         }
++        return ret;
++        // Paper end - optimise state lookup
+     }
+ 
+     public void populateNeighbours(Map<Map<Property<?>, Comparable<?>>, S> states) {
+@@ -133,7 +129,7 @@
+                 }
+             }
+ 
+-            this.neighbours = (Table<Property<?>, Comparable<?>, S>)(table.isEmpty() ? table : ArrayTable.create(table));
++            this.neighbours = (Table<Property<?>, Comparable<?>, S>)(table.isEmpty() ? table : ArrayTable.create(table)); this.optimisedTable.loadInTable((Table)this.neighbours, this.values); // Paper - optimise state lookup
+         }
+     }
+ 

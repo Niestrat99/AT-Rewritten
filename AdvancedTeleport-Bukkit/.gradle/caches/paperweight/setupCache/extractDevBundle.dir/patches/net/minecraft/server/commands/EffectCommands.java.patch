@@ -1,0 +1,173 @@
+--- a/net/minecraft/server/commands/EffectCommands.java
++++ b/net/minecraft/server/commands/EffectCommands.java
+@@ -4,12 +4,14 @@
+ import com.mojang.brigadier.CommandDispatcher;
+ import com.mojang.brigadier.arguments.BoolArgumentType;
+ import com.mojang.brigadier.arguments.IntegerArgumentType;
++import com.mojang.brigadier.builder.LiteralArgumentBuilder;
++import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+ import com.mojang.brigadier.exceptions.CommandSyntaxException;
+ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+ import java.util.Collection;
++import java.util.Iterator;
+ import javax.annotation.Nullable;
+ import net.minecraft.commands.CommandSourceStack;
+-import net.minecraft.commands.Commands;
+ import net.minecraft.commands.arguments.EntityArgument;
+ import net.minecraft.commands.arguments.MobEffectArgument;
+ import net.minecraft.network.chat.Component;
+@@ -19,81 +21,93 @@
+ import net.minecraft.world.entity.LivingEntity;
+ 
+ public class EffectCommands {
++
+     private static final SimpleCommandExceptionType ERROR_GIVE_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.effect.give.failed"));
+     private static final SimpleCommandExceptionType ERROR_CLEAR_EVERYTHING_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.effect.clear.everything.failed"));
+     private static final SimpleCommandExceptionType ERROR_CLEAR_SPECIFIC_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.effect.clear.specific.failed"));
+ 
++    public EffectCommands() {}
++
+     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+-        dispatcher.register(Commands.literal("effect").requires((source) -> {
+-            return source.hasPermission(2);
+-        }).then(Commands.literal("clear").executes((context) -> {
+-            return clearEffects(context.getSource(), ImmutableList.of(context.getSource().getEntityOrException()));
+-        }).then(Commands.argument("targets", EntityArgument.entities()).executes((context) -> {
+-            return clearEffects(context.getSource(), EntityArgument.getEntities(context, "targets"));
+-        }).then(Commands.argument("effect", MobEffectArgument.effect()).executes((context) -> {
+-            return clearEffect(context.getSource(), EntityArgument.getEntities(context, "targets"), MobEffectArgument.getEffect(context, "effect"));
+-        })))).then(Commands.literal("give").then(Commands.argument("targets", EntityArgument.entities()).then(Commands.argument("effect", MobEffectArgument.effect()).executes((context) -> {
+-            return giveEffect(context.getSource(), EntityArgument.getEntities(context, "targets"), MobEffectArgument.getEffect(context, "effect"), (Integer)null, 0, true);
+-        }).then(Commands.argument("seconds", IntegerArgumentType.integer(1, 1000000)).executes((context) -> {
+-            return giveEffect(context.getSource(), EntityArgument.getEntities(context, "targets"), MobEffectArgument.getEffect(context, "effect"), IntegerArgumentType.getInteger(context, "seconds"), 0, true);
+-        }).then(Commands.argument("amplifier", IntegerArgumentType.integer(0, 255)).executes((context) -> {
+-            return giveEffect(context.getSource(), EntityArgument.getEntities(context, "targets"), MobEffectArgument.getEffect(context, "effect"), IntegerArgumentType.getInteger(context, "seconds"), IntegerArgumentType.getInteger(context, "amplifier"), true);
+-        }).then(Commands.argument("hideParticles", BoolArgumentType.bool()).executes((context) -> {
+-            return giveEffect(context.getSource(), EntityArgument.getEntities(context, "targets"), MobEffectArgument.getEffect(context, "effect"), IntegerArgumentType.getInteger(context, "seconds"), IntegerArgumentType.getInteger(context, "amplifier"), !BoolArgumentType.getBool(context, "hideParticles"));
++        dispatcher.register((LiteralArgumentBuilder) ((LiteralArgumentBuilder) ((LiteralArgumentBuilder) net.minecraft.commands.Commands.literal("effect").requires((commandlistenerwrapper) -> {
++            return commandlistenerwrapper.hasPermission(2);
++        })).then(((LiteralArgumentBuilder) net.minecraft.commands.Commands.literal("clear").executes((commandcontext) -> {
++            return EffectCommands.clearEffects((CommandSourceStack) commandcontext.getSource(), ImmutableList.of(((CommandSourceStack) commandcontext.getSource()).getEntityOrException()));
++        })).then(((RequiredArgumentBuilder) net.minecraft.commands.Commands.argument("targets", EntityArgument.entities()).executes((commandcontext) -> {
++            return EffectCommands.clearEffects((CommandSourceStack) commandcontext.getSource(), EntityArgument.getEntities(commandcontext, "targets"));
++        })).then(net.minecraft.commands.Commands.argument("effect", MobEffectArgument.effect()).executes((commandcontext) -> {
++            return EffectCommands.clearEffect((CommandSourceStack) commandcontext.getSource(), EntityArgument.getEntities(commandcontext, "targets"), MobEffectArgument.getEffect(commandcontext, "effect"));
++        }))))).then(net.minecraft.commands.Commands.literal("give").then(net.minecraft.commands.Commands.argument("targets", EntityArgument.entities()).then(((RequiredArgumentBuilder) net.minecraft.commands.Commands.argument("effect", MobEffectArgument.effect()).executes((commandcontext) -> {
++            return EffectCommands.giveEffect((CommandSourceStack) commandcontext.getSource(), EntityArgument.getEntities(commandcontext, "targets"), MobEffectArgument.getEffect(commandcontext, "effect"), (Integer) null, 0, true);
++        })).then(((RequiredArgumentBuilder) net.minecraft.commands.Commands.argument("seconds", IntegerArgumentType.integer(1, 1000000)).executes((commandcontext) -> {
++            return EffectCommands.giveEffect((CommandSourceStack) commandcontext.getSource(), EntityArgument.getEntities(commandcontext, "targets"), MobEffectArgument.getEffect(commandcontext, "effect"), IntegerArgumentType.getInteger(commandcontext, "seconds"), 0, true);
++        })).then(((RequiredArgumentBuilder) net.minecraft.commands.Commands.argument("amplifier", IntegerArgumentType.integer(0, 255)).executes((commandcontext) -> {
++            return EffectCommands.giveEffect((CommandSourceStack) commandcontext.getSource(), EntityArgument.getEntities(commandcontext, "targets"), MobEffectArgument.getEffect(commandcontext, "effect"), IntegerArgumentType.getInteger(commandcontext, "seconds"), IntegerArgumentType.getInteger(commandcontext, "amplifier"), true);
++        })).then(net.minecraft.commands.Commands.argument("hideParticles", BoolArgumentType.bool()).executes((commandcontext) -> {
++            return EffectCommands.giveEffect((CommandSourceStack) commandcontext.getSource(), EntityArgument.getEntities(commandcontext, "targets"), MobEffectArgument.getEffect(commandcontext, "effect"), IntegerArgumentType.getInteger(commandcontext, "seconds"), IntegerArgumentType.getInteger(commandcontext, "amplifier"), !BoolArgumentType.getBool(commandcontext, "hideParticles"));
+         }))))))));
+     }
+ 
+     private static int giveEffect(CommandSourceStack source, Collection<? extends Entity> targets, MobEffect effect, @Nullable Integer seconds, int amplifier, boolean showParticles) throws CommandSyntaxException {
+-        int i = 0;
+-        int j;
++        int j = 0;
++        int k;
++
+         if (seconds != null) {
+             if (effect.isInstantenous()) {
+-                j = seconds;
++                k = seconds;
+             } else {
+-                j = seconds * 20;
++                k = seconds * 20;
+             }
+         } else if (effect.isInstantenous()) {
+-            j = 1;
++            k = 1;
+         } else {
+-            j = 600;
++            k = 600;
+         }
+ 
+-        for(Entity entity : targets) {
++        Iterator iterator = targets.iterator();
++
++        while (iterator.hasNext()) {
++            Entity entity = (Entity) iterator.next();
++
+             if (entity instanceof LivingEntity) {
+-                MobEffectInstance mobEffectInstance = new MobEffectInstance(effect, j, amplifier, false, showParticles);
+-                if (((LivingEntity)entity).addEffect(mobEffectInstance, source.getEntity())) {
+-                    ++i;
++                MobEffectInstance mobeffect = new MobEffectInstance(effect, k, amplifier, false, showParticles);
++
++                if (((LivingEntity) entity).addEffect(mobeffect, source.getEntity(), org.bukkit.event.entity.EntityPotionEffectEvent.Cause.COMMAND)) { // CraftBukkit
++                    ++j;
+                 }
+             }
+         }
+ 
+-        if (i == 0) {
+-            throw ERROR_GIVE_FAILED.create();
++        if (j == 0) {
++            throw EffectCommands.ERROR_GIVE_FAILED.create();
+         } else {
+             if (targets.size() == 1) {
+-                source.sendSuccess(Component.translatable("commands.effect.give.success.single", effect.getDisplayName(), targets.iterator().next().getDisplayName(), j / 20), true);
++                source.sendSuccess(Component.translatable("commands.effect.give.success.single", effect.getDisplayName(), ((Entity) targets.iterator().next()).getDisplayName(), k / 20), true);
+             } else {
+-                source.sendSuccess(Component.translatable("commands.effect.give.success.multiple", effect.getDisplayName(), targets.size(), j / 20), true);
++                source.sendSuccess(Component.translatable("commands.effect.give.success.multiple", effect.getDisplayName(), targets.size(), k / 20), true);
+             }
+ 
+-            return i;
++            return j;
+         }
+     }
+ 
+     private static int clearEffects(CommandSourceStack source, Collection<? extends Entity> targets) throws CommandSyntaxException {
+         int i = 0;
++        Iterator iterator = targets.iterator();
+ 
+-        for(Entity entity : targets) {
+-            if (entity instanceof LivingEntity && ((LivingEntity)entity).removeAllEffects()) {
++        while (iterator.hasNext()) {
++            Entity entity = (Entity) iterator.next();
++
++            if (entity instanceof LivingEntity && ((LivingEntity) entity).removeAllEffects(org.bukkit.event.entity.EntityPotionEffectEvent.Cause.COMMAND)) { // CraftBukkit
+                 ++i;
+             }
+         }
+ 
+         if (i == 0) {
+-            throw ERROR_CLEAR_EVERYTHING_FAILED.create();
++            throw EffectCommands.ERROR_CLEAR_EVERYTHING_FAILED.create();
+         } else {
+             if (targets.size() == 1) {
+-                source.sendSuccess(Component.translatable("commands.effect.clear.everything.success.single", targets.iterator().next().getDisplayName()), true);
++                source.sendSuccess(Component.translatable("commands.effect.clear.everything.success.single", ((Entity) targets.iterator().next()).getDisplayName()), true);
+             } else {
+                 source.sendSuccess(Component.translatable("commands.effect.clear.everything.success.multiple", targets.size()), true);
+             }
+@@ -104,18 +118,21 @@
+ 
+     private static int clearEffect(CommandSourceStack source, Collection<? extends Entity> targets, MobEffect effect) throws CommandSyntaxException {
+         int i = 0;
++        Iterator iterator = targets.iterator();
+ 
+-        for(Entity entity : targets) {
+-            if (entity instanceof LivingEntity && ((LivingEntity)entity).removeEffect(effect)) {
++        while (iterator.hasNext()) {
++            Entity entity = (Entity) iterator.next();
++
++            if (entity instanceof LivingEntity && ((LivingEntity) entity).removeEffect(effect, org.bukkit.event.entity.EntityPotionEffectEvent.Cause.COMMAND)) { // CraftBukkit
+                 ++i;
+             }
+         }
+ 
+         if (i == 0) {
+-            throw ERROR_CLEAR_SPECIFIC_FAILED.create();
++            throw EffectCommands.ERROR_CLEAR_SPECIFIC_FAILED.create();
+         } else {
+             if (targets.size() == 1) {
+-                source.sendSuccess(Component.translatable("commands.effect.clear.specific.success.single", effect.getDisplayName(), targets.iterator().next().getDisplayName()), true);
++                source.sendSuccess(Component.translatable("commands.effect.clear.specific.success.single", effect.getDisplayName(), ((Entity) targets.iterator().next()).getDisplayName()), true);
+             } else {
+                 source.sendSuccess(Component.translatable("commands.effect.clear.specific.success.multiple", effect.getDisplayName(), targets.size()), true);
+             }

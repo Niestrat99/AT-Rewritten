@@ -1,0 +1,100 @@
+--- a/net/minecraft/world/item/alchemy/PotionBrewing.java
++++ b/net/minecraft/world/item/alchemy/PotionBrewing.java
+@@ -14,6 +14,7 @@
+     public static final int BREWING_TIME_SECONDS = 20;
+     private static final List<PotionBrewing.Mix<Potion>> POTION_MIXES = Lists.newArrayList();
+     private static final List<PotionBrewing.Mix<Item>> CONTAINER_MIXES = Lists.newArrayList();
++    private static final it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap<org.bukkit.NamespacedKey, io.papermc.paper.potion.PaperPotionMix> CUSTOM_MIXES = new it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap<>(); // Paper
+     private static final List<Ingredient> ALLOWED_CONTAINERS = Lists.newArrayList();
+     private static final Predicate<ItemStack> ALLOWED_CONTAINER = (stack) -> {
+         for(Ingredient ingredient : ALLOWED_CONTAINERS) {
+@@ -26,7 +27,7 @@
+     };
+ 
+     public static boolean isIngredient(ItemStack stack) {
+-        return isContainerIngredient(stack) || isPotionIngredient(stack);
++        return isContainerIngredient(stack) || isPotionIngredient(stack) || isCustomIngredient(stack); // Paper
+     }
+ 
+     protected static boolean isContainerIngredient(ItemStack stack) {
+@@ -66,6 +67,11 @@
+     }
+ 
+     public static boolean hasMix(ItemStack input, ItemStack ingredient) {
++        // Paper start
++        if (hasCustomMix(input, ingredient)) {
++            return true;
++        }
++        // Paper end
+         if (!ALLOWED_CONTAINER.test(input)) {
+             return false;
+         } else {
+@@ -103,6 +109,13 @@
+ 
+     public static ItemStack mix(ItemStack ingredient, ItemStack input) {
+         if (!input.isEmpty()) {
++            // Paper start
++            for (var mix : CUSTOM_MIXES.values()) {
++                if (mix.input().test(input) && mix.ingredient().test(ingredient)) {
++                    return mix.result().copy();
++                }
++            }
++            // Paper end
+             Potion potion = PotionUtils.getPotion(input);
+             Item item = input.getItem();
+             int i = 0;
+@@ -127,6 +140,54 @@
+         return input;
+     }
+ 
++    // Paper start
++    public static boolean isCustomIngredient(ItemStack stack) {
++        for (var mix : CUSTOM_MIXES.values()) {
++            if (mix.ingredient().test(stack)) {
++                return true;
++            }
++        }
++        return false;
++    }
++
++    public static boolean isCustomInput(ItemStack stack) {
++        for (var mix : CUSTOM_MIXES.values()) {
++            if (mix.input().test(stack)) {
++                return true;
++            }
++        }
++        return false;
++    }
++
++    private static boolean hasCustomMix(ItemStack input, ItemStack ingredient) {
++        for (var mix : CUSTOM_MIXES.values()) {
++            if (mix.input().test(input) && mix.ingredient().test(ingredient)) {
++                return true;
++            }
++        }
++        return false;
++    }
++
++    public static void addPotionMix(io.papermc.paper.potion.PotionMix mix) {
++        if (CUSTOM_MIXES.containsKey(mix.getKey())) {
++            throw new IllegalArgumentException("Duplicate recipe ignored with ID " + mix.getKey());
++        }
++        CUSTOM_MIXES.putAndMoveToFirst(mix.getKey(), new io.papermc.paper.potion.PaperPotionMix(mix));
++    }
++
++    public static boolean removePotionMix(org.bukkit.NamespacedKey key) {
++        return CUSTOM_MIXES.remove(key) != null;
++    }
++
++    public static void reload() {
++        POTION_MIXES.clear();
++        CONTAINER_MIXES.clear();
++        ALLOWED_CONTAINERS.clear();
++        CUSTOM_MIXES.clear();
++        bootStrap();
++    }
++    // Paper end
++
+     public static void bootStrap() {
+         addContainer(Items.POTION);
+         addContainer(Items.SPLASH_POTION);

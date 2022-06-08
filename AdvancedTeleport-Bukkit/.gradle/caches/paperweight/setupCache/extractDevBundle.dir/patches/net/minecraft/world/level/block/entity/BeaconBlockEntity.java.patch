@@ -1,0 +1,510 @@
+--- a/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
+@@ -3,6 +3,7 @@
+ import com.google.common.collect.ImmutableList;
+ import com.google.common.collect.Lists;
+ import java.util.Arrays;
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.Set;
+ import java.util.stream.Collectors;
+@@ -35,11 +36,20 @@
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.levelgen.Heightmap;
+ import net.minecraft.world.phys.AABB;
++// CraftBukkit start
++import org.bukkit.craftbukkit.v1_19_R1.potion.CraftPotionUtil;
++import org.bukkit.potion.PotionEffect;
++// CraftBukkit end
++// Paper start
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory;
++import com.destroystokyo.paper.event.block.BeaconEffectEvent;
++// Paper end
+ 
+ public class BeaconBlockEntity extends BlockEntity implements MenuProvider {
++
+     private static final int MAX_LEVELS = 4;
+     public static final MobEffect[][] BEACON_EFFECTS = new MobEffect[][]{{MobEffects.MOVEMENT_SPEED, MobEffects.DIG_SPEED}, {MobEffects.DAMAGE_RESISTANCE, MobEffects.JUMP}, {MobEffects.DAMAGE_BOOST}, {MobEffects.REGENERATION}};
+-    private static final Set<MobEffect> VALID_EFFECTS = Arrays.stream(BEACON_EFFECTS).flatMap(Arrays::stream).collect(Collectors.toSet());
++    private static final Set<MobEffect> VALID_EFFECTS = (Set) Arrays.stream(BeaconBlockEntity.BEACON_EFFECTS).flatMap(Arrays::stream).collect(Collectors.toSet());
+     public static final int DATA_LEVELS = 0;
+     public static final int DATA_PRIMARY = 1;
+     public static final int DATA_SECONDARY = 2;
+@@ -55,129 +65,180 @@
+     public MobEffect secondaryPower;
+     @Nullable
+     public Component name;
+-    public LockCode lockKey = LockCode.NO_LOCK;
+-    private final ContainerData dataAccess = new ContainerData() {
+-        @Override
+-        public int get(int index) {
+-            int var10000;
+-            switch (index) {
+-                case 0:
+-                    var10000 = BeaconBlockEntity.this.levels;
+-                    break;
+-                case 1:
+-                    var10000 = MobEffect.getIdFromNullable(BeaconBlockEntity.this.primaryPower);
+-                    break;
+-                case 2:
+-                    var10000 = MobEffect.getIdFromNullable(BeaconBlockEntity.this.secondaryPower);
+-                    break;
+-                default:
+-                    var10000 = 0;
+-            }
++    public LockCode lockKey;
++    private final ContainerData dataAccess;
++    // CraftBukkit start - add fields and methods
++    public PotionEffect getPrimaryEffect() {
++        return (this.primaryPower != null) ? CraftPotionUtil.toBukkit(new MobEffectInstance(this.primaryPower, BeaconBlockEntity.getLevel(this.levels), BeaconBlockEntity.getAmplification(this.levels, this.primaryPower, this.secondaryPower), true, true)) : null;
++    }
+ 
+-            return var10000;
++    public PotionEffect getSecondaryEffect() {
++        return (BeaconBlockEntity.hasSecondaryEffect(this.levels, this.primaryPower, this.secondaryPower)) ? CraftPotionUtil.toBukkit(new MobEffectInstance(this.secondaryPower, BeaconBlockEntity.getLevel(this.levels), BeaconBlockEntity.getAmplification(this.levels, this.primaryPower, this.secondaryPower), true, true)) : null;
++    }
++    // CraftBukkit end
++    // Paper start - add field/methods for custom range
++    private final String PAPER_RANGE_TAG = "Paper.Range";
++    private double effectRange = -1;
++
++    public double getEffectRange() {
++        if (this.effectRange < 0) {
++            return this.levels * 10 + 10;
++        } else {
++            return effectRange;
+         }
++    }
+ 
+-        @Override
+-        public void set(int index, int value) {
+-            switch (index) {
+-                case 0:
+-                    BeaconBlockEntity.this.levels = value;
+-                    break;
+-                case 1:
+-                    if (!BeaconBlockEntity.this.level.isClientSide && !BeaconBlockEntity.this.beamSections.isEmpty()) {
+-                        BeaconBlockEntity.playSound(BeaconBlockEntity.this.level, BeaconBlockEntity.this.worldPosition, SoundEvents.BEACON_POWER_SELECT);
+-                    }
++    public void setEffectRange(double range) {
++        this.effectRange = range;
++    }
+ 
+-                    BeaconBlockEntity.this.primaryPower = BeaconBlockEntity.getValidEffectById(value);
+-                    break;
+-                case 2:
+-                    BeaconBlockEntity.this.secondaryPower = BeaconBlockEntity.getValidEffectById(value);
++    public void resetEffectRange() {
++        this.effectRange = -1;
++    }
++    // Paper end
++
++    public BeaconBlockEntity(BlockPos pos, BlockState state) {
++        super(BlockEntityType.BEACON, pos, state);
++        this.lockKey = LockCode.NO_LOCK;
++        this.dataAccess = new ContainerData() {
++            @Override
++            public int get(int index) {
++                int j;
++
++                switch (index) {
++                    case 0:
++                        j = BeaconBlockEntity.this.levels;
++                        break;
++                    case 1:
++                        j = MobEffect.getIdFromNullable(BeaconBlockEntity.this.primaryPower);
++                        break;
++                    case 2:
++                        j = MobEffect.getIdFromNullable(BeaconBlockEntity.this.secondaryPower);
++                        break;
++                    default:
++                        j = 0;
++                }
++
++                return j;
+             }
+ 
+-        }
++            @Override
++            public void set(int index, int value) {
++                switch (index) {
++                    case 0:
++                        BeaconBlockEntity.this.levels = value;
++                        break;
++                    case 1:
++                        if (!BeaconBlockEntity.this.level.isClientSide && !BeaconBlockEntity.this.beamSections.isEmpty()) {
++                            BeaconBlockEntity.playSound(BeaconBlockEntity.this.level, BeaconBlockEntity.this.worldPosition, SoundEvents.BEACON_POWER_SELECT);
++                        }
+ 
+-        @Override
+-        public int getCount() {
+-            return 3;
+-        }
+-    };
++                        BeaconBlockEntity.this.primaryPower = BeaconBlockEntity.getValidEffectById(value);
++                        break;
++                    case 2:
++                        BeaconBlockEntity.this.secondaryPower = BeaconBlockEntity.getValidEffectById(value);
++                }
+ 
+-    public BeaconBlockEntity(BlockPos pos, BlockState state) {
+-        super(BlockEntityType.BEACON, pos, state);
++            }
++
++            @Override
++            public int getCount() {
++                return 3;
++            }
++        };
+     }
+ 
+     public static void tick(Level world, BlockPos pos, BlockState state, BeaconBlockEntity blockEntity) {
+         int i = pos.getX();
+         int j = pos.getY();
+         int k = pos.getZ();
+-        BlockPos blockPos;
++        BlockPos blockposition1;
++
+         if (blockEntity.lastCheckY < j) {
+-            blockPos = pos;
++            blockposition1 = pos;
+             blockEntity.checkingBeamSections = Lists.newArrayList();
+             blockEntity.lastCheckY = pos.getY() - 1;
+         } else {
+-            blockPos = new BlockPos(i, blockEntity.lastCheckY + 1, k);
++            blockposition1 = new BlockPos(i, blockEntity.lastCheckY + 1, k);
+         }
+ 
+-        BeaconBlockEntity.BeaconBeamSection beaconBeamSection = blockEntity.checkingBeamSections.isEmpty() ? null : blockEntity.checkingBeamSections.get(blockEntity.checkingBeamSections.size() - 1);
++        BeaconBlockEntity.BeaconBeamSection tileentitybeacon_beaconcolortracker = blockEntity.checkingBeamSections.isEmpty() ? null : (BeaconBlockEntity.BeaconBeamSection) blockEntity.checkingBeamSections.get(blockEntity.checkingBeamSections.size() - 1);
+         int l = world.getHeight(Heightmap.Types.WORLD_SURFACE, i, k);
+ 
+-        for(int m = 0; m < 10 && blockPos.getY() <= l; ++m) {
+-            BlockState blockState = world.getBlockState(blockPos);
+-            Block block = blockState.getBlock();
++        int i1;
++
++        for (i1 = 0; i1 < 10 && blockposition1.getY() <= l; ++i1) {
++            BlockState iblockdata1 = world.getBlockState(blockposition1);
++            Block block = iblockdata1.getBlock();
++
+             if (block instanceof BeaconBeamBlock) {
+-                float[] fs = ((BeaconBeamBlock)block).getColor().getTextureDiffuseColors();
++                float[] afloat = ((BeaconBeamBlock) block).getColor().getTextureDiffuseColors();
++
+                 if (blockEntity.checkingBeamSections.size() <= 1) {
+-                    beaconBeamSection = new BeaconBlockEntity.BeaconBeamSection(fs);
+-                    blockEntity.checkingBeamSections.add(beaconBeamSection);
+-                } else if (beaconBeamSection != null) {
+-                    if (Arrays.equals(fs, beaconBeamSection.color)) {
+-                        beaconBeamSection.increaseHeight();
++                    tileentitybeacon_beaconcolortracker = new BeaconBlockEntity.BeaconBeamSection(afloat);
++                    blockEntity.checkingBeamSections.add(tileentitybeacon_beaconcolortracker);
++                } else if (tileentitybeacon_beaconcolortracker != null) {
++                    if (Arrays.equals(afloat, tileentitybeacon_beaconcolortracker.color)) {
++                        tileentitybeacon_beaconcolortracker.increaseHeight();
+                     } else {
+-                        beaconBeamSection = new BeaconBlockEntity.BeaconBeamSection(new float[]{(beaconBeamSection.color[0] + fs[0]) / 2.0F, (beaconBeamSection.color[1] + fs[1]) / 2.0F, (beaconBeamSection.color[2] + fs[2]) / 2.0F});
+-                        blockEntity.checkingBeamSections.add(beaconBeamSection);
++                        tileentitybeacon_beaconcolortracker = new BeaconBlockEntity.BeaconBeamSection(new float[]{(tileentitybeacon_beaconcolortracker.color[0] + afloat[0]) / 2.0F, (tileentitybeacon_beaconcolortracker.color[1] + afloat[1]) / 2.0F, (tileentitybeacon_beaconcolortracker.color[2] + afloat[2]) / 2.0F});
++                        blockEntity.checkingBeamSections.add(tileentitybeacon_beaconcolortracker);
+                     }
+                 }
+             } else {
+-                if (beaconBeamSection == null || blockState.getLightBlock(world, blockPos) >= 15 && !blockState.is(Blocks.BEDROCK)) {
++                if (tileentitybeacon_beaconcolortracker == null || iblockdata1.getLightBlock(world, blockposition1) >= 15 && !iblockdata1.is(Blocks.BEDROCK)) {
+                     blockEntity.checkingBeamSections.clear();
+                     blockEntity.lastCheckY = l;
+                     break;
+                 }
+ 
+-                beaconBeamSection.increaseHeight();
++                tileentitybeacon_beaconcolortracker.increaseHeight();
+             }
+ 
+-            blockPos = blockPos.above();
++            blockposition1 = blockposition1.above();
+             ++blockEntity.lastCheckY;
+         }
+ 
+-        int n = blockEntity.levels;
++        i1 = blockEntity.levels;
+         if (world.getGameTime() % 80L == 0L) {
+             if (!blockEntity.beamSections.isEmpty()) {
+-                blockEntity.levels = updateBase(world, i, j, k);
++                blockEntity.levels = BeaconBlockEntity.updateBase(world, i, j, k);
+             }
+ 
+             if (blockEntity.levels > 0 && !blockEntity.beamSections.isEmpty()) {
+-                applyEffects(world, pos, blockEntity.levels, blockEntity.primaryPower, blockEntity.secondaryPower);
+-                playSound(world, pos, SoundEvents.BEACON_AMBIENT);
++                BeaconBlockEntity.applyEffects(world, pos, blockEntity.levels, blockEntity.primaryPower, blockEntity.secondaryPower, blockEntity); // Paper
++                BeaconBlockEntity.playSound(world, pos, SoundEvents.BEACON_AMBIENT);
+             }
+         }
++        // Paper start - beacon activation/deactivation events
++        if (i1 <= 0 && blockEntity.levels > 0) {
++            org.bukkit.block.Block block = org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, pos);
++            new io.papermc.paper.event.block.BeaconActivatedEvent(block).callEvent();
++        } else if (i1 > 0 && blockEntity.levels <= 0) {
++            org.bukkit.block.Block block = org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, pos);
++            new io.papermc.paper.event.block.BeaconDeactivatedEvent(block).callEvent();
++        }
++        // Paper end
+ 
+         if (blockEntity.lastCheckY >= l) {
+             blockEntity.lastCheckY = world.getMinBuildHeight() - 1;
+-            boolean bl = n > 0;
++            boolean flag = i1 > 0;
++
+             blockEntity.beamSections = blockEntity.checkingBeamSections;
+             if (!world.isClientSide) {
+-                boolean bl2 = blockEntity.levels > 0;
+-                if (!bl && bl2) {
+-                    playSound(world, pos, SoundEvents.BEACON_ACTIVATE);
++                boolean flag1 = blockEntity.levels > 0;
+ 
+-                    for(ServerPlayer serverPlayer : world.getEntitiesOfClass(ServerPlayer.class, (new AABB((double)i, (double)j, (double)k, (double)i, (double)(j - 4), (double)k)).inflate(10.0D, 5.0D, 10.0D))) {
+-                        CriteriaTriggers.CONSTRUCT_BEACON.trigger(serverPlayer, blockEntity.levels);
++                if (!flag && flag1) {
++                    BeaconBlockEntity.playSound(world, pos, SoundEvents.BEACON_ACTIVATE);
++                    Iterator iterator = world.getEntitiesOfClass(ServerPlayer.class, (new AABB((double) i, (double) j, (double) k, (double) i, (double) (j - 4), (double) k)).inflate(10.0D, 5.0D, 10.0D)).iterator();
++
++                    while (iterator.hasNext()) {
++                        ServerPlayer entityplayer = (ServerPlayer) iterator.next();
++
++                        CriteriaTriggers.CONSTRUCT_BEACON.trigger(entityplayer, blockEntity.levels);
+                     }
+-                } else if (bl && !bl2) {
+-                    playSound(world, pos, SoundEvents.BEACON_DEACTIVATE);
++                } else if (flag && !flag1) {
++                    BeaconBlockEntity.playSound(world, pos, SoundEvents.BEACON_DEACTIVATE);
+                 }
+             }
+         }
+@@ -185,70 +246,140 @@
+     }
+ 
+     private static int updateBase(Level world, int x, int y, int z) {
+-        int i = 0;
++        int l = 0;
+ 
+-        for(int j = 1; j <= 4; i = j++) {
+-            int k = y - j;
+-            if (k < world.getMinBuildHeight()) {
++        for (int i1 = 1; i1 <= 4; l = i1++) {
++            int j1 = y - i1;
++
++            if (j1 < world.getMinBuildHeight()) {
+                 break;
+             }
+ 
+-            boolean bl = true;
++            boolean flag = true;
+ 
+-            for(int l = x - j; l <= x + j && bl; ++l) {
+-                for(int m = z - j; m <= z + j; ++m) {
+-                    if (!world.getBlockState(new BlockPos(l, k, m)).is(BlockTags.BEACON_BASE_BLOCKS)) {
+-                        bl = false;
++            for (int k1 = x - i1; k1 <= x + i1 && flag; ++k1) {
++                for (int l1 = z - i1; l1 <= z + i1; ++l1) {
++                    if (!world.getBlockState(new BlockPos(k1, j1, l1)).is(BlockTags.BEACON_BASE_BLOCKS)) {
++                        flag = false;
+                         break;
+                     }
+                 }
+             }
+ 
+-            if (!bl) {
++            if (!flag) {
+                 break;
+             }
+         }
+ 
+-        return i;
++        return l;
+     }
+ 
+     @Override
+     public void setRemoved() {
+-        playSound(this.level, this.worldPosition, SoundEvents.BEACON_DEACTIVATE);
++        // Paper start - BeaconDeactivatedEvent
++        org.bukkit.block.Block block = org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(level, worldPosition);
++        new io.papermc.paper.event.block.BeaconDeactivatedEvent(block).callEvent();
++        // Paper end
++        BeaconBlockEntity.playSound(this.level, this.worldPosition, SoundEvents.BEACON_DEACTIVATE);
+         super.setRemoved();
+     }
+ 
+-    private static void applyEffects(Level world, BlockPos pos, int beaconLevel, @Nullable MobEffect primaryEffect, @Nullable MobEffect secondaryEffect) {
+-        if (!world.isClientSide && primaryEffect != null) {
+-            double d = (double)(beaconLevel * 10 + 10);
+-            int i = 0;
+-            if (beaconLevel >= 4 && primaryEffect == secondaryEffect) {
+-                i = 1;
++    // CraftBukkit start - split into components
++    private static byte getAmplification(int i, @Nullable MobEffect mobeffectlist, @Nullable MobEffect mobeffectlist1) {
++        {
++            byte b0 = 0;
++
++            if (i >= 4 && mobeffectlist == mobeffectlist1) {
++                b0 = 1;
+             }
+ 
+-            int j = (9 + beaconLevel * 2) * 20;
+-            AABB aABB = (new AABB(pos)).inflate(d).expandTowards(0.0D, (double)world.getHeight(), 0.0D);
+-            List<Player> list = world.getEntitiesOfClass(Player.class, aABB);
++            return b0;
++        }
++    }
+ 
+-            for(Player player : list) {
+-                player.addEffect(new MobEffectInstance(primaryEffect, j, i, true, true));
++    private static int getLevel(int i) {
++        {
++            int j = (9 + i * 2) * 20;
++            return j;
++        }
++    }
++
++    public static List getHumansInRange(Level world, BlockPos blockposition, int i) {
++        // Paper start
++        return BeaconBlockEntity.getHumansInRange(world, blockposition, i, null);
++    }
++    public static List getHumansInRange(Level world, BlockPos blockposition, int i, @Nullable BeaconBlockEntity blockEntity) {
++        // Paper end
++        {
++            double d0 = blockEntity != null ? blockEntity.getEffectRange() : (i * 10 + 10);// Paper - custom beacon ranges
++
++            AABB axisalignedbb = (new AABB(blockposition)).inflate(d0).expandTowards(0.0D, (double) world.getHeight(), 0.0D);
++            List<Player> list = world.getEntitiesOfClass(Player.class, axisalignedbb);
++
++            return list;
++        }
++    }
++
++    private static void applyEffect(List list, MobEffect effects, int i, int b0, boolean isPrimary, BlockPos worldPosition) { // Paper - BeaconEffectEvent
++        if (!list.isEmpty()) { // Paper - BeaconEffectEvent
++            Iterator iterator = list.iterator();
++
++            Player entityhuman;
++            // Paper start - BeaconEffectEvent
++            org.bukkit.block.Block block = ((Player) list.get(0)).level.getWorld().getBlockAt(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ());
++            PotionEffect effect = CraftPotionUtil.toBukkit(new MobEffectInstance(effects, i, b0, true, true));
++            // Paper end
++
++            while (iterator.hasNext()) {
++                // Paper start - BeaconEffectEvent
++                entityhuman = (ServerPlayer) iterator.next();
++                BeaconEffectEvent event = new BeaconEffectEvent(block, effect, (org.bukkit.entity.Player) entityhuman.getBukkitEntity(), isPrimary);
++                if (CraftEventFactory.callEvent(event).isCancelled()) continue;
++                entityhuman.addEffect(new MobEffectInstance(CraftPotionUtil.fromBukkit(event.getEffect())), org.bukkit.event.entity.EntityPotionEffectEvent.Cause.BEACON);
++                // Paper end
+             }
++        }
++    }
+ 
+-            if (beaconLevel >= 4 && primaryEffect != secondaryEffect && secondaryEffect != null) {
+-                for(Player player2 : list) {
+-                    player2.addEffect(new MobEffectInstance(secondaryEffect, j, 0, true, true));
+-                }
++    private static boolean hasSecondaryEffect(int i, @Nullable MobEffect mobeffectlist, @Nullable MobEffect mobeffectlist1) {
++        {
++            if (i >= 4 && mobeffectlist != mobeffectlist1 && mobeffectlist1 != null) {
++                return true;
+             }
+ 
++            return false;
++        }
++    }
++
++    private static void applyEffects(Level world, BlockPos pos, int beaconLevel, @Nullable MobEffect primaryEffect, @Nullable MobEffect secondaryEffect) {
++        // Paper start
++        BeaconBlockEntity.applyEffects(world, pos, beaconLevel, primaryEffect, secondaryEffect, null);
++    }
++    private static void applyEffects(Level world, BlockPos pos, int beaconLevel, @Nullable MobEffect primaryEffect, @Nullable MobEffect secondaryEffect, @Nullable BeaconBlockEntity blockEntity) {
++        // Paper end
++        if (!world.isClientSide && primaryEffect != null) {
++            double d0 = (double) (beaconLevel * 10 + 10);
++            byte b0 = BeaconBlockEntity.getAmplification(beaconLevel, primaryEffect, secondaryEffect);
++
++            int j = BeaconBlockEntity.getLevel(beaconLevel);
++            List list = BeaconBlockEntity.getHumansInRange(world, pos, beaconLevel, blockEntity); // Paper
++
++            BeaconBlockEntity.applyEffect(list, primaryEffect, j, b0, true, pos); // Paper - BeaconEffectEvent
++
++            if (BeaconBlockEntity.hasSecondaryEffect(beaconLevel, primaryEffect, secondaryEffect)) {
++                BeaconBlockEntity.applyEffect(list, secondaryEffect, j, 0, false, pos); // Paper - BeaconEffectEvent
++            }
+         }
++
+     }
++    // CraftBukkit end
+ 
+     public static void playSound(Level world, BlockPos pos, SoundEvent sound) {
+-        world.playSound((Player)null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
++        world.playSound((Player) null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+     }
+ 
+     public List<BeaconBlockEntity.BeaconBeamSection> getBeamSections() {
+-        return (List<BeaconBlockEntity.BeaconBeamSection>)(this.levels == 0 ? ImmutableList.of() : this.beamSections);
++        return (List) (this.levels == 0 ? ImmutableList.of() : this.beamSections);
+     }
+ 
+     @Override
+@@ -263,20 +394,25 @@
+ 
+     @Nullable
+     static MobEffect getValidEffectById(int id) {
+-        MobEffect mobEffect = MobEffect.byId(id);
+-        return VALID_EFFECTS.contains(mobEffect) ? mobEffect : null;
++        MobEffect mobeffectlist = MobEffect.byId(id);
++
++        return BeaconBlockEntity.VALID_EFFECTS.contains(mobeffectlist) ? mobeffectlist : null;
+     }
+ 
+     @Override
+     public void load(CompoundTag nbt) {
+         super.load(nbt);
+-        this.primaryPower = getValidEffectById(nbt.getInt("Primary"));
+-        this.secondaryPower = getValidEffectById(nbt.getInt("Secondary"));
++        // CraftBukkit start - persist manually set non-default beacon effects (SPIGOT-3598)
++        this.primaryPower = MobEffect.byId(nbt.getInt("Primary"));
++        this.secondaryPower = MobEffect.byId(nbt.getInt("Secondary"));
++        this.levels = nbt.getInt("Levels"); // SPIGOT-5053, use where available
++        // CraftBukkit end
+         if (nbt.contains("CustomName", 8)) {
+-            this.name = Component.Serializer.fromJson(nbt.getString("CustomName"));
++            this.name = io.papermc.paper.util.MCUtil.getBaseComponentFromNbt("CustomName", nbt); // Paper - Catch ParseException
+         }
+ 
+         this.lockKey = LockCode.fromTag(nbt);
++        this.effectRange = nbt.contains(PAPER_RANGE_TAG, 6) ? nbt.getDouble(PAPER_RANGE_TAG) : -1; // Paper
+     }
+ 
+     @Override
+@@ -290,6 +426,7 @@
+         }
+ 
+         this.lockKey.addToTag(nbt);
++        nbt.putDouble(PAPER_RANGE_TAG, this.effectRange); // Paper
+     }
+ 
+     public void setCustomName(@Nullable Component customName) {
+@@ -304,7 +441,7 @@
+ 
+     @Override
+     public Component getDisplayName() {
+-        return (Component)(this.name != null ? this.name : Component.translatable("container.beacon"));
++        return (Component) (this.name != null ? this.name : Component.translatable("container.beacon"));
+     }
+ 
+     @Override
+@@ -314,6 +451,7 @@
+     }
+ 
+     public static class BeaconBeamSection {
++
+         final float[] color;
+         private int height;
+ 

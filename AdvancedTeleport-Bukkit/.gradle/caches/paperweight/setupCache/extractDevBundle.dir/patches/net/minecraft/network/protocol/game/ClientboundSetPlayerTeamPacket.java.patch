@@ -1,0 +1,24 @@
+--- a/net/minecraft/network/protocol/game/ClientboundSetPlayerTeamPacket.java
++++ b/net/minecraft/network/protocol/game/ClientboundSetPlayerTeamPacket.java
+@@ -42,6 +42,12 @@
+         return new ClientboundSetPlayerTeamPacket(team.getName(), operation == ClientboundSetPlayerTeamPacket.Action.ADD ? 3 : 4, Optional.empty(), ImmutableList.of(playerName));
+     }
+ 
++    // Paper start
++    public static ClientboundSetPlayerTeamPacket createMultiplePlayerPacket(PlayerTeam team, Collection<String> players, ClientboundSetPlayerTeamPacket.Action operation) {
++        return new ClientboundSetPlayerTeamPacket(team.getName(), operation == ClientboundSetPlayerTeamPacket.Action.ADD ? 3 : 4, Optional.empty(), players);
++    }
++    // Paper end
++
+     public ClientboundSetPlayerTeamPacket(FriendlyByteBuf buf) {
+         this.name = buf.readUtf();
+         this.method = buf.readByte();
+@@ -193,7 +199,7 @@
+             buf.writeComponent(this.displayName);
+             buf.writeByte(this.options);
+             buf.writeUtf(this.nametagVisibility);
+-            buf.writeUtf(this.collisionRule);
++            buf.writeUtf(!io.papermc.paper.configuration.GlobalConfiguration.get().collisions.enablePlayerCollisions ? "never" : this.collisionRule); // Paper
+             buf.writeEnum(this.color);
+             buf.writeComponent(this.playerPrefix);
+             buf.writeComponent(this.playerSuffix);

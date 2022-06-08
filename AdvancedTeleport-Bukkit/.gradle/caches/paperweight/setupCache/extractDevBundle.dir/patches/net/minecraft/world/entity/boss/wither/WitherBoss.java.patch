@@ -1,0 +1,637 @@
+--- a/net/minecraft/world/entity/boss/wither/WitherBoss.java
++++ b/net/minecraft/world/entity/boss/wither/WitherBoss.java
+@@ -5,19 +5,6 @@
+ import java.util.List;
+ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
+-import net.minecraft.core.BlockPos;
+-import net.minecraft.core.particles.ParticleTypes;
+-import net.minecraft.nbt.CompoundTag;
+-import net.minecraft.network.chat.Component;
+-import net.minecraft.network.syncher.EntityDataAccessor;
+-import net.minecraft.network.syncher.EntityDataSerializers;
+-import net.minecraft.network.syncher.SynchedEntityData;
+-import net.minecraft.server.level.ServerBossEvent;
+-import net.minecraft.server.level.ServerPlayer;
+-import net.minecraft.sounds.SoundEvent;
+-import net.minecraft.sounds.SoundEvents;
+-import net.minecraft.tags.BlockTags;
+-import net.minecraft.util.Mth;
+ import net.minecraft.world.BossEvent;
+ import net.minecraft.world.Difficulty;
+ import net.minecraft.world.damagesource.DamageSource;
+@@ -50,15 +37,39 @@
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.level.Explosion;
+ import net.minecraft.world.level.GameRules;
++import net.minecraft.world.level.ItemLike;
+ import net.minecraft.world.level.Level;
++import net.minecraft.core.BlockPos;
++import net.minecraft.core.particles.ParticleTypes;
++import net.minecraft.nbt.CompoundTag;
++import net.minecraft.network.chat.Component;
++import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
++import net.minecraft.network.syncher.EntityDataAccessor;
++import net.minecraft.network.syncher.EntityDataSerializers;
++import net.minecraft.network.syncher.SynchedEntityData;
++import net.minecraft.server.MinecraftServer;
++import net.minecraft.server.level.ServerBossEvent;
++import net.minecraft.server.level.ServerLevel;
++import net.minecraft.server.level.ServerPlayer;
++import net.minecraft.sounds.SoundEvent;
++import net.minecraft.sounds.SoundEvents;
++import net.minecraft.tags.BlockTags;
++import net.minecraft.util.Mth;
++import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory;
++import org.bukkit.event.entity.EntityRegainHealthEvent;
++import org.bukkit.event.entity.EntityTargetEvent;
++import org.bukkit.event.entity.ExplosionPrimeEvent;
++// CraftBukkit end
+ 
+ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob {
++
+     private static final EntityDataAccessor<Integer> DATA_TARGET_A = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.INT);
+     private static final EntityDataAccessor<Integer> DATA_TARGET_B = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.INT);
+     private static final EntityDataAccessor<Integer> DATA_TARGET_C = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.INT);
+-    private static final List<EntityDataAccessor<Integer>> DATA_TARGETS = ImmutableList.of(DATA_TARGET_A, DATA_TARGET_B, DATA_TARGET_C);
++    private static final List<EntityDataAccessor<Integer>> DATA_TARGETS = ImmutableList.of(WitherBoss.DATA_TARGET_A, WitherBoss.DATA_TARGET_B, WitherBoss.DATA_TARGET_C);
+     private static final EntityDataAccessor<Integer> DATA_ID_INV = SynchedEntityData.defineId(WitherBoss.class, EntityDataSerializers.INT);
+     private static final int INVULNERABLE_TICKS = 220;
+     private final float[] xRotHeads = new float[2];
+@@ -68,14 +79,20 @@
+     private final int[] nextHeadUpdate = new int[2];
+     private final int[] idleHeadUpdates = new int[2];
+     private int destroyBlocksTick;
+-    public final ServerBossEvent bossEvent = (ServerBossEvent)(new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS)).setDarkenScreen(true);
+-    private static final Predicate<LivingEntity> LIVING_ENTITY_SELECTOR = (entity) -> {
+-        return entity.getMobType() != MobType.UNDEAD && entity.attackable();
++    public final ServerBossEvent bossEvent;
++    private static final Predicate<LivingEntity> LIVING_ENTITY_SELECTOR = (entityliving) -> {
++        return entityliving.getMobType() != MobType.UNDEAD && entityliving.attackable();
+     };
+-    private static final TargetingConditions TARGETING_CONDITIONS = TargetingConditions.forCombat().range(20.0D).selector(LIVING_ENTITY_SELECTOR);
++    private static final TargetingConditions TARGETING_CONDITIONS = TargetingConditions.forCombat().range(20.0D).selector(WitherBoss.LIVING_ENTITY_SELECTOR);
++    // Paper start
++    private boolean canPortal = false;
++
++    public void setCanTravelThroughPortals(boolean canPortal) { this.canPortal = canPortal; }
++    // Paper end
+ 
+     public WitherBoss(EntityType<? extends WitherBoss> type, Level world) {
+         super(type, world);
++        this.bossEvent = (ServerBossEvent) (new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS)).setDarkenScreen(true);
+         this.moveControl = new FlyingMoveControl(this, 10, false);
+         this.setHealth(this.getMaxHealth());
+         this.xpReward = 50;
+@@ -83,11 +100,12 @@
+ 
+     @Override
+     protected PathNavigation createNavigation(Level world) {
+-        FlyingPathNavigation flyingPathNavigation = new FlyingPathNavigation(this, world);
+-        flyingPathNavigation.setCanOpenDoors(false);
+-        flyingPathNavigation.setCanFloat(true);
+-        flyingPathNavigation.setCanPassDoors(true);
+-        return flyingPathNavigation;
++        FlyingPathNavigation navigationflying = new FlyingPathNavigation(this, world);
++
++        navigationflying.setCanOpenDoors(false);
++        navigationflying.setCanFloat(true);
++        navigationflying.setCanPassDoors(true);
++        return navigationflying;
+     }
+ 
+     @Override
+@@ -97,17 +115,17 @@
+         this.goalSelector.addGoal(5, new WaterAvoidingRandomFlyingGoal(this, 1.0D));
+         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
+         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
+-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 0, false, false, LIVING_ENTITY_SELECTOR));
++        this.targetSelector.addGoal(1, new HurtByTargetGoal(this, new Class[0]));
++        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 0, false, false, WitherBoss.LIVING_ENTITY_SELECTOR));
+     }
+ 
+     @Override
+     protected void defineSynchedData() {
+         super.defineSynchedData();
+-        this.entityData.define(DATA_TARGET_A, 0);
+-        this.entityData.define(DATA_TARGET_B, 0);
+-        this.entityData.define(DATA_TARGET_C, 0);
+-        this.entityData.define(DATA_ID_INV, 0);
++        this.entityData.define(WitherBoss.DATA_TARGET_A, 0);
++        this.entityData.define(WitherBoss.DATA_TARGET_B, 0);
++        this.entityData.define(WitherBoss.DATA_TARGET_C, 0);
++        this.entityData.define(WitherBoss.DATA_ID_INV, 0);
+     }
+ 
+     @Override
+@@ -149,76 +167,88 @@
+ 
+     @Override
+     public void aiStep() {
+-        Vec3 vec3 = this.getDeltaMovement().multiply(1.0D, 0.6D, 1.0D);
++        Vec3 vec3d = this.getDeltaMovement().multiply(1.0D, 0.6D, 1.0D);
++
+         if (!this.level.isClientSide && this.getAlternativeTarget(0) > 0) {
+             Entity entity = this.level.getEntity(this.getAlternativeTarget(0));
++
+             if (entity != null) {
+-                double d = vec3.y;
++                double d0 = vec3d.y;
++
+                 if (this.getY() < entity.getY() || !this.isPowered() && this.getY() < entity.getY() + 5.0D) {
+-                    d = Math.max(0.0D, d);
+-                    d += 0.3D - d * (double)0.6F;
++                    d0 = Math.max(0.0D, d0);
++                    d0 += 0.3D - d0 * 0.6000000238418579D;
+                 }
+ 
+-                vec3 = new Vec3(vec3.x, d, vec3.z);
+-                Vec3 vec32 = new Vec3(entity.getX() - this.getX(), 0.0D, entity.getZ() - this.getZ());
+-                if (vec32.horizontalDistanceSqr() > 9.0D) {
+-                    Vec3 vec33 = vec32.normalize();
+-                    vec3 = vec3.add(vec33.x * 0.3D - vec3.x * 0.6D, 0.0D, vec33.z * 0.3D - vec3.z * 0.6D);
++                vec3d = new Vec3(vec3d.x, d0, vec3d.z);
++                Vec3 vec3d1 = new Vec3(entity.getX() - this.getX(), 0.0D, entity.getZ() - this.getZ());
++
++                if (vec3d1.horizontalDistanceSqr() > 9.0D) {
++                    Vec3 vec3d2 = vec3d1.normalize();
++
++                    vec3d = vec3d.add(vec3d2.x * 0.3D - vec3d.x * 0.6D, 0.0D, vec3d2.z * 0.3D - vec3d.z * 0.6D);
+                 }
+             }
+         }
+ 
+-        this.setDeltaMovement(vec3);
+-        if (vec3.horizontalDistanceSqr() > 0.05D) {
+-            this.setYRot((float)Mth.atan2(vec3.z, vec3.x) * (180F / (float)Math.PI) - 90.0F);
++        this.setDeltaMovement(vec3d);
++        if (vec3d.horizontalDistanceSqr() > 0.05D) {
++            this.setYRot((float) Mth.atan2(vec3d.z, vec3d.x) * 57.295776F - 90.0F);
+         }
+ 
+         super.aiStep();
+ 
+-        for(int i = 0; i < 2; ++i) {
++        int i;
++
++        for (i = 0; i < 2; ++i) {
+             this.yRotOHeads[i] = this.yRotHeads[i];
+             this.xRotOHeads[i] = this.xRotHeads[i];
+         }
+ 
+-        for(int j = 0; j < 2; ++j) {
+-            int k = this.getAlternativeTarget(j + 1);
+-            Entity entity2 = null;
+-            if (k > 0) {
+-                entity2 = this.level.getEntity(k);
++        int j;
++
++        for (i = 0; i < 2; ++i) {
++            j = this.getAlternativeTarget(i + 1);
++            Entity entity1 = null;
++
++            if (j > 0) {
++                entity1 = this.level.getEntity(j);
+             }
+ 
+-            if (entity2 != null) {
+-                double e = this.getHeadX(j + 1);
+-                double f = this.getHeadY(j + 1);
+-                double g = this.getHeadZ(j + 1);
+-                double h = entity2.getX() - e;
+-                double l = entity2.getEyeY() - f;
+-                double m = entity2.getZ() - g;
+-                double n = Math.sqrt(h * h + m * m);
+-                float o = (float)(Mth.atan2(m, h) * (double)(180F / (float)Math.PI)) - 90.0F;
+-                float p = (float)(-(Mth.atan2(l, n) * (double)(180F / (float)Math.PI)));
+-                this.xRotHeads[j] = this.rotlerp(this.xRotHeads[j], p, 40.0F);
+-                this.yRotHeads[j] = this.rotlerp(this.yRotHeads[j], o, 10.0F);
++            if (entity1 != null) {
++                double d1 = this.getHeadX(i + 1);
++                double d2 = this.getHeadY(i + 1);
++                double d3 = this.getHeadZ(i + 1);
++                double d4 = entity1.getX() - d1;
++                double d5 = entity1.getEyeY() - d2;
++                double d6 = entity1.getZ() - d3;
++                double d7 = Math.sqrt(d4 * d4 + d6 * d6);
++                float f = (float) (Mth.atan2(d6, d4) * 57.2957763671875D) - 90.0F;
++                float f1 = (float) (-(Mth.atan2(d5, d7) * 57.2957763671875D));
++
++                this.xRotHeads[i] = this.rotlerp(this.xRotHeads[i], f1, 40.0F);
++                this.yRotHeads[i] = this.rotlerp(this.yRotHeads[i], f, 10.0F);
+             } else {
+-                this.yRotHeads[j] = this.rotlerp(this.yRotHeads[j], this.yBodyRot, 10.0F);
++                this.yRotHeads[i] = this.rotlerp(this.yRotHeads[i], this.yBodyRot, 10.0F);
+             }
+         }
+ 
+-        boolean bl = this.isPowered();
++        boolean flag = this.isPowered();
+ 
+-        for(int q = 0; q < 3; ++q) {
+-            double r = this.getHeadX(q);
+-            double s = this.getHeadY(q);
+-            double t = this.getHeadZ(q);
+-            this.level.addParticle(ParticleTypes.SMOKE, r + this.random.nextGaussian() * (double)0.3F, s + this.random.nextGaussian() * (double)0.3F, t + this.random.nextGaussian() * (double)0.3F, 0.0D, 0.0D, 0.0D);
+-            if (bl && this.level.random.nextInt(4) == 0) {
+-                this.level.addParticle(ParticleTypes.ENTITY_EFFECT, r + this.random.nextGaussian() * (double)0.3F, s + this.random.nextGaussian() * (double)0.3F, t + this.random.nextGaussian() * (double)0.3F, (double)0.7F, (double)0.7F, 0.5D);
++        for (j = 0; j < 3; ++j) {
++            double d8 = this.getHeadX(j);
++            double d9 = this.getHeadY(j);
++            double d10 = this.getHeadZ(j);
++
++            this.level.addParticle(ParticleTypes.SMOKE, d8 + this.random.nextGaussian() * 0.30000001192092896D, d9 + this.random.nextGaussian() * 0.30000001192092896D, d10 + this.random.nextGaussian() * 0.30000001192092896D, 0.0D, 0.0D, 0.0D);
++            if (flag && this.level.random.nextInt(4) == 0) {
++                this.level.addParticle(ParticleTypes.ENTITY_EFFECT, d8 + this.random.nextGaussian() * 0.30000001192092896D, d9 + this.random.nextGaussian() * 0.30000001192092896D, d10 + this.random.nextGaussian() * 0.30000001192092896D, 0.699999988079071D, 0.699999988079071D, 0.5D);
+             }
+         }
+ 
+         if (this.getInvulnerableTicks() > 0) {
+-            for(int u = 0; u < 3; ++u) {
+-                this.level.addParticle(ParticleTypes.ENTITY_EFFECT, this.getX() + this.random.nextGaussian(), this.getY() + (double)(this.random.nextFloat() * 3.3F), this.getZ() + this.random.nextGaussian(), (double)0.7F, (double)0.7F, (double)0.9F);
++            for (j = 0; j < 3; ++j) {
++                this.level.addParticle(ParticleTypes.ENTITY_EFFECT, this.getX() + this.random.nextGaussian(), this.getY() + (double) (this.random.nextFloat() * 3.3F), this.getZ() + this.random.nextGaussian(), 0.699999988079071D, 0.699999988079071D, 0.8999999761581421D);
+             }
+         }
+ 
+@@ -226,58 +256,94 @@
+ 
+     @Override
+     protected void customServerAiStep() {
++        int i;
++
+         if (this.getInvulnerableTicks() > 0) {
+-            int i = this.getInvulnerableTicks() - 1;
+-            this.bossEvent.setProgress(1.0F - (float)i / 220.0F);
++            i = this.getInvulnerableTicks() - 1;
++            this.bossEvent.setProgress(1.0F - (float) i / 220.0F);
+             if (i <= 0) {
+-                Explosion.BlockInteraction blockInteraction = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
+-                this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 7.0F, false, blockInteraction);
++                Explosion.BlockInteraction explosion_effect = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
++                // CraftBukkit start
++                // this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 7.0F, false, explosion_effect);
++                ExplosionPrimeEvent event = new ExplosionPrimeEvent(this.getBukkitEntity(), 7.0F, false);
++                this.level.getCraftServer().getPluginManager().callEvent(event);
++
++                if (!event.isCancelled()) {
++                    this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), event.getRadius(), event.getFire(), explosion_effect);
++                }
++                // CraftBukkit end
++
+                 if (!this.isSilent()) {
+-                    this.level.globalLevelEvent(1023, this.blockPosition(), 0);
++                    // CraftBukkit start - Use relative location for far away sounds
++                    // this.world.globalLevelEvent(1023, new BlockPosition(this), 0);
++                    int viewDistance = ((ServerLevel) this.level).getCraftServer().getViewDistance() * 16;
++                    for (ServerPlayer player : level.spigotConfig.witherSpawnSoundRadius > 0 ? ((ServerLevel) level).players() : level.getServer().getPlayerList().players) { // Paper
++                        double deltaX = this.getX() - player.getX();
++                        double deltaZ = this.getZ() - player.getZ();
++                        double distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
++                        if ( level.spigotConfig.witherSpawnSoundRadius > 0 && distanceSquared > level.spigotConfig.witherSpawnSoundRadius * level.spigotConfig.witherSpawnSoundRadius ) continue; // Spigot
++                        if (distanceSquared > viewDistance * viewDistance) {
++                            double deltaLength = Math.sqrt(distanceSquared);
++                            double relativeX = player.getX() + (deltaX / deltaLength) * viewDistance;
++                            double relativeZ = player.getZ() + (deltaZ / deltaLength) * viewDistance;
++                            player.connection.send(new ClientboundLevelEventPacket(1023, new BlockPos((int) relativeX, (int) this.getY(), (int) relativeZ), 0, true));
++                        } else {
++                            player.connection.send(new ClientboundLevelEventPacket(1023, this.blockPosition(), 0, true));
++                        }
++                    }
++                    // CraftBukkit end
+                 }
+             }
+ 
+             this.setInvulnerableTicks(i);
+             if (this.tickCount % 10 == 0) {
+-                this.heal(10.0F);
++                this.heal(10.0F, EntityRegainHealthEvent.RegainReason.WITHER_SPAWN); // CraftBukkit
+             }
+ 
+         } else {
+             super.customServerAiStep();
+ 
+-            for(int j = 1; j < 3; ++j) {
+-                if (this.tickCount >= this.nextHeadUpdate[j - 1]) {
+-                    this.nextHeadUpdate[j - 1] = this.tickCount + 10 + this.random.nextInt(10);
++            int j;
++
++            for (i = 1; i < 3; ++i) {
++                if (this.tickCount >= this.nextHeadUpdate[i - 1]) {
++                    this.nextHeadUpdate[i - 1] = this.tickCount + 10 + this.random.nextInt(10);
+                     if (this.level.getDifficulty() == Difficulty.NORMAL || this.level.getDifficulty() == Difficulty.HARD) {
+-                        int var10001 = j - 1;
+-                        int var10003 = this.idleHeadUpdates[j - 1];
+-                        this.idleHeadUpdates[var10001] = this.idleHeadUpdates[j - 1] + 1;
+-                        if (var10003 > 15) {
++                        int k = i - 1;
++                        int l = this.idleHeadUpdates[i - 1];
++
++                        this.idleHeadUpdates[k] = this.idleHeadUpdates[i - 1] + 1;
++                        if (l > 15) {
+                             float f = 10.0F;
+-                            float g = 5.0F;
+-                            double d = Mth.nextDouble(this.random, this.getX() - 10.0D, this.getX() + 10.0D);
+-                            double e = Mth.nextDouble(this.random, this.getY() - 5.0D, this.getY() + 5.0D);
+-                            double h = Mth.nextDouble(this.random, this.getZ() - 10.0D, this.getZ() + 10.0D);
+-                            this.performRangedAttack(j + 1, d, e, h, true);
+-                            this.idleHeadUpdates[j - 1] = 0;
++                            float f1 = 5.0F;
++                            double d0 = Mth.nextDouble(this.random, this.getX() - 10.0D, this.getX() + 10.0D);
++                            double d1 = Mth.nextDouble(this.random, this.getY() - 5.0D, this.getY() + 5.0D);
++                            double d2 = Mth.nextDouble(this.random, this.getZ() - 10.0D, this.getZ() + 10.0D);
++
++                            this.performRangedAttack(i + 1, d0, d1, d2, true);
++                            this.idleHeadUpdates[i - 1] = 0;
+                         }
+                     }
+ 
+-                    int k = this.getAlternativeTarget(j);
+-                    if (k > 0) {
+-                        LivingEntity livingEntity = (LivingEntity)this.level.getEntity(k);
+-                        if (livingEntity != null && this.canAttack(livingEntity) && !(this.distanceToSqr(livingEntity) > 900.0D) && this.hasLineOfSight(livingEntity)) {
+-                            this.performRangedAttack(j + 1, livingEntity);
+-                            this.nextHeadUpdate[j - 1] = this.tickCount + 40 + this.random.nextInt(20);
+-                            this.idleHeadUpdates[j - 1] = 0;
++                    j = this.getAlternativeTarget(i);
++                    if (j > 0) {
++                        LivingEntity entityliving = (LivingEntity) this.level.getEntity(j);
++
++                        if (entityliving != null && this.canAttack(entityliving) && this.distanceToSqr((Entity) entityliving) <= 900.0D && this.hasLineOfSight(entityliving)) {
++                            this.performRangedAttack(i + 1, entityliving);
++                            this.nextHeadUpdate[i - 1] = this.tickCount + 40 + this.random.nextInt(20);
++                            this.idleHeadUpdates[i - 1] = 0;
+                         } else {
+-                            this.setAlternativeTarget(j, 0);
++                            this.setAlternativeTarget(i, 0);
+                         }
+                     } else {
+-                        List<LivingEntity> list = this.level.getNearbyEntities(LivingEntity.class, TARGETING_CONDITIONS, this, this.getBoundingBox().inflate(20.0D, 8.0D, 20.0D));
++                        List<LivingEntity> list = this.level.getNearbyEntities(LivingEntity.class, WitherBoss.TARGETING_CONDITIONS, this, this.getBoundingBox().inflate(20.0D, 8.0D, 20.0D));
++
+                         if (!list.isEmpty()) {
+-                            LivingEntity livingEntity2 = list.get(this.random.nextInt(list.size()));
+-                            this.setAlternativeTarget(j, livingEntity2.getId());
++                            LivingEntity entityliving1 = (LivingEntity) list.get(this.random.nextInt(list.size()));
++
++                            if (CraftEventFactory.callEntityTargetLivingEvent(this, entityliving1, EntityTargetEvent.TargetReason.CLOSEST_ENTITY).isCancelled()) continue; // CraftBukkit
++                            this.setAlternativeTarget(i, entityliving1.getId());
+                         }
+                     }
+                 }
+@@ -292,34 +358,40 @@
+             if (this.destroyBlocksTick > 0) {
+                 --this.destroyBlocksTick;
+                 if (this.destroyBlocksTick == 0 && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+-                    int l = Mth.floor(this.getY());
+-                    int m = Mth.floor(this.getX());
+-                    int n = Mth.floor(this.getZ());
+-                    boolean bl = false;
++                    i = Mth.floor(this.getY());
++                    j = Mth.floor(this.getX());
++                    int i1 = Mth.floor(this.getZ());
++                    boolean flag = false;
+ 
+-                    for(int o = -1; o <= 1; ++o) {
+-                        for(int p = -1; p <= 1; ++p) {
+-                            for(int q = 0; q <= 3; ++q) {
+-                                int r = m + o;
+-                                int s = l + q;
+-                                int t = n + p;
+-                                BlockPos blockPos = new BlockPos(r, s, t);
+-                                BlockState blockState = this.level.getBlockState(blockPos);
+-                                if (canDestroy(blockState)) {
+-                                    bl = this.level.destroyBlock(blockPos, true, this) || bl;
++                    for (int j1 = -1; j1 <= 1; ++j1) {
++                        for (int k1 = -1; k1 <= 1; ++k1) {
++                            for (int l1 = 0; l1 <= 3; ++l1) {
++                                int i2 = j + j1;
++                                int j2 = i + l1;
++                                int k2 = i1 + k1;
++                                BlockPos blockposition = new BlockPos(i2, j2, k2);
++                                BlockState iblockdata = this.level.getBlockState(blockposition);
++
++                                if (WitherBoss.canDestroy(iblockdata)) {
++                                    // CraftBukkit start
++                                    if (CraftEventFactory.callEntityChangeBlockEvent(this, blockposition, Blocks.AIR.defaultBlockState()).isCancelled()) {
++                                        continue;
++                                    }
++                                    // CraftBukkit end
++                                    flag = this.level.destroyBlock(blockposition, true, this) || flag;
+                                 }
+                             }
+                         }
+                     }
+ 
+-                    if (bl) {
+-                        this.level.levelEvent((Player)null, 1022, this.blockPosition(), 0);
++                    if (flag) {
++                        this.level.levelEvent((Player) null, 1022, this.blockPosition(), 0);
+                     }
+                 }
+             }
+ 
+             if (this.tickCount % 20 == 0) {
+-                this.heal(1.0F);
++                this.heal(1.0F, EntityRegainHealthEvent.RegainReason.REGEN); // CraftBukkit
+             }
+ 
+             this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
+@@ -337,8 +409,7 @@
+     }
+ 
+     @Override
+-    public void makeStuckInBlock(BlockState state, Vec3 multiplier) {
+-    }
++    public void makeStuckInBlock(BlockState state, Vec3 multiplier) {}
+ 
+     @Override
+     public void startSeenByPlayer(ServerPlayer player) {
+@@ -356,9 +427,10 @@
+         if (headIndex <= 0) {
+             return this.getX();
+         } else {
+-            float f = (this.yBodyRot + (float)(180 * (headIndex - 1))) * ((float)Math.PI / 180F);
+-            float g = Mth.cos(f);
+-            return this.getX() + (double)g * 1.3D;
++            float f = (this.yBodyRot + (float) (180 * (headIndex - 1))) * 0.017453292F;
++            float f1 = Mth.cos(f);
++
++            return this.getX() + (double) f1 * 1.3D;
+         }
+     }
+ 
+@@ -370,48 +442,51 @@
+         if (headIndex <= 0) {
+             return this.getZ();
+         } else {
+-            float f = (this.yBodyRot + (float)(180 * (headIndex - 1))) * ((float)Math.PI / 180F);
+-            float g = Mth.sin(f);
+-            return this.getZ() + (double)g * 1.3D;
++            float f = (this.yBodyRot + (float) (180 * (headIndex - 1))) * 0.017453292F;
++            float f1 = Mth.sin(f);
++
++            return this.getZ() + (double) f1 * 1.3D;
+         }
+     }
+ 
+     private float rotlerp(float prevAngle, float desiredAngle, float maxDifference) {
+-        float f = Mth.wrapDegrees(desiredAngle - prevAngle);
+-        if (f > maxDifference) {
+-            f = maxDifference;
++        float f3 = Mth.wrapDegrees(desiredAngle - prevAngle);
++
++        if (f3 > maxDifference) {
++            f3 = maxDifference;
+         }
+ 
+-        if (f < -maxDifference) {
+-            f = -maxDifference;
++        if (f3 < -maxDifference) {
++            f3 = -maxDifference;
+         }
+ 
+-        return prevAngle + f;
++        return prevAngle + f3;
+     }
+ 
+     private void performRangedAttack(int headIndex, LivingEntity target) {
+-        this.performRangedAttack(headIndex, target.getX(), target.getY() + (double)target.getEyeHeight() * 0.5D, target.getZ(), headIndex == 0 && this.random.nextFloat() < 0.001F);
++        this.performRangedAttack(headIndex, target.getX(), target.getY() + (double) target.getEyeHeight() * 0.5D, target.getZ(), headIndex == 0 && this.random.nextFloat() < 0.001F);
+     }
+ 
+     private void performRangedAttack(int headIndex, double targetX, double targetY, double targetZ, boolean charged) {
+         if (!this.isSilent()) {
+-            this.level.levelEvent((Player)null, 1024, this.blockPosition(), 0);
++            this.level.levelEvent((Player) null, 1024, this.blockPosition(), 0);
+         }
+ 
+-        double d = this.getHeadX(headIndex);
+-        double e = this.getHeadY(headIndex);
+-        double f = this.getHeadZ(headIndex);
+-        double g = targetX - d;
+-        double h = targetY - e;
+-        double i = targetZ - f;
+-        WitherSkull witherSkull = new WitherSkull(this.level, this, g, h, i);
+-        witherSkull.setOwner(this);
++        double d3 = this.getHeadX(headIndex);
++        double d4 = this.getHeadY(headIndex);
++        double d5 = this.getHeadZ(headIndex);
++        double d6 = targetX - d3;
++        double d7 = targetY - d4;
++        double d8 = targetZ - d5;
++        WitherSkull entitywitherskull = new WitherSkull(this.level, this, d6, d7, d8);
++
++        entitywitherskull.setOwner(this);
+         if (charged) {
+-            witherSkull.setDangerous(true);
++            entitywitherskull.setDangerous(true);
+         }
+ 
+-        witherSkull.setPosRaw(d, e, f);
+-        this.level.addFreshEntity(witherSkull);
++        entitywitherskull.setPosRaw(d3, d4, d5);
++        this.level.addFreshEntity(entitywitherskull);
+     }
+ 
+     @Override
+@@ -427,22 +502,24 @@
+             if (this.getInvulnerableTicks() > 0 && source != DamageSource.OUT_OF_WORLD) {
+                 return false;
+             } else {
++                Entity entity;
++
+                 if (this.isPowered()) {
+-                    Entity entity = source.getDirectEntity();
++                    entity = source.getDirectEntity();
+                     if (entity instanceof AbstractArrow) {
+                         return false;
+                     }
+                 }
+ 
+-                Entity entity2 = source.getEntity();
+-                if (entity2 != null && !(entity2 instanceof Player) && entity2 instanceof LivingEntity && ((LivingEntity)entity2).getMobType() == this.getMobType()) {
++                entity = source.getEntity();
++                if (entity != null && !(entity instanceof Player) && entity instanceof LivingEntity && ((LivingEntity) entity).getMobType() == this.getMobType()) {
+                     return false;
+                 } else {
+                     if (this.destroyBlocksTick <= 0) {
+                         this.destroyBlocksTick = 20;
+                     }
+ 
+-                    for(int i = 0; i < this.idleHeadUpdates.length; ++i) {
++                    for (int i = 0; i < this.idleHeadUpdates.length; ++i) {
+                         this.idleHeadUpdates[i] += 3;
+                     }
+ 
+@@ -457,9 +534,10 @@
+     @Override
+     protected void dropCustomDeathLoot(DamageSource source, int lootingMultiplier, boolean allowDrops) {
+         super.dropCustomDeathLoot(source, lootingMultiplier, allowDrops);
+-        ItemEntity itemEntity = this.spawnAtLocation(Items.NETHER_STAR);
+-        if (itemEntity != null) {
+-            itemEntity.setExtendedLifetime();
++        ItemEntity entityitem = this.spawnAtLocation((ItemLike) Items.NETHER_STAR);
++
++        if (entityitem != null) {
++            entityitem.setExtendedLifetime();
+         }
+ 
+     }
+@@ -484,7 +562,7 @@
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+-        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 300.0D).add(Attributes.MOVEMENT_SPEED, (double)0.6F).add(Attributes.FLYING_SPEED, (double)0.6F).add(Attributes.FOLLOW_RANGE, 40.0D).add(Attributes.ARMOR, 4.0D);
++        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 300.0D).add(Attributes.MOVEMENT_SPEED, 0.6000000238418579D).add(Attributes.FLYING_SPEED, 0.6000000238418579D).add(Attributes.FOLLOW_RANGE, 40.0D).add(Attributes.ARMOR, 4.0D);
+     }
+ 
+     public float getHeadYRot(int headIndex) {
+@@ -496,19 +574,19 @@
+     }
+ 
+     public int getInvulnerableTicks() {
+-        return this.entityData.get(DATA_ID_INV);
++        return (Integer) this.entityData.get(WitherBoss.DATA_ID_INV);
+     }
+ 
+     public void setInvulnerableTicks(int ticks) {
+-        this.entityData.set(DATA_ID_INV, ticks);
++        this.entityData.set(WitherBoss.DATA_ID_INV, ticks);
+     }
+ 
+     public int getAlternativeTarget(int headIndex) {
+-        return this.entityData.get(DATA_TARGETS.get(headIndex));
++        return (Integer) this.entityData.get((EntityDataAccessor) WitherBoss.DATA_TARGETS.get(headIndex));
+     }
+ 
+     public void setAlternativeTarget(int headIndex, int id) {
+-        this.entityData.set(DATA_TARGETS.get(headIndex), id);
++        this.entityData.set((EntityDataAccessor) WitherBoss.DATA_TARGETS.get(headIndex), id);
+     }
+ 
+     @Override
+@@ -528,15 +606,16 @@
+ 
+     @Override
+     public boolean canChangeDimensions() {
+-        return false;
++        return super.canChangeDimensions() && canPortal; // Paper
+     }
+ 
+     @Override
+     public boolean canBeAffected(MobEffectInstance effect) {
+-        return effect.getEffect() == MobEffects.WITHER ? false : super.canBeAffected(effect);
++        return effect.getEffect() == MobEffects.WITHER && this.level.paperConfig().entities.mobEffects.immuneToWitherEffect.wither ? false : super.canBeAffected(effect); // Paper
+     }
+ 
+-    class WitherDoNothingGoal extends Goal {
++    private class WitherDoNothingGoal extends Goal {
++
+         public WitherDoNothingGoal() {
+             this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.JUMP, Goal.Flag.LOOK));
+         }

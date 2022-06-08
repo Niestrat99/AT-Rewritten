@@ -1,0 +1,616 @@
+--- a/net/minecraft/world/level/block/Block.java
++++ b/net/minecraft/world/level/block/Block.java
+@@ -6,6 +6,7 @@
+ import com.google.common.collect.ImmutableMap;
+ import com.mojang.logging.LogUtils;
+ import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.function.Function;
+ import java.util.function.Supplier;
+@@ -65,13 +66,13 @@
+ import org.slf4j.Logger;
+ 
+ public class Block extends BlockBehaviour implements ItemLike {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+-    private final Holder.Reference<Block> builtInRegistryHolder = Registry.BLOCK.createIntrusiveHolder(this);
++    private final Holder.Reference<Block> builtInRegistryHolder;
+     public static final IdMapper<BlockState> BLOCK_STATE_REGISTRY = new IdMapper<>();
+     private static final LoadingCache<VoxelShape, Boolean> SHAPE_FULL_BLOCK_CACHE = CacheBuilder.newBuilder().maximumSize(512L).weakKeys().build(new CacheLoader<VoxelShape, Boolean>() {
+-        @Override
+-        public Boolean load(VoxelShape voxelShape) {
+-            return !Shapes.joinIsNotEmpty(Shapes.block(), voxelShape, BooleanOp.NOT_SAME);
++        public Boolean load(VoxelShape voxelshape) {
++            return !Shapes.joinIsNotEmpty(Shapes.block(), voxelshape, BooleanOp.NOT_SAME);
+         }
+     });
+     public static final int UPDATE_NEIGHBORS = 1;
+@@ -90,46 +91,76 @@
+     public static final int UPDATE_LIMIT = 512;
+     protected final StateDefinition<Block, BlockState> stateDefinition;
+     private BlockState defaultBlockState;
++    // Paper start
++    public final boolean isDestroyable() {
++        return io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.allowPermanentBlockBreakExploits ||
++            this != Blocks.BEDROCK &&
++            this != Blocks.END_PORTAL_FRAME &&
++            this != Blocks.END_PORTAL &&
++            this != Blocks.END_GATEWAY &&
++            this != Blocks.COMMAND_BLOCK &&
++            this != Blocks.REPEATING_COMMAND_BLOCK &&
++            this != Blocks.CHAIN_COMMAND_BLOCK &&
++            this != Blocks.BARRIER &&
++            this != Blocks.STRUCTURE_BLOCK &&
++            this != Blocks.JIGSAW;
++    }
++    public co.aikar.timings.Timing timing;
++    public co.aikar.timings.Timing getTiming() {
++        if (timing == null) {
++            timing = co.aikar.timings.MinecraftTimings.getBlockTiming(this);
++        }
++        return timing;
++    }
++    // Paper end
+     @Nullable
+     private String descriptionId;
+     @Nullable
+     private Item item;
+     private static final int CACHE_SIZE = 2048;
+     private static final ThreadLocal<Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>> OCCLUSION_CACHE = ThreadLocal.withInitial(() -> {
+-        Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2ByteLinkedOpenHashMap = new Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>(2048, 0.25F) {
+-            protected void rehash(int i) {
+-            }
++        Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2bytelinkedopenhashmap = new Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>(2048, 0.25F) {
++            protected void rehash(int i) {}
+         };
+-        object2ByteLinkedOpenHashMap.defaultReturnValue((byte)127);
+-        return object2ByteLinkedOpenHashMap;
++
++        object2bytelinkedopenhashmap.defaultReturnValue((byte) 127);
++        return object2bytelinkedopenhashmap;
+     });
+ 
+     public static int getId(@Nullable BlockState state) {
+         if (state == null) {
+             return 0;
+         } else {
+-            int i = BLOCK_STATE_REGISTRY.getId(state);
++            int i = Block.BLOCK_STATE_REGISTRY.getId(state);
++
+             return i == -1 ? 0 : i;
+         }
+     }
+ 
+     public static BlockState stateById(int stateId) {
+-        BlockState blockState = BLOCK_STATE_REGISTRY.byId(stateId);
+-        return blockState == null ? Blocks.AIR.defaultBlockState() : blockState;
++        BlockState iblockdata = (BlockState) Block.BLOCK_STATE_REGISTRY.byId(stateId);
++
++        return iblockdata == null ? Blocks.AIR.defaultBlockState() : iblockdata;
+     }
+ 
+     public static Block byItem(@Nullable Item item) {
+-        return item instanceof BlockItem ? ((BlockItem)item).getBlock() : Blocks.AIR;
++        return item instanceof BlockItem ? ((BlockItem) item).getBlock() : Blocks.AIR;
+     }
+ 
+     public static BlockState pushEntitiesUp(BlockState from, BlockState to, LevelAccessor world, BlockPos pos) {
+-        VoxelShape voxelShape = Shapes.joinUnoptimized(from.getCollisionShape(world, pos), to.getCollisionShape(world, pos), BooleanOp.ONLY_SECOND).move((double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
+-        if (voxelShape.isEmpty()) {
++        VoxelShape voxelshape = Shapes.joinUnoptimized(from.getCollisionShape(world, pos), to.getCollisionShape(world, pos), BooleanOp.ONLY_SECOND).move((double) pos.getX(), (double) pos.getY(), (double) pos.getZ());
++
++        if (voxelshape.isEmpty()) {
+             return to;
+         } else {
+-            for(Entity entity : world.getEntities((Entity)null, voxelShape.bounds())) {
+-                double d = Shapes.collide(Direction.Axis.Y, entity.getBoundingBox().move(0.0D, 1.0D, 0.0D), List.of(voxelShape), -1.0D);
+-                entity.teleportTo(entity.getX(), entity.getY() + 1.0D + d, entity.getZ());
++            List<Entity> list = world.getEntities((Entity) null, voxelshape.bounds());
++            Iterator iterator = list.iterator();
++
++            while (iterator.hasNext()) {
++                Entity entity = (Entity) iterator.next();
++                double d0 = Shapes.collide(Direction.Axis.Y, entity.getBoundingBox().move(0.0D, 1.0D, 0.0D), List.of(voxelshape), -1.0D);
++
++                entity.teleportTo(entity.getX(), entity.getY() + 1.0D + d0, entity.getZ());
+             }
+ 
+             return to;
+@@ -141,26 +172,30 @@
+     }
+ 
+     public static BlockState updateFromNeighbourShapes(BlockState state, LevelAccessor world, BlockPos pos) {
+-        BlockState blockState = state;
+-        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
++        BlockState iblockdata1 = state;
++        BlockPos.MutableBlockPos blockposition_mutableblockposition = new BlockPos.MutableBlockPos();
++        Direction[] aenumdirection = Block.UPDATE_SHAPE_ORDER;
++        int i = aenumdirection.length;
+ 
+-        for(Direction direction : UPDATE_SHAPE_ORDER) {
+-            mutableBlockPos.setWithOffset(pos, direction);
+-            blockState = blockState.updateShape(direction, world.getBlockState(mutableBlockPos), world, pos, mutableBlockPos);
++        for (int j = 0; j < i; ++j) {
++            Direction enumdirection = aenumdirection[j];
++
++            blockposition_mutableblockposition.setWithOffset(pos, enumdirection);
++            iblockdata1 = iblockdata1.updateShape(enumdirection, world.getBlockState(blockposition_mutableblockposition), world, pos, blockposition_mutableblockposition);
+         }
+ 
+-        return blockState;
++        return iblockdata1;
+     }
+ 
+     public static void updateOrDestroy(BlockState state, BlockState newState, LevelAccessor world, BlockPos pos, int flags) {
+-        updateOrDestroy(state, newState, world, pos, flags, 512);
++        Block.updateOrDestroy(state, newState, world, pos, flags, 512);
+     }
+ 
+     public static void updateOrDestroy(BlockState state, BlockState newState, LevelAccessor world, BlockPos pos, int flags, int maxUpdateDepth) {
+         if (newState != state) {
+             if (newState.isAir()) {
+                 if (!world.isClientSide()) {
+-                    world.destroyBlock(pos, (flags & 32) == 0, (Entity)null, maxUpdateDepth);
++                    world.destroyBlock(pos, (flags & 32) == 0, (Entity) null, maxUpdateDepth);
+                 }
+             } else {
+                 world.setBlock(pos, newState, flags & -33, maxUpdateDepth);
+@@ -171,14 +206,17 @@
+ 
+     public Block(BlockBehaviour.Properties settings) {
+         super(settings);
+-        StateDefinition.Builder<Block, BlockState> builder = new StateDefinition.Builder<>(this);
+-        this.createBlockStateDefinition(builder);
+-        this.stateDefinition = builder.create(Block::defaultBlockState, BlockState::new);
+-        this.registerDefaultState(this.stateDefinition.any());
++        this.builtInRegistryHolder = Registry.BLOCK.createIntrusiveHolder(this);
++        StateDefinition.Builder<Block, BlockState> blockstatelist_a = new StateDefinition.Builder<>(this);
++
++        this.createBlockStateDefinition(blockstatelist_a);
++        this.stateDefinition = blockstatelist_a.create(Block::defaultBlockState, BlockState::new);
++        this.registerDefaultState((BlockState) this.stateDefinition.any());
+         if (SharedConstants.IS_RUNNING_IN_IDE) {
+-            String string = this.getClass().getSimpleName();
+-            if (!string.endsWith("Block")) {
+-                LOGGER.error("Block classes should end with Block and {} doesn't.", (Object)string);
++            String s = this.getClass().getSimpleName();
++
++            if (!s.endsWith("Block")) {
++                Block.LOGGER.error("Block classes should end with Block and {} doesn't.", s);
+             }
+         }
+ 
+@@ -193,28 +231,32 @@
+     }
+ 
+     public static boolean shouldRenderFace(BlockState state, BlockGetter world, BlockPos pos, Direction side, BlockPos otherPos) {
+-        BlockState blockState = world.getBlockState(otherPos);
+-        if (state.skipRendering(blockState, side)) {
++        BlockState iblockdata1 = world.getBlockState(otherPos);
++
++        if (state.skipRendering(iblockdata1, side)) {
+             return false;
+-        } else if (blockState.canOcclude()) {
+-            Block.BlockStatePairKey blockStatePairKey = new Block.BlockStatePairKey(state, blockState, side);
+-            Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2ByteLinkedOpenHashMap = OCCLUSION_CACHE.get();
+-            byte b = object2ByteLinkedOpenHashMap.getAndMoveToFirst(blockStatePairKey);
+-            if (b != 127) {
+-                return b != 0;
++        } else if (iblockdata1.canOcclude()) {
++            Block.BlockStatePairKey block_a = new Block.BlockStatePairKey(state, iblockdata1, side);
++            Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2bytelinkedopenhashmap = (Object2ByteLinkedOpenHashMap) Block.OCCLUSION_CACHE.get();
++            byte b0 = object2bytelinkedopenhashmap.getAndMoveToFirst(block_a);
++
++            if (b0 != 127) {
++                return b0 != 0;
+             } else {
+-                VoxelShape voxelShape = state.getFaceOcclusionShape(world, pos, side);
+-                if (voxelShape.isEmpty()) {
++                VoxelShape voxelshape = state.getFaceOcclusionShape(world, pos, side);
++
++                if (voxelshape.isEmpty()) {
+                     return true;
+                 } else {
+-                    VoxelShape voxelShape2 = blockState.getFaceOcclusionShape(world, otherPos, side.getOpposite());
+-                    boolean bl = Shapes.joinIsNotEmpty(voxelShape, voxelShape2, BooleanOp.ONLY_FIRST);
+-                    if (object2ByteLinkedOpenHashMap.size() == 2048) {
+-                        object2ByteLinkedOpenHashMap.removeLastByte();
++                    VoxelShape voxelshape1 = iblockdata1.getFaceOcclusionShape(world, otherPos, side.getOpposite());
++                    boolean flag = Shapes.joinIsNotEmpty(voxelshape, voxelshape1, BooleanOp.ONLY_FIRST);
++
++                    if (object2bytelinkedopenhashmap.size() == 2048) {
++                        object2bytelinkedopenhashmap.removeLastByte();
+                     }
+ 
+-                    object2ByteLinkedOpenHashMap.putAndMoveToFirst(blockStatePairKey, (byte)(bl ? 1 : 0));
+-                    return bl;
++                    object2bytelinkedopenhashmap.putAndMoveToFirst(block_a, (byte) (flag ? 1 : 0));
++                    return flag;
+                 }
+             }
+         } else {
+@@ -227,85 +269,108 @@
+     }
+ 
+     public static boolean canSupportCenter(LevelReader world, BlockPos pos, Direction side) {
+-        BlockState blockState = world.getBlockState(pos);
+-        return side == Direction.DOWN && blockState.is(BlockTags.UNSTABLE_BOTTOM_CENTER) ? false : blockState.isFaceSturdy(world, pos, side, SupportType.CENTER);
++        BlockState iblockdata = world.getBlockState(pos);
++
++        return side == Direction.DOWN && iblockdata.is(BlockTags.UNSTABLE_BOTTOM_CENTER) ? false : iblockdata.isFaceSturdy(world, pos, side, SupportType.CENTER);
+     }
+ 
+     public static boolean isFaceFull(VoxelShape shape, Direction side) {
+-        VoxelShape voxelShape = shape.getFaceShape(side);
+-        return isShapeFullBlock(voxelShape);
++        VoxelShape voxelshape1 = shape.getFaceShape(side);
++
++        return Block.isShapeFullBlock(voxelshape1);
+     }
+ 
+     public static boolean isShapeFullBlock(VoxelShape shape) {
+-        return SHAPE_FULL_BLOCK_CACHE.getUnchecked(shape);
++        return (Boolean) Block.SHAPE_FULL_BLOCK_CACHE.getUnchecked(shape);
+     }
+ 
+     public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
+-        return !isShapeFullBlock(state.getShape(world, pos)) && state.getFluidState().isEmpty();
++        return !Block.isShapeFullBlock(state.getShape(world, pos)) && state.getFluidState().isEmpty();
+     }
+ 
+-    public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
+-    }
++    public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {}
+ 
+-    public void destroy(LevelAccessor world, BlockPos pos, BlockState state) {
+-    }
++    public void destroy(LevelAccessor world, BlockPos pos, BlockState state) {}
+ 
+     public static List<ItemStack> getDrops(BlockState state, ServerLevel world, BlockPos pos, @Nullable BlockEntity blockEntity) {
+-        LootContext.Builder builder = (new LootContext.Builder(world)).withRandom(world.random).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, ItemStack.EMPTY).withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+-        return state.getDrops(builder);
++        LootContext.Builder loottableinfo_builder = (new LootContext.Builder(world)).withRandom(world.random).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, ItemStack.EMPTY).withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
++
++        return state.getDrops(loottableinfo_builder);
+     }
+ 
+     public static List<ItemStack> getDrops(BlockState state, ServerLevel world, BlockPos pos, @Nullable BlockEntity blockEntity, @Nullable Entity entity, ItemStack stack) {
+-        LootContext.Builder builder = (new LootContext.Builder(world)).withRandom(world.random).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, stack).withOptionalParameter(LootContextParams.THIS_ENTITY, entity).withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+-        return state.getDrops(builder);
++        LootContext.Builder loottableinfo_builder = (new LootContext.Builder(world)).withRandom(world.random).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, stack).withOptionalParameter(LootContextParams.THIS_ENTITY, entity).withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
++
++        return state.getDrops(loottableinfo_builder);
+     }
+ 
+     public static void dropResources(BlockState state, LootContext.Builder lootContext) {
+-        ServerLevel serverLevel = lootContext.getLevel();
+-        BlockPos blockPos = new BlockPos(lootContext.getParameter(LootContextParams.ORIGIN));
+-        state.getDrops(lootContext).forEach((stack) -> {
+-            popResource(serverLevel, blockPos, stack);
++        ServerLevel worldserver = lootContext.getLevel();
++        BlockPos blockposition = new BlockPos((Vec3) lootContext.getParameter(LootContextParams.ORIGIN));
++
++        state.getDrops(lootContext).forEach((itemstack) -> {
++            Block.popResource(worldserver, blockposition, itemstack);
+         });
+-        state.spawnAfterBreak(serverLevel, blockPos, ItemStack.EMPTY, true);
++        state.spawnAfterBreak(worldserver, blockposition, ItemStack.EMPTY, true);
+     }
+ 
+     public static void dropResources(BlockState state, Level world, BlockPos pos) {
+         if (world instanceof ServerLevel) {
+-            getDrops(state, (ServerLevel)world, pos, (BlockEntity)null).forEach((stack) -> {
+-                popResource(world, pos, stack);
++            Block.getDrops(state, (ServerLevel) world, pos, (BlockEntity) null).forEach((itemstack) -> {
++                Block.popResource(world, pos, itemstack);
+             });
+-            state.spawnAfterBreak((ServerLevel)world, pos, ItemStack.EMPTY, true);
++            state.spawnAfterBreak((ServerLevel) world, pos, ItemStack.EMPTY, true);
+         }
+ 
+     }
+ 
+     public static void dropResources(BlockState state, LevelAccessor world, BlockPos pos, @Nullable BlockEntity blockEntity) {
+         if (world instanceof ServerLevel) {
+-            getDrops(state, (ServerLevel)world, pos, blockEntity).forEach((stack) -> {
+-                popResource((ServerLevel)world, pos, stack);
++            Block.getDrops(state, (ServerLevel) world, pos, blockEntity).forEach((itemstack) -> {
++                Block.popResource((ServerLevel) world, pos, itemstack);
+             });
+-            state.spawnAfterBreak((ServerLevel)world, pos, ItemStack.EMPTY, true);
++            state.spawnAfterBreak((ServerLevel) world, pos, ItemStack.EMPTY, true);
+         }
+ 
+     }
++    // Paper start
++    public static boolean dropResources(BlockState state, LevelAccessor world, BlockPos pos, @Nullable BlockEntity blockEntity, BlockPos source) {
++        if (world instanceof ServerLevel) {
++            List<org.bukkit.inventory.ItemStack> items = com.google.common.collect.Lists.newArrayList();
++            for (net.minecraft.world.item.ItemStack drop : net.minecraft.world.level.block.Block.getDrops(state, world.getMinecraftWorld(), pos, blockEntity)) {
++                items.add(org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asBukkitCopy(drop));
++            }
++            io.papermc.paper.event.block.BlockBreakBlockEvent event = new io.papermc.paper.event.block.BlockBreakBlockEvent(org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, pos), org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, source), items);
++            event.callEvent();
++            for (var drop : event.getDrops()) {
++                popResource(world.getMinecraftWorld(), pos, org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asNMSCopy(drop));
++            }
++            state.spawnAfterBreak(world.getMinecraftWorld(), pos, ItemStack.EMPTY, true);
++        }
++        return true;
++    }
++    // Paper end
+ 
+     public static void dropResources(BlockState state, Level world, BlockPos pos, @Nullable BlockEntity blockEntity, Entity entity, ItemStack stack) {
+         if (world instanceof ServerLevel) {
+-            getDrops(state, (ServerLevel)world, pos, blockEntity, entity, stack).forEach((stackx) -> {
+-                popResource(world, pos, stackx);
++            Block.getDrops(state, (ServerLevel) world, pos, blockEntity, entity, stack).forEach((itemstack1) -> {
++                Block.popResource(world, pos, itemstack1);
+             });
+-            state.spawnAfterBreak((ServerLevel)world, pos, stack, true);
++            state.spawnAfterBreak((ServerLevel) world, pos, stack, true);
+         }
+ 
+     }
+ 
+     public static void popResource(Level world, BlockPos pos, ItemStack stack) {
+         float f = EntityType.ITEM.getHeight() / 2.0F;
+-        double d = (double)((float)pos.getX() + 0.5F) + Mth.nextDouble(world.random, -0.25D, 0.25D);
+-        double e = (double)((float)pos.getY() + 0.5F) + Mth.nextDouble(world.random, -0.25D, 0.25D) - (double)f;
+-        double g = (double)((float)pos.getZ() + 0.5F) + Mth.nextDouble(world.random, -0.25D, 0.25D);
+-        popResource(world, () -> {
+-            return new ItemEntity(world, d, e, g, stack);
++        // Paper start - don't convert potentially massive numbers to floats
++        double d0 = pos.getX() + 0.5D + Mth.nextDouble(world.random, -0.25D, 0.25D);
++        double d1 = pos.getY() + 0.5D + Mth.nextDouble(world.random, -0.25D, 0.25D) - (double) f;
++        double d2 = pos.getZ() + 0.5D + Mth.nextDouble(world.random, -0.25D, 0.25D);
++        // Paper end
++
++        Block.popResource(world, () -> {
++            return new ItemEntity(world, d0, d1, d2, stack);
+         }, stack);
+     }
+ 
+@@ -314,29 +379,44 @@
+         int j = direction.getStepY();
+         int k = direction.getStepZ();
+         float f = EntityType.ITEM.getWidth() / 2.0F;
+-        float g = EntityType.ITEM.getHeight() / 2.0F;
+-        double d = (double)((float)pos.getX() + 0.5F) + (i == 0 ? Mth.nextDouble(world.random, -0.25D, 0.25D) : (double)((float)i * (0.5F + f)));
+-        double e = (double)((float)pos.getY() + 0.5F) + (j == 0 ? Mth.nextDouble(world.random, -0.25D, 0.25D) : (double)((float)j * (0.5F + g))) - (double)g;
+-        double h = (double)((float)pos.getZ() + 0.5F) + (k == 0 ? Mth.nextDouble(world.random, -0.25D, 0.25D) : (double)((float)k * (0.5F + f)));
+-        double l = i == 0 ? Mth.nextDouble(world.random, -0.1D, 0.1D) : (double)i * 0.1D;
+-        double m = j == 0 ? Mth.nextDouble(world.random, 0.0D, 0.1D) : (double)j * 0.1D + 0.1D;
+-        double n = k == 0 ? Mth.nextDouble(world.random, -0.1D, 0.1D) : (double)k * 0.1D;
+-        popResource(world, () -> {
+-            return new ItemEntity(world, d, e, h, stack, l, m, n);
++        float f1 = EntityType.ITEM.getHeight() / 2.0F;
++        // Paper start - don't convert potentially massive numbers to floats
++        double d0 = pos.getX() + 0.5D + (i == 0 ? Mth.nextDouble(world.random, -0.25D, 0.25D) : (double) ((float) i * (0.5F + f)));
++        double d1 = pos.getY() + 0.5D + (j == 0 ? Mth.nextDouble(world.random, -0.25D, 0.25D) : (double) ((float) j * (0.5F + f1))) - (double) f1;
++        double d2 = pos.getZ() + 0.5D + (k == 0 ? Mth.nextDouble(world.random, -0.25D, 0.25D) : (double) ((float) k * (0.5F + f)));
++        // Paper end
++        double d3 = i == 0 ? Mth.nextDouble(world.random, -0.1D, 0.1D) : (double) i * 0.1D;
++        double d4 = j == 0 ? Mth.nextDouble(world.random, 0.0D, 0.1D) : (double) j * 0.1D + 0.1D;
++        double d5 = k == 0 ? Mth.nextDouble(world.random, -0.1D, 0.1D) : (double) k * 0.1D;
++
++        Block.popResource(world, () -> {
++            return new ItemEntity(world, d0, d1, d2, stack, d3, d4, d5);
+         }, stack);
+     }
+ 
+     private static void popResource(Level world, Supplier<ItemEntity> itemEntitySupplier, ItemStack stack) {
+         if (!world.isClientSide && !stack.isEmpty() && world.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
+-            ItemEntity itemEntity = itemEntitySupplier.get();
+-            itemEntity.setDefaultPickUpDelay();
+-            world.addFreshEntity(itemEntity);
++            ItemEntity entityitem = (ItemEntity) itemEntitySupplier.get();
++
++            entityitem.setDefaultPickUpDelay();
++            // CraftBukkit start
++            if (world.captureDrops != null) {
++                world.captureDrops.add(entityitem);
++            } else {
++                world.addFreshEntity(entityitem);
++            }
++            // CraftBukkit end
+         }
+     }
+ 
+     public void popExperience(ServerLevel world, BlockPos pos, int size) {
++        // Paper start - add player parameter
++        popExperience(world, pos, size, null);
++    }
++    public void popExperience(ServerLevel world, BlockPos pos, int size, net.minecraft.server.level.ServerPlayer player) {
++        // Paper end - add player parameter
+         if (world.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
+-            ExperienceOrb.award(world, Vec3.atCenterOf(pos), size);
++            ExperienceOrb.award(world, Vec3.atCenterOf(pos), size, org.bukkit.entity.ExperienceOrb.SpawnReason.BLOCK_BREAK, player); // Paper
+         }
+ 
+     }
+@@ -345,11 +425,9 @@
+         return this.explosionResistance;
+     }
+ 
+-    public void wasExploded(Level world, BlockPos pos, Explosion explosion) {
+-    }
++    public void wasExploded(Level world, BlockPos pos, Explosion explosion) {}
+ 
+-    public void stepOn(Level world, BlockPos pos, BlockState state, Entity entity) {
+-    }
++    public void stepOn(Level world, BlockPos pos, BlockState state, Entity entity) {}
+ 
+     @Nullable
+     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+@@ -358,12 +436,11 @@
+ 
+     public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack stack) {
+         player.awardStat(Stats.BLOCK_MINED.get(this));
+-        player.causeFoodExhaustion(0.005F);
+-        dropResources(state, world, pos, blockEntity, player, stack);
++        player.causeFoodExhaustion(0.005F, org.bukkit.event.entity.EntityExhaustionEvent.ExhaustionReason.BLOCK_MINED); // CraftBukkit - EntityExhaustionEvent
++        Block.dropResources(state, world, pos, blockEntity, player, stack);
+     }
+ 
+-    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+-    }
++    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {}
+ 
+     public boolean isPossibleToRespawnInThis() {
+         return !this.material.isSolid() && !this.material.isLiquid();
+@@ -410,7 +487,7 @@
+     }
+ 
+     protected void spawnDestroyParticles(Level world, Player player, BlockPos pos, BlockState state) {
+-        world.levelEvent(player, 2001, pos, getId(state));
++        world.levelEvent(player, 2001, pos, Block.getId(state));
+     }
+ 
+     public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+@@ -422,15 +499,13 @@
+         world.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(player, state));
+     }
+ 
+-    public void handlePrecipitation(BlockState state, Level world, BlockPos pos, Biome.Precipitation precipitation) {
+-    }
++    public void handlePrecipitation(BlockState state, Level world, BlockPos pos, Biome.Precipitation precipitation) {}
+ 
+     public boolean dropFromExplosion(Explosion explosion) {
+         return true;
+     }
+ 
+-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-    }
++    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {}
+ 
+     public StateDefinition<Block, BlockState> getStateDefinition() {
+         return this.stateDefinition;
+@@ -445,19 +520,22 @@
+     }
+ 
+     public final BlockState withPropertiesOf(BlockState state) {
+-        BlockState blockState = this.defaultBlockState();
++        BlockState iblockdata1 = this.defaultBlockState();
++        Iterator iterator = state.getBlock().getStateDefinition().getProperties().iterator();
+ 
+-        for(Property<?> property : state.getBlock().getStateDefinition().getProperties()) {
+-            if (blockState.hasProperty(property)) {
+-                blockState = copyProperty(state, blockState, property);
++        while (iterator.hasNext()) {
++            Property<?> iblockstate = (Property) iterator.next();
++
++            if (iblockdata1.hasProperty(iblockstate)) {
++                iblockdata1 = Block.copyProperty(state, iblockdata1, iblockstate);
+             }
+         }
+ 
+-        return blockState;
++        return iblockdata1;
+     }
+ 
+     private static <T extends Comparable<T>> BlockState copyProperty(BlockState source, BlockState target, Property<T> property) {
+-        return target.setValue(property, source.getValue(property));
++        return (BlockState) target.setValue(property, source.getValue(property));
+     }
+ 
+     public SoundType getSoundType(BlockState state) {
+@@ -477,13 +555,11 @@
+         return this.dynamicShape;
+     }
+ 
+-    @Override
+     public String toString() {
+         return "Block{" + Registry.BLOCK.getKey(this) + "}";
+     }
+ 
+-    public void appendHoverText(ItemStack stack, @Nullable BlockGetter world, List<Component> tooltip, TooltipFlag options) {
+-    }
++    public void appendHoverText(ItemStack stack, @Nullable BlockGetter world, List<Component> tooltip, TooltipFlag options) {}
+ 
+     @Override
+     protected Block asBlock() {
+@@ -491,7 +567,7 @@
+     }
+ 
+     protected ImmutableMap<BlockState, VoxelShape> getShapeForEachState(Function<BlockState, VoxelShape> stateToShape) {
+-        return this.stateDefinition.getPossibleStates().stream().collect(ImmutableMap.toImmutableMap(Function.identity(), stateToShape));
++        return (ImmutableMap) this.stateDefinition.getPossibleStates().stream().collect(ImmutableMap.toImmutableMap(Function.identity(), stateToShape));
+     }
+ 
+     /** @deprecated */
+@@ -500,17 +576,39 @@
+         return this.builtInRegistryHolder;
+     }
+ 
+-    protected void tryDropExperience(ServerLevel world, BlockPos pos, ItemStack tool, IntProvider experience) {
+-        if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool) == 0) {
+-            int i = experience.sample(world.random);
++    // CraftBukkit start
++    protected int tryDropExperience(ServerLevel worldserver, BlockPos blockposition, ItemStack itemstack, IntProvider intprovider) {
++        if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, itemstack) == 0) {
++            int i = intprovider.sample(worldserver.random);
++
+             if (i > 0) {
+-                this.popExperience(world, pos, i);
++                // this.popExperience(worldserver, blockposition, i);
++                return i;
+             }
+         }
+ 
++        return 0;
++    }
++
++    public int getExpDrop(BlockState iblockdata, ServerLevel worldserver, BlockPos blockposition, ItemStack itemstack, boolean flag) {
++        return 0;
++    }
++    // CraftBukkit end
++
++    // Spigot start
++    public static float range(float min, float value, float max) {
++        if (value < min) {
++            return min;
++        }
++        if (value > max) {
++            return max;
++        }
++        return value;
+     }
++    // Spigot end
+ 
+     public static final class BlockStatePairKey {
++
+         private final BlockState first;
+         private final BlockState second;
+         private final Direction direction;
+@@ -521,23 +619,24 @@
+             this.direction = facing;
+         }
+ 
+-        @Override
+         public boolean equals(Object object) {
+             if (this == object) {
+                 return true;
+             } else if (!(object instanceof Block.BlockStatePairKey)) {
+                 return false;
+             } else {
+-                Block.BlockStatePairKey blockStatePairKey = (Block.BlockStatePairKey)object;
+-                return this.first == blockStatePairKey.first && this.second == blockStatePairKey.second && this.direction == blockStatePairKey.direction;
++                Block.BlockStatePairKey block_a = (Block.BlockStatePairKey) object;
++
++                return this.first == block_a.first && this.second == block_a.second && this.direction == block_a.direction;
+             }
+         }
+ 
+-        @Override
+         public int hashCode() {
+             int i = this.first.hashCode();
++
+             i = 31 * i + this.second.hashCode();
+-            return 31 * i + this.direction.hashCode();
++            i = 31 * i + this.direction.hashCode();
++            return i;
+         }
+     }
+ }

@@ -1,0 +1,99 @@
+--- a/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
++++ b/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
+@@ -16,8 +16,15 @@
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.phys.EntityHitResult;
+ import net.minecraft.world.phys.HitResult;
++// CraftBukkit start
++import org.bukkit.Bukkit;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory;
++import org.bukkit.event.entity.CreatureSpawnEvent;
++import org.bukkit.event.player.PlayerTeleportEvent;
++// CraftBukkit end
+ 
+ public class ThrownEnderpearl extends ThrowableItemProjectile {
++
+     public ThrownEnderpearl(EntityType<? extends ThrownEnderpearl> type, Level world) {
+         super(type, world);
+     }
+@@ -41,29 +48,45 @@
+     protected void onHit(HitResult hitResult) {
+         super.onHit(hitResult);
+ 
+-        for(int i = 0; i < 32; ++i) {
++        for (int i = 0; i < 32; ++i) {
+             this.level.addParticle(ParticleTypes.PORTAL, this.getX(), this.getY() + this.random.nextDouble() * 2.0D, this.getZ(), this.random.nextGaussian(), 0.0D, this.random.nextGaussian());
+         }
+ 
+         if (!this.level.isClientSide && !this.isRemoved()) {
+             Entity entity = this.getOwner();
++
+             if (entity instanceof ServerPlayer) {
+-                ServerPlayer serverPlayer = (ServerPlayer)entity;
+-                if (serverPlayer.connection.getConnection().isConnected() && serverPlayer.level == this.level && !serverPlayer.isSleeping()) {
+-                    if (this.random.nextFloat() < 0.05F && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
+-                        Endermite endermite = EntityType.ENDERMITE.create(this.level);
+-                        endermite.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
+-                        this.level.addFreshEntity(endermite);
+-                    }
++                ServerPlayer entityplayer = (ServerPlayer) entity;
+ 
+-                    if (entity.isPassenger()) {
+-                        serverPlayer.dismountTo(this.getX(), this.getY(), this.getZ());
+-                    } else {
+-                        entity.teleportTo(this.getX(), this.getY(), this.getZ());
+-                    }
++                if (entityplayer.connection.getConnection().isConnected() && entityplayer.level == this.level && !entityplayer.isSleeping()) {
++                    // CraftBukkit start - Fire PlayerTeleportEvent
++                    org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer player = entityplayer.getBukkitEntity();
++                    org.bukkit.Location location = getBukkitEntity().getLocation();
++                    location.setPitch(player.getLocation().getPitch());
++                    location.setYaw(player.getLocation().getYaw());
+ 
+-                    entity.resetFallDistance();
+-                    entity.hurt(DamageSource.FALL, 5.0F);
++                    PlayerTeleportEvent teleEvent = new PlayerTeleportEvent(player, player.getLocation(), location, PlayerTeleportEvent.TeleportCause.ENDER_PEARL);
++                    Bukkit.getPluginManager().callEvent(teleEvent);
++
++                    if (!teleEvent.isCancelled() && !entityplayer.connection.isDisconnected()) {
++                        if (this.random.nextFloat() < 0.05F && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
++                            Endermite entityendermite = (Endermite) EntityType.ENDERMITE.create(this.level);
++
++                            entityendermite.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
++                            this.level.addFreshEntity(entityendermite, CreatureSpawnEvent.SpawnReason.ENDER_PEARL);
++                        }
++
++                        if (entity.isPassenger()) {
++                            entity.stopRiding();
++                        }
++
++                        entityplayer.connection.teleport(teleEvent.getTo());
++                        entity.resetFallDistance();
++                        CraftEventFactory.entityDamage = this;
++                        entity.hurt(DamageSource.FALL, 5.0F);
++                        CraftEventFactory.entityDamage = null;
++                    }
++                    // CraftBukkit end
+                 }
+             } else if (entity != null) {
+                 entity.teleportTo(this.getX(), this.getY(), this.getZ());
+@@ -78,6 +101,7 @@
+     @Override
+     public void tick() {
+         Entity entity = this.getOwner();
++
+         if (entity instanceof Player && !entity.isAlive()) {
+             this.discard();
+         } else {
+@@ -90,8 +114,9 @@
+     @Override
+     public Entity changeDimension(ServerLevel destination) {
+         Entity entity = this.getOwner();
+-        if (entity != null && entity.level.dimension() != destination.dimension()) {
+-            this.setOwner((Entity)null);
++
++        if (entity != null && destination != null && entity.level.dimension() != destination.dimension()) { // CraftBukkit - SPIGOT-6113
++            this.setOwner((Entity) null);
+         }
+ 
+         return super.changeDimension(destination);

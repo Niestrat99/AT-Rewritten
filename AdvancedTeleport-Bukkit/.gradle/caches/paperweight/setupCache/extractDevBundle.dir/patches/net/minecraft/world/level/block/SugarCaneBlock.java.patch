@@ -1,0 +1,107 @@
+--- a/net/minecraft/world/level/block/SugarCaneBlock.java
++++ b/net/minecraft/world/level/block/SugarCaneBlock.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.world.level.block;
+ 
++import java.util.Iterator;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.server.level.ServerLevel;
+@@ -19,18 +20,19 @@
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ 
+ public class SugarCaneBlock extends Block {
++
+     public static final IntegerProperty AGE = BlockStateProperties.AGE_15;
+     protected static final float AABB_OFFSET = 6.0F;
+     protected static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D);
+ 
+     protected SugarCaneBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
++        this.registerDefaultState((BlockState) ((BlockState) this.stateDefinition.any()).setValue(SugarCaneBlock.AGE, 0));
+     }
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return SHAPE;
++        return SugarCaneBlock.SHAPE;
+     }
+ 
+     @Override
+@@ -45,16 +47,20 @@
+     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+         if (world.isEmptyBlock(pos.above())) {
+             int i;
+-            for(i = 1; world.getBlockState(pos.below(i)).is(this); ++i) {
++
++            for (i = 1; world.getBlockState(pos.below(i)).is((Block) this); ++i) {
++                ;
+             }
+ 
+-            if (i < 3) {
+-                int j = state.getValue(AGE);
+-                if (j == 15) {
+-                    world.setBlockAndUpdate(pos.above(), this.defaultBlockState());
+-                    world.setBlock(pos, state.setValue(AGE, Integer.valueOf(0)), 4);
+-                } else {
+-                    world.setBlock(pos, state.setValue(AGE, Integer.valueOf(j + 1)), 4);
++            if (i < world.paperConfig().maxGrowthHeight.reeds) { // Paper - Configurable growth height
++                int j = (Integer) state.getValue(SugarCaneBlock.AGE);
++
++                int modifier = world.spigotConfig.caneModifier; // Spigot - SPIGOT-7159: Better modifier resolution
++                if (j >= 15 || (modifier != 100 && random.nextFloat() < (modifier / (100.0f * 16)))) { // Spigot - SPIGOT-7159: Better modifier resolution
++                    org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.handleBlockGrowEvent(world, pos.above(), this.defaultBlockState()); // CraftBukkit
++                    world.setBlock(pos, (BlockState) state.setValue(SugarCaneBlock.AGE, 0), 4);
++                } else if (modifier == 100 || random.nextFloat() < (modifier / (100.0f * 16))) { // Spigot - SPIGOT-7159: Better modifier resolution
++                    world.setBlock(pos, (BlockState) state.setValue(SugarCaneBlock.AGE, j + 1), 4);
+                 }
+             }
+         }
+@@ -64,7 +70,7 @@
+     @Override
+     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+         if (!state.canSurvive(world, pos)) {
+-            world.scheduleTick(pos, this, 1);
++            world.scheduleTick(pos, (Block) this, 1);
+         }
+ 
+         return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+@@ -72,17 +78,21 @@
+ 
+     @Override
+     public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+-        BlockState blockState = world.getBlockState(pos.below());
+-        if (blockState.is(this)) {
++        BlockState iblockdata1 = world.getBlockState(pos.below());
++
++        if (iblockdata1.is((Block) this)) {
+             return true;
+         } else {
+-            if (blockState.is(BlockTags.DIRT) || blockState.is(Blocks.SAND) || blockState.is(Blocks.RED_SAND)) {
+-                BlockPos blockPos = pos.below();
++            if (iblockdata1.is(BlockTags.DIRT) || iblockdata1.is(Blocks.SAND) || iblockdata1.is(Blocks.RED_SAND)) {
++                BlockPos blockposition1 = pos.below();
++                Iterator iterator = Direction.Plane.HORIZONTAL.iterator();
+ 
+-                for(Direction direction : Direction.Plane.HORIZONTAL) {
+-                    BlockState blockState2 = world.getBlockState(blockPos.relative(direction));
+-                    FluidState fluidState = world.getFluidState(blockPos.relative(direction));
+-                    if (fluidState.is(FluidTags.WATER) || blockState2.is(Blocks.FROSTED_ICE)) {
++                while (iterator.hasNext()) {
++                    Direction enumdirection = (Direction) iterator.next();
++                    BlockState iblockdata2 = world.getBlockState(blockposition1.relative(enumdirection));
++                    FluidState fluid = world.getFluidState(blockposition1.relative(enumdirection));
++
++                    if (fluid.is(FluidTags.WATER) || iblockdata2.is(Blocks.FROSTED_ICE)) {
+                         return true;
+                     }
+                 }
+@@ -94,6 +104,6 @@
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(AGE);
++        builder.add(SugarCaneBlock.AGE);
+     }
+ }

@@ -1,0 +1,221 @@
+--- a/net/minecraft/world/entity/ai/behavior/PrepareRamNearestTarget.java
++++ b/net/minecraft/world/entity/ai/behavior/PrepareRamNearestTarget.java
+@@ -3,16 +3,21 @@
+ import com.google.common.collect.ImmutableMap;
+ import com.google.common.collect.Lists;
+ import java.util.Comparator;
++import java.util.Iterator;
+ import java.util.List;
++import java.util.Objects;
+ import java.util.Optional;
+ import java.util.function.Function;
+ import java.util.function.ToIntFunction;
++import java.util.stream.Stream;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.server.level.ServerLevel;
++import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.sounds.SoundEvent;
+ import net.minecraft.sounds.SoundSource;
+ import net.minecraft.util.Mth;
++import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.LivingEntity;
+ import net.minecraft.world.entity.PathfinderMob;
+ import net.minecraft.world.entity.ai.Brain;
+@@ -25,8 +30,13 @@
+ import net.minecraft.world.level.pathfinder.Path;
+ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.v1_19_R1.entity.CraftLivingEntity;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory;
++import org.bukkit.event.entity.EntityTargetEvent;
++// CraftBukkit end
+ 
+ public class PrepareRamNearestTarget<E extends PathfinderMob> extends Behavior<E> {
++
+     public static final int TIME_OUT_DURATION = 160;
+     private final ToIntFunction<E> getCooldownOnFail;
+     private final int minRamDistance;
+@@ -49,54 +59,61 @@
+         this.getPrepareRamSound = soundFactory;
+     }
+ 
+-    @Override
+     protected void start(ServerLevel world, PathfinderMob entity, long time) {
+-        Brain<?> brain = entity.getBrain();
+-        brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).flatMap((nearestVisibleLivingEntities) -> {
+-            return nearestVisibleLivingEntities.findClosest((mob) -> {
+-                return this.ramTargeting.test(entity, mob);
++        Brain<?> behaviorcontroller = entity.getBrain();
++
++        behaviorcontroller.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).flatMap((nearestvisiblelivingentities) -> {
++            return nearestvisiblelivingentities.findClosest((entityliving) -> {
++                return this.ramTargeting.test(entity, entityliving);
+             });
+-        }).ifPresent((mob) -> {
+-            this.chooseRamPosition(entity, mob);
++        }).ifPresent((entityliving) -> {
++            // CraftBukkit start
++            EntityTargetEvent event = CraftEventFactory.callEntityTargetLivingEvent(entity, entityliving, (entityliving instanceof ServerPlayer) ? EntityTargetEvent.TargetReason.CLOSEST_PLAYER : EntityTargetEvent.TargetReason.CLOSEST_ENTITY);
++            if (event.isCancelled() || event.getTarget() == null) {
++                return;
++            }
++            entityliving = ((CraftLivingEntity) event.getTarget()).getHandle();
++            // CraftBukkit end
++            this.chooseRamPosition(entity, entityliving);
+         });
+     }
+ 
+-    @Override
+-    protected void stop(ServerLevel serverLevel, E pathfinderMob, long l) {
+-        Brain<?> brain = pathfinderMob.getBrain();
+-        if (!brain.hasMemoryValue(MemoryModuleType.RAM_TARGET)) {
+-            serverLevel.broadcastEntityEvent(pathfinderMob, (byte)59);
+-            brain.setMemory(MemoryModuleType.RAM_COOLDOWN_TICKS, this.getCooldownOnFail.applyAsInt(pathfinderMob));
++    protected void stop(ServerLevel worldserver, E e0, long i) {
++        Brain<?> behaviorcontroller = e0.getBrain();
++
++        if (!behaviorcontroller.hasMemoryValue(MemoryModuleType.RAM_TARGET)) {
++            worldserver.broadcastEntityEvent(e0, (byte) 59);
++            behaviorcontroller.setMemory(MemoryModuleType.RAM_COOLDOWN_TICKS, this.getCooldownOnFail.applyAsInt(e0)); // CraftBukkit - decompile error
+         }
+ 
+     }
+ 
+-    @Override
+-    protected boolean canStillUse(ServerLevel serverLevel, PathfinderMob pathfinderMob, long l) {
+-        return this.ramCandidate.isPresent() && this.ramCandidate.get().getTarget().isAlive();
++    protected boolean canStillUse(ServerLevel worldserver, PathfinderMob entitycreature, long i) {
++        return this.ramCandidate.isPresent() && ((PrepareRamNearestTarget.RamCandidate) this.ramCandidate.get()).getTarget().isAlive();
+     }
+ 
+-    @Override
+     protected void tick(ServerLevel world, E entity, long time) {
+         if (this.ramCandidate.isPresent()) {
+-            entity.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.ramCandidate.get().getStartPosition(), this.walkSpeed, 0));
+-            entity.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.ramCandidate.get().getTarget(), true));
+-            boolean bl = !this.ramCandidate.get().getTarget().blockPosition().equals(this.ramCandidate.get().getTargetPosition());
+-            if (bl) {
+-                world.broadcastEntityEvent(entity, (byte)59);
++            entity.getBrain().setMemory(MemoryModuleType.WALK_TARGET, (new WalkTarget(((PrepareRamNearestTarget.RamCandidate) this.ramCandidate.get()).getStartPosition(), this.walkSpeed, 0))); // CraftBukkit - decompile error
++            entity.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, (new EntityTracker(((PrepareRamNearestTarget.RamCandidate) this.ramCandidate.get()).getTarget(), true))); // CraftBukkit - decompile error
++            boolean flag = !((PrepareRamNearestTarget.RamCandidate) this.ramCandidate.get()).getTarget().blockPosition().equals(((PrepareRamNearestTarget.RamCandidate) this.ramCandidate.get()).getTargetPosition());
++
++            if (flag) {
++                world.broadcastEntityEvent(entity, (byte) 59);
+                 entity.getNavigation().stop();
+-                this.chooseRamPosition(entity, (this.ramCandidate.get()).target);
++                this.chooseRamPosition(entity, ((PrepareRamNearestTarget.RamCandidate) this.ramCandidate.get()).target);
+             } else {
+-                BlockPos blockPos = entity.blockPosition();
+-                if (blockPos.equals(this.ramCandidate.get().getStartPosition())) {
+-                    world.broadcastEntityEvent(entity, (byte)58);
++                BlockPos blockposition = entity.blockPosition();
++
++                if (blockposition.equals(((PrepareRamNearestTarget.RamCandidate) this.ramCandidate.get()).getStartPosition())) {
++                    world.broadcastEntityEvent(entity, (byte) 58);
+                     if (!this.reachedRamPositionTimestamp.isPresent()) {
+                         this.reachedRamPositionTimestamp = Optional.of(time);
+                     }
+ 
+-                    if (time - this.reachedRamPositionTimestamp.get() >= (long)this.ramPrepareTime) {
+-                        entity.getBrain().setMemory(MemoryModuleType.RAM_TARGET, this.getEdgeOfBlock(blockPos, this.ramCandidate.get().getTargetPosition()));
+-                        world.playSound((Player)null, entity, this.getPrepareRamSound.apply(entity), SoundSource.HOSTILE, 1.0F, entity.getVoicePitch());
++                    if (time - (Long) this.reachedRamPositionTimestamp.get() >= (long) this.ramPrepareTime) {
++                        entity.getBrain().setMemory(MemoryModuleType.RAM_TARGET, this.getEdgeOfBlock(blockposition, ((PrepareRamNearestTarget.RamCandidate) this.ramCandidate.get()).getTargetPosition())); // CraftBukkit - decompile error
++                        world.playSound((Player) null, (Entity) entity, (SoundEvent) this.getPrepareRamSound.apply(entity), SoundSource.HOSTILE, 1.0F, entity.getVoicePitch());
+                         this.ramCandidate = Optional.empty();
+                     }
+                 }
+@@ -106,39 +123,55 @@
+     }
+ 
+     private Vec3 getEdgeOfBlock(BlockPos start, BlockPos end) {
+-        double d = 0.5D;
+-        double e = 0.5D * (double)Mth.sign((double)(end.getX() - start.getX()));
+-        double f = 0.5D * (double)Mth.sign((double)(end.getZ() - start.getZ()));
+-        return Vec3.atBottomCenterOf(end).add(e, 0.0D, f);
++        double d0 = 0.5D;
++        double d1 = 0.5D * (double) Mth.sign((double) (end.getX() - start.getX()));
++        double d2 = 0.5D * (double) Mth.sign((double) (end.getZ() - start.getZ()));
++
++        return Vec3.atBottomCenterOf(end).add(d1, 0.0D, d2);
+     }
+ 
+     private Optional<BlockPos> calculateRammingStartPosition(PathfinderMob entity, LivingEntity target) {
+-        BlockPos blockPos = target.blockPosition();
+-        if (!this.isWalkableBlock(entity, blockPos)) {
++        BlockPos blockposition = target.blockPosition();
++
++        if (!this.isWalkableBlock(entity, blockposition)) {
+             return Optional.empty();
+         } else {
+             List<BlockPos> list = Lists.newArrayList();
+-            BlockPos.MutableBlockPos mutableBlockPos = blockPos.mutable();
++            BlockPos.MutableBlockPos blockposition_mutableblockposition = blockposition.mutable();
++            Iterator iterator = Direction.Plane.HORIZONTAL.iterator();
+ 
+-            for(Direction direction : Direction.Plane.HORIZONTAL) {
+-                mutableBlockPos.set(blockPos);
++            while (iterator.hasNext()) {
++                Direction enumdirection = (Direction) iterator.next();
+ 
+-                for(int i = 0; i < this.maxRamDistance; ++i) {
+-                    if (!this.isWalkableBlock(entity, mutableBlockPos.move(direction))) {
+-                        mutableBlockPos.move(direction.getOpposite());
+-                        break;
++                blockposition_mutableblockposition.set(blockposition);
++                int i = 0;
++
++                while (true) {
++                    if (i < this.maxRamDistance) {
++                        if (this.isWalkableBlock(entity, blockposition_mutableblockposition.move(enumdirection))) {
++                            ++i;
++                            continue;
++                        }
++
++                        blockposition_mutableblockposition.move(enumdirection.getOpposite());
+                     }
+-                }
+ 
+-                if (mutableBlockPos.distManhattan(blockPos) >= this.minRamDistance) {
+-                    list.add(mutableBlockPos.immutable());
++                    if (blockposition_mutableblockposition.distManhattan(blockposition) >= this.minRamDistance) {
++                        list.add(blockposition_mutableblockposition.immutable());
++                    }
++                    break;
+                 }
+             }
+ 
+-            PathNavigation pathNavigation = entity.getNavigation();
+-            return list.stream().sorted(Comparator.comparingDouble(entity.blockPosition()::distSqr)).filter((start) -> {
+-                Path path = pathNavigation.createPath(start, 0);
+-                return path != null && path.canReach();
++            PathNavigation navigationabstract = entity.getNavigation();
++            Stream<BlockPos> stream = list.stream(); // CraftBukkit - decompile error
++            BlockPos blockposition1 = entity.blockPosition();
++
++            Objects.requireNonNull(blockposition1);
++            return stream.sorted(Comparator.comparingDouble(blockposition1::distSqr)).filter((blockposition2) -> {
++                Path pathentity = navigationabstract.createPath(blockposition2, 0);
++
++                return pathentity != null && pathentity.canReach();
+             }).findFirst();
+         }
+     }
+@@ -149,12 +182,13 @@
+ 
+     private void chooseRamPosition(PathfinderMob entity, LivingEntity target) {
+         this.reachedRamPositionTimestamp = Optional.empty();
+-        this.ramCandidate = this.calculateRammingStartPosition(entity, target).map((start) -> {
+-            return new PrepareRamNearestTarget.RamCandidate(start, target.blockPosition(), target);
++        this.ramCandidate = this.calculateRammingStartPosition(entity, target).map((blockposition) -> {
++            return new PrepareRamNearestTarget.RamCandidate(blockposition, target.blockPosition(), target);
+         });
+     }
+ 
+     public static class RamCandidate {
++
+         private final BlockPos startPosition;
+         private final BlockPos targetPosition;
+         final LivingEntity target;

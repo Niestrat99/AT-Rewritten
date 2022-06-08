@@ -1,0 +1,154 @@
+--- a/net/minecraft/stats/ServerRecipeBook.java
++++ b/net/minecraft/stats/ServerRecipeBook.java
+@@ -4,6 +4,7 @@
+ import com.mojang.logging.LogUtils;
+ import java.util.Collection;
+ import java.util.Collections;
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.Optional;
+ import java.util.function.Consumer;
+@@ -19,21 +20,29 @@
+ import net.minecraft.world.item.crafting.RecipeManager;
+ import org.slf4j.Logger;
+ 
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory; // CraftBukkit
++
+ public class ServerRecipeBook extends RecipeBook {
++
+     public static final String RECIPE_BOOK_TAG = "recipeBook";
+     private static final Logger LOGGER = LogUtils.getLogger();
+ 
++    public ServerRecipeBook() {}
++
+     public int addRecipes(Collection<Recipe<?>> recipes, ServerPlayer player) {
+         List<ResourceLocation> list = Lists.newArrayList();
+         int i = 0;
++        Iterator iterator = recipes.iterator();
+ 
+-        for(Recipe<?> recipe : recipes) {
+-            ResourceLocation resourceLocation = recipe.getId();
+-            if (!this.known.contains(resourceLocation) && !recipe.isSpecial()) {
+-                this.add(resourceLocation);
+-                this.addHighlight(resourceLocation);
+-                list.add(resourceLocation);
+-                CriteriaTriggers.RECIPE_UNLOCKED.trigger(player, recipe);
++        while (iterator.hasNext()) {
++            Recipe<?> irecipe = (Recipe) iterator.next();
++            ResourceLocation minecraftkey = irecipe.getId();
++
++            if (!this.known.contains(minecraftkey) && !irecipe.isSpecial() && CraftEventFactory.handlePlayerRecipeListUpdateEvent(player, minecraftkey)) { // CraftBukkit
++                this.add(minecraftkey);
++                this.addHighlight(minecraftkey);
++                list.add(minecraftkey);
++                CriteriaTriggers.RECIPE_UNLOCKED.trigger(player, irecipe);
+                 ++i;
+             }
+         }
+@@ -45,12 +54,15 @@
+     public int removeRecipes(Collection<Recipe<?>> recipes, ServerPlayer player) {
+         List<ResourceLocation> list = Lists.newArrayList();
+         int i = 0;
++        Iterator iterator = recipes.iterator();
+ 
+-        for(Recipe<?> recipe : recipes) {
+-            ResourceLocation resourceLocation = recipe.getId();
+-            if (this.known.contains(resourceLocation)) {
+-                this.remove(resourceLocation);
+-                list.add(resourceLocation);
++        while (iterator.hasNext()) {
++            Recipe<?> irecipe = (Recipe) iterator.next();
++            ResourceLocation minecraftkey = irecipe.getId();
++
++            if (this.known.contains(minecraftkey)) {
++                this.remove(minecraftkey);
++                list.add(minecraftkey);
+                 ++i;
+             }
+         }
+@@ -60,51 +72,62 @@
+     }
+ 
+     private void sendRecipes(ClientboundRecipePacket.State action, ServerPlayer player, List<ResourceLocation> recipeIds) {
++        if (player.connection == null) return; // SPIGOT-4478 during PlayerLoginEvent
+         player.connection.send(new ClientboundRecipePacket(action, recipeIds, Collections.emptyList(), this.getBookSettings()));
+     }
+ 
+     public CompoundTag toNbt() {
+-        CompoundTag compoundTag = new CompoundTag();
+-        this.getBookSettings().write(compoundTag);
+-        ListTag listTag = new ListTag();
++        CompoundTag nbttagcompound = new CompoundTag();
+ 
+-        for(ResourceLocation resourceLocation : this.known) {
+-            listTag.add(StringTag.valueOf(resourceLocation.toString()));
++        this.getBookSettings().write(nbttagcompound);
++        ListTag nbttaglist = new ListTag();
++        Iterator iterator = this.known.iterator();
++
++        while (iterator.hasNext()) {
++            ResourceLocation minecraftkey = (ResourceLocation) iterator.next();
++
++            nbttaglist.add(StringTag.valueOf(minecraftkey.toString()));
+         }
+ 
+-        compoundTag.put("recipes", listTag);
+-        ListTag listTag2 = new ListTag();
++        nbttagcompound.put("recipes", nbttaglist);
++        ListTag nbttaglist1 = new ListTag();
++        Iterator iterator1 = this.highlight.iterator();
+ 
+-        for(ResourceLocation resourceLocation2 : this.highlight) {
+-            listTag2.add(StringTag.valueOf(resourceLocation2.toString()));
++        while (iterator1.hasNext()) {
++            ResourceLocation minecraftkey1 = (ResourceLocation) iterator1.next();
++
++            nbttaglist1.add(StringTag.valueOf(minecraftkey1.toString()));
+         }
+ 
+-        compoundTag.put("toBeDisplayed", listTag2);
+-        return compoundTag;
++        nbttagcompound.put("toBeDisplayed", nbttaglist1);
++        return nbttagcompound;
+     }
+ 
+     public void fromNbt(CompoundTag nbt, RecipeManager recipeManager) {
+         this.setBookSettings(RecipeBookSettings.read(nbt));
+-        ListTag listTag = nbt.getList("recipes", 8);
+-        this.loadRecipes(listTag, this::add, recipeManager);
+-        ListTag listTag2 = nbt.getList("toBeDisplayed", 8);
+-        this.loadRecipes(listTag2, this::addHighlight, recipeManager);
++        ListTag nbttaglist = nbt.getList("recipes", 8);
++
++        this.loadRecipes(nbttaglist, this::add, recipeManager);
++        ListTag nbttaglist1 = nbt.getList("toBeDisplayed", 8);
++
++        this.loadRecipes(nbttaglist1, this::addHighlight, recipeManager);
+     }
+ 
+     private void loadRecipes(ListTag list, Consumer<Recipe<?>> handler, RecipeManager recipeManager) {
+-        for(int i = 0; i < list.size(); ++i) {
+-            String string = list.getString(i);
++        for (int i = 0; i < list.size(); ++i) {
++            String s = list.getString(i);
+ 
+             try {
+-                ResourceLocation resourceLocation = new ResourceLocation(string);
+-                Optional<? extends Recipe<?>> optional = recipeManager.byKey(resourceLocation);
++                ResourceLocation minecraftkey = new ResourceLocation(s);
++                Optional<? extends Recipe<?>> optional = recipeManager.byKey(minecraftkey);
++
+                 if (!optional.isPresent()) {
+-                    LOGGER.error("Tried to load unrecognized recipe: {} removed now.", (Object)resourceLocation);
++                    ServerRecipeBook.LOGGER.error("Tried to load unrecognized recipe: {} removed now.", minecraftkey);
+                 } else {
+-                    handler.accept(optional.get());
++                    handler.accept((Recipe) optional.get());
+                 }
+-            } catch (ResourceLocationException var8) {
+-                LOGGER.error("Tried to load improperly formatted recipe: {} removed now.", (Object)string);
++            } catch (ResourceLocationException resourcekeyinvalidexception) {
++                ServerRecipeBook.LOGGER.error("Tried to load improperly formatted recipe: {} removed now.", s);
+             }
+         }
+ 

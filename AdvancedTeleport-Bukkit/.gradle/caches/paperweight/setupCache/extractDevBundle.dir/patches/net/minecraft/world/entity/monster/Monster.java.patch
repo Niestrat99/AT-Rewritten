@@ -1,0 +1,19 @@
+--- a/net/minecraft/world/entity/monster/Monster.java
++++ b/net/minecraft/world/entity/monster/Monster.java
+@@ -27,6 +27,7 @@
+ import net.minecraft.world.level.dimension.DimensionType;
+ 
+ public abstract class Monster extends PathfinderMob implements Enemy {
++    public org.bukkit.craftbukkit.v1_19_R1.entity.CraftMonster getBukkitMonster() { return (org.bukkit.craftbukkit.v1_19_R1.entity.CraftMonster) super.getBukkitEntity(); } // Paper
+     protected Monster(EntityType<? extends Monster> type, Level world) {
+         super(type, world);
+         this.xpReward = 5;
+@@ -92,7 +93,7 @@
+             return false;
+         } else {
+             DimensionType dimensionType = world.dimensionType();
+-            int i = dimensionType.monsterSpawnBlockLightLimit();
++            int i = world.getLevel().paperConfig().entities.spawning.monsterSpawnMaxLightLevel >= 0 ? world.getLevel().paperConfig().entities.spawning.monsterSpawnMaxLightLevel : dimensionType.monsterSpawnBlockLightLimit(); // Paper
+             if (i < 15 && world.getBrightness(LightLayer.BLOCK, pos) > i) {
+                 return false;
+             } else {

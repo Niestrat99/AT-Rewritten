@@ -1,0 +1,62 @@
+--- a/net/minecraft/world/level/storage/loot/predicates/ExplosionCondition.java
++++ b/net/minecraft/world/level/storage/loot/predicates/ExplosionCondition.java
+@@ -11,10 +11,10 @@
+ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+ 
+ public class ExplosionCondition implements LootItemCondition {
++
+     static final ExplosionCondition INSTANCE = new ExplosionCondition();
+ 
+-    private ExplosionCondition() {
+-    }
++    private ExplosionCondition() {}
+ 
+     @Override
+     public LootItemConditionType getType() {
+@@ -26,13 +26,15 @@
+         return ImmutableSet.of(LootContextParams.EXPLOSION_RADIUS);
+     }
+ 
+-    @Override
+-    public boolean test(LootContext lootContext) {
+-        Float float_ = lootContext.getParamOrNull(LootContextParams.EXPLOSION_RADIUS);
+-        if (float_ != null) {
+-            RandomSource randomSource = lootContext.getRandom();
+-            float f = 1.0F / float_;
+-            return randomSource.nextFloat() <= f;
++    public boolean test(LootContext loottableinfo) {
++        Float ofloat = (Float) loottableinfo.getParamOrNull(LootContextParams.EXPLOSION_RADIUS);
++
++        if (ofloat != null) {
++            RandomSource randomsource = loottableinfo.getRandom();
++            float f = 1.0F / ofloat;
++
++            // CraftBukkit - <= to < to allow for plugins to completely disable block drops from explosions
++            return randomsource.nextFloat() < f;
+         } else {
+             return true;
+         }
+@@ -40,17 +42,18 @@
+ 
+     public static LootItemCondition.Builder survivesExplosion() {
+         return () -> {
+-            return INSTANCE;
++            return ExplosionCondition.INSTANCE;
+         };
+     }
+ 
+     public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<ExplosionCondition> {
+-        @Override
+-        public void serialize(JsonObject json, ExplosionCondition object, JsonSerializationContext context) {
+-        }
++
++        public Serializer() {}
++
++        public void serialize(JsonObject json, ExplosionCondition object, JsonSerializationContext context) {}
+ 
+         @Override
+-        public ExplosionCondition deserialize(JsonObject jsonObject, JsonDeserializationContext jsonDeserializationContext) {
++        public ExplosionCondition deserialize(JsonObject json, JsonDeserializationContext context) {
+             return ExplosionCondition.INSTANCE;
+         }
+     }

@@ -1,0 +1,102 @@
+--- a/net/minecraft/world/entity/animal/Chicken.java
++++ b/net/minecraft/world/entity/animal/Chicken.java
+@@ -28,6 +28,7 @@
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.item.crafting.Ingredient;
++import net.minecraft.world.level.ItemLike;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.gameevent.GameEvent;
+@@ -35,6 +36,7 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class Chicken extends Animal {
++
+     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS);
+     public float flap;
+     public float flapSpeed;
+@@ -42,11 +44,12 @@
+     public float oFlap;
+     public float flapping = 1.0F;
+     private float nextFlap = 1.0F;
+-    public int eggTime = this.random.nextInt(6000) + 6000;
++    public int eggTime;
+     public boolean isChickenJockey;
+ 
+     public Chicken(EntityType<? extends Chicken> type, Level world) {
+         super(type, world);
++        this.eggTime = this.random.nextInt(6000) + 6000;
+         this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+     }
+ 
+@@ -55,7 +58,7 @@
+         this.goalSelector.addGoal(0, new FloatGoal(this));
+         this.goalSelector.addGoal(1, new PanicGoal(this, 1.4D));
+         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D));
+-        this.goalSelector.addGoal(3, new TemptGoal(this, 1.0D, FOOD_ITEMS, false));
++        this.goalSelector.addGoal(3, new TemptGoal(this, 1.0D, Chicken.FOOD_ITEMS, false));
+         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.1D));
+         this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
+@@ -83,15 +86,18 @@
+         }
+ 
+         this.flapping *= 0.9F;
+-        Vec3 vec3 = this.getDeltaMovement();
+-        if (!this.onGround && vec3.y < 0.0D) {
+-            this.setDeltaMovement(vec3.multiply(1.0D, 0.6D, 1.0D));
++        Vec3 vec3d = this.getDeltaMovement();
++
++        if (!this.onGround && vec3d.y < 0.0D) {
++            this.setDeltaMovement(vec3d.multiply(1.0D, 0.6D, 1.0D));
+         }
+ 
+         this.flap += this.flapping * 2.0F;
+         if (!this.level.isClientSide && this.isAlive() && !this.isBaby() && !this.isChickenJockey() && --this.eggTime <= 0) {
+             this.playSound(SoundEvents.CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+-            this.spawnAtLocation(Items.EGG);
++            this.forceDrops = true; // CraftBukkit
++            this.spawnAtLocation((ItemLike) Items.EGG);
++            this.forceDrops = false; // CraftBukkit
+             this.gameEvent(GameEvent.ENTITY_PLACE);
+             this.eggTime = this.random.nextInt(6000) + 6000;
+         }
+@@ -134,13 +140,13 @@
+     }
+ 
+     @Override
+-    public Chicken getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
+-        return EntityType.CHICKEN.create(serverLevel);
++    public Chicken getBreedOffspring(ServerLevel world, AgeableMob entity) {
++        return (Chicken) EntityType.CHICKEN.create(world);
+     }
+ 
+     @Override
+     public boolean isFood(ItemStack stack) {
+-        return FOOD_ITEMS.test(stack);
++        return Chicken.FOOD_ITEMS.test(stack);
+     }
+ 
+     @Override
+@@ -173,13 +179,14 @@
+     @Override
+     public void positionRider(Entity passenger) {
+         super.positionRider(passenger);
+-        float f = Mth.sin(this.yBodyRot * ((float)Math.PI / 180F));
+-        float g = Mth.cos(this.yBodyRot * ((float)Math.PI / 180F));
+-        float h = 0.1F;
+-        float i = 0.0F;
+-        passenger.setPos(this.getX() + (double)(0.1F * f), this.getY(0.5D) + passenger.getMyRidingOffset() + 0.0D, this.getZ() - (double)(0.1F * g));
++        float f = Mth.sin(this.yBodyRot * 0.017453292F);
++        float f1 = Mth.cos(this.yBodyRot * 0.017453292F);
++        float f2 = 0.1F;
++        float f3 = 0.0F;
++
++        passenger.setPos(this.getX() + (double) (0.1F * f), this.getY(0.5D) + passenger.getMyRidingOffset() + 0.0D, this.getZ() - (double) (0.1F * f1));
+         if (passenger instanceof LivingEntity) {
+-            ((LivingEntity)passenger).yBodyRot = this.yBodyRot;
++            ((LivingEntity) passenger).yBodyRot = this.yBodyRot;
+         }
+ 
+     }

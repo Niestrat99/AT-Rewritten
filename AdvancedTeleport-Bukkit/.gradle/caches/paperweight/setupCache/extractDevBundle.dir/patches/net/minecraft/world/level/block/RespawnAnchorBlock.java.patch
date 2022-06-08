@@ -1,0 +1,18 @@
+--- a/net/minecraft/world/level/block/RespawnAnchorBlock.java
++++ b/net/minecraft/world/level/block/RespawnAnchorBlock.java
+@@ -72,9 +72,14 @@
+             if (!world.isClientSide) {
+                 ServerPlayer serverPlayer = (ServerPlayer)player;
+                 if (serverPlayer.getRespawnDimension() != world.dimension() || !pos.equals(serverPlayer.getRespawnPosition())) {
+-                    serverPlayer.setRespawnPosition(world.dimension(), pos, 0.0F, false, true);
++                    if (serverPlayer.setRespawnPosition(world.dimension(), pos, 0.0F, false, true, com.destroystokyo.paper.event.player.PlayerSetSpawnEvent.Cause.RESPAWN_ANCHOR)) { // Paper - PlayerSetSpawnEvent
+                     world.playSound((Player)null, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, SoundEvents.RESPAWN_ANCHOR_SET_SPAWN, SoundSource.BLOCKS, 1.0F, 1.0F);
+                     return InteractionResult.SUCCESS;
++                    // Paper start - handle failed set spawn
++                    } else {
++                        return InteractionResult.FAIL;
++                    }
++                    // Paper end
+                 }
+             }
+ 

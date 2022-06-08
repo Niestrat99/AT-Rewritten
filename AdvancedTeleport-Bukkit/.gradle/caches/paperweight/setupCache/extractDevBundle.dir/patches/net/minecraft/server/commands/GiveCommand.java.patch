@@ -1,0 +1,111 @@
+--- a/net/minecraft/server/commands/GiveCommand.java
++++ b/net/minecraft/server/commands/GiveCommand.java
+@@ -2,11 +2,13 @@
+ 
+ import com.mojang.brigadier.CommandDispatcher;
+ import com.mojang.brigadier.arguments.IntegerArgumentType;
++import com.mojang.brigadier.builder.LiteralArgumentBuilder;
++import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+ import com.mojang.brigadier.exceptions.CommandSyntaxException;
+ import java.util.Collection;
++import java.util.Iterator;
+ import net.minecraft.commands.CommandBuildContext;
+ import net.minecraft.commands.CommandSourceStack;
+-import net.minecraft.commands.Commands;
+ import net.minecraft.commands.arguments.EntityArgument;
+ import net.minecraft.commands.arguments.item.ItemArgument;
+ import net.minecraft.commands.arguments.item.ItemInput;
+@@ -19,54 +21,64 @@
+ import net.minecraft.world.item.ItemStack;
+ 
+ public class GiveCommand {
++
+     public static final int MAX_ALLOWED_ITEMSTACKS = 100;
+ 
++    public GiveCommand() {}
++
+     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess) {
+-        dispatcher.register(Commands.literal("give").requires((source) -> {
+-            return source.hasPermission(2);
+-        }).then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("item", ItemArgument.item(commandRegistryAccess)).executes((context) -> {
+-            return giveItem(context.getSource(), ItemArgument.getItem(context, "item"), EntityArgument.getPlayers(context, "targets"), 1);
+-        }).then(Commands.argument("count", IntegerArgumentType.integer(1)).executes((context) -> {
+-            return giveItem(context.getSource(), ItemArgument.getItem(context, "item"), EntityArgument.getPlayers(context, "targets"), IntegerArgumentType.getInteger(context, "count"));
++        dispatcher.register((LiteralArgumentBuilder) ((LiteralArgumentBuilder) net.minecraft.commands.Commands.literal("give").requires((commandlistenerwrapper) -> {
++            return commandlistenerwrapper.hasPermission(2);
++        })).then(net.minecraft.commands.Commands.argument("targets", EntityArgument.players()).then(((RequiredArgumentBuilder) net.minecraft.commands.Commands.argument("item", ItemArgument.item(commandRegistryAccess)).executes((commandcontext) -> {
++            return GiveCommand.giveItem((CommandSourceStack) commandcontext.getSource(), ItemArgument.getItem(commandcontext, "item"), EntityArgument.getPlayers(commandcontext, "targets"), 1);
++        })).then(net.minecraft.commands.Commands.argument("count", IntegerArgumentType.integer(1)).executes((commandcontext) -> {
++            return GiveCommand.giveItem((CommandSourceStack) commandcontext.getSource(), ItemArgument.getItem(commandcontext, "item"), EntityArgument.getPlayers(commandcontext, "targets"), IntegerArgumentType.getInteger(commandcontext, "count"));
+         })))));
+     }
+ 
+     private static int giveItem(CommandSourceStack source, ItemInput item, Collection<ServerPlayer> targets, int count) throws CommandSyntaxException {
+-        int i = item.getItem().getMaxStackSize();
+-        int j = i * 100;
+-        if (count > j) {
+-            source.sendFailure(Component.translatable("commands.give.failed.toomanyitems", j, item.createItemStack(count, false).getDisplayName()));
++        int j = item.getItem().getMaxStackSize();
++        int k = j * 100;
++
++        if (count > k) {
++            source.sendFailure(Component.translatable("commands.give.failed.toomanyitems", k, item.createItemStack(count, false).getDisplayName()));
+             return 0;
+         } else {
+-            for(ServerPlayer serverPlayer : targets) {
+-                int k = count;
++            Iterator iterator = targets.iterator();
+ 
+-                while(k > 0) {
+-                    int l = Math.min(i, k);
+-                    k -= l;
+-                    ItemStack itemStack = item.createItemStack(l, false);
+-                    boolean bl = serverPlayer.getInventory().add(itemStack);
+-                    if (bl && itemStack.isEmpty()) {
+-                        itemStack.setCount(1);
+-                        ItemEntity itemEntity2 = serverPlayer.drop(itemStack, false);
+-                        if (itemEntity2 != null) {
+-                            itemEntity2.makeFakeItem();
++            while (iterator.hasNext()) {
++                ServerPlayer entityplayer = (ServerPlayer) iterator.next();
++                int l = count;
++
++                while (l > 0) {
++                    int i1 = Math.min(j, l);
++
++                    l -= i1;
++                    ItemStack itemstack = item.createItemStack(i1, false);
++                    boolean flag = entityplayer.getInventory().add(itemstack);
++                    ItemEntity entityitem;
++
++                    if (flag && itemstack.isEmpty()) {
++                        itemstack.setCount(1);
++                        entityitem = entityplayer.drop(itemstack, false, false, false); // SPIGOT-2942: Add boolean to call event
++                        if (entityitem != null) {
++                            entityitem.makeFakeItem();
+                         }
+ 
+-                        serverPlayer.level.playSound((Player)null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((serverPlayer.getRandom().nextFloat() - serverPlayer.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+-                        serverPlayer.containerMenu.broadcastChanges();
++                        entityplayer.level.playSound((Player) null, entityplayer.getX(), entityplayer.getY(), entityplayer.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((entityplayer.getRandom().nextFloat() - entityplayer.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
++                        entityplayer.containerMenu.broadcastChanges();
+                     } else {
+-                        ItemEntity itemEntity = serverPlayer.drop(itemStack, false);
+-                        if (itemEntity != null) {
+-                            itemEntity.setNoPickUpDelay();
+-                            itemEntity.setOwner(serverPlayer.getUUID());
++                        entityitem = entityplayer.drop(itemstack, false);
++                        if (entityitem != null) {
++                            entityitem.setNoPickUpDelay();
++                            entityitem.setOwner(entityplayer.getUUID());
+                         }
+                     }
+                 }
+             }
+ 
+             if (targets.size() == 1) {
+-                source.sendSuccess(Component.translatable("commands.give.success.single", count, item.createItemStack(count, false).getDisplayName(), targets.iterator().next().getDisplayName()), true);
++                source.sendSuccess(Component.translatable("commands.give.success.single", count, item.createItemStack(count, false).getDisplayName(), ((ServerPlayer) targets.iterator().next()).getDisplayName()), true);
+             } else {
+                 source.sendSuccess(Component.translatable("commands.give.success.single", count, item.createItemStack(count, false).getDisplayName(), targets.size()), true);
+             }

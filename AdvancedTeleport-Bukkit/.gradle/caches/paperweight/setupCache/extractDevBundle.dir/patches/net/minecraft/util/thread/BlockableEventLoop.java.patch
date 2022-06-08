@@ -1,0 +1,24 @@
+--- a/net/minecraft/util/thread/BlockableEventLoop.java
++++ b/net/minecraft/util/thread/BlockableEventLoop.java
+@@ -78,6 +78,13 @@
+         }
+ 
+     }
++    // Paper start
++    public void scheduleOnMain(Runnable r0) {
++        // postToMainThread does not work the same as older versions of mc
++        // This method is actually used to create a TickTask, which can then be posted onto main
++        this.tell(this.wrapRunnable(r0));
++    }
++    // Paper end
+ 
+     @Override
+     public void tell(R runnable) {
+@@ -145,6 +152,7 @@
+         try {
+             task.run();
+         } catch (Exception var3) {
++            if (var3.getCause() instanceof ThreadDeath) throw var3; // Paper
+             LOGGER.error(LogUtils.FATAL_MARKER, "Error executing task on {}", this.name(), var3);
+         }
+ 

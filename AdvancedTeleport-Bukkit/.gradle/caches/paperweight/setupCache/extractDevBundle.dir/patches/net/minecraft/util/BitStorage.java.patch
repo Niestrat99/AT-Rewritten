@@ -1,0 +1,18 @@
+--- a/net/minecraft/util/BitStorage.java
++++ b/net/minecraft/util/BitStorage.java
+@@ -20,4 +20,15 @@
+     void unpack(int[] is);
+ 
+     BitStorage copy();
++
++    // Paper start
++    void forEach(DataBitConsumer consumer);
++
++    @FunctionalInterface
++    interface DataBitConsumer {
++
++        void accept(int location, int data);
++
++    }
++    // Paper end
+ }

@@ -1,0 +1,352 @@
+--- a/net/minecraft/world/level/storage/loot/LootTable.java
++++ b/net/minecraft/world/level/storage/loot/LootTable.java
+@@ -10,9 +10,11 @@
+ import com.google.gson.JsonSerializer;
+ import com.mojang.logging.LogUtils;
+ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
++import it.unimi.dsi.fastutil.objects.ObjectListIterator;
+ import java.lang.reflect.Type;
+ import java.util.Iterator;
+ import java.util.List;
++import java.util.Objects;
+ import java.util.function.BiFunction;
+ import java.util.function.Consumer;
+ import net.minecraft.Util;
+@@ -30,7 +32,15 @@
+ import org.apache.commons.lang3.ArrayUtils;
+ import org.slf4j.Logger;
+ 
++// CraftBukkit start
++import java.util.stream.Collectors;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
++import org.bukkit.event.world.LootGenerateEvent;
++// CraftBukkit end
++
+ public class LootTable {
++
+     static final Logger LOGGER = LogUtils.getLogger();
+     public static final LootTable EMPTY = new LootTable(LootContextParamSets.EMPTY, new LootPool[0], new LootItemFunction[0]);
+     public static final LootContextParamSet DEFAULT_PARAM_SET = LootContextParamSets.ALL_PARAMS;
+@@ -46,18 +56,27 @@
+         this.compositeFunction = LootItemFunctions.compose(functions);
+     }
+ 
++    @Deprecated // Paper - preserve overstacked items
+     public static Consumer<ItemStack> createStackSplitter(Consumer<ItemStack> lootConsumer) {
+-        return (stack) -> {
+-            if (stack.getCount() < stack.getMaxStackSize()) {
+-                lootConsumer.accept(stack);
++    // Paper start - preserve overstacked items
++        return createStackSplitter(lootConsumer, null);
++    }
++
++    public static Consumer<ItemStack> createStackSplitter(Consumer<ItemStack> lootConsumer, @org.jetbrains.annotations.Nullable net.minecraft.server.level.ServerLevel world) {
++        boolean skipSplitter = world != null && !world.paperConfig().fixes.splitOverstackedLoot;
++    // Paper end
++        return (itemstack) -> {
++            if (skipSplitter || itemstack.getCount() < itemstack.getMaxStackSize()) { // Paper - preserve overstacked items
++                lootConsumer.accept(itemstack);
+             } else {
+-                int i = stack.getCount();
++                int i = itemstack.getCount();
+ 
+-                while(i > 0) {
+-                    ItemStack itemStack = stack.copy();
+-                    itemStack.setCount(Math.min(stack.getMaxStackSize(), i));
+-                    i -= itemStack.getCount();
+-                    lootConsumer.accept(itemStack);
++                while (i > 0) {
++                    ItemStack itemstack1 = itemstack.copy();
++
++                    itemstack1.setCount(Math.min(itemstack.getMaxStackSize(), i));
++                    i -= itemstack1.getCount();
++                    lootConsumer.accept(itemstack1);
+                 }
+             }
+ 
+@@ -66,27 +85,33 @@
+ 
+     public void getRandomItemsRaw(LootContext context, Consumer<ItemStack> lootConsumer) {
+         if (context.addVisitedTable(this)) {
+-            Consumer<ItemStack> consumer = LootItemFunction.decorate(this.compositeFunction, lootConsumer, context);
++            Consumer<ItemStack> consumer1 = LootItemFunction.decorate(this.compositeFunction, lootConsumer, context);
++            LootPool[] alootselector = this.pools;
++            int i = alootselector.length;
+ 
+-            for(LootPool lootPool : this.pools) {
+-                lootPool.addRandomItems(consumer, context);
++            for (int j = 0; j < i; ++j) {
++                LootPool lootselector = alootselector[j];
++
++                lootselector.addRandomItems(consumer1, context);
+             }
+ 
+             context.removeVisitedTable(this);
+         } else {
+-            LOGGER.warn("Detected infinite loop in loot tables");
++            LootTable.LOGGER.warn("Detected infinite loop in loot tables");
+         }
+ 
+     }
+ 
+     public void getRandomItems(LootContext context, Consumer<ItemStack> lootConsumer) {
+-        this.getRandomItemsRaw(context, createStackSplitter(lootConsumer));
++        this.getRandomItemsRaw(context, LootTable.createStackSplitter(lootConsumer, context.getLevel())); // Paper - preserve overstacked items
+     }
+ 
+     public ObjectArrayList<ItemStack> getRandomItems(LootContext context) {
+-        ObjectArrayList<ItemStack> objectArrayList = new ObjectArrayList<>();
+-        this.getRandomItems(context, objectArrayList::add);
+-        return objectArrayList;
++        ObjectArrayList<ItemStack> objectarraylist = new ObjectArrayList();
++
++        Objects.requireNonNull(objectarraylist);
++        this.getRandomItems(context, objectarraylist::add);
++        return objectarraylist;
+     }
+ 
+     public LootContextParamSet getParamSet() {
+@@ -94,32 +119,51 @@
+     }
+ 
+     public void validate(ValidationContext reporter) {
+-        for(int i = 0; i < this.pools.length; ++i) {
++        int i;
++
++        for (i = 0; i < this.pools.length; ++i) {
+             this.pools[i].validate(reporter.forChild(".pools[" + i + "]"));
+         }
+ 
+-        for(int j = 0; j < this.functions.length; ++j) {
+-            this.functions[j].validate(reporter.forChild(".functions[" + j + "]"));
++        for (i = 0; i < this.functions.length; ++i) {
++            this.functions[i].validate(reporter.forChild(".functions[" + i + "]"));
+         }
+ 
+     }
+ 
+     public void fill(Container inventory, LootContext context) {
+-        ObjectArrayList<ItemStack> objectArrayList = this.getRandomItems(context);
+-        RandomSource randomSource = context.getRandom();
+-        List<Integer> list = this.getAvailableSlots(inventory, randomSource);
+-        this.shuffleAndSplitItems(objectArrayList, list.size(), randomSource);
++        // CraftBukkit start
++        this.fillInventory(inventory, context, false);
++    }
++
++    public void fillInventory(Container iinventory, LootContext loottableinfo, boolean plugin) {
++        // CraftBukkit end
++        ObjectArrayList<ItemStack> objectarraylist = this.getRandomItems(loottableinfo);
++        RandomSource randomsource = loottableinfo.getRandom();
++        // CraftBukkit start
++        LootGenerateEvent event = CraftEventFactory.callLootGenerateEvent(iinventory, this, loottableinfo, objectarraylist, plugin);
++        if (event.isCancelled()) {
++            return;
++        }
++        objectarraylist = event.getLoot().stream().map(CraftItemStack::asNMSCopy).collect(ObjectArrayList.toList());
++        // CraftBukkit end
++        List<Integer> list = this.getAvailableSlots(iinventory, randomsource);
++
++        this.shuffleAndSplitItems(objectarraylist, list.size(), randomsource);
++        ObjectListIterator objectlistiterator = objectarraylist.iterator();
++
++        while (objectlistiterator.hasNext()) {
++            ItemStack itemstack = (ItemStack) objectlistiterator.next();
+ 
+-        for(ItemStack itemStack : objectArrayList) {
+             if (list.isEmpty()) {
+-                LOGGER.warn("Tried to over-fill a container");
++                LootTable.LOGGER.warn("Tried to over-fill a container");
+                 return;
+             }
+ 
+-            if (itemStack.isEmpty()) {
+-                inventory.setItem(list.remove(list.size() - 1), ItemStack.EMPTY);
++            if (itemstack.isEmpty()) {
++                iinventory.setItem((Integer) list.remove(list.size() - 1), ItemStack.EMPTY);
+             } else {
+-                inventory.setItem(list.remove(list.size() - 1), itemStack);
++                iinventory.setItem((Integer) list.remove(list.size() - 1), itemstack);
+             }
+         }
+ 
+@@ -127,32 +171,34 @@
+ 
+     private void shuffleAndSplitItems(ObjectArrayList<ItemStack> drops, int freeSlots, RandomSource random) {
+         List<ItemStack> list = Lists.newArrayList();
+-        Iterator<ItemStack> iterator = drops.iterator();
++        ObjectListIterator objectlistiterator = drops.iterator();
+ 
+-        while(iterator.hasNext()) {
+-            ItemStack itemStack = iterator.next();
+-            if (itemStack.isEmpty()) {
+-                iterator.remove();
+-            } else if (itemStack.getCount() > 1) {
+-                list.add(itemStack);
+-                iterator.remove();
++        while (objectlistiterator.hasNext()) {
++            ItemStack itemstack = (ItemStack) objectlistiterator.next();
++
++            if (itemstack.isEmpty()) {
++                objectlistiterator.remove();
++            } else if (itemstack.getCount() > 1) {
++                list.add(itemstack);
++                objectlistiterator.remove();
+             }
+         }
+ 
+-        while(freeSlots - drops.size() - list.size() > 0 && !list.isEmpty()) {
+-            ItemStack itemStack2 = list.remove(Mth.nextInt(random, 0, list.size() - 1));
+-            int i = Mth.nextInt(random, 1, itemStack2.getCount() / 2);
+-            ItemStack itemStack3 = itemStack2.split(i);
+-            if (itemStack2.getCount() > 1 && random.nextBoolean()) {
+-                list.add(itemStack2);
++        while (freeSlots - drops.size() - list.size() > 0 && !list.isEmpty()) {
++            ItemStack itemstack1 = (ItemStack) list.remove(Mth.nextInt(random, 0, list.size() - 1));
++            int j = Mth.nextInt(random, 1, itemstack1.getCount() / 2);
++            ItemStack itemstack2 = itemstack1.split(j);
++
++            if (itemstack1.getCount() > 1 && random.nextBoolean()) {
++                list.add(itemstack1);
+             } else {
+-                drops.add(itemStack2);
++                drops.add(itemstack1);
+             }
+ 
+-            if (itemStack3.getCount() > 1 && random.nextBoolean()) {
+-                list.add(itemStack3);
++            if (itemstack2.getCount() > 1 && random.nextBoolean()) {
++                list.add(itemstack2);
+             } else {
+-                drops.add(itemStack3);
++                drops.add(itemstack2);
+             }
+         }
+ 
+@@ -161,16 +207,16 @@
+     }
+ 
+     private List<Integer> getAvailableSlots(Container inventory, RandomSource random) {
+-        ObjectArrayList<Integer> objectArrayList = new ObjectArrayList<>();
++        ObjectArrayList<Integer> objectarraylist = new ObjectArrayList();
+ 
+-        for(int i = 0; i < inventory.getContainerSize(); ++i) {
++        for (int i = 0; i < inventory.getContainerSize(); ++i) {
+             if (inventory.getItem(i).isEmpty()) {
+-                objectArrayList.add(i);
++                objectarraylist.add(i);
+             }
+         }
+ 
+-        Util.shuffle(objectArrayList, random);
+-        return objectArrayList;
++        Util.shuffle(objectarraylist, random);
++        return objectarraylist;
+     }
+ 
+     public static LootTable.Builder lootTable() {
+@@ -178,9 +224,14 @@
+     }
+ 
+     public static class Builder implements FunctionUserBuilder<LootTable.Builder> {
++
+         private final List<LootPool> pools = Lists.newArrayList();
+         private final List<LootItemFunction> functions = Lists.newArrayList();
+-        private LootContextParamSet paramSet = LootTable.DEFAULT_PARAM_SET;
++        private LootContextParamSet paramSet;
++
++        public Builder() {
++            this.paramSet = LootTable.DEFAULT_PARAM_SET;
++        }
+ 
+         public LootTable.Builder withPool(LootPool.Builder poolBuilder) {
+             this.pools.add(poolBuilder.build());
+@@ -193,8 +244,8 @@
+         }
+ 
+         @Override
+-        public LootTable.Builder apply(LootItemFunction.Builder builder) {
+-            this.functions.add(builder.build());
++        public LootTable.Builder apply(LootItemFunction.Builder function) {
++            this.functions.add(function.build());
+             return this;
+         }
+ 
+@@ -204,46 +255,52 @@
+         }
+ 
+         public LootTable build() {
+-            return new LootTable(this.paramSet, this.pools.toArray(new LootPool[0]), this.functions.toArray(new LootItemFunction[0]));
++            return new LootTable(this.paramSet, (LootPool[]) this.pools.toArray(new LootPool[0]), (LootItemFunction[]) this.functions.toArray(new LootItemFunction[0]));
+         }
+     }
+ 
+     public static class Serializer implements JsonDeserializer<LootTable>, JsonSerializer<LootTable> {
+-        @Override
+-        public LootTable deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+-            JsonObject jsonObject = GsonHelper.convertToJsonObject(jsonElement, "loot table");
+-            LootPool[] lootPools = GsonHelper.getAsObject(jsonObject, "pools", new LootPool[0], jsonDeserializationContext, LootPool[].class);
+-            LootContextParamSet lootContextParamSet = null;
+-            if (jsonObject.has("type")) {
+-                String string = GsonHelper.getAsString(jsonObject, "type");
+-                lootContextParamSet = LootContextParamSets.get(new ResourceLocation(string));
++
++        public Serializer() {}
++
++        public LootTable deserialize(JsonElement jsonelement, Type type, JsonDeserializationContext jsondeserializationcontext) throws JsonParseException {
++            JsonObject jsonobject = GsonHelper.convertToJsonObject(jsonelement, "loot table");
++            LootPool[] alootselector = (LootPool[]) GsonHelper.getAsObject(jsonobject, "pools", new LootPool[0], jsondeserializationcontext, LootPool[].class);
++            LootContextParamSet lootcontextparameterset = null;
++
++            if (jsonobject.has("type")) {
++                String s = GsonHelper.getAsString(jsonobject, "type");
++
++                lootcontextparameterset = LootContextParamSets.get(new ResourceLocation(s));
+             }
+ 
+-            LootItemFunction[] lootItemFunctions = GsonHelper.getAsObject(jsonObject, "functions", new LootItemFunction[0], jsonDeserializationContext, LootItemFunction[].class);
+-            return new LootTable(lootContextParamSet != null ? lootContextParamSet : LootContextParamSets.ALL_PARAMS, lootPools, lootItemFunctions);
++            LootItemFunction[] alootitemfunction = (LootItemFunction[]) GsonHelper.getAsObject(jsonobject, "functions", new LootItemFunction[0], jsondeserializationcontext, LootItemFunction[].class);
++
++            return new LootTable(lootcontextparameterset != null ? lootcontextparameterset : LootContextParamSets.ALL_PARAMS, alootselector, alootitemfunction);
+         }
+ 
+-        @Override
+-        public JsonElement serialize(LootTable lootTable, Type type, JsonSerializationContext jsonSerializationContext) {
+-            JsonObject jsonObject = new JsonObject();
+-            if (lootTable.paramSet != LootTable.DEFAULT_PARAM_SET) {
+-                ResourceLocation resourceLocation = LootContextParamSets.getKey(lootTable.paramSet);
+-                if (resourceLocation != null) {
+-                    jsonObject.addProperty("type", resourceLocation.toString());
++        public JsonElement serialize(LootTable loottable, Type type, JsonSerializationContext jsonserializationcontext) {
++            JsonObject jsonobject = new JsonObject();
++
++            if (loottable.paramSet != LootTable.DEFAULT_PARAM_SET) {
++                ResourceLocation minecraftkey = LootContextParamSets.getKey(loottable.paramSet);
++
++                if (minecraftkey != null) {
++                    jsonobject.addProperty("type", minecraftkey.toString());
+                 } else {
+-                    LootTable.LOGGER.warn("Failed to find id for param set {}", (Object)lootTable.paramSet);
++                    LootTable.LOGGER.warn("Failed to find id for param set {}", loottable.paramSet);
+                 }
+             }
+ 
+-            if (lootTable.pools.length > 0) {
+-                jsonObject.add("pools", jsonSerializationContext.serialize(lootTable.pools));
++            if (loottable.pools.length > 0) {
++                jsonobject.add("pools", jsonserializationcontext.serialize(loottable.pools));
+             }
+ 
+-            if (!ArrayUtils.isEmpty((Object[])lootTable.functions)) {
+-                jsonObject.add("functions", jsonSerializationContext.serialize(lootTable.functions));
++            if (!ArrayUtils.isEmpty(loottable.functions)) {
++                jsonobject.add("functions", jsonserializationcontext.serialize(loottable.functions));
+             }
+ 
+-            return jsonObject;
++            return jsonobject;
+         }
+     }
+ }

@@ -1,0 +1,36 @@
+--- a/net/minecraft/world/phys/shapes/IndirectMerger.java
++++ b/net/minecraft/world/phys/shapes/IndirectMerger.java
+@@ -10,12 +10,33 @@
+     private final int[] firstIndices;
+     private final int[] secondIndices;
+     private final int resultLength;
++    // Paper start
++    private static final int[] INFINITE_B_1 = new int[]{1, 1};
++    private static final int[] INFINITE_B_0 = new int[]{0, 0};
++    private static final int[] INFINITE_C = new int[]{0, 1};
++    // Paper end
+ 
+     public IndirectMerger(DoubleList first, DoubleList second, boolean includeFirstOnly, boolean includeSecondOnly) {
+         double d = Double.NaN;
+         int i = first.size();
+         int j = second.size();
+         int k = i + j;
++        // Paper start - optimize common path of infinity doublelist
++        int size = first.size();
++        double tail = first.getDouble(size - 1);
++        double head = first.getDouble(0);
++        if (head == Double.NEGATIVE_INFINITY && tail == Double.POSITIVE_INFINITY && !includeFirstOnly && !includeSecondOnly && (size == 2 || size == 4)) {
++            this.result = second.toDoubleArray();
++            this.resultLength = second.size();
++            if (size == 2) {
++                this.firstIndices = INFINITE_B_0;
++            } else {
++                this.firstIndices = INFINITE_B_1;
++            }
++            this.secondIndices = INFINITE_C;
++            return;
++        }
++        // Paper end
+         this.result = new double[k];
+         this.firstIndices = new int[k];
+         this.secondIndices = new int[k];

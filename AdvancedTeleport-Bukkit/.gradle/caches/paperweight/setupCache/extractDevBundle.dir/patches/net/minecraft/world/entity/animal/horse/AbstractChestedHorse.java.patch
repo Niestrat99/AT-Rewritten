@@ -1,0 +1,23 @@
+--- a/net/minecraft/world/entity/animal/horse/AbstractChestedHorse.java
++++ b/net/minecraft/world/entity/animal/horse/AbstractChestedHorse.java
+@@ -69,11 +69,19 @@
+                 this.spawnAtLocation(Blocks.CHEST);
+             }
+ 
+-            this.setChest(false);
++            //this.setCarryingChest(false); // Paper - moved to post death logic
+         }
+ 
+     }
+ 
++    // Paper start
++    protected void postDeathDropItems(org.bukkit.event.entity.EntityDeathEvent event) {
++        if (this.hasChest() && (event == null || !event.isCancelled())) {
++            this.setChest(false);
++        }
++    }
++    // Paper end
++
+     @Override
+     public void addAdditionalSaveData(CompoundTag nbt) {
+         super.addAdditionalSaveData(nbt);

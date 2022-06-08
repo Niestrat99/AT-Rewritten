@@ -1,0 +1,35 @@
+--- a/net/minecraft/world/entity/monster/ElderGuardian.java
++++ b/net/minecraft/world/entity/monster/ElderGuardian.java
+@@ -16,6 +16,7 @@
+ import net.minecraft.world.level.Level;
+ 
+ public class ElderGuardian extends Guardian {
++
+     public static final float ELDER_SIZE_SCALE = EntityType.ELDER_GUARDIAN.getWidth() / EntityType.GUARDIAN.getWidth();
+     private static final int EFFECT_INTERVAL = 1200;
+     private static final int EFFECT_RADIUS = 50;
+@@ -33,7 +34,7 @@
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+-        return Guardian.createAttributes().add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.ATTACK_DAMAGE, 8.0D).add(Attributes.MAX_HEALTH, 80.0D);
++        return Guardian.createAttributes().add(Attributes.MOVEMENT_SPEED, 0.30000001192092896D).add(Attributes.ATTACK_DAMAGE, 8.0D).add(Attributes.MAX_HEALTH, 80.0D);
+     }
+ 
+     @Override
+@@ -65,10 +66,11 @@
+     protected void customServerAiStep() {
+         super.customServerAiStep();
+         if ((this.tickCount + this.getId()) % 1200 == 0) {
+-            MobEffectInstance mobEffectInstance = new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 6000, 2);
+-            List<ServerPlayer> list = MobEffectUtil.addEffectToPlayersAround((ServerLevel)this.level, this, this.position(), 50.0D, mobEffectInstance, 1200);
+-            list.forEach((serverPlayer) -> {
+-                serverPlayer.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.GUARDIAN_ELDER_EFFECT, this.isSilent() ? 0.0F : 1.0F));
++            MobEffectInstance mobeffect = new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 6000, 2);
++            List<ServerPlayer> list = MobEffectUtil.addEffectToPlayersAround((ServerLevel) this.level, this, this.position(), 50.0D, mobeffect, 1200, org.bukkit.event.entity.EntityPotionEffectEvent.Cause.ATTACK, (player) -> new io.papermc.paper.event.entity.ElderGuardianAppearanceEvent(getBukkitEntity(), player.getBukkitEntity()).callEvent()); // CraftBukkit // Paper
++
++            list.forEach((entityplayer) -> {
++                entityplayer.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.GUARDIAN_ELDER_EFFECT, this.isSilent() ? 0.0F : 1.0F));
+             });
+         }
+ 

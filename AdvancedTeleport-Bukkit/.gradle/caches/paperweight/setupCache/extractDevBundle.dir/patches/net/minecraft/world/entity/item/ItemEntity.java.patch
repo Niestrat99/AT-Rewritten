@@ -1,0 +1,548 @@
+--- a/net/minecraft/world/entity/item/ItemEntity.java
++++ b/net/minecraft/world/entity/item/ItemEntity.java
+@@ -1,5 +1,7 @@
+ package net.minecraft.world.entity.item;
+ 
++import java.util.Iterator;
++import java.util.List;
+ import java.util.Objects;
+ import java.util.UUID;
+ import javax.annotation.Nullable;
+@@ -12,12 +14,6 @@
+ import net.minecraft.network.syncher.EntityDataAccessor;
+ import net.minecraft.network.syncher.EntityDataSerializers;
+ import net.minecraft.network.syncher.SynchedEntityData;
+-import net.minecraft.server.level.ServerLevel;
+-import net.minecraft.sounds.SoundSource;
+-import net.minecraft.stats.Stats;
+-import net.minecraft.tags.FluidTags;
+-import net.minecraft.tags.ItemTags;
+-import net.minecraft.util.Mth;
+ import net.minecraft.world.damagesource.DamageSource;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.EntityType;
+@@ -29,29 +25,51 @@
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.gameevent.GameEvent;
+ import net.minecraft.world.phys.Vec3;
++// CraftBukkit start
++import net.minecraft.server.MinecraftServer;
++import net.minecraft.server.level.ServerLevel;
++import net.minecraft.sounds.SoundSource;
++import net.minecraft.stats.Stats;
++import net.minecraft.tags.FluidTags;
++import net.minecraft.tags.ItemTags;
++import net.minecraft.util.Mth;
++import org.bukkit.event.entity.EntityPickupItemEvent;
++import org.bukkit.event.player.PlayerPickupItemEvent;
++// CraftBukkit end
++import org.bukkit.event.player.PlayerAttemptPickupItemEvent; // Paper
+ 
+ public class ItemEntity extends Entity {
++
+     private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(ItemEntity.class, EntityDataSerializers.ITEM_STACK);
+     private static final int LIFETIME = 6000;
+     private static final int INFINITE_PICKUP_DELAY = 32767;
+     private static final int INFINITE_LIFETIME = -32768;
+     public int age;
+     public int pickupDelay;
+-    public int health = 5;
++    public int health;
+     @Nullable
+     private UUID thrower;
+     @Nullable
+     private UUID owner;
+     public final float bobOffs;
++    private int lastTick = MinecraftServer.currentTick - 1; // CraftBukkit
++    public boolean canMobPickup = true; // Paper
++    private int despawnRate = -1; // Paper
+ 
+     public ItemEntity(EntityType<? extends ItemEntity> type, Level world) {
+         super(type, world);
+-        this.bobOffs = this.random.nextFloat() * (float)Math.PI * 2.0F;
++        this.health = 5;
++        this.bobOffs = this.random.nextFloat() * 3.1415927F * 2.0F;
+         this.setYRot(this.random.nextFloat() * 360.0F);
+     }
+ 
+     public ItemEntity(Level world, double x, double y, double z, ItemStack stack) {
+-        this(world, x, y, z, stack, world.random.nextDouble() * 0.2D - 0.1D, 0.2D, world.random.nextDouble() * 0.2D - 0.1D);
++        // Paper start - don't use world random in entity constructor
++        this(EntityType.ITEM, world);
++        this.setPos(x, y, z);
++        this.setDeltaMovement(this.random.nextDouble() * 0.2D - 0.1D, 0.2D, this.random.nextDouble() * 0.2D - 0.1D);
++        this.setItem(stack);
++        // Paper end
+     }
+ 
+     public ItemEntity(Level world, double x, double y, double z, ItemStack stack, double velocityX, double velocityY, double velocityZ) {
+@@ -63,6 +81,7 @@
+ 
+     private ItemEntity(ItemEntity entity) {
+         super(entity.getType(), entity.level);
++        this.health = 5;
+         this.setItem(entity.getItem().copy());
+         this.copyPosition(entity);
+         this.age = entity.age;
+@@ -75,7 +94,11 @@
+     }
+ 
+     public Entity getThrowingEntity() {
+-        return Util.mapNullable(this.getThrower(), this.level::getPlayerByUUID);
++        UUID uuid = this.getThrower();
++        Level world = this.level;
++
++        Objects.requireNonNull(this.level);
++        return (Entity) Util.mapNullable(uuid, world::getPlayerByUUID);
+     }
+ 
+     @Override
+@@ -85,7 +108,7 @@
+ 
+     @Override
+     protected void defineSynchedData() {
+-        this.getEntityData().define(DATA_ITEM, ItemStack.EMPTY);
++        this.getEntityData().define(ItemEntity.DATA_ITEM, ItemStack.EMPTY);
+     }
+ 
+     @Override
+@@ -94,18 +117,23 @@
+             this.discard();
+         } else {
+             super.tick();
+-            if (this.pickupDelay > 0 && this.pickupDelay != 32767) {
+-                --this.pickupDelay;
+-            }
++            // CraftBukkit start - Use wall time for pickup and despawn timers
++            int elapsedTicks = MinecraftServer.currentTick - this.lastTick;
++            if (this.pickupDelay != 32767) this.pickupDelay -= elapsedTicks;
++            this.pickupDelay = Math.max(0, this.pickupDelay); // Paper - don't go below 0
++            if (this.age != -32768) this.age += elapsedTicks;
++            this.lastTick = MinecraftServer.currentTick;
++            // CraftBukkit end
+ 
+             this.xo = this.getX();
+             this.yo = this.getY();
+             this.zo = this.getZ();
+-            Vec3 vec3 = this.getDeltaMovement();
++            Vec3 vec3d = this.getDeltaMovement();
+             float f = this.getEyeHeight() - 0.11111111F;
+-            if (this.isInWater() && this.getFluidHeight(FluidTags.WATER) > (double)f) {
++
++            if (this.isInWater() && this.getFluidHeight(FluidTags.WATER) > (double) f) {
+                 this.setUnderwaterMovement();
+-            } else if (this.isInLava() && this.getFluidHeight(FluidTags.LAVA) > (double)f) {
++            } else if (this.isInLava() && this.getFluidHeight(FluidTags.LAVA) > (double) f) {
+                 this.setUnderLavaMovement();
+             } else if (!this.isNoGravity()) {
+                 this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -0.04D, 0.0D));
+@@ -120,64 +148,117 @@
+                 }
+             }
+ 
+-            if (!this.onGround || this.getDeltaMovement().horizontalDistanceSqr() > (double)1.0E-5F || (this.tickCount + this.getId()) % 4 == 0) {
++            if (!this.onGround || this.getDeltaMovement().horizontalDistanceSqr() > 9.999999747378752E-6D || (this.tickCount + this.getId()) % 4 == 0) { // Paper - Diff on change
+                 this.move(MoverType.SELF, this.getDeltaMovement());
+-                float g = 0.98F;
++                float f1 = 0.98F;
++
+                 if (this.onGround) {
+-                    g = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0D, this.getZ())).getBlock().getFriction() * 0.98F;
++                    f1 = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0D, this.getZ())).getBlock().getFriction() * 0.98F;
+                 }
+ 
+-                this.setDeltaMovement(this.getDeltaMovement().multiply((double)g, 0.98D, (double)g));
++                this.setDeltaMovement(this.getDeltaMovement().multiply((double) f1, 0.98D, (double) f1));
+                 if (this.onGround) {
+-                    Vec3 vec32 = this.getDeltaMovement();
+-                    if (vec32.y < 0.0D) {
+-                        this.setDeltaMovement(vec32.multiply(1.0D, -0.5D, 1.0D));
++                    Vec3 vec3d1 = this.getDeltaMovement();
++
++                    if (vec3d1.y < 0.0D) {
++                        this.setDeltaMovement(vec3d1.multiply(1.0D, -0.5D, 1.0D));
+                     }
+                 }
+             }
+ 
+-            boolean bl = Mth.floor(this.xo) != Mth.floor(this.getX()) || Mth.floor(this.yo) != Mth.floor(this.getY()) || Mth.floor(this.zo) != Mth.floor(this.getZ());
+-            int i = bl ? 2 : 40;
++            boolean flag = Mth.floor(this.xo) != Mth.floor(this.getX()) || Mth.floor(this.yo) != Mth.floor(this.getY()) || Mth.floor(this.zo) != Mth.floor(this.getZ());
++            int i = flag ? 2 : 40;
++
+             if (this.tickCount % i == 0 && !this.level.isClientSide && this.isMergable()) {
+                 this.mergeWithNeighbours();
+             }
+ 
++            /* CraftBukkit start - moved up
+             if (this.age != -32768) {
+                 ++this.age;
+             }
++            // CraftBukkit end */
+ 
+             this.hasImpulse |= this.updateInWaterStateAndDoFluidPushing();
+             if (!this.level.isClientSide) {
+-                double d = this.getDeltaMovement().subtract(vec3).lengthSqr();
+-                if (d > 0.01D) {
++                double d0 = this.getDeltaMovement().subtract(vec3d).lengthSqr();
++
++                if (d0 > 0.01D) {
+                     this.hasImpulse = true;
+                 }
+             }
+ 
+-            if (!this.level.isClientSide && this.age >= 6000) {
++            if (!this.level.isClientSide && this.age >= this.despawnRate) { // Spigot // Paper
++                // CraftBukkit start - fire ItemDespawnEvent
++                if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callItemDespawnEvent(this).isCancelled()) {
++                    this.age = 0;
++                    return;
++                }
++                // CraftBukkit end
+                 this.discard();
+             }
+ 
+         }
+     }
+ 
++    // Spigot start - copied from above
++    @Override
++    public void inactiveTick() {
++        // CraftBukkit start - Use wall time for pickup and despawn timers
++        int elapsedTicks = MinecraftServer.currentTick - this.lastTick;
++        if (this.pickupDelay != 32767) this.pickupDelay -= elapsedTicks;
++        this.pickupDelay = Math.max(0, this.pickupDelay); // Paper - don't go below 0
++        if (this.age != -32768) this.age += elapsedTicks;
++        this.lastTick = MinecraftServer.currentTick;
++        // CraftBukkit end
++
++        if (!this.level.isClientSide && this.age >= this.despawnRate) { // Spigot // Paper
++            // CraftBukkit start - fire ItemDespawnEvent
++            if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callItemDespawnEvent(this).isCancelled()) {
++                this.age = 0;
++                return;
++            }
++            // CraftBukkit end
++            this.discard();
++        }
++    }
++    // Spigot end
++
+     private void setUnderwaterMovement() {
+-        Vec3 vec3 = this.getDeltaMovement();
+-        this.setDeltaMovement(vec3.x * (double)0.99F, vec3.y + (double)(vec3.y < (double)0.06F ? 5.0E-4F : 0.0F), vec3.z * (double)0.99F);
++        Vec3 vec3d = this.getDeltaMovement();
++
++        this.setDeltaMovement(vec3d.x * 0.9900000095367432D, vec3d.y + (double) (vec3d.y < 0.05999999865889549D ? 5.0E-4F : 0.0F), vec3d.z * 0.9900000095367432D);
+     }
+ 
+     private void setUnderLavaMovement() {
+-        Vec3 vec3 = this.getDeltaMovement();
+-        this.setDeltaMovement(vec3.x * (double)0.95F, vec3.y + (double)(vec3.y < (double)0.06F ? 5.0E-4F : 0.0F), vec3.z * (double)0.95F);
++        Vec3 vec3d = this.getDeltaMovement();
++
++        this.setDeltaMovement(vec3d.x * 0.949999988079071D, vec3d.y + (double) (vec3d.y < 0.05999999865889549D ? 5.0E-4F : 0.0F), vec3d.z * 0.949999988079071D);
+     }
+ 
+     private void mergeWithNeighbours() {
+         if (this.isMergable()) {
+-            for(ItemEntity itemEntity : this.level.getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(0.5D, 0.0D, 0.5D), (otherItemEntity) -> {
+-                return otherItemEntity != this && otherItemEntity.isMergable();
+-            })) {
+-                if (itemEntity.isMergable()) {
+-                    this.tryToMerge(itemEntity);
++            // Spigot start
++            double radius = level.spigotConfig.itemMerge;
++            List<ItemEntity> list = this.level.getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(radius, radius - 0.5D, radius), (entityitem) -> {
++                // Spigot end
++                return entityitem != this && entityitem.isMergable();
++            });
++            Iterator iterator = list.iterator();
++
++            while (iterator.hasNext()) {
++                ItemEntity entityitem = (ItemEntity) iterator.next();
++
++                if (entityitem.isMergable()) {
++                    // Paper Start - Fix items merging through walls
++                        if (this.level.paperConfig().fixes.fixItemsMergingThroughWalls) {
++                            net.minecraft.world.level.ClipContext rayTrace = new net.minecraft.world.level.ClipContext(this.position(), entityitem.position(),
++                                net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, this);
++                            net.minecraft.world.phys.BlockHitResult rayTraceResult = level.clip(rayTrace);
++                            if (rayTraceResult.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK) continue;
++                        }
++                    // Paper End
++                    this.tryToMerge(entityitem);
+                     if (this.isRemoved()) {
+                         break;
+                     }
+@@ -188,50 +269,47 @@
+     }
+ 
+     private boolean isMergable() {
+-        ItemStack itemStack = this.getItem();
+-        return this.isAlive() && this.pickupDelay != 32767 && this.age != -32768 && this.age < 6000 && itemStack.getCount() < itemStack.getMaxStackSize();
++        ItemStack itemstack = this.getItem();
++
++        return this.isAlive() && this.pickupDelay != 32767 && this.age != -32768 && this.age < this.despawnRate && itemstack.getCount() < itemstack.getMaxStackSize(); // Paper - respect despawn rate in pickup check.
+     }
+ 
+     private void tryToMerge(ItemEntity other) {
+-        ItemStack itemStack = this.getItem();
+-        ItemStack itemStack2 = other.getItem();
+-        if (Objects.equals(this.getOwner(), other.getOwner()) && areMergable(itemStack, itemStack2)) {
+-            if (itemStack2.getCount() < itemStack.getCount()) {
+-                merge(this, itemStack, other, itemStack2);
++        ItemStack itemstack = this.getItem();
++        ItemStack itemstack1 = other.getItem();
++
++        if (Objects.equals(this.getOwner(), other.getOwner()) && ItemEntity.areMergable(itemstack, itemstack1)) {
++            if (true || itemstack1.getCount() < itemstack.getCount()) { // Spigot
++                ItemEntity.merge(this, itemstack, other, itemstack1);
+             } else {
+-                merge(other, itemStack2, this, itemStack);
++                ItemEntity.merge(other, itemstack1, this, itemstack);
+             }
+ 
+         }
+     }
+ 
+     public static boolean areMergable(ItemStack stack1, ItemStack stack2) {
+-        if (!stack2.is(stack1.getItem())) {
+-            return false;
+-        } else if (stack2.getCount() + stack1.getCount() > stack2.getMaxStackSize()) {
+-            return false;
+-        } else if (stack2.hasTag() ^ stack1.hasTag()) {
+-            return false;
+-        } else {
+-            return !stack2.hasTag() || stack2.getTag().equals(stack1.getTag());
+-        }
++        return !stack2.is(stack1.getItem()) ? false : (stack2.getCount() + stack1.getCount() > stack2.getMaxStackSize() ? false : (stack2.hasTag() ^ stack1.hasTag() ? false : !stack2.hasTag() || stack2.getTag().equals(stack1.getTag())));
+     }
+ 
+     public static ItemStack merge(ItemStack stack1, ItemStack stack2, int maxCount) {
+-        int i = Math.min(Math.min(stack1.getMaxStackSize(), maxCount) - stack1.getCount(), stack2.getCount());
+-        ItemStack itemStack = stack1.copy();
+-        itemStack.grow(i);
+-        stack2.shrink(i);
+-        return itemStack;
++        int j = Math.min(Math.min(stack1.getMaxStackSize(), maxCount) - stack1.getCount(), stack2.getCount());
++        ItemStack itemstack2 = stack1.copy();
++
++        itemstack2.grow(j);
++        stack2.shrink(j);
++        return itemstack2;
+     }
+ 
+     private static void merge(ItemEntity targetEntity, ItemStack stack1, ItemStack stack2) {
+-        ItemStack itemStack = merge(stack1, stack2, 64);
+-        targetEntity.setItem(itemStack);
++        ItemStack itemstack2 = ItemEntity.merge(stack1, stack2, 64);
++
++        if (!itemstack2.isEmpty()) targetEntity.setItem(itemstack2); // CraftBukkit - don't set empty stacks
+     }
+ 
+     private static void merge(ItemEntity targetEntity, ItemStack targetStack, ItemEntity sourceEntity, ItemStack sourceStack) {
+-        merge(targetEntity, targetStack, sourceStack);
++        if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callItemMergeEvent(sourceEntity, targetEntity).isCancelled()) return; // CraftBukkit
++        ItemEntity.merge(targetEntity, targetStack, sourceStack);
+         targetEntity.pickupDelay = Math.max(targetEntity.pickupDelay, sourceEntity.pickupDelay);
+         targetEntity.age = Math.min(targetEntity.age, sourceEntity.age);
+         if (sourceStack.isEmpty()) {
+@@ -256,8 +334,13 @@
+         } else if (this.level.isClientSide) {
+             return true;
+         } else {
++            // CraftBukkit start
++            if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.handleNonLivingEntityDamageEvent(this, source, amount)) {
++                return false;
++            }
++            // CraftBukkit end
+             this.markHurt();
+-            this.health = (int)((float)this.health - amount);
++            this.health = (int) ((float) this.health - amount);
+             this.gameEvent(GameEvent.ENTITY_DAMAGE, source.getEntity());
+             if (this.health <= 0) {
+                 this.getItem().onDestroyed(this);
+@@ -270,9 +353,9 @@
+ 
+     @Override
+     public void addAdditionalSaveData(CompoundTag nbt) {
+-        nbt.putShort("Health", (short)this.health);
+-        nbt.putShort("Age", (short)this.age);
+-        nbt.putShort("PickupDelay", (short)this.pickupDelay);
++        nbt.putShort("Health", (short) this.health);
++        nbt.putShort("Age", (short) this.age);
++        nbt.putShort("PickupDelay", (short) this.pickupDelay);
+         if (this.getThrower() != null) {
+             nbt.putUUID("Thrower", this.getThrower());
+         }
+@@ -303,8 +386,9 @@
+             this.thrower = nbt.getUUID("Thrower");
+         }
+ 
+-        CompoundTag compoundTag = nbt.getCompound("Item");
+-        this.setItem(ItemStack.of(compoundTag));
++        CompoundTag nbttagcompound1 = nbt.getCompound("Item");
++
++        this.setItem(ItemStack.of(nbttagcompound1));
+         if (this.getItem().isEmpty()) {
+             this.discard();
+         }
+@@ -314,14 +398,82 @@
+     @Override
+     public void playerTouch(Player player) {
+         if (!this.level.isClientSide) {
+-            ItemStack itemStack = this.getItem();
+-            Item item = itemStack.getItem();
+-            int i = itemStack.getCount();
+-            if (this.pickupDelay == 0 && (this.owner == null || this.owner.equals(player.getUUID())) && player.getInventory().add(itemStack)) {
+-                player.take(this, i);
+-                if (itemStack.isEmpty()) {
++            ItemStack itemstack = this.getItem();
++            Item item = itemstack.getItem();
++            int i = itemstack.getCount();
++
++            // CraftBukkit start - fire PlayerPickupItemEvent
++            int canHold = player.getInventory().canHold(itemstack);
++            int remaining = i - canHold;
++            boolean flyAtPlayer = false; // Paper
++
++            // Paper start
++            if (this.pickupDelay <= 0) {
++                PlayerAttemptPickupItemEvent attemptEvent = new PlayerAttemptPickupItemEvent((org.bukkit.entity.Player) player.getBukkitEntity(), (org.bukkit.entity.Item) this.getBukkitEntity(), remaining);
++                this.level.getCraftServer().getPluginManager().callEvent(attemptEvent);
++
++                flyAtPlayer = attemptEvent.getFlyAtPlayer();
++                if (attemptEvent.isCancelled()) {
++                    if (flyAtPlayer) {
++                        player.take(this, i);
++                    }
++
++                    return;
++                }
++            }
++            // Paper end
++
++            if (this.pickupDelay <= 0 && canHold > 0) {
++                itemstack.setCount(canHold);
++                // Call legacy event
++                PlayerPickupItemEvent playerEvent = new PlayerPickupItemEvent((org.bukkit.entity.Player) player.getBukkitEntity(), (org.bukkit.entity.Item) this.getBukkitEntity(), remaining);
++                playerEvent.setCancelled(!playerEvent.getPlayer().getCanPickupItems());
++                this.level.getCraftServer().getPluginManager().callEvent(playerEvent);
++                flyAtPlayer = playerEvent.getFlyAtPlayer(); // Paper
++                if (playerEvent.isCancelled()) {
++                    itemstack.setCount(i); // SPIGOT-5294 - restore count
++                    // Paper Start
++                    if (flyAtPlayer) {
++                        player.take(this, i);
++                    }
++                    // Paper End
++                    return;
++                }
++
++                // Call newer event afterwards
++                EntityPickupItemEvent entityEvent = new EntityPickupItemEvent((org.bukkit.entity.Player) player.getBukkitEntity(), (org.bukkit.entity.Item) this.getBukkitEntity(), remaining);
++                entityEvent.setCancelled(!entityEvent.getEntity().getCanPickupItems());
++                this.level.getCraftServer().getPluginManager().callEvent(entityEvent);
++                if (entityEvent.isCancelled()) {
++                    itemstack.setCount(i); // SPIGOT-5294 - restore count
++                    return;
++                }
++
++                // Update the ItemStack if it was changed in the event
++                ItemStack current = this.getItem();
++                if (!itemstack.equals(current)) {
++                    itemstack = current;
++                } else {
++                    itemstack.setCount(canHold + remaining); // = i
++                }
++
++                // Possibly < 0; fix here so we do not have to modify code below
++                this.pickupDelay = 0;
++            } else if (this.pickupDelay == 0) {
++                // ensure that the code below isn't triggered if canHold says we can't pick the items up
++                this.pickupDelay = -1;
++            }
++            // CraftBukkit end
++
++            if (this.pickupDelay == 0 && (this.owner == null || this.owner.equals(player.getUUID())) && player.getInventory().add(itemstack)) {
++                // Paper Start
++                if (flyAtPlayer) {
++                    player.take(this, i);
++                }
++                // Paper End
++                if (itemstack.isEmpty()) {
+                     this.discard();
+-                    itemStack.setCount(i);
++                    itemstack.setCount(i);
+                 }
+ 
+                 player.awardStat(Stats.ITEM_PICKED_UP.get(item), i);
+@@ -333,8 +485,9 @@
+ 
+     @Override
+     public Component getName() {
+-        Component component = this.getCustomName();
+-        return (Component)(component != null ? component : Component.translatable(this.getItem().getDescriptionId()));
++        Component ichatbasecomponent = this.getCustomName();
++
++        return (Component) (ichatbasecomponent != null ? ichatbasecomponent : Component.translatable(this.getItem().getDescriptionId()));
+     }
+ 
+     @Override
+@@ -346,25 +499,29 @@
+     @Override
+     public Entity changeDimension(ServerLevel destination) {
+         Entity entity = super.changeDimension(destination);
++
+         if (!this.level.isClientSide && entity instanceof ItemEntity) {
+-            ((ItemEntity)entity).mergeWithNeighbours();
++            ((ItemEntity) entity).mergeWithNeighbours();
+         }
+ 
+         return entity;
+     }
+ 
+     public ItemStack getItem() {
+-        return this.getEntityData().get(DATA_ITEM);
++        return (ItemStack) this.getEntityData().get(ItemEntity.DATA_ITEM);
+     }
+ 
+     public void setItem(ItemStack stack) {
+-        this.getEntityData().set(DATA_ITEM, stack);
++        // com.google.common.base.Preconditions.checkArgument(!stack.isEmpty(), "Cannot drop air"); // CraftBukkit // Paper - Remove check
++        this.getEntityData().set(ItemEntity.DATA_ITEM, stack);
++        this.getEntityData().markDirty(ItemEntity.DATA_ITEM); // CraftBukkit - SPIGOT-4591, must mark dirty
++        this.despawnRate = level.paperConfig().entities.spawning.altItemDespawnRate.enabled ? level.paperConfig().entities.spawning.altItemDespawnRate.items.getOrDefault(stack.getItem(), level.spigotConfig.itemDespawnRate) : level.spigotConfig.itemDespawnRate; // Paper
+     }
+ 
+     @Override
+     public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
+         super.onSyncedDataUpdated(data);
+-        if (DATA_ITEM.equals(data)) {
++        if (ItemEntity.DATA_ITEM.equals(data)) {
+             this.getItem().setEntityRepresentation(this);
+         }
+ 
+@@ -422,11 +579,11 @@
+ 
+     public void makeFakeItem() {
+         this.setNeverPickUp();
+-        this.age = 5999;
++        this.age = this.despawnRate - 1; // Spigot
+     }
+ 
+     public float getSpin(float tickDelta) {
+-        return ((float)this.getAge() + tickDelta) / 20.0F + this.bobOffs;
++        return ((float) this.getAge() + tickDelta) / 20.0F + this.bobOffs;
+     }
+ 
+     @Override
+@@ -445,6 +602,6 @@
+ 
+     @Override
+     public float getVisualRotationYInDegrees() {
+-        return 180.0F - this.getSpin(0.5F) / ((float)Math.PI * 2F) * 360.0F;
++        return 180.0F - this.getSpin(0.5F) / 6.2831855F * 360.0F;
+     }
+ }

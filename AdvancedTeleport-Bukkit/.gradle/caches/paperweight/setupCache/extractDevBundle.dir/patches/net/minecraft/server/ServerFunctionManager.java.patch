@@ -1,0 +1,239 @@
+--- a/net/minecraft/server/ServerFunctionManager.java
++++ b/net/minecraft/server/ServerFunctionManager.java
+@@ -7,16 +7,20 @@
+ import com.mojang.brigadier.exceptions.CommandSyntaxException;
+ import java.util.Collection;
+ import java.util.Deque;
++import java.util.Iterator;
+ import java.util.List;
++import java.util.Objects;
+ import java.util.Optional;
+ import javax.annotation.Nullable;
+ import net.minecraft.commands.CommandFunction;
+ import net.minecraft.commands.CommandSourceStack;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.resources.ResourceLocation;
++import net.minecraft.util.profiling.ProfilerFiller;
+ import net.minecraft.world.level.GameRules;
+ 
+ public class ServerFunctionManager {
++
+     private static final Component NO_RECURSIVE_TRACES = Component.translatable("commands.debug.function.noRecursion");
+     private static final ResourceLocation TICK_FUNCTION_TAG = new ResourceLocation("tick");
+     private static final ResourceLocation LOAD_FUNCTION_TAG = new ResourceLocation("load");
+@@ -38,52 +42,60 @@
+     }
+ 
+     public CommandDispatcher<CommandSourceStack> getDispatcher() {
+-        return this.server.getCommands().getDispatcher();
++        return this.server.vanillaCommandDispatcher.getDispatcher(); // CraftBukkit
+     }
+ 
+     public void tick() {
+-        this.executeTagFunctions(this.ticking, TICK_FUNCTION_TAG);
++        this.executeTagFunctions(this.ticking, ServerFunctionManager.TICK_FUNCTION_TAG);
+         if (this.postReload) {
+             this.postReload = false;
+-            Collection<CommandFunction> collection = this.library.getTag(LOAD_FUNCTION_TAG);
+-            this.executeTagFunctions(collection, LOAD_FUNCTION_TAG);
++            Collection<CommandFunction> collection = this.library.getTag(ServerFunctionManager.LOAD_FUNCTION_TAG);
++
++            this.executeTagFunctions(collection, ServerFunctionManager.LOAD_FUNCTION_TAG);
+         }
+ 
+     }
+ 
+     private void executeTagFunctions(Collection<CommandFunction> functions, ResourceLocation label) {
+-        this.server.getProfiler().push(label::toString);
++        ProfilerFiller gameprofilerfiller = this.server.getProfiler();
+ 
+-        for(CommandFunction commandFunction : functions) {
+-            this.execute(commandFunction, this.getGameLoopSender());
++        Objects.requireNonNull(label);
++        gameprofilerfiller.push(label::toString);
++        Iterator iterator = functions.iterator();
++
++        while (iterator.hasNext()) {
++            CommandFunction customfunction = (CommandFunction) iterator.next();
++
++            this.execute(customfunction, this.getGameLoopSender());
+         }
+ 
+         this.server.getProfiler().pop();
+     }
+ 
+     public int execute(CommandFunction function, CommandSourceStack source) {
+-        return this.execute(function, source, (ServerFunctionManager.TraceCallbacks)null);
++        return this.execute(function, source, (ServerFunctionManager.TraceCallbacks) null);
+     }
+ 
+     public int execute(CommandFunction function, CommandSourceStack source, @Nullable ServerFunctionManager.TraceCallbacks tracer) {
+         if (this.context != null) {
+             if (tracer != null) {
+-                this.context.reportError(NO_RECURSIVE_TRACES.getString());
++                this.context.reportError(ServerFunctionManager.NO_RECURSIVE_TRACES.getString());
+                 return 0;
+             } else {
+                 this.context.delayFunctionCall(function, source);
+                 return 0;
+             }
+         } else {
+-            int var4;
+-            try {
++            int i;
++
++            try (co.aikar.timings.Timing timing = function.getTiming().startTiming()) { // Paper
+                 this.context = new ServerFunctionManager.ExecutionContext(tracer);
+-                var4 = this.context.runTopCommand(function, source);
++                i = this.context.runTopCommand(function, source);
+             } finally {
+                 this.context = null;
+             }
+ 
+-            return var4;
++            return i;
+         }
+     }
+ 
+@@ -93,7 +105,7 @@
+     }
+ 
+     private void postReload(ServerFunctionLibrary loader) {
+-        this.ticking = ImmutableList.copyOf(loader.getTag(TICK_FUNCTION_TAG));
++        this.ticking = ImmutableList.copyOf(loader.getTag(ServerFunctionManager.TICK_FUNCTION_TAG));
+         this.postReload = true;
+     }
+ 
+@@ -117,19 +129,32 @@
+         return this.library.getAvailableTags();
+     }
+ 
+-    class ExecutionContext {
++    public interface TraceCallbacks {
++
++        void onCommand(int depth, String command);
++
++        void onReturn(int depth, String command, int result);
++
++        void onError(int depth, String message);
++
++        void onCall(int depth, ResourceLocation function, int size);
++    }
++
++    private class ExecutionContext {
++
+         private int depth;
+         @Nullable
+         private final ServerFunctionManager.TraceCallbacks tracer;
+         private final Deque<ServerFunctionManager.QueuedCommand> commandQueue = Queues.newArrayDeque();
+         private final List<ServerFunctionManager.QueuedCommand> nestedCalls = Lists.newArrayList();
+ 
+-        ExecutionContext(@Nullable ServerFunctionManager.TraceCallbacks tracer) {
+-            this.tracer = tracer;
++        ExecutionContext(@Nullable ServerFunctionManager.TraceCallbacks customfunctiondata_c) {
++            this.tracer = customfunctiondata_c;
+         }
+ 
+         void delayFunctionCall(CommandFunction function, CommandSourceStack source) {
+             int i = ServerFunctionManager.this.getCommandLimit();
++
+             if (this.commandQueue.size() + this.nestedCalls.size() < i) {
+                 this.nestedCalls.add(new ServerFunctionManager.QueuedCommand(source, this.depth, new CommandFunction.FunctionEntry(function)));
+             }
+@@ -139,20 +164,31 @@
+         int runTopCommand(CommandFunction function, CommandSourceStack source) {
+             int i = ServerFunctionManager.this.getCommandLimit();
+             int j = 0;
+-            CommandFunction.Entry[] entrys = function.getEntries();
++            CommandFunction.Entry[] acustomfunction_c = function.getEntries();
+ 
+-            for(int k = entrys.length - 1; k >= 0; --k) {
+-                this.commandQueue.push(new ServerFunctionManager.QueuedCommand(source, 0, entrys[k]));
++            for (int k = acustomfunction_c.length - 1; k >= 0; --k) {
++                this.commandQueue.push(new ServerFunctionManager.QueuedCommand(source, 0, acustomfunction_c[k]));
+             }
+ 
+-            while(!this.commandQueue.isEmpty()) {
++            do {
++                if (this.commandQueue.isEmpty()) {
++                    return j;
++                }
++
+                 try {
+-                    ServerFunctionManager.QueuedCommand queuedCommand = this.commandQueue.removeFirst();
+-                    ServerFunctionManager.this.server.getProfiler().push(queuedCommand::toString);
+-                    this.depth = queuedCommand.depth;
+-                    queuedCommand.execute(ServerFunctionManager.this, this.commandQueue, i, this.tracer);
++                    ServerFunctionManager.QueuedCommand customfunctiondata_b = (ServerFunctionManager.QueuedCommand) this.commandQueue.removeFirst();
++                    ProfilerFiller gameprofilerfiller = ServerFunctionManager.this.server.getProfiler();
++
++                    Objects.requireNonNull(customfunctiondata_b);
++                    gameprofilerfiller.push(customfunctiondata_b::toString);
++                    this.depth = customfunctiondata_b.depth;
++                    customfunctiondata_b.execute(ServerFunctionManager.this, this.commandQueue, i, this.tracer);
+                     if (!this.nestedCalls.isEmpty()) {
+-                        Lists.reverse(this.nestedCalls).forEach(this.commandQueue::addFirst);
++                        List list = Lists.reverse(this.nestedCalls);
++                        Deque deque = this.commandQueue;
++
++                        Objects.requireNonNull(this.commandQueue);
++                        list.forEach(deque::addFirst);
+                         this.nestedCalls.clear();
+                     }
+                 } finally {
+@@ -160,10 +196,7 @@
+                 }
+ 
+                 ++j;
+-                if (j >= i) {
+-                    return j;
+-                }
+-            }
++            } while (j < i);
+ 
+             return j;
+         }
+@@ -177,6 +210,7 @@
+     }
+ 
+     public static class QueuedCommand {
++
+         private final CommandSourceStack sender;
+         final int depth;
+         private final CommandFunction.Entry entry;
+@@ -190,31 +224,20 @@
+         public void execute(ServerFunctionManager manager, Deque<ServerFunctionManager.QueuedCommand> entries, int maxChainLength, @Nullable ServerFunctionManager.TraceCallbacks tracer) {
+             try {
+                 this.entry.execute(manager, this.sender, entries, maxChainLength, this.depth, tracer);
+-            } catch (CommandSyntaxException var6) {
++            } catch (CommandSyntaxException commandsyntaxexception) {
+                 if (tracer != null) {
+-                    tracer.onError(this.depth, var6.getRawMessage().getString());
++                    tracer.onError(this.depth, commandsyntaxexception.getRawMessage().getString());
+                 }
+-            } catch (Exception var7) {
++            } catch (Exception exception) {
+                 if (tracer != null) {
+-                    tracer.onError(this.depth, var7.getMessage());
++                    tracer.onError(this.depth, exception.getMessage());
+                 }
+             }
+ 
+         }
+ 
+-        @Override
+         public String toString() {
+             return this.entry.toString();
+         }
+     }
+-
+-    public interface TraceCallbacks {
+-        void onCommand(int depth, String command);
+-
+-        void onReturn(int depth, String command, int result);
+-
+-        void onError(int depth, String message);
+-
+-        void onCall(int depth, ResourceLocation function, int size);
+-    }
+ }

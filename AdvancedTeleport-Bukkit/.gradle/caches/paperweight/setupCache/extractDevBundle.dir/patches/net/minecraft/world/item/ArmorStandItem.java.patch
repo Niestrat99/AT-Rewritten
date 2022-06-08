@@ -1,0 +1,97 @@
+--- a/net/minecraft/world/item/ArmorStandItem.java
++++ b/net/minecraft/world/item/ArmorStandItem.java
+@@ -23,40 +23,50 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class ArmorStandItem extends Item {
++
+     public ArmorStandItem(Item.Properties settings) {
+         super(settings);
+     }
+ 
+     @Override
+     public InteractionResult useOn(UseOnContext context) {
+-        Direction direction = context.getClickedFace();
+-        if (direction == Direction.DOWN) {
++        Direction enumdirection = context.getClickedFace();
++
++        if (enumdirection == Direction.DOWN) {
+             return InteractionResult.FAIL;
+         } else {
+-            Level level = context.getLevel();
+-            BlockPlaceContext blockPlaceContext = new BlockPlaceContext(context);
+-            BlockPos blockPos = blockPlaceContext.getClickedPos();
+-            ItemStack itemStack = context.getItemInHand();
+-            Vec3 vec3 = Vec3.atBottomCenterOf(blockPos);
+-            AABB aABB = EntityType.ARMOR_STAND.getDimensions().makeBoundingBox(vec3.x(), vec3.y(), vec3.z());
+-            if (level.noCollision((Entity)null, aABB) && level.getEntities((Entity)null, aABB).isEmpty()) {
+-                if (level instanceof ServerLevel) {
+-                    ServerLevel serverLevel = (ServerLevel)level;
+-                    ArmorStand armorStand = EntityType.ARMOR_STAND.create(serverLevel, itemStack.getTag(), (Component)null, context.getPlayer(), blockPos, MobSpawnType.SPAWN_EGG, true, true);
+-                    if (armorStand == null) {
++            Level world = context.getLevel();
++            BlockPlaceContext blockactioncontext = new BlockPlaceContext(context);
++            BlockPos blockposition = blockactioncontext.getClickedPos();
++            ItemStack itemstack = context.getItemInHand();
++            Vec3 vec3d = Vec3.atBottomCenterOf(blockposition);
++            AABB axisalignedbb = EntityType.ARMOR_STAND.getDimensions().makeBoundingBox(vec3d.x(), vec3d.y(), vec3d.z());
++
++            if (world.noCollision((Entity) null, axisalignedbb) && world.getEntities((Entity) null, axisalignedbb).isEmpty()) {
++                if (world instanceof ServerLevel) {
++                    ServerLevel worldserver = (ServerLevel) world;
++                    ArmorStand entityarmorstand = (ArmorStand) EntityType.ARMOR_STAND.create(worldserver, itemstack.getTag(), (Component) null, context.getPlayer(), blockposition, MobSpawnType.SPAWN_EGG, true, true);
++
++                    if (entityarmorstand == null) {
+                         return InteractionResult.FAIL;
+                     }
+ 
+-                    float f = (float)Mth.floor((Mth.wrapDegrees(context.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
+-                    armorStand.moveTo(armorStand.getX(), armorStand.getY(), armorStand.getZ(), f, 0.0F);
+-                    this.randomizePose(armorStand, level.random);
+-                    serverLevel.addFreshEntityWithPassengers(armorStand);
+-                    level.playSound((Player)null, armorStand.getX(), armorStand.getY(), armorStand.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
+-                    armorStand.gameEvent(GameEvent.ENTITY_PLACE, context.getPlayer());
++                    float f = (float) Mth.floor((Mth.wrapDegrees(context.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
++
++                    entityarmorstand.moveTo(entityarmorstand.getX(), entityarmorstand.getY(), entityarmorstand.getZ(), f, 0.0F);
++                    this.randomizePose(entityarmorstand, world.random);
++                    // CraftBukkit start
++                    if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callEntityPlaceEvent(context, entityarmorstand).isCancelled()) {
++                        return InteractionResult.FAIL;
++                    }
++                    // CraftBukkit end
++                    worldserver.addFreshEntityWithPassengers(entityarmorstand);
++                    world.playSound((Player) null, entityarmorstand.getX(), entityarmorstand.getY(), entityarmorstand.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
++                    entityarmorstand.gameEvent(GameEvent.ENTITY_PLACE, context.getPlayer());
+                 }
+ 
+-                itemStack.shrink(1);
+-                return InteractionResult.sidedSuccess(level.isClientSide);
++                itemstack.shrink(1);
++                return InteractionResult.sidedSuccess(world.isClientSide);
+             } else {
+                 return InteractionResult.FAIL;
+             }
+@@ -64,14 +74,15 @@
+     }
+ 
+     private void randomizePose(ArmorStand stand, RandomSource random) {
+-        Rotations rotations = stand.getHeadPose();
++        Rotations vector3f = stand.getHeadPose();
+         float f = random.nextFloat() * 5.0F;
+-        float g = random.nextFloat() * 20.0F - 10.0F;
+-        Rotations rotations2 = new Rotations(rotations.getX() + f, rotations.getY() + g, rotations.getZ());
+-        stand.setHeadPose(rotations2);
+-        rotations = stand.getBodyPose();
++        float f1 = random.nextFloat() * 20.0F - 10.0F;
++        Rotations vector3f1 = new Rotations(vector3f.getX() + f, vector3f.getY() + f1, vector3f.getZ());
++
++        stand.setHeadPose(vector3f1);
++        vector3f = stand.getBodyPose();
+         f = random.nextFloat() * 10.0F - 5.0F;
+-        rotations2 = new Rotations(rotations.getX(), rotations.getY() + f, rotations.getZ());
+-        stand.setBodyPose(rotations2);
++        vector3f1 = new Rotations(vector3f.getX(), vector3f.getY() + f, vector3f.getZ());
++        stand.setBodyPose(vector3f1);
+     }
+ }

@@ -1,0 +1,266 @@
+--- a/net/minecraft/world/level/block/TripWireBlock.java
++++ b/net/minecraft/world/level/block/TripWireBlock.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.world.level.block;
+ 
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+ import net.minecraft.core.BlockPos;
+@@ -18,11 +19,14 @@
+ import net.minecraft.world.level.block.state.StateDefinition;
+ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+ import net.minecraft.world.level.block.state.properties.BooleanProperty;
++import net.minecraft.world.level.block.state.properties.Property;
+ import net.minecraft.world.level.gameevent.GameEvent;
+ import net.minecraft.world.phys.shapes.CollisionContext;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++import org.bukkit.event.entity.EntityInteractEvent; // CraftBukkit
+ 
+ public class TripWireBlock extends Block {
++
+     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+     public static final BooleanProperty ATTACHED = BlockStateProperties.ATTACHED;
+     public static final BooleanProperty DISARMED = BlockStateProperties.DISARMED;
+@@ -38,25 +42,26 @@
+ 
+     public TripWireBlock(TripWireHookBlock hookBlock, BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, Boolean.valueOf(false)).setValue(ATTACHED, Boolean.valueOf(false)).setValue(DISARMED, Boolean.valueOf(false)).setValue(NORTH, Boolean.valueOf(false)).setValue(EAST, Boolean.valueOf(false)).setValue(SOUTH, Boolean.valueOf(false)).setValue(WEST, Boolean.valueOf(false)));
++        this.registerDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(TripWireBlock.POWERED, false)).setValue(TripWireBlock.ATTACHED, false)).setValue(TripWireBlock.DISARMED, false)).setValue(TripWireBlock.NORTH, false)).setValue(TripWireBlock.EAST, false)).setValue(TripWireBlock.SOUTH, false)).setValue(TripWireBlock.WEST, false));
+         this.hook = hookBlock;
+     }
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return state.getValue(ATTACHED) ? AABB : NOT_ATTACHED_AABB;
++        return (Boolean) state.getValue(TripWireBlock.ATTACHED) ? TripWireBlock.AABB : TripWireBlock.NOT_ATTACHED_AABB;
+     }
+ 
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+-        BlockGetter blockGetter = ctx.getLevel();
+-        BlockPos blockPos = ctx.getClickedPos();
+-        return this.defaultBlockState().setValue(NORTH, Boolean.valueOf(this.shouldConnectTo(blockGetter.getBlockState(blockPos.north()), Direction.NORTH))).setValue(EAST, Boolean.valueOf(this.shouldConnectTo(blockGetter.getBlockState(blockPos.east()), Direction.EAST))).setValue(SOUTH, Boolean.valueOf(this.shouldConnectTo(blockGetter.getBlockState(blockPos.south()), Direction.SOUTH))).setValue(WEST, Boolean.valueOf(this.shouldConnectTo(blockGetter.getBlockState(blockPos.west()), Direction.WEST)));
++        Level world = ctx.getLevel();
++        BlockPos blockposition = ctx.getClickedPos();
++
++        return (BlockState) ((BlockState) ((BlockState) ((BlockState) this.defaultBlockState().setValue(TripWireBlock.NORTH, this.shouldConnectTo(world.getBlockState(blockposition.north()), Direction.NORTH))).setValue(TripWireBlock.EAST, this.shouldConnectTo(world.getBlockState(blockposition.east()), Direction.EAST))).setValue(TripWireBlock.SOUTH, this.shouldConnectTo(world.getBlockState(blockposition.south()), Direction.SOUTH))).setValue(TripWireBlock.WEST, this.shouldConnectTo(world.getBlockState(blockposition.west()), Direction.WEST));
+     }
+ 
+     @Override
+     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+-        return direction.getAxis().isHorizontal() ? state.setValue(PROPERTY_BY_DIRECTION.get(direction), Boolean.valueOf(this.shouldConnectTo(neighborState, direction))) : super.updateShape(state, direction, neighborState, world, pos, neighborPos);
++        return direction.getAxis().isHorizontal() ? (BlockState) state.setValue((Property) TripWireBlock.PROPERTY_BY_DIRECTION.get(direction), this.shouldConnectTo(neighborState, direction)) : super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+     }
+ 
+     @Override
+@@ -69,35 +74,52 @@
+     @Override
+     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
+         if (!moved && !state.is(newState.getBlock())) {
+-            this.updateSource(world, pos, state.setValue(POWERED, Boolean.valueOf(true)));
++            this.updateSource(world, pos, (BlockState) state.setValue(TripWireBlock.POWERED, true), true); // Paper - fix state inconsistency
+         }
+     }
+ 
+     @Override
+     public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+         if (!world.isClientSide && !player.getMainHandItem().isEmpty() && player.getMainHandItem().is(Items.SHEARS)) {
+-            world.setBlock(pos, state.setValue(DISARMED, Boolean.valueOf(true)), 4);
+-            world.gameEvent(player, GameEvent.SHEAR, pos);
++            world.setBlock(pos, (BlockState) state.setValue(TripWireBlock.DISARMED, true), 4);
++            world.gameEvent((Entity) player, GameEvent.SHEAR, pos);
+         }
+ 
+         super.playerWillDestroy(world, pos, state, player);
+     }
+ 
+     private void updateSource(Level world, BlockPos pos, BlockState state) {
+-        for(Direction direction : new Direction[]{Direction.SOUTH, Direction.WEST}) {
+-            for(int i = 1; i < 42; ++i) {
+-                BlockPos blockPos = pos.relative(direction, i);
+-                BlockState blockState = world.getBlockState(blockPos);
+-                if (blockState.is(this.hook)) {
+-                    if (blockState.getValue(TripWireHookBlock.FACING) == direction.getOpposite()) {
+-                        this.hook.calculateState(world, blockPos, blockState, false, true, i, state);
++        // Paper start - fix state inconsistency
++        this.updateSource(world, pos, state, false);
++    }
++
++    private void updateSource(Level world, BlockPos pos, BlockState state, boolean beingRemoved) {
++        // Paper end
++        Direction[] aenumdirection = new Direction[]{Direction.SOUTH, Direction.WEST};
++        int i = aenumdirection.length;
++        int j = 0;
++
++        while (j < i) {
++            Direction enumdirection = aenumdirection[j];
++            int k = 1;
++
++            while (true) {
++                if (k < 42) {
++                    BlockPos blockposition1 = pos.relative(enumdirection, k);
++                    BlockState iblockdata1 = world.getBlockState(blockposition1);
++
++                    if (iblockdata1.is((Block) this.hook)) {
++                        if (iblockdata1.getValue(TripWireHookBlock.FACING) == enumdirection.getOpposite()) {
++                            this.hook.calculateState(world, blockposition1, iblockdata1, false, true, k, state, beingRemoved); // Paper - fix state inconsistency
++                        }
++                    } else if (iblockdata1.is((Block) this)) {
++                        ++k;
++                        continue;
+                     }
+-                    break;
+                 }
+ 
+-                if (!blockState.is(this)) {
+-                    break;
+-                }
++                ++j;
++                break;
+             }
+         }
+ 
+@@ -105,8 +127,9 @@
+ 
+     @Override
+     public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
++        if (!new io.papermc.paper.event.entity.EntityInsideBlockEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, pos)).callEvent()) { return; } // Paper
+         if (!world.isClientSide) {
+-            if (!state.getValue(POWERED)) {
++            if (!(Boolean) state.getValue(TripWireBlock.POWERED)) {
+                 this.checkPressed(world, pos);
+             }
+         }
+@@ -114,54 +137,89 @@
+ 
+     @Override
+     public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+-        if (world.getBlockState(pos).getValue(POWERED)) {
++        if ((Boolean) world.getBlockState(pos).getValue(TripWireBlock.POWERED)) {
+             this.checkPressed(world, pos);
+         }
+     }
+ 
+     private void checkPressed(Level world, BlockPos pos) {
+-        BlockState blockState = world.getBlockState(pos);
+-        boolean bl = blockState.getValue(POWERED);
+-        boolean bl2 = false;
+-        List<? extends Entity> list = world.getEntities((Entity)null, blockState.getShape(world, pos).bounds().move(pos));
++        BlockState iblockdata = world.getBlockState(pos);
++        boolean flag = (Boolean) iblockdata.getValue(TripWireBlock.POWERED);
++        boolean flag1 = false;
++        List<? extends Entity> list = world.getEntities((Entity) null, iblockdata.getShape(world, pos).bounds().move(pos));
++
+         if (!list.isEmpty()) {
+-            for(Entity entity : list) {
++            Iterator iterator = list.iterator();
++
++            while (iterator.hasNext()) {
++                Entity entity = (Entity) iterator.next();
++
+                 if (!entity.isIgnoringBlockTriggers()) {
+-                    bl2 = true;
++                    flag1 = true;
+                     break;
+                 }
+             }
+         }
+ 
+-        if (bl2 != bl) {
+-            blockState = blockState.setValue(POWERED, Boolean.valueOf(bl2));
+-            world.setBlock(pos, blockState, 3);
+-            this.updateSource(world, pos, blockState);
++        // CraftBukkit start - Call interact even when triggering connected tripwire
++        if (flag != flag1 && flag1 && (Boolean)iblockdata.getValue(ATTACHED)) {
++            org.bukkit.World bworld = world.getWorld();
++            org.bukkit.plugin.PluginManager manager = world.getCraftServer().getPluginManager();
++            org.bukkit.block.Block block = bworld.getBlockAt(pos.getX(), pos.getY(), pos.getZ());
++            boolean allowed = false;
++
++            // If all of the events are cancelled block the tripwire trigger, else allow
++            for (Object object : list) {
++                if (object != null) {
++                    org.bukkit.event.Cancellable cancellable;
++
++                    if (object instanceof Player) {
++                        cancellable = org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callPlayerInteractEvent((Player) object, org.bukkit.event.block.Action.PHYSICAL, pos, null, null, null);
++                    } else if (object instanceof Entity) {
++                        cancellable = new EntityInteractEvent(((Entity) object).getBukkitEntity(), block);
++                        manager.callEvent((EntityInteractEvent) cancellable);
++                    } else {
++                        continue;
++                    }
++
++                    if (!cancellable.isCancelled()) {
++                        allowed = true;
++                        break;
++                    }
++                }
++            }
++
++            if (!allowed) {
++                return;
++            }
+         }
++        // CraftBukkit end
+ 
+-        if (bl2) {
+-            world.scheduleTick(new BlockPos(pos), this, 10);
++        if (flag1 != flag) {
++            iblockdata = (BlockState) iblockdata.setValue(TripWireBlock.POWERED, flag1);
++            world.setBlock(pos, iblockdata, 3);
++            this.updateSource(world, pos, iblockdata);
++        }
++
++        if (flag1) {
++            world.scheduleTick(new BlockPos(pos), (Block) this, 10);
+         }
+ 
+     }
+ 
+     public boolean shouldConnectTo(BlockState state, Direction facing) {
+-        if (state.is(this.hook)) {
+-            return state.getValue(TripWireHookBlock.FACING) == facing.getOpposite();
+-        } else {
+-            return state.is(this);
+-        }
++        return state.is((Block) this.hook) ? state.getValue(TripWireHookBlock.FACING) == facing.getOpposite() : state.is((Block) this);
+     }
+ 
+     @Override
+     public BlockState rotate(BlockState state, Rotation rotation) {
+         switch (rotation) {
+             case CLOCKWISE_180:
+-                return state.setValue(NORTH, state.getValue(SOUTH)).setValue(EAST, state.getValue(WEST)).setValue(SOUTH, state.getValue(NORTH)).setValue(WEST, state.getValue(EAST));
++                return (BlockState) ((BlockState) ((BlockState) ((BlockState) state.setValue(TripWireBlock.NORTH, (Boolean) state.getValue(TripWireBlock.SOUTH))).setValue(TripWireBlock.EAST, (Boolean) state.getValue(TripWireBlock.WEST))).setValue(TripWireBlock.SOUTH, (Boolean) state.getValue(TripWireBlock.NORTH))).setValue(TripWireBlock.WEST, (Boolean) state.getValue(TripWireBlock.EAST));
+             case COUNTERCLOCKWISE_90:
+-                return state.setValue(NORTH, state.getValue(EAST)).setValue(EAST, state.getValue(SOUTH)).setValue(SOUTH, state.getValue(WEST)).setValue(WEST, state.getValue(NORTH));
++                return (BlockState) ((BlockState) ((BlockState) ((BlockState) state.setValue(TripWireBlock.NORTH, (Boolean) state.getValue(TripWireBlock.EAST))).setValue(TripWireBlock.EAST, (Boolean) state.getValue(TripWireBlock.SOUTH))).setValue(TripWireBlock.SOUTH, (Boolean) state.getValue(TripWireBlock.WEST))).setValue(TripWireBlock.WEST, (Boolean) state.getValue(TripWireBlock.NORTH));
+             case CLOCKWISE_90:
+-                return state.setValue(NORTH, state.getValue(WEST)).setValue(EAST, state.getValue(NORTH)).setValue(SOUTH, state.getValue(EAST)).setValue(WEST, state.getValue(SOUTH));
++                return (BlockState) ((BlockState) ((BlockState) ((BlockState) state.setValue(TripWireBlock.NORTH, (Boolean) state.getValue(TripWireBlock.WEST))).setValue(TripWireBlock.EAST, (Boolean) state.getValue(TripWireBlock.NORTH))).setValue(TripWireBlock.SOUTH, (Boolean) state.getValue(TripWireBlock.EAST))).setValue(TripWireBlock.WEST, (Boolean) state.getValue(TripWireBlock.SOUTH));
+             default:
+                 return state;
+         }
+@@ -171,9 +229,9 @@
+     public BlockState mirror(BlockState state, Mirror mirror) {
+         switch (mirror) {
+             case LEFT_RIGHT:
+-                return state.setValue(NORTH, state.getValue(SOUTH)).setValue(SOUTH, state.getValue(NORTH));
++                return (BlockState) ((BlockState) state.setValue(TripWireBlock.NORTH, (Boolean) state.getValue(TripWireBlock.SOUTH))).setValue(TripWireBlock.SOUTH, (Boolean) state.getValue(TripWireBlock.NORTH));
+             case FRONT_BACK:
+-                return state.setValue(EAST, state.getValue(WEST)).setValue(WEST, state.getValue(EAST));
++                return (BlockState) ((BlockState) state.setValue(TripWireBlock.EAST, (Boolean) state.getValue(TripWireBlock.WEST))).setValue(TripWireBlock.WEST, (Boolean) state.getValue(TripWireBlock.EAST));
+             default:
+                 return super.mirror(state, mirror);
+         }
+@@ -181,6 +239,6 @@
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(POWERED, ATTACHED, DISARMED, NORTH, EAST, WEST, SOUTH);
++        builder.add(TripWireBlock.POWERED, TripWireBlock.ATTACHED, TripWireBlock.DISARMED, TripWireBlock.NORTH, TripWireBlock.EAST, TripWireBlock.WEST, TripWireBlock.SOUTH);
+     }
+ }

@@ -1,0 +1,36 @@
+--- a/net/minecraft/network/CipherDecoder.java
++++ b/net/minecraft/network/CipherDecoder.java
+@@ -7,13 +7,29 @@
+ import javax.crypto.Cipher;
+ 
+ public class CipherDecoder extends MessageToMessageDecoder<ByteBuf> {
+-    private final CipherBase cipher;
++    private final com.velocitypowered.natives.encryption.VelocityCipher cipher; // Paper
+ 
+-    public CipherDecoder(Cipher cipher) {
+-        this.cipher = new CipherBase(cipher);
++    public CipherDecoder(com.velocitypowered.natives.encryption.VelocityCipher cipher) {  // Paper
++        this.cipher = cipher;  // Paper
+     }
+ 
+     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+-        list.add(this.cipher.decipher(channelHandlerContext, byteBuf));
++        // Paper start
++        ByteBuf compatible = com.velocitypowered.natives.util.MoreByteBufUtils.ensureCompatible(channelHandlerContext.alloc(), cipher, byteBuf);
++        try {
++            cipher.process(compatible);
++            list.add(compatible);
++        } catch (Exception e) {
++            compatible.release(); // compatible will never be used if we throw an exception
++            throw e;
++        }
++        // Paper end
++    }
++
++    // Paper start
++    @Override
++    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
++        cipher.close();
+     }
++    // Paper end
+ }

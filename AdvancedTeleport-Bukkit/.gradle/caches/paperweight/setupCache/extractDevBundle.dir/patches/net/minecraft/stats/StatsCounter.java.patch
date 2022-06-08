@@ -1,0 +1,29 @@
+--- a/net/minecraft/stats/StatsCounter.java
++++ b/net/minecraft/stats/StatsCounter.java
+@@ -6,15 +6,23 @@
+ import net.minecraft.world.entity.player.Player;
+ 
+ public class StatsCounter {
+-    protected final Object2IntMap<Stat<?>> stats = Object2IntMaps.synchronize(new Object2IntOpenHashMap<>());
++
++    protected final Object2IntMap<Stat<?>> stats = Object2IntMaps.synchronize(new Object2IntOpenHashMap());
+ 
+     public StatsCounter() {
+         this.stats.defaultReturnValue(0);
+     }
+ 
+     public void increment(Player player, Stat<?> stat, int value) {
+-        int i = (int)Math.min((long)this.getValue(stat) + (long)value, 2147483647L);
+-        this.setValue(player, stat, i);
++        int j = (int) Math.min((long) this.getValue(stat) + (long) value, 2147483647L);
++
++        // CraftBukkit start - fire Statistic events
++        org.bukkit.event.Cancellable cancellable = org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.handleStatisticsIncrease(player, stat, this.getValue(stat), j);
++        if (cancellable != null && cancellable.isCancelled()) {
++            return;
++        }
++        // CraftBukkit end
++        this.setValue(player, stat, j);
+     }
+ 
+     public void setValue(Player player, Stat<?> stat, int value) {

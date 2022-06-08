@@ -1,0 +1,52 @@
+--- a/net/minecraft/world/level/block/entity/BellBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/BellBlockEntity.java
+@@ -61,6 +61,11 @@
+ 
+         if (blockEntity.ticks >= 50) {
+             blockEntity.shaking = false;
++            // Paper start
++            if (!blockEntity.resonating) {
++                blockEntity.nearbyEntities.clear();
++            }
++            // Paper end
+             blockEntity.ticks = 0;
+         }
+ 
+@@ -74,6 +79,7 @@
+                 ++blockEntity.resonationTicks;
+             } else {
+                 bellEffect.run(world, pos, blockEntity.nearbyEntities);
++                blockEntity.nearbyEntities.clear(); // Paper
+                 blockEntity.resonating = false;
+             }
+         }
+@@ -116,6 +122,7 @@
+             }
+         }
+ 
++        this.nearbyEntities.removeIf(e -> !e.isAlive()); // Paper
+     }
+ 
+     private static boolean areRaidersNearby(BlockPos pos, List<LivingEntity> hearingEntities) {
+@@ -131,7 +138,7 @@
+     private static void makeRaidersGlow(Level world, BlockPos pos, List<LivingEntity> hearingEntities) {
+         hearingEntities.stream().filter((entity) -> {
+             return isRaiderWithinRange(pos, entity);
+-        }).forEach(BellBlockEntity::glow);
++        }).forEach(entity -> glow(entity, pos)); // Paper - pass BlockPos
+     }
+ 
+     private static void showBellParticles(Level world, BlockPos pos, List<LivingEntity> hearingEntities) {
+@@ -163,7 +170,11 @@
+         return entity.isAlive() && !entity.isRemoved() && pos.closerToCenterThan(entity.position(), 48.0D) && entity.getType().is(EntityTypeTags.RAIDERS);
+     }
+ 
+-    private static void glow(LivingEntity entity) {
++    // Paper start
++    private static void glow(LivingEntity entity) { glow(entity, null); }
++    private static void glow(LivingEntity entity, @javax.annotation.Nullable BlockPos pos) {
++        if (pos != null && !new io.papermc.paper.event.block.BellRevealRaiderEvent(entity.level.getWorld().getBlockAt(io.papermc.paper.util.MCUtil.toLocation(entity.level, pos)), entity.getBukkitEntity()).callEvent()) return;
++        // Paper end
+         entity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60));
+     }
+ 

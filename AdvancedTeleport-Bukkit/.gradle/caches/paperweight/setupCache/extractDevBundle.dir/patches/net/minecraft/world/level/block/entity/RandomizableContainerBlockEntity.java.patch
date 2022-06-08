@@ -1,0 +1,76 @@
+--- a/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
+@@ -28,6 +28,7 @@
+     @Nullable
+     public ResourceLocation lootTable;
+     public long lootTableSeed;
++    public final com.destroystokyo.paper.loottable.PaperLootableInventoryData lootableData = new com.destroystokyo.paper.loottable.PaperLootableInventoryData(new com.destroystokyo.paper.loottable.PaperTileEntityLootableInventory(this)); // Paper
+ 
+     protected RandomizableContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+         super(type, pos, state);
+@@ -42,16 +43,19 @@
+     }
+ 
+     protected boolean tryLoadLootTable(CompoundTag nbt) {
++        this.lootableData.loadNbt(nbt); // Paper
+         if (nbt.contains("LootTable", 8)) {
+             this.lootTable = new ResourceLocation(nbt.getString("LootTable"));
++            try { org.bukkit.craftbukkit.v1_19_R1.util.CraftNamespacedKey.fromMinecraft(this.lootTable); } catch (IllegalArgumentException ex) { this.lootTable = null; } // Paper - validate
+             this.lootTableSeed = nbt.getLong("LootTableSeed");
+-            return true;
++            return false; // Paper - always load the items, table may still remain
+         } else {
+             return false;
+         }
+     }
+ 
+     protected boolean trySaveLootTable(CompoundTag nbt) {
++        this.lootableData.saveNbt(nbt); // Paper
+         if (this.lootTable == null) {
+             return false;
+         } else {
+@@ -60,18 +64,19 @@
+                 nbt.putLong("LootTableSeed", this.lootTableSeed);
+             }
+ 
+-            return true;
++            return false; // Paper - always save the items, table may still remain
+         }
+     }
+ 
+     public void unpackLootTable(@Nullable Player player) {
+-        if (this.lootTable != null && this.level.getServer() != null) {
++        if (this.lootableData.shouldReplenish(player) && this.level.getServer() != null) { // Paper
+             LootTable lootTable = this.level.getServer().getLootTables().get(this.lootTable);
+             if (player instanceof ServerPlayer) {
+                 CriteriaTriggers.GENERATE_LOOT.trigger((ServerPlayer)player, this.lootTable);
+             }
+ 
+-            this.lootTable = null;
++            //this.lootTable = null; // Paper
++            this.lootableData.processRefill(player); // Paper
+             LootContext.Builder builder = (new LootContext.Builder((ServerLevel)this.level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(this.worldPosition)).withOptionalRandomSeed(this.lootTableSeed);
+             if (player != null) {
+                 builder.withLuck(player.getLuck()).withParameter(LootContextParams.THIS_ENTITY, player);
+@@ -90,12 +95,19 @@
+     @Override
+     public boolean isEmpty() {
+         this.unpackLootTable((Player)null);
+-        return this.getItems().stream().allMatch(ItemStack::isEmpty);
++        // Paper start
++        for (ItemStack itemStack : this.getItems()) {
++            if (!itemStack.isEmpty()) {
++                return false;
++            }
++        }
++        // Paper end
++        return true;
+     }
+ 
+     @Override
+     public ItemStack getItem(int slot) {
+-        this.unpackLootTable((Player)null);
++        if (slot == 0) this.unpackLootTable((Player) null); // Paper
+         return this.getItems().get(slot);
+     }
+ 

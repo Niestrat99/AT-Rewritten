@@ -1,0 +1,195 @@
+--- a/net/minecraft/nbt/IntArrayTag.java
++++ b/net/minecraft/nbt/IntArrayTag.java
+@@ -1,3 +1,4 @@
++// mc-dev import
+ package net.minecraft.nbt;
+ 
+ import java.io.DataInput;
+@@ -8,32 +9,35 @@
+ import org.apache.commons.lang3.ArrayUtils;
+ 
+ public class IntArrayTag extends CollectionTag<IntTag> {
++
+     private static final int SELF_SIZE_IN_BITS = 192;
+     public static final TagType<IntArrayTag> TYPE = new TagType.VariableSize<IntArrayTag>() {
+         @Override
+-        public IntArrayTag load(DataInput dataInput, int i, NbtAccounter nbtAccounter) throws IOException {
+-            nbtAccounter.accountBits(192L);
+-            int j = dataInput.readInt();
+-            nbtAccounter.accountBits(32L * (long)j);
+-            int[] is = new int[j];
++        public IntArrayTag load(DataInput input, int depth, NbtAccounter tracker) throws IOException {
++            tracker.accountBits(192L);
++            int j = input.readInt();
++            com.google.common.base.Preconditions.checkArgument( j < 1 << 24); // Spigot
+ 
+-            for(int k = 0; k < j; ++k) {
+-                is[k] = dataInput.readInt();
++            tracker.accountBits(32L * (long) j);
++            int[] aint = new int[j];
++
++            for (int k = 0; k < j; ++k) {
++                aint[k] = input.readInt();
+             }
+ 
+-            return new IntArrayTag(is);
++            return new IntArrayTag(aint);
+         }
+ 
+         @Override
+         public StreamTagVisitor.ValueResult parse(DataInput input, StreamTagVisitor visitor) throws IOException {
+             int i = input.readInt();
+-            int[] is = new int[i];
++            int[] aint = new int[i];
+ 
+-            for(int j = 0; j < i; ++j) {
+-                is[j] = input.readInt();
++            for (int j = 0; j < i; ++j) {
++                aint[j] = input.readInt();
+             }
+ 
+-            return visitor.visit(is);
++            return visitor.visit(aint);
+         }
+ 
+         @Override
+@@ -58,26 +62,31 @@
+     }
+ 
+     public IntArrayTag(List<Integer> value) {
+-        this(toArray(value));
++        this(IntArrayTag.toArray(value));
+     }
+ 
+     private static int[] toArray(List<Integer> list) {
+-        int[] is = new int[list.size()];
++        int[] aint = new int[list.size()];
+ 
+-        for(int i = 0; i < list.size(); ++i) {
+-            Integer integer = list.get(i);
+-            is[i] = integer == null ? 0 : integer;
++        for (int i = 0; i < list.size(); ++i) {
++            Integer integer = (Integer) list.get(i);
++
++            aint[i] = integer == null ? 0 : integer;
+         }
+ 
+-        return is;
++        return aint;
+     }
+ 
+     @Override
+     public void write(DataOutput output) throws IOException {
+         output.writeInt(this.data.length);
++        int[] aint = this.data;
++        int i = aint.length;
+ 
+-        for(int i : this.data) {
+-            output.writeInt(i);
++        for (int j = 0; j < i; ++j) {
++            int k = aint[j];
++
++            output.writeInt(k);
+         }
+ 
+     }
+@@ -89,7 +98,7 @@
+ 
+     @Override
+     public TagType<IntArrayTag> getType() {
+-        return TYPE;
++        return IntArrayTag.TYPE;
+     }
+ 
+     @Override
+@@ -99,21 +108,16 @@
+ 
+     @Override
+     public IntArrayTag copy() {
+-        int[] is = new int[this.data.length];
+-        System.arraycopy(this.data, 0, is, 0, this.data.length);
+-        return new IntArrayTag(is);
++        int[] aint = new int[this.data.length];
++
++        System.arraycopy(this.data, 0, aint, 0, this.data.length);
++        return new IntArrayTag(aint);
+     }
+ 
+-    @Override
+     public boolean equals(Object object) {
+-        if (this == object) {
+-            return true;
+-        } else {
+-            return object instanceof IntArrayTag && Arrays.equals(this.data, ((IntArrayTag)object).data);
+-        }
++        return this == object ? true : object instanceof IntArrayTag && Arrays.equals(this.data, ((IntArrayTag) object).data);
+     }
+ 
+-    @Override
+     public int hashCode() {
+         return Arrays.hashCode(this.data);
+     }
+@@ -127,32 +131,29 @@
+         visitor.visitIntArray(this);
+     }
+ 
+-    @Override
+     public int size() {
+         return this.data.length;
+     }
+ 
+-    @Override
+     public IntTag get(int i) {
+         return IntTag.valueOf(this.data[i]);
+     }
+ 
+-    @Override
+-    public IntTag set(int i, IntTag intTag) {
++    public IntTag set(int i, IntTag nbttagint) {
+         int j = this.data[i];
+-        this.data[i] = intTag.getAsInt();
++
++        this.data[i] = nbttagint.getAsInt();
+         return IntTag.valueOf(j);
+     }
+ 
+-    @Override
+-    public void add(int i, IntTag intTag) {
+-        this.data = ArrayUtils.add(this.data, i, intTag.getAsInt());
++    public void add(int i, IntTag nbttagint) {
++        this.data = ArrayUtils.add(this.data, i, nbttagint.getAsInt());
+     }
+ 
+     @Override
+     public boolean setTag(int index, Tag element) {
+         if (element instanceof NumericTag) {
+-            this.data[index] = ((NumericTag)element).getAsInt();
++            this.data[index] = ((NumericTag) element).getAsInt();
+             return true;
+         } else {
+             return false;
+@@ -162,7 +163,7 @@
+     @Override
+     public boolean addTag(int index, Tag element) {
+         if (element instanceof NumericTag) {
+-            this.data = ArrayUtils.add(this.data, index, ((NumericTag)element).getAsInt());
++            this.data = ArrayUtils.add(this.data, index, ((NumericTag) element).getAsInt());
+             return true;
+         } else {
+             return false;
+@@ -172,6 +173,7 @@
+     @Override
+     public IntTag remove(int i) {
+         int j = this.data[i];
++
+         this.data = ArrayUtils.remove(this.data, i);
+         return IntTag.valueOf(j);
+     }
+@@ -181,7 +183,6 @@
+         return 3;
+     }
+ 
+-    @Override
+     public void clear() {
+         this.data = new int[0];
+     }

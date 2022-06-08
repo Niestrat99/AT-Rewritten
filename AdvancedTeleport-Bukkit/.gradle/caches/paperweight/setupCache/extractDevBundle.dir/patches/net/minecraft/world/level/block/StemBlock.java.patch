@@ -1,0 +1,112 @@
+--- a/net/minecraft/world/level/block/StemBlock.java
++++ b/net/minecraft/world/level/block/StemBlock.java
+@@ -10,6 +10,7 @@
+ import net.minecraft.world.item.Item;
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.level.BlockGetter;
++import net.minecraft.world.level.ItemLike;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.block.state.BlockBehaviour;
+ import net.minecraft.world.level.block.state.BlockState;
+@@ -18,8 +19,10 @@
+ import net.minecraft.world.level.block.state.properties.IntegerProperty;
+ import net.minecraft.world.phys.shapes.CollisionContext;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory; // CraftBukkit
+ 
+ public class StemBlock extends BushBlock implements BonemealableBlock {
++
+     public static final int MAX_AGE = 7;
+     public static final IntegerProperty AGE = BlockStateProperties.AGE_7;
+     protected static final float AABB_OFFSET = 1.0F;
+@@ -31,12 +34,12 @@
+         super(settings);
+         this.fruit = gourdBlock;
+         this.seedSupplier = pickBlockItem;
+-        this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
++        this.registerDefaultState((BlockState) ((BlockState) this.stateDefinition.any()).setValue(StemBlock.AGE, 0));
+     }
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return SHAPE_BY_AGE[state.getValue(AGE)];
++        return StemBlock.SHAPE_BY_AGE[(Integer) state.getValue(StemBlock.AGE)];
+     }
+ 
+     @Override
+@@ -48,18 +51,25 @@
+     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+         if (world.getRawBrightness(pos, 0) >= 9) {
+             float f = CropBlock.getGrowthSpeed(this, world, pos);
+-            if (random.nextInt((int)(25.0F / f) + 1) == 0) {
+-                int i = state.getValue(AGE);
++
++            if (random.nextFloat() < ((this == Blocks.PUMPKIN_STEM ? world.spigotConfig.pumpkinModifier : world.spigotConfig.melonModifier) / (100.0f * (Math.floor((25.0F / f) + 1))))) { // Spigot - SPIGOT-7159: Better modifier resolution
++                int i = (Integer) state.getValue(StemBlock.AGE);
++
+                 if (i < 7) {
+-                    state = state.setValue(AGE, Integer.valueOf(i + 1));
+-                    world.setBlock(pos, state, 2);
++                    state = (BlockState) state.setValue(StemBlock.AGE, i + 1);
++                    CraftEventFactory.handleBlockGrowEvent(world, pos, state, 2); // CraftBukkit
+                 } else {
+-                    Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(random);
+-                    BlockPos blockPos = pos.relative(direction);
+-                    BlockState blockState = world.getBlockState(blockPos.below());
+-                    if (world.getBlockState(blockPos).isAir() && (blockState.is(Blocks.FARMLAND) || blockState.is(BlockTags.DIRT))) {
+-                        world.setBlockAndUpdate(blockPos, this.fruit.defaultBlockState());
+-                        world.setBlockAndUpdate(pos, this.fruit.getAttachedStem().defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, direction));
++                    Direction enumdirection = Direction.Plane.HORIZONTAL.getRandomDirection(random);
++                    BlockPos blockposition1 = pos.relative(enumdirection);
++                    BlockState iblockdata1 = world.getBlockState(blockposition1.below());
++
++                    if (world.getBlockState(blockposition1).isAir() && (iblockdata1.is(Blocks.FARMLAND) || iblockdata1.is(BlockTags.DIRT))) {
++                        // CraftBukkit start
++                        if (!CraftEventFactory.handleBlockGrowEvent(world, blockposition1, this.fruit.defaultBlockState())) {
++                            return;
++                        }
++                        // CraftBukkit end
++                        world.setBlockAndUpdate(pos, (BlockState) this.fruit.getAttachedStem().defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, enumdirection));
+                     }
+                 }
+             }
+@@ -69,12 +79,12 @@
+ 
+     @Override
+     public ItemStack getCloneItemStack(BlockGetter world, BlockPos pos, BlockState state) {
+-        return new ItemStack(this.seedSupplier.get());
++        return new ItemStack((ItemLike) this.seedSupplier.get());
+     }
+ 
+     @Override
+     public boolean isValidBonemealTarget(BlockGetter world, BlockPos pos, BlockState state, boolean isClient) {
+-        return state.getValue(AGE) != 7;
++        return (Integer) state.getValue(StemBlock.AGE) != 7;
+     }
+ 
+     @Override
+@@ -84,18 +94,19 @@
+ 
+     @Override
+     public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+-        int i = Math.min(7, state.getValue(AGE) + Mth.nextInt(world.random, 2, 5));
+-        BlockState blockState = state.setValue(AGE, Integer.valueOf(i));
+-        world.setBlock(pos, blockState, 2);
++        int i = Math.min(7, (Integer) state.getValue(StemBlock.AGE) + Mth.nextInt(world.random, 2, 5));
++        BlockState iblockdata1 = (BlockState) state.setValue(StemBlock.AGE, i);
++
++        CraftEventFactory.handleBlockGrowEvent(world, pos, iblockdata1, 2); // CraftBukkit
+         if (i == 7) {
+-            blockState.randomTick(world, pos, world.random);
++            iblockdata1.randomTick(world, pos, world.random);
+         }
+ 
+     }
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(AGE);
++        builder.add(StemBlock.AGE);
+     }
+ 
+     public StemGrownBlock getFruit() {

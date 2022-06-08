@@ -1,0 +1,118 @@
+--- a/net/minecraft/world/entity/NeutralMob.java
++++ b/net/minecraft/world/entity/NeutralMob.java
+@@ -10,6 +10,7 @@
+ import net.minecraft.world.level.Level;
+ 
+ public interface NeutralMob {
++
+     String TAG_ANGER_TIME = "AngerTime";
+     String TAG_ANGRY_AT = "AngryAt";
+ 
+@@ -36,37 +37,29 @@
+         this.setRemainingPersistentAngerTime(nbt.getInt("AngerTime"));
+         if (world instanceof ServerLevel) {
+             if (!nbt.hasUUID("AngryAt")) {
+-                this.setPersistentAngerTarget((UUID)null);
++                this.setPersistentAngerTarget((UUID) null);
+             } else {
+-                UUID uUID = nbt.getUUID("AngryAt");
+-                this.setPersistentAngerTarget(uUID);
+-                Entity entity = ((ServerLevel)world).getEntity(uUID);
+-                if (entity != null) {
+-                    if (entity instanceof Mob) {
+-                        this.setLastHurtByMob((Mob)entity);
+-                    }
+-
+-                    if (entity.getType() == EntityType.PLAYER) {
+-                        this.setLastHurtByPlayer((Player)entity);
+-                    }
++                UUID uuid = nbt.getUUID("AngryAt");
+ 
+-                }
++                this.setPersistentAngerTarget(uuid);
++                // Paper - Moved diff to separate method
+             }
+         }
+     }
+ 
+     default void updatePersistentAnger(ServerLevel world, boolean angerPersistent) {
+-        LivingEntity livingEntity = this.getTarget();
+-        UUID uUID = this.getPersistentAngerTarget();
+-        if ((livingEntity == null || livingEntity.isDeadOrDying()) && uUID != null && world.getEntity(uUID) instanceof Mob) {
++        LivingEntity entityliving = this.getTarget();
++        UUID uuid = this.getPersistentAngerTarget();
++
++        if ((entityliving == null || entityliving.isDeadOrDying()) && uuid != null && world.getEntity(uuid) instanceof Mob) {
+             this.stopBeingAngry();
+         } else {
+-            if (livingEntity != null && !Objects.equals(uUID, livingEntity.getUUID())) {
+-                this.setPersistentAngerTarget(livingEntity.getUUID());
++            if (entityliving != null && !Objects.equals(uuid, entityliving.getUUID())) {
++                this.setPersistentAngerTarget(entityliving.getUUID());
+                 this.startPersistentAngerTimer();
+             }
+ 
+-            if (this.getRemainingPersistentAngerTime() > 0 && (livingEntity == null || livingEntity.getType() != EntityType.PLAYER || !angerPersistent)) {
++            if (this.getRemainingPersistentAngerTime() > 0 && (entityliving == null || entityliving.getType() != EntityType.PLAYER || !angerPersistent)) {
+                 this.setRemainingPersistentAngerTime(this.getRemainingPersistentAngerTime() - 1);
+                 if (this.getRemainingPersistentAngerTime() == 0) {
+                     this.stopBeingAngry();
+@@ -77,11 +70,7 @@
+     }
+ 
+     default boolean isAngryAt(LivingEntity entity) {
+-        if (!this.canAttack(entity)) {
+-            return false;
+-        } else {
+-            return entity.getType() == EntityType.PLAYER && this.isAngryAtAllPlayers(entity.level) ? true : entity.getUUID().equals(this.getPersistentAngerTarget());
+-        }
++        return !this.canAttack(entity) ? false : (entity.getType() == EntityType.PLAYER && this.isAngryAtAllPlayers(entity.level) ? true : entity.getUUID().equals(this.getPersistentAngerTarget()));
+     }
+ 
+     default boolean isAngryAtAllPlayers(Level world) {
+@@ -106,9 +95,9 @@
+     }
+ 
+     default void stopBeingAngry() {
+-        this.setLastHurtByMob((LivingEntity)null);
+-        this.setPersistentAngerTarget((UUID)null);
+-        this.setTarget((LivingEntity)null);
++        this.setLastHurtByMob((LivingEntity) null);
++        this.setPersistentAngerTarget((UUID) null);
++        this.setTarget((LivingEntity) null, org.bukkit.event.entity.EntityTargetEvent.TargetReason.FORGOT_TARGET, true); // CraftBukkit
+         this.setRemainingPersistentAngerTime(0);
+     }
+ 
+@@ -121,8 +110,32 @@
+ 
+     void setTarget(@Nullable LivingEntity target);
+ 
++    boolean setTarget(@Nullable LivingEntity entityliving, org.bukkit.event.entity.EntityTargetEvent.TargetReason reason, boolean fireEvent); // CraftBukkit
++
+     boolean canAttack(LivingEntity target);
+ 
+     @Nullable
+     LivingEntity getTarget();
++
++    // Paper start - Update last hurt when ticking
++    default void tickInitialPersistentAnger(Level level) {
++        UUID target = getPersistentAngerTarget();
++        if (target == null) {
++            return;
++        }
++
++        Entity entity = ((ServerLevel) level).getEntity(target);
++
++        if (entity != null) {
++            if (entity instanceof Mob) {
++                this.setLastHurtByMob((Mob) entity);
++            }
++
++            if (entity.getType() == EntityType.PLAYER) {
++                this.setLastHurtByPlayer((Player) entity);
++            }
++
++        }
++    }
++    // Paper end
+ }

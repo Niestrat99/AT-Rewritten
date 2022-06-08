@@ -1,0 +1,22 @@
+--- a/net/minecraft/world/level/block/piston/PistonMovingBlockEntity.java
++++ b/net/minecraft/world/level/block/piston/PistonMovingBlockEntity.java
+@@ -140,6 +140,10 @@
+                                 }
+ 
+                                 entity.setDeltaMovement(e, g, h);
++                                // Paper - EAR items stuck in in slime pushed by a piston
++                                entity.activatedTick = Math.max(entity.activatedTick, net.minecraft.server.MinecraftServer.currentTick + 10);
++                                entity.activatedImmunityTick = Math.max(entity.activatedImmunityTick, net.minecraft.server.MinecraftServer.currentTick + 10);
++                                // Paper end
+                                 break;
+                             }
+                         }
+@@ -281,7 +285,7 @@
+                 if (world.getBlockState(pos).is(Blocks.MOVING_PISTON)) {
+                     BlockState blockState = Block.updateFromNeighbourShapes(blockEntity.movedState, world, pos);
+                     if (blockState.isAir()) {
+-                        world.setBlock(pos, blockEntity.movedState, 84);
++                        world.setBlock(pos, blockEntity.movedState, io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.allowPistonDuplication ? 84 : (84 | 2)); // Paper - force notify (flag 2), it's possible the set type by the piston block (which doesn't notify) set this block to air
+                         Block.updateOrDestroy(blockEntity.movedState, blockState, world, pos, 3);
+                     } else {
+                         if (blockState.hasProperty(BlockStateProperties.WATERLOGGED) && blockState.getValue(BlockStateProperties.WATERLOGGED)) {

@@ -1,0 +1,108 @@
+--- a/net/minecraft/world/level/block/MushroomBlock.java
++++ b/net/minecraft/world/level/block/MushroomBlock.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.world.level.block;
+ 
++import java.util.Iterator;
+ import java.util.function.Supplier;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Holder;
+@@ -14,8 +15,12 @@
+ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+ import net.minecraft.world.phys.shapes.CollisionContext;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++// CraftBukkit start
++import org.bukkit.TreeType;
++// CraftBukkit end
+ 
+ public class MushroomBlock extends BushBlock implements BonemealableBlock {
++
+     protected static final float AABB_OFFSET = 3.0F;
+     protected static final VoxelShape SHAPE = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 6.0D, 11.0D);
+     private final Supplier<Holder<? extends ConfiguredFeature<?, ?>>> featureSupplier;
+@@ -27,17 +32,20 @@
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return SHAPE;
++        return MushroomBlock.SHAPE;
+     }
+ 
+     @Override
+     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+-        if (random.nextInt(25) == 0) {
++        if (random.nextFloat() < (world.spigotConfig.mushroomModifier / (100.0f * 25))) { // Spigot - SPIGOT-7159: Better modifier resolution
+             int i = 5;
+-            int j = 4;
++            boolean flag = true;
++            Iterator iterator = BlockPos.betweenClosed(pos.offset(-4, -1, -4), pos.offset(4, 1, 4)).iterator();
+ 
+-            for(BlockPos blockPos : BlockPos.betweenClosed(pos.offset(-4, -1, -4), pos.offset(4, 1, 4))) {
+-                if (world.getBlockState(blockPos).is(this)) {
++            while (iterator.hasNext()) {
++                BlockPos blockposition1 = (BlockPos) iterator.next();
++
++                if (world.getBlockState(blockposition1).is((Block) this)) {
+                     --i;
+                     if (i <= 0) {
+                         return;
+@@ -45,18 +53,18 @@
+                 }
+             }
+ 
+-            BlockPos blockPos2 = pos.offset(random.nextInt(3) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(3) - 1);
++            BlockPos blockposition2 = pos.offset(random.nextInt(3) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(3) - 1);
+ 
+-            for(int k = 0; k < 4; ++k) {
+-                if (world.isEmptyBlock(blockPos2) && state.canSurvive(world, blockPos2)) {
+-                    pos = blockPos2;
++            for (int j = 0; j < 4; ++j) {
++                if (world.isEmptyBlock(blockposition2) && state.canSurvive(world, blockposition2)) {
++                    pos = blockposition2;
+                 }
+ 
+-                blockPos2 = pos.offset(random.nextInt(3) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(3) - 1);
++                blockposition2 = pos.offset(random.nextInt(3) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(3) - 1);
+             }
+ 
+-            if (world.isEmptyBlock(blockPos2) && state.canSurvive(world, blockPos2)) {
+-                world.setBlock(blockPos2, state, 2);
++            if (world.isEmptyBlock(blockposition2) && state.canSurvive(world, blockposition2)) {
++                org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.handleBlockSpreadEvent(world, pos, blockposition2, state, 2); // CraftBukkit
+             }
+         }
+ 
+@@ -69,18 +77,16 @@
+ 
+     @Override
+     public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+-        BlockPos blockPos = pos.below();
+-        BlockState blockState = world.getBlockState(blockPos);
+-        if (blockState.is(BlockTags.MUSHROOM_GROW_BLOCK)) {
+-            return true;
+-        } else {
+-            return world.getRawBrightness(pos, 0) < 13 && this.mayPlaceOn(blockState, world, blockPos);
+-        }
++        BlockPos blockposition1 = pos.below();
++        BlockState iblockdata1 = world.getBlockState(blockposition1);
++
++        return iblockdata1.is(BlockTags.MUSHROOM_GROW_BLOCK) ? true : world.getRawBrightness(pos, 0) < 13 && this.mayPlaceOn(iblockdata1, world, blockposition1);
+     }
+ 
+     public boolean growMushroom(ServerLevel world, BlockPos pos, BlockState state, RandomSource random) {
+         world.removeBlock(pos, false);
+-        if (this.featureSupplier.get().value().place(world, world.getChunkSource().getGenerator(), random, pos)) {
++        SaplingBlock.treeType = (this == Blocks.BROWN_MUSHROOM) ? TreeType.BROWN_MUSHROOM : TreeType.RED_MUSHROOM; // CraftBukkit // Paper
++        if (((ConfiguredFeature) ((Holder) this.featureSupplier.get()).value()).place(world, world.getChunkSource().getGenerator(), random, pos)) {
+             return true;
+         } else {
+             world.setBlock(pos, state, 3);
+@@ -95,7 +101,7 @@
+ 
+     @Override
+     public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+-        return (double)random.nextFloat() < 0.4D;
++        return (double) random.nextFloat() < 0.4D;
+     }
+ 
+     @Override

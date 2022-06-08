@@ -1,0 +1,656 @@
+--- a/net/minecraft/world/level/material/FlowingFluid.java
++++ b/net/minecraft/world/level/material/FlowingFluid.java
+@@ -7,7 +7,9 @@
+ import it.unimi.dsi.fastutil.shorts.Short2BooleanOpenHashMap;
+ import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
+ import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
++import java.util.Iterator;
+ import java.util.Map;
++import java.util.Map.Entry;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.tags.BlockTags;
+@@ -27,103 +29,130 @@
+ import net.minecraft.world.phys.Vec3;
+ import net.minecraft.world.phys.shapes.Shapes;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++// CraftBukkit start
++import org.bukkit.block.BlockFace;
++import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock;
++import org.bukkit.craftbukkit.v1_19_R1.block.data.CraftBlockData;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory;
++import org.bukkit.event.block.BlockFromToEvent;
++import org.bukkit.event.block.FluidLevelChangeEvent;
++// CraftBukkit end
+ 
+ public abstract class FlowingFluid extends Fluid {
++
+     public static final BooleanProperty FALLING = BlockStateProperties.FALLING;
+     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL_FLOWING;
+     private static final int CACHE_SIZE = 200;
+     private static final ThreadLocal<Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>> OCCLUSION_CACHE = ThreadLocal.withInitial(() -> {
+-        Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2ByteLinkedOpenHashMap = new Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>(200) {
+-            protected void rehash(int i) {
+-            }
++        Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2bytelinkedopenhashmap = new Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>(200) {
++            protected void rehash(int i) {}
+         };
+-        object2ByteLinkedOpenHashMap.defaultReturnValue((byte)127);
+-        return object2ByteLinkedOpenHashMap;
++
++        object2bytelinkedopenhashmap.defaultReturnValue((byte) 127);
++        return object2bytelinkedopenhashmap;
+     });
+     private final Map<FluidState, VoxelShape> shapes = Maps.newIdentityHashMap();
+ 
++    public FlowingFluid() {}
++
+     @Override
+     protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+-        builder.add(FALLING);
++        builder.add(FlowingFluid.FALLING);
+     }
+ 
+     @Override
+     public Vec3 getFlow(BlockGetter world, BlockPos pos, FluidState state) {
+-        double d = 0.0D;
+-        double e = 0.0D;
+-        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
++        double d0 = 0.0D;
++        double d1 = 0.0D;
++        BlockPos.MutableBlockPos blockposition_mutableblockposition = new BlockPos.MutableBlockPos();
++        Iterator iterator = Direction.Plane.HORIZONTAL.iterator();
++
++        while (iterator.hasNext()) {
++            Direction enumdirection = (Direction) iterator.next();
++
++            blockposition_mutableblockposition.setWithOffset(pos, enumdirection);
++            FluidState fluid1 = world.getFluidState(blockposition_mutableblockposition);
++
++            if (this.affectsFlow(fluid1)) {
++                float f = fluid1.getOwnHeight();
++                float f1 = 0.0F;
+ 
+-        for(Direction direction : Direction.Plane.HORIZONTAL) {
+-            mutableBlockPos.setWithOffset(pos, direction);
+-            FluidState fluidState = world.getFluidState(mutableBlockPos);
+-            if (this.affectsFlow(fluidState)) {
+-                float f = fluidState.getOwnHeight();
+-                float g = 0.0F;
+                 if (f == 0.0F) {
+-                    if (!world.getBlockState(mutableBlockPos).getMaterial().blocksMotion()) {
+-                        BlockPos blockPos = mutableBlockPos.below();
+-                        FluidState fluidState2 = world.getFluidState(blockPos);
+-                        if (this.affectsFlow(fluidState2)) {
+-                            f = fluidState2.getOwnHeight();
++                    if (!world.getBlockState(blockposition_mutableblockposition).getMaterial().blocksMotion()) {
++                        BlockPos blockposition1 = blockposition_mutableblockposition.below();
++                        FluidState fluid2 = world.getFluidState(blockposition1);
++
++                        if (this.affectsFlow(fluid2)) {
++                            f = fluid2.getOwnHeight();
+                             if (f > 0.0F) {
+-                                g = state.getOwnHeight() - (f - 0.8888889F);
++                                f1 = state.getOwnHeight() - (f - 0.8888889F);
+                             }
+                         }
+                     }
+                 } else if (f > 0.0F) {
+-                    g = state.getOwnHeight() - f;
++                    f1 = state.getOwnHeight() - f;
+                 }
+ 
+-                if (g != 0.0F) {
+-                    d += (double)((float)direction.getStepX() * g);
+-                    e += (double)((float)direction.getStepZ() * g);
++                if (f1 != 0.0F) {
++                    d0 += (double) ((float) enumdirection.getStepX() * f1);
++                    d1 += (double) ((float) enumdirection.getStepZ() * f1);
+                 }
+             }
+         }
+ 
+-        Vec3 vec3 = new Vec3(d, 0.0D, e);
+-        if (state.getValue(FALLING)) {
+-            for(Direction direction2 : Direction.Plane.HORIZONTAL) {
+-                mutableBlockPos.setWithOffset(pos, direction2);
+-                if (this.isSolidFace(world, mutableBlockPos, direction2) || this.isSolidFace(world, mutableBlockPos.above(), direction2)) {
+-                    vec3 = vec3.normalize().add(0.0D, -6.0D, 0.0D);
++        Vec3 vec3d = new Vec3(d0, 0.0D, d1);
++
++        if ((Boolean) state.getValue(FlowingFluid.FALLING)) {
++            Iterator iterator1 = Direction.Plane.HORIZONTAL.iterator();
++
++            while (iterator1.hasNext()) {
++                Direction enumdirection1 = (Direction) iterator1.next();
++
++                blockposition_mutableblockposition.setWithOffset(pos, enumdirection1);
++                if (this.isSolidFace(world, blockposition_mutableblockposition, enumdirection1) || this.isSolidFace(world, blockposition_mutableblockposition.above(), enumdirection1)) {
++                    vec3d = vec3d.normalize().add(0.0D, -6.0D, 0.0D);
+                     break;
+                 }
+             }
+         }
+ 
+-        return vec3.normalize();
++        return vec3d.normalize();
+     }
+ 
+     private boolean affectsFlow(FluidState state) {
+         return state.isEmpty() || state.getType().isSame(this);
+     }
+ 
+-    protected boolean isSolidFace(BlockGetter world, BlockPos pos, Direction direction) {
+-        BlockState blockState = world.getBlockState(pos);
+-        FluidState fluidState = world.getFluidState(pos);
+-        if (fluidState.getType().isSame(this)) {
+-            return false;
+-        } else if (direction == Direction.UP) {
+-            return true;
+-        } else {
+-            return blockState.getMaterial() == Material.ICE ? false : blockState.isFaceSturdy(world, pos, direction);
+-        }
++    protected boolean isSolidFace(BlockGetter world, BlockPos pos, Direction enumdirection) {
++        BlockState iblockdata = world.getBlockState(pos);
++        FluidState fluid = world.getFluidState(pos);
++
++        return fluid.getType().isSame(this) ? false : (enumdirection == Direction.UP ? true : (iblockdata.getMaterial() == Material.ICE ? false : iblockdata.isFaceSturdy(world, pos, enumdirection)));
+     }
+ 
+     protected void spread(LevelAccessor world, BlockPos fluidPos, FluidState state) {
+         if (!state.isEmpty()) {
+-            BlockState blockState = world.getBlockState(fluidPos);
+-            BlockPos blockPos = fluidPos.below();
+-            BlockState blockState2 = world.getBlockState(blockPos);
+-            FluidState fluidState = this.getNewLiquid(world, blockPos, blockState2);
+-            if (this.canSpreadTo(world, fluidPos, blockState, Direction.DOWN, blockPos, blockState2, world.getFluidState(blockPos), fluidState.getType())) {
+-                this.spreadTo(world, blockPos, blockState2, Direction.DOWN, fluidState);
++            BlockState iblockdata = world.getBlockState(fluidPos);
++            BlockPos blockposition1 = fluidPos.below();
++            BlockState iblockdata1 = world.getBlockState(blockposition1);
++            FluidState fluid1 = this.getNewLiquid(world, blockposition1, iblockdata1);
++
++            if (this.canSpreadTo(world, fluidPos, iblockdata, Direction.DOWN, blockposition1, iblockdata1, world.getFluidState(blockposition1), fluid1.getType())) {
++                // CraftBukkit start
++                org.bukkit.block.Block source = CraftBlock.at(world, fluidPos);
++                BlockFromToEvent event = new BlockFromToEvent(source, BlockFace.DOWN);
++                world.getMinecraftWorld().getCraftServer().getPluginManager().callEvent(event);
++
++                if (event.isCancelled()) {
++                    return;
++                }
++                // CraftBukkit end
++                this.spreadTo(world, blockposition1, iblockdata1, Direction.DOWN, fluid1);
+                 if (this.sourceNeighborCount(world, fluidPos) >= 3) {
+-                    this.spreadToSides(world, fluidPos, state, blockState);
++                    this.spreadToSides(world, fluidPos, state, iblockdata);
+                 }
+-            } else if (state.isSource() || !this.isWaterHole(world, fluidState.getType(), fluidPos, blockState, blockPos, blockState2)) {
+-                this.spreadToSides(world, fluidPos, state, blockState);
++            } else if (state.isSource() || !this.isWaterHole(world, fluid1.getType(), fluidPos, iblockdata, blockposition1, iblockdata1)) {
++                this.spreadToSides(world, fluidPos, state, iblockdata);
+             }
+ 
+         }
+@@ -131,20 +160,34 @@
+ 
+     private void spreadToSides(LevelAccessor world, BlockPos pos, FluidState fluidState, BlockState blockState) {
+         int i = fluidState.getAmount() - this.getDropOff(world);
+-        if (fluidState.getValue(FALLING)) {
++
++        if ((Boolean) fluidState.getValue(FlowingFluid.FALLING)) {
+             i = 7;
+         }
+ 
+         if (i > 0) {
+             Map<Direction, FluidState> map = this.getSpread(world, pos, blockState);
++            Iterator iterator = map.entrySet().iterator();
+ 
+-            for(Map.Entry<Direction, FluidState> entry : map.entrySet()) {
+-                Direction direction = entry.getKey();
+-                FluidState fluidState2 = entry.getValue();
+-                BlockPos blockPos = pos.relative(direction);
+-                BlockState blockState2 = world.getBlockState(blockPos);
+-                if (this.canSpreadTo(world, pos, blockState, direction, blockPos, blockState2, world.getFluidState(blockPos), fluidState2.getType())) {
+-                    this.spreadTo(world, blockPos, blockState2, direction, fluidState2);
++            while (iterator.hasNext()) {
++                Entry<Direction, FluidState> entry = (Entry) iterator.next();
++                Direction enumdirection = (Direction) entry.getKey();
++                FluidState fluid1 = (FluidState) entry.getValue();
++                BlockPos blockposition1 = pos.relative(enumdirection);
++                BlockState iblockdata1 = world.getBlockStateIfLoaded(blockposition1); // Paper
++                if (iblockdata1 == null) continue; // Paper
++
++                if (this.canSpreadTo(world, pos, blockState, enumdirection, blockposition1, iblockdata1, world.getFluidState(blockposition1), fluid1.getType())) {
++                    // CraftBukkit start
++                    org.bukkit.block.Block source = CraftBlock.at(world, pos);
++                    BlockFromToEvent event = new BlockFromToEvent(source, org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.notchToBlockFace(enumdirection));
++                    world.getMinecraftWorld().getCraftServer().getPluginManager().callEvent(event);
++
++                    if (event.isCancelled()) {
++                        continue;
++                    }
++                    // CraftBukkit end
++                    this.spreadTo(world, blockposition1, iblockdata1, enumdirection, fluid1);
+                 }
+             }
+ 
+@@ -154,92 +197,104 @@
+     protected FluidState getNewLiquid(LevelReader world, BlockPos pos, BlockState state) {
+         int i = 0;
+         int j = 0;
++        Iterator iterator = Direction.Plane.HORIZONTAL.iterator();
+ 
+-        for(Direction direction : Direction.Plane.HORIZONTAL) {
+-            BlockPos blockPos = pos.relative(direction);
+-            BlockState blockState = world.getBlockState(blockPos);
+-            FluidState fluidState = blockState.getFluidState();
+-            if (fluidState.getType().isSame(this) && this.canPassThroughWall(direction, world, pos, state, blockPos, blockState)) {
+-                if (fluidState.isSource()) {
++        while (iterator.hasNext()) {
++            Direction enumdirection = (Direction) iterator.next();
++            BlockPos blockposition1 = pos.relative(enumdirection);
++
++            BlockState iblockdata1 = world.getBlockStateIfLoaded(blockposition1); // Paper
++            if (iblockdata1 == null) continue; // Paper
++            FluidState fluid = iblockdata1.getFluidState();
++
++            if (fluid.getType().isSame(this) && this.canPassThroughWall(enumdirection, world, pos, state, blockposition1, iblockdata1)) {
++                if (fluid.isSource()) {
+                     ++j;
+                 }
+ 
+-                i = Math.max(i, fluidState.getAmount());
++                i = Math.max(i, fluid.getAmount());
+             }
+         }
+ 
+         if (this.canConvertToSource() && j >= 2) {
+-            BlockState blockState2 = world.getBlockState(pos.below());
+-            FluidState fluidState2 = blockState2.getFluidState();
+-            if (blockState2.getMaterial().isSolid() || this.isSourceBlockOfThisType(fluidState2)) {
++            BlockState iblockdata2 = world.getBlockState(pos.below());
++            FluidState fluid1 = iblockdata2.getFluidState();
++
++            if (iblockdata2.getMaterial().isSolid() || this.isSourceBlockOfThisType(fluid1)) {
+                 return this.getSource(false);
+             }
+         }
+ 
+-        BlockPos blockPos2 = pos.above();
+-        BlockState blockState3 = world.getBlockState(blockPos2);
+-        FluidState fluidState3 = blockState3.getFluidState();
+-        if (!fluidState3.isEmpty() && fluidState3.getType().isSame(this) && this.canPassThroughWall(Direction.UP, world, pos, state, blockPos2, blockState3)) {
++        BlockPos blockposition2 = pos.above();
++        BlockState iblockdata3 = world.getBlockState(blockposition2);
++        FluidState fluid2 = iblockdata3.getFluidState();
++
++        if (!fluid2.isEmpty() && fluid2.getType().isSame(this) && this.canPassThroughWall(Direction.UP, world, pos, state, blockposition2, iblockdata3)) {
+             return this.getFlowing(8, true);
+         } else {
+             int k = i - this.getDropOff(world);
++
+             return k <= 0 ? Fluids.EMPTY.defaultFluidState() : this.getFlowing(k, false);
+         }
+     }
+ 
+     private boolean canPassThroughWall(Direction face, BlockGetter world, BlockPos pos, BlockState state, BlockPos fromPos, BlockState fromState) {
+-        Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2ByteLinkedOpenHashMap2;
++        Object2ByteLinkedOpenHashMap object2bytelinkedopenhashmap;
++
+         if (!state.getBlock().hasDynamicShape() && !fromState.getBlock().hasDynamicShape()) {
+-            object2ByteLinkedOpenHashMap2 = OCCLUSION_CACHE.get();
++            object2bytelinkedopenhashmap = (Object2ByteLinkedOpenHashMap) FlowingFluid.OCCLUSION_CACHE.get();
+         } else {
+-            object2ByteLinkedOpenHashMap2 = null;
++            object2bytelinkedopenhashmap = null;
+         }
+ 
+-        Block.BlockStatePairKey blockStatePairKey;
+-        if (object2ByteLinkedOpenHashMap2 != null) {
+-            blockStatePairKey = new Block.BlockStatePairKey(state, fromState, face);
+-            byte b = object2ByteLinkedOpenHashMap2.getAndMoveToFirst(blockStatePairKey);
+-            if (b != 127) {
+-                return b != 0;
++        Block.BlockStatePairKey block_a;
++
++        if (object2bytelinkedopenhashmap != null) {
++            block_a = new Block.BlockStatePairKey(state, fromState, face);
++            byte b0 = object2bytelinkedopenhashmap.getAndMoveToFirst(block_a);
++
++            if (b0 != 127) {
++                return b0 != 0;
+             }
+         } else {
+-            blockStatePairKey = null;
++            block_a = null;
+         }
+ 
+-        VoxelShape voxelShape = state.getCollisionShape(world, pos);
+-        VoxelShape voxelShape2 = fromState.getCollisionShape(world, fromPos);
+-        boolean bl = !Shapes.mergedFaceOccludes(voxelShape, voxelShape2, face);
+-        if (object2ByteLinkedOpenHashMap2 != null) {
+-            if (object2ByteLinkedOpenHashMap2.size() == 200) {
+-                object2ByteLinkedOpenHashMap2.removeLastByte();
++        VoxelShape voxelshape = state.getCollisionShape(world, pos);
++        VoxelShape voxelshape1 = fromState.getCollisionShape(world, fromPos);
++        boolean flag = !Shapes.mergedFaceOccludes(voxelshape, voxelshape1, face);
++
++        if (object2bytelinkedopenhashmap != null) {
++            if (object2bytelinkedopenhashmap.size() == 200) {
++                object2bytelinkedopenhashmap.removeLastByte();
+             }
+ 
+-            object2ByteLinkedOpenHashMap2.putAndMoveToFirst(blockStatePairKey, (byte)(bl ? 1 : 0));
++            object2bytelinkedopenhashmap.putAndMoveToFirst(block_a, (byte) (flag ? 1 : 0));
+         }
+ 
+-        return bl;
++        return flag;
+     }
+ 
+     public abstract Fluid getFlowing();
+ 
+     public FluidState getFlowing(int level, boolean falling) {
+-        return this.getFlowing().defaultFluidState().setValue(LEVEL, Integer.valueOf(level)).setValue(FALLING, Boolean.valueOf(falling));
++        return (FluidState) ((FluidState) this.getFlowing().defaultFluidState().setValue(FlowingFluid.LEVEL, level)).setValue(FlowingFluid.FALLING, falling);
+     }
+ 
+     public abstract Fluid getSource();
+ 
+     public FluidState getSource(boolean falling) {
+-        return this.getSource().defaultFluidState().setValue(FALLING, Boolean.valueOf(falling));
++        return (FluidState) this.getSource().defaultFluidState().setValue(FlowingFluid.FALLING, falling);
+     }
+ 
+     protected abstract boolean canConvertToSource();
+ 
+     protected void spreadTo(LevelAccessor world, BlockPos pos, BlockState state, Direction direction, FluidState fluidState) {
+         if (state.getBlock() instanceof LiquidBlockContainer) {
+-            ((LiquidBlockContainer)state.getBlock()).placeLiquid(world, pos, state, fluidState);
++            ((LiquidBlockContainer) state.getBlock()).placeLiquid(world, pos, state, fluidState);
+         } else {
+             if (!state.isAir()) {
+-                this.beforeDestroyingBlock(world, pos, state);
++                this.beforeDestroyingBlock(world, pos, state, pos.relative(direction.getOpposite())); // Paper
+             }
+ 
+             world.setBlock(pos, fluidState.createLegacyBlock(), 3);
+@@ -247,39 +302,56 @@
+ 
+     }
+ 
++    protected void beforeDestroyingBlock(LevelAccessor world, BlockPos pos, BlockState state, BlockPos source) { beforeDestroyingBlock(world, pos, state); } // Paper - add source parameter
+     protected abstract void beforeDestroyingBlock(LevelAccessor world, BlockPos pos, BlockState state);
+ 
+-    private static short getCacheKey(BlockPos blockPos, BlockPos blockPos2) {
+-        int i = blockPos2.getX() - blockPos.getX();
+-        int j = blockPos2.getZ() - blockPos.getZ();
+-        return (short)((i + 128 & 255) << 8 | j + 128 & 255);
++    private static short getCacheKey(BlockPos blockposition, BlockPos blockposition1) {
++        int i = blockposition1.getX() - blockposition.getX();
++        int j = blockposition1.getZ() - blockposition.getZ();
++
++        return (short) ((i + 128 & 255) << 8 | j + 128 & 255);
+     }
+ 
+-    protected int getSlopeDistance(LevelReader world, BlockPos blockPos, int i, Direction direction, BlockState blockState, BlockPos blockPos2, Short2ObjectMap<Pair<BlockState, FluidState>> short2ObjectMap, Short2BooleanMap short2BooleanMap) {
++    protected int getSlopeDistance(LevelReader world, BlockPos blockposition, int i, Direction enumdirection, BlockState iblockdata, BlockPos blockposition1, Short2ObjectMap<Pair<BlockState, FluidState>> short2objectmap, Short2BooleanMap short2booleanmap) {
+         int j = 1000;
++        Iterator iterator = Direction.Plane.HORIZONTAL.iterator();
+ 
+-        for(Direction direction2 : Direction.Plane.HORIZONTAL) {
+-            if (direction2 != direction) {
+-                BlockPos blockPos3 = blockPos.relative(direction2);
+-                short s = getCacheKey(blockPos2, blockPos3);
+-                Pair<BlockState, FluidState> pair = short2ObjectMap.computeIfAbsent(s, (sx) -> {
+-                    BlockState blockState = world.getBlockState(blockPos3);
+-                    return Pair.of(blockState, blockState.getFluidState());
+-                });
+-                BlockState blockState2 = pair.getFirst();
+-                FluidState fluidState = pair.getSecond();
+-                if (this.canPassThrough(world, this.getFlowing(), blockPos, blockState, direction2, blockPos3, blockState2, fluidState)) {
+-                    boolean bl = short2BooleanMap.computeIfAbsent(s, (sx) -> {
+-                        BlockPos blockPos2 = blockPos3.below();
+-                        BlockState blockState2 = world.getBlockState(blockPos2);
+-                        return this.isWaterHole(world, this.getFlowing(), blockPos3, blockState2, blockPos2, blockState2);
++        while (iterator.hasNext()) {
++            Direction enumdirection1 = (Direction) iterator.next();
++
++            if (enumdirection1 != enumdirection) {
++                BlockPos blockposition2 = blockposition.relative(enumdirection1);
++                short short0 = FlowingFluid.getCacheKey(blockposition1, blockposition2);
++                // Paper start - avoid loading chunks
++                Pair<BlockState, FluidState> pair = short2objectmap.get(short0);
++                if (pair == null) {
++                    BlockState iblockdatax = world.getBlockStateIfLoaded(blockposition2);
++                    if (iblockdatax == null) {
++                        continue;
++                    }
++
++                    pair = Pair.of(iblockdatax, iblockdatax.getFluidState());
++                    short2objectmap.put(short0, pair);
++                }
++                // Paper end
++                BlockState iblockdata1 = (BlockState) pair.getFirst();
++                FluidState fluid = (FluidState) pair.getSecond();
++
++                if (this.canPassThrough(world, this.getFlowing(), blockposition, iblockdata, enumdirection1, blockposition2, iblockdata1, fluid)) {
++                    boolean flag = short2booleanmap.computeIfAbsent(short0, (short1) -> {
++                        BlockPos blockposition3 = blockposition2.below();
++                        BlockState iblockdata2 = world.getBlockState(blockposition3);
++
++                        return this.isWaterHole(world, this.getFlowing(), blockposition2, iblockdata1, blockposition3, iblockdata2);
+                     });
+-                    if (bl) {
++
++                    if (flag) {
+                         return i;
+                     }
+ 
+                     if (i < this.getSlopeFindDistance(world)) {
+-                        int k = this.getSlopeDistance(world, blockPos3, i + 1, direction2.getOpposite(), blockState2, blockPos2, short2ObjectMap, short2BooleanMap);
++                        int k = this.getSlopeDistance(world, blockposition2, i + 1, enumdirection1.getOpposite(), iblockdata1, blockposition1, short2objectmap, short2booleanmap);
++
+                         if (k < j) {
+                             j = k;
+                         }
+@@ -292,11 +364,7 @@
+     }
+ 
+     private boolean isWaterHole(BlockGetter world, Fluid fluid, BlockPos pos, BlockState state, BlockPos fromPos, BlockState fromState) {
+-        if (!this.canPassThroughWall(Direction.DOWN, world, pos, state, fromPos, fromState)) {
+-            return false;
+-        } else {
+-            return fromState.getFluidState().getType().isSame(this) ? true : this.canHoldFluid(world, fromPos, fromState, fluid);
+-        }
++        return !this.canPassThroughWall(Direction.DOWN, world, pos, state, fromPos, fromState) ? false : (fromState.getFluidState().getType().isSame(this) ? true : this.canHoldFluid(world, fromPos, fromState, fluid));
+     }
+ 
+     private boolean canPassThrough(BlockGetter world, Fluid fluid, BlockPos pos, BlockState state, Direction face, BlockPos fromPos, BlockState fromState, FluidState fluidState) {
+@@ -311,11 +379,14 @@
+ 
+     private int sourceNeighborCount(LevelReader world, BlockPos pos) {
+         int i = 0;
++        Iterator iterator = Direction.Plane.HORIZONTAL.iterator();
+ 
+-        for(Direction direction : Direction.Plane.HORIZONTAL) {
+-            BlockPos blockPos = pos.relative(direction);
+-            FluidState fluidState = world.getFluidState(blockPos);
+-            if (this.isSourceBlockOfThisType(fluidState)) {
++        while (iterator.hasNext()) {
++            Direction enumdirection = (Direction) iterator.next();
++            BlockPos blockposition1 = pos.relative(enumdirection);
++            FluidState fluid = world.getFluidState(blockposition1);
++
++            if (this.isSourceBlockOfThisType(fluid)) {
+                 ++i;
+             }
+         }
+@@ -326,30 +397,41 @@
+     protected Map<Direction, FluidState> getSpread(LevelReader world, BlockPos pos, BlockState state) {
+         int i = 1000;
+         Map<Direction, FluidState> map = Maps.newEnumMap(Direction.class);
+-        Short2ObjectMap<Pair<BlockState, FluidState>> short2ObjectMap = new Short2ObjectOpenHashMap<>();
+-        Short2BooleanMap short2BooleanMap = new Short2BooleanOpenHashMap();
++        Short2ObjectMap<Pair<BlockState, FluidState>> short2objectmap = new Short2ObjectOpenHashMap();
++        Short2BooleanOpenHashMap short2booleanopenhashmap = new Short2BooleanOpenHashMap();
++        Iterator iterator = Direction.Plane.HORIZONTAL.iterator();
+ 
+-        for(Direction direction : Direction.Plane.HORIZONTAL) {
+-            BlockPos blockPos = pos.relative(direction);
+-            short s = getCacheKey(pos, blockPos);
+-            Pair<BlockState, FluidState> pair = short2ObjectMap.computeIfAbsent(s, (sx) -> {
+-                BlockState blockState = world.getBlockState(blockPos);
+-                return Pair.of(blockState, blockState.getFluidState());
+-            });
+-            BlockState blockState = pair.getFirst();
+-            FluidState fluidState = pair.getSecond();
+-            FluidState fluidState2 = this.getNewLiquid(world, blockPos, blockState);
+-            if (this.canPassThrough(world, fluidState2.getType(), pos, state, direction, blockPos, blockState, fluidState)) {
+-                BlockPos blockPos2 = blockPos.below();
+-                boolean bl = short2BooleanMap.computeIfAbsent(s, (sx) -> {
+-                    BlockState blockState2 = world.getBlockState(blockPos2);
+-                    return this.isWaterHole(world, this.getFlowing(), blockPos, blockState, blockPos2, blockState2);
++        while (iterator.hasNext()) {
++            Direction enumdirection = (Direction) iterator.next();
++            BlockPos blockposition1 = pos.relative(enumdirection);
++            short short0 = FlowingFluid.getCacheKey(pos, blockposition1);
++            // Paper start
++            Pair pair = (Pair) short2objectmap.get(short0);
++            if (pair == null) {
++                BlockState iblockdatax = world.getBlockStateIfLoaded(blockposition1);
++                if (iblockdatax == null) continue;
++
++                pair = Pair.of(iblockdatax, iblockdatax.getFluidState());
++                short2objectmap.put(short0, pair);
++            }
++            // Paper end
++            BlockState iblockdata1 = (BlockState) pair.getFirst();
++            FluidState fluid = (FluidState) pair.getSecond();
++            FluidState fluid1 = this.getNewLiquid(world, blockposition1, iblockdata1);
++
++            if (this.canPassThrough(world, fluid1.getType(), pos, state, enumdirection, blockposition1, iblockdata1, fluid)) {
++                BlockPos blockposition2 = blockposition1.below();
++                boolean flag = short2booleanopenhashmap.computeIfAbsent(short0, (short1) -> {
++                    BlockState iblockdata2 = world.getBlockState(blockposition2);
++
++                    return this.isWaterHole(world, this.getFlowing(), blockposition1, iblockdata1, blockposition2, iblockdata2);
+                 });
+                 int j;
+-                if (bl) {
++
++                if (flag) {
+                     j = 0;
+                 } else {
+-                    j = this.getSlopeDistance(world, blockPos, 1, direction.getOpposite(), blockState, pos, short2ObjectMap, short2BooleanMap);
++                    j = this.getSlopeDistance(world, blockposition1, 1, enumdirection.getOpposite(), iblockdata1, pos, short2objectmap, short2booleanopenhashmap);
+                 }
+ 
+                 if (j < i) {
+@@ -357,7 +439,7 @@
+                 }
+ 
+                 if (j <= i) {
+-                    map.put(direction, fluidState2);
++                    map.put(enumdirection, fluid1);
+                     i = j;
+                 }
+             }
+@@ -368,15 +450,13 @@
+ 
+     private boolean canHoldFluid(BlockGetter world, BlockPos pos, BlockState state, Fluid fluid) {
+         Block block = state.getBlock();
++
+         if (block instanceof LiquidBlockContainer) {
+-            return ((LiquidBlockContainer)block).canPlaceLiquid(world, pos, state, fluid);
++            return ((LiquidBlockContainer) block).canPlaceLiquid(world, pos, state, fluid);
+         } else if (!(block instanceof DoorBlock) && !state.is(BlockTags.SIGNS) && !state.is(Blocks.LADDER) && !state.is(Blocks.SUGAR_CANE) && !state.is(Blocks.BUBBLE_COLUMN)) {
+             Material material = state.getMaterial();
+-            if (material != Material.PORTAL && material != Material.STRUCTURAL_AIR && material != Material.WATER_PLANT && material != Material.REPLACEABLE_WATER_PLANT) {
+-                return !material.blocksMotion();
+-            } else {
+-                return false;
+-            }
++
++            return material != Material.PORTAL && material != Material.STRUCTURAL_AIR && material != Material.WATER_PLANT && material != Material.REPLACEABLE_WATER_PLANT ? !material.blocksMotion() : false;
+         } else {
+             return false;
+         }
+@@ -395,17 +475,30 @@
+     @Override
+     public void tick(Level world, BlockPos pos, FluidState state) {
+         if (!state.isSource()) {
+-            FluidState fluidState = this.getNewLiquid(world, pos, world.getBlockState(pos));
+-            int i = this.getSpreadDelay(world, pos, state, fluidState);
+-            if (fluidState.isEmpty()) {
+-                state = fluidState;
+-                world.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+-            } else if (!fluidState.equals(state)) {
+-                state = fluidState;
+-                BlockState blockState = fluidState.createLegacyBlock();
+-                world.setBlock(pos, blockState, 2);
+-                world.scheduleTick(pos, fluidState.getType(), i);
+-                world.updateNeighborsAt(pos, blockState.getBlock());
++            FluidState fluid1 = this.getNewLiquid(world, pos, world.getBlockState(pos));
++            int i = this.getSpreadDelay(world, pos, state, fluid1);
++
++            if (fluid1.isEmpty()) {
++                state = fluid1;
++                // CraftBukkit start
++                FluidLevelChangeEvent event = CraftEventFactory.callFluidLevelChangeEvent(world, pos, Blocks.AIR.defaultBlockState());
++                if (event.isCancelled()) {
++                    return;
++                }
++                world.setBlock(pos, ((CraftBlockData) event.getNewData()).getState(), 3);
++                // CraftBukkit end
++            } else if (!fluid1.equals(state)) {
++                state = fluid1;
++                BlockState iblockdata = fluid1.createLegacyBlock();
++                // CraftBukkit start
++                FluidLevelChangeEvent event = CraftEventFactory.callFluidLevelChangeEvent(world, pos, iblockdata);
++                if (event.isCancelled()) {
++                    return;
++                }
++                world.setBlock(pos, ((CraftBlockData) event.getNewData()).getState(), 2);
++                // CraftBukkit end
++                world.scheduleTick(pos, fluid1.getType(), i);
++                world.updateNeighborsAt(pos, iblockdata.getBlock());
+             }
+         }
+ 
+@@ -413,7 +506,7 @@
+     }
+ 
+     protected static int getLegacyLevel(FluidState state) {
+-        return state.isSource() ? 0 : 8 - Math.min(state.getAmount(), 8) + (state.getValue(FALLING) ? 8 : 0);
++        return state.isSource() ? 0 : 8 - Math.min(state.getAmount(), 8) + ((Boolean) state.getValue(FlowingFluid.FALLING) ? 8 : 0);
+     }
+ 
+     private static boolean hasSameAbove(FluidState state, BlockGetter world, BlockPos pos) {
+@@ -422,12 +515,12 @@
+ 
+     @Override
+     public float getHeight(FluidState state, BlockGetter world, BlockPos pos) {
+-        return hasSameAbove(state, world, pos) ? 1.0F : state.getOwnHeight();
++        return FlowingFluid.hasSameAbove(state, world, pos) ? 1.0F : state.getOwnHeight();
+     }
+ 
+     @Override
+     public float getOwnHeight(FluidState state) {
+-        return (float)state.getAmount() / 9.0F;
++        return (float) state.getAmount() / 9.0F;
+     }
+ 
+     @Override
+@@ -435,8 +528,8 @@
+ 
+     @Override
+     public VoxelShape getShape(FluidState state, BlockGetter world, BlockPos pos) {
+-        return state.getAmount() == 9 && hasSameAbove(state, world, pos) ? Shapes.block() : this.shapes.computeIfAbsent(state, (fluidState) -> {
+-            return Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, (double)fluidState.getHeight(world, pos), 1.0D);
++        return state.getAmount() == 9 && FlowingFluid.hasSameAbove(state, world, pos) ? Shapes.block() : (VoxelShape) this.shapes.computeIfAbsent(state, (fluid1) -> {
++            return Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, (double) fluid1.getHeight(world, pos), 1.0D);
+         });
+     }
+ }

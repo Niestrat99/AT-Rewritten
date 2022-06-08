@@ -1,0 +1,80 @@
+--- a/net/minecraft/server/players/UserBanListEntry.java
++++ b/net/minecraft/server/players/UserBanListEntry.java
+@@ -1,3 +1,4 @@
++// mc-dev import
+ package net.minecraft.server.players;
+ 
+ import com.google.gson.JsonObject;
+@@ -9,8 +10,9 @@
+ import net.minecraft.network.chat.Component;
+ 
+ public class UserBanListEntry extends BanListEntry<GameProfile> {
++
+     public UserBanListEntry(GameProfile profile) {
+-        this(profile, (Date)null, (String)null, (Date)null, (String)null);
++        this(profile, (Date) null, (String) null, (Date) null, (String) null);
+     }
+ 
+     public UserBanListEntry(GameProfile profile, @Nullable Date created, @Nullable String source, @Nullable Date expiry, @Nullable String reason) {
+@@ -18,38 +20,49 @@
+     }
+ 
+     public UserBanListEntry(JsonObject json) {
+-        super(createGameProfile(json), json);
++        super(UserBanListEntry.createGameProfile(json), json);
+     }
+ 
+     @Override
+     protected void serialize(JsonObject json) {
+         if (this.getUser() != null) {
+-            json.addProperty("uuid", this.getUser().getId() == null ? "" : this.getUser().getId().toString());
+-            json.addProperty("name", this.getUser().getName());
++            json.addProperty("uuid", ((GameProfile) this.getUser()).getId() == null ? "" : ((GameProfile) this.getUser()).getId().toString());
++            json.addProperty("name", ((GameProfile) this.getUser()).getName());
+             super.serialize(json);
+         }
+     }
+ 
+     @Override
+     public Component getDisplayName() {
+-        GameProfile gameProfile = this.getUser();
+-        return Component.literal(gameProfile.getName() != null ? gameProfile.getName() : Objects.toString(gameProfile.getId(), "(Unknown)"));
++        GameProfile gameprofile = (GameProfile) this.getUser();
++
++        return Component.literal(gameprofile.getName() != null ? gameprofile.getName() : Objects.toString(gameprofile.getId(), "(Unknown)"));
+     }
+ 
+     private static GameProfile createGameProfile(JsonObject json) {
+-        if (json.has("uuid") && json.has("name")) {
+-            String string = json.get("uuid").getAsString();
++        // Spigot start
++        // this whole method has to be reworked to account for the fact Bukkit only accepts UUID bans and gives no way for usernames to be stored!
++        UUID uuid = null;
++        String name = null;
++        if (json.has("uuid")) {
++            String s = json.get("uuid").getAsString();
+ 
+-            UUID uUID;
+             try {
+-                uUID = UUID.fromString(string);
+-            } catch (Throwable var4) {
+-                return null;
++                uuid = UUID.fromString(s);
++            } catch (Throwable throwable) {
+             }
+ 
+-            return new GameProfile(uUID, json.get("name").getAsString());
++        }
++        if ( json.has("name"))
++        {
++            name = json.get("name").getAsString();
++        }
++        if ( uuid != null || name != null )
++        {
++            return new GameProfile( uuid, name );
+         } else {
+             return null;
+         }
++        // Spigot End
+     }
+ }

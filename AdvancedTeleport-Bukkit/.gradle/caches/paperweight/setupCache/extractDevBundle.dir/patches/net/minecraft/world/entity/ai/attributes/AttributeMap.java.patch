@@ -1,0 +1,15 @@
+--- a/net/minecraft/world/entity/ai/attributes/AttributeMap.java
++++ b/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+@@ -132,4 +132,12 @@
+         }
+ 
+     }
++
++    // Paper - start
++    public void registerAttribute(Attribute attributeBase) {
++        AttributeInstance attributeModifiable = new AttributeInstance(attributeBase, AttributeInstance::getAttribute);
++        attributes.put(attributeBase, attributeModifiable);
++    }
++    // Paper - end
++
+ }

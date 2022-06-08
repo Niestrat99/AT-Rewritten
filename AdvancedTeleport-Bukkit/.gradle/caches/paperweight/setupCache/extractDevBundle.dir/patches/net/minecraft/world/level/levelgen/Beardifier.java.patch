@@ -1,0 +1,39 @@
+--- a/net/minecraft/world/level/levelgen/Beardifier.java
++++ b/net/minecraft/world/level/levelgen/Beardifier.java
+@@ -36,9 +36,10 @@
+         int j = pos.getMinBlockZ();
+         ObjectList<Beardifier.Rigid> objectList = new ObjectArrayList<>(10);
+         ObjectList<JigsawJunction> objectList2 = new ObjectArrayList<>(32);
+-        world.startsForStructure(pos, (structure) -> {
++        // Paper start - replace for each
++        for (net.minecraft.world.level.levelgen.structure.StructureStart start : world.startsForStructure(pos, (structure) -> {
+             return structure.terrainAdaptation() != TerrainAdjustment.NONE;
+-        }).forEach((start) -> {
++        })) { // Paper end
+             TerrainAdjustment terrainAdjustment = start.getStructure().terrainAdaptation();
+ 
+             for(StructurePiece structurePiece : start.getPieces()) {
+@@ -51,9 +52,11 @@
+                         }
+ 
+                         for(JigsawJunction jigsawJunction : poolElementStructurePiece.getJunctions()) {
+-                            int i = jigsawJunction.getSourceX();
+-                            int j = jigsawJunction.getSourceZ();
+-                            if (i > i - 12 && j > j - 12 && i < i + 15 + 12 && j < j + 15 + 12) {
++                            // Paper start - decompile fix
++                            int i2 = jigsawJunction.getSourceX();
++                            int j2 = jigsawJunction.getSourceZ();
++                            if (i2 > i - 12 && j2 > j - 12 && i2 < i + 15 + 12 && j2 < j + 15 + 12) {
++                                // Paper end
+                                 objectList2.add(jigsawJunction);
+                             }
+                         }
+@@ -63,7 +66,7 @@
+                 }
+             }
+ 
+-        });
++        } // Paper
+         return new Beardifier(objectList.iterator(), objectList2.iterator());
+     }
+ 

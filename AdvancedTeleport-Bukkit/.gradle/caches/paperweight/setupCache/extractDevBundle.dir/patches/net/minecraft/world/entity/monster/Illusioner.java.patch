@@ -1,0 +1,264 @@
+--- a/net/minecraft/world/entity/monster/Illusioner.java
++++ b/net/minecraft/world/entity/monster/Illusioner.java
+@@ -40,6 +40,7 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class Illusioner extends SpellcasterIllager implements RangedAttackMob {
++
+     private static final int NUM_ILLUSIONS = 4;
+     private static final int ILLUSION_TRANSITION_TICKS = 3;
+     private static final int ILLUSION_SPREAD = 3;
+@@ -51,7 +52,7 @@
+         this.xpReward = 5;
+         this.clientSideIllusionOffsets = new Vec3[2][4];
+ 
+-        for(int i = 0; i < 4; ++i) {
++        for (int i = 0; i < 4; ++i) {
+             this.clientSideIllusionOffsets[0][i] = Vec3.ZERO;
+             this.clientSideIllusionOffsets[1][i] = Vec3.ZERO;
+         }
+@@ -69,7 +70,7 @@
+         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6D));
+         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
+         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
+-        this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
++        this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, new Class[]{Raider.class})).setAlertOthers());
+         this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, Player.class, true)).setUnseenMemoryTicks(300));
+         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false)).setUnseenMemoryTicks(300));
+         this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, IronGolem.class, false)).setUnseenMemoryTicks(300));
+@@ -108,22 +109,24 @@
+                 if (this.hurtTime == this.hurtDuration - 1) {
+                     this.clientSideIllusionTicks = 3;
+ 
+-                    for(int l = 0; l < 4; ++l) {
+-                        this.clientSideIllusionOffsets[0][l] = this.clientSideIllusionOffsets[1][l];
+-                        this.clientSideIllusionOffsets[1][l] = new Vec3(0.0D, 0.0D, 0.0D);
++                    for (int i = 0; i < 4; ++i) {
++                        this.clientSideIllusionOffsets[0][i] = this.clientSideIllusionOffsets[1][i];
++                        this.clientSideIllusionOffsets[1][i] = new Vec3(0.0D, 0.0D, 0.0D);
+                     }
+                 }
+             } else {
+                 this.clientSideIllusionTicks = 3;
+                 float f = -6.0F;
+-                int i = 13;
++                boolean flag = true;
+ 
+-                for(int j = 0; j < 4; ++j) {
++                int j;
++
++                for (j = 0; j < 4; ++j) {
+                     this.clientSideIllusionOffsets[0][j] = this.clientSideIllusionOffsets[1][j];
+-                    this.clientSideIllusionOffsets[1][j] = new Vec3((double)(-6.0F + (float)this.random.nextInt(13)) * 0.5D, (double)Math.max(0, this.random.nextInt(6) - 4), (double)(-6.0F + (float)this.random.nextInt(13)) * 0.5D);
++                    this.clientSideIllusionOffsets[1][j] = new Vec3((double) (-6.0F + (float) this.random.nextInt(13)) * 0.5D, (double) Math.max(0, this.random.nextInt(6) - 4), (double) (-6.0F + (float) this.random.nextInt(13)) * 0.5D);
+                 }
+ 
+-                for(int k = 0; k < 16; ++k) {
++                for (j = 0; j < 16; ++j) {
+                     this.level.addParticle(ParticleTypes.CLOUD, this.getRandomX(0.5D), this.getRandomY(), this.getZ(0.5D), 0.0D, 0.0D, 0.0D);
+                 }
+ 
+@@ -142,27 +145,22 @@
+         if (this.clientSideIllusionTicks <= 0) {
+             return this.clientSideIllusionOffsets[1];
+         } else {
+-            double d = (double)(((float)this.clientSideIllusionTicks - f) / 3.0F);
+-            d = Math.pow(d, 0.25D);
+-            Vec3[] vec3s = new Vec3[4];
++            double d0 = (double) (((float) this.clientSideIllusionTicks - f) / 3.0F);
+ 
+-            for(int i = 0; i < 4; ++i) {
+-                vec3s[i] = this.clientSideIllusionOffsets[1][i].scale(1.0D - d).add(this.clientSideIllusionOffsets[0][i].scale(d));
++            d0 = Math.pow(d0, 0.25D);
++            Vec3[] avec3d = new Vec3[4];
++
++            for (int i = 0; i < 4; ++i) {
++                avec3d[i] = this.clientSideIllusionOffsets[1][i].scale(1.0D - d0).add(this.clientSideIllusionOffsets[0][i].scale(d0));
+             }
+ 
+-            return vec3s;
++            return avec3d;
+         }
+     }
+ 
+     @Override
+     public boolean isAlliedTo(Entity other) {
+-        if (super.isAlliedTo(other)) {
+-            return true;
+-        } else if (other instanceof LivingEntity && ((LivingEntity)other).getMobType() == MobType.ILLAGER) {
+-            return this.getTeam() == null && other.getTeam() == null;
+-        } else {
+-            return false;
+-        }
++        return super.isAlliedTo(other) ? true : (other instanceof LivingEntity && ((LivingEntity) other).getMobType() == MobType.ILLAGER ? this.getTeam() == null && other.getTeam() == null : false);
+     }
+ 
+     @Override
+@@ -186,55 +184,46 @@
+     }
+ 
+     @Override
+-    public void applyRaidBuffs(int wave, boolean unused) {
+-    }
++    public void applyRaidBuffs(int wave, boolean unused) {}
+ 
+     @Override
+     public void performRangedAttack(LivingEntity target, float pullProgress) {
+-        ItemStack itemStack = this.getProjectile(this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, Items.BOW)));
+-        AbstractArrow abstractArrow = ProjectileUtil.getMobArrow(this, itemStack, pullProgress);
+-        double d = target.getX() - this.getX();
+-        double e = target.getY(0.3333333333333333D) - abstractArrow.getY();
+-        double f = target.getZ() - this.getZ();
+-        double g = Math.sqrt(d * d + f * f);
+-        abstractArrow.shoot(d, e + g * (double)0.2F, f, 1.6F, (float)(14 - this.level.getDifficulty().getId() * 4));
++        ItemStack itemstack = this.getProjectile(this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, Items.BOW)));
++        AbstractArrow entityarrow = ProjectileUtil.getMobArrow(this, itemstack, pullProgress);
++        double d0 = target.getX() - this.getX();
++        double d1 = target.getY(0.3333333333333333D) - entityarrow.getY();
++        double d2 = target.getZ() - this.getZ();
++        double d3 = Math.sqrt(d0 * d0 + d2 * d2);
++
++        entityarrow.shoot(d0, d1 + d3 * 0.20000000298023224D, d2, 1.6F, (float) (14 - this.level.getDifficulty().getId() * 4));
++        // Paper start
++        org.bukkit.event.entity.EntityShootBowEvent event = org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callEntityShootBowEvent(this, this.getMainHandItem(), entityarrow.getPickupItem(), entityarrow, target.getUsedItemHand(), 0.8F, true);
++        if (event.isCancelled()) {
++            event.getProjectile().remove();
++            return;
++        }
++
++        if (event.getProjectile() == entityarrow.getBukkitEntity()) {
++            this.level.addFreshEntity(entityarrow);
++        }
+         this.playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
+-        this.level.addFreshEntity(abstractArrow);
++        // Paper end
+     }
+ 
+     @Override
+     public AbstractIllager.IllagerArmPose getArmPose() {
+-        if (this.isCastingSpell()) {
+-            return AbstractIllager.IllagerArmPose.SPELLCASTING;
+-        } else {
+-            return this.isAggressive() ? AbstractIllager.IllagerArmPose.BOW_AND_ARROW : AbstractIllager.IllagerArmPose.CROSSED;
+-        }
++        return this.isCastingSpell() ? AbstractIllager.IllagerArmPose.SPELLCASTING : (this.isAggressive() ? AbstractIllager.IllagerArmPose.BOW_AND_ARROW : AbstractIllager.IllagerArmPose.CROSSED);
+     }
+ 
+-    class IllusionerBlindnessSpellGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
+-        private int lastTargetId;
++    private class IllusionerMirrorSpellGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
+ 
+-        @Override
+-        public boolean canUse() {
+-            if (!super.canUse()) {
+-                return false;
+-            } else if (Illusioner.this.getTarget() == null) {
+-                return false;
+-            } else if (Illusioner.this.getTarget().getId() == this.lastTargetId) {
+-                return false;
+-            } else {
+-                return Illusioner.this.level.getCurrentDifficultyAt(Illusioner.this.blockPosition()).isHarderThan((float)Difficulty.NORMAL.ordinal());
+-            }
++        IllusionerMirrorSpellGoal() {
++            super();
+         }
+ 
+         @Override
+-        public void start() {
+-            super.start();
+-            LivingEntity livingEntity = Illusioner.this.getTarget();
+-            if (livingEntity != null) {
+-                this.lastTargetId = livingEntity.getId();
+-            }
+-
++        public boolean canUse() {
++            return !super.canUse() ? false : !Illusioner.this.hasEffect(MobEffects.INVISIBILITY);
+         }
+ 
+         @Override
+@@ -244,33 +233,48 @@
+ 
+         @Override
+         protected int getCastingInterval() {
+-            return 180;
++            return 340;
+         }
+ 
+         @Override
+         protected void performSpellCasting() {
+-            Illusioner.this.getTarget().addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 400), Illusioner.this);
++            Illusioner.this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 1200), org.bukkit.event.entity.EntityPotionEffectEvent.Cause.ILLUSION); // CraftBukkit
+         }
+ 
++        @Nullable
+         @Override
+         protected SoundEvent getSpellPrepareSound() {
+-            return SoundEvents.ILLUSIONER_PREPARE_BLINDNESS;
++            return SoundEvents.ILLUSIONER_PREPARE_MIRROR;
+         }
+ 
+         @Override
+         protected SpellcasterIllager.IllagerSpell getSpell() {
+-            return SpellcasterIllager.IllagerSpell.BLINDNESS;
++            return SpellcasterIllager.IllagerSpell.DISAPPEAR;
+         }
+     }
+ 
+-    class IllusionerMirrorSpellGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
++    private class IllusionerBlindnessSpellGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
++
++        private int lastTargetId;
++
++        IllusionerBlindnessSpellGoal() {
++            super();
++        }
++
+         @Override
+         public boolean canUse() {
+-            if (!super.canUse()) {
+-                return false;
+-            } else {
+-                return !Illusioner.this.hasEffect(MobEffects.INVISIBILITY);
++            return !super.canUse() ? false : (Illusioner.this.getTarget() == null ? false : (Illusioner.this.getTarget().getId() == this.lastTargetId ? false : Illusioner.this.level.getCurrentDifficultyAt(Illusioner.this.blockPosition()).isHarderThan((float) Difficulty.NORMAL.ordinal())));
++        }
++
++        @Override
++        public void start() {
++            super.start();
++            LivingEntity entityliving = Illusioner.this.getTarget();
++
++            if (entityliving != null) {
++                this.lastTargetId = entityliving.getId();
+             }
++
+         }
+ 
+         @Override
+@@ -280,23 +284,22 @@
+ 
+         @Override
+         protected int getCastingInterval() {
+-            return 340;
++            return 180;
+         }
+ 
+         @Override
+         protected void performSpellCasting() {
+-            Illusioner.this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 1200));
++            Illusioner.this.getTarget().addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 400), Illusioner.this, org.bukkit.event.entity.EntityPotionEffectEvent.Cause.ATTACK); // CraftBukkit
+         }
+ 
+-        @Nullable
+         @Override
+         protected SoundEvent getSpellPrepareSound() {
+-            return SoundEvents.ILLUSIONER_PREPARE_MIRROR;
++            return SoundEvents.ILLUSIONER_PREPARE_BLINDNESS;
+         }
+ 
+         @Override
+         protected SpellcasterIllager.IllagerSpell getSpell() {
+-            return SpellcasterIllager.IllagerSpell.DISAPPEAR;
++            return SpellcasterIllager.IllagerSpell.BLINDNESS;
+         }
+     }
+ }

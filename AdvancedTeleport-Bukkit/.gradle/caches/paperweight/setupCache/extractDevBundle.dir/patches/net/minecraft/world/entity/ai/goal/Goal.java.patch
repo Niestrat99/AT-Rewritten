@@ -1,0 +1,70 @@
+--- a/net/minecraft/world/entity/ai/goal/Goal.java
++++ b/net/minecraft/world/entity/ai/goal/Goal.java
+@@ -4,7 +4,16 @@
+ import net.minecraft.util.Mth;
+ 
+ public abstract class Goal {
+-    private final EnumSet<Goal.Flag> flags = EnumSet.noneOf(Goal.Flag.class);
++    private final EnumSet<Goal.Flag> flags = EnumSet.noneOf(Goal.Flag.class); // Paper unused, but dummy to prevent plugins from crashing as hard. Theyll need to support paper in a special case if this is super important, but really doesn't seem like it would be.
++    private final com.destroystokyo.paper.util.set.OptimizedSmallEnumSet<net.minecraft.world.entity.ai.goal.Goal.Flag> goalTypes = new com.destroystokyo.paper.util.set.OptimizedSmallEnumSet<>(Goal.Flag.class); // Paper - remove streams from pathfindergoalselector
++
++    // Paper start make sure goaltypes is never empty
++    public Goal() {
++        if (this.goalTypes.size() == 0) {
++            this.goalTypes.addUnchecked(Flag.UNKNOWN_BEHAVIOR);
++        }
++    }
++    // Paper end
+ 
+     public abstract boolean canUse();
+ 
+@@ -30,8 +39,14 @@
+     }
+ 
+     public void setFlags(EnumSet<Goal.Flag> controls) {
+-        this.flags.clear();
+-        this.flags.addAll(controls);
++        // Paper start - remove streams from pathfindergoalselector
++        this.goalTypes.clear();
++        this.goalTypes.addAllUnchecked(controls);
++        // make sure its never empty
++        if (this.goalTypes.size() == 0) {
++            this.goalTypes.addUnchecked(Flag.UNKNOWN_BEHAVIOR);
++        }
++        // Paper end - remove streams from pathfindergoalselector
+     }
+ 
+     @Override
+@@ -39,8 +54,10 @@
+         return this.getClass().getSimpleName();
+     }
+ 
+-    public EnumSet<Goal.Flag> getFlags() {
+-        return this.flags;
++    // Paper start - remove streams from pathfindergoalselector
++    public com.destroystokyo.paper.util.set.OptimizedSmallEnumSet<Goal.Flag> getFlags() {
++        return this.goalTypes;
++        // Paper end - remove streams from pathfindergoalselector
+     }
+ 
+     protected int adjustedTickDelay(int ticks) {
+@@ -51,7 +68,19 @@
+         return Mth.positiveCeilDiv(serverTicks, 2);
+     }
+ 
++    // Paper start - mob goal api
++    private com.destroystokyo.paper.entity.ai.PaperVanillaGoal<?> vanillaGoal = null;
++    public <T extends org.bukkit.entity.Mob> com.destroystokyo.paper.entity.ai.Goal<T> asPaperVanillaGoal() {
++        if(this.vanillaGoal == null) {
++            this.vanillaGoal = new com.destroystokyo.paper.entity.ai.PaperVanillaGoal<>(this);
++        }
++        //noinspection unchecked
++        return (com.destroystokyo.paper.entity.ai.Goal<T>) this.vanillaGoal;
++    }
++    // Paper end - mob goal api
++
+     public static enum Flag {
++        UNKNOWN_BEHAVIOR, // Paper - add UNKNOWN_BEHAVIOR
+         MOVE,
+         LOOK,
+         JUMP,

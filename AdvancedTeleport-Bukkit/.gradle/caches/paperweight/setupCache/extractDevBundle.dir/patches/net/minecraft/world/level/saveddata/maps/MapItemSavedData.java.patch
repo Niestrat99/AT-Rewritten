@@ -1,0 +1,780 @@
+--- a/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
++++ b/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
+@@ -3,16 +3,21 @@
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.Maps;
+ import com.mojang.logging.LogUtils;
++import com.mojang.serialization.DataResult;
+ import com.mojang.serialization.Dynamic;
+ import java.util.Collection;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
++import java.util.Objects;
+ import javax.annotation.Nullable;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.nbt.ListTag;
+ import net.minecraft.nbt.NbtOps;
++import net.minecraft.nbt.NumericTag;
++import net.minecraft.nbt.StringTag;
++import net.minecraft.nbt.Tag;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.network.protocol.Packet;
+ import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
+@@ -29,7 +34,18 @@
+ import net.minecraft.world.level.saveddata.SavedData;
+ import org.slf4j.Logger;
+ 
++// CraftBukkit start
++import io.papermc.paper.adventure.PaperAdventure; // Paper
++import java.util.UUID;
++import org.bukkit.Bukkit;
++import org.bukkit.craftbukkit.v1_19_R1.CraftServer;
++import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
++import org.bukkit.craftbukkit.v1_19_R1.map.CraftMapView;
++import org.bukkit.craftbukkit.v1_19_R1.util.CraftChatMessage;
++// CraftBukkit end
++
+ public class MapItemSavedData extends SavedData {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+     private static final int MAP_SIZE = 128;
+     private static final int HALF_MAP_SIZE = 64;
+@@ -49,6 +65,14 @@
+     public final Map<String, MapDecoration> decorations = Maps.newLinkedHashMap();
+     private final Map<String, MapFrame> frameMarkers = Maps.newHashMap();
+     private int trackedDecorationCount;
++    private org.bukkit.craftbukkit.v1_19_R1.map.RenderData vanillaRender = new org.bukkit.craftbukkit.v1_19_R1.map.RenderData(); // Paper
++
++    // CraftBukkit start
++    public final CraftMapView mapView;
++    private CraftServer server;
++    private UUID uniqueId = null;
++    public String id;
++    // CraftBukkit end
+ 
+     private MapItemSavedData(int centerX, int centerZ, byte scale, boolean showIcons, boolean unlimitedTracking, boolean locked, ResourceKey<Level> dimension) {
+         this.scale = scale;
+@@ -59,15 +83,21 @@
+         this.unlimitedTracking = unlimitedTracking;
+         this.locked = locked;
+         this.setDirty();
++        // CraftBukkit start
++        this.mapView = new CraftMapView(this);
++        this.server = (CraftServer) org.bukkit.Bukkit.getServer();
++        this.vanillaRender.buffer = colors; // Paper
++        // CraftBukkit end
+     }
+ 
+     public static MapItemSavedData createFresh(double centerX, double centerZ, byte scale, boolean showIcons, boolean unlimitedTracking, ResourceKey<Level> dimension) {
+         int i = 128 * (1 << scale);
+-        int j = Mth.floor((centerX + 64.0D) / (double)i);
+-        int k = Mth.floor((centerZ + 64.0D) / (double)i);
++        int j = Mth.floor((centerX + 64.0D) / (double) i);
++        int k = Mth.floor((centerZ + 64.0D) / (double) i);
+         int l = j * i + i / 2 - 64;
+-        int m = k * i + i / 2 - 64;
+-        return new MapItemSavedData(l, m, scale, showIcons, unlimitedTracking, false, dimension);
++        int i1 = k * i + i / 2 - 64;
++
++        return new MapItemSavedData(l, i1, scale, showIcons, unlimitedTracking, false, dimension);
+     }
+ 
+     public static MapItemSavedData createForClient(byte scale, boolean showIcons, ResourceKey<Level> dimension) {
+@@ -75,45 +105,113 @@
+     }
+ 
+     public static MapItemSavedData load(CompoundTag nbt) {
+-        ResourceKey<Level> resourceKey = DimensionType.parseLegacy(new Dynamic<>(NbtOps.INSTANCE, nbt.get("dimension"))).resultOrPartial(LOGGER::error).orElseThrow(() -> {
+-            return new IllegalArgumentException("Invalid map dimension: " + nbt.get("dimension"));
++        // Paper start - fix "Not a string" spam
++        Tag dimension = nbt.get("dimension");
++        if (dimension instanceof NumericTag && ((NumericTag) dimension).getAsInt() >= CraftWorld.CUSTOM_DIMENSION_OFFSET) {
++            long least = nbt.getLong("UUIDLeast");
++            long most = nbt.getLong("UUIDMost");
++
++            if (least != 0L && most != 0L) {
++                UUID uuid = new UUID(most, least);
++                CraftWorld world = (CraftWorld) Bukkit.getWorld(uuid);
++                if (world != null) {
++                    dimension = StringTag.valueOf("minecraft:" + world.getName().toLowerCase(java.util.Locale.ENGLISH));
++                } else {
++                    dimension = StringTag.valueOf("bukkit:_invalidworld_");
++                }
++            } else {
++                dimension = StringTag.valueOf("bukkit:_invalidworld_");
++            }
++        }
++        DataResult<ResourceKey<Level>> dataresult = DimensionType.parseLegacy(new Dynamic(NbtOps.INSTANCE, dimension)); // CraftBukkit - decompile error
++        // Paper end - fix "Not a string" spam
++        Logger logger = MapItemSavedData.LOGGER;
++
++        Objects.requireNonNull(logger);
++        // CraftBukkit start
++        ResourceKey<Level> resourcekey = dataresult.resultOrPartial(logger::error).orElseGet(() -> {
++            long least = nbt.getLong("UUIDLeast");
++            long most = nbt.getLong("UUIDMost");
++
++            if (least != 0L && most != 0L) {
++                UUID uniqueId = new UUID(most, least);
++
++                CraftWorld world = (CraftWorld) Bukkit.getWorld(uniqueId);
++                // Check if the stored world details are correct.
++                if (world == null) {
++                    /* All Maps which do not have their valid world loaded are set to a dimension which hopefully won't be reached.
++                       This is to prevent them being corrupted with the wrong map data. */
++                    // PAIL: Use Vanilla exception handling for now
++                } else {
++                    return world.getHandle().dimension();
++                }
++            }
++            throw new IllegalArgumentException("Invalid map dimension: " + nbt.get("dimension"));
++            // CraftBukkit end
+         });
+         int i = nbt.getInt("xCenter");
+         int j = nbt.getInt("zCenter");
+-        byte b = (byte)Mth.clamp((int)nbt.getByte("scale"), (int)0, (int)4);
+-        boolean bl = !nbt.contains("trackingPosition", 1) || nbt.getBoolean("trackingPosition");
+-        boolean bl2 = nbt.getBoolean("unlimitedTracking");
+-        boolean bl3 = nbt.getBoolean("locked");
+-        MapItemSavedData mapItemSavedData = new MapItemSavedData(i, j, b, bl, bl2, bl3, resourceKey);
+-        byte[] bs = nbt.getByteArray("colors");
+-        if (bs.length == 16384) {
+-            mapItemSavedData.colors = bs;
++        byte b0 = (byte) Mth.clamp((int) nbt.getByte("scale"), (int) 0, (int) 4);
++        boolean flag = !nbt.contains("trackingPosition", 1) || nbt.getBoolean("trackingPosition");
++        boolean flag1 = nbt.getBoolean("unlimitedTracking");
++        boolean flag2 = nbt.getBoolean("locked");
++        MapItemSavedData worldmap = new MapItemSavedData(i, j, b0, flag, flag1, flag2, resourcekey);
++        byte[] abyte = nbt.getByteArray("colors");
++
++        if (abyte.length == 16384) {
++            worldmap.colors = abyte;
+         }
++        worldmap.vanillaRender.buffer = abyte; // Paper
+ 
+-        ListTag listTag = nbt.getList("banners", 10);
++        ListTag nbttaglist = nbt.getList("banners", 10);
+ 
+-        for(int k = 0; k < listTag.size(); ++k) {
+-            MapBanner mapBanner = MapBanner.load(listTag.getCompound(k));
+-            mapItemSavedData.bannerMarkers.put(mapBanner.getId(), mapBanner);
+-            mapItemSavedData.addDecoration(mapBanner.getDecoration(), (LevelAccessor)null, mapBanner.getId(), (double)mapBanner.getPos().getX(), (double)mapBanner.getPos().getZ(), 180.0D, mapBanner.getName());
++        for (int k = 0; k < nbttaglist.size(); ++k) {
++            MapBanner mapiconbanner = MapBanner.load(nbttaglist.getCompound(k));
++
++            worldmap.bannerMarkers.put(mapiconbanner.getId(), mapiconbanner);
++            worldmap.addDecoration(mapiconbanner.getDecoration(), (LevelAccessor) null, mapiconbanner.getId(), (double) mapiconbanner.getPos().getX(), (double) mapiconbanner.getPos().getZ(), 180.0D, mapiconbanner.getName());
+         }
+ 
+-        ListTag listTag2 = nbt.getList("frames", 10);
++        ListTag nbttaglist1 = nbt.getList("frames", 10);
+ 
+-        for(int l = 0; l < listTag2.size(); ++l) {
+-            MapFrame mapFrame = MapFrame.load(listTag2.getCompound(l));
+-            mapItemSavedData.frameMarkers.put(mapFrame.getId(), mapFrame);
+-            mapItemSavedData.addDecoration(MapDecoration.Type.FRAME, (LevelAccessor)null, "frame-" + mapFrame.getEntityId(), (double)mapFrame.getPos().getX(), (double)mapFrame.getPos().getZ(), (double)mapFrame.getRotation(), (Component)null);
++        for (int l = 0; l < nbttaglist1.size(); ++l) {
++            MapFrame worldmapframe = MapFrame.load(nbttaglist1.getCompound(l));
++
++            worldmap.frameMarkers.put(worldmapframe.getId(), worldmapframe);
++            worldmap.addDecoration(MapDecoration.Type.FRAME, (LevelAccessor) null, "frame-" + worldmapframe.getEntityId(), (double) worldmapframe.getPos().getX(), (double) worldmapframe.getPos().getZ(), (double) worldmapframe.getRotation(), (Component) null);
+         }
+ 
+-        return mapItemSavedData;
++        return worldmap;
+     }
+ 
+     @Override
+     public CompoundTag save(CompoundTag nbt) {
+-        ResourceLocation.CODEC.encodeStart(NbtOps.INSTANCE, this.dimension.location()).resultOrPartial(LOGGER::error).ifPresent((tag) -> {
+-            nbt.put("dimension", tag);
++        DataResult<Tag> dataresult = ResourceLocation.CODEC.encodeStart(NbtOps.INSTANCE, this.dimension.location()); // CraftBukkit - decompile error
++        Logger logger = MapItemSavedData.LOGGER;
++
++        Objects.requireNonNull(logger);
++        dataresult.resultOrPartial(logger::error).ifPresent((nbtbase) -> {
++            nbt.put("dimension", nbtbase);
+         });
++        // CraftBukkit start
++        if (true) {
++            if (this.uniqueId == null) {
++                for (org.bukkit.World world : this.server.getWorlds()) {
++                    CraftWorld cWorld = (CraftWorld) world;
++                    if (cWorld.getHandle().dimension() == this.dimension) {
++                        this.uniqueId = cWorld.getUID();
++                        break;
++                    }
++                }
++            }
++            /* Perform a second check to see if a matching world was found, this is a necessary
++               change incase Maps are forcefully unlinked from a World and lack a UID.*/
++            if (this.uniqueId != null) {
++                nbt.putLong("UUIDLeast", this.uniqueId.getLeastSignificantBits());
++                nbt.putLong("UUIDMost", this.uniqueId.getMostSignificantBits());
++            }
++        }
++        // CraftBukkit end
+         nbt.putInt("xCenter", this.x);
+         nbt.putInt("zCenter", this.z);
+         nbt.putByte("scale", this.scale);
+@@ -121,83 +219,100 @@
+         nbt.putBoolean("trackingPosition", this.trackingPosition);
+         nbt.putBoolean("unlimitedTracking", this.unlimitedTracking);
+         nbt.putBoolean("locked", this.locked);
+-        ListTag listTag = new ListTag();
++        ListTag nbttaglist = new ListTag();
++        Iterator iterator = this.bannerMarkers.values().iterator();
+ 
+-        for(MapBanner mapBanner : this.bannerMarkers.values()) {
+-            listTag.add(mapBanner.save());
++        while (iterator.hasNext()) {
++            MapBanner mapiconbanner = (MapBanner) iterator.next();
++
++            nbttaglist.add(mapiconbanner.save());
+         }
+ 
+-        nbt.put("banners", listTag);
+-        ListTag listTag2 = new ListTag();
++        nbt.put("banners", nbttaglist);
++        ListTag nbttaglist1 = new ListTag();
++        Iterator iterator1 = this.frameMarkers.values().iterator();
+ 
+-        for(MapFrame mapFrame : this.frameMarkers.values()) {
+-            listTag2.add(mapFrame.save());
++        while (iterator1.hasNext()) {
++            MapFrame worldmapframe = (MapFrame) iterator1.next();
++
++            nbttaglist1.add(worldmapframe.save());
+         }
+ 
+-        nbt.put("frames", listTag2);
++        nbt.put("frames", nbttaglist1);
+         return nbt;
+     }
+ 
+     public MapItemSavedData locked() {
+-        MapItemSavedData mapItemSavedData = new MapItemSavedData(this.x, this.z, this.scale, this.trackingPosition, this.unlimitedTracking, true, this.dimension);
+-        mapItemSavedData.bannerMarkers.putAll(this.bannerMarkers);
+-        mapItemSavedData.decorations.putAll(this.decorations);
+-        mapItemSavedData.trackedDecorationCount = this.trackedDecorationCount;
+-        System.arraycopy(this.colors, 0, mapItemSavedData.colors, 0, this.colors.length);
+-        mapItemSavedData.setDirty();
+-        return mapItemSavedData;
++        MapItemSavedData worldmap = new MapItemSavedData(this.x, this.z, this.scale, this.trackingPosition, this.unlimitedTracking, true, this.dimension);
++
++        worldmap.bannerMarkers.putAll(this.bannerMarkers);
++        worldmap.decorations.putAll(this.decorations);
++        worldmap.trackedDecorationCount = this.trackedDecorationCount;
++        System.arraycopy(this.colors, 0, worldmap.colors, 0, this.colors.length);
++        worldmap.setDirty();
++        return worldmap;
+     }
+ 
+     public MapItemSavedData scaled(int zoomOutScale) {
+-        return createFresh((double)this.x, (double)this.z, (byte)Mth.clamp(this.scale + zoomOutScale, 0, 4), this.trackingPosition, this.unlimitedTracking, this.dimension);
++        return MapItemSavedData.createFresh((double) this.x, (double) this.z, (byte) Mth.clamp(this.scale + zoomOutScale, (int) 0, (int) 4), this.trackingPosition, this.unlimitedTracking, this.dimension);
+     }
+ 
+     public void tickCarriedBy(Player player, ItemStack stack) {
+         if (!this.carriedByPlayers.containsKey(player)) {
+-            MapItemSavedData.HoldingPlayer holdingPlayer = new MapItemSavedData.HoldingPlayer(player);
+-            this.carriedByPlayers.put(player, holdingPlayer);
+-            this.carriedBy.add(holdingPlayer);
++            MapItemSavedData.HoldingPlayer worldmap_worldmaphumantracker = new MapItemSavedData.HoldingPlayer(player);
++
++            this.carriedByPlayers.put(player, worldmap_worldmaphumantracker);
++            this.carriedBy.add(worldmap_worldmaphumantracker);
+         }
+ 
+         if (!player.getInventory().contains(stack)) {
+             this.removeDecoration(player.getName().getString());
+         }
+ 
+-        for(int i = 0; i < this.carriedBy.size(); ++i) {
+-            MapItemSavedData.HoldingPlayer holdingPlayer2 = this.carriedBy.get(i);
+-            String string = holdingPlayer2.player.getName().getString();
+-            if (!holdingPlayer2.player.isRemoved() && (holdingPlayer2.player.getInventory().contains(stack) || stack.isFramed())) {
+-                if (!stack.isFramed() && holdingPlayer2.player.level.dimension() == this.dimension && this.trackingPosition) {
+-                    this.addDecoration(MapDecoration.Type.PLAYER, holdingPlayer2.player.level, string, holdingPlayer2.player.getX(), holdingPlayer2.player.getZ(), (double)holdingPlayer2.player.getYRot(), (Component)null);
++        for (int i = 0; i < this.carriedBy.size(); ++i) {
++            MapItemSavedData.HoldingPlayer worldmap_worldmaphumantracker1 = (MapItemSavedData.HoldingPlayer) this.carriedBy.get(i);
++            String s = worldmap_worldmaphumantracker1.player.getName().getString();
++
++            if (!worldmap_worldmaphumantracker1.player.isRemoved() && (worldmap_worldmaphumantracker1.player.getInventory().contains(stack) || stack.isFramed())) {
++                if (!stack.isFramed() && worldmap_worldmaphumantracker1.player.level.dimension() == this.dimension && this.trackingPosition) {
++                    this.addDecoration(MapDecoration.Type.PLAYER, worldmap_worldmaphumantracker1.player.level, s, worldmap_worldmaphumantracker1.player.getX(), worldmap_worldmaphumantracker1.player.getZ(), (double) worldmap_worldmaphumantracker1.player.getYRot(), (Component) null);
+                 }
+             } else {
+-                this.carriedByPlayers.remove(holdingPlayer2.player);
+-                this.carriedBy.remove(holdingPlayer2);
+-                this.removeDecoration(string);
++                this.carriedByPlayers.remove(worldmap_worldmaphumantracker1.player);
++                this.carriedBy.remove(worldmap_worldmaphumantracker1);
++                this.removeDecoration(s);
+             }
+         }
+ 
+         if (stack.isFramed() && this.trackingPosition) {
+-            ItemFrame itemFrame = stack.getFrame();
+-            BlockPos blockPos = itemFrame.getPos();
+-            MapFrame mapFrame = this.frameMarkers.get(MapFrame.frameId(blockPos));
+-            if (mapFrame != null && itemFrame.getId() != mapFrame.getEntityId() && this.frameMarkers.containsKey(mapFrame.getId())) {
+-                this.removeDecoration("frame-" + mapFrame.getEntityId());
++            ItemFrame entityitemframe = stack.getFrame();
++            BlockPos blockposition = entityitemframe.getPos();
++            MapFrame worldmapframe = (MapFrame) this.frameMarkers.get(MapFrame.frameId(blockposition));
++
++            if (worldmapframe != null && entityitemframe.getId() != worldmapframe.getEntityId() && this.frameMarkers.containsKey(worldmapframe.getId())) {
++                this.removeDecoration("frame-" + worldmapframe.getEntityId());
+             }
+ 
+-            MapFrame mapFrame2 = new MapFrame(blockPos, itemFrame.getDirection().get2DDataValue() * 90, itemFrame.getId());
+-            this.addDecoration(MapDecoration.Type.FRAME, player.level, "frame-" + itemFrame.getId(), (double)blockPos.getX(), (double)blockPos.getZ(), (double)(itemFrame.getDirection().get2DDataValue() * 90), (Component)null);
+-            this.frameMarkers.put(mapFrame2.getId(), mapFrame2);
++            MapFrame worldmapframe1 = new MapFrame(blockposition, entityitemframe.getDirection().get2DDataValue() * 90, entityitemframe.getId());
++
++            // Paper start
++            if (this.decorations.size() < player.level.paperConfig().maps.itemFrameCursorLimit) {
++            this.addDecoration(MapDecoration.Type.FRAME, player.level, "frame-" + entityitemframe.getId(), (double) blockposition.getX(), (double) blockposition.getZ(), (double) (entityitemframe.getDirection().get2DDataValue() * 90), (Component) null);
++            this.frameMarkers.put(worldmapframe1.getId(), worldmapframe1);
++            }
++            // Paper end
+         }
+ 
+-        CompoundTag compoundTag = stack.getTag();
+-        if (compoundTag != null && compoundTag.contains("Decorations", 9)) {
+-            ListTag listTag = compoundTag.getList("Decorations", 10);
++        CompoundTag nbttagcompound = stack.getTag();
+ 
+-            for(int j = 0; j < listTag.size(); ++j) {
+-                CompoundTag compoundTag2 = listTag.getCompound(j);
+-                if (!this.decorations.containsKey(compoundTag2.getString("id"))) {
+-                    this.addDecoration(MapDecoration.Type.byIcon(compoundTag2.getByte("type")), player.level, compoundTag2.getString("id"), compoundTag2.getDouble("x"), compoundTag2.getDouble("z"), compoundTag2.getDouble("rot"), (Component)null);
++        if (nbttagcompound != null && nbttagcompound.contains("Decorations", 9)) {
++            ListTag nbttaglist = nbttagcompound.getList("Decorations", 10);
++
++            for (int j = 0; j < nbttaglist.size(); ++j) {
++                CompoundTag nbttagcompound1 = nbttaglist.getCompound(j);
++
++                if (!this.decorations.containsKey(nbttagcompound1.getString("id"))) {
++                    this.addDecoration(MapDecoration.Type.byIcon(nbttagcompound1.getByte("type")), player.level, nbttagcompound1.getString("id"), nbttagcompound1.getDouble("x"), nbttagcompound1.getDouble("z"), nbttagcompound1.getDouble("rot"), (Component) null);
+                 }
+             }
+         }
+@@ -205,8 +320,9 @@
+     }
+ 
+     private void removeDecoration(String id) {
+-        MapDecoration mapDecoration = this.decorations.remove(id);
+-        if (mapDecoration != null && mapDecoration.getType().shouldTrackCount()) {
++        MapDecoration mapicon = (MapDecoration) this.decorations.remove(id);
++
++        if (mapicon != null && mapicon.getType().shouldTrackCount()) {
+             --this.trackedDecorationCount;
+         }
+ 
+@@ -214,42 +330,47 @@
+     }
+ 
+     public static void addTargetDecoration(ItemStack stack, BlockPos pos, String id, MapDecoration.Type type) {
+-        ListTag listTag;
++        ListTag nbttaglist;
++
+         if (stack.hasTag() && stack.getTag().contains("Decorations", 9)) {
+-            listTag = stack.getTag().getList("Decorations", 10);
++            nbttaglist = stack.getTag().getList("Decorations", 10);
+         } else {
+-            listTag = new ListTag();
+-            stack.addTagElement("Decorations", listTag);
++            nbttaglist = new ListTag();
++            stack.addTagElement("Decorations", nbttaglist);
+         }
+ 
+-        CompoundTag compoundTag = new CompoundTag();
+-        compoundTag.putByte("type", type.getIcon());
+-        compoundTag.putString("id", id);
+-        compoundTag.putDouble("x", (double)pos.getX());
+-        compoundTag.putDouble("z", (double)pos.getZ());
+-        compoundTag.putDouble("rot", 180.0D);
+-        listTag.add(compoundTag);
++        CompoundTag nbttagcompound = new CompoundTag();
++
++        nbttagcompound.putByte("type", type.getIcon());
++        nbttagcompound.putString("id", id);
++        nbttagcompound.putDouble("x", (double) pos.getX());
++        nbttagcompound.putDouble("z", (double) pos.getZ());
++        nbttagcompound.putDouble("rot", 180.0D);
++        nbttaglist.add(nbttagcompound);
+         if (type.hasMapColor()) {
+-            CompoundTag compoundTag2 = stack.getOrCreateTagElement("display");
+-            compoundTag2.putInt("MapColor", type.getMapColor());
++            CompoundTag nbttagcompound1 = stack.getOrCreateTagElement("display");
++
++            nbttagcompound1.putInt("MapColor", type.getMapColor());
+         }
+ 
+     }
+ 
+     private void addDecoration(MapDecoration.Type type, @Nullable LevelAccessor world, String key, double x, double z, double rotation, @Nullable Component text) {
+         int i = 1 << this.scale;
+-        float f = (float)(x - (double)this.x) / (float)i;
+-        float g = (float)(z - (double)this.z) / (float)i;
+-        byte b = (byte)((int)((double)(f * 2.0F) + 0.5D));
+-        byte c = (byte)((int)((double)(g * 2.0F) + 0.5D));
+-        int j = 63;
+-        byte d;
+-        if (f >= -63.0F && g >= -63.0F && f <= 63.0F && g <= 63.0F) {
++        float f = (float) (x - (double) this.x) / (float) i;
++        float f1 = (float) (z - (double) this.z) / (float) i;
++        byte b0 = (byte) ((int) ((double) (f * 2.0F) + 0.5D));
++        byte b1 = (byte) ((int) ((double) (f1 * 2.0F) + 0.5D));
++        boolean flag = true;
++        byte b2;
++
++        if (f >= -63.0F && f1 >= -63.0F && f <= 63.0F && f1 <= 63.0F) {
+             rotation += rotation < 0.0D ? -8.0D : 8.0D;
+-            d = (byte)((int)(rotation * 16.0D / 360.0D));
++            b2 = (byte) ((int) (rotation * 16.0D / 360.0D));
+             if (this.dimension == Level.NETHER && world != null) {
+-                int k = (int)(world.getLevelData().getDayTime() / 10L);
+-                d = (byte)(k * k * 34187121 + k * 121 >> 15 & 15);
++                int j = (int) (world.getLevelData().getDayTime() / 10L);
++
++                b2 = (byte) (j * j * 34187121 + j * 121 >> 15 & 15);
+             }
+         } else {
+             if (type != MapDecoration.Type.PLAYER) {
+@@ -257,8 +378,9 @@
+                 return;
+             }
+ 
+-            int l = 320;
+-            if (Math.abs(f) < 320.0F && Math.abs(g) < 320.0F) {
++            boolean flag1 = true;
++
++            if (Math.abs(f) < 320.0F && Math.abs(f1) < 320.0F) {
+                 type = MapDecoration.Type.PLAYER_OFF_MAP;
+             } else {
+                 if (!this.unlimitedTracking) {
+@@ -269,28 +391,29 @@
+                 type = MapDecoration.Type.PLAYER_OFF_LIMITS;
+             }
+ 
+-            d = 0;
++            b2 = 0;
+             if (f <= -63.0F) {
+-                b = -128;
++                b0 = -128;
+             }
+ 
+-            if (g <= -63.0F) {
+-                c = -128;
++            if (f1 <= -63.0F) {
++                b1 = -128;
+             }
+ 
+             if (f >= 63.0F) {
+-                b = 127;
++                b0 = 127;
+             }
+ 
+-            if (g >= 63.0F) {
+-                c = 127;
++            if (f1 >= 63.0F) {
++                b1 = 127;
+             }
+         }
+ 
+-        MapDecoration mapDecoration = new MapDecoration(type, b, c, d, text);
+-        MapDecoration mapDecoration2 = this.decorations.put(key, mapDecoration);
+-        if (!mapDecoration.equals(mapDecoration2)) {
+-            if (mapDecoration2 != null && mapDecoration2.getType().shouldTrackCount()) {
++        MapDecoration mapicon = new MapDecoration(type, b0, b1, b2, text);
++        MapDecoration mapicon1 = (MapDecoration) this.decorations.put(key, mapicon);
++
++        if (!mapicon.equals(mapicon1)) {
++            if (mapicon1 != null && mapicon1.getType().shouldTrackCount()) {
+                 --this.trackedDecorationCount;
+             }
+ 
+@@ -305,15 +428,19 @@
+ 
+     @Nullable
+     public Packet<?> getUpdatePacket(int id, Player player) {
+-        MapItemSavedData.HoldingPlayer holdingPlayer = this.carriedByPlayers.get(player);
+-        return holdingPlayer == null ? null : holdingPlayer.nextUpdatePacket(id);
++        MapItemSavedData.HoldingPlayer worldmap_worldmaphumantracker = (MapItemSavedData.HoldingPlayer) this.carriedByPlayers.get(player);
++
++        return worldmap_worldmaphumantracker == null ? null : worldmap_worldmaphumantracker.nextUpdatePacket(id);
+     }
+ 
+     public void setColorsDirty(int x, int z) {
+         this.setDirty();
++        Iterator iterator = this.carriedBy.iterator();
+ 
+-        for(MapItemSavedData.HoldingPlayer holdingPlayer : this.carriedBy) {
+-            holdingPlayer.markColorsDirty(x, z);
++        while (iterator.hasNext()) {
++            MapItemSavedData.HoldingPlayer worldmap_worldmaphumantracker = (MapItemSavedData.HoldingPlayer) iterator.next();
++
++            worldmap_worldmaphumantracker.markColorsDirty(x, z);
+         }
+ 
+     }
+@@ -324,37 +451,40 @@
+     }
+ 
+     public MapItemSavedData.HoldingPlayer getHoldingPlayer(Player player) {
+-        MapItemSavedData.HoldingPlayer holdingPlayer = this.carriedByPlayers.get(player);
+-        if (holdingPlayer == null) {
+-            holdingPlayer = new MapItemSavedData.HoldingPlayer(player);
+-            this.carriedByPlayers.put(player, holdingPlayer);
+-            this.carriedBy.add(holdingPlayer);
++        MapItemSavedData.HoldingPlayer worldmap_worldmaphumantracker = (MapItemSavedData.HoldingPlayer) this.carriedByPlayers.get(player);
++
++        if (worldmap_worldmaphumantracker == null) {
++            worldmap_worldmaphumantracker = new MapItemSavedData.HoldingPlayer(player);
++            this.carriedByPlayers.put(player, worldmap_worldmaphumantracker);
++            this.carriedBy.add(worldmap_worldmaphumantracker);
+         }
+ 
+-        return holdingPlayer;
++        return worldmap_worldmaphumantracker;
+     }
+ 
+     public boolean toggleBanner(LevelAccessor world, BlockPos pos) {
+-        double d = (double)pos.getX() + 0.5D;
+-        double e = (double)pos.getZ() + 0.5D;
++        double d0 = (double) pos.getX() + 0.5D;
++        double d1 = (double) pos.getZ() + 0.5D;
+         int i = 1 << this.scale;
+-        double f = (d - (double)this.x) / (double)i;
+-        double g = (e - (double)this.z) / (double)i;
+-        int j = 63;
+-        if (f >= -63.0D && g >= -63.0D && f <= 63.0D && g <= 63.0D) {
+-            MapBanner mapBanner = MapBanner.fromWorld(world, pos);
+-            if (mapBanner == null) {
++        double d2 = (d0 - (double) this.x) / (double) i;
++        double d3 = (d1 - (double) this.z) / (double) i;
++        boolean flag = true;
++
++        if (d2 >= -63.0D && d3 >= -63.0D && d2 <= 63.0D && d3 <= 63.0D) {
++            MapBanner mapiconbanner = MapBanner.fromWorld(world, pos);
++
++            if (mapiconbanner == null) {
+                 return false;
+             }
+ 
+-            if (this.bannerMarkers.remove(mapBanner.getId(), mapBanner)) {
+-                this.removeDecoration(mapBanner.getId());
++            if (this.bannerMarkers.remove(mapiconbanner.getId(), mapiconbanner)) {
++                this.removeDecoration(mapiconbanner.getId());
+                 return true;
+             }
+ 
+             if (!this.isTrackedCountOverLimit(256)) {
+-                this.bannerMarkers.put(mapBanner.getId(), mapBanner);
+-                this.addDecoration(mapBanner.getDecoration(), world, mapBanner.getId(), d, e, 180.0D, mapBanner.getName());
++                this.bannerMarkers.put(mapiconbanner.getId(), mapiconbanner);
++                this.addDecoration(mapiconbanner.getDecoration(), world, mapiconbanner.getId(), d0, d1, 180.0D, mapiconbanner.getName());
+                 return true;
+             }
+         }
+@@ -363,15 +493,17 @@
+     }
+ 
+     public void checkBanners(BlockGetter world, int x, int z) {
+-        Iterator<MapBanner> iterator = this.bannerMarkers.values().iterator();
++        Iterator iterator = this.bannerMarkers.values().iterator();
+ 
+-        while(iterator.hasNext()) {
+-            MapBanner mapBanner = iterator.next();
+-            if (mapBanner.getPos().getX() == x && mapBanner.getPos().getZ() == z) {
+-                MapBanner mapBanner2 = MapBanner.fromWorld(world, mapBanner.getPos());
+-                if (!mapBanner.equals(mapBanner2)) {
++        while (iterator.hasNext()) {
++            MapBanner mapiconbanner = (MapBanner) iterator.next();
++
++            if (mapiconbanner.getPos().getX() == x && mapiconbanner.getPos().getZ() == z) {
++                MapBanner mapiconbanner1 = MapBanner.fromWorld(world, mapiconbanner.getPos());
++
++                if (!mapiconbanner.equals(mapiconbanner1)) {
+                     iterator.remove();
+-                    this.removeDecoration(mapBanner.getId());
++                    this.removeDecoration(mapiconbanner.getId());
+                 }
+             }
+         }
+@@ -388,8 +520,9 @@
+     }
+ 
+     public boolean updateColor(int x, int z, byte color) {
+-        byte b = this.colors[x + z * 128];
+-        if (b != color) {
++        byte b1 = this.colors[x + z * 128];
++
++        if (b1 != color) {
+             this.setColor(x, z, color);
+             return true;
+         } else {
+@@ -403,23 +536,30 @@
+     }
+ 
+     public boolean isExplorationMap() {
+-        for(MapDecoration mapDecoration : this.decorations.values()) {
+-            if (mapDecoration.getType() == MapDecoration.Type.MANSION || mapDecoration.getType() == MapDecoration.Type.MONUMENT) {
+-                return true;
++        Iterator iterator = this.decorations.values().iterator();
++
++        MapDecoration mapicon;
++
++        do {
++            if (!iterator.hasNext()) {
++                return false;
+             }
+-        }
+ 
+-        return false;
++            mapicon = (MapDecoration) iterator.next();
++        } while (mapicon.getType() != MapDecoration.Type.MANSION && mapicon.getType() != MapDecoration.Type.MONUMENT);
++
++        return true;
+     }
+ 
+     public void addClientSideDecorations(List<MapDecoration> icons) {
+         this.decorations.clear();
+         this.trackedDecorationCount = 0;
+ 
+-        for(int i = 0; i < icons.size(); ++i) {
+-            MapDecoration mapDecoration = icons.get(i);
+-            this.decorations.put("icon-" + i, mapDecoration);
+-            if (mapDecoration.getType().shouldTrackCount()) {
++        for (int i = 0; i < icons.size(); ++i) {
++            MapDecoration mapicon = (MapDecoration) icons.get(i);
++
++            this.decorations.put("icon-" + i, mapicon);
++            if (mapicon.getType().shouldTrackCount()) {
+                 ++this.trackedDecorationCount;
+             }
+         }
+@@ -435,6 +575,22 @@
+     }
+ 
+     public class HoldingPlayer {
++
++        // Paper start
++        private void addSeenPlayers(java.util.Collection<MapDecoration> icons) {
++            org.bukkit.entity.Player player = (org.bukkit.entity.Player) this.player.getBukkitEntity();
++            MapItemSavedData.this.decorations.forEach((name, mapIcon) -> {
++                // If this cursor is for a player check visibility with vanish system
++                org.bukkit.entity.Player other = org.bukkit.Bukkit.getPlayerExact(name); // Spigot
++                if (other == null || player.canSee(other)) {
++                    icons.add(mapIcon);
++                }
++            });
++        }
++        private boolean shouldUseVanillaMap() {
++            return mapView.getRenderers().size() == 1 && mapView.getRenderers().get(0).getClass() == org.bukkit.craftbukkit.v1_19_R1.map.CraftMapRenderer.class;
++        }
++        // Paper end
+         public final Player player;
+         private boolean dirtyData = true;
+         private int minDirtyX;
+@@ -445,45 +601,61 @@
+         private int tick;
+         public int step;
+ 
+-        HoldingPlayer(Player player) {
+-            this.player = player;
++        HoldingPlayer(Player entityhuman) {
++            this.player = entityhuman;
+         }
+ 
+-        private MapItemSavedData.MapPatch createPatch() {
++        private MapItemSavedData.MapPatch createPatch(byte[] buffer) { // CraftBukkit
+             int i = this.minDirtyX;
+             int j = this.minDirtyY;
+             int k = this.maxDirtyX + 1 - this.minDirtyX;
+             int l = this.maxDirtyY + 1 - this.minDirtyY;
+-            byte[] bs = new byte[k * l];
++            byte[] abyte = new byte[k * l];
+ 
+-            for(int m = 0; m < k; ++m) {
+-                for(int n = 0; n < l; ++n) {
+-                    bs[m + n * k] = MapItemSavedData.this.colors[i + m + (j + n) * 128];
++            for (int i1 = 0; i1 < k; ++i1) {
++                for (int j1 = 0; j1 < l; ++j1) {
++                    abyte[i1 + j1 * k] = buffer[i + i1 + (j + j1) * 128]; // CraftBukkit
+                 }
+             }
+ 
+-            return new MapItemSavedData.MapPatch(i, j, k, l, bs);
++            return new MapItemSavedData.MapPatch(i, j, k, l, abyte);
+         }
+ 
+         @Nullable
+         Packet<?> nextUpdatePacket(int mapId) {
+-            MapItemSavedData.MapPatch mapPatch;
++            MapItemSavedData.MapPatch worldmap_b;
++            if (!this.dirtyData && this.tick % 5 != 0) { this.tick++; return null; } // Paper - this won't end up sending, so don't render it!
++            boolean vanillaMaps = shouldUseVanillaMap(); // Paper
++            org.bukkit.craftbukkit.v1_19_R1.map.RenderData render = !vanillaMaps ? MapItemSavedData.this.mapView.render((org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer) this.player.getBukkitEntity()) : MapItemSavedData.this.vanillaRender; // CraftBukkit // Paper
++
+             if (this.dirtyData) {
+                 this.dirtyData = false;
+-                mapPatch = this.createPatch();
++                worldmap_b = this.createPatch(render.buffer); // CraftBukkit
+             } else {
+-                mapPatch = null;
++                worldmap_b = null;
+             }
+ 
+-            Collection<MapDecoration> collection;
+-            if (this.dirtyDecorations && this.tick++ % 5 == 0) {
++            Collection collection;
++
++            if ((true || this.dirtyDecorations) && this.tick++ % 5 == 0) { // CraftBukkit - custom maps don't update this yet
+                 this.dirtyDecorations = false;
+-                collection = MapItemSavedData.this.decorations.values();
++                // CraftBukkit start
++                java.util.Collection<MapDecoration> icons = new java.util.ArrayList<MapDecoration>();
++
++                if (vanillaMaps) addSeenPlayers(icons); // Paper
++
++                for (org.bukkit.map.MapCursor cursor : render.cursors) {
++                    if (cursor.isVisible()) {
++                        icons.add(new MapDecoration(MapDecoration.Type.byIcon(cursor.getRawType()), cursor.getX(), cursor.getY(), cursor.getDirection(), PaperAdventure.asVanilla(cursor.caption()))); // Paper - Adventure
++                    }
++                }
++                collection = icons;
++                // CraftBukkit end
+             } else {
+                 collection = null;
+             }
+ 
+-            return collection == null && mapPatch == null ? null : new ClientboundMapItemDataPacket(mapId, MapItemSavedData.this.scale, MapItemSavedData.this.locked, collection, mapPatch);
++            return collection == null && worldmap_b == null ? null : new ClientboundMapItemDataPacket(mapId, MapItemSavedData.this.scale, MapItemSavedData.this.locked, collection, worldmap_b);
+         }
+ 
+         void markColorsDirty(int startX, int startZ) {
+@@ -508,6 +680,7 @@
+     }
+ 
+     public static class MapPatch {
++
+         public final int startX;
+         public final int startY;
+         public final int width;
+@@ -523,8 +696,8 @@
+         }
+ 
+         public void applyToMap(MapItemSavedData mapState) {
+-            for(int i = 0; i < this.width; ++i) {
+-                for(int j = 0; j < this.height; ++j) {
++            for (int i = 0; i < this.width; ++i) {
++                for (int j = 0; j < this.height; ++j) {
+                     mapState.setColor(this.startX + i, this.startY + j, this.mapColors[i + j * this.width]);
+                 }
+             }

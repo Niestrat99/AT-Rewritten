@@ -1,0 +1,133 @@
+--- a/net/minecraft/world/entity/ai/village/VillageSiege.java
++++ b/net/minecraft/world/entity/ai/village/VillageSiege.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.world.entity.ai.village;
+ 
+ import com.mojang.logging.LogUtils;
++import java.util.Iterator;
+ import javax.annotation.Nullable;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.nbt.CompoundTag;
+@@ -19,20 +20,26 @@
+ import org.slf4j.Logger;
+ 
+ public class VillageSiege implements CustomSpawner {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+     private boolean hasSetupSiege;
+-    private VillageSiege.State siegeState = VillageSiege.State.SIEGE_DONE;
++    private VillageSiege.State siegeState;
+     private int zombiesToSpawn;
+     private int nextSpawnTime;
+     private int spawnX;
+     private int spawnY;
+     private int spawnZ;
+ 
++    public VillageSiege() {
++        this.siegeState = VillageSiege.State.SIEGE_DONE;
++    }
++
+     @Override
+     public int tick(ServerLevel world, boolean spawnMonsters, boolean spawnAnimals) {
+         if (!world.isDay() && spawnMonsters) {
+             float f = world.getTimeOfDay(0.0F);
+-            if ((double)f == 0.5D) {
++
++            if ((double) f == 0.5D) {
+                 this.siegeState = world.random.nextInt(10) == 0 ? VillageSiege.State.SIEGE_TONIGHT : VillageSiege.State.SIEGE_DONE;
+             }
+ 
+@@ -70,15 +77,21 @@
+     }
+ 
+     private boolean tryToSetupSiege(ServerLevel world) {
+-        for(Player player : world.players()) {
+-            if (!player.isSpectator()) {
+-                BlockPos blockPos = player.blockPosition();
+-                if (world.isVillage(blockPos) && !world.getBiome(blockPos).is(BiomeTags.WITHOUT_ZOMBIE_SIEGES)) {
+-                    for(int i = 0; i < 10; ++i) {
+-                        float f = world.random.nextFloat() * ((float)Math.PI * 2F);
+-                        this.spawnX = blockPos.getX() + Mth.floor(Mth.cos(f) * 32.0F);
+-                        this.spawnY = blockPos.getY();
+-                        this.spawnZ = blockPos.getZ() + Mth.floor(Mth.sin(f) * 32.0F);
++        Iterator iterator = world.players().iterator();
++
++        while (iterator.hasNext()) {
++            Player entityhuman = (Player) iterator.next();
++
++            if (!entityhuman.isSpectator()) {
++                BlockPos blockposition = entityhuman.blockPosition();
++
++                if (world.isVillage(blockposition) && !world.getBiome(blockposition).is(BiomeTags.WITHOUT_ZOMBIE_SIEGES)) {
++                    for (int i = 0; i < 10; ++i) {
++                        float f = world.random.nextFloat() * 6.2831855F;
++
++                        this.spawnX = blockposition.getX() + Mth.floor(Mth.cos(f) * 32.0F);
++                        this.spawnY = blockposition.getY();
++                        this.spawnZ = blockposition.getZ() + Mth.floor(Mth.sin(f) * 32.0F);
+                         if (this.findRandomSpawnPos(world, new BlockPos(this.spawnX, this.spawnY, this.spawnZ)) != null) {
+                             this.nextSpawnTime = 0;
+                             this.zombiesToSpawn = 20;
+@@ -95,40 +108,45 @@
+     }
+ 
+     private void trySpawn(ServerLevel world) {
+-        Vec3 vec3 = this.findRandomSpawnPos(world, new BlockPos(this.spawnX, this.spawnY, this.spawnZ));
+-        if (vec3 != null) {
+-            Zombie zombie;
++        Vec3 vec3d = this.findRandomSpawnPos(world, new BlockPos(this.spawnX, this.spawnY, this.spawnZ));
++
++        if (vec3d != null) {
++            Zombie entityzombie;
++
+             try {
+-                zombie = new Zombie(world);
+-                zombie.finalizeSpawn(world, world.getCurrentDifficultyAt(zombie.blockPosition()), MobSpawnType.EVENT, (SpawnGroupData)null, (CompoundTag)null);
+-            } catch (Exception var5) {
+-                LOGGER.warn("Failed to create zombie for village siege at {}", vec3, var5);
++                entityzombie = new Zombie(world);
++                entityzombie.finalizeSpawn(world, world.getCurrentDifficultyAt(entityzombie.blockPosition()), MobSpawnType.EVENT, (SpawnGroupData) null, (CompoundTag) null);
++            } catch (Exception exception) {
++                VillageSiege.LOGGER.warn("Failed to create zombie for village siege at {}", vec3d, exception);
++                com.destroystokyo.paper.exception.ServerInternalException.reportInternalException(exception); // Paper
+                 return;
+             }
+ 
+-            zombie.moveTo(vec3.x, vec3.y, vec3.z, world.random.nextFloat() * 360.0F, 0.0F);
+-            world.addFreshEntityWithPassengers(zombie);
++            entityzombie.moveTo(vec3d.x, vec3d.y, vec3d.z, world.random.nextFloat() * 360.0F, 0.0F);
++            world.addFreshEntityWithPassengers(entityzombie, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.VILLAGE_INVASION); // CraftBukkit
+         }
+     }
+ 
+     @Nullable
+     private Vec3 findRandomSpawnPos(ServerLevel world, BlockPos pos) {
+-        for(int i = 0; i < 10; ++i) {
++        for (int i = 0; i < 10; ++i) {
+             int j = pos.getX() + world.random.nextInt(16) - 8;
+             int k = pos.getZ() + world.random.nextInt(16) - 8;
+             int l = world.getHeight(Heightmap.Types.WORLD_SURFACE, j, k);
+-            BlockPos blockPos = new BlockPos(j, l, k);
+-            if (world.isVillage(blockPos) && Monster.checkMonsterSpawnRules(EntityType.ZOMBIE, world, MobSpawnType.EVENT, blockPos, world.random)) {
+-                return Vec3.atBottomCenterOf(blockPos);
++            BlockPos blockposition1 = new BlockPos(j, l, k);
++
++            if (world.isVillage(blockposition1) && Monster.checkMonsterSpawnRules(EntityType.ZOMBIE, world, MobSpawnType.EVENT, blockposition1, world.random)) {
++                return Vec3.atBottomCenterOf(blockposition1);
+             }
+         }
+ 
+         return null;
+     }
+ 
+-    static enum State {
+-        SIEGE_CAN_ACTIVATE,
+-        SIEGE_TONIGHT,
+-        SIEGE_DONE;
++    private static enum State {
++
++        SIEGE_CAN_ACTIVATE, SIEGE_TONIGHT, SIEGE_DONE;
++
++        private State() {}
+     }
+ }

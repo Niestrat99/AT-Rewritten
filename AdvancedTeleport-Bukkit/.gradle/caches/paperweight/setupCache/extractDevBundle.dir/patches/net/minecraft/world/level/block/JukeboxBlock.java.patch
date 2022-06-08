@@ -1,0 +1,136 @@
+--- a/net/minecraft/world/level/block/JukeboxBlock.java
++++ b/net/minecraft/world/level/block/JukeboxBlock.java
+@@ -28,28 +28,30 @@
+ import net.minecraft.world.phys.BlockHitResult;
+ 
+ public class JukeboxBlock extends BaseEntityBlock {
++
+     public static final BooleanProperty HAS_RECORD = BlockStateProperties.HAS_RECORD;
+ 
+     protected JukeboxBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(HAS_RECORD, Boolean.valueOf(false)));
++        this.registerDefaultState((BlockState) ((BlockState) this.stateDefinition.any()).setValue(JukeboxBlock.HAS_RECORD, false));
+     }
+ 
+     @Override
+     public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+         super.setPlacedBy(world, pos, state, placer, itemStack);
+-        CompoundTag compoundTag = BlockItem.getBlockEntityData(itemStack);
+-        if (compoundTag != null && compoundTag.contains("RecordItem")) {
+-            world.setBlock(pos, state.setValue(HAS_RECORD, Boolean.valueOf(true)), 2);
++        CompoundTag nbttagcompound = BlockItem.getBlockEntityData(itemStack);
++
++        if (nbttagcompound != null && nbttagcompound.contains("RecordItem")) {
++            world.setBlock(pos, (BlockState) state.setValue(JukeboxBlock.HAS_RECORD, true), 2);
+         }
+ 
+     }
+ 
+     @Override
+     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+-        if (state.getValue(HAS_RECORD)) {
++        if ((Boolean) state.getValue(JukeboxBlock.HAS_RECORD)) {
+             this.dropRecording(world, pos);
+-            state = state.setValue(HAS_RECORD, Boolean.valueOf(false));
++            state = (BlockState) state.setValue(JukeboxBlock.HAS_RECORD, false);
+             world.gameEvent(GameEvent.JUKEBOX_STOP_PLAY, pos, GameEvent.Context.of(state));
+             world.setBlock(pos, state, 2);
+             world.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(player, state));
+@@ -60,11 +62,20 @@
+     }
+ 
+     public void setRecord(@Nullable Entity user, LevelAccessor world, BlockPos pos, BlockState state, ItemStack stack) {
+-        BlockEntity blockEntity = world.getBlockEntity(pos);
+-        if (blockEntity instanceof JukeboxBlockEntity jukeboxBlockEntity) {
+-            jukeboxBlockEntity.setRecord(stack.copy());
+-            jukeboxBlockEntity.playRecord();
+-            world.setBlock(pos, state.setValue(HAS_RECORD, Boolean.valueOf(true)), 2);
++        BlockEntity tileentity = world.getBlockEntity(pos);
++
++        if (tileentity instanceof JukeboxBlockEntity) {
++            JukeboxBlockEntity tileentityjukebox = (JukeboxBlockEntity) tileentity;
++
++            // CraftBukkit start - There can only be one
++            stack = stack.copy();
++            if (!stack.isEmpty()) {
++                stack.setCount(1);
++            }
++            tileentityjukebox.setRecord(stack);
++            // CraftBukkit end
++            tileentityjukebox.playRecord();
++            world.setBlock(pos, (BlockState) state.setValue(JukeboxBlock.HAS_RECORD, true), 2);
+             world.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(user, state));
+         }
+ 
+@@ -72,21 +83,24 @@
+ 
+     public void dropRecording(Level world, BlockPos pos) {
+         if (!world.isClientSide) {
+-            BlockEntity blockEntity = world.getBlockEntity(pos);
+-            if (blockEntity instanceof JukeboxBlockEntity) {
+-                JukeboxBlockEntity jukeboxBlockEntity = (JukeboxBlockEntity)blockEntity;
+-                ItemStack itemStack = jukeboxBlockEntity.getRecord();
+-                if (!itemStack.isEmpty()) {
++            BlockEntity tileentity = world.getBlockEntity(pos);
++
++            if (tileentity instanceof JukeboxBlockEntity) {
++                JukeboxBlockEntity tileentityjukebox = (JukeboxBlockEntity) tileentity;
++                ItemStack itemstack = tileentityjukebox.getRecord();
++
++                if (!itemstack.isEmpty()) {
+                     world.levelEvent(1010, pos, 0);
+-                    jukeboxBlockEntity.clearContent();
++                    tileentityjukebox.clearContent();
+                     float f = 0.7F;
+-                    double d = (double)(world.random.nextFloat() * 0.7F) + (double)0.15F;
+-                    double e = (double)(world.random.nextFloat() * 0.7F) + (double)0.060000002F + 0.6D;
+-                    double g = (double)(world.random.nextFloat() * 0.7F) + (double)0.15F;
+-                    ItemStack itemStack2 = itemStack.copy();
+-                    ItemEntity itemEntity = new ItemEntity(world, (double)pos.getX() + d, (double)pos.getY() + e, (double)pos.getZ() + g, itemStack2);
+-                    itemEntity.setDefaultPickUpDelay();
+-                    world.addFreshEntity(itemEntity);
++                    double d0 = (double) (world.random.nextFloat() * 0.7F) + 0.15000000596046448D;
++                    double d1 = (double) (world.random.nextFloat() * 0.7F) + 0.06000000238418579D + 0.6D;
++                    double d2 = (double) (world.random.nextFloat() * 0.7F) + 0.15000000596046448D;
++                    ItemStack itemstack1 = itemstack.copy();
++                    ItemEntity entityitem = new ItemEntity(world, (double) pos.getX() + d0, (double) pos.getY() + d1, (double) pos.getZ() + d2, itemstack1);
++
++                    entityitem.setDefaultPickUpDelay();
++                    world.addFreshEntity(entityitem);
+                 }
+             }
+         }
+@@ -112,11 +126,13 @@
+ 
+     @Override
+     public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+-        BlockEntity blockEntity = world.getBlockEntity(pos);
+-        if (blockEntity instanceof JukeboxBlockEntity) {
+-            Item item = ((JukeboxBlockEntity)blockEntity).getRecord().getItem();
++        BlockEntity tileentity = world.getBlockEntity(pos);
++
++        if (tileentity instanceof JukeboxBlockEntity) {
++            Item item = ((JukeboxBlockEntity) tileentity).getRecord().getItem();
++
+             if (item instanceof RecordItem) {
+-                return ((RecordItem)item).getAnalogOutput();
++                return ((RecordItem) item).getAnalogOutput();
+             }
+         }
+ 
+@@ -130,12 +146,12 @@
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(HAS_RECORD);
++        builder.add(JukeboxBlock.HAS_RECORD);
+     }
+ 
+     @Nullable
+     @Override
+     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+-        return state.getValue(HAS_RECORD) ? createTickerHelper(type, BlockEntityType.JUKEBOX, JukeboxBlockEntity::playRecordTick) : null;
++        return (Boolean) state.getValue(JukeboxBlock.HAS_RECORD) ? createTickerHelper(type, BlockEntityType.JUKEBOX, JukeboxBlockEntity::playRecordTick) : null;
+     }
+ }

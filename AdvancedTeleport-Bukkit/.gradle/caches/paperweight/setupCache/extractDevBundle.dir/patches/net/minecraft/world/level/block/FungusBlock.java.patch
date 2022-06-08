@@ -1,0 +1,51 @@
+--- a/net/minecraft/world/level/block/FungusBlock.java
++++ b/net/minecraft/world/level/block/FungusBlock.java
+@@ -16,6 +16,7 @@
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ 
+ public class FungusBlock extends BushBlock implements BonemealableBlock {
++
+     protected static final VoxelShape SHAPE = Block.box(4.0D, 0.0D, 4.0D, 12.0D, 9.0D, 12.0D);
+     private static final double BONEMEAL_SUCCESS_PROBABILITY = 0.4D;
+     private final Supplier<Holder<ConfiguredFeature<HugeFungusConfiguration, ?>>> feature;
+@@ -27,7 +28,7 @@
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return SHAPE;
++        return FungusBlock.SHAPE;
+     }
+ 
+     @Override
+@@ -37,18 +38,26 @@
+ 
+     @Override
+     public boolean isValidBonemealTarget(BlockGetter world, BlockPos pos, BlockState state, boolean isClient) {
+-        Block block = (this.feature.get().value().config()).validBaseState.getBlock();
+-        BlockState blockState = world.getBlockState(pos.below());
+-        return blockState.is(block);
++        Block block = ((HugeFungusConfiguration) ((ConfiguredFeature) ((Holder) this.feature.get()).value()).config()).validBaseState.getBlock();
++        BlockState iblockdata1 = world.getBlockState(pos.below());
++
++        return iblockdata1.is(block);
+     }
+ 
+     @Override
+     public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+-        return (double)random.nextFloat() < 0.4D;
++        return (double) random.nextFloat() < 0.4D;
+     }
+ 
+     @Override
+     public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
+-        this.feature.get().value().place(world, world.getChunkSource().getGenerator(), random, pos);
++        // CraftBukkit start
++        if (this == Blocks.WARPED_FUNGUS) {
++            SaplingBlock.treeType = org.bukkit.TreeType.WARPED_FUNGUS;
++        } else if (this == Blocks.CRIMSON_FUNGUS) {
++            SaplingBlock.treeType = org.bukkit.TreeType.CRIMSON_FUNGUS;
++        }
++        // CraftBukkit end
++        ((ConfiguredFeature) ((Holder) this.feature.get()).value()).place(world, world.getChunkSource().getGenerator(), random, pos);
+     }
+ }

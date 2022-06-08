@@ -1,0 +1,360 @@
+--- a/net/minecraft/world/level/levelgen/structure/LegacyStructureDataHandler.java
++++ b/net/minecraft/world/level/levelgen/structure/LegacyStructureDataHandler.java
+@@ -5,8 +5,8 @@
+ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.longs.LongArrayList;
+-import it.unimi.dsi.fastutil.longs.LongList;
+ import java.io.IOException;
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.Locale;
+ import java.util.Map;
+@@ -17,28 +17,29 @@
+ import net.minecraft.nbt.ListTag;
+ import net.minecraft.resources.ResourceKey;
+ import net.minecraft.world.level.ChunkPos;
+-import net.minecraft.world.level.Level;
++import net.minecraft.world.level.dimension.LevelStem;
+ import net.minecraft.world.level.storage.DimensionDataStorage;
+ 
+ public class LegacyStructureDataHandler {
+-    private static final Map<String, String> CURRENT_TO_LEGACY_MAP = Util.make(Maps.newHashMap(), (map) -> {
+-        map.put("Village", "Village");
+-        map.put("Mineshaft", "Mineshaft");
+-        map.put("Mansion", "Mansion");
+-        map.put("Igloo", "Temple");
+-        map.put("Desert_Pyramid", "Temple");
+-        map.put("Jungle_Pyramid", "Temple");
+-        map.put("Swamp_Hut", "Temple");
+-        map.put("Stronghold", "Stronghold");
+-        map.put("Monument", "Monument");
+-        map.put("Fortress", "Fortress");
+-        map.put("EndCity", "EndCity");
++
++    private static final Map<String, String> CURRENT_TO_LEGACY_MAP = (Map) Util.make(Maps.newHashMap(), (hashmap) -> {
++        hashmap.put("Village", "Village");
++        hashmap.put("Mineshaft", "Mineshaft");
++        hashmap.put("Mansion", "Mansion");
++        hashmap.put("Igloo", "Temple");
++        hashmap.put("Desert_Pyramid", "Temple");
++        hashmap.put("Jungle_Pyramid", "Temple");
++        hashmap.put("Swamp_Hut", "Temple");
++        hashmap.put("Stronghold", "Stronghold");
++        hashmap.put("Monument", "Monument");
++        hashmap.put("Fortress", "Fortress");
++        hashmap.put("EndCity", "EndCity");
+     });
+-    private static final Map<String, String> LEGACY_TO_CURRENT_MAP = Util.make(Maps.newHashMap(), (map) -> {
+-        map.put("Iglu", "Igloo");
+-        map.put("TeDP", "Desert_Pyramid");
+-        map.put("TeJP", "Jungle_Pyramid");
+-        map.put("TeSH", "Swamp_Hut");
++    private static final Map<String, String> LEGACY_TO_CURRENT_MAP = (Map) Util.make(Maps.newHashMap(), (hashmap) -> {
++        hashmap.put("Iglu", "Igloo");
++        hashmap.put("TeDP", "Desert_Pyramid");
++        hashmap.put("TeJP", "Jungle_Pyramid");
++        hashmap.put("TeSH", "Swamp_Hut");
+     });
+     private static final Set<String> OLD_STRUCTURE_REGISTRY_KEYS = Set.of("pillager_outpost", "mineshaft", "mansion", "jungle_pyramid", "desert_pyramid", "igloo", "ruined_portal", "shipwreck", "swamp_hut", "stronghold", "monument", "ocean_ruin", "fortress", "endcity", "buried_treasure", "village", "nether_fossil", "bastion_remnant");
+     private final boolean hasLegacyData;
+@@ -47,172 +48,208 @@
+     private final List<String> legacyKeys;
+     private final List<String> currentKeys;
+ 
+-    public LegacyStructureDataHandler(@Nullable DimensionDataStorage persistentStateManager, List<String> list, List<String> list2) {
++    public LegacyStructureDataHandler(@Nullable DimensionDataStorage persistentStateManager, List<String> list, List<String> list1) {
+         this.legacyKeys = list;
+-        this.currentKeys = list2;
++        this.currentKeys = list1;
+         this.populateCaches(persistentStateManager);
+-        boolean bl = false;
++        boolean flag = false;
+ 
+-        for(String string : this.currentKeys) {
+-            bl |= this.dataMap.get(string) != null;
++        String s;
++
++        for (Iterator iterator = this.currentKeys.iterator(); iterator.hasNext(); flag |= this.dataMap.get(s) != null) {
++            s = (String) iterator.next();
+         }
+ 
+-        this.hasLegacyData = bl;
++        this.hasLegacyData = flag;
+     }
+ 
+-    public void removeIndex(long l) {
+-        for(String string : this.legacyKeys) {
+-            StructureFeatureIndexSavedData structureFeatureIndexSavedData = this.indexMap.get(string);
+-            if (structureFeatureIndexSavedData != null && structureFeatureIndexSavedData.hasUnhandledIndex(l)) {
+-                structureFeatureIndexSavedData.removeIndex(l);
+-                structureFeatureIndexSavedData.setDirty();
++    public void removeIndex(long i) {
++        Iterator iterator = this.legacyKeys.iterator();
++
++        while (iterator.hasNext()) {
++            String s = (String) iterator.next();
++            StructureFeatureIndexSavedData persistentindexed = (StructureFeatureIndexSavedData) this.indexMap.get(s);
++
++            if (persistentindexed != null && persistentindexed.hasUnhandledIndex(i)) {
++                persistentindexed.removeIndex(i);
++                persistentindexed.setDirty();
+             }
+         }
+ 
+     }
+ 
+     public CompoundTag updateFromLegacy(CompoundTag nbt) {
+-        CompoundTag compoundTag = nbt.getCompound("Level");
+-        ChunkPos chunkPos = new ChunkPos(compoundTag.getInt("xPos"), compoundTag.getInt("zPos"));
+-        if (this.isUnhandledStructureStart(chunkPos.x, chunkPos.z)) {
+-            nbt = this.updateStructureStart(nbt, chunkPos);
++        CompoundTag nbttagcompound1 = nbt.getCompound("Level");
++        ChunkPos chunkcoordintpair = new ChunkPos(nbttagcompound1.getInt("xPos"), nbttagcompound1.getInt("zPos"));
++
++        if (this.isUnhandledStructureStart(chunkcoordintpair.x, chunkcoordintpair.z)) {
++            nbt = this.updateStructureStart(nbt, chunkcoordintpair);
+         }
+ 
+-        CompoundTag compoundTag2 = compoundTag.getCompound("Structures");
+-        CompoundTag compoundTag3 = compoundTag2.getCompound("References");
++        CompoundTag nbttagcompound2 = nbttagcompound1.getCompound("Structures");
++        CompoundTag nbttagcompound3 = nbttagcompound2.getCompound("References");
++        Iterator iterator = this.currentKeys.iterator();
+ 
+-        for(String string : this.currentKeys) {
+-            boolean bl = OLD_STRUCTURE_REGISTRY_KEYS.contains(string.toLowerCase(Locale.ROOT));
+-            if (!compoundTag3.contains(string, 12) && bl) {
+-                int i = 8;
+-                LongList longList = new LongArrayList();
++        while (iterator.hasNext()) {
++            String s = (String) iterator.next();
++            boolean flag = LegacyStructureDataHandler.OLD_STRUCTURE_REGISTRY_KEYS.contains(s.toLowerCase(Locale.ROOT));
+ 
+-                for(int j = chunkPos.x - 8; j <= chunkPos.x + 8; ++j) {
+-                    for(int k = chunkPos.z - 8; k <= chunkPos.z + 8; ++k) {
+-                        if (this.hasLegacyStart(j, k, string)) {
+-                            longList.add(ChunkPos.asLong(j, k));
++            if (!nbttagcompound3.contains(s, 12) && flag) {
++                boolean flag1 = true;
++                LongArrayList longarraylist = new LongArrayList();
++
++                for (int i = chunkcoordintpair.x - 8; i <= chunkcoordintpair.x + 8; ++i) {
++                    for (int j = chunkcoordintpair.z - 8; j <= chunkcoordintpair.z + 8; ++j) {
++                        if (this.hasLegacyStart(i, j, s)) {
++                            longarraylist.add(ChunkPos.asLong(i, j));
+                         }
+                     }
+                 }
+ 
+-                compoundTag3.putLongArray(string, (List<Long>)longList);
++                nbttagcompound3.putLongArray(s, (List) longarraylist);
+             }
+         }
+ 
+-        compoundTag2.put("References", compoundTag3);
+-        compoundTag.put("Structures", compoundTag2);
+-        nbt.put("Level", compoundTag);
++        nbttagcompound2.put("References", nbttagcompound3);
++        nbttagcompound1.put("Structures", nbttagcompound2);
++        nbt.put("Level", nbttagcompound1);
+         return nbt;
+     }
+ 
+     private boolean hasLegacyStart(int chunkX, int chunkZ, String id) {
+-        if (!this.hasLegacyData) {
+-            return false;
+-        } else {
+-            return this.dataMap.get(id) != null && this.indexMap.get(CURRENT_TO_LEGACY_MAP.get(id)).hasStartIndex(ChunkPos.asLong(chunkX, chunkZ));
+-        }
++        return !this.hasLegacyData ? false : this.dataMap.get(id) != null && ((StructureFeatureIndexSavedData) this.indexMap.get(LegacyStructureDataHandler.CURRENT_TO_LEGACY_MAP.get(id))).hasStartIndex(ChunkPos.asLong(chunkX, chunkZ));
+     }
+ 
+     private boolean isUnhandledStructureStart(int chunkX, int chunkZ) {
+         if (!this.hasLegacyData) {
+             return false;
+         } else {
+-            for(String string : this.currentKeys) {
+-                if (this.dataMap.get(string) != null && this.indexMap.get(CURRENT_TO_LEGACY_MAP.get(string)).hasUnhandledIndex(ChunkPos.asLong(chunkX, chunkZ))) {
+-                    return true;
++            Iterator iterator = this.currentKeys.iterator();
++
++            String s;
++
++            do {
++                if (!iterator.hasNext()) {
++                    return false;
+                 }
+-            }
+ 
+-            return false;
++                s = (String) iterator.next();
++            } while (this.dataMap.get(s) == null || !((StructureFeatureIndexSavedData) this.indexMap.get(LegacyStructureDataHandler.CURRENT_TO_LEGACY_MAP.get(s))).hasUnhandledIndex(ChunkPos.asLong(chunkX, chunkZ)));
++
++            return true;
+         }
+     }
+ 
+     private CompoundTag updateStructureStart(CompoundTag nbt, ChunkPos pos) {
+-        CompoundTag compoundTag = nbt.getCompound("Level");
+-        CompoundTag compoundTag2 = compoundTag.getCompound("Structures");
+-        CompoundTag compoundTag3 = compoundTag2.getCompound("Starts");
++        CompoundTag nbttagcompound1 = nbt.getCompound("Level");
++        CompoundTag nbttagcompound2 = nbttagcompound1.getCompound("Structures");
++        CompoundTag nbttagcompound3 = nbttagcompound2.getCompound("Starts");
++        Iterator iterator = this.currentKeys.iterator();
+ 
+-        for(String string : this.currentKeys) {
+-            Long2ObjectMap<CompoundTag> long2ObjectMap = this.dataMap.get(string);
+-            if (long2ObjectMap != null) {
+-                long l = pos.toLong();
+-                if (this.indexMap.get(CURRENT_TO_LEGACY_MAP.get(string)).hasUnhandledIndex(l)) {
+-                    CompoundTag compoundTag4 = long2ObjectMap.get(l);
+-                    if (compoundTag4 != null) {
+-                        compoundTag3.put(string, compoundTag4);
++        while (iterator.hasNext()) {
++            String s = (String) iterator.next();
++            Long2ObjectMap<CompoundTag> long2objectmap = (Long2ObjectMap) this.dataMap.get(s);
++
++            if (long2objectmap != null) {
++                long i = pos.toLong();
++
++                if (((StructureFeatureIndexSavedData) this.indexMap.get(LegacyStructureDataHandler.CURRENT_TO_LEGACY_MAP.get(s))).hasUnhandledIndex(i)) {
++                    CompoundTag nbttagcompound4 = (CompoundTag) long2objectmap.get(i);
++
++                    if (nbttagcompound4 != null) {
++                        nbttagcompound3.put(s, nbttagcompound4);
+                     }
+                 }
+             }
+         }
+ 
+-        compoundTag2.put("Starts", compoundTag3);
+-        compoundTag.put("Structures", compoundTag2);
+-        nbt.put("Level", compoundTag);
++        nbttagcompound2.put("Starts", nbttagcompound3);
++        nbttagcompound1.put("Structures", nbttagcompound2);
++        nbt.put("Level", nbttagcompound1);
+         return nbt;
+     }
+ 
+     private void populateCaches(@Nullable DimensionDataStorage persistentStateManager) {
+         if (persistentStateManager != null) {
+-            for(String string : this.legacyKeys) {
+-                CompoundTag compoundTag = new CompoundTag();
++            Iterator iterator = this.legacyKeys.iterator();
++
++            while (iterator.hasNext()) {
++                String s = (String) iterator.next();
++                CompoundTag nbttagcompound = new CompoundTag();
+ 
+                 try {
+-                    compoundTag = persistentStateManager.readTagFromDisk(string, 1493).getCompound("data").getCompound("Features");
+-                    if (compoundTag.isEmpty()) {
++                    nbttagcompound = persistentStateManager.readTagFromDisk(s, 1493).getCompound("data").getCompound("Features");
++                    if (nbttagcompound.isEmpty()) {
+                         continue;
+                     }
+-                } catch (IOException var13) {
++                } catch (IOException ioexception) {
++                    ;
+                 }
+ 
+-                for(String string2 : compoundTag.getAllKeys()) {
+-                    CompoundTag compoundTag2 = compoundTag.getCompound(string2);
+-                    long l = ChunkPos.asLong(compoundTag2.getInt("ChunkX"), compoundTag2.getInt("ChunkZ"));
+-                    ListTag listTag = compoundTag2.getList("Children", 10);
+-                    if (!listTag.isEmpty()) {
+-                        String string3 = listTag.getCompound(0).getString("id");
+-                        String string4 = LEGACY_TO_CURRENT_MAP.get(string3);
+-                        if (string4 != null) {
+-                            compoundTag2.putString("id", string4);
++                Iterator iterator1 = nbttagcompound.getAllKeys().iterator();
++
++                while (iterator1.hasNext()) {
++                    String s1 = (String) iterator1.next();
++                    CompoundTag nbttagcompound1 = nbttagcompound.getCompound(s1);
++                    long i = ChunkPos.asLong(nbttagcompound1.getInt("ChunkX"), nbttagcompound1.getInt("ChunkZ"));
++                    ListTag nbttaglist = nbttagcompound1.getList("Children", 10);
++                    String s2;
++
++                    if (!nbttaglist.isEmpty()) {
++                        s2 = nbttaglist.getCompound(0).getString("id");
++                        String s3 = (String) LegacyStructureDataHandler.LEGACY_TO_CURRENT_MAP.get(s2);
++
++                        if (s3 != null) {
++                            nbttagcompound1.putString("id", s3);
+                         }
+                     }
+ 
+-                    String string5 = compoundTag2.getString("id");
+-                    this.dataMap.computeIfAbsent(string5, (stringx) -> {
++                    s2 = nbttagcompound1.getString("id");
++                    ((Long2ObjectMap) this.dataMap.computeIfAbsent(s2, (s4) -> {
+                         return new Long2ObjectOpenHashMap();
+-                    }).put(l, compoundTag2);
++                    })).put(i, nbttagcompound1);
+                 }
+ 
+-                String string6 = string + "_index";
+-                StructureFeatureIndexSavedData structureFeatureIndexSavedData = persistentStateManager.computeIfAbsent(StructureFeatureIndexSavedData::load, StructureFeatureIndexSavedData::new, string6);
+-                if (!structureFeatureIndexSavedData.getAll().isEmpty()) {
+-                    this.indexMap.put(string, structureFeatureIndexSavedData);
++                String s4 = s + "_index";
++                StructureFeatureIndexSavedData persistentindexed = (StructureFeatureIndexSavedData) persistentStateManager.computeIfAbsent(StructureFeatureIndexSavedData::load, StructureFeatureIndexSavedData::new, s4);
++
++                if (!persistentindexed.getAll().isEmpty()) {
++                    this.indexMap.put(s, persistentindexed);
+                 } else {
+-                    StructureFeatureIndexSavedData structureFeatureIndexSavedData2 = new StructureFeatureIndexSavedData();
+-                    this.indexMap.put(string, structureFeatureIndexSavedData2);
++                    StructureFeatureIndexSavedData persistentindexed1 = new StructureFeatureIndexSavedData();
+ 
+-                    for(String string7 : compoundTag.getAllKeys()) {
+-                        CompoundTag compoundTag3 = compoundTag.getCompound(string7);
+-                        structureFeatureIndexSavedData2.addIndex(ChunkPos.asLong(compoundTag3.getInt("ChunkX"), compoundTag3.getInt("ChunkZ")));
++                    this.indexMap.put(s, persistentindexed1);
++                    Iterator iterator2 = nbttagcompound.getAllKeys().iterator();
++
++                    while (iterator2.hasNext()) {
++                        String s5 = (String) iterator2.next();
++                        CompoundTag nbttagcompound2 = nbttagcompound.getCompound(s5);
++
++                        persistentindexed1.addIndex(ChunkPos.asLong(nbttagcompound2.getInt("ChunkX"), nbttagcompound2.getInt("ChunkZ")));
+                     }
+ 
+-                    structureFeatureIndexSavedData2.setDirty();
++                    persistentindexed1.setDirty();
+                 }
+             }
+ 
+         }
+     }
+ 
+-    public static LegacyStructureDataHandler getLegacyStructureHandler(ResourceKey<Level> world, @Nullable DimensionDataStorage persistentStateManager) {
+-        if (world == Level.OVERWORLD) {
++    public static LegacyStructureDataHandler getLegacyStructureHandler(ResourceKey<LevelStem> world, @Nullable DimensionDataStorage persistentStateManager) { // CraftBukkit
++        if (world == LevelStem.OVERWORLD) { // CraftBukkit
+             return new LegacyStructureDataHandler(persistentStateManager, ImmutableList.of("Monument", "Stronghold", "Village", "Mineshaft", "Temple", "Mansion"), ImmutableList.of("Village", "Mineshaft", "Mansion", "Igloo", "Desert_Pyramid", "Jungle_Pyramid", "Swamp_Hut", "Stronghold", "Monument"));
+-        } else if (world == Level.NETHER) {
+-            List<String> list = ImmutableList.of("Fortress");
+-            return new LegacyStructureDataHandler(persistentStateManager, list, list);
+-        } else if (world == Level.END) {
+-            List<String> list2 = ImmutableList.of("EndCity");
+-            return new LegacyStructureDataHandler(persistentStateManager, list2, list2);
+         } else {
+-            throw new RuntimeException(String.format(Locale.ROOT, "Unknown dimension type : %s", world));
++            ImmutableList immutablelist;
++
++            if (world == LevelStem.NETHER) { // CraftBukkit
++                immutablelist = ImmutableList.of("Fortress");
++                return new LegacyStructureDataHandler(persistentStateManager, immutablelist, immutablelist);
++            } else if (world == LevelStem.END) { // CraftBukkit
++                immutablelist = ImmutableList.of("EndCity");
++                return new LegacyStructureDataHandler(persistentStateManager, immutablelist, immutablelist);
++            } else {
++                throw new RuntimeException(String.format(Locale.ROOT, "Unknown dimension type : %s", world));
++            }
+         }
+     }
+ }

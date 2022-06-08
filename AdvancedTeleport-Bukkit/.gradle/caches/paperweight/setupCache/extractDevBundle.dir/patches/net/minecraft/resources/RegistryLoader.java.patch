@@ -1,0 +1,24 @@
+--- a/net/minecraft/resources/RegistryLoader.java
++++ b/net/minecraft/resources/RegistryLoader.java
+@@ -46,6 +46,12 @@
+         RegistryLoader.ReadCache<E> readCache = this.readCache(registryRef);
+         DataResult<Holder<E>> dataResult = readCache.values.get(entryKey);
+         if (dataResult != null) {
++            // Paper start - register in registry due to craftbukkit running this 3 times instead of once
++            if (registryRef == (ResourceKey) Registry.LEVEL_STEM_REGISTRY && dataResult.result().isPresent()) {
++                // OptionalInt.empty() because the LevelStem registry is only loaded from the resource manager, not the InMemory resource access
++                registry.registerOrOverride(java.util.OptionalInt.empty(), entryKey, dataResult.result().get().value(), dataResult.lifecycle());
++            }
++            // Paper end
+             return dataResult;
+         } else {
+             Holder<E> holder = registry.getOrCreateHolderOrThrow(entryKey);
+@@ -76,7 +82,7 @@
+     }
+ 
+     private <E> RegistryLoader.ReadCache<E> readCache(ResourceKey<? extends Registry<E>> registryRef) {
+-        return this.readCache.computeIfAbsent(registryRef, (ref) -> {
++        return (RegistryLoader.ReadCache<E>) this.readCache.computeIfAbsent(registryRef, (ref) -> { // Paper - decompile fix
+             return new RegistryLoader.ReadCache();
+         });
+     }

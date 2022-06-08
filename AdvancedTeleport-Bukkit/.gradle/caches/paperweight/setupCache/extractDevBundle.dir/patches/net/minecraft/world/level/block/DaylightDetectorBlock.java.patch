@@ -1,0 +1,93 @@
+--- a/net/minecraft/world/level/block/DaylightDetectorBlock.java
++++ b/net/minecraft/world/level/block/DaylightDetectorBlock.java
+@@ -26,18 +26,19 @@
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ 
+ public class DaylightDetectorBlock extends BaseEntityBlock {
++
+     public static final IntegerProperty POWER = BlockStateProperties.POWER;
+     public static final BooleanProperty INVERTED = BlockStateProperties.INVERTED;
+     protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D);
+ 
+     public DaylightDetectorBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(POWER, Integer.valueOf(0)).setValue(INVERTED, Boolean.valueOf(false)));
++        this.registerDefaultState((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(DaylightDetectorBlock.POWER, 0)).setValue(DaylightDetectorBlock.INVERTED, false));
+     }
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return SHAPE;
++        return DaylightDetectorBlock.SHAPE;
+     }
+ 
+     @Override
+@@ -47,24 +48,27 @@
+ 
+     @Override
+     public int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
+-        return state.getValue(POWER);
++        return (Integer) state.getValue(DaylightDetectorBlock.POWER);
+     }
+ 
+     private static void updateSignalStrength(BlockState state, Level world, BlockPos pos) {
+         int i = world.getBrightness(LightLayer.SKY, pos) - world.getSkyDarken();
+         float f = world.getSunAngle(1.0F);
+-        boolean bl = state.getValue(INVERTED);
+-        if (bl) {
++        boolean flag = (Boolean) state.getValue(DaylightDetectorBlock.INVERTED);
++
++        if (flag) {
+             i = 15 - i;
+         } else if (i > 0) {
+-            float g = f < (float)Math.PI ? 0.0F : ((float)Math.PI * 2F);
+-            f += (g - f) * 0.2F;
+-            i = Math.round((float)i * Mth.cos(f));
++            float f1 = f < 3.1415927F ? 0.0F : 6.2831855F;
++
++            f += (f1 - f) * 0.2F;
++            i = Math.round((float) i * Mth.cos(f));
+         }
+ 
+-        i = Mth.clamp(i, 0, 15);
+-        if (state.getValue(POWER) != i) {
+-            world.setBlock(pos, state.setValue(POWER, Integer.valueOf(i)), 3);
++        i = Mth.clamp(i, (int) 0, (int) 15);
++        if ((Integer) state.getValue(DaylightDetectorBlock.POWER) != i) {
++            i = org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callRedstoneChange(world, pos, ((Integer) state.getValue(POWER)), i).getNewCurrent(); // CraftBukkit - Call BlockRedstoneEvent
++            world.setBlock(pos, (BlockState) state.setValue(DaylightDetectorBlock.POWER, i), 3);
+         }
+ 
+     }
+@@ -75,10 +79,11 @@
+             if (world.isClientSide) {
+                 return InteractionResult.SUCCESS;
+             } else {
+-                BlockState blockState = state.cycle(INVERTED);
+-                world.setBlock(pos, blockState, 4);
+-                world.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(player, blockState));
+-                updateSignalStrength(blockState, world, pos);
++                BlockState iblockdata1 = (BlockState) state.cycle(DaylightDetectorBlock.INVERTED);
++
++                world.setBlock(pos, iblockdata1, 4);
++                world.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(player, iblockdata1));
++                DaylightDetectorBlock.updateSignalStrength(iblockdata1, world, pos);
+                 return InteractionResult.CONSUME;
+             }
+         } else {
+@@ -109,13 +114,13 @@
+ 
+     private static void tickEntity(Level world, BlockPos pos, BlockState state, DaylightDetectorBlockEntity blockEntity) {
+         if (world.getGameTime() % 20L == 0L) {
+-            updateSignalStrength(state, world, pos);
++            DaylightDetectorBlock.updateSignalStrength(state, world, pos);
+         }
+ 
+     }
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(POWER, INVERTED);
++        builder.add(DaylightDetectorBlock.POWER, DaylightDetectorBlock.INVERTED);
+     }
+ }

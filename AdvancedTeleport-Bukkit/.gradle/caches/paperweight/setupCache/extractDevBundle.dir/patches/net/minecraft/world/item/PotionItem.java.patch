@@ -1,0 +1,147 @@
+--- a/net/minecraft/world/item/PotionItem.java
++++ b/net/minecraft/world/item/PotionItem.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.world.item;
+ 
++import java.util.Iterator;
+ import java.util.List;
+ import javax.annotation.Nullable;
+ import net.minecraft.advancements.CriteriaTriggers;
+@@ -32,6 +33,7 @@
+ import net.minecraft.world.level.gameevent.GameEvent;
+ 
+ public class PotionItem extends Item {
++
+     private static final int DRINK_DURATION = 32;
+ 
+     public PotionItem(Item.Properties settings) {
+@@ -45,35 +47,53 @@
+ 
+     @Override
+     public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
+-        Player player = user instanceof Player ? (Player)user : null;
+-        if (player instanceof ServerPlayer) {
+-            CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer)player, stack);
++        Player entityhuman = user instanceof Player ? (Player) user : null;
++
++        if (entityhuman instanceof ServerPlayer) {
++            CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer) entityhuman, stack);
+         }
+ 
++        List<MobEffectInstance> instantLater = new java.util.ArrayList<>(); // Paper - Fix harming potion dupe
+         if (!world.isClientSide) {
+-            for(MobEffectInstance mobEffectInstance : PotionUtils.getMobEffects(stack)) {
+-                if (mobEffectInstance.getEffect().isInstantenous()) {
+-                    mobEffectInstance.getEffect().applyInstantenousEffect(player, player, user, mobEffectInstance.getAmplifier(), 1.0D);
++            List<MobEffectInstance> list = PotionUtils.getMobEffects(stack);
++            Iterator iterator = list.iterator();
++
++            while (iterator.hasNext()) {
++                MobEffectInstance mobeffect = (MobEffectInstance) iterator.next();
++
++                if (mobeffect.getEffect().isInstantenous()) {
++                    instantLater.add(mobeffect); // Paper - Fix harming potion dupe
+                 } else {
+-                    user.addEffect(new MobEffectInstance(mobEffectInstance));
++                    user.addEffect(new MobEffectInstance(mobeffect), org.bukkit.event.entity.EntityPotionEffectEvent.Cause.POTION_DRINK); // CraftBukkit
+                 }
+             }
+         }
+ 
+-        if (player != null) {
+-            player.awardStat(Stats.ITEM_USED.get(this));
+-            if (!player.getAbilities().instabuild) {
++        if (entityhuman != null) {
++            entityhuman.awardStat(Stats.ITEM_USED.get(this));
++            if (!entityhuman.getAbilities().instabuild) {
+                 stack.shrink(1);
+             }
+         }
+ 
+-        if (player == null || !player.getAbilities().instabuild) {
++        // Paper start - Fix harming potion dupe
++        for (MobEffectInstance mobeffect : instantLater) {
++            mobeffect.getEffect().applyInstantenousEffect(entityhuman, entityhuman, user, mobeffect.getAmplifier(), 1.0D);
++        }
++        // Paper end
++        if (entityhuman == null || !entityhuman.getAbilities().instabuild) {
++            // Paper start - Fix harming potion dupe
++            if (user.getHealth() <= 0 && !user.level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_KEEPINVENTORY)) {
++                user.spawnAtLocation(new ItemStack(Items.GLASS_BOTTLE), 0);
++                return ItemStack.EMPTY;
++            }
++            // Paper end
+             if (stack.isEmpty()) {
+                 return new ItemStack(Items.GLASS_BOTTLE);
+             }
+ 
+-            if (player != null) {
+-                player.getInventory().add(new ItemStack(Items.GLASS_BOTTLE));
++            if (entityhuman != null) {
++                entityhuman.getInventory().add(new ItemStack(Items.GLASS_BOTTLE));
+             }
+         }
+ 
+@@ -83,27 +103,28 @@
+ 
+     @Override
+     public InteractionResult useOn(UseOnContext context) {
+-        Level level = context.getLevel();
+-        BlockPos blockPos = context.getClickedPos();
+-        Player player = context.getPlayer();
+-        ItemStack itemStack = context.getItemInHand();
+-        BlockState blockState = level.getBlockState(blockPos);
+-        if (context.getClickedFace() != Direction.DOWN && blockState.is(BlockTags.CONVERTABLE_TO_MUD) && PotionUtils.getPotion(itemStack) == Potions.WATER) {
+-            level.playSound((Player)null, blockPos, SoundEvents.GENERIC_SPLASH, SoundSource.PLAYERS, 1.0F, 1.0F);
+-            player.setItemInHand(context.getHand(), ItemUtils.createFilledResult(itemStack, player, new ItemStack(Items.GLASS_BOTTLE)));
+-            player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
+-            if (!level.isClientSide) {
+-                ServerLevel serverLevel = (ServerLevel)level;
++        Level world = context.getLevel();
++        BlockPos blockposition = context.getClickedPos();
++        Player entityhuman = context.getPlayer();
++        ItemStack itemstack = context.getItemInHand();
++        BlockState iblockdata = world.getBlockState(blockposition);
+ 
+-                for(int i = 0; i < 5; ++i) {
+-                    serverLevel.sendParticles(ParticleTypes.SPLASH, (double)blockPos.getX() + level.random.nextDouble(), (double)(blockPos.getY() + 1), (double)blockPos.getZ() + level.random.nextDouble(), 1, 0.0D, 0.0D, 0.0D, 1.0D);
++        if (context.getClickedFace() != Direction.DOWN && iblockdata.is(BlockTags.CONVERTABLE_TO_MUD) && PotionUtils.getPotion(itemstack) == Potions.WATER) {
++            world.playSound((Player) null, blockposition, SoundEvents.GENERIC_SPLASH, SoundSource.PLAYERS, 1.0F, 1.0F);
++            entityhuman.setItemInHand(context.getHand(), ItemUtils.createFilledResult(itemstack, entityhuman, new ItemStack(Items.GLASS_BOTTLE)));
++            entityhuman.awardStat(Stats.ITEM_USED.get(itemstack.getItem()));
++            if (!world.isClientSide) {
++                ServerLevel worldserver = (ServerLevel) world;
++
++                for (int i = 0; i < 5; ++i) {
++                    worldserver.sendParticles(ParticleTypes.SPLASH, (double) blockposition.getX() + world.random.nextDouble(), (double) (blockposition.getY() + 1), (double) blockposition.getZ() + world.random.nextDouble(), 1, 0.0D, 0.0D, 0.0D, 1.0D);
+                 }
+             }
+ 
+-            level.playSound((Player)null, blockPos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+-            level.gameEvent((Entity)null, GameEvent.FLUID_PLACE, blockPos);
+-            level.setBlockAndUpdate(blockPos, Blocks.MUD.defaultBlockState());
+-            return InteractionResult.sidedSuccess(level.isClientSide);
++            world.playSound((Player) null, blockposition, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
++            world.gameEvent((Entity) null, GameEvent.FLUID_PLACE, blockposition);
++            world.setBlockAndUpdate(blockposition, Blocks.MUD.defaultBlockState());
++            return InteractionResult.sidedSuccess(world.isClientSide);
+         } else {
+             return InteractionResult.PASS;
+         }
+@@ -142,9 +163,13 @@
+     @Override
+     public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
+         if (this.allowedIn(group)) {
+-            for(Potion potion : Registry.POTION) {
+-                if (potion != Potions.EMPTY) {
+-                    stacks.add(PotionUtils.setPotion(new ItemStack(this), potion));
++            Iterator iterator = Registry.POTION.iterator();
++
++            while (iterator.hasNext()) {
++                Potion potionregistry = (Potion) iterator.next();
++
++                if (potionregistry != Potions.EMPTY) {
++                    stacks.add(PotionUtils.setPotion(new ItemStack(this), potionregistry));
+                 }
+             }
+         }

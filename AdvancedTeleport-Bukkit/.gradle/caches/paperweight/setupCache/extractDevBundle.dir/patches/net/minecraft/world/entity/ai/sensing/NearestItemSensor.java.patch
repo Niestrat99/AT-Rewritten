@@ -1,0 +1,32 @@
+--- a/net/minecraft/world/entity/ai/sensing/NearestItemSensor.java
++++ b/net/minecraft/world/entity/ai/sensing/NearestItemSensor.java
+@@ -25,14 +25,21 @@
+     protected void doTick(ServerLevel world, Mob entity) {
+         Brain<?> brain = entity.getBrain();
+         List<ItemEntity> list = world.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(32.0D, 16.0D, 32.0D), (itemEntity) -> {
+-            return true;
++            return itemEntity.closerThan(entity, 9.0D) && entity.wantsToPickUp(itemEntity.getItem()); // Paper - move predicate into getEntities
+         });
+-        list.sort(Comparator.comparingDouble(entity::distanceToSqr));
+-        Optional<ItemEntity> optional = list.stream().filter((itemEntity) -> {
+-            return entity.wantsToPickUp(itemEntity.getItem());
+-        }).filter((itemEntity) -> {
+-            return itemEntity.closerThan(entity, 32.0D);
+-        }).filter(entity::hasLineOfSight).findFirst();
+-        brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, optional);
++        list.sort((e1, e2) -> Double.compare(entity.distanceToSqr(e1), entity.distanceToSqr(e2))); // better to take the sort perf hit than using line of sight more than we need to.
++        // Paper start - remove streams
++        // Paper start - remove streams in favour of lists
++        ItemEntity nearest = null;
++        for (int i = 0; i < list.size(); i++) {
++            ItemEntity entityItem = list.get(i);
++            if (entity.hasLineOfSight(entityItem)) {
++                // Paper end - remove streams
++                nearest = entityItem;
++                break;
++            }
++        }
++        brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, Optional.ofNullable(nearest));
++        // Paper end
+     }
+ }

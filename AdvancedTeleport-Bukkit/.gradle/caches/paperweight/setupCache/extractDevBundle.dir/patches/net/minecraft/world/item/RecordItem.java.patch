@@ -1,0 +1,65 @@
+--- a/net/minecraft/world/item/RecordItem.java
++++ b/net/minecraft/world/item/RecordItem.java
+@@ -19,6 +19,7 @@
+ import net.minecraft.world.level.block.state.BlockState;
+ 
+ public class RecordItem extends Item {
++
+     private static final Map<SoundEvent, RecordItem> BY_NAME = Maps.newHashMap();
+     private final int analogOutput;
+     private final SoundEvent sound;
+@@ -29,27 +30,31 @@
+         this.analogOutput = comparatorOutput;
+         this.sound = sound;
+         this.lengthInTicks = lengthInSeconds * 20;
+-        BY_NAME.put(this.sound, this);
++        RecordItem.BY_NAME.put(this.sound, this);
+     }
+ 
+     @Override
+     public InteractionResult useOn(UseOnContext context) {
+-        Level level = context.getLevel();
+-        BlockPos blockPos = context.getClickedPos();
+-        BlockState blockState = level.getBlockState(blockPos);
+-        if (blockState.is(Blocks.JUKEBOX) && !blockState.getValue(JukeboxBlock.HAS_RECORD)) {
+-            ItemStack itemStack = context.getItemInHand();
+-            if (!level.isClientSide) {
+-                ((JukeboxBlock)Blocks.JUKEBOX).setRecord(context.getPlayer(), level, blockPos, blockState, itemStack);
+-                level.levelEvent((Player)null, 1010, blockPos, Item.getId(this));
+-                itemStack.shrink(1);
+-                Player player = context.getPlayer();
+-                if (player != null) {
+-                    player.awardStat(Stats.PLAY_RECORD);
++        Level world = context.getLevel();
++        BlockPos blockposition = context.getClickedPos();
++        BlockState iblockdata = world.getBlockState(blockposition);
++
++        if (iblockdata.is(Blocks.JUKEBOX) && !(Boolean) iblockdata.getValue(JukeboxBlock.HAS_RECORD)) {
++            ItemStack itemstack = context.getItemInHand();
++
++            if (!world.isClientSide) {
++                if (true) return InteractionResult.SUCCESS; // CraftBukkit - handled in ItemStack
++                ((JukeboxBlock) Blocks.JUKEBOX).setRecord(context.getPlayer(), world, blockposition, iblockdata, itemstack);
++                world.levelEvent((Player) null, 1010, blockposition, Item.getId(this));
++                itemstack.shrink(1);
++                Player entityhuman = context.getPlayer();
++
++                if (entityhuman != null) {
++                    entityhuman.awardStat(Stats.PLAY_RECORD);
+                 }
+             }
+ 
+-            return InteractionResult.sidedSuccess(level.isClientSide);
++            return InteractionResult.sidedSuccess(world.isClientSide);
+         } else {
+             return InteractionResult.PASS;
+         }
+@@ -70,7 +75,7 @@
+ 
+     @Nullable
+     public static RecordItem getBySound(SoundEvent sound) {
+-        return BY_NAME.get(sound);
++        return (RecordItem) RecordItem.BY_NAME.get(sound);
+     }
+ 
+     public SoundEvent getSound() {

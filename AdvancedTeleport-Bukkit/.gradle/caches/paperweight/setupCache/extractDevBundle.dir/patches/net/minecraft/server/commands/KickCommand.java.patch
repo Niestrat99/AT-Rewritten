@@ -1,0 +1,11 @@
+--- a/net/minecraft/server/commands/KickCommand.java
++++ b/net/minecraft/server/commands/KickCommand.java
+@@ -22,7 +22,7 @@
+ 
+     private static int kickPlayers(CommandSourceStack source, Collection<ServerPlayer> targets, Component reason) {
+         for(ServerPlayer serverPlayer : targets) {
+-            serverPlayer.connection.disconnect(reason);
++            serverPlayer.connection.disconnect(reason, org.bukkit.event.player.PlayerKickEvent.Cause.KICK_COMMAND); // Paper - kick event cause
+             source.sendSuccess(Component.translatable("commands.kick.success", serverPlayer.getDisplayName(), reason), true);
+         }
+ 

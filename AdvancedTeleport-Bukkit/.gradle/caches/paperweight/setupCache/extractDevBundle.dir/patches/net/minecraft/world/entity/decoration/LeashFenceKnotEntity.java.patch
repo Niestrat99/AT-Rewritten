@@ -1,0 +1,171 @@
+--- a/net/minecraft/world/entity/decoration/LeashFenceKnotEntity.java
++++ b/net/minecraft/world/entity/decoration/LeashFenceKnotEntity.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.world.entity.decoration;
+ 
++import java.util.Iterator;
+ import java.util.List;
+ import javax.annotation.Nullable;
+ import net.minecraft.core.BlockPos;
+@@ -7,6 +8,8 @@
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.network.protocol.Packet;
+ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
++import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
++import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.sounds.SoundEvents;
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.world.InteractionHand;
+@@ -22,8 +25,11 @@
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory;
++// CraftBukkit end
+ 
+ public class LeashFenceKnotEntity extends HangingEntity {
++
+     public static final double OFFSET_Y = 0.375D;
+ 
+     public LeashFenceKnotEntity(EntityType<? extends LeashFenceKnotEntity> type, Level world) {
+@@ -32,20 +38,20 @@
+ 
+     public LeashFenceKnotEntity(Level world, BlockPos pos) {
+         super(EntityType.LEASH_KNOT, world, pos);
+-        this.setPos((double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
++        this.setPos((double) pos.getX(), (double) pos.getY(), (double) pos.getZ());
+     }
+ 
+     @Override
+     protected void recalculateBoundingBox() {
+-        this.setPosRaw((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.375D, (double)this.pos.getZ() + 0.5D);
+-        double d = (double)this.getType().getWidth() / 2.0D;
+-        double e = (double)this.getType().getHeight();
+-        this.setBoundingBox(new AABB(this.getX() - d, this.getY(), this.getZ() - d, this.getX() + d, this.getY() + e, this.getZ() + d));
++        this.setPosRaw((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.375D, (double) this.pos.getZ() + 0.5D);
++        double d0 = (double) this.getType().getWidth() / 2.0D;
++        double d1 = (double) this.getType().getHeight();
++
++        this.setBoundingBox(new AABB(this.getX() - d0, this.getY(), this.getZ() - d0, this.getX() + d0, this.getY() + d1, this.getZ() + d0));
+     }
+ 
+     @Override
+-    public void setDirection(Direction facing) {
+-    }
++    public void setDirection(Direction facing) {}
+ 
+     @Override
+     public int getWidth() {
+@@ -73,37 +79,65 @@
+     }
+ 
+     @Override
+-    public void addAdditionalSaveData(CompoundTag nbt) {
+-    }
++    public void addAdditionalSaveData(CompoundTag nbt) {}
+ 
+     @Override
+-    public void readAdditionalSaveData(CompoundTag nbt) {
+-    }
++    public void readAdditionalSaveData(CompoundTag nbt) {}
+ 
+     @Override
+     public InteractionResult interact(Player player, InteractionHand hand) {
+         if (this.level.isClientSide) {
+             return InteractionResult.SUCCESS;
+         } else {
+-            boolean bl = false;
+-            double d = 7.0D;
++            boolean flag = false;
++            double d0 = 7.0D;
+             List<Mob> list = this.level.getEntitiesOfClass(Mob.class, new AABB(this.getX() - 7.0D, this.getY() - 7.0D, this.getZ() - 7.0D, this.getX() + 7.0D, this.getY() + 7.0D, this.getZ() + 7.0D));
++            Iterator iterator = list.iterator();
+ 
+-            for(Mob mob : list) {
+-                if (mob.getLeashHolder() == player) {
+-                    mob.setLeashedTo(this, true);
+-                    bl = true;
++            Mob entityinsentient;
++
++            while (iterator.hasNext()) {
++                entityinsentient = (Mob) iterator.next();
++                if (entityinsentient.getLeashHolder() == player) {
++                    // CraftBukkit start
++                    if (CraftEventFactory.callPlayerLeashEntityEvent(entityinsentient, this, player, hand).isCancelled()) {
++                        ((ServerPlayer) player).connection.send(new ClientboundSetEntityLinkPacket(entityinsentient, entityinsentient.getLeashHolder()));
++                        continue;
++                    }
++                    // CraftBukkit end
++                    entityinsentient.setLeashedTo(this, true);
++                    flag = true;
+                 }
+             }
+ 
+-            if (!bl) {
+-                this.discard();
+-                if (player.getAbilities().instabuild) {
+-                    for(Mob mob2 : list) {
+-                        if (mob2.isLeashed() && mob2.getLeashHolder() == this) {
+-                            mob2.dropLeash(true, false);
++            if (!flag) {
++                // CraftBukkit start - Move below
++                // this.discard();
++                boolean die = true;
++                // CraftBukkit end
++                if (true || player.getAbilities().instabuild) { // CraftBukkit - Process for non-creative as well
++                    iterator = list.iterator();
++
++                    while (iterator.hasNext()) {
++                        entityinsentient = (Mob) iterator.next();
++                        if (entityinsentient.isLeashed() && entityinsentient.getLeashHolder() == this) {
++                            // CraftBukkit start
++                            // Paper start - drop leash variable
++                            org.bukkit.event.player.PlayerUnleashEntityEvent event = CraftEventFactory.callPlayerUnleashEntityEvent(entityinsentient, player, hand, !player.getAbilities().instabuild);
++                            if (event.isCancelled()) {
++                                // Paper end
++                                die = false;
++                                continue;
++                            }
++                            entityinsentient.dropLeash(true, event.isDropLeash()); // false -> survival mode boolean // Paper - drop leash variable
++                            // CraftBukkit end
+                         }
+                     }
++                    // CraftBukkit start
++                    if (die) {
++                        this.discard();
++                    }
++                    // CraftBukkit end
+                 }
+             }
+ 
+@@ -120,16 +154,23 @@
+         int i = pos.getX();
+         int j = pos.getY();
+         int k = pos.getZ();
++        List<LeashFenceKnotEntity> list = world.getEntitiesOfClass(LeashFenceKnotEntity.class, new AABB((double) i - 1.0D, (double) j - 1.0D, (double) k - 1.0D, (double) i + 1.0D, (double) j + 1.0D, (double) k + 1.0D));
++        Iterator iterator = list.iterator();
+ 
+-        for(LeashFenceKnotEntity leashFenceKnotEntity : world.getEntitiesOfClass(LeashFenceKnotEntity.class, new AABB((double)i - 1.0D, (double)j - 1.0D, (double)k - 1.0D, (double)i + 1.0D, (double)j + 1.0D, (double)k + 1.0D))) {
+-            if (leashFenceKnotEntity.getPos().equals(pos)) {
+-                return leashFenceKnotEntity;
++        LeashFenceKnotEntity entityleash;
++
++        do {
++            if (!iterator.hasNext()) {
++                LeashFenceKnotEntity entityleash1 = new LeashFenceKnotEntity(world, pos);
++
++                world.addFreshEntity(entityleash1);
++                return entityleash1;
+             }
+-        }
+ 
+-        LeashFenceKnotEntity leashFenceKnotEntity2 = new LeashFenceKnotEntity(world, pos);
+-        world.addFreshEntity(leashFenceKnotEntity2);
+-        return leashFenceKnotEntity2;
++            entityleash = (LeashFenceKnotEntity) iterator.next();
++        } while (!entityleash.getPos().equals(pos));
++
++        return entityleash;
+     }
+ 
+     @Override

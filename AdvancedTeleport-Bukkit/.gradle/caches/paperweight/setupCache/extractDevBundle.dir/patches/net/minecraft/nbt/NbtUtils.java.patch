@@ -1,0 +1,50 @@
+--- a/net/minecraft/nbt/NbtUtils.java
++++ b/net/minecraft/nbt/NbtUtils.java
+@@ -40,14 +40,14 @@
+ import org.slf4j.Logger;
+ 
+ public final class NbtUtils {
+-    private static final Comparator<ListTag> YXZ_LISTTAG_INT_COMPARATOR = Comparator.comparingInt((nbt) -> {
++    private static final Comparator<ListTag> YXZ_LISTTAG_INT_COMPARATOR = Comparator.<ListTag>comparingInt((nbt) -> { // Paper - decompile fix
+         return nbt.getInt(1);
+     }).thenComparingInt((nbt) -> {
+         return nbt.getInt(0);
+     }).thenComparingInt((nbt) -> {
+         return nbt.getInt(2);
+     });
+-    private static final Comparator<ListTag> YXZ_LISTTAG_DOUBLE_COMPARATOR = Comparator.comparingDouble((nbt) -> {
++    private static final Comparator<ListTag> YXZ_LISTTAG_DOUBLE_COMPARATOR = Comparator.<ListTag>comparingDouble((nbt) -> { // Paper - decompile fix
+         return nbt.getDouble(1);
+     }).thenComparingDouble((nbt) -> {
+         return nbt.getDouble(0);
+@@ -75,6 +75,11 @@
+         if (nbt.contains("Name", 8)) {
+             string = nbt.getString("Name");
+         }
++        // Paper start - support string UUID's
++        if (nbt.contains("Id", 8)) {
++            uUID = UUID.fromString(nbt.getString("Id"));
++        }
++        // Paper end
+ 
+         if (nbt.hasUUID("Id")) {
+             uUID = nbt.getUUID("Id");
+@@ -88,7 +93,8 @@
+                 for(String string2 : compoundTag.getAllKeys()) {
+                     ListTag listTag = compoundTag.getList(string2, 10);
+ 
+-                    for(int i = 0; i < listTag.size(); ++i) {
++                    if (listTag.size() == 0) continue; // Paper - remove duplicate properties
++                    for (int i = listTag.size() - 1; i < listTag.size(); ++i) { // Paper - remove duplicate properties
+                         CompoundTag compoundTag2 = listTag.getCompound(i);
+                         String string3 = compoundTag2.getString("Value");
+                         if (compoundTag2.contains("Signature", 8)) {
+@@ -495,7 +501,7 @@
+     }
+ 
+     public static CompoundTag update(DataFixer fixer, DataFixTypes fixTypes, CompoundTag compound, int oldVersion, int targetVersion) {
+-        return fixer.update(fixTypes.getType(), new Dynamic<>(NbtOps.INSTANCE, compound), oldVersion, targetVersion).getValue();
++        return (CompoundTag) fixer.update(fixTypes.getType(), new Dynamic<>(NbtOps.INSTANCE, compound), oldVersion, targetVersion).getValue(); // Paper - decompile fix
+     }
+ 
+     public static Component toPrettyComponent(Tag element) {

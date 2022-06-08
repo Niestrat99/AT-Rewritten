@@ -1,0 +1,88 @@
+--- a/net/minecraft/world/level/block/AbstractCandleBlock.java
++++ b/net/minecraft/world/level/block/AbstractCandleBlock.java
+@@ -7,6 +7,7 @@
+ import net.minecraft.sounds.SoundSource;
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.util.RandomSource;
++import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.entity.projectile.Projectile;
+ import net.minecraft.world.level.Level;
+@@ -20,6 +21,7 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public abstract class AbstractCandleBlock extends Block {
++
+     public static final int LIGHT_PER_CANDLE = 3;
+     public static final BooleanProperty LIT = BlockStateProperties.LIT;
+ 
+@@ -30,32 +32,38 @@
+     protected abstract Iterable<Vec3> getParticleOffsets(BlockState state);
+ 
+     public static boolean isLit(BlockState state) {
+-        return state.hasProperty(LIT) && (state.is(BlockTags.CANDLES) || state.is(BlockTags.CANDLE_CAKES)) && state.getValue(LIT);
++        return state.hasProperty(AbstractCandleBlock.LIT) && (state.is(BlockTags.CANDLES) || state.is(BlockTags.CANDLE_CAKES)) && (Boolean) state.getValue(AbstractCandleBlock.LIT);
+     }
+ 
+     @Override
+     public void onProjectileHit(Level world, BlockState state, BlockHitResult hit, Projectile projectile) {
+         if (!world.isClientSide && projectile.isOnFire() && this.canBeLit(state)) {
+-            setLit(world, state, hit.getBlockPos(), true);
++            // CraftBukkit start
++            if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callBlockIgniteEvent(world, hit.getBlockPos(), projectile).isCancelled()) {
++                return;
++            }
++            // CraftBukkit end
++            AbstractCandleBlock.setLit(world, state, hit.getBlockPos(), true);
+         }
+ 
+     }
+ 
+     protected boolean canBeLit(BlockState state) {
+-        return !state.getValue(LIT);
++        return !(Boolean) state.getValue(AbstractCandleBlock.LIT);
+     }
+ 
+     @Override
+     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
+-        if (state.getValue(LIT)) {
+-            this.getParticleOffsets(state).forEach((offset) -> {
+-                addParticlesAndSound(world, offset.add((double)pos.getX(), (double)pos.getY(), (double)pos.getZ()), random);
++        if ((Boolean) state.getValue(AbstractCandleBlock.LIT)) {
++            this.getParticleOffsets(state).forEach((vec3d) -> {
++                AbstractCandleBlock.addParticlesAndSound(world, vec3d.add((double) pos.getX(), (double) pos.getY(), (double) pos.getZ()), random);
+             });
+         }
+     }
+ 
+     private static void addParticlesAndSound(Level world, Vec3 vec3d, RandomSource random) {
+         float f = random.nextFloat();
++
+         if (f < 0.3F) {
+             world.addParticle(ParticleTypes.SMOKE, vec3d.x, vec3d.y, vec3d.z, 0.0D, 0.0D, 0.0D);
+             if (f < 0.17F) {
+@@ -67,18 +75,18 @@
+     }
+ 
+     public static void extinguish(@Nullable Player player, BlockState state, LevelAccessor world, BlockPos pos) {
+-        setLit(world, state, pos, false);
++        AbstractCandleBlock.setLit(world, state, pos, false);
+         if (state.getBlock() instanceof AbstractCandleBlock) {
+-            ((AbstractCandleBlock)state.getBlock()).getParticleOffsets(state).forEach((offset) -> {
+-                world.addParticle(ParticleTypes.SMOKE, (double)pos.getX() + offset.x(), (double)pos.getY() + offset.y(), (double)pos.getZ() + offset.z(), 0.0D, (double)0.1F, 0.0D);
++            ((AbstractCandleBlock) state.getBlock()).getParticleOffsets(state).forEach((vec3d) -> {
++                world.addParticle(ParticleTypes.SMOKE, (double) pos.getX() + vec3d.x(), (double) pos.getY() + vec3d.y(), (double) pos.getZ() + vec3d.z(), 0.0D, 0.10000000149011612D, 0.0D);
+             });
+         }
+ 
+-        world.playSound((Player)null, pos, SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F);
+-        world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
++        world.playSound((Player) null, pos, SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F);
++        world.gameEvent((Entity) player, GameEvent.BLOCK_CHANGE, pos);
+     }
+ 
+     private static void setLit(LevelAccessor world, BlockState state, BlockPos pos, boolean lit) {
+-        world.setBlock(pos, state.setValue(LIT, Boolean.valueOf(lit)), 11);
++        world.setBlock(pos, (BlockState) state.setValue(AbstractCandleBlock.LIT, lit), 11);
+     }
+ }

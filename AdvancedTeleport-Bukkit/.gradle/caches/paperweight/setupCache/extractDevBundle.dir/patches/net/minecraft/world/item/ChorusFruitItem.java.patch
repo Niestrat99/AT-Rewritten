@@ -1,0 +1,82 @@
+--- a/net/minecraft/world/item/ChorusFruitItem.java
++++ b/net/minecraft/world/item/ChorusFruitItem.java
+@@ -5,6 +5,7 @@
+ import net.minecraft.sounds.SoundEvents;
+ import net.minecraft.sounds.SoundSource;
+ import net.minecraft.util.Mth;
++import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.LivingEntity;
+ import net.minecraft.world.entity.animal.Fox;
+ import net.minecraft.world.entity.player.Player;
+@@ -13,41 +14,55 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class ChorusFruitItem extends Item {
++
+     public ChorusFruitItem(Item.Properties settings) {
+         super(settings);
+     }
+ 
+     @Override
+     public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
+-        ItemStack itemStack = super.finishUsingItem(stack, world, user);
++        ItemStack itemstack1 = super.finishUsingItem(stack, world, user);
++
+         if (!world.isClientSide) {
+-            double d = user.getX();
+-            double e = user.getY();
+-            double f = user.getZ();
++            double d0 = user.getX();
++            double d1 = user.getY();
++            double d2 = user.getZ();
++
++            for (int i = 0; i < 16; ++i) {
++                double d3 = user.getX() + (user.getRandom().nextDouble() - 0.5D) * 16.0D;
++                double d4 = Mth.clamp(user.getY() + (double) (user.getRandom().nextInt(16) - 8), (double) world.getMinBuildHeight(), (double) (world.getMinBuildHeight() + ((ServerLevel) world).getLogicalHeight() - 1));
++                double d5 = user.getZ() + (user.getRandom().nextDouble() - 0.5D) * 16.0D;
+ 
+-            for(int i = 0; i < 16; ++i) {
+-                double g = user.getX() + (user.getRandom().nextDouble() - 0.5D) * 16.0D;
+-                double h = Mth.clamp(user.getY() + (double)(user.getRandom().nextInt(16) - 8), (double)world.getMinBuildHeight(), (double)(world.getMinBuildHeight() + ((ServerLevel)world).getLogicalHeight() - 1));
+-                double j = user.getZ() + (user.getRandom().nextDouble() - 0.5D) * 16.0D;
+                 if (user.isPassenger()) {
+                     user.stopRiding();
+                 }
+ 
+-                Vec3 vec3 = user.position();
+-                if (user.randomTeleport(g, h, j, true)) {
+-                    world.gameEvent(GameEvent.TELEPORT, vec3, GameEvent.Context.of(user));
+-                    SoundEvent soundEvent = user instanceof Fox ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
+-                    world.playSound((Player)null, d, e, f, soundEvent, SoundSource.PLAYERS, 1.0F, 1.0F);
+-                    user.playSound(soundEvent, 1.0F, 1.0F);
++                Vec3 vec3d = user.position();
++
++                // CraftBukkit start - handle canceled status of teleport event
++                java.util.Optional<Boolean> status = user.randomTeleport(d3, d4, d5, true, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT);
++
++                if (!status.isPresent()) {
++                    // teleport event was canceled, no more tries
++                    break;
++                }
++
++                if (status.get()) {
++                    // CraftBukkit end
++                    world.gameEvent(GameEvent.TELEPORT, vec3d, GameEvent.Context.of((Entity) user));
++                    SoundEvent soundeffect = user instanceof Fox ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
++
++                    world.playSound((Player) null, d0, d1, d2, soundeffect, SoundSource.PLAYERS, 1.0F, 1.0F);
++                    user.playSound(soundeffect, 1.0F, 1.0F);
+                     break;
+                 }
+             }
+ 
+             if (user instanceof Player) {
+-                ((Player)user).getCooldowns().addCooldown(this, 20);
++                ((Player) user).getCooldowns().addCooldown(this, 20);
+             }
+         }
+ 
+-        return itemStack;
++        return itemstack1;
+     }
+ }

@@ -1,0 +1,85 @@
+--- a/net/minecraft/network/chat/ChatDecorator.java
++++ b/net/minecraft/network/chat/ChatDecorator.java
+@@ -10,11 +10,81 @@
+         return CompletableFuture.completedFuture(message);
+     };
+ 
++    @io.papermc.paper.annotation.DoNotUse // Paper
+     CompletableFuture<Component> decorate(@Nullable ServerPlayer sender, Component message);
+ 
++    @io.papermc.paper.annotation.DoNotUse // Paper
+     default CompletableFuture<PlayerChatMessage> decorate(@Nullable ServerPlayer sender, PlayerChatMessage message) {
+-        return message.signedContent().isDecorated() ? CompletableFuture.completedFuture(message) : this.decorate(sender, message.serverContent()).thenApply(message::withUnsignedContent);
++        return this.decorate(sender, null, message); // Paper
++    }
++
++    // Paper start
++    default CompletableFuture<Result> decorate(@Nullable ServerPlayer sender, @Nullable net.minecraft.commands.CommandSourceStack commandSourceStack, Component message, boolean isPreview) {
++        throw new UnsupportedOperationException("Must override this implementation");
++    }
++
++    static ChatDecorator create(ImprovedChatDecorator delegate) {
++        return new ChatDecorator() {
++            @Override
++            public CompletableFuture<Component> decorate(@Nullable ServerPlayer sender, Component message) {
++                return this.decorate(sender, null, message, true).thenApply(Result::component);
++            }
++
++            @Override
++            public CompletableFuture<Result> decorate(@Nullable ServerPlayer sender, @Nullable net.minecraft.commands.CommandSourceStack commandSourceStack, Component message, boolean isPreview) {
++                return delegate.decorate(sender, commandSourceStack, message, isPreview);
++            }
++        };
++    }
++
++    @FunctionalInterface
++    interface ImprovedChatDecorator {
++        CompletableFuture<Result> decorate(@Nullable ServerPlayer sender, @Nullable net.minecraft.commands.CommandSourceStack commandSourceStack, Component message, boolean isPreview);
++    }
++
++    interface Result {
++        boolean hasNoFormatting();
++
++        Component component();
++
++        MessagePair message();
++
++        boolean modernized();
++    }
++
++    record MessagePair(net.kyori.adventure.text.Component component, String legacyMessage) { }
++
++    record LegacyResult(Component component, String format, MessagePair message, boolean hasNoFormatting, boolean modernized) implements Result {
++        public LegacyResult(net.kyori.adventure.text.Component component, String format, MessagePair message, boolean hasNoFormatting, boolean modernified) {
++            this(io.papermc.paper.adventure.PaperAdventure.asVanilla(component), format, message, hasNoFormatting, modernified);
++        }
++        public LegacyResult {
++            component = component instanceof io.papermc.paper.adventure.AdventureComponent adventureComponent ? adventureComponent.deepConverted() : component;
++        }
++    }
++
++    record ModernResult(Component maybeAdventureComponent, boolean hasNoFormatting, boolean modernized) implements Result {
++        public ModernResult(net.kyori.adventure.text.Component component, boolean hasNoFormatting, boolean modernized) {
++            this(io.papermc.paper.adventure.PaperAdventure.asVanilla(component), hasNoFormatting, modernized);
++        }
++
++        @Override
++        public Component component() {
++            return this.maybeAdventureComponent instanceof io.papermc.paper.adventure.AdventureComponent adventureComponent ? adventureComponent.deepConverted() : this.maybeAdventureComponent;
++        }
++
++        @Override
++        public MessagePair message() {
++            final net.kyori.adventure.text.Component adventureComponent = io.papermc.paper.adventure.PaperAdventure.WRAPPER_AWARE_SERIALIZER.deserialize(this.maybeAdventureComponent);
++            return new MessagePair(adventureComponent, net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(adventureComponent));
++        }
+     }
++    default CompletableFuture<PlayerChatMessage> decorate(@Nullable ServerPlayer serverPlayer, @Nullable net.minecraft.commands.CommandSourceStack commandSourceStack, PlayerChatMessage playerChatMessage) {
++        return playerChatMessage.signedContent().isDecorated() ? CompletableFuture.completedFuture(playerChatMessage) : this.decorate(serverPlayer, commandSourceStack, playerChatMessage.serverContent(), false).thenApply(result -> {
++            return new PlayerChatMessage(playerChatMessage.signedHeader(), playerChatMessage.headerSignature(), playerChatMessage.signedBody().withContent(playerChatMessage.signedContent().withDecorationResult(result)), playerChatMessage.unsignedContent(), playerChatMessage.filterMask()).withUnsignedContent(result.component());
++        });
++    }
++    // Paper end
+ 
+     static PlayerChatMessage attachIfNotDecorated(PlayerChatMessage message, Component attached) {
+         return !message.signedContent().isDecorated() ? message.withUnsignedContent(attached) : message;

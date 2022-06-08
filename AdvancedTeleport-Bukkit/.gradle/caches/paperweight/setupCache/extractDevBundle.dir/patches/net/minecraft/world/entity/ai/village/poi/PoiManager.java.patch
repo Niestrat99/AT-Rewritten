@@ -1,0 +1,294 @@
+--- a/net/minecraft/world/entity/ai/village/poi/PoiManager.java
++++ b/net/minecraft/world/entity/ai/village/poi/PoiManager.java
+@@ -38,12 +38,28 @@
+ public class PoiManager extends SectionStorage<PoiSection> {
+     public static final int MAX_VILLAGE_DISTANCE = 6;
+     public static final int VILLAGE_SECTION_SIZE = 1;
+-    private final PoiManager.DistanceTracker distanceTracker;
+-    private final LongSet loadedChunks = new LongOpenHashSet();
++    // Paper start - rewrite chunk system
++    // the vanilla tracker needs to be replaced because it does not support level removes
++    public final net.minecraft.server.level.ServerLevel world;
++    private final io.papermc.paper.util.misc.Delayed26WayDistancePropagator3D villageDistanceTracker = new io.papermc.paper.util.misc.Delayed26WayDistancePropagator3D();
++    static final int POI_DATA_SOURCE = 7;
++    public static int convertBetweenLevels(final int level) {
++        return POI_DATA_SOURCE - level;
++    }
++
++    protected void updateDistanceTracking(long section) {
++        if (this.isVillageCenter(section)) {
++            this.villageDistanceTracker.setSource(section, POI_DATA_SOURCE);
++        } else {
++            this.villageDistanceTracker.removeSource(section);
++        }
++    }
++    // Paper end - rewrite chunk system
++
+ 
+     public PoiManager(Path path, DataFixer dataFixer, boolean dsync, RegistryAccess registryManager, LevelHeightAccessor world) {
+         super(path, PoiSection::codec, PoiSection::new, dataFixer, DataFixTypes.POI_CHUNK, dsync, registryManager, world);
+-        this.distanceTracker = new PoiManager.DistanceTracker();
++        this.world = (net.minecraft.server.level.ServerLevel)world; // Paper - rewrite chunk system
+     }
+ 
+     public void add(BlockPos pos, Holder<PoiType> type) {
+@@ -111,43 +127,62 @@
+     }
+ 
+     public Optional<BlockPos> find(Predicate<Holder<PoiType>> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int radius, PoiManager.Occupancy occupationStatus) {
+-        return this.findAll(typePredicate, posPredicate, pos, radius, occupationStatus).findFirst();
++        // Paper start - re-route to faster logic
++        BlockPos ret = io.papermc.paper.util.PoiAccess.findAnyPoiPosition(this, typePredicate, posPredicate, pos, radius, occupationStatus, false);
++        return Optional.ofNullable(ret);
++        // Paper end
+     }
+ 
+     public Optional<BlockPos> findClosest(Predicate<Holder<PoiType>> typePredicate, BlockPos pos, int radius, PoiManager.Occupancy occupationStatus) {
+-        return this.getInRange(typePredicate, pos, radius, occupationStatus).map(PoiRecord::getPos).min(Comparator.comparingDouble((blockPos2) -> {
+-            return blockPos2.distSqr(pos);
+-        }));
++        // Paper start - re-route to faster logic
++        BlockPos ret = io.papermc.paper.util.PoiAccess.findClosestPoiDataPosition(this, typePredicate, null, pos, radius, radius * radius, occupationStatus, false);
++        return Optional.ofNullable(ret);
++        // Paper end - re-route to faster logic
+     }
+ 
+     public Optional<Pair<Holder<PoiType>, BlockPos>> findClosestWithType(Predicate<Holder<PoiType>> typePredicate, BlockPos pos, int radius, PoiManager.Occupancy occupationStatus) {
+-        return this.getInRange(typePredicate, pos, radius, occupationStatus).min(Comparator.comparingDouble((poi) -> {
+-            return poi.getPos().distSqr(pos);
+-        })).map((poi) -> {
+-            return Pair.of(poi.getPoiType(), poi.getPos());
+-        });
++        // Paper start - re-route to faster logic
++        return Optional.ofNullable(io.papermc.paper.util.PoiAccess.findClosestPoiDataTypeAndPosition(
++            this, typePredicate, null, pos, radius, radius * radius, occupationStatus, false
++        ));
++        // Paper end - re-route to faster logic
+     }
+ 
+     public Optional<BlockPos> findClosest(Predicate<Holder<PoiType>> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int radius, PoiManager.Occupancy occupationStatus) {
+-        return this.getInRange(typePredicate, pos, radius, occupationStatus).map(PoiRecord::getPos).filter(posPredicate).min(Comparator.comparingDouble((blockPos2) -> {
+-            return blockPos2.distSqr(pos);
+-        }));
++        // Paper start - re-route to faster logic
++        BlockPos ret = io.papermc.paper.util.PoiAccess.findClosestPoiDataPosition(this, typePredicate, posPredicate, pos, radius, radius * radius, occupationStatus, false);
++        return Optional.ofNullable(ret);
++        // Paper end - re-route to faster logic
+     }
+ 
+     public Optional<BlockPos> take(Predicate<Holder<PoiType>> typePredicate, BiPredicate<Holder<PoiType>, BlockPos> biPredicate, BlockPos pos, int radius) {
+-        return this.getInRange(typePredicate, pos, radius, PoiManager.Occupancy.HAS_SPACE).filter((poi) -> {
+-            return biPredicate.test(poi.getPoiType(), poi.getPos());
+-        }).findFirst().map((poi) -> {
++        // Paper start - re-route to faster logic
++        final @javax.annotation.Nullable PoiRecord closest = io.papermc.paper.util.PoiAccess.findClosestPoiDataRecord(
++            this, typePredicate, biPredicate, pos, radius, radius * radius, Occupancy.HAS_SPACE, false
++        );
++        return Optional.ofNullable(closest).map(poi -> {
++            // Paper end - re-route to faster logic
+             poi.acquireTicket();
+             return poi.getPos();
+         });
+     }
+ 
+     public Optional<BlockPos> getRandom(Predicate<Holder<PoiType>> typePredicate, Predicate<BlockPos> positionPredicate, PoiManager.Occupancy occupationStatus, BlockPos pos, int radius, RandomSource random) {
+-        List<PoiRecord> list = Util.toShuffledList(this.getInRange(typePredicate, pos, radius, occupationStatus), random);
+-        return list.stream().filter((poi) -> {
+-            return positionPredicate.test(poi.getPos());
+-        }).findFirst().map(PoiRecord::getPos);
++        // Paper start - re-route to faster logic
++        List<PoiRecord> list = new java.util.ArrayList<>();
++        io.papermc.paper.util.PoiAccess.findAnyPoiRecords(
++            this, typePredicate, positionPredicate, pos, radius, occupationStatus, false, Integer.MAX_VALUE, list
++        );
++
++        // the old method shuffled the list and then tried to find the first element in it that
++        // matched positionPredicate, however we moved positionPredicate into the poi search. This means we can avoid a
++        // shuffle entirely, and just pick a random element from list
++        if (list.isEmpty()) {
++            return Optional.empty();
++        }
++
++        return Optional.of(list.get(random.nextInt(list.size())).getPos());
++        // Paper end - re-route to faster logic
+     }
+ 
+     public boolean release(BlockPos pos) {
+@@ -180,8 +215,8 @@
+     }
+ 
+     public int sectionsToVillage(SectionPos pos) {
+-        this.distanceTracker.runAllUpdates();
+-        return this.distanceTracker.getLevel(pos.asLong());
++        this.villageDistanceTracker.propagateUpdates(); // Paper - replace distance tracking util
++        return convertBetweenLevels(this.villageDistanceTracker.getLevel(io.papermc.paper.util.CoordinateUtils.getChunkSectionKey(pos))); // Paper - replace distance tracking util
+     }
+ 
+     boolean isVillageCenter(long pos) {
+@@ -195,21 +230,106 @@
+ 
+     @Override
+     public void tick(BooleanSupplier shouldKeepTicking) {
+-        super.tick(shouldKeepTicking);
+-        this.distanceTracker.runAllUpdates();
++        this.villageDistanceTracker.propagateUpdates(); // Paper - rewrite chunk system
+     }
+ 
+     @Override
+-    protected void setDirty(long pos) {
+-        super.setDirty(pos);
+-        this.distanceTracker.update(pos, this.distanceTracker.getLevelFromSource(pos), false);
++    public void setDirty(long pos) {
++        // Paper start - rewrite chunk system
++        int chunkX = io.papermc.paper.util.CoordinateUtils.getChunkSectionX(pos);
++        int chunkZ = io.papermc.paper.util.CoordinateUtils.getChunkSectionZ(pos);
++        io.papermc.paper.chunk.system.scheduling.ChunkHolderManager manager = this.world.chunkTaskScheduler.chunkHolderManager;
++        io.papermc.paper.chunk.system.poi.PoiChunk chunk = manager.getPoiChunkIfLoaded(chunkX, chunkZ, false);
++        if (chunk != null) {
++            chunk.setDirty(true);
++        }
++        this.updateDistanceTracking(pos);
++        // Paper end - rewrite chunk system
+     }
+ 
+     @Override
+     protected void onSectionLoad(long pos) {
+-        this.distanceTracker.update(pos, this.distanceTracker.getLevelFromSource(pos), false);
++        this.updateDistanceTracking(pos); // Paper - move to new distance tracking util
+     }
+ 
++    @Override
++    public Optional<PoiSection> get(long pos) {
++        int chunkX = io.papermc.paper.util.CoordinateUtils.getChunkSectionX(pos);
++        int chunkY = io.papermc.paper.util.CoordinateUtils.getChunkSectionY(pos);
++        int chunkZ = io.papermc.paper.util.CoordinateUtils.getChunkSectionZ(pos);
++
++        io.papermc.paper.util.TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Accessing poi chunk off-main");
++
++        io.papermc.paper.chunk.system.scheduling.ChunkHolderManager manager = this.world.chunkTaskScheduler.chunkHolderManager;
++        io.papermc.paper.chunk.system.poi.PoiChunk ret = manager.getPoiChunkIfLoaded(chunkX, chunkZ, true);
++
++        return ret == null ? Optional.empty() : ret.getSectionForVanilla(chunkY);
++    }
++
++    @Override
++    public Optional<PoiSection> getOrLoad(long pos) {
++        int chunkX = io.papermc.paper.util.CoordinateUtils.getChunkSectionX(pos);
++        int chunkY = io.papermc.paper.util.CoordinateUtils.getChunkSectionY(pos);
++        int chunkZ = io.papermc.paper.util.CoordinateUtils.getChunkSectionZ(pos);
++
++        io.papermc.paper.util.TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Accessing poi chunk off-main");
++
++        io.papermc.paper.chunk.system.scheduling.ChunkHolderManager manager = this.world.chunkTaskScheduler.chunkHolderManager;
++
++        if (chunkY >= io.papermc.paper.util.WorldUtil.getMinSection(this.world) &&
++            chunkY <= io.papermc.paper.util.WorldUtil.getMaxSection(this.world)) {
++            io.papermc.paper.chunk.system.poi.PoiChunk ret = manager.getPoiChunkIfLoaded(chunkX, chunkZ, true);
++            if (ret != null) {
++                return ret.getSectionForVanilla(chunkY);
++            } else {
++                return manager.loadPoiChunk(chunkX, chunkZ).getSectionForVanilla(chunkY);
++            }
++        }
++        // retain vanilla behavior: do not load section if out of bounds!
++        return Optional.empty();
++    }
++
++    @Override
++    protected PoiSection getOrCreate(long pos) {
++        int chunkX = io.papermc.paper.util.CoordinateUtils.getChunkSectionX(pos);
++        int chunkY = io.papermc.paper.util.CoordinateUtils.getChunkSectionY(pos);
++        int chunkZ = io.papermc.paper.util.CoordinateUtils.getChunkSectionZ(pos);
++
++        io.papermc.paper.util.TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Accessing poi chunk off-main");
++
++        io.papermc.paper.chunk.system.scheduling.ChunkHolderManager manager = this.world.chunkTaskScheduler.chunkHolderManager;
++
++        io.papermc.paper.chunk.system.poi.PoiChunk ret = manager.getPoiChunkIfLoaded(chunkX, chunkZ, true);
++        if (ret != null) {
++            return ret.getOrCreateSection(chunkY);
++        } else {
++            return manager.loadPoiChunk(chunkX, chunkZ).getOrCreateSection(chunkY);
++        }
++    }
++
++    public void onUnload(long coordinate) { // Paper - rewrite chunk system
++        int chunkX = io.papermc.paper.util.MCUtil.getCoordinateX(coordinate);
++        int chunkZ = io.papermc.paper.util.MCUtil.getCoordinateZ(coordinate);
++        io.papermc.paper.util.TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Unloading poi chunk off-main");
++        for (int section = this.levelHeightAccessor.getMinSection(); section < this.levelHeightAccessor.getMaxSection(); ++section) {
++            long sectionPos = SectionPos.asLong(chunkX, section, chunkZ);
++            this.updateDistanceTracking(sectionPos);
++        }
++    }
++
++    public void loadInPoiChunk(io.papermc.paper.chunk.system.poi.PoiChunk poiChunk) {
++        int chunkX = poiChunk.chunkX;
++        int chunkZ = poiChunk.chunkZ;
++        io.papermc.paper.util.TickThread.ensureTickThread(this.world, chunkX, chunkZ, "Loading poi chunk off-main");
++        for (int sectionY = this.levelHeightAccessor.getMinSection(); sectionY < this.levelHeightAccessor.getMaxSection(); ++sectionY) {
++            PoiSection section = poiChunk.getSection(sectionY);
++            if (section != null && !section.isEmpty()) {
++                this.onSectionLoad(SectionPos.asLong(chunkX, sectionY, chunkZ));
++            }
++        }
++    }
++    // Paper end - rewrite chunk system
++
+     public void checkConsistencyWithBlocks(ChunkPos chunkPos, LevelChunkSection chunkSection) {
+         SectionPos sectionPos = SectionPos.of(chunkPos, SectionPos.blockToSectionCoord(chunkSection.bottomBlockY()));
+         Util.ifElse(this.getOrLoad(sectionPos.asLong()), (poiSet) -> {
+@@ -249,7 +369,7 @@
+         }).map((pair) -> {
+             return pair.getFirst().chunk();
+         }).filter((chunkPos) -> {
+-            return this.loadedChunks.add(chunkPos.toLong());
++            return true; // Paper - rewrite chunk system
+         }).forEach((chunkPos) -> {
+             world.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.EMPTY);
+         });
+@@ -265,7 +385,7 @@
+ 
+         @Override
+         protected int getLevelFromSource(long id) {
+-            return PoiManager.this.isVillageCenter(id) ? 0 : 7;
++            return PoiManager.this.isVillageCenter(id) ? 0 : 7; // Paper - rewrite chunk system - diff on change, this specifies the source level to use for distance tracking
+         }
+ 
+         @Override
+@@ -288,6 +408,35 @@
+         }
+     }
+ 
++    // Paper start - Asynchronous chunk io
++    @javax.annotation.Nullable
++    @Override
++    public net.minecraft.nbt.CompoundTag read(ChunkPos chunkcoordintpair) throws java.io.IOException {
++        // Paper start - rewrite chunk system
++        if (!io.papermc.paper.chunk.system.io.RegionFileIOThread.isRegionFileThread()) {
++            return io.papermc.paper.chunk.system.io.RegionFileIOThread.loadData(
++                this.world, chunkcoordintpair.x, chunkcoordintpair.z, io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.POI_DATA,
++                io.papermc.paper.chunk.system.io.RegionFileIOThread.getIOBlockingPriorityForCurrentThread()
++            );
++        }
++        // Paper end - rewrite chunk system
++        return super.read(chunkcoordintpair);
++    }
++
++    @Override
++    public void write(ChunkPos chunkcoordintpair, net.minecraft.nbt.CompoundTag nbttagcompound) throws java.io.IOException {
++        // Paper start - rewrite chunk system
++        if (!io.papermc.paper.chunk.system.io.RegionFileIOThread.isRegionFileThread()) {
++            io.papermc.paper.chunk.system.io.RegionFileIOThread.scheduleSave(
++                this.world, chunkcoordintpair.x, chunkcoordintpair.z, nbttagcompound,
++                io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.POI_DATA);
++            return;
++        }
++        // Paper end - rewrite chunk system
++        super.write(chunkcoordintpair, nbttagcompound);
++    }
++    // Paper end
++
+     public static enum Occupancy {
+         HAS_SPACE(PoiRecord::hasSpace),
+         IS_OCCUPIED(PoiRecord::isOccupied),

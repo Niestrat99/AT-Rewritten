@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/ai/behavior/RamTarget.java
++++ b/net/minecraft/world/entity/ai/behavior/RamTarget.java
+@@ -78,7 +78,7 @@
+             float f = 0.25F * (float)(i - j);
+             float g = Mth.clamp(goat.getSpeed() * 1.65F, 0.2F, 3.0F) + f;
+             float h = livingEntity.isDamageSourceBlocked(DamageSource.mobAttack(goat)) ? 0.5F : 1.0F;
+-            livingEntity.knockback((double)(h * g) * this.getKnockbackForce.applyAsDouble(goat), this.ramDirection.x(), this.ramDirection.z());
++            livingEntity.knockback((double)(h * g) * this.getKnockbackForce.applyAsDouble(goat), this.ramDirection.x(), this.ramDirection.z(), goat); // Paper
+             this.finishRam(serverLevel, goat);
+             serverLevel.playSound((Player)null, goat, this.getImpactSound.apply(goat), SoundSource.HOSTILE, 1.0F, 1.0F);
+         } else if (this.hasRammedHornBreakingBlock(serverLevel, goat)) {

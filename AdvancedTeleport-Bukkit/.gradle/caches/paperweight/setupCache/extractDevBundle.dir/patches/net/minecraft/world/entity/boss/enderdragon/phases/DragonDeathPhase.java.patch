@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/boss/enderdragon/phases/DragonDeathPhase.java
++++ b/net/minecraft/world/entity/boss/enderdragon/phases/DragonDeathPhase.java
+@@ -32,7 +32,7 @@
+     public void doServerTick() {
+         ++this.time;
+         if (this.targetLocation == null) {
+-            BlockPos blockPos = this.dragon.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, EndPodiumFeature.END_PODIUM_LOCATION);
++            BlockPos blockPos = this.dragon.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, this.dragon.getPodium()); // Paper - use custom podium
+             this.targetLocation = Vec3.atBottomCenterOf(blockPos);
+         }
+ 

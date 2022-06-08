@@ -1,0 +1,179 @@
+--- a/net/minecraft/world/entity/animal/Pufferfish.java
++++ b/net/minecraft/world/entity/animal/Pufferfish.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.world.entity.animal;
+ 
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.function.Predicate;
+ import net.minecraft.nbt.CompoundTag;
+@@ -27,17 +28,14 @@
+ import net.minecraft.world.level.Level;
+ 
+ public class Pufferfish extends AbstractFish {
++
+     private static final EntityDataAccessor<Integer> PUFF_STATE = SynchedEntityData.defineId(Pufferfish.class, EntityDataSerializers.INT);
+     int inflateCounter;
+     int deflateTimer;
+-    private static final Predicate<LivingEntity> SCARY_MOB = (entity) -> {
+-        if (entity instanceof Player && ((Player)entity).isCreative()) {
+-            return false;
+-        } else {
+-            return entity.getType() == EntityType.AXOLOTL || entity.getMobType() != MobType.WATER;
+-        }
++    private static final Predicate<LivingEntity> SCARY_MOB = (entityliving) -> {
++        return entityliving instanceof Player && ((Player) entityliving).isCreative() ? false : entityliving.getType() == EntityType.AXOLOTL || entityliving.getMobType() != MobType.WATER;
+     };
+-    static final TargetingConditions targetingConditions = TargetingConditions.forNonCombat().ignoreInvisibilityTesting().ignoreLineOfSight().selector(SCARY_MOB);
++    static final TargetingConditions targetingConditions = TargetingConditions.forNonCombat().ignoreInvisibilityTesting().ignoreLineOfSight().selector(Pufferfish.SCARY_MOB);
+     public static final int STATE_SMALL = 0;
+     public static final int STATE_MID = 1;
+     public static final int STATE_FULL = 2;
+@@ -50,20 +48,20 @@
+     @Override
+     protected void defineSynchedData() {
+         super.defineSynchedData();
+-        this.entityData.define(PUFF_STATE, 0);
++        this.entityData.define(Pufferfish.PUFF_STATE, 0);
+     }
+ 
+     public int getPuffState() {
+-        return this.entityData.get(PUFF_STATE);
++        return (Integer) this.entityData.get(Pufferfish.PUFF_STATE);
+     }
+ 
+     public void setPuffState(int puffState) {
+-        this.entityData.set(PUFF_STATE, puffState);
++        this.entityData.set(Pufferfish.PUFF_STATE, puffState);
+     }
+ 
+     @Override
+     public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
+-        if (PUFF_STATE.equals(data)) {
++        if (Pufferfish.PUFF_STATE.equals(data)) {
+             this.refreshDimensions();
+         }
+ 
+@@ -97,25 +95,39 @@
+     public void tick() {
+         if (!this.level.isClientSide && this.isAlive() && this.isEffectiveAi()) {
+             if (this.inflateCounter > 0) {
++                boolean increase = true; // Paper - Add PufferFishStateChangeEvent
+                 if (this.getPuffState() == 0) {
++                    if (new io.papermc.paper.event.entity.PufferFishStateChangeEvent((org.bukkit.entity.PufferFish) getBukkitEntity(), 1).callEvent()) { // Paper - Add PufferFishStateChangeEvent
+                     this.playSound(SoundEvents.PUFFER_FISH_BLOW_UP, this.getSoundVolume(), this.getVoicePitch());
+                     this.setPuffState(1);
++                    } else { increase = false; } // Paper - Add PufferFishStateChangeEvent
+                 } else if (this.inflateCounter > 40 && this.getPuffState() == 1) {
++                    if (new io.papermc.paper.event.entity.PufferFishStateChangeEvent((org.bukkit.entity.PufferFish) getBukkitEntity(), 2).callEvent()) { // Paper - Add PufferFishStateChangeEvent
+                     this.playSound(SoundEvents.PUFFER_FISH_BLOW_UP, this.getSoundVolume(), this.getVoicePitch());
+                     this.setPuffState(2);
++                    } else { increase = false; } // Paper - Add PufferFishStateChangeEvent
+                 }
+ 
++                if (increase) { // Paper - Add PufferFishStateChangeEvent
+                 ++this.inflateCounter;
++                } // Paper - Add PufferFishStateChangeEvent
+             } else if (this.getPuffState() != 0) {
++                boolean increase = true; // Paper - Add PufferFishStateChangeEvent
+                 if (this.deflateTimer > 60 && this.getPuffState() == 2) {
++                    if (new io.papermc.paper.event.entity.PufferFishStateChangeEvent((org.bukkit.entity.PufferFish) getBukkitEntity(), 1).callEvent()) { // Paper - Add PufferFishStateChangeEvent
+                     this.playSound(SoundEvents.PUFFER_FISH_BLOW_OUT, this.getSoundVolume(), this.getVoicePitch());
+                     this.setPuffState(1);
++                    } else { increase = false; } // Paper - Add PufferFishStateChangeEvent
+                 } else if (this.deflateTimer > 100 && this.getPuffState() == 1) {
++                    if (new io.papermc.paper.event.entity.PufferFishStateChangeEvent((org.bukkit.entity.PufferFish) getBukkitEntity(), 0).callEvent()) { // Paper - Add PufferFishStateChangeEvent
+                     this.playSound(SoundEvents.PUFFER_FISH_BLOW_OUT, this.getSoundVolume(), this.getVoicePitch());
+                     this.setPuffState(0);
++                    } else { increase = false; } // Paper - Add PufferFishStateChangeEvent
+                 }
+ 
++                if (increase) { // Paper - Add PufferFishStateChangeEvent
+                 ++this.deflateTimer;
++                } // Paper - Add PufferFishStateChangeEvent
+             }
+         }
+ 
+@@ -126,11 +138,16 @@
+     public void aiStep() {
+         super.aiStep();
+         if (this.isAlive() && this.getPuffState() > 0) {
+-            for(Mob mob : this.level.getEntitiesOfClass(Mob.class, this.getBoundingBox().inflate(0.3D), (entity) -> {
+-                return targetingConditions.test(this, entity);
+-            })) {
+-                if (mob.isAlive()) {
+-                    this.touch(mob);
++            List<Mob> list = this.level.getEntitiesOfClass(Mob.class, this.getBoundingBox().inflate(0.3D), (entityinsentient) -> {
++                return Pufferfish.targetingConditions.test(this, entityinsentient);
++            });
++            Iterator iterator = list.iterator();
++
++            while (iterator.hasNext()) {
++                Mob entityinsentient = (Mob) iterator.next();
++
++                if (entityinsentient.isAlive()) {
++                    this.touch(entityinsentient);
+                 }
+             }
+         }
+@@ -139,8 +156,9 @@
+ 
+     private void touch(Mob mob) {
+         int i = this.getPuffState();
+-        if (mob.hurt(DamageSource.mobAttack(this), (float)(1 + i))) {
+-            mob.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this);
++
++        if (mob.hurt(DamageSource.mobAttack(this), (float) (1 + i))) {
++            mob.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this, org.bukkit.event.entity.EntityPotionEffectEvent.Cause.ATTACK); // CraftBukkit
+             this.playSound(SoundEvents.PUFFER_FISH_STING, 1.0F, 1.0F);
+         }
+ 
+@@ -149,12 +167,13 @@
+     @Override
+     public void playerTouch(Player player) {
+         int i = this.getPuffState();
+-        if (player instanceof ServerPlayer && i > 0 && player.hurt(DamageSource.mobAttack(this), (float)(1 + i))) {
++
++        if (player instanceof ServerPlayer && i > 0 && player.hurt(DamageSource.mobAttack(this), (float) (1 + i))) {
+             if (!this.isSilent()) {
+-                ((ServerPlayer)player).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PUFFER_FISH_STING, 0.0F));
++                ((ServerPlayer) player).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PUFFER_FISH_STING, 0.0F));
+             }
+ 
+-            player.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this);
++            player.addEffect(new MobEffectInstance(MobEffects.POISON, 60 * i, 0), this, org.bukkit.event.entity.EntityPotionEffectEvent.Cause.ATTACK); // CraftBukkit
+         }
+ 
+     }
+@@ -181,7 +200,7 @@
+ 
+     @Override
+     public EntityDimensions getDimensions(Pose pose) {
+-        return super.getDimensions(pose).scale(getScale(this.getPuffState()));
++        return super.getDimensions(pose).scale(Pufferfish.getScale(this.getPuffState()));
+     }
+ 
+     private static float getScale(int puffState) {
+@@ -195,7 +214,8 @@
+         }
+     }
+ 
+-    static class PufferfishPuffGoal extends Goal {
++    private static class PufferfishPuffGoal extends Goal {
++
+         private final Pufferfish fish;
+ 
+         public PufferfishPuffGoal(Pufferfish pufferfish) {
+@@ -204,9 +224,10 @@
+ 
+         @Override
+         public boolean canUse() {
+-            List<LivingEntity> list = this.fish.level.getEntitiesOfClass(LivingEntity.class, this.fish.getBoundingBox().inflate(2.0D), (livingEntity) -> {
+-                return Pufferfish.targetingConditions.test(this.fish, livingEntity);
++            List<LivingEntity> list = this.fish.level.getEntitiesOfClass(LivingEntity.class, this.fish.getBoundingBox().inflate(2.0D), (entityliving) -> {
++                return Pufferfish.targetingConditions.test(this.fish, entityliving);
+             });
++
+             return !list.isEmpty();
+         }
+ 

@@ -1,0 +1,131 @@
+--- a/net/minecraft/core/dispenser/ShearsDispenseItemBehavior.java
++++ b/net/minecraft/core/dispenser/ShearsDispenseItemBehavior.java
+@@ -1,7 +1,10 @@
+ package net.minecraft.core.dispenser;
+ 
++import java.util.Iterator;
++import java.util.List;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.BlockSource;
++import net.minecraft.core.Direction;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.sounds.SoundEvents;
+@@ -13,22 +16,54 @@
+ import net.minecraft.world.entity.Shearable;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.item.ItemStack;
+-import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.block.BeehiveBlock;
+ import net.minecraft.world.level.block.DispenserBlock;
+ import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.gameevent.GameEvent;
+ import net.minecraft.world.phys.AABB;
++// CraftBukkit start
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
++import org.bukkit.event.block.BlockDispenseEvent;
++// CraftBukkit end
+ 
+ public class ShearsDispenseItemBehavior extends OptionalDispenseItemBehavior {
++
++    public ShearsDispenseItemBehavior() {}
++
+     @Override
+     protected ItemStack execute(BlockSource pointer, ItemStack stack) {
+-        Level level = pointer.getLevel();
+-        if (!level.isClientSide()) {
+-            BlockPos blockPos = pointer.getPos().relative(pointer.getBlockState().getValue(DispenserBlock.FACING));
+-            this.setSuccess(tryShearBeehive((ServerLevel)level, blockPos) || tryShearLivingEntity((ServerLevel)level, blockPos));
+-            if (this.isSuccess() && stack.hurt(1, level.getRandom(), (ServerPlayer)null)) {
++        ServerLevel worldserver = pointer.getLevel();
++        // CraftBukkit start
++        org.bukkit.block.Block bukkitBlock = worldserver.getWorld().getBlockAt(pointer.getPos().getX(), pointer.getPos().getY(), pointer.getPos().getZ());
++        CraftItemStack craftItem = CraftItemStack.asCraftMirror(stack);
++
++        BlockDispenseEvent event = new BlockDispenseEvent(bukkitBlock, craftItem.clone(), new org.bukkit.util.Vector(0, 0, 0));
++        if (!DispenserBlock.eventFired) {
++            worldserver.getCraftServer().getPluginManager().callEvent(event);
++        }
++
++        if (event.isCancelled()) {
++            return stack;
++        }
++
++        if (!event.getItem().equals(craftItem)) {
++            // Chain to handler for new item
++            ItemStack eventStack = CraftItemStack.asNMSCopy(event.getItem());
++            DispenseItemBehavior idispensebehavior = (DispenseItemBehavior) DispenserBlock.DISPENSER_REGISTRY.get(eventStack.getItem());
++            if (idispensebehavior != DispenseItemBehavior.NOOP && idispensebehavior != this) {
++                idispensebehavior.dispense(pointer, eventStack);
++                return stack;
++            }
++        }
++        // CraftBukkit end
++
++        if (!worldserver.isClientSide()) {
++            BlockPos blockposition = pointer.getPos().relative((Direction) pointer.getBlockState().getValue(DispenserBlock.FACING));
++
++            this.setSuccess(ShearsDispenseItemBehavior.tryShearBeehive((ServerLevel) worldserver, blockposition) || ShearsDispenseItemBehavior.tryShearLivingEntity((ServerLevel) worldserver, blockposition, bukkitBlock, craftItem)); // CraftBukkit
++            if (this.isSuccess() && stack.hurt(1, worldserver.getRandom(), (ServerPlayer) null)) {
+                 stack.setCount(0);
+             }
+         }
+@@ -37,16 +72,18 @@
+     }
+ 
+     private static boolean tryShearBeehive(ServerLevel world, BlockPos pos) {
+-        BlockState blockState = world.getBlockState(pos);
+-        if (blockState.is(BlockTags.BEEHIVES, (state) -> {
+-            return state.hasProperty(BeehiveBlock.HONEY_LEVEL) && state.getBlock() instanceof BeehiveBlock;
++        BlockState iblockdata = world.getBlockState(pos);
++
++        if (iblockdata.is(BlockTags.BEEHIVES, (blockbase_blockdata) -> {
++            return blockbase_blockdata.hasProperty(BeehiveBlock.HONEY_LEVEL) && blockbase_blockdata.getBlock() instanceof BeehiveBlock;
+         })) {
+-            int i = blockState.getValue(BeehiveBlock.HONEY_LEVEL);
++            int i = (Integer) iblockdata.getValue(BeehiveBlock.HONEY_LEVEL);
++
+             if (i >= 5) {
+-                world.playSound((Player)null, pos, SoundEvents.BEEHIVE_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
++                world.playSound((Player) null, pos, SoundEvents.BEEHIVE_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
+                 BeehiveBlock.dropHoneycomb(world, pos);
+-                ((BeehiveBlock)blockState.getBlock()).releaseBeesAndResetHoneyLevel(world, blockState, pos, (Player)null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
+-                world.gameEvent((Entity)null, GameEvent.SHEAR, pos);
++                ((BeehiveBlock) iblockdata.getBlock()).releaseBeesAndResetHoneyLevel(world, iblockdata, pos, (Player) null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
++                world.gameEvent((Entity) null, GameEvent.SHEAR, pos);
+                 return true;
+             }
+         }
+@@ -54,12 +91,24 @@
+         return false;
+     }
+ 
+-    private static boolean tryShearLivingEntity(ServerLevel world, BlockPos pos) {
+-        for(LivingEntity livingEntity : world.getEntitiesOfClass(LivingEntity.class, new AABB(pos), EntitySelector.NO_SPECTATORS)) {
+-            if (livingEntity instanceof Shearable shearable) {
+-                if (shearable.readyForShearing()) {
+-                    shearable.shear(SoundSource.BLOCKS);
+-                    world.gameEvent((Entity)null, GameEvent.SHEAR, pos);
++    private static boolean tryShearLivingEntity(ServerLevel worldserver, BlockPos blockposition, org.bukkit.block.Block bukkitBlock, CraftItemStack craftItem) { // CraftBukkit - add args
++        List<LivingEntity> list = worldserver.getEntitiesOfClass(LivingEntity.class, new AABB(blockposition), EntitySelector.NO_SPECTATORS);
++        Iterator iterator = list.iterator();
++
++        while (iterator.hasNext()) {
++            LivingEntity entityliving = (LivingEntity) iterator.next();
++
++            if (entityliving instanceof Shearable) {
++                Shearable ishearable = (Shearable) entityliving;
++
++                if (ishearable.readyForShearing()) {
++                    // CraftBukkit start
++                    if (CraftEventFactory.callBlockShearEntityEvent(entityliving, bukkitBlock, craftItem).isCancelled()) {
++                        continue;
++                    }
++                    // CraftBukkit end
++                    ishearable.shear(SoundSource.BLOCKS);
++                    worldserver.gameEvent((Entity) null, GameEvent.SHEAR, blockposition);
+                     return true;
+                 }
+             }
