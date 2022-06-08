@@ -43,6 +43,7 @@
                             <include>io.papermc:paperlib</include>
                             <include>com.github.thatsmusic99:ConfigurationMaster-API</include>
                             <include>net.kyori:adventure-nbt</include>
+                            <include>net.kyori:examination-api</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -138,7 +139,14 @@
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-nbt</artifactId>
-            <version>4.9.3</version>
+            <version>4.10.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>examination-api</artifactId>
+            <version>1.3.0</version>
             <scope>compile</scope>
         </dependency>
 

@@ -4,7 +4,6 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -95,19 +94,6 @@ public class Spawn extends ATConfig {
                 return "Info.mirroredSpawn";
             }
         }
-    }
-
-    public Location getSpawn(Player player) {
-        String worldName = player.getWorld().getName();
-        // Would do less looping
-        for (String spawn : getSpawns()) {
-            // Weird annoying bug >:(
-            if (player.hasPermission("at.member.spawn." + spawn)
-                    && player.isPermissionSet("at.member.spawn." + spawn)) {
-                worldName = spawn;
-            }
-        }
-        return getSpawn(worldName);
     }
 
     public Location getSpawn(String name) {
