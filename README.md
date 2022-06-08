@@ -26,4 +26,5 @@ As of currently, Advanced Teleport uses Maven to manage its dependencies.
 
 The Maven command used to build the plugin is `mvn clean install`
 
-All dependencies are provided through the pom.xml so they will automatically be set up.
+AT requires 1.16.2 BuildTools to be run on the provided system.
+
