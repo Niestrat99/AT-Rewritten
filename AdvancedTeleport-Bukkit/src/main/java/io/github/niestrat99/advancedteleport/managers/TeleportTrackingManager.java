@@ -13,6 +13,7 @@ import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -40,7 +41,7 @@ public class TeleportTrackingManager implements Listener {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName());
+                        Location spawn = Spawn.get().getSpawn(e.getPlayer());
                         if (spawn != null) {
                             PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
                         } else {
@@ -130,7 +131,7 @@ public class TeleportTrackingManager implements Listener {
 
         switch (spawnCommand) {
             case "spawn":
-                Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName());
+                Location spawn = Spawn.get().getSpawn(e.getPlayer());
                 if (spawn != null) {
                     e.setRespawnLocation(spawn);
                     return true;
