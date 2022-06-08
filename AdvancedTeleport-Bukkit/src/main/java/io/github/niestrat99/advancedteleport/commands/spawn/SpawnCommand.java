@@ -24,8 +24,42 @@ public class SpawnCommand extends SpawnATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, 
                              @NotNull String[] args) {
+<<<<<<< HEAD
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
+=======
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (!NewConfig.get().USE_SPAWN.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+        if (!sender.hasPermission("at.member.spawn")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
+        if (cooldown > 0) {
+            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            return true;
+        }
+        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+            CustomMessages.sendMessage(sender, "Error.onCountdown");
+            return true;
+        }
+        String location = player.getWorld().getName();
+        if (args.length > 0 &&
+                (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
+            if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
+                location = args[0];
+            }
+            spawn(player, location);
+        } else {
+>>>>>>> 9a7be5e (Update map branch (#80))
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
@@ -52,7 +86,11 @@ public class SpawnCommand extends SpawnATCommand {
     }
 
     public static void spawn(Player player, String name) {
+<<<<<<< HEAD
         Location spawn = Spawn.get().getSpawn(name, player, false);
+=======
+        Location spawn = Spawn.get().getSpawn(name);
+>>>>>>> 9a7be5e (Update map branch (#80))
         if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
         }

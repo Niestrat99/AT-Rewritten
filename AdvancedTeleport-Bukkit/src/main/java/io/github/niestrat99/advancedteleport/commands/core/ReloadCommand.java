@@ -30,9 +30,13 @@ public class ReloadCommand implements SubATCommand {
             }
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
         RandomCoords.reload();
 =======
 >>>>>>> 42381dd (Improved API and more events (#78))
+=======
+        RandomCoords.reload();
+>>>>>>> 9a7be5e (Update map branch (#80))
         CooldownManager.init();
         CommandManager.registerCommands();
         CustomMessages.sendMessage(sender, "Info.reloadedConfig");

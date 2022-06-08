@@ -41,16 +41,26 @@ public class PluginHookManager {
         loadPlugin(importPlugins, "essentials", EssentialsHook.class);
 
         // World border Plugins
+<<<<<<< HEAD
         loadPlugin(borderPlugins, "worldborder", WorldBorderHook.class);
         loadPlugin(borderPlugins, "chunkyborder", ChunkyBorderHook.class);
         loadPlugin(borderPlugins, "vanilla", VanillaBorderHook.class);
+=======
+        loadBorderPlugin("worldborder", WorldBorderHook.class);
+        loadBorderPlugin("chunkyborder", ChunkyBorderHook.class);
+        loadBorderPlugin("vanilla", VanillaBorderHook.class);
+>>>>>>> 9a7be5e (Update map branch (#80))
 
         // Claim Plugins
         loadPlugin(claimPlugins, "worldguard", WorldGuardClaimHook.class);
         loadPlugin(claimPlugins, "lands", LandsClaimHook.class);
         loadPlugin(claimPlugins, "griefprevention", GriefPreventionClaimHook.class);
 
+<<<<<<< HEAD
         loadMapPlugin("squaremap", SquaremapHook.class);
+=======
+        loadMapPlugin("pl3xmap", SquaremapHook.class);
+>>>>>>> 9a7be5e (Update map branch (#80))
 
         for (MapPlugin plugin : mapPlugins.values()) {
             if (plugin.canEnable()) plugin.enable();

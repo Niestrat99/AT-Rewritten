@@ -86,6 +86,24 @@ public class HomeSQLManager extends SQLManager {
         file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "homes-backup.yml"));
     }
 
+    public CompletableFuture<Integer> getHomeId(String name, UUID owner) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection,
+                        "SELECT id FROM " + tablePrefix + "_homes WHERE home = ? AND uuid_owner = ?;");
+                statement.setString(1, name);
+                statement.setString(2, owner.toString());
+                ResultSet set = executeQuery(statement);
+                if (set.next()) {
+                    return set.getInt("id");
+                }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            return -1;
+        }, CoreClass.async);
+    }
+
     public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
         addHome(location, owner, name, callback, true);
     }

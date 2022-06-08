@@ -98,11 +98,14 @@ public class Spawn extends ATConfig {
     }
 
     public Location getSpawn(String name) {
+<<<<<<< HEAD
         return getSpawn(name, null, false);
     }
 
     public Location getSpawn(String name, Player player, boolean bypassPermission) {
         // if (get("spawns." + name) == null) return getProperMainSpawn();
+=======
+>>>>>>> 9a7be5e (Update map branch (#80))
         if (get("spawns." + name) == null) return getProperMainSpawn();
         ConfigSection spawns = getConfigSection("spawns");
         ConfigSection toSection = spawns.getConfigSection(name);
