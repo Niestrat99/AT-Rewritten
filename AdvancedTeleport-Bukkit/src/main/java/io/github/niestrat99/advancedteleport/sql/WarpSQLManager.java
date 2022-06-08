@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class WarpSQLManager extends SQLManager {
 
@@ -204,6 +205,23 @@ public class WarpSQLManager extends SQLManager {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+    }
+
+    public CompletableFuture<Integer> getWarpId(String name) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection,
+                        "SELECT id FROM " + tablePrefix + "_warps WHERE warp = ?;");
+                statement.setString(1, name);
+                ResultSet set = executeQuery(statement);
+                if (set.next()) {
+                    return set.getInt("id");
+                }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            return -1;
+        }, CoreClass.async);
     }
 
     public void purgeWarps(String worldName, SQLCallback<Void> callback) {

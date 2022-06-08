@@ -97,19 +97,6 @@ public class Spawn extends ATConfig {
         }
     }
 
-    public Location getSpawn(Player player) {
-        String worldName = player.getWorld().getName();
-        // Would do less looping
-        for (String spawn : getSpawns()) {
-            // Weird annoying bug >:(
-            if (player.hasPermission("at.member.spawn." + spawn)
-                    && player.isPermissionSet("at.member.spawn." + spawn)) {
-                worldName = spawn;
-            }
-        }
-        return getSpawn(worldName);
-    }
-
     public Location getSpawn(String name) {
         if (get("spawns." + name) == null) return getProperMainSpawn();
         ConfigSection spawns = getConfigSection("spawns");

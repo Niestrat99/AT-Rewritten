@@ -12,6 +12,7 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +42,6 @@ public class SetMainSpawn extends SpawnATCommand {
         if (!Spawn.get().doesSpawnExist(id)) {
             if (sender.hasPermission("at.admin.setspawn")
                     && (world || sender.hasPermission("at.admin.setspawn.other"))) {
-
                 AdvancedTeleportAPI.setSpawn(id, sender, loc).join();
             } else {
                 CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
