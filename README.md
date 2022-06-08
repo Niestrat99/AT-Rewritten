@@ -30,5 +30,10 @@ The Gradle command used to build the plugin is `gradle shadowJar` and is done un
 =======
 The Maven command used to build the plugin is `mvn clean install`
 
+<<<<<<< HEAD
 All dependencies are provided through the pom.xml so they will automatically be set up.
 >>>>>>> 9a7be5e (Update map branch (#80))
+=======
+AT requires 1.16.2 BuildTools to be run on the provided system.
+
+>>>>>>> c1e792f (Revert "Update map branch (#80)" (#81))

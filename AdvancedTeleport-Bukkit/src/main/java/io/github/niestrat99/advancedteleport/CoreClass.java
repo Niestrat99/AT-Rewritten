@@ -107,7 +107,6 @@ public class CoreClass extends JavaPlugin {
             new PlayerSQLManager();
             new WarpSQLManager();
             new DataFailManager();
-            new MetadataSQLManager();
         }
         registerEvents();
         CooldownManager.init();
