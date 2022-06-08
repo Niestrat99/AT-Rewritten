@@ -1,0 +1,110 @@
+--- a/net/minecraft/world/item/DebugStickItem.java
++++ b/net/minecraft/world/item/DebugStickItem.java
+@@ -1,3 +1,4 @@
++// mc-dev import
+ package net.minecraft.world.item;
+ 
+ import java.util.Collection;
+@@ -20,6 +21,7 @@
+ import net.minecraft.world.level.block.state.properties.Property;
+ 
+ public class DebugStickItem extends Item {
++
+     public DebugStickItem(Item.Properties settings) {
+         super(settings);
+     }
+@@ -40,46 +42,52 @@
+ 
+     @Override
+     public InteractionResult useOn(UseOnContext context) {
+-        Player player = context.getPlayer();
+-        Level level = context.getLevel();
+-        if (!level.isClientSide && player != null) {
+-            BlockPos blockPos = context.getClickedPos();
+-            if (!this.handleInteraction(player, level.getBlockState(blockPos), level, blockPos, true, context.getItemInHand())) {
++        Player entityhuman = context.getPlayer();
++        Level world = context.getLevel();
++
++        if (!world.isClientSide && entityhuman != null) {
++            BlockPos blockposition = context.getClickedPos();
++
++            if (!this.handleInteraction(entityhuman, world.getBlockState(blockposition), world, blockposition, true, context.getItemInHand())) {
+                 return InteractionResult.FAIL;
+             }
+         }
+ 
+-        return InteractionResult.sidedSuccess(level.isClientSide);
++        return InteractionResult.sidedSuccess(world.isClientSide);
+     }
+ 
+     private boolean handleInteraction(Player player, BlockState state, LevelAccessor world, BlockPos pos, boolean update, ItemStack stack) {
+-        if (!player.canUseGameMasterBlocks()) {
++        if (!player.canUseGameMasterBlocks() && !(player.getAbilities().instabuild && player.getBukkitEntity().hasPermission("minecraft.debugstick")) && !player.getBukkitEntity().hasPermission("minecraft.debugstick.always")) { // Spigot
+             return false;
+         } else {
+             Block block = state.getBlock();
+-            StateDefinition<Block, BlockState> stateDefinition = block.getStateDefinition();
+-            Collection<Property<?>> collection = stateDefinition.getProperties();
+-            String string = Registry.BLOCK.getKey(block).toString();
++            StateDefinition<Block, BlockState> blockstatelist = block.getStateDefinition();
++            Collection<Property<?>> collection = blockstatelist.getProperties();
++            String s = Registry.BLOCK.getKey(block).toString();
++
+             if (collection.isEmpty()) {
+-                message(player, Component.translatable(this.getDescriptionId() + ".empty", string));
++                DebugStickItem.message(player, Component.translatable(this.getDescriptionId() + ".empty", s));
+                 return false;
+             } else {
+-                CompoundTag compoundTag = stack.getOrCreateTagElement("DebugProperty");
+-                String string2 = compoundTag.getString(string);
+-                Property<?> property = stateDefinition.getProperty(string2);
++                CompoundTag nbttagcompound = stack.getOrCreateTagElement("DebugProperty");
++                String s1 = nbttagcompound.getString(s);
++                Property<?> iblockstate = blockstatelist.getProperty(s1);
++
+                 if (update) {
+-                    if (property == null) {
+-                        property = collection.iterator().next();
++                    if (iblockstate == null) {
++                        iblockstate = (Property) collection.iterator().next();
+                     }
+ 
+-                    BlockState blockState = cycleState(state, property, player.isSecondaryUseActive());
+-                    world.setBlock(pos, blockState, 18);
+-                    message(player, Component.translatable(this.getDescriptionId() + ".update", property.getName(), getNameHelper(blockState, property)));
++                    BlockState iblockdata1 = DebugStickItem.cycleState(state, iblockstate, player.isSecondaryUseActive());
++
++                    world.setBlock(pos, iblockdata1, 18);
++                    DebugStickItem.message(player, Component.translatable(this.getDescriptionId() + ".update", iblockstate.getName(), DebugStickItem.getNameHelper(iblockdata1, iblockstate)));
+                 } else {
+-                    property = getRelative(collection, property, player.isSecondaryUseActive());
+-                    String string3 = property.getName();
+-                    compoundTag.putString(string, string3);
+-                    message(player, Component.translatable(this.getDescriptionId() + ".select", string3, getNameHelper(state, property)));
++                    iblockstate = (Property) DebugStickItem.getRelative(collection, iblockstate, player.isSecondaryUseActive());
++                    String s2 = iblockstate.getName();
++
++                    nbttagcompound.putString(s, s2);
++                    DebugStickItem.message(player, Component.translatable(this.getDescriptionId() + ".select", s2, DebugStickItem.getNameHelper(state, iblockstate)));
+                 }
+ 
+                 return true;
+@@ -88,15 +96,15 @@
+     }
+ 
+     private static <T extends Comparable<T>> BlockState cycleState(BlockState state, Property<T> property, boolean inverse) {
+-        return state.setValue(property, getRelative(property.getPossibleValues(), state.getValue(property), inverse));
++        return (BlockState) state.setValue(property, DebugStickItem.getRelative(property.getPossibleValues(), state.getValue(property), inverse)); // CraftBukkit - decompile error
+     }
+ 
+     private static <T> T getRelative(Iterable<T> elements, @Nullable T current, boolean inverse) {
+-        return (T)(inverse ? Util.findPreviousInIterable(elements, current) : Util.findNextInIterable(elements, current));
++        return inverse ? Util.findPreviousInIterable(elements, current) : Util.findNextInIterable(elements, current);
+     }
+ 
+     private static void message(Player player, Component message) {
+-        ((ServerPlayer)player).sendSystemMessage(message, true);
++        ((ServerPlayer) player).sendSystemMessage(message, true);
+     }
+ 
+     private static <T extends Comparable<T>> String getNameHelper(BlockState state, Property<T> property) {

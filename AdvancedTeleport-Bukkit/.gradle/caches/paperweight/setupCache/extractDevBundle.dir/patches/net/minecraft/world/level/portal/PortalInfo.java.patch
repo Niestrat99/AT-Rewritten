@@ -1,0 +1,35 @@
+--- a/net/minecraft/world/level/portal/PortalInfo.java
++++ b/net/minecraft/world/level/portal/PortalInfo.java
+@@ -1,17 +1,27 @@
+ package net.minecraft.world.level.portal;
+ 
++import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftPortalEvent;
++// CraftBukkit end
+ 
+ public class PortalInfo {
++
+     public final Vec3 pos;
+     public final Vec3 speed;
+     public final float yRot;
+     public final float xRot;
++    // CraftBukkit start
++    public final ServerLevel world;
++    public final CraftPortalEvent portalEventInfo;
+ 
+-    public PortalInfo(Vec3 position, Vec3 velocity, float yaw, float pitch) {
+-        this.pos = position;
+-        this.speed = velocity;
+-        this.yRot = yaw;
+-        this.xRot = pitch;
++    public PortalInfo(Vec3 vec3d, Vec3 vec3d1, float f, float f1, ServerLevel world, CraftPortalEvent portalEventInfo) {
++        this.world = world;
++        this.portalEventInfo = portalEventInfo;
++        // CraftBukkit end
++        this.pos = vec3d;
++        this.speed = vec3d1;
++        this.yRot = f;
++        this.xRot = f1;
+     }
+ }

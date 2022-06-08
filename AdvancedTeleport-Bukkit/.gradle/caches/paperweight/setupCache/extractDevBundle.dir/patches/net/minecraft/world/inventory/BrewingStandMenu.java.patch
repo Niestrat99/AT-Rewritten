@@ -1,0 +1,243 @@
+--- a/net/minecraft/world/inventory/BrewingStandMenu.java
++++ b/net/minecraft/world/inventory/BrewingStandMenu.java
+@@ -11,8 +11,13 @@
+ import net.minecraft.world.item.alchemy.Potion;
+ import net.minecraft.world.item.alchemy.PotionBrewing;
+ import net.minecraft.world.item.alchemy.PotionUtils;
++// CraftBukkit start
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryBrewer;
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryView;
++// CraftBukkit end
+ 
+ public class BrewingStandMenu extends AbstractContainerMenu {
++
+     private static final int BOTTLE_SLOT_START = 0;
+     private static final int BOTTLE_SLOT_END = 2;
+     private static final int INGREDIENT_SLOT = 3;
+@@ -27,12 +32,18 @@
+     private final ContainerData brewingStandData;
+     private final Slot ingredientSlot;
+ 
++    // CraftBukkit start
++    private CraftInventoryView bukkitEntity = null;
++    private Inventory player;
++    // CraftBukkit end
++
+     public BrewingStandMenu(int syncId, Inventory playerInventory) {
+         this(syncId, playerInventory, new SimpleContainer(5), new SimpleContainerData(2));
+     }
+ 
+     public BrewingStandMenu(int syncId, Inventory playerInventory, Container inventory, ContainerData propertyDelegate) {
+         super(MenuType.BREWING_STAND, syncId);
++        this.player = playerInventory; // CraftBukkit
+         checkContainerSize(inventory, 5);
+         checkContainerDataCount(propertyDelegate, 2);
+         this.brewingStand = inventory;
+@@ -44,76 +55,81 @@
+         this.addSlot(new BrewingStandMenu.FuelSlot(inventory, 4, 17, 17));
+         this.addDataSlots(propertyDelegate);
+ 
+-        for(int i = 0; i < 3; ++i) {
+-            for(int j = 0; j < 9; ++j) {
+-                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
++        int j;
++
++        for (j = 0; j < 3; ++j) {
++            for (int k = 0; k < 9; ++k) {
++                this.addSlot(new Slot(playerInventory, k + j * 9 + 9, 8 + k * 18, 84 + j * 18));
+             }
+         }
+ 
+-        for(int k = 0; k < 9; ++k) {
+-            this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 142));
++        for (j = 0; j < 9; ++j) {
++            this.addSlot(new Slot(playerInventory, j, 8 + j * 18, 142));
+         }
+ 
+     }
+ 
+     @Override
+     public boolean stillValid(Player player) {
++        if (!this.checkReachable) return true; // CraftBukkit
+         return this.brewingStand.stillValid(player);
+     }
+ 
+     @Override
+     public ItemStack quickMoveStack(Player player, int index) {
+-        ItemStack itemStack = ItemStack.EMPTY;
+-        Slot slot = this.slots.get(index);
++        ItemStack itemstack = ItemStack.EMPTY;
++        Slot slot = (Slot) this.slots.get(index);
++
+         if (slot != null && slot.hasItem()) {
+-            ItemStack itemStack2 = slot.getItem();
+-            itemStack = itemStack2.copy();
++            ItemStack itemstack1 = slot.getItem();
++
++            itemstack = itemstack1.copy();
+             if ((index < 0 || index > 2) && index != 3 && index != 4) {
+-                if (BrewingStandMenu.FuelSlot.mayPlaceItem(itemStack)) {
+-                    if (this.moveItemStackTo(itemStack2, 4, 5, false) || this.ingredientSlot.mayPlace(itemStack2) && !this.moveItemStackTo(itemStack2, 3, 4, false)) {
++                if (BrewingStandMenu.FuelSlot.mayPlaceItem(itemstack)) {
++                    if (this.moveItemStackTo(itemstack1, 4, 5, false) || this.ingredientSlot.mayPlace(itemstack1) && !this.moveItemStackTo(itemstack1, 3, 4, false)) {
+                         return ItemStack.EMPTY;
+                     }
+-                } else if (this.ingredientSlot.mayPlace(itemStack2)) {
+-                    if (!this.moveItemStackTo(itemStack2, 3, 4, false)) {
++                } else if (this.ingredientSlot.mayPlace(itemstack1)) {
++                    if (!this.moveItemStackTo(itemstack1, 3, 4, false)) {
+                         return ItemStack.EMPTY;
+                     }
+-                } else if (BrewingStandMenu.PotionSlot.mayPlaceItem(itemStack) && itemStack.getCount() == 1) {
+-                    if (!this.moveItemStackTo(itemStack2, 0, 3, false)) {
++                } else if (BrewingStandMenu.PotionSlot.mayPlaceItem(itemstack) && itemstack.getCount() == 1) {
++                    if (!this.moveItemStackTo(itemstack1, 0, 3, false)) {
+                         return ItemStack.EMPTY;
+                     }
+                 } else if (index >= 5 && index < 32) {
+-                    if (!this.moveItemStackTo(itemStack2, 32, 41, false)) {
++                    if (!this.moveItemStackTo(itemstack1, 32, 41, false)) {
+                         return ItemStack.EMPTY;
+                     }
+                 } else if (index >= 32 && index < 41) {
+-                    if (!this.moveItemStackTo(itemStack2, 5, 32, false)) {
++                    if (!this.moveItemStackTo(itemstack1, 5, 32, false)) {
+                         return ItemStack.EMPTY;
+                     }
+-                } else if (!this.moveItemStackTo(itemStack2, 5, 41, false)) {
++                } else if (!this.moveItemStackTo(itemstack1, 5, 41, false)) {
+                     return ItemStack.EMPTY;
+                 }
+             } else {
+-                if (!this.moveItemStackTo(itemStack2, 5, 41, true)) {
++                if (!this.moveItemStackTo(itemstack1, 5, 41, true)) {
+                     return ItemStack.EMPTY;
+                 }
+ 
+-                slot.onQuickCraft(itemStack2, itemStack);
++                slot.onQuickCraft(itemstack1, itemstack);
+             }
+ 
+-            if (itemStack2.isEmpty()) {
++            if (itemstack1.isEmpty()) {
+                 slot.set(ItemStack.EMPTY);
+             } else {
+                 slot.setChanged();
+             }
+ 
+-            if (itemStack2.getCount() == itemStack.getCount()) {
++            if (itemstack1.getCount() == itemstack.getCount()) {
+                 return ItemStack.EMPTY;
+             }
+ 
+-            slot.onTake(player, itemStack2);
++            slot.onTake(player, itemstack1);
+         }
+ 
+-        return itemStack;
++        return itemstack;
+     }
+ 
+     public int getFuel() {
+@@ -124,27 +140,40 @@
+         return this.brewingStandData.get(0);
+     }
+ 
+-    static class FuelSlot extends Slot {
+-        public FuelSlot(Container inventory, int index, int x, int y) {
++    private static class PotionSlot extends Slot {
++
++        public PotionSlot(Container inventory, int index, int x, int y) {
+             super(inventory, index, x, y);
+         }
+ 
+         @Override
+         public boolean mayPlace(ItemStack stack) {
+-            return mayPlaceItem(stack);
++            return PotionSlot.mayPlaceItem(stack);
+         }
+ 
+-        public static boolean mayPlaceItem(ItemStack stack) {
+-            return stack.is(Items.BLAZE_POWDER);
++        @Override
++        public int getMaxStackSize() {
++            return 1;
+         }
+ 
+         @Override
+-        public int getMaxStackSize() {
+-            return 64;
++        public void onTake(Player player, ItemStack stack) {
++            Potion potionregistry = PotionUtils.getPotion(stack);
++
++            if (player instanceof ServerPlayer) {
++                CriteriaTriggers.BREWED_POTION.trigger((ServerPlayer) player, potionregistry);
++            }
++
++            super.onTake(player, stack);
++        }
++
++        public static boolean mayPlaceItem(ItemStack stack) {
++            return stack.is(Items.POTION) || stack.is(Items.SPLASH_POTION) || stack.is(Items.LINGERING_POTION) || stack.is(Items.GLASS_BOTTLE) || PotionBrewing.isCustomInput(stack); // Paper
+         }
+     }
+ 
+-    static class IngredientsSlot extends Slot {
++    private static class IngredientsSlot extends Slot {
++
+         public IngredientsSlot(Container inventory, int index, int x, int y) {
+             super(inventory, index, x, y);
+         }
+@@ -160,33 +189,37 @@
+         }
+     }
+ 
+-    static class PotionSlot extends Slot {
+-        public PotionSlot(Container inventory, int index, int x, int y) {
++    private static class FuelSlot extends Slot {
++
++        public FuelSlot(Container inventory, int index, int x, int y) {
+             super(inventory, index, x, y);
+         }
+ 
+         @Override
+         public boolean mayPlace(ItemStack stack) {
+-            return mayPlaceItem(stack);
++            return FuelSlot.mayPlaceItem(stack);
+         }
+ 
+-        @Override
+-        public int getMaxStackSize() {
+-            return 1;
++        public static boolean mayPlaceItem(ItemStack stack) {
++            return stack.is(Items.BLAZE_POWDER);
+         }
+ 
+         @Override
+-        public void onTake(Player player, ItemStack stack) {
+-            Potion potion = PotionUtils.getPotion(stack);
+-            if (player instanceof ServerPlayer) {
+-                CriteriaTriggers.BREWED_POTION.trigger((ServerPlayer)player, potion);
+-            }
+-
+-            super.onTake(player, stack);
++        public int getMaxStackSize() {
++            return 64;
+         }
++    }
+ 
+-        public static boolean mayPlaceItem(ItemStack stack) {
+-            return stack.is(Items.POTION) || stack.is(Items.SPLASH_POTION) || stack.is(Items.LINGERING_POTION) || stack.is(Items.GLASS_BOTTLE);
++    // CraftBukkit start
++    @Override
++    public CraftInventoryView getBukkitView() {
++        if (this.bukkitEntity != null) {
++            return this.bukkitEntity;
+         }
++
++        CraftInventoryBrewer inventory = new CraftInventoryBrewer(this.brewingStand);
++        this.bukkitEntity = new CraftInventoryView(this.player.player.getBukkitEntity(), inventory, this);
++        return this.bukkitEntity;
+     }
++    // CraftBukkit end
+ }

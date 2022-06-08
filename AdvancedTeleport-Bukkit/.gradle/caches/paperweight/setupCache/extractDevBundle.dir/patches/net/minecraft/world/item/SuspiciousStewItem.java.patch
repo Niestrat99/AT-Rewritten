@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/item/SuspiciousStewItem.java
++++ b/net/minecraft/world/item/SuspiciousStewItem.java
+@@ -43,7 +43,7 @@
+ 
+                 MobEffect mobEffect = MobEffect.byId(compoundTag2.getInt("EffectId"));
+                 if (mobEffect != null) {
+-                    user.addEffect(new MobEffectInstance(mobEffect, j));
++                    user.addEffect(new MobEffectInstance(mobEffect, j), org.bukkit.event.entity.EntityPotionEffectEvent.Cause.FOOD); // Paper
+                 }
+             }
+         }

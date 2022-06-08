@@ -1,0 +1,208 @@
+--- a/net/minecraft/world/item/SpawnEggItem.java
++++ b/net/minecraft/world/item/SpawnEggItem.java
+@@ -35,6 +35,7 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class SpawnEggItem extends Item {
++
+     public static final Map<EntityType<? extends Mob>, SpawnEggItem> BY_ID = Maps.newIdentityHashMap();
+     private final int backgroundColor;
+     private final int highlightColor;
+@@ -45,44 +46,50 @@
+         this.defaultType = type;
+         this.backgroundColor = primaryColor;
+         this.highlightColor = secondaryColor;
+-        BY_ID.put(type, this);
++        SpawnEggItem.BY_ID.put(type, this);
+     }
+ 
+     @Override
+     public InteractionResult useOn(UseOnContext context) {
+-        Level level = context.getLevel();
+-        if (!(level instanceof ServerLevel)) {
++        Level world = context.getLevel();
++
++        if (!(world instanceof ServerLevel)) {
+             return InteractionResult.SUCCESS;
+         } else {
+-            ItemStack itemStack = context.getItemInHand();
+-            BlockPos blockPos = context.getClickedPos();
+-            Direction direction = context.getClickedFace();
+-            BlockState blockState = level.getBlockState(blockPos);
+-            if (blockState.is(Blocks.SPAWNER)) {
+-                BlockEntity blockEntity = level.getBlockEntity(blockPos);
+-                if (blockEntity instanceof SpawnerBlockEntity) {
+-                    BaseSpawner baseSpawner = ((SpawnerBlockEntity)blockEntity).getSpawner();
+-                    EntityType<?> entityType = this.getType(itemStack.getTag());
+-                    baseSpawner.setEntityId(entityType);
+-                    blockEntity.setChanged();
+-                    level.sendBlockUpdated(blockPos, blockState, blockState, 3);
+-                    level.gameEvent(context.getPlayer(), GameEvent.BLOCK_CHANGE, blockPos);
+-                    itemStack.shrink(1);
++            ItemStack itemstack = context.getItemInHand();
++            BlockPos blockposition = context.getClickedPos();
++            Direction enumdirection = context.getClickedFace();
++            BlockState iblockdata = world.getBlockState(blockposition);
++
++            if (!world.paperConfig().entities.spawning.disableMobSpawnerSpawnEggTransformation && iblockdata.is(Blocks.SPAWNER)) { // Paper
++                BlockEntity tileentity = world.getBlockEntity(blockposition);
++
++                if (tileentity instanceof SpawnerBlockEntity) {
++                    BaseSpawner mobspawnerabstract = ((SpawnerBlockEntity) tileentity).getSpawner();
++                    EntityType<?> entitytypes = this.getType(itemstack.getTag());
++
++                    mobspawnerabstract.setEntityId(entitytypes);
++                    tileentity.setChanged();
++                    world.sendBlockUpdated(blockposition, iblockdata, iblockdata, 3);
++                    world.gameEvent((Entity) context.getPlayer(), GameEvent.BLOCK_CHANGE, blockposition);
++                    itemstack.shrink(1);
+                     return InteractionResult.CONSUME;
+                 }
+             }
+ 
+-            BlockPos blockPos2;
+-            if (blockState.getCollisionShape(level, blockPos).isEmpty()) {
+-                blockPos2 = blockPos;
++            BlockPos blockposition1;
++
++            if (iblockdata.getCollisionShape(world, blockposition).isEmpty()) {
++                blockposition1 = blockposition;
+             } else {
+-                blockPos2 = blockPos.relative(direction);
++                blockposition1 = blockposition.relative(enumdirection);
+             }
+ 
+-            EntityType<?> entityType2 = this.getType(itemStack.getTag());
+-            if (entityType2.spawn((ServerLevel)level, itemStack, context.getPlayer(), blockPos2, MobSpawnType.SPAWN_EGG, true, !Objects.equals(blockPos, blockPos2) && direction == Direction.UP) != null) {
+-                itemStack.shrink(1);
+-                level.gameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, blockPos);
++            EntityType<?> entitytypes1 = this.getType(itemstack.getTag());
++
++            if (entitytypes1.spawn((ServerLevel) world, itemstack, context.getPlayer(), blockposition1, MobSpawnType.SPAWN_EGG, true, !Objects.equals(blockposition, blockposition1) && enumdirection == Direction.UP) != null) {
++                itemstack.shrink(1);
++                world.gameEvent((Entity) context.getPlayer(), GameEvent.ENTITY_PLACE, blockposition);
+             }
+ 
+             return InteractionResult.CONSUME;
+@@ -91,33 +98,36 @@
+ 
+     @Override
+     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+-        ItemStack itemStack = user.getItemInHand(hand);
+-        HitResult hitResult = getPlayerPOVHitResult(world, user, ClipContext.Fluid.SOURCE_ONLY);
+-        if (hitResult.getType() != HitResult.Type.BLOCK) {
+-            return InteractionResultHolder.pass(itemStack);
++        ItemStack itemstack = user.getItemInHand(hand);
++        BlockHitResult movingobjectpositionblock = getPlayerPOVHitResult(world, user, ClipContext.Fluid.SOURCE_ONLY);
++
++        if (movingobjectpositionblock.getType() != HitResult.Type.BLOCK) {
++            return InteractionResultHolder.pass(itemstack);
+         } else if (!(world instanceof ServerLevel)) {
+-            return InteractionResultHolder.success(itemStack);
++            return InteractionResultHolder.success(itemstack);
+         } else {
+-            BlockHitResult blockHitResult = (BlockHitResult)hitResult;
+-            BlockPos blockPos = blockHitResult.getBlockPos();
+-            if (!(world.getBlockState(blockPos).getBlock() instanceof LiquidBlock)) {
+-                return InteractionResultHolder.pass(itemStack);
+-            } else if (world.mayInteract(user, blockPos) && user.mayUseItemAt(blockPos, blockHitResult.getDirection(), itemStack)) {
+-                EntityType<?> entityType = this.getType(itemStack.getTag());
+-                Entity entity = entityType.spawn((ServerLevel)world, itemStack, user, blockPos, MobSpawnType.SPAWN_EGG, false, false);
++            BlockHitResult movingobjectpositionblock1 = (BlockHitResult) movingobjectpositionblock;
++            BlockPos blockposition = movingobjectpositionblock1.getBlockPos();
++
++            if (!(world.getBlockState(blockposition).getBlock() instanceof LiquidBlock)) {
++                return InteractionResultHolder.pass(itemstack);
++            } else if (world.mayInteract(user, blockposition) && user.mayUseItemAt(blockposition, movingobjectpositionblock1.getDirection(), itemstack)) {
++                EntityType<?> entitytypes = this.getType(itemstack.getTag());
++                Entity entity = entitytypes.spawn((ServerLevel) world, itemstack, user, blockposition, MobSpawnType.SPAWN_EGG, false, false);
++
+                 if (entity == null) {
+-                    return InteractionResultHolder.pass(itemStack);
++                    return InteractionResultHolder.pass(itemstack);
+                 } else {
+                     if (!user.getAbilities().instabuild) {
+-                        itemStack.shrink(1);
++                        itemstack.shrink(1);
+                     }
+ 
+                     user.awardStat(Stats.ITEM_USED.get(this));
+-                    world.gameEvent(user, GameEvent.ENTITY_PLACE, entity.position());
+-                    return InteractionResultHolder.consume(itemStack);
++                    world.gameEvent((Entity) user, GameEvent.ENTITY_PLACE, entity.position());
++                    return InteractionResultHolder.consume(itemstack);
+                 }
+             } else {
+-                return InteractionResultHolder.fail(itemStack);
++                return InteractionResultHolder.fail(itemstack);
+             }
+         }
+     }
+@@ -132,18 +142,19 @@
+ 
+     @Nullable
+     public static SpawnEggItem byId(@Nullable EntityType<?> type) {
+-        return BY_ID.get(type);
++        return (SpawnEggItem) SpawnEggItem.BY_ID.get(type);
+     }
+ 
+     public static Iterable<SpawnEggItem> eggs() {
+-        return Iterables.unmodifiableIterable(BY_ID.values());
++        return Iterables.unmodifiableIterable(SpawnEggItem.BY_ID.values());
+     }
+ 
+     public EntityType<?> getType(@Nullable CompoundTag nbt) {
+         if (nbt != null && nbt.contains("EntityTag", 10)) {
+-            CompoundTag compoundTag = nbt.getCompound("EntityTag");
+-            if (compoundTag.contains("id", 8)) {
+-                return EntityType.byString(compoundTag.getString("id")).orElse(this.defaultType);
++            CompoundTag nbttagcompound1 = nbt.getCompound("EntityTag");
++
++            if (nbttagcompound1.contains("id", 8)) {
++                return (EntityType) EntityType.byString(nbttagcompound1.getString("id")).orElse(this.defaultType);
+             }
+         }
+ 
+@@ -154,31 +165,32 @@
+         if (!this.spawnsEntity(stack.getTag(), entityType)) {
+             return Optional.empty();
+         } else {
+-            Mob mob;
++            Object object;
++
+             if (entity instanceof AgeableMob) {
+-                mob = ((AgeableMob)entity).getBreedOffspring(world, (AgeableMob)entity);
++                object = ((AgeableMob) entity).getBreedOffspring(world, (AgeableMob) entity);
+             } else {
+-                mob = entityType.create(world);
++                object = (Mob) entityType.create(world);
+             }
+ 
+-            if (mob == null) {
++            if (object == null) {
+                 return Optional.empty();
+             } else {
+-                mob.setBaby(true);
+-                if (!mob.isBaby()) {
++                ((Mob) object).setBaby(true);
++                if (!((Mob) object).isBaby()) {
+                     return Optional.empty();
+                 } else {
+-                    mob.moveTo(pos.x(), pos.y(), pos.z(), 0.0F, 0.0F);
+-                    world.addFreshEntityWithPassengers(mob);
++                    ((Mob) object).moveTo(pos.x(), pos.y(), pos.z(), 0.0F, 0.0F);
++                    world.addFreshEntityWithPassengers((Entity) object, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SPAWNER_EGG); // CraftBukkit
+                     if (stack.hasCustomHoverName()) {
+-                        mob.setCustomName(stack.getHoverName());
++                        ((Mob) object).setCustomName(stack.getHoverName());
+                     }
+ 
+                     if (!user.getAbilities().instabuild) {
+                         stack.shrink(1);
+                     }
+ 
+-                    return Optional.of(mob);
++                    return Optional.of((Mob) object); // CraftBukkit - decompile error
+                 }
+             }
+         }

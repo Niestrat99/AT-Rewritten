@@ -1,0 +1,29 @@
+--- a/net/minecraft/world/level/block/DropExperienceBlock.java
++++ b/net/minecraft/world/level/block/DropExperienceBlock.java
+@@ -9,6 +9,7 @@
+ import net.minecraft.world.level.block.state.BlockState;
+ 
+ public class DropExperienceBlock extends Block {
++
+     private final IntProvider xpRange;
+ 
+     public DropExperienceBlock(BlockBehaviour.Properties settings) {
+@@ -23,9 +24,16 @@
+     @Override
+     public void spawnAfterBreak(BlockState state, ServerLevel world, BlockPos pos, ItemStack stack, boolean dropExperience) {
+         super.spawnAfterBreak(state, world, pos, stack, dropExperience);
+-        if (dropExperience) {
+-            this.tryDropExperience(world, pos, stack, this.xpRange);
++        // CraftBukkit start - Delegate to getExpDrop
++    }
++
++    @Override
++    public int getExpDrop(BlockState iblockdata, ServerLevel worldserver, BlockPos blockposition, ItemStack itemstack, boolean flag) {
++        if (flag) {
++            return this.tryDropExperience(worldserver, blockposition, itemstack, this.xpRange);
+         }
+ 
++        return 0;
++        // CraftBukkit end
+     }
+ }

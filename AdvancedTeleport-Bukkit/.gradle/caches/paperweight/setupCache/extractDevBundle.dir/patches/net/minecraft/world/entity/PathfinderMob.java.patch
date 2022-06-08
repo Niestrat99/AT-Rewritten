@@ -1,0 +1,88 @@
+--- a/net/minecraft/world/entity/PathfinderMob.java
++++ b/net/minecraft/world/entity/PathfinderMob.java
+@@ -6,14 +6,21 @@
+ import net.minecraft.world.level.LevelAccessor;
+ import net.minecraft.world.level.LevelReader;
+ import net.minecraft.world.phys.Vec3;
++// CraftBukkit start
++import org.bukkit.event.entity.EntityUnleashEvent;
++// CraftBukkit end
+ 
+ public abstract class PathfinderMob extends Mob {
++
+     protected static final float DEFAULT_WALK_TARGET_VALUE = 0.0F;
+ 
+     protected PathfinderMob(EntityType<? extends PathfinderMob> type, Level world) {
+         super(type, world);
+     }
+ 
++    public org.bukkit.craftbukkit.v1_19_R1.entity.CraftCreature getBukkitCreature() { return (org.bukkit.craftbukkit.v1_19_R1.entity.CraftCreature) super.getBukkitEntity(); } // Paper
++    public BlockPos movingTarget = null; public BlockPos getMovingTarget() { return movingTarget; } // Paper
++
+     public float getWalkTargetValue(BlockPos pos) {
+         return this.getWalkTargetValue(pos, this.level);
+     }
+@@ -35,31 +42,43 @@
+     protected void tickLeash() {
+         super.tickLeash();
+         Entity entity = this.getLeashHolder();
++
+         if (entity != null && entity.level == this.level) {
+             this.restrictTo(entity.blockPosition(), 5);
+             float f = this.distanceTo(entity);
+-            if (this instanceof TamableAnimal && ((TamableAnimal)this).isInSittingPose()) {
+-                if (f > 10.0F) {
+-                    this.dropLeash(true, true);
++
++            if (this instanceof TamableAnimal && ((TamableAnimal) this).isInSittingPose()) {
++                if (f > entity.level.paperConfig().misc.maxLeashDistance) { // Paper
++                    // Paper start - drop leash variable
++                    EntityUnleashEvent event = new EntityUnleashEvent(this.getBukkitEntity(), EntityUnleashEvent.UnleashReason.DISTANCE, true);
++                    if (!event.callEvent()) { return; }
++                    this.dropLeash(true, event.isDropLeash());
++                    // Paper end
+                 }
+ 
+                 return;
+             }
+ 
+             this.onLeashDistance(f);
+-            if (f > 10.0F) {
+-                this.dropLeash(true, true);
++            if (f > entity.level.paperConfig().misc.maxLeashDistance) { // Paper
++                // Paper start - drop leash variable
++                EntityUnleashEvent event = new EntityUnleashEvent(this.getBukkitEntity(), EntityUnleashEvent.UnleashReason.DISTANCE, true);
++                if (!event.callEvent()) return;
++                this.dropLeash(true, event.isDropLeash());
++                // Paper end
+                 this.goalSelector.disableControlFlag(Goal.Flag.MOVE);
+             } else if (f > 6.0F) {
+-                double d = (entity.getX() - this.getX()) / (double)f;
+-                double e = (entity.getY() - this.getY()) / (double)f;
+-                double g = (entity.getZ() - this.getZ()) / (double)f;
+-                this.setDeltaMovement(this.getDeltaMovement().add(Math.copySign(d * d * 0.4D, d), Math.copySign(e * e * 0.4D, e), Math.copySign(g * g * 0.4D, g)));
++                double d0 = (entity.getX() - this.getX()) / (double) f;
++                double d1 = (entity.getY() - this.getY()) / (double) f;
++                double d2 = (entity.getZ() - this.getZ()) / (double) f;
++
++                this.setDeltaMovement(this.getDeltaMovement().add(Math.copySign(d0 * d0 * 0.4D, d0), Math.copySign(d1 * d1 * 0.4D, d1), Math.copySign(d2 * d2 * 0.4D, d2)));
+             } else if (this.shouldStayCloseToLeashHolder()) {
+                 this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
+-                float h = 2.0F;
+-                Vec3 vec3 = (new Vec3(entity.getX() - this.getX(), entity.getY() - this.getY(), entity.getZ() - this.getZ())).normalize().scale((double)Math.max(f - 2.0F, 0.0F));
+-                this.getNavigation().moveTo(this.getX() + vec3.x, this.getY() + vec3.y, this.getZ() + vec3.z, this.followLeashSpeed());
++                float f1 = 2.0F;
++                Vec3 vec3d = (new Vec3(entity.getX() - this.getX(), entity.getY() - this.getY(), entity.getZ() - this.getZ())).normalize().scale((double) Math.max(f - 2.0F, 0.0F));
++
++                this.getNavigation().moveTo(this.getX() + vec3d.x, this.getY() + vec3d.y, this.getZ() + vec3d.z, this.followLeashSpeed());
+             }
+         }
+ 
+@@ -73,6 +92,5 @@
+         return 1.0D;
+     }
+ 
+-    protected void onLeashDistance(float leashLength) {
+-    }
++    protected void onLeashDistance(float leashLength) {}
+ }

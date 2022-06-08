@@ -1,0 +1,78 @@
+--- a/net/minecraft/world/level/block/SculkCatalystBlock.java
++++ b/net/minecraft/world/level/block/SculkCatalystBlock.java
+@@ -24,33 +24,34 @@
+ import net.minecraft.world.level.gameevent.GameEventListener;
+ 
+ public class SculkCatalystBlock extends BaseEntityBlock {
++
+     public static final int PULSE_TICKS = 8;
+     public static final BooleanProperty PULSE = BlockStateProperties.BLOOM;
+     private final IntProvider xpRange = ConstantInt.of(5);
+ 
+     public SculkCatalystBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(PULSE, Boolean.valueOf(false)));
++        this.registerDefaultState((BlockState) ((BlockState) this.stateDefinition.any()).setValue(SculkCatalystBlock.PULSE, false));
+     }
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(PULSE);
++        builder.add(SculkCatalystBlock.PULSE);
+     }
+ 
+     @Override
+     public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+-        if (state.getValue(PULSE)) {
+-            world.setBlock(pos, state.setValue(PULSE, Boolean.valueOf(false)), 3);
++        if ((Boolean) state.getValue(SculkCatalystBlock.PULSE)) {
++            world.setBlock(pos, (BlockState) state.setValue(SculkCatalystBlock.PULSE, false), 3);
+         }
+ 
+     }
+ 
+     public static void bloom(ServerLevel world, BlockPos pos, BlockState state, RandomSource random) {
+-        world.setBlock(pos, state.setValue(PULSE, Boolean.valueOf(true)), 3);
++        world.setBlock(pos, (BlockState) state.setValue(SculkCatalystBlock.PULSE, true), 3);
+         world.scheduleTick(pos, state.getBlock(), 8);
+-        world.sendParticles(ParticleTypes.SCULK_SOUL, (double)pos.getX() + 0.5D, (double)pos.getY() + 1.15D, (double)pos.getZ() + 0.5D, 2, 0.2D, 0.0D, 0.2D, 0.0D);
+-        world.playSound((Player)null, pos, SoundEvents.SCULK_CATALYST_BLOOM, SoundSource.BLOCKS, 2.0F, 0.6F + random.nextFloat() * 0.4F);
++        world.sendParticles(ParticleTypes.SCULK_SOUL, (double) pos.getX() + 0.5D, (double) pos.getY() + 1.15D, (double) pos.getZ() + 0.5D, 2, 0.2D, 0.0D, 0.2D, 0.0D);
++        world.playSound((Player) null, pos, SoundEvents.SCULK_CATALYST_BLOOM, SoundSource.BLOCKS, 2.0F, 0.6F + random.nextFloat() * 0.4F);
+     }
+ 
+     @Nullable
+@@ -62,7 +63,13 @@
+     @Nullable
+     @Override
+     public <T extends BlockEntity> GameEventListener getListener(ServerLevel world, T blockEntity) {
+-        return blockEntity instanceof SculkCatalystBlockEntity ? (SculkCatalystBlockEntity)blockEntity : null;
++        if (blockEntity instanceof SculkCatalystBlockEntity) {
++            SculkCatalystBlockEntity sculkcatalystblockentity = (SculkCatalystBlockEntity) blockEntity;
++
++            return sculkcatalystblockentity;
++        } else {
++            return null;
++        }
+     }
+ 
+     @Nullable
+@@ -79,9 +86,16 @@
+     @Override
+     public void spawnAfterBreak(BlockState state, ServerLevel world, BlockPos pos, ItemStack stack, boolean dropExperience) {
+         super.spawnAfterBreak(state, world, pos, stack, dropExperience);
+-        if (dropExperience) {
+-            this.tryDropExperience(world, pos, stack, this.xpRange);
++        // CraftBukkit start - Delegate to getExpDrop
++    }
++
++    @Override
++    public int getExpDrop(BlockState iblockdata, ServerLevel worldserver, BlockPos blockposition, ItemStack itemstack, boolean flag) {
++        if (flag) {
++            return this.tryDropExperience(worldserver, blockposition, itemstack, this.xpRange);
+         }
+ 
++        return 0;
++        // CraftBukkit end
+     }
+ }

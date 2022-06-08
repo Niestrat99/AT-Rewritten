@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/entity/projectile/DragonFireball.java
++++ b/net/minecraft/world/entity/projectile/DragonFireball.java
+@@ -52,8 +52,10 @@
+                     }
+                 }
+ 
++                if (new com.destroystokyo.paper.event.entity.EnderDragonFireballHitEvent((org.bukkit.entity.DragonFireball) this.getBukkitEntity(), list.stream().map(LivingEntity::getBukkitLivingEntity).collect(java.util.stream.Collectors.toList()), (org.bukkit.entity.AreaEffectCloud) areaEffectCloud.getBukkitEntity()).callEvent()) { // Paper
+                 this.level.levelEvent(2006, this.blockPosition(), this.isSilent() ? -1 : 1);
+-                this.level.addFreshEntity(areaEffectCloud);
++                this.level.addFreshEntity(areaEffectCloud, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.EXPLOSION); // Paper
++                } else areaEffectCloud.discard(); // Paper
+                 this.discard();
+             }
+ 

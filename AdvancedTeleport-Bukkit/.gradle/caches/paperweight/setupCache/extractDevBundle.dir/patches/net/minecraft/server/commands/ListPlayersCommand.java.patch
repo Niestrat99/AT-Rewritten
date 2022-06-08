@@ -1,0 +1,65 @@
+--- a/net/minecraft/server/commands/ListPlayersCommand.java
++++ b/net/minecraft/server/commands/ListPlayersCommand.java
+@@ -1,10 +1,10 @@
+ package net.minecraft.server.commands;
+ 
+ import com.mojang.brigadier.CommandDispatcher;
++import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+ import java.util.List;
+ import java.util.function.Function;
+ import net.minecraft.commands.CommandSourceStack;
+-import net.minecraft.commands.Commands;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.network.chat.ComponentUtils;
+ import net.minecraft.server.level.ServerPlayer;
+@@ -12,29 +12,39 @@
+ import net.minecraft.world.entity.player.Player;
+ 
+ public class ListPlayersCommand {
++
++    public ListPlayersCommand() {}
++
+     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+-        dispatcher.register(Commands.literal("list").executes((context) -> {
+-            return listPlayers(context.getSource());
+-        }).then(Commands.literal("uuids").executes((context) -> {
+-            return listPlayersWithUuids(context.getSource());
++        dispatcher.register((LiteralArgumentBuilder) ((LiteralArgumentBuilder) net.minecraft.commands.Commands.literal("list").executes((commandcontext) -> {
++            return ListPlayersCommand.listPlayers((CommandSourceStack) commandcontext.getSource());
++        })).then(net.minecraft.commands.Commands.literal("uuids").executes((commandcontext) -> {
++            return ListPlayersCommand.listPlayersWithUuids((CommandSourceStack) commandcontext.getSource());
+         })));
+     }
+ 
+     private static int listPlayers(CommandSourceStack source) {
+-        return format(source, Player::getDisplayName);
++        return ListPlayersCommand.format(source, Player::getDisplayName);
+     }
+ 
+     private static int listPlayersWithUuids(CommandSourceStack source) {
+-        return format(source, (player) -> {
+-            return Component.translatable("commands.list.nameAndId", player.getName(), player.getGameProfile().getId());
++        return ListPlayersCommand.format(source, (entityplayer) -> {
++            return Component.translatable("commands.list.nameAndId", entityplayer.getName(), entityplayer.getGameProfile().getId());
+         });
+     }
+ 
+     private static int format(CommandSourceStack source, Function<ServerPlayer, Component> nameProvider) {
+-        PlayerList playerList = source.getServer().getPlayerList();
+-        List<ServerPlayer> list = playerList.getPlayers();
+-        Component component = ComponentUtils.formatList(list, nameProvider);
+-        source.sendSuccess(Component.translatable("commands.list.players", list.size(), playerList.getMaxPlayers(), component), false);
++        PlayerList playerlist = source.getServer().getPlayerList();
++        List<ServerPlayer> list = playerlist.getPlayers();
++        // CraftBukkit start
++        if (source.getBukkitSender() instanceof org.bukkit.entity.Player) {
++            org.bukkit.entity.Player sender = (org.bukkit.entity.Player) source.getBukkitSender();
++            list = list.stream().filter((ep) -> sender.canSee(ep.getBukkitEntity())).collect(java.util.stream.Collectors.toList());
++        }
++        // CraftBukkit end
++        Component ichatbasecomponent = ComponentUtils.formatList(list, nameProvider);
++
++        source.sendSuccess(Component.translatable("commands.list.players", list.size(), playerlist.getMaxPlayers(), ichatbasecomponent), false);
+         return list.size();
+     }
+ }

@@ -1,0 +1,168 @@
+--- a/net/minecraft/world/inventory/AbstractFurnaceMenu.java
++++ b/net/minecraft/world/inventory/AbstractFurnaceMenu.java
+@@ -11,8 +11,13 @@
+ import net.minecraft.world.item.crafting.RecipeType;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
++// CraftBukkit start
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryFurnace;
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryView;
++// CraftBukkit end
+ 
+ public abstract class AbstractFurnaceMenu extends RecipeBookMenu<Container> {
++
+     public static final int INGREDIENT_SLOT = 0;
+     public static final int FUEL_SLOT = 1;
+     public static final int RESULT_SLOT = 2;
+@@ -28,6 +33,22 @@
+     private final RecipeType<? extends AbstractCookingRecipe> recipeType;
+     private final RecipeBookType recipeBookType;
+ 
++    // CraftBukkit start
++    private CraftInventoryView bukkitEntity = null;
++    private Inventory player;
++
++    @Override
++    public CraftInventoryView getBukkitView() {
++        if (this.bukkitEntity != null) {
++            return this.bukkitEntity;
++        }
++
++        CraftInventoryFurnace inventory = new CraftInventoryFurnace((AbstractFurnaceBlockEntity) this.container);
++        this.bukkitEntity = new CraftInventoryView(this.player.player.getBukkitEntity(), inventory, this);
++        return this.bukkitEntity;
++    }
++    // CraftBukkit end
++
+     protected AbstractFurnaceMenu(MenuType<?> type, RecipeType<? extends AbstractCookingRecipe> recipeType, RecipeBookType category, int syncId, Inventory playerInventory) {
+         this(type, recipeType, category, syncId, playerInventory, new SimpleContainer(3), new SimpleContainerData(4));
+     }
+@@ -44,15 +65,18 @@
+         this.addSlot(new Slot(inventory, 0, 56, 17));
+         this.addSlot(new FurnaceFuelSlot(this, inventory, 1, 56, 53));
+         this.addSlot(new FurnaceResultSlot(playerInventory.player, inventory, 2, 116, 35));
++        this.player = playerInventory; // CraftBukkit - save player
+ 
+-        for(int i = 0; i < 3; ++i) {
+-            for(int j = 0; j < 9; ++j) {
+-                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
++        int j;
++
++        for (j = 0; j < 3; ++j) {
++            for (int k = 0; k < 9; ++k) {
++                this.addSlot(new Slot(playerInventory, k + j * 9 + 9, 8 + k * 18, 84 + j * 18));
+             }
+         }
+ 
+-        for(int k = 0; k < 9; ++k) {
+-            this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 142));
++        for (j = 0; j < 9; ++j) {
++            this.addSlot(new Slot(playerInventory, j, 8 + j * 18, 142));
+         }
+ 
+         this.addDataSlots(propertyDelegate);
+@@ -61,7 +85,7 @@
+     @Override
+     public void fillCraftSlotsStackedContents(StackedContents finder) {
+         if (this.container instanceof StackedContentsCompatible) {
+-            ((StackedContentsCompatible)this.container).fillStackedContents(finder);
++            ((StackedContentsCompatible) this.container).fillStackedContents(finder);
+         }
+ 
+     }
+@@ -99,60 +123,63 @@
+ 
+     @Override
+     public boolean stillValid(Player player) {
++        if (!this.checkReachable) return true; // CraftBukkit
+         return this.container.stillValid(player);
+     }
+ 
+     @Override
+     public ItemStack quickMoveStack(Player player, int index) {
+-        ItemStack itemStack = ItemStack.EMPTY;
+-        Slot slot = this.slots.get(index);
++        ItemStack itemstack = ItemStack.EMPTY;
++        Slot slot = (Slot) this.slots.get(index);
++
+         if (slot != null && slot.hasItem()) {
+-            ItemStack itemStack2 = slot.getItem();
+-            itemStack = itemStack2.copy();
++            ItemStack itemstack1 = slot.getItem();
++
++            itemstack = itemstack1.copy();
+             if (index == 2) {
+-                if (!this.moveItemStackTo(itemStack2, 3, 39, true)) {
++                if (!this.moveItemStackTo(itemstack1, 3, 39, true)) {
+                     return ItemStack.EMPTY;
+                 }
+ 
+-                slot.onQuickCraft(itemStack2, itemStack);
++                slot.onQuickCraft(itemstack1, itemstack);
+             } else if (index != 1 && index != 0) {
+-                if (this.canSmelt(itemStack2)) {
+-                    if (!this.moveItemStackTo(itemStack2, 0, 1, false)) {
++                if (this.canSmelt(itemstack1)) {
++                    if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
+                         return ItemStack.EMPTY;
+                     }
+-                } else if (this.isFuel(itemStack2)) {
+-                    if (!this.moveItemStackTo(itemStack2, 1, 2, false)) {
++                } else if (this.isFuel(itemstack1)) {
++                    if (!this.moveItemStackTo(itemstack1, 1, 2, false)) {
+                         return ItemStack.EMPTY;
+                     }
+                 } else if (index >= 3 && index < 30) {
+-                    if (!this.moveItemStackTo(itemStack2, 30, 39, false)) {
++                    if (!this.moveItemStackTo(itemstack1, 30, 39, false)) {
+                         return ItemStack.EMPTY;
+                     }
+-                } else if (index >= 30 && index < 39 && !this.moveItemStackTo(itemStack2, 3, 30, false)) {
++                } else if (index >= 30 && index < 39 && !this.moveItemStackTo(itemstack1, 3, 30, false)) {
+                     return ItemStack.EMPTY;
+                 }
+-            } else if (!this.moveItemStackTo(itemStack2, 3, 39, false)) {
++            } else if (!this.moveItemStackTo(itemstack1, 3, 39, false)) {
+                 return ItemStack.EMPTY;
+             }
+ 
+-            if (itemStack2.isEmpty()) {
++            if (itemstack1.isEmpty()) {
+                 slot.set(ItemStack.EMPTY);
+             } else {
+                 slot.setChanged();
+             }
+ 
+-            if (itemStack2.getCount() == itemStack.getCount()) {
++            if (itemstack1.getCount() == itemstack.getCount()) {
+                 return ItemStack.EMPTY;
+             }
+ 
+-            slot.onTake(player, itemStack2);
++            slot.onTake(player, itemstack1);
+         }
+ 
+-        return itemStack;
++        return itemstack;
+     }
+ 
+     protected boolean canSmelt(ItemStack itemStack) {
+-        return this.level.getRecipeManager().getRecipeFor(this.recipeType, new SimpleContainer(itemStack), this.level).isPresent();
++        return this.level.getRecipeManager().getRecipeFor((RecipeType<AbstractCookingRecipe>) this.recipeType, new SimpleContainer(new ItemStack[]{itemStack}), this.level).isPresent(); // Eclipse fail
+     }
+ 
+     protected boolean isFuel(ItemStack itemStack) {
+@@ -162,11 +189,13 @@
+     public int getBurnProgress() {
+         int i = this.data.get(2);
+         int j = this.data.get(3);
++
+         return j != 0 && i != 0 ? i * 24 / j : 0;
+     }
+ 
+     public int getLitProgress() {
+         int i = this.data.get(1);
++
+         if (i == 0) {
+             i = 200;
+         }

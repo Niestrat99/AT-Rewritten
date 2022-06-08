@@ -1,0 +1,19 @@
+--- a/net/minecraft/world/level/lighting/SkyLightEngine.java
++++ b/net/minecraft/world/level/lighting/SkyLightEngine.java
+@@ -15,6 +15,7 @@
+ public final class SkyLightEngine extends LayerLightEngine<SkyLightSectionStorage.SkyDataLayerStorageMap, SkyLightSectionStorage> {
+     private static final Direction[] DIRECTIONS = Direction.values();
+     private static final Direction[] HORIZONTALS = new Direction[]{Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST};
++    private final MutableInt mutableInt = new MutableInt(); // Paper
+ 
+     public SkyLightEngine(LightChunkGetter chunkProvider) {
+         super(chunkProvider, LightLayer.SKY, new SkyLightSectionStorage(chunkProvider));
+@@ -26,7 +27,7 @@
+             if (level >= 15) {
+                 return level;
+             } else {
+-                MutableInt mutableInt = new MutableInt();
++                //MutableInt mutableint = new MutableInt(); // Paper - share mutableint, single threaded
+                 BlockState blockState = this.getStateAndOpacity(targetId, mutableInt);
+                 if (mutableInt.getValue() >= 15) {
+                     return 15;

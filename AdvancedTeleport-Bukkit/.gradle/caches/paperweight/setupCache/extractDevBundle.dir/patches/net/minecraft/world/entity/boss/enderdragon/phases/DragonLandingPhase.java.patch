@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/boss/enderdragon/phases/DragonLandingPhase.java
++++ b/net/minecraft/world/entity/boss/enderdragon/phases/DragonLandingPhase.java
+@@ -39,7 +39,7 @@
+     @Override
+     public void doServerTick() {
+         if (this.targetLocation == null) {
+-            this.targetLocation = Vec3.atBottomCenterOf(this.dragon.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION));
++            this.targetLocation = Vec3.atBottomCenterOf(this.dragon.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.dragon.getPodium())); // Paper - use custom podium
+         }
+ 
+         if (this.targetLocation.distanceToSqr(this.dragon.getX(), this.dragon.getY(), this.dragon.getZ()) < 1.0D) {

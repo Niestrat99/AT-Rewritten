@@ -1,0 +1,188 @@
+--- a/net/minecraft/world/entity/AgeableMob.java
++++ b/net/minecraft/world/entity/AgeableMob.java
+@@ -12,30 +12,58 @@
+ import net.minecraft.world.level.ServerLevelAccessor;
+ 
+ public abstract class AgeableMob extends PathfinderMob {
++
+     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(AgeableMob.class, EntityDataSerializers.BOOLEAN);
+     public static final int BABY_START_AGE = -24000;
+     private static final int FORCED_AGE_PARTICLE_TICKS = 40;
+     protected int age;
+     protected int forcedAge;
+     protected int forcedAgeTimer;
++    public boolean ageLocked; // CraftBukkit
+ 
+     protected AgeableMob(EntityType<? extends AgeableMob> type, Level world) {
+         super(type, world);
+     }
+ 
++    // Spigot start
++    @Override
++    public void inactiveTick()
++    {
++        super.inactiveTick();
++        if ( this.level.isClientSide || this.ageLocked )
++        { // CraftBukkit
++            this.refreshDimensions();
++        } else
++        {
++            int i = this.getAge();
++
++            if ( i < 0 )
++            {
++                ++i;
++                this.setAge( i );
++            } else if ( i > 0 )
++            {
++                --i;
++                this.setAge( i );
++            }
++        }
++    }
++    // Spigot end
++
+     @Override
+     public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
+         if (entityData == null) {
+             entityData = new AgeableMob.AgeableMobGroupData(true);
+         }
+ 
+-        AgeableMob.AgeableMobGroupData ageableMobGroupData = (AgeableMob.AgeableMobGroupData)entityData;
+-        if (ageableMobGroupData.isShouldSpawnBaby() && ageableMobGroupData.getGroupSize() > 0 && world.getRandom().nextFloat() <= ageableMobGroupData.getBabySpawnChance()) {
++        AgeableMob.AgeableMobGroupData entityageable_a = (AgeableMob.AgeableMobGroupData) entityData;
++
++        if (entityageable_a.isShouldSpawnBaby() && entityageable_a.getGroupSize() > 0 && world.getRandom().nextFloat() <= entityageable_a.getBabySpawnChance()) {
+             this.setAge(-24000);
+         }
+ 
+-        ageableMobGroupData.increaseGroupSizeByOne();
+-        return super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
++        entityageable_a.increaseGroupSizeByOne();
++        return super.finalizeSpawn(world, difficulty, spawnReason, (SpawnGroupData) entityData, entityNbt);
+     }
+ 
+     @Nullable
+@@ -44,7 +72,7 @@
+     @Override
+     protected void defineSynchedData() {
+         super.defineSynchedData();
+-        this.entityData.define(DATA_BABY_ID, false);
++        this.entityData.define(AgeableMob.DATA_BABY_ID, false);
+     }
+ 
+     public boolean canBreed() {
+@@ -52,24 +80,24 @@
+     }
+ 
+     public int getAge() {
+-        if (this.level.isClientSide) {
+-            return this.entityData.get(DATA_BABY_ID) ? -1 : 1;
+-        } else {
+-            return this.age;
+-        }
++        return this.level.isClientSide ? ((Boolean) this.entityData.get(AgeableMob.DATA_BABY_ID) ? -1 : 1) : this.age;
+     }
+ 
+     public void ageUp(int age, boolean overGrow) {
+-        int i = this.getAge();
+-        i += age * 20;
+-        if (i > 0) {
+-            i = 0;
++        if (this.ageLocked) return; // Paper - GH-1459
++        int j = this.getAge();
++        int k = j;
++
++        j += age * 20;
++        if (j > 0) {
++            j = 0;
+         }
+ 
+-        int k = i - i;
+-        this.setAge(i);
++        int l = j - k;
++
++        this.setAge(j);
+         if (overGrow) {
+-            this.forcedAge += k;
++            this.forcedAge += l;
+             if (this.forcedAgeTimer == 0) {
+                 this.forcedAgeTimer = 40;
+             }
+@@ -86,10 +114,11 @@
+     }
+ 
+     public void setAge(int age) {
+-        int i = this.getAge();
++        int j = this.getAge();
++
+         this.age = age;
+-        if (i < 0 && age >= 0 || i >= 0 && age < 0) {
+-            this.entityData.set(DATA_BABY_ID, age < 0);
++        if (j < 0 && age >= 0 || j >= 0 && age < 0) {
++            this.entityData.set(AgeableMob.DATA_BABY_ID, age < 0);
+             this.ageBoundaryReached();
+         }
+ 
+@@ -100,6 +129,7 @@
+         super.addAdditionalSaveData(nbt);
+         nbt.putInt("Age", this.getAge());
+         nbt.putInt("ForcedAge", this.forcedAge);
++        nbt.putBoolean("AgeLocked", this.ageLocked); // CraftBukkit
+     }
+ 
+     @Override
+@@ -107,11 +137,12 @@
+         super.readAdditionalSaveData(nbt);
+         this.setAge(nbt.getInt("Age"));
+         this.forcedAge = nbt.getInt("ForcedAge");
++        this.ageLocked = nbt.getBoolean("AgeLocked"); // CraftBukkit
+     }
+ 
+     @Override
+     public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
+-        if (DATA_BABY_ID.equals(data)) {
++        if (AgeableMob.DATA_BABY_ID.equals(data)) {
+             this.refreshDimensions();
+         }
+ 
+@@ -121,7 +152,7 @@
+     @Override
+     public void aiStep() {
+         super.aiStep();
+-        if (this.level.isClientSide) {
++        if (this.level.isClientSide || this.ageLocked) { // CraftBukkit
+             if (this.forcedAgeTimer > 0) {
+                 if (this.forcedAgeTimer % 4 == 0) {
+                     this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), 0.0D, 0.0D, 0.0D);
+@@ -131,6 +162,7 @@
+             }
+         } else if (this.isAlive()) {
+             int i = this.getAge();
++
+             if (i < 0) {
+                 ++i;
+                 this.setAge(i);
+@@ -142,8 +174,7 @@
+ 
+     }
+ 
+-    protected void ageBoundaryReached() {
+-    }
++    protected void ageBoundaryReached() {}
+ 
+     @Override
+     public boolean isBaby() {
+@@ -156,10 +187,11 @@
+     }
+ 
+     public static int getSpeedUpSecondsWhenFeeding(int breedingAge) {
+-        return (int)((float)(breedingAge / 20) * 0.1F);
++        return (int) ((float) (breedingAge / 20) * 0.1F);
+     }
+ 
+     public static class AgeableMobGroupData implements SpawnGroupData {
++
+         private int groupSize;
+         private final boolean shouldSpawnBaby;
+         private final float babySpawnChance;

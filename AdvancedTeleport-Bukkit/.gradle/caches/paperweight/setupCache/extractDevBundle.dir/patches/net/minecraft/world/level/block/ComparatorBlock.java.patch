@@ -1,0 +1,206 @@
+--- a/net/minecraft/world/level/block/ComparatorBlock.java
++++ b/net/minecraft/world/level/block/ComparatorBlock.java
+@@ -25,13 +25,15 @@
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.BlockHitResult;
+ import net.minecraft.world.ticks.TickPriority;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory; // CraftBukkit
+ 
+ public class ComparatorBlock extends DiodeBlock implements EntityBlock {
++
+     public static final EnumProperty<ComparatorMode> MODE = BlockStateProperties.MODE_COMPARATOR;
+ 
+     public ComparatorBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, Boolean.valueOf(false)).setValue(MODE, ComparatorMode.COMPARE));
++        this.registerDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(ComparatorBlock.FACING, Direction.NORTH)).setValue(ComparatorBlock.POWERED, false)).setValue(ComparatorBlock.MODE, ComparatorMode.COMPARE));
+     }
+ 
+     @Override
+@@ -41,52 +43,51 @@
+ 
+     @Override
+     protected int getOutputSignal(BlockGetter world, BlockPos pos, BlockState state) {
+-        BlockEntity blockEntity = world.getBlockEntity(pos);
+-        return blockEntity instanceof ComparatorBlockEntity ? ((ComparatorBlockEntity)blockEntity).getOutputSignal() : 0;
++        BlockEntity tileentity = world.getBlockEntity(pos);
++
++        return tileentity instanceof ComparatorBlockEntity ? ((ComparatorBlockEntity) tileentity).getOutputSignal() : 0;
+     }
+ 
+     private int calculateOutputSignal(Level world, BlockPos pos, BlockState state) {
+         int i = this.getInputSignal(world, pos, state);
++
+         if (i == 0) {
+             return 0;
+         } else {
+             int j = this.getAlternateSignal(world, pos, state);
+-            if (j > i) {
+-                return 0;
+-            } else {
+-                return state.getValue(MODE) == ComparatorMode.SUBTRACT ? i - j : i;
+-            }
++
++            return j > i ? 0 : (state.getValue(ComparatorBlock.MODE) == ComparatorMode.SUBTRACT ? i - j : i);
+         }
+     }
+ 
+     @Override
+     protected boolean shouldTurnOn(Level world, BlockPos pos, BlockState state) {
+         int i = this.getInputSignal(world, pos, state);
++
+         if (i == 0) {
+             return false;
+         } else {
+             int j = this.getAlternateSignal(world, pos, state);
+-            if (i > j) {
+-                return true;
+-            } else {
+-                return i == j && state.getValue(MODE) == ComparatorMode.COMPARE;
+-            }
++
++            return i > j ? true : i == j && state.getValue(ComparatorBlock.MODE) == ComparatorMode.COMPARE;
+         }
+     }
+ 
+     @Override
+     protected int getInputSignal(Level world, BlockPos pos, BlockState state) {
+         int i = super.getInputSignal(world, pos, state);
+-        Direction direction = state.getValue(FACING);
+-        BlockPos blockPos = pos.relative(direction);
+-        BlockState blockState = world.getBlockState(blockPos);
+-        if (blockState.hasAnalogOutputSignal()) {
+-            i = blockState.getAnalogOutputSignal(world, blockPos);
+-        } else if (i < 15 && blockState.isRedstoneConductor(world, blockPos)) {
+-            blockPos = blockPos.relative(direction);
+-            blockState = world.getBlockState(blockPos);
+-            ItemFrame itemFrame = this.getItemFrame(world, direction, blockPos);
+-            int j = Math.max(itemFrame == null ? Integer.MIN_VALUE : itemFrame.getAnalogOutput(), blockState.hasAnalogOutputSignal() ? blockState.getAnalogOutputSignal(world, blockPos) : Integer.MIN_VALUE);
++        Direction enumdirection = (Direction) state.getValue(ComparatorBlock.FACING);
++        BlockPos blockposition1 = pos.relative(enumdirection);
++        BlockState iblockdata1 = world.getBlockState(blockposition1);
++
++        if (iblockdata1.hasAnalogOutputSignal()) {
++            i = iblockdata1.getAnalogOutputSignal(world, blockposition1);
++        } else if (i < 15 && iblockdata1.isRedstoneConductor(world, blockposition1)) {
++            blockposition1 = blockposition1.relative(enumdirection);
++            iblockdata1 = world.getBlockState(blockposition1);
++            ItemFrame entityitemframe = this.getItemFrame(world, enumdirection, blockposition1);
++            int j = Math.max(entityitemframe == null ? Integer.MIN_VALUE : entityitemframe.getAnalogOutput(), iblockdata1.hasAnalogOutputSignal() ? iblockdata1.getAnalogOutputSignal(world, blockposition1) : Integer.MIN_VALUE);
++
+             if (j != Integer.MIN_VALUE) {
+                 i = j;
+             }
+@@ -97,10 +98,12 @@
+ 
+     @Nullable
+     private ItemFrame getItemFrame(Level world, Direction facing, BlockPos pos) {
+-        List<ItemFrame> list = world.getEntitiesOfClass(ItemFrame.class, new AABB((double)pos.getX(), (double)pos.getY(), (double)pos.getZ(), (double)(pos.getX() + 1), (double)(pos.getY() + 1), (double)(pos.getZ() + 1)), (itemFrame) -> {
+-            return itemFrame != null && itemFrame.getDirection() == facing;
++        // CraftBukkit - decompile error
++        List<ItemFrame> list = world.getEntitiesOfClass(ItemFrame.class, new AABB((double) pos.getX(), (double) pos.getY(), (double) pos.getZ(), (double) (pos.getX() + 1), (double) (pos.getY() + 1), (double) (pos.getZ() + 1)), (java.util.function.Predicate<ItemFrame>) (entityitemframe) -> {
++            return entityitemframe != null && entityitemframe.getDirection() == facing;
+         });
+-        return list.size() == 1 ? list.get(0) : null;
++
++        return list.size() == 1 ? (ItemFrame) list.get(0) : null;
+     }
+ 
+     @Override
+@@ -108,8 +111,9 @@
+         if (!player.getAbilities().mayBuild) {
+             return InteractionResult.PASS;
+         } else {
+-            state = state.cycle(MODE);
+-            float f = state.getValue(MODE) == ComparatorMode.SUBTRACT ? 0.55F : 0.5F;
++            state = (BlockState) state.cycle(ComparatorBlock.MODE);
++            float f = state.getValue(ComparatorBlock.MODE) == ComparatorMode.SUBTRACT ? 0.55F : 0.5F;
++
+             world.playSound(player, pos, SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 0.3F, f);
+             world.setBlock(pos, state, 2);
+             this.refreshOutputState(world, pos, state);
+@@ -121,11 +125,13 @@
+     protected void checkTickOnNeighbor(Level world, BlockPos pos, BlockState state) {
+         if (!world.getBlockTicks().willTickThisTick(pos, this)) {
+             int i = this.calculateOutputSignal(world, pos, state);
+-            BlockEntity blockEntity = world.getBlockEntity(pos);
+-            int j = blockEntity instanceof ComparatorBlockEntity ? ((ComparatorBlockEntity)blockEntity).getOutputSignal() : 0;
+-            if (i != j || state.getValue(POWERED) != this.shouldTurnOn(world, pos, state)) {
+-                TickPriority tickPriority = this.shouldPrioritize(world, pos, state) ? TickPriority.HIGH : TickPriority.NORMAL;
+-                world.scheduleTick(pos, this, 2, tickPriority);
++            BlockEntity tileentity = world.getBlockEntity(pos);
++            int j = tileentity instanceof ComparatorBlockEntity ? ((ComparatorBlockEntity) tileentity).getOutputSignal() : 0;
++
++            if (i != j || (Boolean) state.getValue(ComparatorBlock.POWERED) != this.shouldTurnOn(world, pos, state)) {
++                TickPriority ticklistpriority = this.shouldPrioritize(world, pos, state) ? TickPriority.HIGH : TickPriority.NORMAL;
++
++                world.scheduleTick(pos, (Block) this, 2, ticklistpriority);
+             }
+ 
+         }
+@@ -133,20 +139,34 @@
+ 
+     private void refreshOutputState(Level world, BlockPos pos, BlockState state) {
+         int i = this.calculateOutputSignal(world, pos, state);
+-        BlockEntity blockEntity = world.getBlockEntity(pos);
++        BlockEntity tileentity = world.getBlockEntity(pos);
+         int j = 0;
+-        if (blockEntity instanceof ComparatorBlockEntity comparatorBlockEntity) {
+-            j = comparatorBlockEntity.getOutputSignal();
+-            comparatorBlockEntity.setOutputSignal(i);
++
++        if (tileentity instanceof ComparatorBlockEntity) {
++            ComparatorBlockEntity tileentitycomparator = (ComparatorBlockEntity) tileentity;
++
++            j = tileentitycomparator.getOutputSignal();
++            tileentitycomparator.setOutputSignal(i);
+         }
+ 
+-        if (j != i || state.getValue(MODE) == ComparatorMode.COMPARE) {
+-            boolean bl = this.shouldTurnOn(world, pos, state);
+-            boolean bl2 = state.getValue(POWERED);
+-            if (bl2 && !bl) {
+-                world.setBlock(pos, state.setValue(POWERED, Boolean.valueOf(false)), 2);
+-            } else if (!bl2 && bl) {
+-                world.setBlock(pos, state.setValue(POWERED, Boolean.valueOf(true)), 2);
++        if (j != i || state.getValue(ComparatorBlock.MODE) == ComparatorMode.COMPARE) {
++            boolean flag = this.shouldTurnOn(world, pos, state);
++            boolean flag1 = (Boolean) state.getValue(ComparatorBlock.POWERED);
++
++            if (flag1 && !flag) {
++                // CraftBukkit start
++                if (CraftEventFactory.callRedstoneChange(world, pos, 15, 0).getNewCurrent() != 0) {
++                    return;
++                }
++                // CraftBukkit end
++                world.setBlock(pos, (BlockState) state.setValue(ComparatorBlock.POWERED, false), 2);
++            } else if (!flag1 && flag) {
++                // CraftBukkit start
++                if (CraftEventFactory.callRedstoneChange(world, pos, 0, 15).getNewCurrent() != 15) {
++                    return;
++                }
++                // CraftBukkit end
++                world.setBlock(pos, (BlockState) state.setValue(ComparatorBlock.POWERED, true), 2);
+             }
+ 
+             this.updateNeighborsInFront(world, pos, state);
+@@ -162,8 +182,9 @@
+     @Override
+     public boolean triggerEvent(BlockState state, Level world, BlockPos pos, int type, int data) {
+         super.triggerEvent(state, world, pos, type, data);
+-        BlockEntity blockEntity = world.getBlockEntity(pos);
+-        return blockEntity != null && blockEntity.triggerEvent(type, data);
++        BlockEntity tileentity = world.getBlockEntity(pos);
++
++        return tileentity != null && tileentity.triggerEvent(type, data);
+     }
+ 
+     @Override
+@@ -173,6 +194,6 @@
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(FACING, MODE, POWERED);
++        builder.add(ComparatorBlock.FACING, ComparatorBlock.MODE, ComparatorBlock.POWERED);
+     }
+ }

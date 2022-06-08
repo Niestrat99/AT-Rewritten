@@ -1,0 +1,178 @@
+--- a/net/minecraft/world/level/block/CropBlock.java
++++ b/net/minecraft/world/level/block/CropBlock.java
+@@ -20,20 +20,22 @@
+ import net.minecraft.world.level.block.state.properties.IntegerProperty;
+ import net.minecraft.world.phys.shapes.CollisionContext;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory; // CraftBukkit
+ 
+ public class CropBlock extends BushBlock implements BonemealableBlock {
++
+     public static final int MAX_AGE = 7;
+     public static final IntegerProperty AGE = BlockStateProperties.AGE_7;
+     private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 4.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 10.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 12.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D), Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D)};
+ 
+     protected CropBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(this.getAgeProperty(), Integer.valueOf(0)));
++        this.registerDefaultState((BlockState) ((BlockState) this.stateDefinition.any()).setValue(this.getAgeProperty(), 0));
+     }
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return SHAPE_BY_AGE[state.getValue(this.getAgeProperty())];
++        return CropBlock.SHAPE_BY_AGE[(Integer) state.getValue(this.getAgeProperty())];
+     }
+ 
+     @Override
+@@ -42,7 +44,7 @@
+     }
+ 
+     public IntegerProperty getAgeProperty() {
+-        return AGE;
++        return CropBlock.AGE;
+     }
+ 
+     public int getMaxAge() {
+@@ -50,15 +52,15 @@
+     }
+ 
+     protected int getAge(BlockState state) {
+-        return state.getValue(this.getAgeProperty());
++        return (Integer) state.getValue(this.getAgeProperty());
+     }
+ 
+     public BlockState getStateForAge(int age) {
+-        return this.defaultBlockState().setValue(this.getAgeProperty(), Integer.valueOf(age));
++        return (BlockState) this.defaultBlockState().setValue(this.getAgeProperty(), age);
+     }
+ 
+     public boolean isMaxAge(BlockState state) {
+-        return state.getValue(this.getAgeProperty()) >= this.getMaxAge();
++        return (Integer) state.getValue(this.getAgeProperty()) >= this.getMaxAge();
+     }
+ 
+     @Override
+@@ -70,10 +72,25 @@
+     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+         if (world.getRawBrightness(pos, 0) >= 9) {
+             int i = this.getAge(state);
++
+             if (i < this.getMaxAge()) {
+-                float f = getGrowthSpeed(this, world, pos);
+-                if (random.nextInt((int)(25.0F / f) + 1) == 0) {
+-                    world.setBlock(pos, this.getStateForAge(i + 1), 2);
++                float f = CropBlock.getGrowthSpeed(this, world, pos);
++
++                // Spigot start
++                int modifier;
++                if (this == Blocks.BEETROOTS) {
++                    modifier = world.spigotConfig.beetrootModifier;
++                } else if (this == Blocks.CARROTS) {
++                    modifier = world.spigotConfig.carrotModifier;
++                } else if (this == Blocks.POTATOES) {
++                    modifier = world.spigotConfig.potatoModifier;
++                } else {
++                    modifier = world.spigotConfig.wheatModifier;
++                }
++
++                if (random.nextFloat() < (modifier / (100.0f * (Math.floor((25.0F / f) + 1))))) { // Spigot - SPIGOT-7159: Better modifier resolution
++                    // Spigot end
++                    CraftEventFactory.handleBlockGrowEvent(world, pos, this.getStateForAge(i + 1), 2); // CraftBukkit
+                 }
+             }
+         }
+@@ -83,11 +100,12 @@
+     public void growCrops(Level world, BlockPos pos, BlockState state) {
+         int i = this.getAge(state) + this.getBonemealAgeIncrease(world);
+         int j = this.getMaxAge();
++
+         if (i > j) {
+             i = j;
+         }
+ 
+-        world.setBlock(pos, this.getStateForAge(i), 2);
++        CraftEventFactory.handleBlockGrowEvent(world, pos, this.getStateForAge(i), 2); // CraftBukkit
+     }
+ 
+     protected int getBonemealAgeIncrease(Level world) {
+@@ -96,38 +114,41 @@
+ 
+     protected static float getGrowthSpeed(Block block, BlockGetter world, BlockPos pos) {
+         float f = 1.0F;
+-        BlockPos blockPos = pos.below();
++        BlockPos blockposition1 = pos.below();
+ 
+-        for(int i = -1; i <= 1; ++i) {
+-            for(int j = -1; j <= 1; ++j) {
+-                float g = 0.0F;
+-                BlockState blockState = world.getBlockState(blockPos.offset(i, 0, j));
+-                if (blockState.is(Blocks.FARMLAND)) {
+-                    g = 1.0F;
+-                    if (blockState.getValue(FarmBlock.MOISTURE) > 0) {
+-                        g = 3.0F;
++        for (int i = -1; i <= 1; ++i) {
++            for (int j = -1; j <= 1; ++j) {
++                float f1 = 0.0F;
++                BlockState iblockdata = world.getBlockState(blockposition1.offset(i, 0, j));
++
++                if (iblockdata.is(Blocks.FARMLAND)) {
++                    f1 = 1.0F;
++                    if ((Integer) iblockdata.getValue(FarmBlock.MOISTURE) > 0) {
++                        f1 = 3.0F;
+                     }
+                 }
+ 
+                 if (i != 0 || j != 0) {
+-                    g /= 4.0F;
++                    f1 /= 4.0F;
+                 }
+ 
+-                f += g;
++                f += f1;
+             }
+         }
+ 
+-        BlockPos blockPos2 = pos.north();
+-        BlockPos blockPos3 = pos.south();
+-        BlockPos blockPos4 = pos.west();
+-        BlockPos blockPos5 = pos.east();
+-        boolean bl = world.getBlockState(blockPos4).is(block) || world.getBlockState(blockPos5).is(block);
+-        boolean bl2 = world.getBlockState(blockPos2).is(block) || world.getBlockState(blockPos3).is(block);
+-        if (bl && bl2) {
++        BlockPos blockposition2 = pos.north();
++        BlockPos blockposition3 = pos.south();
++        BlockPos blockposition4 = pos.west();
++        BlockPos blockposition5 = pos.east();
++        boolean flag = world.getBlockState(blockposition4).is(block) || world.getBlockState(blockposition5).is(block);
++        boolean flag1 = world.getBlockState(blockposition2).is(block) || world.getBlockState(blockposition3).is(block);
++
++        if (flag && flag1) {
+             f /= 2.0F;
+         } else {
+-            boolean bl3 = world.getBlockState(blockPos4.north()).is(block) || world.getBlockState(blockPos5.north()).is(block) || world.getBlockState(blockPos5.south()).is(block) || world.getBlockState(blockPos4.south()).is(block);
+-            if (bl3) {
++            boolean flag2 = world.getBlockState(blockposition4.north()).is(block) || world.getBlockState(blockposition5.north()).is(block) || world.getBlockState(blockposition5.south()).is(block) || world.getBlockState(blockposition4.south()).is(block);
++
++            if (flag2) {
+                 f /= 2.0F;
+             }
+         }
+@@ -142,7 +163,8 @@
+ 
+     @Override
+     public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
+-        if (entity instanceof Ravager && world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
++        if (!new io.papermc.paper.event.entity.EntityInsideBlockEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, pos)).callEvent()) { return; } // Paper
++        if (entity instanceof Ravager && !CraftEventFactory.callEntityChangeBlockEvent(entity, pos, Blocks.AIR.defaultBlockState(), !world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)).isCancelled()) { // CraftBukkit
+             world.destroyBlock(pos, true, entity);
+         }
+ 
+@@ -175,6 +197,6 @@
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(AGE);
++        builder.add(CropBlock.AGE);
+     }
+ }

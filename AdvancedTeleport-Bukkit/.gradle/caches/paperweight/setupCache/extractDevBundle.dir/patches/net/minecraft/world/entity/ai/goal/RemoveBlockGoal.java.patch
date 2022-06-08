@@ -1,0 +1,143 @@
+--- a/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
++++ b/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
+@@ -20,8 +20,13 @@
+ import net.minecraft.world.level.chunk.ChunkAccess;
+ import net.minecraft.world.level.chunk.ChunkStatus;
+ import net.minecraft.world.phys.Vec3;
++// CraftBukkit start
++import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock;
++import org.bukkit.event.entity.EntityInteractEvent;
++// CraftBukkit end
+ 
+ public class RemoveBlockGoal extends MoveToBlockGoal {
++
+     private final Block blockToRemove;
+     private final Mob removerMob;
+     private int ticksSinceReachedGoal;
+@@ -65,48 +70,59 @@
+         this.ticksSinceReachedGoal = 0;
+     }
+ 
+-    public void playDestroyProgressSound(LevelAccessor world, BlockPos pos) {
+-    }
++    public void playDestroyProgressSound(LevelAccessor world, BlockPos pos) {}
+ 
+-    public void playBreakSound(Level world, BlockPos pos) {
+-    }
++    public void playBreakSound(Level world, BlockPos pos) {}
+ 
+     @Override
+     public void tick() {
+         super.tick();
+-        Level level = this.removerMob.level;
+-        BlockPos blockPos = this.removerMob.blockPosition();
+-        BlockPos blockPos2 = this.getPosWithBlock(blockPos, level);
+-        RandomSource randomSource = this.removerMob.getRandom();
+-        if (this.isReachedTarget() && blockPos2 != null) {
++        Level world = this.removerMob.level;
++        BlockPos blockposition = this.removerMob.blockPosition();
++        BlockPos blockposition1 = this.getPosWithBlock(blockposition, world);
++        RandomSource randomsource = this.removerMob.getRandom();
++
++        if (this.isReachedTarget() && blockposition1 != null) {
++            Vec3 vec3d;
++            double d0;
++
+             if (this.ticksSinceReachedGoal > 0) {
+-                Vec3 vec3 = this.removerMob.getDeltaMovement();
+-                this.removerMob.setDeltaMovement(vec3.x, 0.3D, vec3.z);
+-                if (!level.isClientSide) {
+-                    double d = 0.08D;
+-                    ((ServerLevel)level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.EGG)), (double)blockPos2.getX() + 0.5D, (double)blockPos2.getY() + 0.7D, (double)blockPos2.getZ() + 0.5D, 3, ((double)randomSource.nextFloat() - 0.5D) * 0.08D, ((double)randomSource.nextFloat() - 0.5D) * 0.08D, ((double)randomSource.nextFloat() - 0.5D) * 0.08D, (double)0.15F);
++                vec3d = this.removerMob.getDeltaMovement();
++                this.removerMob.setDeltaMovement(vec3d.x, 0.3D, vec3d.z);
++                if (!world.isClientSide) {
++                    d0 = 0.08D;
++                    ((ServerLevel) world).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.EGG)), (double) blockposition1.getX() + 0.5D, (double) blockposition1.getY() + 0.7D, (double) blockposition1.getZ() + 0.5D, 3, ((double) randomsource.nextFloat() - 0.5D) * 0.08D, ((double) randomsource.nextFloat() - 0.5D) * 0.08D, ((double) randomsource.nextFloat() - 0.5D) * 0.08D, 0.15000000596046448D);
+                 }
+             }
+ 
+             if (this.ticksSinceReachedGoal % 2 == 0) {
+-                Vec3 vec32 = this.removerMob.getDeltaMovement();
+-                this.removerMob.setDeltaMovement(vec32.x, -0.3D, vec32.z);
++                vec3d = this.removerMob.getDeltaMovement();
++                this.removerMob.setDeltaMovement(vec3d.x, -0.3D, vec3d.z);
+                 if (this.ticksSinceReachedGoal % 6 == 0) {
+-                    this.playDestroyProgressSound(level, this.blockPos);
++                    this.playDestroyProgressSound(world, this.blockPos);
+                 }
+             }
+ 
+             if (this.ticksSinceReachedGoal > 60) {
+-                level.removeBlock(blockPos2, false);
+-                if (!level.isClientSide) {
+-                    for(int i = 0; i < 20; ++i) {
+-                        double e = randomSource.nextGaussian() * 0.02D;
+-                        double f = randomSource.nextGaussian() * 0.02D;
+-                        double g = randomSource.nextGaussian() * 0.02D;
+-                        ((ServerLevel)level).sendParticles(ParticleTypes.POOF, (double)blockPos2.getX() + 0.5D, (double)blockPos2.getY(), (double)blockPos2.getZ() + 0.5D, 1, e, f, g, (double)0.15F);
++                // CraftBukkit start - Step on eggs
++                EntityInteractEvent event = new EntityInteractEvent(this.removerMob.getBukkitEntity(), CraftBlock.at(world, blockposition1));
++                world.getCraftServer().getPluginManager().callEvent((EntityInteractEvent) event);
++
++                if (event.isCancelled()) {
++                    return;
++                }
++                // CraftBukkit end
++                world.removeBlock(blockposition1, false);
++                if (!world.isClientSide) {
++                    for (int i = 0; i < 20; ++i) {
++                        d0 = randomsource.nextGaussian() * 0.02D;
++                        double d1 = randomsource.nextGaussian() * 0.02D;
++                        double d2 = randomsource.nextGaussian() * 0.02D;
++
++                        ((ServerLevel) world).sendParticles(ParticleTypes.POOF, (double) blockposition1.getX() + 0.5D, (double) blockposition1.getY(), (double) blockposition1.getZ() + 0.5D, 1, d0, d1, d2, 0.15000000596046448D);
+                     }
+ 
+-                    this.playBreakSound(level, blockPos2);
++                    this.playBreakSound(world, blockposition1);
+                 }
+             }
+ 
+@@ -117,14 +133,21 @@
+ 
+     @Nullable
+     private BlockPos getPosWithBlock(BlockPos pos, BlockGetter world) {
+-        if (world.getBlockState(pos).is(this.blockToRemove)) {
++        net.minecraft.world.level.block.state.BlockState block = world.getBlockStateIfLoaded(pos); // Paper
++        if (block == null) return null; // Paper
++        if (block.is(this.blockToRemove)) { // Paper
+             return pos;
+         } else {
+-            BlockPos[] blockPoss = new BlockPos[]{pos.below(), pos.west(), pos.east(), pos.north(), pos.south(), pos.below().below()};
++            BlockPos[] ablockposition = new BlockPos[]{pos.below(), pos.west(), pos.east(), pos.north(), pos.south(), pos.below().below()};
++            BlockPos[] ablockposition1 = ablockposition;
++            int i = ablockposition.length;
+ 
+-            for(BlockPos blockPos : blockPoss) {
+-                if (world.getBlockState(blockPos).is(this.blockToRemove)) {
+-                    return blockPos;
++            for (int j = 0; j < i; ++j) {
++                BlockPos blockposition1 = ablockposition1[j];
++
++                net.minecraft.world.level.block.state.BlockState block2 = world.getBlockStateIfLoaded(blockposition1); // Paper
++                if (block2 != null && block2.is(this.blockToRemove)) { // Paper
++                    return blockposition1;
+                 }
+             }
+ 
+@@ -134,11 +157,8 @@
+ 
+     @Override
+     protected boolean isValidTarget(LevelReader world, BlockPos pos) {
+-        ChunkAccess chunkAccess = world.getChunk(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()), ChunkStatus.FULL, false);
+-        if (chunkAccess == null) {
+-            return false;
+-        } else {
+-            return chunkAccess.getBlockState(pos).is(this.blockToRemove) && chunkAccess.getBlockState(pos.above()).isAir() && chunkAccess.getBlockState(pos.above(2)).isAir();
+-        }
++        ChunkAccess ichunkaccess = world.getChunkIfLoadedImmediately(pos.getX() >> 4, pos.getZ() >> 4); // Paper
++
++        return ichunkaccess == null ? false : ichunkaccess.getBlockState(pos).is(this.blockToRemove) && ichunkaccess.getBlockState(pos.above()).isAir() && ichunkaccess.getBlockState(pos.above(2)).isAir();
+     }
+ }

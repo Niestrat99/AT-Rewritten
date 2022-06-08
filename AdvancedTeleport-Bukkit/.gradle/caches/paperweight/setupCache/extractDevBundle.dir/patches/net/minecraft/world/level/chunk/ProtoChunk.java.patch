@@ -1,0 +1,52 @@
+--- a/net/minecraft/world/level/chunk/ProtoChunk.java
++++ b/net/minecraft/world/level/chunk/ProtoChunk.java
+@@ -55,6 +55,12 @@
+ 
+     public ProtoChunk(ChunkPos pos, UpgradeData upgradeData, @Nullable LevelChunkSection[] sections, ProtoChunkTicks<Block> blockTickScheduler, ProtoChunkTicks<Fluid> fluidTickScheduler, LevelHeightAccessor world, Registry<Biome> biomeRegistry, @Nullable BlendingData blendingData) {
+         super(pos, upgradeData, world, biomeRegistry, 0L, sections, blendingData);
++        // Paper start - rewrite light engine
++        if (!(this instanceof ImposterProtoChunk)) {
++            this.setBlockNibbles(ca.spottedleaf.starlight.common.light.StarLightEngine.getFilledEmptyLight(world));
++            this.setSkyNibbles(ca.spottedleaf.starlight.common.light.StarLightEngine.getFilledEmptyLight(world));
++        }
++        // Paper end - rewrite light engine
+         this.blockTicks = blockTickScheduler;
+         this.fluidTicks = fluidTickScheduler;
+     }
+@@ -74,16 +80,32 @@
+         return new ChunkAccess.TicksToSave(this.blockTicks, this.fluidTicks);
+     }
+ 
++    // Paper start - If loaded util
++    @Override
++    public final FluidState getFluidIfLoaded(BlockPos blockposition) {
++        return this.getFluidState(blockposition);
++    }
++
++    @Override
++    public final BlockState getBlockStateIfLoaded(BlockPos blockposition) {
++        return this.getBlockState(blockposition);
++    }
++    // Paper end
++
+     @Override
+     public BlockState getBlockState(BlockPos pos) {
+-        int i = pos.getY();
+-        if (this.isOutsideBuildHeight(i)) {
++        // Paper start
++        return getBlockState(pos.getX(), pos.getY(), pos.getZ());
++    }
++    public BlockState getBlockState(final int x, final int y, final int z) {
++        if (this.isOutsideBuildHeight(y)) {
+             return Blocks.VOID_AIR.defaultBlockState();
+         } else {
+-            LevelChunkSection levelChunkSection = this.getSection(this.getSectionIndex(i));
+-            return levelChunkSection.hasOnlyAir() ? Blocks.AIR.defaultBlockState() : levelChunkSection.getBlockState(pos.getX() & 15, i & 15, pos.getZ() & 15);
++            LevelChunkSection levelChunkSection = this.getSections()[this.getSectionIndex(y)];
++            return levelChunkSection.hasOnlyAir() ? Blocks.AIR.defaultBlockState() : levelChunkSection.getBlockState(x & 15, y & 15, z & 15);
+         }
+     }
++    // Paper end
+ 
+     @Override
+     public FluidState getFluidState(BlockPos pos) {

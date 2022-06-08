@@ -1,0 +1,495 @@
+--- a/net/minecraft/server/commands/LootCommand.java
++++ b/net/minecraft/server/commands/LootCommand.java
+@@ -4,16 +4,18 @@
+ import com.mojang.brigadier.CommandDispatcher;
+ import com.mojang.brigadier.arguments.IntegerArgumentType;
+ import com.mojang.brigadier.builder.ArgumentBuilder;
++import com.mojang.brigadier.builder.LiteralArgumentBuilder;
++import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+ import com.mojang.brigadier.context.CommandContext;
+ import com.mojang.brigadier.exceptions.CommandSyntaxException;
+ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+ import com.mojang.brigadier.suggestion.SuggestionProvider;
+ import java.util.Collection;
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.Objects;
+ import net.minecraft.commands.CommandBuildContext;
+ import net.minecraft.commands.CommandSourceStack;
+-import net.minecraft.commands.Commands;
+ import net.minecraft.commands.SharedSuggestionProvider;
+ import net.minecraft.commands.arguments.EntityArgument;
+ import net.minecraft.commands.arguments.ResourceLocationArgument;
+@@ -45,129 +47,141 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class LootCommand {
+-    public static final SuggestionProvider<CommandSourceStack> SUGGEST_LOOT_TABLE = (context, builder) -> {
+-        LootTables lootTables = context.getSource().getServer().getLootTables();
+-        return SharedSuggestionProvider.suggestResource(lootTables.getIds(), builder);
++
++    public static final SuggestionProvider<CommandSourceStack> SUGGEST_LOOT_TABLE = (commandcontext, suggestionsbuilder) -> {
++        LootTables loottableregistry = ((CommandSourceStack) commandcontext.getSource()).getServer().getLootTables();
++
++        return SharedSuggestionProvider.suggestResource((Iterable) loottableregistry.getIds(), suggestionsbuilder);
+     };
+-    private static final DynamicCommandExceptionType ERROR_NO_HELD_ITEMS = new DynamicCommandExceptionType((entityName) -> {
+-        return Component.translatable("commands.drop.no_held_items", entityName);
++    private static final DynamicCommandExceptionType ERROR_NO_HELD_ITEMS = new DynamicCommandExceptionType((object) -> {
++        return Component.translatable("commands.drop.no_held_items", object);
+     });
+-    private static final DynamicCommandExceptionType ERROR_NO_LOOT_TABLE = new DynamicCommandExceptionType((entityName) -> {
+-        return Component.translatable("commands.drop.no_loot_table", entityName);
++    private static final DynamicCommandExceptionType ERROR_NO_LOOT_TABLE = new DynamicCommandExceptionType((object) -> {
++        return Component.translatable("commands.drop.no_loot_table", object);
+     });
+ 
++    public LootCommand() {}
++
+     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess) {
+-        dispatcher.register(addTargets(Commands.literal("loot").requires((source) -> {
+-            return source.hasPermission(2);
+-        }), (builder, constructor) -> {
+-            return builder.then(Commands.literal("fish").then(Commands.argument("loot_table", ResourceLocationArgument.id()).suggests(SUGGEST_LOOT_TABLE).then(Commands.argument("pos", BlockPosArgument.blockPos()).executes((context) -> {
+-                return dropFishingLoot(context, ResourceLocationArgument.getId(context, "loot_table"), BlockPosArgument.getLoadedBlockPos(context, "pos"), ItemStack.EMPTY, constructor);
+-            }).then(Commands.argument("tool", ItemArgument.item(commandRegistryAccess)).executes((context) -> {
+-                return dropFishingLoot(context, ResourceLocationArgument.getId(context, "loot_table"), BlockPosArgument.getLoadedBlockPos(context, "pos"), ItemArgument.getItem(context, "tool").createItemStack(1, false), constructor);
+-            })).then(Commands.literal("mainhand").executes((context) -> {
+-                return dropFishingLoot(context, ResourceLocationArgument.getId(context, "loot_table"), BlockPosArgument.getLoadedBlockPos(context, "pos"), getSourceHandItem(context.getSource(), EquipmentSlot.MAINHAND), constructor);
+-            })).then(Commands.literal("offhand").executes((context) -> {
+-                return dropFishingLoot(context, ResourceLocationArgument.getId(context, "loot_table"), BlockPosArgument.getLoadedBlockPos(context, "pos"), getSourceHandItem(context.getSource(), EquipmentSlot.OFFHAND), constructor);
+-            }))))).then(Commands.literal("loot").then(Commands.argument("loot_table", ResourceLocationArgument.id()).suggests(SUGGEST_LOOT_TABLE).executes((context) -> {
+-                return dropChestLoot(context, ResourceLocationArgument.getId(context, "loot_table"), constructor);
+-            }))).then(Commands.literal("kill").then(Commands.argument("target", EntityArgument.entity()).executes((context) -> {
+-                return dropKillLoot(context, EntityArgument.getEntity(context, "target"), constructor);
+-            }))).then(Commands.literal("mine").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes((context) -> {
+-                return dropBlockLoot(context, BlockPosArgument.getLoadedBlockPos(context, "pos"), ItemStack.EMPTY, constructor);
+-            }).then(Commands.argument("tool", ItemArgument.item(commandRegistryAccess)).executes((context) -> {
+-                return dropBlockLoot(context, BlockPosArgument.getLoadedBlockPos(context, "pos"), ItemArgument.getItem(context, "tool").createItemStack(1, false), constructor);
+-            })).then(Commands.literal("mainhand").executes((context) -> {
+-                return dropBlockLoot(context, BlockPosArgument.getLoadedBlockPos(context, "pos"), getSourceHandItem(context.getSource(), EquipmentSlot.MAINHAND), constructor);
+-            })).then(Commands.literal("offhand").executes((context) -> {
+-                return dropBlockLoot(context, BlockPosArgument.getLoadedBlockPos(context, "pos"), getSourceHandItem(context.getSource(), EquipmentSlot.OFFHAND), constructor);
++        dispatcher.register((LiteralArgumentBuilder) LootCommand.addTargets((LiteralArgumentBuilder) net.minecraft.commands.Commands.literal("loot").requires((commandlistenerwrapper) -> {
++            return commandlistenerwrapper.hasPermission(2);
++        }), (argumentbuilder, commandloot_b) -> {
++            return argumentbuilder.then(net.minecraft.commands.Commands.literal("fish").then(net.minecraft.commands.Commands.argument("loot_table", ResourceLocationArgument.id()).suggests(LootCommand.SUGGEST_LOOT_TABLE).then(((RequiredArgumentBuilder) ((RequiredArgumentBuilder) ((RequiredArgumentBuilder) net.minecraft.commands.Commands.argument("pos", BlockPosArgument.blockPos()).executes((commandcontext) -> {
++                return LootCommand.dropFishingLoot(commandcontext, ResourceLocationArgument.getId(commandcontext, "loot_table"), BlockPosArgument.getLoadedBlockPos(commandcontext, "pos"), ItemStack.EMPTY, commandloot_b);
++            })).then(net.minecraft.commands.Commands.argument("tool", ItemArgument.item(commandRegistryAccess)).executes((commandcontext) -> {
++                return LootCommand.dropFishingLoot(commandcontext, ResourceLocationArgument.getId(commandcontext, "loot_table"), BlockPosArgument.getLoadedBlockPos(commandcontext, "pos"), ItemArgument.getItem(commandcontext, "tool").createItemStack(1, false), commandloot_b);
++            }))).then(net.minecraft.commands.Commands.literal("mainhand").executes((commandcontext) -> {
++                return LootCommand.dropFishingLoot(commandcontext, ResourceLocationArgument.getId(commandcontext, "loot_table"), BlockPosArgument.getLoadedBlockPos(commandcontext, "pos"), LootCommand.getSourceHandItem((CommandSourceStack) commandcontext.getSource(), EquipmentSlot.MAINHAND), commandloot_b);
++            }))).then(net.minecraft.commands.Commands.literal("offhand").executes((commandcontext) -> {
++                return LootCommand.dropFishingLoot(commandcontext, ResourceLocationArgument.getId(commandcontext, "loot_table"), BlockPosArgument.getLoadedBlockPos(commandcontext, "pos"), LootCommand.getSourceHandItem((CommandSourceStack) commandcontext.getSource(), EquipmentSlot.OFFHAND), commandloot_b);
++            }))))).then(net.minecraft.commands.Commands.literal("loot").then(net.minecraft.commands.Commands.argument("loot_table", ResourceLocationArgument.id()).suggests(LootCommand.SUGGEST_LOOT_TABLE).executes((commandcontext) -> {
++                return LootCommand.dropChestLoot(commandcontext, ResourceLocationArgument.getId(commandcontext, "loot_table"), commandloot_b);
++            }))).then(net.minecraft.commands.Commands.literal("kill").then(net.minecraft.commands.Commands.argument("target", EntityArgument.entity()).executes((commandcontext) -> {
++                return LootCommand.dropKillLoot(commandcontext, EntityArgument.getEntity(commandcontext, "target"), commandloot_b);
++            }))).then(net.minecraft.commands.Commands.literal("mine").then(((RequiredArgumentBuilder) ((RequiredArgumentBuilder) ((RequiredArgumentBuilder) net.minecraft.commands.Commands.argument("pos", BlockPosArgument.blockPos()).executes((commandcontext) -> {
++                return LootCommand.dropBlockLoot(commandcontext, BlockPosArgument.getLoadedBlockPos(commandcontext, "pos"), ItemStack.EMPTY, commandloot_b);
++            })).then(net.minecraft.commands.Commands.argument("tool", ItemArgument.item(commandRegistryAccess)).executes((commandcontext) -> {
++                return LootCommand.dropBlockLoot(commandcontext, BlockPosArgument.getLoadedBlockPos(commandcontext, "pos"), ItemArgument.getItem(commandcontext, "tool").createItemStack(1, false), commandloot_b);
++            }))).then(net.minecraft.commands.Commands.literal("mainhand").executes((commandcontext) -> {
++                return LootCommand.dropBlockLoot(commandcontext, BlockPosArgument.getLoadedBlockPos(commandcontext, "pos"), LootCommand.getSourceHandItem((CommandSourceStack) commandcontext.getSource(), EquipmentSlot.MAINHAND), commandloot_b);
++            }))).then(net.minecraft.commands.Commands.literal("offhand").executes((commandcontext) -> {
++                return LootCommand.dropBlockLoot(commandcontext, BlockPosArgument.getLoadedBlockPos(commandcontext, "pos"), LootCommand.getSourceHandItem((CommandSourceStack) commandcontext.getSource(), EquipmentSlot.OFFHAND), commandloot_b);
+             }))));
+         }));
+     }
+ 
+     private static <T extends ArgumentBuilder<CommandSourceStack, T>> T addTargets(T rootArgument, LootCommand.TailProvider sourceConstructor) {
+-        return rootArgument.then(Commands.literal("replace").then(Commands.literal("entity").then(Commands.argument("entities", EntityArgument.entities()).then(sourceConstructor.construct(Commands.argument("slot", SlotArgument.slot()), (context, stacks, messageSender) -> {
+-            return entityReplace(EntityArgument.getEntities(context, "entities"), SlotArgument.getSlot(context, "slot"), stacks.size(), stacks, messageSender);
+-        }).then(sourceConstructor.construct(Commands.argument("count", IntegerArgumentType.integer(0)), (context, stacks, messageSender) -> {
+-            return entityReplace(EntityArgument.getEntities(context, "entities"), SlotArgument.getSlot(context, "slot"), IntegerArgumentType.getInteger(context, "count"), stacks, messageSender);
+-        }))))).then(Commands.literal("block").then(Commands.argument("targetPos", BlockPosArgument.blockPos()).then(sourceConstructor.construct(Commands.argument("slot", SlotArgument.slot()), (context, stacks, messageSender) -> {
+-            return blockReplace(context.getSource(), BlockPosArgument.getLoadedBlockPos(context, "targetPos"), SlotArgument.getSlot(context, "slot"), stacks.size(), stacks, messageSender);
+-        }).then(sourceConstructor.construct(Commands.argument("count", IntegerArgumentType.integer(0)), (context, stacks, messageSender) -> {
+-            return blockReplace(context.getSource(), BlockPosArgument.getLoadedBlockPos(context, "targetPos"), IntegerArgumentType.getInteger(context, "slot"), IntegerArgumentType.getInteger(context, "count"), stacks, messageSender);
+-        })))))).then(Commands.literal("insert").then(sourceConstructor.construct(Commands.argument("targetPos", BlockPosArgument.blockPos()), (context, stacks, messageSender) -> {
+-            return blockDistribute(context.getSource(), BlockPosArgument.getLoadedBlockPos(context, "targetPos"), stacks, messageSender);
+-        }))).then(Commands.literal("give").then(sourceConstructor.construct(Commands.argument("players", EntityArgument.players()), (context, stacks, messageSender) -> {
+-            return playerGive(EntityArgument.getPlayers(context, "players"), stacks, messageSender);
+-        }))).then(Commands.literal("spawn").then(sourceConstructor.construct(Commands.argument("targetPos", Vec3Argument.vec3()), (context, stacks, messageSender) -> {
+-            return dropInWorld(context.getSource(), Vec3Argument.getVec3(context, "targetPos"), stacks, messageSender);
++        return (T) rootArgument.then(((LiteralArgumentBuilder) net.minecraft.commands.Commands.literal("replace").then(net.minecraft.commands.Commands.literal("entity").then(net.minecraft.commands.Commands.argument("entities", EntityArgument.entities()).then(sourceConstructor.construct(net.minecraft.commands.Commands.argument("slot", SlotArgument.slot()), (commandcontext, list, commandloot_a) -> { // CraftBukkit - decompile error
++            return LootCommand.entityReplace(EntityArgument.getEntities(commandcontext, "entities"), SlotArgument.getSlot(commandcontext, "slot"), list.size(), list, commandloot_a);
++        }).then(sourceConstructor.construct(net.minecraft.commands.Commands.argument("count", IntegerArgumentType.integer(0)), (commandcontext, list, commandloot_a) -> {
++            return LootCommand.entityReplace(EntityArgument.getEntities(commandcontext, "entities"), SlotArgument.getSlot(commandcontext, "slot"), IntegerArgumentType.getInteger(commandcontext, "count"), list, commandloot_a);
++        })))))).then(net.minecraft.commands.Commands.literal("block").then(net.minecraft.commands.Commands.argument("targetPos", BlockPosArgument.blockPos()).then(sourceConstructor.construct(net.minecraft.commands.Commands.argument("slot", SlotArgument.slot()), (commandcontext, list, commandloot_a) -> {
++            return LootCommand.blockReplace((CommandSourceStack) commandcontext.getSource(), BlockPosArgument.getLoadedBlockPos(commandcontext, "targetPos"), SlotArgument.getSlot(commandcontext, "slot"), list.size(), list, commandloot_a);
++        }).then(sourceConstructor.construct(net.minecraft.commands.Commands.argument("count", IntegerArgumentType.integer(0)), (commandcontext, list, commandloot_a) -> {
++            return LootCommand.blockReplace((CommandSourceStack) commandcontext.getSource(), BlockPosArgument.getLoadedBlockPos(commandcontext, "targetPos"), IntegerArgumentType.getInteger(commandcontext, "slot"), IntegerArgumentType.getInteger(commandcontext, "count"), list, commandloot_a);
++        })))))).then(net.minecraft.commands.Commands.literal("insert").then(sourceConstructor.construct(net.minecraft.commands.Commands.argument("targetPos", BlockPosArgument.blockPos()), (commandcontext, list, commandloot_a) -> {
++            return LootCommand.blockDistribute((CommandSourceStack) commandcontext.getSource(), BlockPosArgument.getLoadedBlockPos(commandcontext, "targetPos"), list, commandloot_a);
++        }))).then(net.minecraft.commands.Commands.literal("give").then(sourceConstructor.construct(net.minecraft.commands.Commands.argument("players", EntityArgument.players()), (commandcontext, list, commandloot_a) -> {
++            return LootCommand.playerGive(EntityArgument.getPlayers(commandcontext, "players"), list, commandloot_a);
++        }))).then(net.minecraft.commands.Commands.literal("spawn").then(sourceConstructor.construct(net.minecraft.commands.Commands.argument("targetPos", Vec3Argument.vec3()), (commandcontext, list, commandloot_a) -> {
++            return LootCommand.dropInWorld((CommandSourceStack) commandcontext.getSource(), Vec3Argument.getVec3(commandcontext, "targetPos"), list, commandloot_a);
+         })));
+     }
+ 
+     private static Container getContainer(CommandSourceStack source, BlockPos pos) throws CommandSyntaxException {
+-        BlockEntity blockEntity = source.getLevel().getBlockEntity(pos);
+-        if (!(blockEntity instanceof Container)) {
++        BlockEntity tileentity = source.getLevel().getBlockEntity(pos);
++
++        if (!(tileentity instanceof Container)) {
+             throw ItemCommands.ERROR_TARGET_NOT_A_CONTAINER.create(pos.getX(), pos.getY(), pos.getZ());
+         } else {
+-            return (Container)blockEntity;
++            return (Container) tileentity;
+         }
+     }
+ 
+     private static int blockDistribute(CommandSourceStack source, BlockPos targetPos, List<ItemStack> stacks, LootCommand.Callback messageSender) throws CommandSyntaxException {
+-        Container container = getContainer(source, targetPos);
+-        List<ItemStack> list = Lists.newArrayListWithCapacity(stacks.size());
++        Container iinventory = LootCommand.getContainer(source, targetPos);
++        List<ItemStack> list1 = Lists.newArrayListWithCapacity(stacks.size());
++        Iterator iterator = stacks.iterator();
+ 
+-        for(ItemStack itemStack : stacks) {
+-            if (distributeToContainer(container, itemStack.copy())) {
+-                container.setChanged();
+-                list.add(itemStack);
++        while (iterator.hasNext()) {
++            ItemStack itemstack = (ItemStack) iterator.next();
++
++            if (LootCommand.distributeToContainer(iinventory, itemstack.copy())) {
++                iinventory.setChanged();
++                list1.add(itemstack);
+             }
+         }
+ 
+-        messageSender.accept(list);
+-        return list.size();
++        messageSender.accept(list1);
++        return list1.size();
+     }
+ 
+     private static boolean distributeToContainer(Container inventory, ItemStack stack) {
+-        boolean bl = false;
++        boolean flag = false;
++
++        for (int i = 0; i < inventory.getContainerSize() && !stack.isEmpty(); ++i) {
++            ItemStack itemstack1 = inventory.getItem(i);
+ 
+-        for(int i = 0; i < inventory.getContainerSize() && !stack.isEmpty(); ++i) {
+-            ItemStack itemStack = inventory.getItem(i);
+             if (inventory.canPlaceItem(i, stack)) {
+-                if (itemStack.isEmpty()) {
++                if (itemstack1.isEmpty()) {
+                     inventory.setItem(i, stack);
+-                    bl = true;
++                    flag = true;
+                     break;
+                 }
+ 
+-                if (canMergeItems(itemStack, stack)) {
+-                    int j = stack.getMaxStackSize() - itemStack.getCount();
++                if (LootCommand.canMergeItems(itemstack1, stack)) {
++                    int j = stack.getMaxStackSize() - itemstack1.getCount();
+                     int k = Math.min(stack.getCount(), j);
++
+                     stack.shrink(k);
+-                    itemStack.grow(k);
+-                    bl = true;
++                    itemstack1.grow(k);
++                    flag = true;
+                 }
+             }
+         }
+ 
+-        return bl;
++        return flag;
+     }
+ 
+     private static int blockReplace(CommandSourceStack source, BlockPos targetPos, int slot, int stackCount, List<ItemStack> stacks, LootCommand.Callback messageSender) throws CommandSyntaxException {
+-        Container container = getContainer(source, targetPos);
+-        int i = container.getContainerSize();
+-        if (slot >= 0 && slot < i) {
+-            List<ItemStack> list = Lists.newArrayListWithCapacity(stacks.size());
++        Container iinventory = LootCommand.getContainer(source, targetPos);
++        int k = iinventory.getContainerSize();
+ 
+-            for(int j = 0; j < stackCount; ++j) {
+-                int k = slot + j;
+-                ItemStack itemStack = j < stacks.size() ? stacks.get(j) : ItemStack.EMPTY;
+-                if (container.canPlaceItem(k, itemStack)) {
+-                    container.setItem(k, itemStack);
+-                    list.add(itemStack);
++        if (slot >= 0 && slot < k) {
++            List<ItemStack> list1 = Lists.newArrayListWithCapacity(stacks.size());
++
++            for (int l = 0; l < stackCount; ++l) {
++                int i1 = slot + l;
++                ItemStack itemstack = l < stacks.size() ? (ItemStack) stacks.get(l) : ItemStack.EMPTY;
++
++                if (iinventory.canPlaceItem(i1, itemstack)) {
++                    iinventory.setItem(i1, itemstack);
++                    list1.add(itemstack);
+                 }
+             }
+ 
+-            messageSender.accept(list);
+-            return list.size();
++            messageSender.accept(list1);
++            return list1.size();
+         } else {
+             throw ItemCommands.ERROR_TARGET_INAPPLICABLE_SLOT.create(slot);
+         }
+@@ -178,53 +192,68 @@
+     }
+ 
+     private static int playerGive(Collection<ServerPlayer> players, List<ItemStack> stacks, LootCommand.Callback messageSender) throws CommandSyntaxException {
+-        List<ItemStack> list = Lists.newArrayListWithCapacity(stacks.size());
++        List<ItemStack> list1 = Lists.newArrayListWithCapacity(stacks.size());
++        Iterator iterator = stacks.iterator();
+ 
+-        for(ItemStack itemStack : stacks) {
+-            for(ServerPlayer serverPlayer : players) {
+-                if (serverPlayer.getInventory().add(itemStack.copy())) {
+-                    list.add(itemStack);
++        while (iterator.hasNext()) {
++            ItemStack itemstack = (ItemStack) iterator.next();
++            Iterator iterator1 = players.iterator();
++
++            while (iterator1.hasNext()) {
++                ServerPlayer entityplayer = (ServerPlayer) iterator1.next();
++
++                if (entityplayer.getInventory().add(itemstack.copy())) {
++                    list1.add(itemstack);
+                 }
+             }
+         }
+ 
+-        messageSender.accept(list);
+-        return list.size();
++        messageSender.accept(list1);
++        return list1.size();
+     }
+ 
+     private static void setSlots(Entity entity, List<ItemStack> stacks, int slot, int stackCount, List<ItemStack> addedStacks) {
+-        for(int i = 0; i < stackCount; ++i) {
+-            ItemStack itemStack = i < stacks.size() ? stacks.get(i) : ItemStack.EMPTY;
+-            SlotAccess slotAccess = entity.getSlot(slot + i);
+-            if (slotAccess != SlotAccess.NULL && slotAccess.set(itemStack.copy())) {
+-                addedStacks.add(itemStack);
++        for (int k = 0; k < stackCount; ++k) {
++            ItemStack itemstack = k < stacks.size() ? (ItemStack) stacks.get(k) : ItemStack.EMPTY;
++            SlotAccess slotaccess = entity.getSlot(slot + k);
++
++            if (slotaccess != SlotAccess.NULL && slotaccess.set(itemstack.copy())) {
++                addedStacks.add(itemstack);
+             }
+         }
+ 
+     }
+ 
+     private static int entityReplace(Collection<? extends Entity> targets, int slot, int stackCount, List<ItemStack> stacks, LootCommand.Callback messageSender) throws CommandSyntaxException {
+-        List<ItemStack> list = Lists.newArrayListWithCapacity(stacks.size());
++        List<ItemStack> list1 = Lists.newArrayListWithCapacity(stacks.size());
++        Iterator iterator = targets.iterator();
+ 
+-        for(Entity entity : targets) {
+-            if (entity instanceof ServerPlayer serverPlayer) {
+-                setSlots(entity, stacks, slot, stackCount, list);
+-                serverPlayer.containerMenu.broadcastChanges();
++        while (iterator.hasNext()) {
++            Entity entity = (Entity) iterator.next();
++
++            if (entity instanceof ServerPlayer) {
++                ServerPlayer entityplayer = (ServerPlayer) entity;
++
++                LootCommand.setSlots(entity, stacks, slot, stackCount, list1);
++                entityplayer.containerMenu.broadcastChanges();
+             } else {
+-                setSlots(entity, stacks, slot, stackCount, list);
++                LootCommand.setSlots(entity, stacks, slot, stackCount, list1);
+             }
+         }
+ 
+-        messageSender.accept(list);
+-        return list.size();
++        messageSender.accept(list1);
++        return list1.size();
+     }
+ 
+     private static int dropInWorld(CommandSourceStack source, Vec3 pos, List<ItemStack> stacks, LootCommand.Callback messageSender) throws CommandSyntaxException {
+-        ServerLevel serverLevel = source.getLevel();
+-        stacks.forEach((stack) -> {
+-            ItemEntity itemEntity = new ItemEntity(serverLevel, pos.x, pos.y, pos.z, stack.copy());
+-            itemEntity.setDefaultPickUpDelay();
+-            serverLevel.addFreshEntity(itemEntity);
++        ServerLevel worldserver = source.getLevel();
++
++        stacks.removeIf(ItemStack::isEmpty); // CraftBukkit - SPIGOT-6959 Remove empty items for avoid throw an error in new EntityItem
++        stacks.forEach((itemstack) -> {
++            ItemEntity entityitem = new ItemEntity(worldserver, pos.x, pos.y, pos.z, itemstack.copy());
++
++            entityitem.setDefaultPickUpDelay();
++            worldserver.addFreshEntity(entityitem);
+         });
+         messageSender.accept(stacks);
+         return stacks.size();
+@@ -232,8 +261,9 @@
+ 
+     private static void callback(CommandSourceStack source, List<ItemStack> stacks) {
+         if (stacks.size() == 1) {
+-            ItemStack itemStack = stacks.get(0);
+-            source.sendSuccess(Component.translatable("commands.drop.success.single", itemStack.getCount(), itemStack.getDisplayName()), false);
++            ItemStack itemstack = (ItemStack) stacks.get(0);
++
++            source.sendSuccess(Component.translatable("commands.drop.success.single", itemstack.getCount(), itemstack.getDisplayName()), false);
+         } else {
+             source.sendSuccess(Component.translatable("commands.drop.success.multiple", stacks.size()), false);
+         }
+@@ -242,8 +272,9 @@
+ 
+     private static void callback(CommandSourceStack source, List<ItemStack> stacks, ResourceLocation lootTable) {
+         if (stacks.size() == 1) {
+-            ItemStack itemStack = stacks.get(0);
+-            source.sendSuccess(Component.translatable("commands.drop.success.single_with_table", itemStack.getCount(), itemStack.getDisplayName(), lootTable), false);
++            ItemStack itemstack = (ItemStack) stacks.get(0);
++
++            source.sendSuccess(Component.translatable("commands.drop.success.single_with_table", itemstack.getCount(), itemstack.getDisplayName(), lootTable), false);
+         } else {
+             source.sendSuccess(Component.translatable("commands.drop.success.multiple_with_table", stacks.size(), lootTable), false);
+         }
+@@ -252,83 +283,93 @@
+ 
+     private static ItemStack getSourceHandItem(CommandSourceStack source, EquipmentSlot slot) throws CommandSyntaxException {
+         Entity entity = source.getEntityOrException();
++
+         if (entity instanceof LivingEntity) {
+-            return ((LivingEntity)entity).getItemBySlot(slot);
++            return ((LivingEntity) entity).getItemBySlot(slot);
+         } else {
+-            throw ERROR_NO_HELD_ITEMS.create(entity.getDisplayName());
++            throw LootCommand.ERROR_NO_HELD_ITEMS.create(entity.getDisplayName());
+         }
+     }
+ 
+     private static int dropBlockLoot(CommandContext<CommandSourceStack> context, BlockPos pos, ItemStack stack, LootCommand.DropConsumer constructor) throws CommandSyntaxException {
+-        CommandSourceStack commandSourceStack = context.getSource();
+-        ServerLevel serverLevel = commandSourceStack.getLevel();
+-        BlockState blockState = serverLevel.getBlockState(pos);
+-        BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
+-        LootContext.Builder builder = (new LootContext.Builder(serverLevel)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.BLOCK_STATE, blockState).withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity).withOptionalParameter(LootContextParams.THIS_ENTITY, commandSourceStack.getEntity()).withParameter(LootContextParams.TOOL, stack);
+-        List<ItemStack> list = blockState.getDrops(builder);
+-        return constructor.accept(context, list, (stacks) -> {
+-            callback(commandSourceStack, stacks, blockState.getBlock().getLootTable());
++        CommandSourceStack commandlistenerwrapper = (CommandSourceStack) context.getSource();
++        ServerLevel worldserver = commandlistenerwrapper.getLevel();
++        BlockState iblockdata = worldserver.getBlockState(pos);
++        BlockEntity tileentity = worldserver.getBlockEntity(pos);
++        LootContext.Builder loottableinfo_builder = (new LootContext.Builder(worldserver)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.BLOCK_STATE, iblockdata).withOptionalParameter(LootContextParams.BLOCK_ENTITY, tileentity).withOptionalParameter(LootContextParams.THIS_ENTITY, commandlistenerwrapper.getEntity()).withParameter(LootContextParams.TOOL, stack);
++        List<ItemStack> list = iblockdata.getDrops(loottableinfo_builder);
++
++        return constructor.accept(context, list, (list1) -> {
++            LootCommand.callback(commandlistenerwrapper, list1, iblockdata.getBlock().getLootTable());
+         });
+     }
+ 
+     private static int dropKillLoot(CommandContext<CommandSourceStack> context, Entity entity, LootCommand.DropConsumer constructor) throws CommandSyntaxException {
+         if (!(entity instanceof LivingEntity)) {
+-            throw ERROR_NO_LOOT_TABLE.create(entity.getDisplayName());
++            throw LootCommand.ERROR_NO_LOOT_TABLE.create(entity.getDisplayName());
+         } else {
+-            ResourceLocation resourceLocation = ((LivingEntity)entity).getLootTable();
+-            CommandSourceStack commandSourceStack = context.getSource();
+-            LootContext.Builder builder = new LootContext.Builder(commandSourceStack.getLevel());
+-            Entity entity2 = commandSourceStack.getEntity();
+-            if (entity2 instanceof Player) {
+-                builder.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, (Player)entity2);
++            ResourceLocation minecraftkey = ((LivingEntity) entity).getLootTable();
++            CommandSourceStack commandlistenerwrapper = (CommandSourceStack) context.getSource();
++            LootContext.Builder loottableinfo_builder = new LootContext.Builder(commandlistenerwrapper.getLevel());
++            Entity entity1 = commandlistenerwrapper.getEntity();
++
++            if (entity1 instanceof Player) {
++                loottableinfo_builder.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, (Player) entity1);
+             }
+ 
+-            builder.withParameter(LootContextParams.DAMAGE_SOURCE, DamageSource.MAGIC);
+-            builder.withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, entity2);
+-            builder.withOptionalParameter(LootContextParams.KILLER_ENTITY, entity2);
+-            builder.withParameter(LootContextParams.THIS_ENTITY, entity);
+-            builder.withParameter(LootContextParams.ORIGIN, commandSourceStack.getPosition());
+-            LootTable lootTable = commandSourceStack.getServer().getLootTables().get(resourceLocation);
+-            List<ItemStack> list = lootTable.getRandomItems(builder.create(LootContextParamSets.ENTITY));
+-            return constructor.accept(context, list, (stacks) -> {
+-                callback(commandSourceStack, stacks, resourceLocation);
++            loottableinfo_builder.withParameter(LootContextParams.DAMAGE_SOURCE, DamageSource.MAGIC);
++            loottableinfo_builder.withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, entity1);
++            loottableinfo_builder.withOptionalParameter(LootContextParams.KILLER_ENTITY, entity1);
++            loottableinfo_builder.withParameter(LootContextParams.THIS_ENTITY, entity);
++            loottableinfo_builder.withParameter(LootContextParams.ORIGIN, commandlistenerwrapper.getPosition());
++            LootTable loottable = commandlistenerwrapper.getServer().getLootTables().get(minecraftkey);
++            List<ItemStack> list = loottable.getRandomItems(loottableinfo_builder.create(LootContextParamSets.ENTITY));
++
++            return constructor.accept(context, list, (list1) -> {
++                LootCommand.callback(commandlistenerwrapper, list1, minecraftkey);
+             });
+         }
+     }
+ 
+     private static int dropChestLoot(CommandContext<CommandSourceStack> context, ResourceLocation lootTable, LootCommand.DropConsumer constructor) throws CommandSyntaxException {
+-        CommandSourceStack commandSourceStack = context.getSource();
+-        LootContext.Builder builder = (new LootContext.Builder(commandSourceStack.getLevel())).withOptionalParameter(LootContextParams.THIS_ENTITY, commandSourceStack.getEntity()).withParameter(LootContextParams.ORIGIN, commandSourceStack.getPosition());
+-        return drop(context, lootTable, builder.create(LootContextParamSets.CHEST), constructor);
++        CommandSourceStack commandlistenerwrapper = (CommandSourceStack) context.getSource();
++        LootContext.Builder loottableinfo_builder = (new LootContext.Builder(commandlistenerwrapper.getLevel())).withOptionalParameter(LootContextParams.THIS_ENTITY, commandlistenerwrapper.getEntity()).withParameter(LootContextParams.ORIGIN, commandlistenerwrapper.getPosition());
++
++        return LootCommand.drop(context, lootTable, loottableinfo_builder.create(LootContextParamSets.CHEST), constructor);
+     }
+ 
+     private static int dropFishingLoot(CommandContext<CommandSourceStack> context, ResourceLocation lootTable, BlockPos pos, ItemStack stack, LootCommand.DropConsumer constructor) throws CommandSyntaxException {
+-        CommandSourceStack commandSourceStack = context.getSource();
+-        LootContext lootContext = (new LootContext.Builder(commandSourceStack.getLevel())).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, stack).withOptionalParameter(LootContextParams.THIS_ENTITY, commandSourceStack.getEntity()).create(LootContextParamSets.FISHING);
+-        return drop(context, lootTable, lootContext, constructor);
++        CommandSourceStack commandlistenerwrapper = (CommandSourceStack) context.getSource();
++        LootContext loottableinfo = (new LootContext.Builder(commandlistenerwrapper.getLevel())).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, stack).withOptionalParameter(LootContextParams.THIS_ENTITY, commandlistenerwrapper.getEntity()).create(LootContextParamSets.FISHING);
++
++        return LootCommand.drop(context, lootTable, loottableinfo, constructor);
+     }
+ 
+     private static int drop(CommandContext<CommandSourceStack> context, ResourceLocation lootTable, LootContext lootContext, LootCommand.DropConsumer constructor) throws CommandSyntaxException {
+-        CommandSourceStack commandSourceStack = context.getSource();
+-        LootTable lootTable2 = commandSourceStack.getServer().getLootTables().get(lootTable);
+-        List<ItemStack> list = lootTable2.getRandomItems(lootContext);
+-        return constructor.accept(context, list, (stacks) -> {
+-            callback(commandSourceStack, stacks);
++        CommandSourceStack commandlistenerwrapper = (CommandSourceStack) context.getSource();
++        LootTable loottable = commandlistenerwrapper.getServer().getLootTables().get(lootTable);
++        List<ItemStack> list = loottable.getRandomItems(lootContext);
++
++        return constructor.accept(context, list, (list1) -> {
++            LootCommand.callback(commandlistenerwrapper, list1);
+         });
+     }
+ 
+     @FunctionalInterface
+-    interface Callback {
+-        void accept(List<ItemStack> items) throws CommandSyntaxException;
++    private interface TailProvider {
++
++        ArgumentBuilder<CommandSourceStack, ?> construct(ArgumentBuilder<CommandSourceStack, ?> builder, LootCommand.DropConsumer target);
+     }
+ 
+     @FunctionalInterface
+-    interface DropConsumer {
++    private interface DropConsumer {
++
+         int accept(CommandContext<CommandSourceStack> context, List<ItemStack> items, LootCommand.Callback messageSender) throws CommandSyntaxException;
+     }
+ 
+     @FunctionalInterface
+-    interface TailProvider {
+-        ArgumentBuilder<CommandSourceStack, ?> construct(ArgumentBuilder<CommandSourceStack, ?> builder, LootCommand.DropConsumer target);
++    private interface Callback {
++
++        void accept(List<ItemStack> items) throws CommandSyntaxException;
+     }
+ }

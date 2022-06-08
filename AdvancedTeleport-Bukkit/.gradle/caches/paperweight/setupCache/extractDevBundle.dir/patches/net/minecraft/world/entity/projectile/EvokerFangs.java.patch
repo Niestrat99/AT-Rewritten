@@ -1,0 +1,140 @@
+--- a/net/minecraft/world/entity/projectile/EvokerFangs.java
++++ b/net/minecraft/world/entity/projectile/EvokerFangs.java
+@@ -1,5 +1,7 @@
+ package net.minecraft.world.entity.projectile;
+ 
++import java.util.Iterator;
++import java.util.List;
+ import java.util.UUID;
+ import javax.annotation.Nullable;
+ import net.minecraft.core.particles.ParticleTypes;
+@@ -15,12 +17,13 @@
+ import net.minecraft.world.level.Level;
+ 
+ public class EvokerFangs extends Entity {
++
+     public static final int ATTACK_DURATION = 20;
+     public static final int LIFE_OFFSET = 2;
+     public static final int ATTACK_TRIGGER_TICKS = 14;
+     private int warmupDelayTicks;
+     private boolean sentSpikeEvent;
+-    private int lifeTicks = 22;
++    private int lifeTicks;
+     private boolean clientSideAttackStarted;
+     @Nullable
+     private LivingEntity owner;
+@@ -29,19 +32,19 @@
+ 
+     public EvokerFangs(EntityType<? extends EvokerFangs> type, Level world) {
+         super(type, world);
++        this.lifeTicks = 22;
+     }
+ 
+     public EvokerFangs(Level world, double x, double y, double z, float yaw, int warmup, LivingEntity owner) {
+         this(EntityType.EVOKER_FANGS, world);
+         this.warmupDelayTicks = warmup;
+         this.setOwner(owner);
+-        this.setYRot(yaw * (180F / (float)Math.PI));
++        this.setYRot(yaw * 57.295776F);
+         this.setPos(x, y, z);
+     }
+ 
+     @Override
+-    protected void defineSynchedData() {
+-    }
++    protected void defineSynchedData() {}
+ 
+     public void setOwner(@Nullable LivingEntity owner) {
+         this.owner = owner;
+@@ -51,9 +54,10 @@
+     @Nullable
+     public LivingEntity getOwner() {
+         if (this.owner == null && this.ownerUUID != null && this.level instanceof ServerLevel) {
+-            Entity entity = ((ServerLevel)this.level).getEntity(this.ownerUUID);
++            Entity entity = ((ServerLevel) this.level).getEntity(this.ownerUUID);
++
+             if (entity instanceof LivingEntity) {
+-                this.owner = (LivingEntity)entity;
++                this.owner = (LivingEntity) entity;
+             }
+         }
+ 
+@@ -85,26 +89,32 @@
+             if (this.clientSideAttackStarted) {
+                 --this.lifeTicks;
+                 if (this.lifeTicks == 14) {
+-                    for(int i = 0; i < 12; ++i) {
+-                        double d = this.getX() + (this.random.nextDouble() * 2.0D - 1.0D) * (double)this.getBbWidth() * 0.5D;
+-                        double e = this.getY() + 0.05D + this.random.nextDouble();
+-                        double f = this.getZ() + (this.random.nextDouble() * 2.0D - 1.0D) * (double)this.getBbWidth() * 0.5D;
+-                        double g = (this.random.nextDouble() * 2.0D - 1.0D) * 0.3D;
+-                        double h = 0.3D + this.random.nextDouble() * 0.3D;
+-                        double j = (this.random.nextDouble() * 2.0D - 1.0D) * 0.3D;
+-                        this.level.addParticle(ParticleTypes.CRIT, d, e + 1.0D, f, g, h, j);
++                    for (int i = 0; i < 12; ++i) {
++                        double d0 = this.getX() + (this.random.nextDouble() * 2.0D - 1.0D) * (double) this.getBbWidth() * 0.5D;
++                        double d1 = this.getY() + 0.05D + this.random.nextDouble();
++                        double d2 = this.getZ() + (this.random.nextDouble() * 2.0D - 1.0D) * (double) this.getBbWidth() * 0.5D;
++                        double d3 = (this.random.nextDouble() * 2.0D - 1.0D) * 0.3D;
++                        double d4 = 0.3D + this.random.nextDouble() * 0.3D;
++                        double d5 = (this.random.nextDouble() * 2.0D - 1.0D) * 0.3D;
++
++                        this.level.addParticle(ParticleTypes.CRIT, d0, d1 + 1.0D, d2, d3, d4, d5);
+                     }
+                 }
+             }
+         } else if (--this.warmupDelayTicks < 0) {
+             if (this.warmupDelayTicks == -8) {
+-                for(LivingEntity livingEntity : this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.2D, 0.0D, 0.2D))) {
+-                    this.dealDamageTo(livingEntity);
++                List<LivingEntity> list = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.2D, 0.0D, 0.2D));
++                Iterator iterator = list.iterator();
++
++                while (iterator.hasNext()) {
++                    LivingEntity entityliving = (LivingEntity) iterator.next();
++
++                    this.dealDamageTo(entityliving);
+                 }
+             }
+ 
+             if (!this.sentSpikeEvent) {
+-                this.level.broadcastEntityEvent(this, (byte)4);
++                this.level.broadcastEntityEvent(this, (byte) 4);
+                 this.sentSpikeEvent = true;
+             }
+ 
+@@ -116,16 +126,19 @@
+     }
+ 
+     private void dealDamageTo(LivingEntity target) {
+-        LivingEntity livingEntity = this.getOwner();
+-        if (target.isAlive() && !target.isInvulnerable() && target != livingEntity) {
+-            if (livingEntity == null) {
++        LivingEntity entityliving1 = this.getOwner();
++
++        if (target.isAlive() && !target.isInvulnerable() && target != entityliving1) {
++            if (entityliving1 == null) {
++                org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.entityDamage = this; // CraftBukkit
+                 target.hurt(DamageSource.MAGIC, 6.0F);
++                org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.entityDamage = null; // CraftBukkit
+             } else {
+-                if (livingEntity.isAlliedTo(target)) {
++                if (entityliving1.isAlliedTo((Entity) target)) {
+                     return;
+                 }
+ 
+-                target.hurt(DamageSource.indirectMagic(this, livingEntity), 6.0F);
++                target.hurt(DamageSource.indirectMagic(this, entityliving1), 6.0F);
+             }
+ 
+         }
+@@ -148,7 +161,8 @@
+             return 0.0F;
+         } else {
+             int i = this.lifeTicks - 2;
+-            return i <= 0 ? 1.0F : 1.0F - ((float)i - tickDelta) / 20.0F;
++
++            return i <= 0 ? 1.0F : 1.0F - ((float) i - tickDelta) / 20.0F;
+         }
+     }
+ 

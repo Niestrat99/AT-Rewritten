@@ -1,0 +1,69 @@
+--- a/net/minecraft/world/entity/projectile/Fireball.java
++++ b/net/minecraft/world/entity/projectile/Fireball.java
+@@ -12,6 +12,7 @@
+ import net.minecraft.world.level.Level;
+ 
+ public abstract class Fireball extends AbstractHurtingProjectile implements ItemSupplier {
++
+     private static final EntityDataAccessor<ItemStack> DATA_ITEM_STACK = SynchedEntityData.defineId(Fireball.class, EntityDataSerializers.ITEM_STACK);
+ 
+     public Fireball(EntityType<? extends Fireball> type, Level world) {
+@@ -27,35 +28,37 @@
+     }
+ 
+     public void setItem(ItemStack stack) {
+-        if (!stack.is(Items.FIRE_CHARGE) || stack.hasTag()) {
+-            this.getEntityData().set(DATA_ITEM_STACK, Util.make(stack.copy(), (stackx) -> {
+-                stackx.setCount(1);
++        if (true || !stack.is(Items.FIRE_CHARGE) || stack.hasTag()) { // Paper - always allow item changing
++            this.getEntityData().set(Fireball.DATA_ITEM_STACK, (ItemStack) Util.make(stack.copy(), (itemstack1) -> {
++                itemstack1.setCount(1);
+             }));
+         }
+ 
+     }
+ 
+     public ItemStack getItemRaw() {
+-        return this.getEntityData().get(DATA_ITEM_STACK);
++        return (ItemStack) this.getEntityData().get(Fireball.DATA_ITEM_STACK);
+     }
+ 
+     @Override
+     public ItemStack getItem() {
+-        ItemStack itemStack = this.getItemRaw();
+-        return itemStack.isEmpty() ? new ItemStack(Items.FIRE_CHARGE) : itemStack;
++        ItemStack itemstack = this.getItemRaw();
++
++        return itemstack.isEmpty() ? new ItemStack(Items.FIRE_CHARGE) : itemstack;
+     }
+ 
+     @Override
+     protected void defineSynchedData() {
+-        this.getEntityData().define(DATA_ITEM_STACK, ItemStack.EMPTY);
++        this.getEntityData().define(Fireball.DATA_ITEM_STACK, ItemStack.EMPTY);
+     }
+ 
+     @Override
+     public void addAdditionalSaveData(CompoundTag nbt) {
+         super.addAdditionalSaveData(nbt);
+-        ItemStack itemStack = this.getItemRaw();
+-        if (!itemStack.isEmpty()) {
+-            nbt.put("Item", itemStack.save(new CompoundTag()));
++        ItemStack itemstack = this.getItemRaw();
++
++        if (!itemstack.isEmpty()) {
++            nbt.put("Item", itemstack.save(new CompoundTag()));
+         }
+ 
+     }
+@@ -63,7 +66,8 @@
+     @Override
+     public void readAdditionalSaveData(CompoundTag nbt) {
+         super.readAdditionalSaveData(nbt);
+-        ItemStack itemStack = ItemStack.of(nbt.getCompound("Item"));
+-        this.setItem(itemStack);
++        ItemStack itemstack = ItemStack.of(nbt.getCompound("Item"));
++
++        if (!itemstack.isEmpty()) this.setItem(itemstack); // CraftBukkit - SPIGOT-5474 probably came from bugged earlier versions
+     }
+ }

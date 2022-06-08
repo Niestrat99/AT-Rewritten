@@ -1,0 +1,303 @@
+--- a/net/minecraft/stats/ServerStatsCounter.java
++++ b/net/minecraft/stats/ServerStatsCounter.java
+@@ -1,3 +1,4 @@
++// mc-dev import
+ package net.minecraft.stats;
+ 
+ import com.google.common.collect.Maps;
+@@ -12,11 +13,14 @@
+ import com.mojang.logging.LogUtils;
+ import it.unimi.dsi.fastutil.objects.Object2IntMap;
+ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
++import it.unimi.dsi.fastutil.objects.ObjectIterator;
+ import java.io.File;
+ import java.io.IOException;
+ import java.io.StringReader;
+ import java.util.Iterator;
+ import java.util.Map;
++import java.util.Map.Entry;
++import java.util.Objects;
+ import java.util.Optional;
+ import java.util.Set;
+ import net.minecraft.SharedConstants;
+@@ -34,6 +38,7 @@
+ import org.slf4j.Logger;
+ 
+ public class ServerStatsCounter extends StatsCounter {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+     private final MinecraftServer server;
+     private final File file;
+@@ -42,154 +47,187 @@
+     public ServerStatsCounter(MinecraftServer server, File file) {
+         this.server = server;
+         this.file = file;
++        // Spigot start
++        for ( Map.Entry<ResourceLocation, Integer> entry : org.spigotmc.SpigotConfig.forcedStats.entrySet() )
++        {
++            Stat<ResourceLocation> wrapper = Stats.CUSTOM.get( entry.getKey() );
++            this.stats.put( wrapper, entry.getValue().intValue() );
++        }
++        // Spigot end
+         if (file.isFile()) {
+             try {
+                 this.parseLocal(server.getFixerUpper(), FileUtils.readFileToString(file));
+-            } catch (IOException var4) {
+-                LOGGER.error("Couldn't read statistics file {}", file, var4);
+-            } catch (JsonParseException var5) {
+-                LOGGER.error("Couldn't parse statistics file {}", file, var5);
++            } catch (IOException ioexception) {
++                ServerStatsCounter.LOGGER.error("Couldn't read statistics file {}", file, ioexception);
++            } catch (JsonParseException jsonparseexception) {
++                ServerStatsCounter.LOGGER.error("Couldn't parse statistics file {}", file, jsonparseexception);
+             }
+         }
+ 
+     }
+ 
+     public void save() {
++        if ( org.spigotmc.SpigotConfig.disableStatSaving ) return; // Spigot
+         try {
+             FileUtils.writeStringToFile(this.file, this.toJson());
+-        } catch (IOException var2) {
+-            LOGGER.error("Couldn't save stats", (Throwable)var2);
++        } catch (IOException ioexception) {
++            ServerStatsCounter.LOGGER.error("Couldn't save stats", ioexception);
+         }
+ 
+     }
+ 
+     @Override
+     public void setValue(Player player, Stat<?> stat, int value) {
++        if ( org.spigotmc.SpigotConfig.disableStatSaving ) return; // Spigot
+         super.setValue(player, stat, value);
+         this.dirty.add(stat);
+     }
+ 
+     private Set<Stat<?>> getDirty() {
+         Set<Stat<?>> set = Sets.newHashSet(this.dirty);
++
+         this.dirty.clear();
+         return set;
+     }
+ 
+     public void parseLocal(DataFixer dataFixer, String json) {
+         try {
+-            JsonReader jsonReader = new JsonReader(new StringReader(json));
++            JsonReader jsonreader = new JsonReader(new StringReader(json));
+ 
+-            label51: {
++            label52:
++            {
+                 try {
+-                    jsonReader.setLenient(false);
+-                    JsonElement jsonElement = Streams.parse(jsonReader);
+-                    if (!jsonElement.isJsonNull()) {
+-                        CompoundTag compoundTag = fromJson(jsonElement.getAsJsonObject());
+-                        if (!compoundTag.contains("DataVersion", 99)) {
+-                            compoundTag.putInt("DataVersion", 1343);
++                    jsonreader.setLenient(false);
++                    JsonElement jsonelement = Streams.parse(jsonreader);
++
++                    if (!jsonelement.isJsonNull()) {
++                        CompoundTag nbttagcompound = ServerStatsCounter.fromJson(jsonelement.getAsJsonObject());
++
++                        if (!nbttagcompound.contains("DataVersion", 99)) {
++                            nbttagcompound.putInt("DataVersion", 1343);
+                         }
+ 
+-                        compoundTag = NbtUtils.update(dataFixer, DataFixTypes.STATS, compoundTag, compoundTag.getInt("DataVersion"));
+-                        if (!compoundTag.contains("stats", 10)) {
+-                            break label51;
++                        nbttagcompound = NbtUtils.update(dataFixer, DataFixTypes.STATS, nbttagcompound, nbttagcompound.getInt("DataVersion"));
++                        if (!nbttagcompound.contains("stats", 10)) {
++                            break label52;
+                         }
+ 
+-                        CompoundTag compoundTag2 = compoundTag.getCompound("stats");
+-                        Iterator var7 = compoundTag2.getAllKeys().iterator();
++                        CompoundTag nbttagcompound1 = nbttagcompound.getCompound("stats");
++                        Iterator iterator = nbttagcompound1.getAllKeys().iterator();
+ 
+-                        while(true) {
+-                            if (!var7.hasNext()) {
+-                                break label51;
++                        while (true) {
++                            if (!iterator.hasNext()) {
++                                break label52;
+                             }
+ 
+-                            String string = (String)var7.next();
+-                            if (compoundTag2.contains(string, 10)) {
+-                                Util.ifElse(Registry.STAT_TYPE.getOptional(new ResourceLocation(string)), (statType) -> {
+-                                    CompoundTag compoundTag2 = compoundTag2.getCompound(string);
++                            String s1 = (String) iterator.next();
+ 
+-                                    for(String string2 : compoundTag2.getAllKeys()) {
+-                                        if (compoundTag2.contains(string2, 99)) {
+-                                            Util.ifElse(this.getStat(statType, string2), (stat) -> {
+-                                                this.stats.put(stat, compoundTag2.getInt(string2));
++                            if (nbttagcompound1.contains(s1, 10)) {
++                                Util.ifElse(Registry.STAT_TYPE.getOptional(new ResourceLocation(s1)), (statisticwrapper) -> {
++                                    CompoundTag nbttagcompound2 = nbttagcompound1.getCompound(s1);
++                                    Iterator iterator1 = nbttagcompound2.getAllKeys().iterator();
++
++                                    while (iterator1.hasNext()) {
++                                        String s2 = (String) iterator1.next();
++
++                                        if (nbttagcompound2.contains(s2, 99)) {
++                                            Util.ifElse(this.getStat(statisticwrapper, s2), (statistic) -> {
++                                                this.stats.put(statistic, nbttagcompound2.getInt(s2));
+                                             }, () -> {
+-                                                LOGGER.warn("Invalid statistic in {}: Don't know what {} is", this.file, string2);
++                                                ServerStatsCounter.LOGGER.warn("Invalid statistic in {}: Don't know what {} is", this.file, s2);
+                                             });
+                                         } else {
+-                                            LOGGER.warn("Invalid statistic value in {}: Don't know what {} is for key {}", this.file, compoundTag2.get(string2), string2);
++                                            ServerStatsCounter.LOGGER.warn("Invalid statistic value in {}: Don't know what {} is for key {}", new Object[]{this.file, nbttagcompound2.get(s2), s2});
+                                         }
+                                     }
+ 
+                                 }, () -> {
+-                                    LOGGER.warn("Invalid statistic type in {}: Don't know what {} is", this.file, string);
++                                    ServerStatsCounter.LOGGER.warn("Invalid statistic type in {}: Don't know what {} is", this.file, s1);
+                                 });
+                             }
+                         }
+                     }
+ 
+-                    LOGGER.error("Unable to parse Stat data from {}", (Object)this.file);
+-                } catch (Throwable var10) {
++                    ServerStatsCounter.LOGGER.error("Unable to parse Stat data from {}", this.file);
++                } catch (Throwable throwable) {
+                     try {
+-                        jsonReader.close();
+-                    } catch (Throwable var9) {
+-                        var10.addSuppressed(var9);
++                        jsonreader.close();
++                    } catch (Throwable throwable1) {
++                        throwable.addSuppressed(throwable1);
+                     }
+ 
+-                    throw var10;
++                    throw throwable;
+                 }
+ 
+-                jsonReader.close();
++                jsonreader.close();
+                 return;
+             }
+ 
+-            jsonReader.close();
+-        } catch (IOException | JsonParseException var11) {
+-            LOGGER.error("Unable to parse Stat data from {}", this.file, var11);
++            jsonreader.close();
++        } catch (IOException | JsonParseException jsonparseexception) {
++            ServerStatsCounter.LOGGER.error("Unable to parse Stat data from {}", this.file, jsonparseexception);
+         }
+ 
+     }
+ 
+     private <T> Optional<Stat<T>> getStat(StatType<T> type, String id) {
+-        return Optional.ofNullable(ResourceLocation.tryParse(id)).flatMap(type.getRegistry()::getOptional).map(type::get);
++        // CraftBukkit - decompile error start
++        Optional<ResourceLocation> optional = Optional.ofNullable(ResourceLocation.tryParse(id));
++        Registry<T> iregistry = type.getRegistry();
++
++        return optional.flatMap(iregistry::getOptional).map(type::get);
++        // CraftBukkit - decompile error end
+     }
+ 
+     private static CompoundTag fromJson(JsonObject json) {
+-        CompoundTag compoundTag = new CompoundTag();
++        CompoundTag nbttagcompound = new CompoundTag();
++        Iterator iterator = json.entrySet().iterator();
+ 
+-        for(Map.Entry<String, JsonElement> entry : json.entrySet()) {
+-            JsonElement jsonElement = entry.getValue();
+-            if (jsonElement.isJsonObject()) {
+-                compoundTag.put(entry.getKey(), fromJson(jsonElement.getAsJsonObject()));
+-            } else if (jsonElement.isJsonPrimitive()) {
+-                JsonPrimitive jsonPrimitive = jsonElement.getAsJsonPrimitive();
+-                if (jsonPrimitive.isNumber()) {
+-                    compoundTag.putInt(entry.getKey(), jsonPrimitive.getAsInt());
++        while (iterator.hasNext()) {
++            Entry<String, JsonElement> entry = (Entry) iterator.next();
++            JsonElement jsonelement = (JsonElement) entry.getValue();
++
++            if (jsonelement.isJsonObject()) {
++                nbttagcompound.put((String) entry.getKey(), ServerStatsCounter.fromJson(jsonelement.getAsJsonObject()));
++            } else if (jsonelement.isJsonPrimitive()) {
++                JsonPrimitive jsonprimitive = jsonelement.getAsJsonPrimitive();
++
++                if (jsonprimitive.isNumber()) {
++                    nbttagcompound.putInt((String) entry.getKey(), jsonprimitive.getAsInt());
+                 }
+             }
+         }
+ 
+-        return compoundTag;
++        return nbttagcompound;
+     }
+ 
+     protected String toJson() {
+         Map<StatType<?>, JsonObject> map = Maps.newHashMap();
++        ObjectIterator objectiterator = this.stats.object2IntEntrySet().iterator();
+ 
+-        for(Object2IntMap.Entry<Stat<?>> entry : this.stats.object2IntEntrySet()) {
+-            Stat<?> stat = entry.getKey();
+-            map.computeIfAbsent(stat.getType(), (statType) -> {
++        while (objectiterator.hasNext()) {
++            it.unimi.dsi.fastutil.objects.Object2IntMap.Entry<Stat<?>> it_unimi_dsi_fastutil_objects_object2intmap_entry = (it.unimi.dsi.fastutil.objects.Object2IntMap.Entry) objectiterator.next();
++            Stat<?> statistic = (Stat) it_unimi_dsi_fastutil_objects_object2intmap_entry.getKey();
++
++            ((JsonObject) map.computeIfAbsent(statistic.getType(), (statisticwrapper) -> {
+                 return new JsonObject();
+-            }).addProperty(getKey(stat).toString(), entry.getIntValue());
++            })).addProperty(ServerStatsCounter.getKey(statistic).toString(), it_unimi_dsi_fastutil_objects_object2intmap_entry.getIntValue());
+         }
+ 
+-        JsonObject jsonObject = new JsonObject();
++        JsonObject jsonobject = new JsonObject();
++        Iterator iterator = map.entrySet().iterator();
+ 
+-        for(Map.Entry<StatType<?>, JsonObject> entry2 : map.entrySet()) {
+-            jsonObject.add(Registry.STAT_TYPE.getKey(entry2.getKey()).toString(), entry2.getValue());
++        while (iterator.hasNext()) {
++            Entry<StatType<?>, JsonObject> entry = (Entry) iterator.next();
++
++            jsonobject.add(Registry.STAT_TYPE.getKey((StatType) entry.getKey()).toString(), (JsonElement) entry.getValue());
+         }
+ 
+-        JsonObject jsonObject2 = new JsonObject();
+-        jsonObject2.add("stats", jsonObject);
+-        jsonObject2.addProperty("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+-        return jsonObject2.toString();
++        JsonObject jsonobject1 = new JsonObject();
++
++        jsonobject1.add("stats", jsonobject);
++        jsonobject1.addProperty("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
++        return jsonobject1.toString();
+     }
+ 
+     private static <T> ResourceLocation getKey(Stat<T> stat) {
+@@ -201,12 +239,15 @@
+     }
+ 
+     public void sendStats(ServerPlayer player) {
+-        Object2IntMap<Stat<?>> object2IntMap = new Object2IntOpenHashMap<>();
++        Object2IntMap<Stat<?>> object2intmap = new Object2IntOpenHashMap();
++        Iterator iterator = this.getDirty().iterator();
+ 
+-        for(Stat<?> stat : this.getDirty()) {
+-            object2IntMap.put(stat, this.getValue(stat));
++        while (iterator.hasNext()) {
++            Stat<?> statistic = (Stat) iterator.next();
++
++            object2intmap.put(statistic, this.getValue(statistic));
+         }
+ 
+-        player.connection.send(new ClientboundAwardStatsPacket(object2IntMap));
++        player.connection.send(new ClientboundAwardStatsPacket(object2intmap));
+     }
+ }

@@ -1,0 +1,135 @@
+--- a/net/minecraft/world/level/block/DoublePlantBlock.java
++++ b/net/minecraft/world/level/block/DoublePlantBlock.java
+@@ -20,64 +20,66 @@
+ import net.minecraft.world.level.block.state.properties.EnumProperty;
+ 
+ public class DoublePlantBlock extends BushBlock {
++
+     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
+ 
+     public DoublePlantBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, DoubleBlockHalf.LOWER));
++        this.registerDefaultState((BlockState) ((BlockState) this.stateDefinition.any()).setValue(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
+     }
+ 
+     @Override
+     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+-        DoubleBlockHalf doubleBlockHalf = state.getValue(HALF);
+-        if (direction.getAxis() != Direction.Axis.Y || doubleBlockHalf == DoubleBlockHalf.LOWER != (direction == Direction.UP) || neighborState.is(this) && neighborState.getValue(HALF) != doubleBlockHalf) {
+-            return doubleBlockHalf == DoubleBlockHalf.LOWER && direction == Direction.DOWN && !state.canSurvive(world, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+-        } else {
+-            return Blocks.AIR.defaultBlockState();
+-        }
++        DoubleBlockHalf blockpropertydoubleblockhalf = (DoubleBlockHalf) state.getValue(DoublePlantBlock.HALF);
++
++        return direction.getAxis() == Direction.Axis.Y && blockpropertydoubleblockhalf == DoubleBlockHalf.LOWER == (direction == Direction.UP) && (!neighborState.is((Block) this) || neighborState.getValue(DoublePlantBlock.HALF) == blockpropertydoubleblockhalf) ? Blocks.AIR.defaultBlockState() : (blockpropertydoubleblockhalf == DoubleBlockHalf.LOWER && direction == Direction.DOWN && !state.canSurvive(world, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, direction, neighborState, world, pos, neighborPos));
+     }
+ 
+     @Nullable
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+-        BlockPos blockPos = ctx.getClickedPos();
+-        Level level = ctx.getLevel();
+-        return blockPos.getY() < level.getMaxBuildHeight() - 1 && level.getBlockState(blockPos.above()).canBeReplaced(ctx) ? super.getStateForPlacement(ctx) : null;
++        BlockPos blockposition = ctx.getClickedPos();
++        Level world = ctx.getLevel();
++
++        return blockposition.getY() < world.getMaxBuildHeight() - 1 && world.getBlockState(blockposition.above()).canBeReplaced(ctx) ? super.getStateForPlacement(ctx) : null;
+     }
+ 
+     @Override
+     public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+-        BlockPos blockPos = pos.above();
+-        world.setBlock(blockPos, copyWaterloggedFrom(world, blockPos, this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER)), 3);
++        BlockPos blockposition1 = pos.above();
++
++        world.setBlock(blockposition1, DoublePlantBlock.copyWaterloggedFrom(world, blockposition1, (BlockState) this.defaultBlockState().setValue(DoublePlantBlock.HALF, DoubleBlockHalf.UPPER)), 3);
+     }
+ 
+     @Override
+     public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+-        if (state.getValue(HALF) != DoubleBlockHalf.UPPER) {
++        if (state.getValue(DoublePlantBlock.HALF) != DoubleBlockHalf.UPPER) {
+             return super.canSurvive(state, world, pos);
+         } else {
+-            BlockState blockState = world.getBlockState(pos.below());
+-            return blockState.is(this) && blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
++            BlockState iblockdata1 = world.getBlockState(pos.below());
++
++            return iblockdata1.is((Block) this) && iblockdata1.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.LOWER;
+         }
+     }
+ 
+     public static void placeAt(LevelAccessor world, BlockState state, BlockPos pos, int flags) {
+-        BlockPos blockPos = pos.above();
+-        world.setBlock(pos, copyWaterloggedFrom(world, pos, state.setValue(HALF, DoubleBlockHalf.LOWER)), flags);
+-        world.setBlock(blockPos, copyWaterloggedFrom(world, blockPos, state.setValue(HALF, DoubleBlockHalf.UPPER)), flags);
++        BlockPos blockposition1 = pos.above();
++
++        world.setBlock(pos, DoublePlantBlock.copyWaterloggedFrom(world, pos, (BlockState) state.setValue(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER)), flags);
++        world.setBlock(blockposition1, DoublePlantBlock.copyWaterloggedFrom(world, blockposition1, (BlockState) state.setValue(DoublePlantBlock.HALF, DoubleBlockHalf.UPPER)), flags);
+     }
+ 
+     public static BlockState copyWaterloggedFrom(LevelReader world, BlockPos pos, BlockState state) {
+-        return state.hasProperty(BlockStateProperties.WATERLOGGED) ? state.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(world.isWaterAt(pos))) : state;
++        return state.hasProperty(BlockStateProperties.WATERLOGGED) ? (BlockState) state.setValue(BlockStateProperties.WATERLOGGED, world.isWaterAt(pos)) : state;
+     }
+ 
+     @Override
+     public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+         if (!world.isClientSide) {
+             if (player.isCreative()) {
+-                preventCreativeDropFromBottomPart(world, pos, state, player);
++                DoublePlantBlock.preventCreativeDropFromBottomPart(world, pos, state, player);
+             } else {
+-                dropResources(state, world, pos, (BlockEntity)null, player, player.getMainHandItem());
++                dropResources(state, world, pos, (BlockEntity) null, player, player.getMainHandItem());
+             }
+         }
+ 
+@@ -90,14 +92,22 @@
+     }
+ 
+     protected static void preventCreativeDropFromBottomPart(Level world, BlockPos pos, BlockState state, Player player) {
+-        DoubleBlockHalf doubleBlockHalf = state.getValue(HALF);
+-        if (doubleBlockHalf == DoubleBlockHalf.UPPER) {
+-            BlockPos blockPos = pos.below();
+-            BlockState blockState = world.getBlockState(blockPos);
+-            if (blockState.is(state.getBlock()) && blockState.getValue(HALF) == DoubleBlockHalf.LOWER) {
+-                BlockState blockState2 = blockState.hasProperty(BlockStateProperties.WATERLOGGED) && blockState.getValue(BlockStateProperties.WATERLOGGED) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
+-                world.setBlock(blockPos, blockState2, 35);
+-                world.levelEvent(player, 2001, blockPos, Block.getId(blockState));
++        // CraftBukkit start
++        if (((net.minecraft.server.level.ServerLevel)world).hasPhysicsEvent && org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callBlockPhysicsEvent(world, pos).isCancelled()) { // Paper
++            return;
++        }
++        // CraftBukkit end
++        DoubleBlockHalf blockpropertydoubleblockhalf = (DoubleBlockHalf) state.getValue(DoublePlantBlock.HALF);
++
++        if (blockpropertydoubleblockhalf == DoubleBlockHalf.UPPER) {
++            BlockPos blockposition1 = pos.below();
++            BlockState iblockdata1 = world.getBlockState(blockposition1);
++
++            if (iblockdata1.is(state.getBlock()) && iblockdata1.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.LOWER) {
++                BlockState iblockdata2 = iblockdata1.hasProperty(BlockStateProperties.WATERLOGGED) && (Boolean) iblockdata1.getValue(BlockStateProperties.WATERLOGGED) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
++
++                world.setBlock(blockposition1, iblockdata2, 35);
++                world.levelEvent(player, 2001, blockposition1, Block.getId(iblockdata1));
+             }
+         }
+ 
+@@ -105,11 +115,11 @@
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(HALF);
++        builder.add(DoublePlantBlock.HALF);
+     }
+ 
+     @Override
+     public long getSeed(BlockState state, BlockPos pos) {
+-        return Mth.getSeed(pos.getX(), pos.below(state.getValue(HALF) == DoubleBlockHalf.LOWER ? 0 : 1).getY(), pos.getZ());
++        return Mth.getSeed(pos.getX(), pos.below(state.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.LOWER ? 0 : 1).getY(), pos.getZ());
+     }
+ }

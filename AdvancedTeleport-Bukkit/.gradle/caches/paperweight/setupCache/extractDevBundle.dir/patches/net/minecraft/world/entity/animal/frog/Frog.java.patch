@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/entity/animal/frog/Frog.java
++++ b/net/minecraft/world/entity/animal/frog/Frog.java
+@@ -105,7 +105,7 @@
+ 
+     @Override
+     public Brain<Frog> getBrain() {
+-        return super.getBrain();
++        return (Brain<Frog>) super.getBrain(); // Paper - decompile fix
+     }
+ 
+     @Override
+@@ -274,7 +274,7 @@
+         this.getBrain().setMemory(MemoryModuleType.IS_PREGNANT, Unit.INSTANCE);
+         world.broadcastEntityEvent(this, (byte)18);
+         if (world.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+-            world.addFreshEntity(new ExperienceOrb(world, this.getX(), this.getY(), this.getZ(), this.getRandom().nextInt(7) + 1));
++            world.addFreshEntity(new ExperienceOrb(world, this.getX(), this.getY(), this.getZ(), this.getRandom().nextInt(7) + 1, org.bukkit.entity.ExperienceOrb.SpawnReason.BREED, serverPlayer)); // Paper
+         }
+ 
+     }

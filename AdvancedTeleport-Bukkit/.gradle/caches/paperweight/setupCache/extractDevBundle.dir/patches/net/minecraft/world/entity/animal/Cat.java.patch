@@ -1,0 +1,575 @@
+--- a/net/minecraft/world/entity/animal/Cat.java
++++ b/net/minecraft/world/entity/animal/Cat.java
+@@ -1,5 +1,8 @@
+ package net.minecraft.world.entity.animal;
+ 
++import java.util.Iterator;
++import java.util.List;
++import java.util.Objects;
+ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
+ import net.minecraft.core.BlockPos;
+@@ -69,6 +72,7 @@
+ import net.minecraft.world.phys.AABB;
+ 
+ public class Cat extends TamableAnimal {
++
+     public static final double TEMPT_SPEED_MOD = 0.6D;
+     public static final double WALK_SPEED_MOD = 0.8D;
+     public static final double SPRINT_SPEED_MOD = 1.33D;
+@@ -97,7 +101,7 @@
+ 
+     @Override
+     protected void registerGoals() {
+-        this.temptGoal = new Cat.CatTemptGoal(this, 0.6D, TEMPT_INGREDIENT, true);
++        this.temptGoal = new Cat.CatTemptGoal(this, 0.6D, Cat.TEMPT_INGREDIENT, true);
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
+         this.goalSelector.addGoal(2, new Cat.CatRelaxOnOwnerGoal(this));
+@@ -110,64 +114,65 @@
+         this.goalSelector.addGoal(10, new BreedGoal(this, 0.8D));
+         this.goalSelector.addGoal(11, new WaterAvoidingRandomStrollGoal(this, 0.8D, 1.0000001E-5F));
+         this.goalSelector.addGoal(12, new LookAtPlayerGoal(this, Player.class, 10.0F));
+-        this.targetSelector.addGoal(1, new NonTameRandomTargetGoal<>(this, Rabbit.class, false, (Predicate<LivingEntity>)null));
++        this.targetSelector.addGoal(1, new NonTameRandomTargetGoal<>(this, Rabbit.class, false, (Predicate) null));
+         this.targetSelector.addGoal(1, new NonTameRandomTargetGoal<>(this, Turtle.class, false, Turtle.BABY_ON_LAND_SELECTOR));
+     }
+ 
+     public CatVariant getCatVariant() {
+-        return this.entityData.get(DATA_VARIANT_ID);
++        return (CatVariant) this.entityData.get(Cat.DATA_VARIANT_ID);
+     }
+ 
+     public void setCatVariant(CatVariant variant) {
+-        this.entityData.set(DATA_VARIANT_ID, variant);
++        this.entityData.set(Cat.DATA_VARIANT_ID, variant);
+     }
+ 
+     public void setLying(boolean sleeping) {
+-        this.entityData.set(IS_LYING, sleeping);
++        this.entityData.set(Cat.IS_LYING, sleeping);
+     }
+ 
+     public boolean isLying() {
+-        return this.entityData.get(IS_LYING);
++        return (Boolean) this.entityData.get(Cat.IS_LYING);
+     }
+ 
+     public void setRelaxStateOne(boolean headDown) {
+-        this.entityData.set(RELAX_STATE_ONE, headDown);
++        this.entityData.set(Cat.RELAX_STATE_ONE, headDown);
+     }
+ 
+     public boolean isRelaxStateOne() {
+-        return this.entityData.get(RELAX_STATE_ONE);
++        return (Boolean) this.entityData.get(Cat.RELAX_STATE_ONE);
+     }
+ 
+     public DyeColor getCollarColor() {
+-        return DyeColor.byId(this.entityData.get(DATA_COLLAR_COLOR));
++        return DyeColor.byId((Integer) this.entityData.get(Cat.DATA_COLLAR_COLOR));
+     }
+ 
+     public void setCollarColor(DyeColor color) {
+-        this.entityData.set(DATA_COLLAR_COLOR, color.getId());
++        this.entityData.set(Cat.DATA_COLLAR_COLOR, color.getId());
+     }
+ 
+     @Override
+     protected void defineSynchedData() {
+         super.defineSynchedData();
+-        this.entityData.define(DATA_VARIANT_ID, CatVariant.BLACK);
+-        this.entityData.define(IS_LYING, false);
+-        this.entityData.define(RELAX_STATE_ONE, false);
+-        this.entityData.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
++        this.entityData.define(Cat.DATA_VARIANT_ID, CatVariant.BLACK);
++        this.entityData.define(Cat.IS_LYING, false);
++        this.entityData.define(Cat.RELAX_STATE_ONE, false);
++        this.entityData.define(Cat.DATA_COLLAR_COLOR, DyeColor.RED.getId());
+     }
+ 
+     @Override
+     public void addAdditionalSaveData(CompoundTag nbt) {
+         super.addAdditionalSaveData(nbt);
+         nbt.putString("variant", Registry.CAT_VARIANT.getKey(this.getCatVariant()).toString());
+-        nbt.putByte("CollarColor", (byte)this.getCollarColor().getId());
++        nbt.putByte("CollarColor", (byte) this.getCollarColor().getId());
+     }
+ 
+     @Override
+     public void readAdditionalSaveData(CompoundTag nbt) {
+         super.readAdditionalSaveData(nbt);
+-        CatVariant catVariant = Registry.CAT_VARIANT.get(ResourceLocation.tryParse(nbt.getString("variant")));
+-        if (catVariant != null) {
+-            this.setCatVariant(catVariant);
++        CatVariant catvariant = (CatVariant) Registry.CAT_VARIANT.get(ResourceLocation.tryParse(nbt.getString("variant")));
++
++        if (catvariant != null) {
++            this.setCatVariant(catvariant);
+         }
+ 
+         if (nbt.contains("CollarColor", 99)) {
+@@ -179,11 +184,12 @@
+     @Override
+     public void customServerAiStep() {
+         if (this.getMoveControl().hasWanted()) {
+-            double d = this.getMoveControl().getSpeedModifier();
+-            if (d == 0.6D) {
++            double d0 = this.getMoveControl().getSpeedModifier();
++
++            if (d0 == 0.6D) {
+                 this.setPose(Pose.CROUCHING);
+                 this.setSprinting(false);
+-            } else if (d == 1.33D) {
++            } else if (d0 == 1.33D) {
+                 this.setPose(Pose.STANDING);
+                 this.setSprinting(true);
+             } else {
+@@ -200,15 +206,7 @@
+     @Nullable
+     @Override
+     protected SoundEvent getAmbientSound() {
+-        if (this.isTame()) {
+-            if (this.isInLove()) {
+-                return SoundEvents.CAT_PURR;
+-            } else {
+-                return this.random.nextInt(4) == 0 ? SoundEvents.CAT_PURREOW : SoundEvents.CAT_AMBIENT;
+-            }
+-        } else {
+-            return SoundEvents.CAT_STRAY_AMBIENT;
+-        }
++        return this.isTame() ? (this.isInLove() ? SoundEvents.CAT_PURR : (this.random.nextInt(4) == 0 ? SoundEvents.CAT_PURREOW : SoundEvents.CAT_AMBIENT)) : SoundEvents.CAT_STRAY_AMBIENT;
+     }
+ 
+     @Override
+@@ -231,7 +229,7 @@
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.ATTACK_DAMAGE, 3.0D);
++        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, 0.30000001192092896D).add(Attributes.ATTACK_DAMAGE, 3.0D);
+     }
+ 
+     @Override
+@@ -249,7 +247,7 @@
+     }
+ 
+     private float getAttackDamage() {
+-        return (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
++        return (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
+     }
+ 
+     @Override
+@@ -312,27 +310,28 @@
+     }
+ 
+     @Override
+-    public Cat getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
+-        Cat cat = EntityType.CAT.create(serverLevel);
+-        if (ageableMob instanceof Cat) {
++    public Cat getBreedOffspring(ServerLevel world, AgeableMob entity) {
++        Cat entitycat = (Cat) EntityType.CAT.create(world);
++
++        if (entity instanceof Cat) {
+             if (this.random.nextBoolean()) {
+-                cat.setCatVariant(this.getCatVariant());
++                entitycat.setCatVariant(this.getCatVariant());
+             } else {
+-                cat.setCatVariant(((Cat)ageableMob).getCatVariant());
++                entitycat.setCatVariant(((Cat) entity).getCatVariant());
+             }
+ 
+             if (this.isTame()) {
+-                cat.setOwnerUUID(this.getOwnerUUID());
+-                cat.setTame(true);
++                entitycat.setOwnerUUID(this.getOwnerUUID());
++                entitycat.setTame(true);
+                 if (this.random.nextBoolean()) {
+-                    cat.setCollarColor(this.getCollarColor());
++                    entitycat.setCollarColor(this.getCollarColor());
+                 } else {
+-                    cat.setCollarColor(((Cat)ageableMob).getCollarColor());
++                    entitycat.setCollarColor(((Cat) entity).getCollarColor());
+                 }
+             }
+         }
+ 
+-        return cat;
++        return entitycat;
+     }
+ 
+     @Override
+@@ -342,8 +341,9 @@
+         } else if (!(other instanceof Cat)) {
+             return false;
+         } else {
+-            Cat cat = (Cat)other;
+-            return cat.isTame() && super.canMate(other);
++            Cat entitycat = (Cat) other;
++
++            return entitycat.isTame() && super.canMate(other);
+         }
+     }
+ 
+@@ -351,15 +351,17 @@
+     @Override
+     public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
+         entityData = super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
+-        boolean bl = world.getMoonBrightness() > 0.9F;
+-        TagKey<CatVariant> tagKey = bl ? CatVariantTags.FULL_MOON_SPAWNS : CatVariantTags.DEFAULT_SPAWNS;
+-        Registry.CAT_VARIANT.getTag(tagKey).flatMap((list) -> {
+-            return list.getRandomElement(world.getRandom());
+-        }).ifPresent((variant) -> {
+-            this.setCatVariant(variant.value());
++        boolean flag = world.getMoonBrightness() > 0.9F;
++        TagKey<CatVariant> tagkey = flag ? CatVariantTags.FULL_MOON_SPAWNS : CatVariantTags.DEFAULT_SPAWNS;
++
++        Registry.CAT_VARIANT.getTag(tagkey).flatMap((holderset_named) -> {
++            return holderset_named.getRandomElement(world.getRandom());
++        }).ifPresent((holder) -> {
++            this.setCatVariant((CatVariant) holder.value());
+         });
+-        ServerLevel serverLevel = world.getLevel();
+-        if (serverLevel.structureManager().getStructureWithPieceAt(this.blockPosition(), StructureTags.CATS_SPAWN_AS_BLACK).isValid()) {
++        ServerLevel worldserver = world.getLevel();
++
++        if (worldserver.structureManager().getStructureWithPieceAt(this.blockPosition(), StructureTags.CATS_SPAWN_AS_BLACK, world).isValid()) { // Paper - fix deadlock
+             this.setCatVariant(CatVariant.ALL_BLACK);
+             this.setPersistenceRequired();
+         }
+@@ -369,69 +371,76 @@
+ 
+     @Override
+     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+-        ItemStack itemStack = player.getItemInHand(hand);
+-        Item item = itemStack.getItem();
++        ItemStack itemstack = player.getItemInHand(hand);
++        Item item = itemstack.getItem();
++
+         if (this.level.isClientSide) {
+-            if (this.isTame() && this.isOwnedBy(player)) {
+-                return InteractionResult.SUCCESS;
+-            } else {
+-                return !this.isFood(itemStack) || !(this.getHealth() < this.getMaxHealth()) && this.isTame() ? InteractionResult.PASS : InteractionResult.SUCCESS;
+-            }
++            return this.isTame() && this.isOwnedBy(player) ? InteractionResult.SUCCESS : (this.isFood(itemstack) && (this.getHealth() < this.getMaxHealth() || !this.isTame()) ? InteractionResult.SUCCESS : InteractionResult.PASS);
+         } else {
++            InteractionResult enuminteractionresult;
++
+             if (this.isTame()) {
+                 if (this.isOwnedBy(player)) {
+                     if (!(item instanceof DyeItem)) {
+-                        if (item.isEdible() && this.isFood(itemStack) && this.getHealth() < this.getMaxHealth()) {
+-                            this.usePlayerItem(player, hand, itemStack);
+-                            this.heal((float)item.getFoodProperties().getNutrition());
++                        if (item.isEdible() && this.isFood(itemstack) && this.getHealth() < this.getMaxHealth()) {
++                            this.usePlayerItem(player, hand, itemstack);
++                            this.heal((float) item.getFoodProperties().getNutrition(), org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason.EATING); // Paper
+                             return InteractionResult.CONSUME;
+                         }
+ 
+-                        InteractionResult interactionResult = super.mobInteract(player, hand);
+-                        if (!interactionResult.consumesAction() || this.isBaby()) {
++                        enuminteractionresult = super.mobInteract(player, hand);
++                        if (!enuminteractionresult.consumesAction() || this.isBaby()) {
+                             this.setOrderedToSit(!this.isOrderedToSit());
+                         }
+ 
+-                        return interactionResult;
++                        return enuminteractionresult;
+                     }
+ 
+-                    DyeColor dyeColor = ((DyeItem)item).getDyeColor();
+-                    if (dyeColor != this.getCollarColor()) {
+-                        this.setCollarColor(dyeColor);
++                    DyeColor enumcolor = ((DyeItem) item).getDyeColor();
++
++                    if (enumcolor != this.getCollarColor()) {
++                        // Paper start
++                        final io.papermc.paper.event.entity.EntityDyeEvent event = new io.papermc.paper.event.entity.EntityDyeEvent(this.getBukkitEntity(), org.bukkit.DyeColor.getByWoolData((byte) enumcolor.getId()), ((net.minecraft.server.level.ServerPlayer) player).getBukkitEntity());
++                        if (!event.callEvent()) {
++                            return InteractionResult.FAIL;
++                        }
++                        enumcolor = DyeColor.byId(event.getColor().getWoolData());
++                        // Paper end
++                        this.setCollarColor(enumcolor);
+                         if (!player.getAbilities().instabuild) {
+-                            itemStack.shrink(1);
++                            itemstack.shrink(1);
+                         }
+ 
+                         this.setPersistenceRequired();
+                         return InteractionResult.CONSUME;
+                     }
+                 }
+-            } else if (this.isFood(itemStack)) {
+-                this.usePlayerItem(player, hand, itemStack);
+-                if (this.random.nextInt(3) == 0) {
++            } else if (this.isFood(itemstack)) {
++                this.usePlayerItem(player, hand, itemstack);
++                if (this.random.nextInt(3) == 0 && !org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callEntityTameEvent(this, player).isCancelled()) { // CraftBukkit
+                     this.tame(player);
+                     this.setOrderedToSit(true);
+-                    this.level.broadcastEntityEvent(this, (byte)7);
++                    this.level.broadcastEntityEvent(this, (byte) 7);
+                 } else {
+-                    this.level.broadcastEntityEvent(this, (byte)6);
++                    this.level.broadcastEntityEvent(this, (byte) 6);
+                 }
+ 
+                 this.setPersistenceRequired();
+                 return InteractionResult.CONSUME;
+             }
+ 
+-            InteractionResult interactionResult2 = super.mobInteract(player, hand);
+-            if (interactionResult2.consumesAction()) {
++            enuminteractionresult = super.mobInteract(player, hand);
++            if (enuminteractionresult.consumesAction()) {
+                 this.setPersistenceRequired();
+             }
+ 
+-            return interactionResult2;
++            return enuminteractionresult;
+         }
+     }
+ 
+     @Override
+     public boolean isFood(ItemStack stack) {
+-        return TEMPT_INGREDIENT.test(stack);
++        return Cat.TEMPT_INGREDIENT.test(stack);
+     }
+ 
+     @Override
+@@ -462,26 +471,41 @@
+         return this.isCrouching() || super.isSteppingCarefully();
+     }
+ 
+-    static class CatAvoidEntityGoal<T extends LivingEntity> extends AvoidEntityGoal<T> {
++    private static class CatTemptGoal extends TemptGoal {
++
++        @Nullable
++        private LivingEntity selectedPlayer; // CraftBukkit
+         private final Cat cat;
+ 
+-        public CatAvoidEntityGoal(Cat cat, Class<T> fleeFromType, float distance, double slowSpeed, double fastSpeed) {
+-            super(cat, fleeFromType, distance, slowSpeed, fastSpeed, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test);
++        public CatTemptGoal(Cat cat, double speed, Ingredient food, boolean canBeScared) {
++            super(cat, speed, food, canBeScared);
+             this.cat = cat;
+         }
+ 
+         @Override
+-        public boolean canUse() {
+-            return !this.cat.isTame() && super.canUse();
++        public void tick() {
++            super.tick();
++            if (this.selectedPlayer == null && this.mob.getRandom().nextInt(this.adjustedTickDelay(600)) == 0) {
++                this.selectedPlayer = this.player;
++            } else if (this.mob.getRandom().nextInt(this.adjustedTickDelay(500)) == 0) {
++                this.selectedPlayer = null;
++            }
++
+         }
+ 
+         @Override
+-        public boolean canContinueToUse() {
+-            return !this.cat.isTame() && super.canContinueToUse();
++        protected boolean canScare() {
++            return this.selectedPlayer != null && this.selectedPlayer.equals(this.player) ? false : super.canScare();
++        }
++
++        @Override
++        public boolean canUse() {
++            return super.canUse() && !this.cat.isTame();
+         }
+     }
+ 
+-    static class CatRelaxOnOwnerGoal extends Goal {
++    private static class CatRelaxOnOwnerGoal extends Goal {
++
+         private final Cat cat;
+         @Nullable
+         private Player ownerPlayer;
+@@ -500,24 +524,26 @@
+             } else if (this.cat.isOrderedToSit()) {
+                 return false;
+             } else {
+-                LivingEntity livingEntity = this.cat.getOwner();
+-                if (livingEntity instanceof Player) {
+-                    this.ownerPlayer = (Player)livingEntity;
+-                    if (!livingEntity.isSleeping()) {
++                LivingEntity entityliving = this.cat.getOwner();
++
++                if (entityliving instanceof Player) {
++                    this.ownerPlayer = (Player) entityliving;
++                    if (!entityliving.isSleeping()) {
+                         return false;
+                     }
+ 
+-                    if (this.cat.distanceToSqr(this.ownerPlayer) > 100.0D) {
++                    if (this.cat.distanceToSqr((Entity) this.ownerPlayer) > 100.0D) {
+                         return false;
+                     }
+ 
+-                    BlockPos blockPos = this.ownerPlayer.blockPosition();
+-                    BlockState blockState = this.cat.level.getBlockState(blockPos);
+-                    if (blockState.is(BlockTags.BEDS)) {
+-                        this.goalPos = blockState.getOptionalValue(BedBlock.FACING).map((direction) -> {
+-                            return blockPos.relative(direction.getOpposite());
++                    BlockPos blockposition = this.ownerPlayer.blockPosition();
++                    BlockState iblockdata = this.cat.level.getBlockState(blockposition);
++
++                    if (iblockdata.is(BlockTags.BEDS)) {
++                        this.goalPos = (BlockPos) iblockdata.getOptionalValue(BedBlock.FACING).map((enumdirection) -> {
++                            return blockposition.relative(enumdirection.getOpposite());
+                         }).orElseGet(() -> {
+-                            return new BlockPos(blockPos);
++                            return new BlockPos(blockposition);
+                         });
+                         return !this.spaceIsOccupied();
+                     }
+@@ -528,13 +554,22 @@
+         }
+ 
+         private boolean spaceIsOccupied() {
+-            for(Cat cat : this.cat.level.getEntitiesOfClass(Cat.class, (new AABB(this.goalPos)).inflate(2.0D))) {
+-                if (cat != this.cat && (cat.isLying() || cat.isRelaxStateOne())) {
+-                    return true;
+-                }
+-            }
++            List<Cat> list = this.cat.level.getEntitiesOfClass(Cat.class, (new AABB(this.goalPos)).inflate(2.0D));
++            Iterator iterator = list.iterator();
+ 
+-            return false;
++            Cat entitycat;
++
++            do {
++                do {
++                    if (!iterator.hasNext()) {
++                        return false;
++                    }
++
++                    entitycat = (Cat) iterator.next();
++                } while (entitycat == this.cat);
++            } while (!entitycat.isLying() && !entitycat.isRelaxStateOne());
++
++            return true;
+         }
+ 
+         @Override
+@@ -546,7 +581,7 @@
+         public void start() {
+             if (this.goalPos != null) {
+                 this.cat.setInSittingPose(false);
+-                this.cat.getNavigation().moveTo((double)this.goalPos.getX(), (double)this.goalPos.getY(), (double)this.goalPos.getZ(), (double)1.1F);
++                this.cat.getNavigation().moveTo((double) this.goalPos.getX(), (double) this.goalPos.getY(), (double) this.goalPos.getZ(), 1.100000023841858D);
+             }
+ 
+         }
+@@ -555,7 +590,8 @@
+         public void stop() {
+             this.cat.setLying(false);
+             float f = this.cat.level.getTimeOfDay(1.0F);
+-            if (this.ownerPlayer.getSleepTimer() >= 100 && (double)f > 0.77D && (double)f < 0.8D && (double)this.cat.level.getRandom().nextFloat() < 0.7D) {
++
++            if (this.ownerPlayer.getSleepTimer() >= 100 && (double) f > 0.77D && (double) f < 0.8D && (double) this.cat.level.getRandom().nextFloat() < 0.7D) {
+                 this.giveMorningGift();
+             }
+ 
+@@ -565,16 +601,29 @@
+         }
+ 
+         private void giveMorningGift() {
+-            RandomSource randomSource = this.cat.getRandom();
+-            BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+-            mutableBlockPos.set(this.cat.blockPosition());
+-            this.cat.randomTeleport((double)(mutableBlockPos.getX() + randomSource.nextInt(11) - 5), (double)(mutableBlockPos.getY() + randomSource.nextInt(5) - 2), (double)(mutableBlockPos.getZ() + randomSource.nextInt(11) - 5), false);
+-            mutableBlockPos.set(this.cat.blockPosition());
+-            LootTable lootTable = this.cat.level.getServer().getLootTables().get(BuiltInLootTables.CAT_MORNING_GIFT);
+-            LootContext.Builder builder = (new LootContext.Builder((ServerLevel)this.cat.level)).withParameter(LootContextParams.ORIGIN, this.cat.position()).withParameter(LootContextParams.THIS_ENTITY, this.cat).withRandom(randomSource);
++            RandomSource randomsource = this.cat.getRandom();
++            BlockPos.MutableBlockPos blockposition_mutableblockposition = new BlockPos.MutableBlockPos();
+ 
+-            for(ItemStack itemStack : lootTable.getRandomItems(builder.create(LootContextParamSets.GIFT))) {
+-                this.cat.level.addFreshEntity(new ItemEntity(this.cat.level, (double)mutableBlockPos.getX() - (double)Mth.sin(this.cat.yBodyRot * ((float)Math.PI / 180F)), (double)mutableBlockPos.getY(), (double)mutableBlockPos.getZ() + (double)Mth.cos(this.cat.yBodyRot * ((float)Math.PI / 180F)), itemStack));
++            blockposition_mutableblockposition.set(this.cat.blockPosition());
++            this.cat.randomTeleport((double) (blockposition_mutableblockposition.getX() + randomsource.nextInt(11) - 5), (double) (blockposition_mutableblockposition.getY() + randomsource.nextInt(5) - 2), (double) (blockposition_mutableblockposition.getZ() + randomsource.nextInt(11) - 5), false);
++            blockposition_mutableblockposition.set(this.cat.blockPosition());
++            LootTable loottable = this.cat.level.getServer().getLootTables().get(BuiltInLootTables.CAT_MORNING_GIFT);
++            LootContext.Builder loottableinfo_builder = (new LootContext.Builder((ServerLevel) this.cat.level)).withParameter(LootContextParams.ORIGIN, this.cat.position()).withParameter(LootContextParams.THIS_ENTITY, this.cat).withRandom(randomsource);
++            List<ItemStack> list = loottable.getRandomItems(loottableinfo_builder.create(LootContextParamSets.GIFT));
++            Iterator iterator = list.iterator();
++
++            while (iterator.hasNext()) {
++                ItemStack itemstack = (ItemStack) iterator.next();
++
++                // CraftBukkit start
++                ItemEntity entityitem = new ItemEntity(this.cat.level, (double) blockposition_mutableblockposition.getX() - (double) Mth.sin(this.cat.yBodyRot * 0.017453292F), (double) blockposition_mutableblockposition.getY(), (double) blockposition_mutableblockposition.getZ() + (double) Mth.cos(this.cat.yBodyRot * 0.017453292F), itemstack);
++                org.bukkit.event.entity.EntityDropItemEvent event = new org.bukkit.event.entity.EntityDropItemEvent(this.cat.getBukkitEntity(), (org.bukkit.entity.Item) entityitem.getBukkitEntity());
++                entityitem.level.getCraftServer().getPluginManager().callEvent(event);
++                if (event.isCancelled()) {
++                    continue;
++                }
++                this.cat.level.addFreshEntity(entityitem);
++                // CraftBukkit end
+             }
+ 
+         }
+@@ -583,8 +632,8 @@
+         public void tick() {
+             if (this.ownerPlayer != null && this.goalPos != null) {
+                 this.cat.setInSittingPose(false);
+-                this.cat.getNavigation().moveTo((double)this.goalPos.getX(), (double)this.goalPos.getY(), (double)this.goalPos.getZ(), (double)1.1F);
+-                if (this.cat.distanceToSqr(this.ownerPlayer) < 2.5D) {
++                this.cat.getNavigation().moveTo((double) this.goalPos.getX(), (double) this.goalPos.getY(), (double) this.goalPos.getZ(), 1.100000023841858D);
++                if (this.cat.distanceToSqr((Entity) this.ownerPlayer) < 2.5D) {
+                     ++this.onBedTicks;
+                     if (this.onBedTicks > this.adjustedTickDelay(16)) {
+                         this.cat.setLying(true);
+@@ -601,35 +650,26 @@
+         }
+     }
+ 
+-    static class CatTemptGoal extends TemptGoal {
+-        @Nullable
+-        private Player selectedPlayer;
+-        private final Cat cat;
++    private static class CatAvoidEntityGoal<T extends LivingEntity> extends AvoidEntityGoal<T> {
+ 
+-        public CatTemptGoal(Cat cat, double speed, Ingredient food, boolean canBeScared) {
+-            super(cat, speed, food, canBeScared);
+-            this.cat = cat;
+-        }
++        private final Cat cat;
+ 
+-        @Override
+-        public void tick() {
+-            super.tick();
+-            if (this.selectedPlayer == null && this.mob.getRandom().nextInt(this.adjustedTickDelay(600)) == 0) {
+-                this.selectedPlayer = this.player;
+-            } else if (this.mob.getRandom().nextInt(this.adjustedTickDelay(500)) == 0) {
+-                this.selectedPlayer = null;
+-            }
++        public CatAvoidEntityGoal(Cat cat, Class<T> fleeFromType, float distance, double slowSpeed, double fastSpeed) {
++            // Predicate predicate = IEntitySelector.NO_CREATIVE_OR_SPECTATOR; // CraftBukkit - decompile error
+ 
++            // Objects.requireNonNull(predicate); // CraftBukkit - decompile error
++            super(cat, fleeFromType, distance, slowSpeed, fastSpeed, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test); // CraftBukkit - decompile error
++            this.cat = cat;
+         }
+ 
+         @Override
+-        protected boolean canScare() {
+-            return this.selectedPlayer != null && this.selectedPlayer.equals(this.player) ? false : super.canScare();
++        public boolean canUse() {
++            return !this.cat.isTame() && super.canUse();
+         }
+ 
+         @Override
+-        public boolean canUse() {
+-            return super.canUse() && !this.cat.isTame();
++        public boolean canContinueToUse() {
++            return !this.cat.isTame() && super.canContinueToUse();
+         }
+     }
+ }

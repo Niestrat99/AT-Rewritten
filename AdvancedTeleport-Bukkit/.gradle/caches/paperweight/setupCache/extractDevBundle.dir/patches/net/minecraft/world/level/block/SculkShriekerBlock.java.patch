@@ -1,0 +1,168 @@
+--- a/net/minecraft/world/level/block/SculkShriekerBlock.java
++++ b/net/minecraft/world/level/block/SculkShriekerBlock.java
+@@ -23,37 +23,42 @@
+ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+ import net.minecraft.world.level.block.state.properties.BooleanProperty;
+ import net.minecraft.world.level.gameevent.GameEventListener;
++import net.minecraft.world.level.material.Fluid;
+ import net.minecraft.world.level.material.FluidState;
+ import net.minecraft.world.level.material.Fluids;
+ import net.minecraft.world.phys.shapes.CollisionContext;
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ 
+ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
++
+     public static final BooleanProperty SHRIEKING = BlockStateProperties.SHRIEKING;
+     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+     public static final BooleanProperty CAN_SUMMON = BlockStateProperties.CAN_SUMMON;
+     protected static final VoxelShape COLLIDER = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D);
+-    public static final double TOP_Y = COLLIDER.max(Direction.Axis.Y);
++    public static final double TOP_Y = SculkShriekerBlock.COLLIDER.max(Direction.Axis.Y);
+ 
+     public SculkShriekerBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(SHRIEKING, Boolean.valueOf(false)).setValue(WATERLOGGED, Boolean.valueOf(false)).setValue(CAN_SUMMON, Boolean.valueOf(false)));
++        this.registerDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(SculkShriekerBlock.SHRIEKING, false)).setValue(SculkShriekerBlock.WATERLOGGED, false)).setValue(SculkShriekerBlock.CAN_SUMMON, false));
+     }
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(SHRIEKING);
+-        builder.add(WATERLOGGED);
+-        builder.add(CAN_SUMMON);
++        builder.add(SculkShriekerBlock.SHRIEKING);
++        builder.add(SculkShriekerBlock.WATERLOGGED);
++        builder.add(SculkShriekerBlock.CAN_SUMMON);
+     }
+ 
+     @Override
+     public void stepOn(Level world, BlockPos pos, BlockState state, Entity entity) {
+-        if (world instanceof ServerLevel serverLevel) {
+-            ServerPlayer serverPlayer = SculkShriekerBlockEntity.tryGetPlayer(entity);
+-            if (serverPlayer != null) {
+-                serverLevel.getBlockEntity(pos, BlockEntityType.SCULK_SHRIEKER).ifPresent((blockEntity) -> {
+-                    blockEntity.tryShriek(serverLevel, serverPlayer);
++        if (world instanceof ServerLevel) {
++            ServerLevel worldserver = (ServerLevel) world;
++            ServerPlayer entityplayer = SculkShriekerBlockEntity.tryGetPlayer(entity);
++
++            if (entityplayer != null) {
++                if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callPlayerInteractEvent(entityplayer, org.bukkit.event.block.Action.PHYSICAL, pos, null, null, null).isCancelled()) return; // CraftBukkit
++                worldserver.getBlockEntity(pos, BlockEntityType.SCULK_SHRIEKER).ifPresent((sculkshriekerblockentity) -> {
++                    sculkshriekerblockentity.tryShriek(worldserver, entityplayer);
+                 });
+             }
+         }
+@@ -63,10 +68,12 @@
+ 
+     @Override
+     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
+-        if (world instanceof ServerLevel serverLevel) {
+-            if (state.getValue(SHRIEKING) && !state.is(newState.getBlock())) {
+-                serverLevel.getBlockEntity(pos, BlockEntityType.SCULK_SHRIEKER).ifPresent((blockEntity) -> {
+-                    blockEntity.tryRespond(serverLevel);
++        if (world instanceof ServerLevel) {
++            ServerLevel worldserver = (ServerLevel) world;
++
++            if ((Boolean) state.getValue(SculkShriekerBlock.SHRIEKING) && !state.is(newState.getBlock())) {
++                worldserver.getBlockEntity(pos, BlockEntityType.SCULK_SHRIEKER).ifPresent((sculkshriekerblockentity) -> {
++                    sculkshriekerblockentity.tryRespond(worldserver);
+                 });
+             }
+         }
+@@ -76,10 +83,10 @@
+ 
+     @Override
+     public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+-        if (state.getValue(SHRIEKING)) {
+-            world.setBlock(pos, state.setValue(SHRIEKING, Boolean.valueOf(false)), 3);
+-            world.getBlockEntity(pos, BlockEntityType.SCULK_SHRIEKER).ifPresent((blockEntity) -> {
+-                blockEntity.tryRespond(world);
++        if ((Boolean) state.getValue(SculkShriekerBlock.SHRIEKING)) {
++            world.setBlock(pos, (BlockState) state.setValue(SculkShriekerBlock.SHRIEKING, false), 3);
++            world.getBlockEntity(pos, BlockEntityType.SCULK_SHRIEKER).ifPresent((sculkshriekerblockentity) -> {
++                sculkshriekerblockentity.tryRespond(world);
+             });
+         }
+ 
+@@ -92,12 +99,12 @@
+ 
+     @Override
+     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return COLLIDER;
++        return SculkShriekerBlock.COLLIDER;
+     }
+ 
+     @Override
+     public VoxelShape getOcclusionShape(BlockState state, BlockGetter world, BlockPos pos) {
+-        return COLLIDER;
++        return SculkShriekerBlock.COLLIDER;
+     }
+ 
+     @Override
+@@ -113,8 +120,8 @@
+ 
+     @Override
+     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+-        if (state.getValue(WATERLOGGED)) {
+-            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
++        if ((Boolean) state.getValue(SculkShriekerBlock.WATERLOGGED)) {
++            world.scheduleTick(pos, (Fluid) Fluids.WATER, Fluids.WATER.getTickDelay(world));
+         }
+ 
+         return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+@@ -123,28 +130,37 @@
+     @Nullable
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+-        return this.defaultBlockState().setValue(WATERLOGGED, Boolean.valueOf(ctx.getLevel().getFluidState(ctx.getClickedPos()).getType() == Fluids.WATER));
++        return (BlockState) this.defaultBlockState().setValue(SculkShriekerBlock.WATERLOGGED, ctx.getLevel().getFluidState(ctx.getClickedPos()).getType() == Fluids.WATER);
+     }
+ 
+     @Override
+     public FluidState getFluidState(BlockState state) {
+-        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
++        return (Boolean) state.getValue(SculkShriekerBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+     }
+ 
+     @Override
+     public void spawnAfterBreak(BlockState state, ServerLevel world, BlockPos pos, ItemStack stack, boolean dropExperience) {
+         super.spawnAfterBreak(state, world, pos, stack, dropExperience);
+-        if (dropExperience) {
+-            this.tryDropExperience(world, pos, stack, ConstantInt.of(5));
++        // CraftBukkit start - Delegate to getExpDrop
++    }
++
++    @Override
++    public int getExpDrop(BlockState iblockdata, ServerLevel worldserver, BlockPos blockposition, ItemStack itemstack, boolean flag) {
++        if (flag) {
++            return this.tryDropExperience(worldserver, blockposition, itemstack, ConstantInt.of(5));
+         }
+ 
++        return 0;
++        // CraftBukkit end
+     }
+ 
+     @Nullable
+     @Override
+     public <T extends BlockEntity> GameEventListener getListener(ServerLevel world, T blockEntity) {
+-        if (blockEntity instanceof SculkShriekerBlockEntity sculkShriekerBlockEntity) {
+-            return sculkShriekerBlockEntity.getListener();
++        if (blockEntity instanceof SculkShriekerBlockEntity) {
++            SculkShriekerBlockEntity sculkshriekerblockentity = (SculkShriekerBlockEntity) blockEntity;
++
++            return sculkshriekerblockentity.getListener();
+         } else {
+             return null;
+         }
+@@ -153,8 +169,8 @@
+     @Nullable
+     @Override
+     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+-        return !world.isClientSide ? BaseEntityBlock.createTickerHelper(type, BlockEntityType.SCULK_SHRIEKER, (worldx, pos, statex, blockEntity) -> {
+-            blockEntity.getListener().tick(worldx);
++        return !world.isClientSide ? BaseEntityBlock.createTickerHelper(type, BlockEntityType.SCULK_SHRIEKER, (world1, blockposition, iblockdata1, sculkshriekerblockentity) -> {
++            sculkshriekerblockentity.getListener().tick(world1);
+         }) : null;
+     }
+ }

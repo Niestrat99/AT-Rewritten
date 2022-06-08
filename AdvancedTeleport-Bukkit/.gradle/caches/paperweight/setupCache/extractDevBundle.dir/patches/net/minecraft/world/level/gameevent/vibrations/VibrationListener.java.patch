@@ -1,0 +1,300 @@
+--- a/net/minecraft/world/level/gameevent/vibrations/VibrationListener.java
++++ b/net/minecraft/world/level/gameevent/vibrations/VibrationListener.java
+@@ -2,6 +2,7 @@
+ 
+ import com.mojang.serialization.Codec;
+ import com.mojang.serialization.codecs.RecordCodecBuilder;
++import java.util.Objects;
+ import java.util.Optional;
+ import java.util.UUID;
+ import javax.annotation.Nullable;
+@@ -26,8 +27,13 @@
+ import net.minecraft.world.level.gameevent.PositionSource;
+ import net.minecraft.world.phys.HitResult;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock;
++import org.bukkit.craftbukkit.v1_19_R1.util.CraftNamespacedKey;
++import org.bukkit.event.block.BlockReceiveGameEvent;
++// CraftBukkit end
+ 
+ public class VibrationListener implements GameEventListener {
++
+     protected final PositionSource listenerSource;
+     public int listenerRange;
+     protected final VibrationListener.VibrationListenerConfig config;
+@@ -38,18 +44,18 @@
+ 
+     public static Codec<VibrationListener> codec(VibrationListener.VibrationListenerConfig callback) {
+         return RecordCodecBuilder.create((instance) -> {
+-            return instance.group(PositionSource.CODEC.fieldOf("source").forGetter((listener) -> {
+-                return listener.listenerSource;
+-            }), ExtraCodecs.NON_NEGATIVE_INT.fieldOf("range").forGetter((listener) -> {
+-                return listener.listenerRange;
+-            }), VibrationListener.ReceivingEvent.CODEC.optionalFieldOf("event").forGetter((listener) -> {
+-                return Optional.ofNullable(listener.receivingEvent);
+-            }), Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("event_distance").orElse(0.0F).forGetter((listener) -> {
+-                return listener.receivingDistance;
+-            }), ExtraCodecs.NON_NEGATIVE_INT.fieldOf("event_delay").orElse(0).forGetter((listener) -> {
+-                return listener.travelTimeInTicks;
+-            })).apply(instance, (positionSource, range, vibration, distance, delay) -> {
+-                return new VibrationListener(positionSource, range, callback, vibration.orElse((VibrationListener.ReceivingEvent)null), distance, delay);
++            return instance.group(PositionSource.CODEC.fieldOf("source").forGetter((vibrationlistener) -> {
++                return vibrationlistener.listenerSource;
++            }), ExtraCodecs.NON_NEGATIVE_INT.fieldOf("range").forGetter((vibrationlistener) -> {
++                return vibrationlistener.listenerRange;
++            }), VibrationListener.ReceivingEvent.CODEC.optionalFieldOf("event").forGetter((vibrationlistener) -> {
++                return Optional.ofNullable(vibrationlistener.receivingEvent);
++            }), Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("event_distance").orElse(0.0F).forGetter((vibrationlistener) -> {
++                return vibrationlistener.receivingDistance;
++            }), ExtraCodecs.NON_NEGATIVE_INT.fieldOf("event_delay").orElse(0).forGetter((vibrationlistener) -> {
++                return vibrationlistener.travelTimeInTicks;
++            })).apply(instance, (positionsource, integer, optional, ofloat, integer1) -> {
++                return new VibrationListener(positionsource, integer, callback, (VibrationListener.ReceivingEvent) optional.orElse(null), ofloat, integer1); // CraftBukkit - decompile error
+             });
+         });
+     }
+@@ -64,12 +70,14 @@
+     }
+ 
+     public void tick(Level world) {
+-        if (world instanceof ServerLevel serverLevel) {
++        if (world instanceof ServerLevel) {
++            ServerLevel worldserver = (ServerLevel) world;
++
+             if (this.receivingEvent != null) {
+                 --this.travelTimeInTicks;
+                 if (this.travelTimeInTicks <= 0) {
+                     this.travelTimeInTicks = 0;
+-                    this.config.onSignalReceive(serverLevel, this, new BlockPos(this.receivingEvent.pos), this.receivingEvent.gameEvent, this.receivingEvent.getEntity(serverLevel).orElse((Entity)null), this.receivingEvent.getProjectileOwner(serverLevel).orElse((Entity)null), this.receivingDistance);
++                    this.config.onSignalReceive(worldserver, this, new BlockPos(this.receivingEvent.pos), this.receivingEvent.gameEvent, (Entity) this.receivingEvent.getEntity(worldserver).orElse(null), (Entity) this.receivingEvent.getProjectileOwner(worldserver).orElse(null), this.receivingDistance); // CraftBukkit - decompile error
+                     this.receivingEvent = null;
+                 }
+             }
+@@ -92,23 +100,33 @@
+         if (this.receivingEvent != null) {
+             return false;
+         } else {
+-            GameEvent gameEvent = event.gameEvent();
+-            GameEvent.Context context = event.context();
+-            if (!this.config.isValidVibration(gameEvent, context)) {
++            GameEvent gameevent = event.gameEvent();
++            GameEvent.Context gameevent_a = event.context();
++
++            if (!this.config.isValidVibration(gameevent, gameevent_a)) {
+                 return false;
+             } else {
+                 Optional<Vec3> optional = this.listenerSource.getPosition(world);
++
+                 if (optional.isEmpty()) {
+                     return false;
+                 } else {
+-                    Vec3 vec3 = event.source();
+-                    Vec3 vec32 = optional.get();
+-                    if (!this.config.shouldListen(world, this, new BlockPos(vec3), gameEvent, context)) {
++                    Vec3 vec3d = event.source();
++                    Vec3 vec3d1 = (Vec3) optional.get();
++
++                    // CraftBukkit start
++                    boolean defaultCancel = !this.config.shouldListen(world, this, new BlockPos(vec3d), gameevent, gameevent_a);
++                    Entity entity = gameevent_a.sourceEntity();
++                    BlockReceiveGameEvent event1 = new BlockReceiveGameEvent(org.bukkit.GameEvent.getByKey(CraftNamespacedKey.fromMinecraft(Registry.GAME_EVENT.getKey(gameevent))), CraftBlock.at(world, new BlockPos(vec3d1)), (entity == null) ? null : entity.getBukkitEntity());
++                    event1.setCancelled(defaultCancel);
++                    world.getCraftServer().getPluginManager().callEvent(event1);
++                    if (event1.isCancelled()) {
++                        // CraftBukkit end
+                         return false;
+-                    } else if (isOccluded(world, vec3, vec32)) {
++                    } else if (VibrationListener.isOccluded(world, vec3d, vec3d1)) {
+                         return false;
+                     } else {
+-                        this.scheduleSignal(world, gameEvent, context, vec3, vec32);
++                        this.scheduleSignal(world, gameevent, gameevent_a, vec3d, vec3d1);
+                         return true;
+                     }
+                 }
+@@ -117,7 +135,7 @@
+     }
+ 
+     private void scheduleSignal(ServerLevel world, GameEvent gameEvent, GameEvent.Context emitter, Vec3 start, Vec3 end) {
+-        this.receivingDistance = (float)start.distanceTo(end);
++        this.receivingDistance = (float) start.distanceTo(end);
+         this.receivingEvent = new VibrationListener.ReceivingEvent(gameEvent, this.receivingDistance, start, emitter.sourceEntity());
+         this.travelTimeInTicks = Mth.floor(this.receivingDistance);
+         world.sendParticles(new VibrationParticleOption(this.listenerSource, this.travelTimeInTicks), start.x, start.y, start.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+@@ -125,13 +143,17 @@
+     }
+ 
+     private static boolean isOccluded(Level world, Vec3 start, Vec3 end) {
+-        Vec3 vec3 = new Vec3((double)Mth.floor(start.x) + 0.5D, (double)Mth.floor(start.y) + 0.5D, (double)Mth.floor(start.z) + 0.5D);
+-        Vec3 vec32 = new Vec3((double)Mth.floor(end.x) + 0.5D, (double)Mth.floor(end.y) + 0.5D, (double)Mth.floor(end.z) + 0.5D);
++        Vec3 vec3d2 = new Vec3((double) Mth.floor(start.x) + 0.5D, (double) Mth.floor(start.y) + 0.5D, (double) Mth.floor(start.z) + 0.5D);
++        Vec3 vec3d3 = new Vec3((double) Mth.floor(end.x) + 0.5D, (double) Mth.floor(end.y) + 0.5D, (double) Mth.floor(end.z) + 0.5D);
++        Direction[] aenumdirection = Direction.values();
++        int i = aenumdirection.length;
+ 
+-        for(Direction direction : Direction.values()) {
+-            Vec3 vec33 = vec3.relative(direction, (double)1.0E-5F);
+-            if (world.isBlockInLine(new ClipBlockStateContext(vec33, vec32, (state) -> {
+-                return state.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS);
++        for (int j = 0; j < i; ++j) {
++            Direction enumdirection = aenumdirection[j];
++            Vec3 vec3d4 = vec3d2.relative(enumdirection, 9.999999747378752E-6D);
++
++            if (world.isBlockInLine(new ClipBlockStateContext(vec3d4, vec3d3, (iblockdata) -> {
++                return iblockdata.is(BlockTags.OCCLUDES_VIBRATION_SIGNALS);
+             })).getType() != HitResult.Type.BLOCK) {
+                 return false;
+             }
+@@ -140,54 +162,8 @@
+         return true;
+     }
+ 
+-    public static record ReceivingEvent(GameEvent gameEvent, float distance, Vec3 pos, @Nullable UUID uuid, @Nullable UUID projectileOwnerUuid, @Nullable Entity entity) {
+-        public static final Codec<VibrationListener.ReceivingEvent> CODEC = RecordCodecBuilder.create((instance) -> {
+-            return instance.group(Registry.GAME_EVENT.byNameCodec().fieldOf("game_event").forGetter(VibrationListener.ReceivingEvent::gameEvent), Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("distance").forGetter(VibrationListener.ReceivingEvent::distance), Vec3.CODEC.fieldOf("pos").forGetter(VibrationListener.ReceivingEvent::pos), ExtraCodecs.UUID.optionalFieldOf("source").forGetter((vibration) -> {
+-                return Optional.ofNullable(vibration.uuid());
+-            }), ExtraCodecs.UUID.optionalFieldOf("projectile_owner").forGetter((vibration) -> {
+-                return Optional.ofNullable(vibration.projectileOwnerUuid());
+-            })).apply(instance, (event, distance, pos, uuid, projectileOwnerUuid) -> {
+-                return new VibrationListener.ReceivingEvent(event, distance, pos, uuid.orElse((UUID)null), projectileOwnerUuid.orElse((UUID)null));
+-            });
+-        });
+-
+-        public ReceivingEvent(GameEvent gameEvent, float distance, Vec3 pos, @Nullable UUID uuid, @Nullable UUID projectileOwnerUuid) {
+-            this(gameEvent, distance, pos, uuid, projectileOwnerUuid, (Entity)null);
+-        }
+-
+-        public ReceivingEvent(GameEvent gameEvent, float distance, Vec3 pos, @Nullable Entity entity) {
+-            this(gameEvent, distance, pos, entity == null ? null : entity.getUUID(), getProjectileOwner(entity), entity);
+-        }
+-
+-        @Nullable
+-        private static UUID getProjectileOwner(@Nullable Entity entity) {
+-            if (entity instanceof Projectile projectile) {
+-                if (projectile.getOwner() != null) {
+-                    return projectile.getOwner().getUUID();
+-                }
+-            }
+-
+-            return null;
+-        }
+-
+-        public Optional<Entity> getEntity(ServerLevel world) {
+-            return Optional.ofNullable(this.entity).or(() -> {
+-                return Optional.ofNullable(this.uuid).map(world::getEntity);
+-            });
+-        }
+-
+-        public Optional<Entity> getProjectileOwner(ServerLevel world) {
+-            return this.getEntity(world).filter((entity) -> {
+-                return entity instanceof Projectile;
+-            }).map((entity) -> {
+-                return (Projectile)entity;
+-            }).map(Projectile::getOwner).or(() -> {
+-                return Optional.ofNullable(this.projectileOwnerUuid).map(world::getEntity);
+-            });
+-        }
+-    }
+-
+     public interface VibrationListenerConfig {
++
+         default TagKey<GameEvent> getListenableEvents() {
+             return GameEventTags.VIBRATIONS;
+         }
+@@ -201,6 +177,7 @@
+                 return false;
+             } else {
+                 Entity entity = emitter.sourceEntity();
++
+                 if (entity != null) {
+                     if (entity.isSpectator()) {
+                         return false;
+@@ -208,8 +185,9 @@
+ 
+                     if (entity.isSteppingCarefully() && gameEvent.is(GameEventTags.IGNORE_VIBRATIONS_SNEAKING)) {
+                         if (this.canTriggerAvoidVibration() && entity instanceof ServerPlayer) {
+-                            ServerPlayer serverPlayer = (ServerPlayer)entity;
+-                            CriteriaTriggers.AVOID_VIBRATION.trigger(serverPlayer);
++                            ServerPlayer entityplayer = (ServerPlayer) entity;
++
++                            CriteriaTriggers.AVOID_VIBRATION.trigger(entityplayer);
+                         }
+ 
+                         return false;
+@@ -220,11 +198,7 @@
+                     }
+                 }
+ 
+-                if (emitter.affectedState() != null) {
+-                    return !emitter.affectedState().is(BlockTags.DAMPENS_VIBRATIONS);
+-                } else {
+-                    return true;
+-                }
++                return emitter.affectedState() != null ? !emitter.affectedState().is(BlockTags.DAMPENS_VIBRATIONS) : true;
+             }
+         }
+ 
+@@ -232,7 +206,62 @@
+ 
+         void onSignalReceive(ServerLevel world, GameEventListener listener, BlockPos pos, GameEvent event, @Nullable Entity entity, @Nullable Entity sourceEntity, float distance);
+ 
+-        default void onSignalSchedule() {
++        default void onSignalSchedule() {}
++    }
++
++    public static record ReceivingEvent(GameEvent gameEvent, float distance, Vec3 pos, @Nullable UUID uuid, @Nullable UUID projectileOwnerUuid, @Nullable Entity entity) {
++
++        public static final Codec<VibrationListener.ReceivingEvent> CODEC = RecordCodecBuilder.create((instance) -> {
++            return instance.group(Registry.GAME_EVENT.byNameCodec().fieldOf("game_event").forGetter(VibrationListener.ReceivingEvent::gameEvent), Codec.floatRange(0.0F, Float.MAX_VALUE).fieldOf("distance").forGetter(VibrationListener.ReceivingEvent::distance), Vec3.CODEC.fieldOf("pos").forGetter(VibrationListener.ReceivingEvent::pos), ExtraCodecs.UUID.optionalFieldOf("source").forGetter((vibrationlistener_a) -> {
++                return Optional.ofNullable(vibrationlistener_a.uuid());
++            }), ExtraCodecs.UUID.optionalFieldOf("projectile_owner").forGetter((vibrationlistener_a) -> {
++                return Optional.ofNullable(vibrationlistener_a.projectileOwnerUuid());
++            })).apply(instance, (gameevent, ofloat, vec3d, optional, optional1) -> {
++                return new VibrationListener.ReceivingEvent(gameevent, ofloat, vec3d, (UUID) optional.orElse(null), (UUID) optional1.orElse(null)); // CraftBukkit - decompile error
++            });
++        });
++
++        public ReceivingEvent(GameEvent gameEvent, float distance, Vec3 pos, @Nullable UUID uuid, @Nullable UUID projectileOwnerUuid) {
++            this(gameEvent, distance, pos, uuid, projectileOwnerUuid, (Entity) null);
++        }
++
++        public ReceivingEvent(GameEvent gameEvent, float distance, Vec3 pos, @Nullable Entity entity) {
++            this(gameEvent, distance, pos, entity == null ? null : entity.getUUID(), getProjectileOwner(entity), entity);
++        }
++
++        @Nullable
++        private static UUID getProjectileOwner(@Nullable Entity entity) {
++            if (entity instanceof Projectile) {
++                Projectile iprojectile = (Projectile) entity;
++
++                if (iprojectile.getOwner() != null) {
++                    return iprojectile.getOwner().getUUID();
++                }
++            }
++
++            return null;
++        }
++
++        public Optional<Entity> getEntity(ServerLevel world) {
++            return Optional.ofNullable(this.entity).or(() -> {
++                Optional<UUID> optional = Optional.ofNullable(this.uuid); // CraftBukkit - decompile error
++
++                Objects.requireNonNull(world);
++                return optional.map(world::getEntity);
++            });
++        }
++
++        public Optional<Entity> getProjectileOwner(ServerLevel world) {
++            return this.getEntity(world).filter((entity) -> {
++                return entity instanceof Projectile;
++            }).map((entity) -> {
++                return (Projectile) entity;
++            }).map(Projectile::getOwner).or(() -> {
++                Optional<UUID> optional = Optional.ofNullable(this.projectileOwnerUuid); // CraftBukkit - decompile error
++
++                Objects.requireNonNull(world);
++                return optional.map(world::getEntity);
++            });
+         }
+     }
+ }

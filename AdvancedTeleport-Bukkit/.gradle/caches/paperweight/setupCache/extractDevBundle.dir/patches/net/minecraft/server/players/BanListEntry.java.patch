@@ -1,0 +1,77 @@
+--- a/net/minecraft/server/players/BanListEntry.java
++++ b/net/minecraft/server/players/BanListEntry.java
+@@ -9,6 +9,7 @@
+ import net.minecraft.network.chat.Component;
+ 
+ public abstract class BanListEntry<T> extends StoredUserEntry<T> {
++
+     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.ROOT);
+     public static final String EXPIRES_NEVER = "forever";
+     protected final Date created;
+@@ -26,26 +27,28 @@
+     }
+ 
+     protected BanListEntry(T key, JsonObject json) {
+-        super(key);
++        super(BanListEntry.checkExpiry(key, json)); // CraftBukkit
+ 
+         Date date;
++
+         try {
+-            date = json.has("created") ? DATE_FORMAT.parse(json.get("created").getAsString()) : new Date();
+-        } catch (ParseException var7) {
++            date = json.has("created") ? BanListEntry.DATE_FORMAT.parse(json.get("created").getAsString()) : new Date();
++        } catch (ParseException parseexception) {
+             date = new Date();
+         }
+ 
+         this.created = date;
+         this.source = json.has("source") ? json.get("source").getAsString() : "(Unknown)";
+ 
+-        Date date3;
++        Date date1;
++
+         try {
+-            date3 = json.has("expires") ? DATE_FORMAT.parse(json.get("expires").getAsString()) : null;
+-        } catch (ParseException var6) {
+-            date3 = null;
++            date1 = json.has("expires") ? BanListEntry.DATE_FORMAT.parse(json.get("expires").getAsString()) : null;
++        } catch (ParseException parseexception1) {
++            date1 = null;
+         }
+ 
+-        this.expires = date3;
++        this.expires = date1;
+         this.reason = json.has("reason") ? json.get("reason").getAsString() : "Banned by an operator.";
+     }
+ 
+@@ -75,9 +78,27 @@
+ 
+     @Override
+     protected void serialize(JsonObject json) {
+-        json.addProperty("created", DATE_FORMAT.format(this.created));
++        json.addProperty("created", BanListEntry.DATE_FORMAT.format(this.created));
+         json.addProperty("source", this.source);
+-        json.addProperty("expires", this.expires == null ? "forever" : DATE_FORMAT.format(this.expires));
++        json.addProperty("expires", this.expires == null ? "forever" : BanListEntry.DATE_FORMAT.format(this.expires));
+         json.addProperty("reason", this.reason);
+     }
++
++    // CraftBukkit start
++    private static <T> T checkExpiry(T object, JsonObject jsonobject) {
++        Date expires = null;
++
++        try {
++            expires = jsonobject.has("expires") ? BanListEntry.DATE_FORMAT.parse(jsonobject.get("expires").getAsString()) : null;
++        } catch (ParseException ex) {
++            // Guess we don't have a date
++        }
++
++        if (expires == null || expires.after(new Date())) {
++            return object;
++        } else {
++            return null;
++        }
++    }
++    // CraftBukkit end
+ }

@@ -1,0 +1,47 @@
+--- a/net/minecraft/network/protocol/game/ClientboundLevelChunkWithLightPacket.java
++++ b/net/minecraft/network/protocol/game/ClientboundLevelChunkWithLightPacket.java
+@@ -13,13 +13,30 @@
+     private final int z;
+     private final ClientboundLevelChunkPacketData chunkData;
+     private final ClientboundLightUpdatePacketData lightData;
++    // Paper start - Async-Anti-Xray - Ready flag for the connection
++    private volatile boolean ready;
+ 
+-    public ClientboundLevelChunkWithLightPacket(LevelChunk chunk, LevelLightEngine lightProvider, @Nullable BitSet skyBits, @Nullable BitSet blockBits, boolean nonEdge) {
++    @Override
++    public boolean isReady() {
++        return this.ready;
++    }
++
++    public void setReady(boolean ready) {
++        this.ready = ready;
++    }
++    // Paper end
++
++    // Paper start - Anti-Xray - Add chunk packet info
++    @Deprecated @io.papermc.paper.annotation.DoNotUse public ClientboundLevelChunkWithLightPacket(LevelChunk chunk, LevelLightEngine lightProvider, @Nullable BitSet skyBits, @Nullable BitSet blockBits, boolean nonEdge) { this(chunk, lightProvider, skyBits, blockBits, nonEdge, true); }
++    public ClientboundLevelChunkWithLightPacket(LevelChunk chunk, LevelLightEngine lightProvider, @Nullable BitSet skyBits, @Nullable BitSet blockBits, boolean nonEdge, boolean modifyBlocks) {
+         ChunkPos chunkPos = chunk.getPos();
+         this.x = chunkPos.x;
+         this.z = chunkPos.z;
+-        this.chunkData = new ClientboundLevelChunkPacketData(chunk);
++        com.destroystokyo.paper.antixray.ChunkPacketInfo<net.minecraft.world.level.block.state.BlockState> chunkPacketInfo = modifyBlocks ? chunk.getLevel().chunkPacketBlockController.getChunkPacketInfo(this, chunk) : null;
++        this.chunkData = new ClientboundLevelChunkPacketData(chunk, chunkPacketInfo);
++        // Paper end
+         this.lightData = new ClientboundLightUpdatePacketData(chunkPos, lightProvider, skyBits, blockBits, nonEdge);
++        chunk.getLevel().chunkPacketBlockController.modifyBlocks(this, chunkPacketInfo); // Paper - Anti-Xray - Modify blocks
+     }
+ 
+     public ClientboundLevelChunkWithLightPacket(FriendlyByteBuf buf) {
+@@ -57,4 +74,11 @@
+     public ClientboundLightUpdatePacketData getLightData() {
+         return this.lightData;
+     }
++
++    // Paper start - handle over-sized TE packets
++    @Override
++    public java.util.List<Packet> getExtraPackets() {
++        return this.chunkData.getExtraPackets();
++    }
++    // Paper end
+ }

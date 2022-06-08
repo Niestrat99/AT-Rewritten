@@ -1,0 +1,221 @@
+--- a/net/minecraft/world/entity/projectile/AbstractHurtingProjectile.java
++++ b/net/minecraft/world/entity/projectile/AbstractHurtingProjectile.java
+@@ -11,13 +11,18 @@
+ import net.minecraft.world.entity.EntityType;
+ import net.minecraft.world.entity.LivingEntity;
+ import net.minecraft.world.level.Level;
++import net.minecraft.world.phys.EntityHitResult;
+ import net.minecraft.world.phys.HitResult;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory; // CraftBukkit
+ 
+ public abstract class AbstractHurtingProjectile extends Projectile {
++
+     public double xPower;
+     public double yPower;
+     public double zPower;
++    public float bukkitYield = 1; // CraftBukkit
++    public boolean isIncendiary = true; // CraftBukkit
+ 
+     protected AbstractHurtingProjectile(EntityType<? extends AbstractHurtingProjectile> type, Level world) {
+         super(type, world);
+@@ -27,11 +32,18 @@
+         this(type, world);
+         this.moveTo(x, y, z, this.getYRot(), this.getXRot());
+         this.reapplyPosition();
+-        double d = Math.sqrt(directionX * directionX + directionY * directionY + directionZ * directionZ);
+-        if (d != 0.0D) {
+-            this.xPower = directionX / d * 0.1D;
+-            this.yPower = directionY / d * 0.1D;
+-            this.zPower = directionZ / d * 0.1D;
++        // CraftBukkit start - Added setDirection method
++        this.setDirection(directionX, directionY, directionZ);
++    }
++
++    public void setDirection(double d3, double d4, double d5) {
++        // CraftBukkit end
++        double d6 = Math.sqrt(d3 * d3 + d4 * d4 + d5 * d5);
++
++        if (d6 != 0.0D) {
++            this.xPower = d3 / d6 * 0.1D;
++            this.yPower = d4 / d6 * 0.1D;
++            this.zPower = d5 / d6 * 0.1D;
+         }
+ 
+     }
+@@ -43,55 +55,75 @@
+     }
+ 
+     @Override
+-    protected void defineSynchedData() {
+-    }
++    protected void defineSynchedData() {}
+ 
+     @Override
+     public boolean shouldRenderAtSqrDistance(double distance) {
+-        double d = this.getBoundingBox().getSize() * 4.0D;
+-        if (Double.isNaN(d)) {
+-            d = 4.0D;
++        double d1 = this.getBoundingBox().getSize() * 4.0D;
++
++        if (Double.isNaN(d1)) {
++            d1 = 4.0D;
+         }
+ 
+-        d *= 64.0D;
+-        return distance < d * d;
++        d1 *= 64.0D;
++        return distance < d1 * d1;
+     }
+ 
+     @Override
+     public void tick() {
+         Entity entity = this.getOwner();
+-        if (this.level.isClientSide || (entity == null || !entity.isRemoved()) && this.level.hasChunkAt(this.blockPosition())) {
++
++        if (!this.level.isClientSide && (entity != null && entity.isRemoved() || !this.level.hasChunkAt(this.blockPosition()))) {
++            this.discard();
++        } else {
+             super.tick();
+             if (this.shouldBurn()) {
+                 this.setSecondsOnFire(1);
+             }
+ 
+-            HitResult hitResult = ProjectileUtil.getHitResult(this, this::canHitEntity);
+-            if (hitResult.getType() != HitResult.Type.MISS) {
+-                this.onHit(hitResult);
++            HitResult movingobjectposition = ProjectileUtil.getHitResult(this, this::canHitEntity);
++
++            // Paper start - Call ProjectileCollideEvent
++            if (movingobjectposition instanceof EntityHitResult) {
++                com.destroystokyo.paper.event.entity.ProjectileCollideEvent event = CraftEventFactory.callProjectileCollideEvent(this, (EntityHitResult)movingobjectposition);
++                if (event.isCancelled()) {
++                    movingobjectposition = null;
++                }
++            }
++            // Paper end
++
++            if (movingobjectposition != null && movingobjectposition.getType() != HitResult.Type.MISS) { // Paper - add null check in case cancelled
++                this.preOnHit(movingobjectposition); // CraftBukkit - projectile hit event
++
++                // CraftBukkit start - Fire ProjectileHitEvent
++                if (this.isRemoved()) {
++                    // CraftEventFactory.callProjectileHitEvent(this, movingobjectposition); // Paper - this is an undesired duplicate event
++                }
++                // CraftBukkit end
+             }
+ 
+             this.checkInsideBlocks();
+-            Vec3 vec3 = this.getDeltaMovement();
+-            double d = this.getX() + vec3.x;
+-            double e = this.getY() + vec3.y;
+-            double f = this.getZ() + vec3.z;
++            Vec3 vec3d = this.getDeltaMovement();
++            double d0 = this.getX() + vec3d.x;
++            double d1 = this.getY() + vec3d.y;
++            double d2 = this.getZ() + vec3d.z;
++
+             ProjectileUtil.rotateTowardsMovement(this, 0.2F);
+-            float g = this.getInertia();
++            float f = this.getInertia();
++
+             if (this.isInWater()) {
+-                for(int i = 0; i < 4; ++i) {
+-                    float h = 0.25F;
+-                    this.level.addParticle(ParticleTypes.BUBBLE, d - vec3.x * 0.25D, e - vec3.y * 0.25D, f - vec3.z * 0.25D, vec3.x, vec3.y, vec3.z);
++                for (int i = 0; i < 4; ++i) {
++                    float f1 = 0.25F;
++
++                    this.level.addParticle(ParticleTypes.BUBBLE, d0 - vec3d.x * 0.25D, d1 - vec3d.y * 0.25D, d2 - vec3d.z * 0.25D, vec3d.x, vec3d.y, vec3d.z);
+                 }
+ 
+-                g = 0.8F;
++                f = 0.8F;
+             }
+ 
+-            this.setDeltaMovement(vec3.add(this.xPower, this.yPower, this.zPower).scale((double)g));
+-            this.level.addParticle(this.getTrailParticle(), d, e + 0.5D, f, 0.0D, 0.0D, 0.0D);
+-            this.setPos(d, e, f);
+-        } else {
+-            this.discard();
++            this.setDeltaMovement(vec3d.add(this.xPower, this.yPower, this.zPower).scale((double) f));
++            this.level.addParticle(this.getTrailParticle(), d0, d1 + 0.5D, d2, 0.0D, 0.0D, 0.0D);
++            this.setPos(d0, d1, d2);
+         }
+     }
+ 
+@@ -122,11 +154,12 @@
+     public void readAdditionalSaveData(CompoundTag nbt) {
+         super.readAdditionalSaveData(nbt);
+         if (nbt.contains("power", 9)) {
+-            ListTag listTag = nbt.getList("power", 6);
+-            if (listTag.size() == 3) {
+-                this.xPower = listTag.getDouble(0);
+-                this.yPower = listTag.getDouble(1);
+-                this.zPower = listTag.getDouble(2);
++            ListTag nbttaglist = nbt.getList("power", 6);
++
++            if (nbttaglist.size() == 3) {
++                this.xPower = nbttaglist.getDouble(0);
++                this.yPower = nbttaglist.getDouble(1);
++                this.zPower = nbttaglist.getDouble(2);
+             }
+         }
+ 
+@@ -149,13 +182,20 @@
+         } else {
+             this.markHurt();
+             Entity entity = source.getEntity();
++
+             if (entity != null) {
+                 if (!this.level.isClientSide) {
+-                    Vec3 vec3 = entity.getLookAngle();
+-                    this.setDeltaMovement(vec3);
+-                    this.xPower = vec3.x * 0.1D;
+-                    this.yPower = vec3.y * 0.1D;
+-                    this.zPower = vec3.z * 0.1D;
++                    // CraftBukkit start
++                    if (CraftEventFactory.handleNonLivingEntityDamageEvent(this, source, amount, false)) {
++                        return false;
++                    }
++                    // CraftBukkit end
++                    Vec3 vec3d = entity.getLookAngle();
++
++                    this.setDeltaMovement(vec3d);
++                    this.xPower = vec3d.x * 0.1D;
++                    this.yPower = vec3d.y * 0.1D;
++                    this.zPower = vec3d.z * 0.1D;
+                     this.setOwner(entity);
+                 }
+ 
+@@ -175,20 +215,22 @@
+     public Packet<?> getAddEntityPacket() {
+         Entity entity = this.getOwner();
+         int i = entity == null ? 0 : entity.getId();
++
+         return new ClientboundAddEntityPacket(this.getId(), this.getUUID(), this.getX(), this.getY(), this.getZ(), this.getXRot(), this.getYRot(), this.getType(), i, new Vec3(this.xPower, this.yPower, this.zPower), 0.0D);
+     }
+ 
+     @Override
+     public void recreateFromPacket(ClientboundAddEntityPacket packet) {
+         super.recreateFromPacket(packet);
+-        double d = packet.getXa();
+-        double e = packet.getYa();
+-        double f = packet.getZa();
+-        double g = Math.sqrt(d * d + e * e + f * f);
+-        if (g != 0.0D) {
+-            this.xPower = d / g * 0.1D;
+-            this.yPower = e / g * 0.1D;
+-            this.zPower = f / g * 0.1D;
++        double d0 = packet.getXa();
++        double d1 = packet.getYa();
++        double d2 = packet.getZa();
++        double d3 = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
++
++        if (d3 != 0.0D) {
++            this.xPower = d0 / d3 * 0.1D;
++            this.yPower = d1 / d3 * 0.1D;
++            this.zPower = d2 / d3 * 0.1D;
+         }
+ 
+     }

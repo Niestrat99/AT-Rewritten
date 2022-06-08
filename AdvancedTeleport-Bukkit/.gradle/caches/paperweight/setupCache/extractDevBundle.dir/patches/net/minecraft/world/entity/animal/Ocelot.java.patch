@@ -1,0 +1,252 @@
+--- a/net/minecraft/world/entity/animal/Ocelot.java
++++ b/net/minecraft/world/entity/animal/Ocelot.java
+@@ -1,9 +1,11 @@
+ package net.minecraft.world.entity.animal;
+ 
++import java.util.Objects;
++import java.util.function.Predicate;
+ import javax.annotation.Nullable;
+ import net.minecraft.core.BlockPos;
+-import net.minecraft.core.particles.ParticleOptions;
+ import net.minecraft.core.particles.ParticleTypes;
++import net.minecraft.core.particles.SimpleParticleType;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.network.syncher.EntityDataAccessor;
+ import net.minecraft.network.syncher.EntityDataSerializers;
+@@ -50,6 +52,7 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class Ocelot extends Animal {
++
+     public static final double CROUCH_SPEED_MOD = 0.6D;
+     public static final double WALK_SPEED_MOD = 0.8D;
+     public static final double SPRINT_SPEED_MOD = 1.33D;
+@@ -66,11 +69,11 @@
+     }
+ 
+     public boolean isTrusting() {
+-        return this.entityData.get(DATA_TRUSTING);
++        return (Boolean) this.entityData.get(Ocelot.DATA_TRUSTING);
+     }
+ 
+     public void setTrusting(boolean trusting) {
+-        this.entityData.set(DATA_TRUSTING, trusting);
++        this.entityData.set(Ocelot.DATA_TRUSTING, trusting);
+         this.reassessTrustingGoals();
+     }
+ 
+@@ -89,12 +92,12 @@
+     @Override
+     protected void defineSynchedData() {
+         super.defineSynchedData();
+-        this.entityData.define(DATA_TRUSTING, false);
++        this.entityData.define(Ocelot.DATA_TRUSTING, false);
+     }
+ 
+     @Override
+     protected void registerGoals() {
+-        this.temptGoal = new Ocelot.OcelotTemptGoal(this, 0.6D, TEMPT_INGREDIENT, true);
++        this.temptGoal = new Ocelot.OcelotTemptGoal(this, 0.6D, Ocelot.TEMPT_INGREDIENT, true);
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+         this.goalSelector.addGoal(3, this.temptGoal);
+         this.goalSelector.addGoal(7, new LeapAtTargetGoal(this, 0.3F));
+@@ -109,11 +112,12 @@
+     @Override
+     public void customServerAiStep() {
+         if (this.getMoveControl().hasWanted()) {
+-            double d = this.getMoveControl().getSpeedModifier();
+-            if (d == 0.6D) {
++            double d0 = this.getMoveControl().getSpeedModifier();
++
++            if (d0 == 0.6D) {
+                 this.setPose(Pose.CROUCHING);
+                 this.setSprinting(false);
+-            } else if (d == 1.33D) {
++            } else if (d0 == 1.33D) {
+                 this.setPose(Pose.STANDING);
+                 this.setSprinting(true);
+             } else {
+@@ -129,11 +133,11 @@
+ 
+     @Override
+     public boolean removeWhenFarAway(double distanceSquared) {
+-        return !this.isTrusting() && this.tickCount > 2400;
++        return !this.isTrusting() && this.tickCount > 2400 && !this.hasCustomName() && !this.isLeashed(); // Paper - honor name and leash
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.ATTACK_DAMAGE, 3.0D);
++        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, 0.30000001192092896D).add(Attributes.ATTACK_DAMAGE, 3.0D);
+     }
+ 
+     @Override
+@@ -163,7 +167,7 @@
+     }
+ 
+     private float getAttackDamage() {
+-        return (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
++        return (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
+     }
+ 
+     @Override
+@@ -173,17 +177,19 @@
+ 
+     @Override
+     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+-        ItemStack itemStack = player.getItemInHand(hand);
+-        if ((this.temptGoal == null || this.temptGoal.isRunning()) && !this.isTrusting() && this.isFood(itemStack) && player.distanceToSqr(this) < 9.0D) {
+-            this.usePlayerItem(player, hand, itemStack);
++        ItemStack itemstack = player.getItemInHand(hand);
++
++        if ((this.temptGoal == null || this.temptGoal.isRunning()) && !this.isTrusting() && this.isFood(itemstack) && player.distanceToSqr((Entity) this) < 9.0D) {
++            this.usePlayerItem(player, hand, itemstack);
+             if (!this.level.isClientSide) {
+-                if (this.random.nextInt(3) == 0) {
++                // CraftBukkit - added event call and isCancelled check
++                if (this.random.nextInt(3) == 0 && !org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callEntityTameEvent(this, player).isCancelled()) {
+                     this.setTrusting(true);
+                     this.spawnTrustingParticles(true);
+-                    this.level.broadcastEntityEvent(this, (byte)41);
++                    this.level.broadcastEntityEvent(this, (byte) 41);
+                 } else {
+                     this.spawnTrustingParticles(false);
+-                    this.level.broadcastEntityEvent(this, (byte)40);
++                    this.level.broadcastEntityEvent(this, (byte) 40);
+                 }
+             }
+ 
+@@ -206,16 +212,18 @@
+     }
+ 
+     private void spawnTrustingParticles(boolean positive) {
+-        ParticleOptions particleOptions = ParticleTypes.HEART;
++        SimpleParticleType particletype = ParticleTypes.HEART;
++
+         if (!positive) {
+-            particleOptions = ParticleTypes.SMOKE;
++            particletype = ParticleTypes.SMOKE;
+         }
+ 
+-        for(int i = 0; i < 7; ++i) {
+-            double d = this.random.nextGaussian() * 0.02D;
+-            double e = this.random.nextGaussian() * 0.02D;
+-            double f = this.random.nextGaussian() * 0.02D;
+-            this.level.addParticle(particleOptions, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d, e, f);
++        for (int i = 0; i < 7; ++i) {
++            double d0 = this.random.nextGaussian() * 0.02D;
++            double d1 = this.random.nextGaussian() * 0.02D;
++            double d2 = this.random.nextGaussian() * 0.02D;
++
++            this.level.addParticle(particletype, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d0, d1, d2);
+         }
+ 
+     }
+@@ -233,13 +241,13 @@
+     }
+ 
+     @Override
+-    public Ocelot getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
+-        return EntityType.OCELOT.create(serverLevel);
++    public Ocelot getBreedOffspring(ServerLevel world, AgeableMob entity) {
++        return (Ocelot) EntityType.OCELOT.create(world);
+     }
+ 
+     @Override
+     public boolean isFood(ItemStack stack) {
+-        return TEMPT_INGREDIENT.test(stack);
++        return Ocelot.TEMPT_INGREDIENT.test(stack);
+     }
+ 
+     public static boolean checkOcelotSpawnRules(EntityType<Ocelot> type, LevelAccessor world, MobSpawnType spawnReason, BlockPos pos, RandomSource random) {
+@@ -249,13 +257,15 @@
+     @Override
+     public boolean checkSpawnObstruction(LevelReader world) {
+         if (world.isUnobstructed(this) && !world.containsAnyLiquid(this.getBoundingBox())) {
+-            BlockPos blockPos = this.blockPosition();
+-            if (blockPos.getY() < world.getSeaLevel()) {
++            BlockPos blockposition = this.blockPosition();
++
++            if (blockposition.getY() < world.getSeaLevel()) {
+                 return false;
+             }
+ 
+-            BlockState blockState = world.getBlockState(blockPos.below());
+-            if (blockState.is(Blocks.GRASS_BLOCK) || blockState.is(BlockTags.LEAVES)) {
++            BlockState iblockdata = world.getBlockState(blockposition.below());
++
++            if (iblockdata.is(Blocks.GRASS_BLOCK) || iblockdata.is(BlockTags.LEAVES)) {
+                 return true;
+             }
+         }
+@@ -270,12 +280,12 @@
+             entityData = new AgeableMob.AgeableMobGroupData(1.0F);
+         }
+ 
+-        return super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
++        return super.finalizeSpawn(world, difficulty, spawnReason, (SpawnGroupData) entityData, entityNbt);
+     }
+ 
+     @Override
+     public Vec3 getLeashOffset() {
+-        return new Vec3(0.0D, (double)(0.5F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
++        return new Vec3(0.0D, (double) (0.5F * this.getEyeHeight()), (double) (this.getBbWidth() * 0.4F));
+     }
+ 
+     @Override
+@@ -283,36 +293,41 @@
+         return this.isCrouching() || super.isSteppingCarefully();
+     }
+ 
+-    static class OcelotAvoidEntityGoal<T extends LivingEntity> extends AvoidEntityGoal<T> {
++    private static class OcelotTemptGoal extends TemptGoal {
++
+         private final Ocelot ocelot;
+ 
+-        public OcelotAvoidEntityGoal(Ocelot ocelot, Class<T> fleeFromType, float distance, double slowSpeed, double fastSpeed) {
+-            super(ocelot, fleeFromType, distance, slowSpeed, fastSpeed, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test);
++        public OcelotTemptGoal(Ocelot ocelot, double speed, Ingredient food, boolean canBeScared) {
++            super(ocelot, speed, food, canBeScared);
+             this.ocelot = ocelot;
+         }
+ 
+         @Override
+-        public boolean canUse() {
+-            return !this.ocelot.isTrusting() && super.canUse();
+-        }
+-
+-        @Override
+-        public boolean canContinueToUse() {
+-            return !this.ocelot.isTrusting() && super.canContinueToUse();
++        protected boolean canScare() {
++            return super.canScare() && !this.ocelot.isTrusting();
+         }
+     }
+ 
+-    static class OcelotTemptGoal extends TemptGoal {
++    private static class OcelotAvoidEntityGoal<T extends LivingEntity> extends AvoidEntityGoal<T> {
++
+         private final Ocelot ocelot;
+ 
+-        public OcelotTemptGoal(Ocelot ocelot, double speed, Ingredient food, boolean canBeScared) {
+-            super(ocelot, speed, food, canBeScared);
++        public OcelotAvoidEntityGoal(Ocelot ocelot, Class<T> fleeFromType, float distance, double slowSpeed, double fastSpeed) {
++            // Predicate predicate = IEntitySelector.NO_CREATIVE_OR_SPECTATOR; // CraftBukkit - decompile error
++
++            // Objects.requireNonNull(predicate); // CraftBukkit - decompile error
++            super(ocelot, fleeFromType, distance, slowSpeed, fastSpeed, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test); // CraftBukkit - decompile error
+             this.ocelot = ocelot;
+         }
+ 
+         @Override
+-        protected boolean canScare() {
+-            return super.canScare() && !this.ocelot.isTrusting();
++        public boolean canUse() {
++            return !this.ocelot.isTrusting() && super.canUse();
++        }
++
++        @Override
++        public boolean canContinueToUse() {
++            return !this.ocelot.isTrusting() && super.canContinueToUse();
+         }
+     }
+ }

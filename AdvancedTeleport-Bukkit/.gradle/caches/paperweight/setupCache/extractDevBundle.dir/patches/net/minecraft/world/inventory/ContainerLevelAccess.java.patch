@@ -1,0 +1,62 @@
+--- a/net/minecraft/world/inventory/ContainerLevelAccess.java
++++ b/net/minecraft/world/inventory/ContainerLevelAccess.java
+@@ -7,15 +7,48 @@
+ import net.minecraft.world.level.Level;
+ 
+ public interface ContainerLevelAccess {
++
++    // CraftBukkit start
++    default Level getWorld() {
++        throw new UnsupportedOperationException("Not supported yet.");
++    }
++
++    default BlockPos getPosition() {
++        throw new UnsupportedOperationException("Not supported yet.");
++    }
++
++    default org.bukkit.Location getLocation() {
++        return new org.bukkit.Location(this.getWorld().getWorld(), this.getPosition().getX(), this.getPosition().getY(), this.getPosition().getZ());
++    }
++    // CraftBukkit end
++
+     ContainerLevelAccess NULL = new ContainerLevelAccess() {
+         @Override
+         public <T> Optional<T> evaluate(BiFunction<Level, BlockPos, T> getter) {
+             return Optional.empty();
+         }
++        // Paper start
++        @Override
++        public org.bukkit.Location getLocation() {
++            return null;
++        }
++        // Paper end
+     };
+ 
+     static ContainerLevelAccess create(final Level world, final BlockPos pos) {
+         return new ContainerLevelAccess() {
++            // CraftBukkit start
++            @Override
++            public Level getWorld() {
++                return world;
++            }
++
++            @Override
++            public BlockPos getPosition() {
++                return pos;
++            }
++            // CraftBukkit end
++
+             @Override
+             public <T> Optional<T> evaluate(BiFunction<Level, BlockPos, T> getter) {
+                 return Optional.of(getter.apply(world, pos));
+@@ -30,8 +63,8 @@
+     }
+ 
+     default void execute(BiConsumer<Level, BlockPos> function) {
+-        this.evaluate((world, pos) -> {
+-            function.accept(world, pos);
++        this.evaluate((world, blockposition) -> {
++            function.accept(world, blockposition);
+             return Optional.empty();
+         });
+     }

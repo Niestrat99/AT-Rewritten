@@ -1,0 +1,47 @@
+--- a/net/minecraft/world/level/block/DirtPathBlock.java
++++ b/net/minecraft/world/level/block/DirtPathBlock.java
+@@ -15,6 +15,7 @@
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ 
+ public class DirtPathBlock extends Block {
++
+     protected static final VoxelShape SHAPE = FarmBlock.SHAPE;
+ 
+     protected DirtPathBlock(BlockBehaviour.Properties settings) {
+@@ -34,7 +35,7 @@
+     @Override
+     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+         if (direction == Direction.UP && !state.canSurvive(world, pos)) {
+-            world.scheduleTick(pos, this, 1);
++            world.scheduleTick(pos, (Block) this, 1);
+         }
+ 
+         return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+@@ -42,18 +43,24 @@
+ 
+     @Override
+     public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
++        // CraftBukkit start - do not fade if the block is valid here
++        if (state.canSurvive(world, pos)) {
++            return;
++        }
++        // CraftBukkit end
+         FarmBlock.turnToDirt(state, world, pos);
+     }
+ 
+     @Override
+     public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+-        BlockState blockState = world.getBlockState(pos.above());
+-        return !blockState.getMaterial().isSolid() || blockState.getBlock() instanceof FenceGateBlock;
++        BlockState iblockdata1 = world.getBlockState(pos.above());
++
++        return !iblockdata1.getMaterial().isSolid() || iblockdata1.getBlock() instanceof FenceGateBlock;
+     }
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return SHAPE;
++        return DirtPathBlock.SHAPE;
+     }
+ 
+     @Override

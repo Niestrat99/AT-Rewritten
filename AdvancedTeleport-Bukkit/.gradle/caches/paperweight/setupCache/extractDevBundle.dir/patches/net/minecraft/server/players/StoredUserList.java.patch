@@ -1,0 +1,255 @@
+--- a/net/minecraft/server/players/StoredUserList.java
++++ b/net/minecraft/server/players/StoredUserList.java
+@@ -13,20 +13,41 @@
+ import java.io.BufferedWriter;
+ import java.io.File;
+ import java.io.IOException;
++import java.lang.reflect.ParameterizedType; // Paper
++import java.lang.reflect.Type; // Paper
+ import java.nio.charset.StandardCharsets;
+ import java.util.Collection;
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
++import java.util.Objects;
++import java.util.stream.Stream;
+ import javax.annotation.Nullable;
+ import net.minecraft.Util;
+ import net.minecraft.util.GsonHelper;
+ import org.slf4j.Logger;
+ 
+ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
+     private final File file;
+-    private final Map<String, V> map = Maps.newHashMap();
++    // Paper - replace HashMap is ConcurrentHashMap
++    private final Map<String, V> map = Maps.newConcurrentMap();
++    private boolean e = true;
++    private static final ParameterizedType f = new ParameterizedType() {
++        public Type[] getActualTypeArguments() {
++            return new Type[]{StoredUserEntry.class};
++        }
++
++        public Type getRawType() {
++            return List.class;
++        }
++
++        public Type getOwnerType() {
++            return null;
++        }
++    };
+ 
+     public StoredUserList(File file) {
+         this.file = file;
+@@ -41,16 +62,21 @@
+ 
+         try {
+             this.save();
+-        } catch (IOException var3) {
+-            LOGGER.warn("Could not save the list after adding a user.", (Throwable)var3);
++        } catch (IOException ioexception) {
++            StoredUserList.LOGGER.warn("Could not save the list after adding a user.", ioexception);
+         }
+ 
+     }
+ 
+     @Nullable
+     public V get(K key) {
+-        this.removeExpired();
+-        return this.map.get(this.getKeyForUser(key));
++        // Paper start
++        // this.g();
++        // return (V) this.d.get(this.a(k0)); // CraftBukkit - fix decompile error
++        return (V) this.map.computeIfPresent(this.getKeyForUser(key), (k, v) -> {
++            return v.hasExpired() ? null : v;
++        });
++        // Paper end
+     }
+ 
+     public void remove(K key) {
+@@ -58,8 +84,8 @@
+ 
+         try {
+             this.save();
+-        } catch (IOException var3) {
+-            LOGGER.warn("Could not save the list after removing a user.", (Throwable)var3);
++        } catch (IOException ioexception) {
++            StoredUserList.LOGGER.warn("Could not save the list after removing a user.", ioexception);
+         }
+ 
+     }
+@@ -69,34 +95,50 @@
+     }
+ 
+     public String[] getUserList() {
+-        return this.map.keySet().toArray(new String[0]);
++        return (String[]) this.map.keySet().toArray(new String[0]);
++    }
++
++    // CraftBukkit start
++    public Collection<V> getValues() {
++        return this.map.values();
+     }
++    // CraftBukkit end
+ 
+     public boolean isEmpty() {
+-        return this.map.size() < 1;
++        // return this.d.size() < 1; // Paper
++        return this.map.isEmpty(); // Paper - readability is the goal. As an aside, isEmpty() uses only sumCount() and a comparison. size() uses sumCount(), casts, and boolean logic
+     }
+ 
+     protected String getKeyForUser(K profile) {
+         return profile.toString();
+     }
+ 
+-    protected boolean contains(K object) {
+-        return this.map.containsKey(this.getKeyForUser(object));
++    protected boolean contains(K k0) {
++        return this.map.containsKey(this.getKeyForUser(k0));
+     }
+ 
+     private void removeExpired() {
+-        List<K> list = Lists.newArrayList();
++        /*List<K> list = Lists.newArrayList();
++        Iterator iterator = this.d.values().iterator();
+ 
+-        for(V storedUserEntry : this.map.values()) {
+-            if (storedUserEntry.hasExpired()) {
+-                list.add(storedUserEntry.getUser());
++        while (iterator.hasNext()) {
++            V v0 = (V) iterator.next(); // CraftBukkit - decompile error
++
++            if (v0.hasExpired()) {
++                list.add(v0.getKey());
+             }
+         }
+ 
+-        for(K object : list) {
+-            this.map.remove(this.getKeyForUser(object));
+-        }
++        iterator = list.iterator();
+ 
++        while (iterator.hasNext()) {
++            K k0 = (K) iterator.next(); // CraftBukkit - decompile error
++
++            this.d.remove(this.a(k0));
++        }*/
++
++        this.map.values().removeIf(StoredUserEntry::hasExpired);
++        // Paper end
+     }
+ 
+     protected abstract StoredUserEntry<K> createEntry(JsonObject json);
+@@ -106,61 +148,81 @@
+     }
+ 
+     public void save() throws IOException {
+-        JsonArray jsonArray = new JsonArray();
+-        this.map.values().stream().map((entry) -> {
+-            return Util.make(new JsonObject(), entry::serialize);
+-        }).forEach(jsonArray::add);
+-        BufferedWriter bufferedWriter = Files.newWriter(this.file, StandardCharsets.UTF_8);
++        this.removeExpired(); // Paper - remove expired values before saving
++        JsonArray jsonarray = new JsonArray();
++        Stream<JsonObject> stream = this.map.values().stream().map((jsonlistentry) -> { // CraftBukkit - decompile error
++            JsonObject jsonobject = new JsonObject();
++
++            Objects.requireNonNull(jsonlistentry);
++            return (JsonObject) Util.make(jsonobject, jsonlistentry::serialize);
++        });
++
++        Objects.requireNonNull(jsonarray);
++        stream.forEach(jsonarray::add);
++        BufferedWriter bufferedwriter = Files.newWriter(this.file, StandardCharsets.UTF_8);
+ 
+         try {
+-            GSON.toJson((JsonElement)jsonArray, bufferedWriter);
+-        } catch (Throwable var6) {
+-            if (bufferedWriter != null) {
++            StoredUserList.GSON.toJson(jsonarray, bufferedwriter);
++        } catch (Throwable throwable) {
++            if (bufferedwriter != null) {
+                 try {
+-                    bufferedWriter.close();
+-                } catch (Throwable var5) {
+-                    var6.addSuppressed(var5);
++                    bufferedwriter.close();
++                } catch (Throwable throwable1) {
++                    throwable.addSuppressed(throwable1);
+                 }
+             }
+ 
+-            throw var6;
++            throw throwable;
+         }
+ 
+-        if (bufferedWriter != null) {
+-            bufferedWriter.close();
++        if (bufferedwriter != null) {
++            bufferedwriter.close();
+         }
+ 
+     }
+ 
+     public void load() throws IOException {
+         if (this.file.exists()) {
+-            BufferedReader bufferedReader = Files.newReader(this.file, StandardCharsets.UTF_8);
++            BufferedReader bufferedreader = Files.newReader(this.file, StandardCharsets.UTF_8);
+ 
+             try {
+-                JsonArray jsonArray = GSON.fromJson(bufferedReader, JsonArray.class);
++                JsonArray jsonarray = (JsonArray) StoredUserList.GSON.fromJson(bufferedreader, JsonArray.class);
++                com.google.common.base.Preconditions.checkState(jsonarray != null, "The file \"" + this.file.getName() + "\" is either empty or corrupt"); // Paper
++
+                 this.map.clear();
++                Iterator iterator = jsonarray.iterator();
+ 
+-                for(JsonElement jsonElement : jsonArray) {
+-                    JsonObject jsonObject = GsonHelper.convertToJsonObject(jsonElement, "entry");
+-                    StoredUserEntry<K> storedUserEntry = this.createEntry(jsonObject);
+-                    if (storedUserEntry.getUser() != null) {
+-                        this.map.put(this.getKeyForUser(storedUserEntry.getUser()), (V)storedUserEntry);
++                while (iterator.hasNext()) {
++                    JsonElement jsonelement = (JsonElement) iterator.next();
++                    JsonObject jsonobject = GsonHelper.convertToJsonObject(jsonelement, "entry");
++                    StoredUserEntry<K> jsonlistentry = this.createEntry(jsonobject);
++
++                    if (jsonlistentry.getUser() != null) {
++                        this.map.put(this.getKeyForUser(jsonlistentry.getUser()), (V) jsonlistentry); // CraftBukkit - decompile error
+                     }
+                 }
+-            } catch (Throwable var8) {
+-                if (bufferedReader != null) {
++            // Spigot Start
++            } catch ( com.google.gson.JsonParseException | NullPointerException ex )
++            {
++                org.bukkit.Bukkit.getLogger().log( java.util.logging.Level.WARNING, "Unable to read file " + this.file + ", backing it up to {0}.backup and creating new copy.", ex );
++                File backup = new File( this.file + ".backup" );
++                this.file.renameTo( backup );
++                this.file.delete();
++            // Spigot End
++            } catch (Throwable throwable) {
++                if (bufferedreader != null) {
+                     try {
+-                        bufferedReader.close();
+-                    } catch (Throwable var7) {
+-                        var8.addSuppressed(var7);
++                        bufferedreader.close();
++                    } catch (Throwable throwable1) {
++                        throwable.addSuppressed(throwable1);
+                     }
+                 }
+ 
+-                throw var8;
++                throw throwable;
+             }
+ 
+-            if (bufferedReader != null) {
+-                bufferedReader.close();
++            if (bufferedreader != null) {
++                bufferedreader.close();
+             }
+ 
+         }

@@ -1,0 +1,254 @@
+--- a/net/minecraft/server/bossevents/CustomBossEvent.java
++++ b/net/minecraft/server/bossevents/CustomBossEvent.java
+@@ -2,6 +2,7 @@
+ 
+ import com.google.common.collect.Sets;
+ import java.util.Collection;
++import java.util.Iterator;
+ import java.util.Set;
+ import java.util.UUID;
+ import net.minecraft.nbt.CompoundTag;
+@@ -15,12 +16,27 @@
+ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.util.Mth;
+ import net.minecraft.world.BossEvent;
++// CraftBukkit start
++import org.bukkit.boss.KeyedBossBar;
++import org.bukkit.craftbukkit.v1_19_R1.boss.CraftKeyedBossbar;
++// CraftBukkit end
+ 
+ public class CustomBossEvent extends ServerBossEvent {
++
+     private final ResourceLocation id;
+     private final Set<UUID> players = Sets.newHashSet();
+     private int value;
+     private int max = 100;
++    // CraftBukkit start
++    private KeyedBossBar bossBar;
++
++    public KeyedBossBar getBukkitEntity() {
++        if (this.bossBar == null) {
++            this.bossBar = new CraftKeyedBossbar(this);
++        }
++        return this.bossBar;
++    }
++    // CraftBukkit end
+ 
+     public CustomBossEvent(ResourceLocation id, Component displayName) {
+         super(displayName, BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
+@@ -64,110 +80,154 @@
+ 
+     public void setValue(int value) {
+         this.value = value;
+-        this.setProgress(Mth.clamp((float)value / (float)this.max, 0.0F, 1.0F));
++        this.setProgress(Mth.clamp((float) value / (float) this.max, 0.0F, 1.0F));
+     }
+ 
+     public void setMax(int maxValue) {
+         this.max = maxValue;
+-        this.setProgress(Mth.clamp((float)this.value / (float)maxValue, 0.0F, 1.0F));
++        this.setProgress(Mth.clamp((float) this.value / (float) maxValue, 0.0F, 1.0F));
+     }
+ 
+     public final Component getDisplayName() {
+-        return ComponentUtils.wrapInSquareBrackets(this.getName()).withStyle((style) -> {
+-            return style.withColor(this.getColor().getFormatting()).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(this.getTextId().toString()))).withInsertion(this.getTextId().toString());
++        return ComponentUtils.wrapInSquareBrackets(this.getName()).withStyle((chatmodifier) -> {
++            return chatmodifier.withColor(this.getColor().getFormatting()).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(this.getTextId().toString()))).withInsertion(this.getTextId().toString());
+         });
+     }
+ 
+     public boolean setPlayers(Collection<ServerPlayer> players) {
+         Set<UUID> set = Sets.newHashSet();
+-        Set<ServerPlayer> set2 = Sets.newHashSet();
++        Set<ServerPlayer> set1 = Sets.newHashSet();
++        Iterator iterator = this.players.iterator();
+ 
+-        for(UUID uUID : this.players) {
+-            boolean bl = false;
++        UUID uuid;
++        boolean flag;
++        Iterator iterator1;
+ 
+-            for(ServerPlayer serverPlayer : players) {
+-                if (serverPlayer.getUUID().equals(uUID)) {
+-                    bl = true;
+-                    break;
++        while (iterator.hasNext()) {
++            uuid = (UUID) iterator.next();
++            flag = false;
++            iterator1 = players.iterator();
++
++            while (true) {
++                if (iterator1.hasNext()) {
++                    ServerPlayer entityplayer = (ServerPlayer) iterator1.next();
++
++                    if (!entityplayer.getUUID().equals(uuid)) {
++                        continue;
++                    }
++
++                    flag = true;
+                 }
+-            }
+ 
+-            if (!bl) {
+-                set.add(uUID);
++                if (!flag) {
++                    set.add(uuid);
++                }
++                break;
+             }
+         }
+ 
+-        for(ServerPlayer serverPlayer2 : players) {
+-            boolean bl2 = false;
++        iterator = players.iterator();
+ 
+-            for(UUID uUID2 : this.players) {
+-                if (serverPlayer2.getUUID().equals(uUID2)) {
+-                    bl2 = true;
+-                    break;
++        ServerPlayer entityplayer1;
++
++        while (iterator.hasNext()) {
++            entityplayer1 = (ServerPlayer) iterator.next();
++            flag = false;
++            iterator1 = this.players.iterator();
++
++            while (true) {
++                if (iterator1.hasNext()) {
++                    UUID uuid1 = (UUID) iterator1.next();
++
++                    if (!entityplayer1.getUUID().equals(uuid1)) {
++                        continue;
++                    }
++
++                    flag = true;
+                 }
+-            }
+ 
+-            if (!bl2) {
+-                set2.add(serverPlayer2);
++                if (!flag) {
++                    set1.add(entityplayer1);
++                }
++                break;
+             }
+         }
+ 
+-        for(UUID uUID3 : set) {
+-            for(ServerPlayer serverPlayer3 : this.getPlayers()) {
+-                if (serverPlayer3.getUUID().equals(uUID3)) {
+-                    this.removePlayer(serverPlayer3);
+-                    break;
++        iterator = set.iterator();
++
++        while (iterator.hasNext()) {
++            uuid = (UUID) iterator.next();
++            Iterator iterator2 = this.getPlayers().iterator();
++
++            while (true) {
++                if (iterator2.hasNext()) {
++                    ServerPlayer entityplayer2 = (ServerPlayer) iterator2.next();
++
++                    if (!entityplayer2.getUUID().equals(uuid)) {
++                        continue;
++                    }
++
++                    this.removePlayer(entityplayer2);
+                 }
+-            }
+ 
+-            this.players.remove(uUID3);
++                this.players.remove(uuid);
++                break;
++            }
+         }
+ 
+-        for(ServerPlayer serverPlayer4 : set2) {
+-            this.addPlayer(serverPlayer4);
++        iterator = set1.iterator();
++
++        while (iterator.hasNext()) {
++            entityplayer1 = (ServerPlayer) iterator.next();
++            this.addPlayer(entityplayer1);
+         }
+ 
+-        return !set.isEmpty() || !set2.isEmpty();
++        return !set.isEmpty() || !set1.isEmpty();
+     }
+ 
+     public CompoundTag save() {
+-        CompoundTag compoundTag = new CompoundTag();
+-        compoundTag.putString("Name", Component.Serializer.toJson(this.name));
+-        compoundTag.putBoolean("Visible", this.isVisible());
+-        compoundTag.putInt("Value", this.value);
+-        compoundTag.putInt("Max", this.max);
+-        compoundTag.putString("Color", this.getColor().getName());
+-        compoundTag.putString("Overlay", this.getOverlay().getName());
+-        compoundTag.putBoolean("DarkenScreen", this.shouldDarkenScreen());
+-        compoundTag.putBoolean("PlayBossMusic", this.shouldPlayBossMusic());
+-        compoundTag.putBoolean("CreateWorldFog", this.shouldCreateWorldFog());
+-        ListTag listTag = new ListTag();
++        CompoundTag nbttagcompound = new CompoundTag();
+ 
+-        for(UUID uUID : this.players) {
+-            listTag.add(NbtUtils.createUUID(uUID));
++        nbttagcompound.putString("Name", Component.Serializer.toJson(this.name));
++        nbttagcompound.putBoolean("Visible", this.isVisible());
++        nbttagcompound.putInt("Value", this.value);
++        nbttagcompound.putInt("Max", this.max);
++        nbttagcompound.putString("Color", this.getColor().getName());
++        nbttagcompound.putString("Overlay", this.getOverlay().getName());
++        nbttagcompound.putBoolean("DarkenScreen", this.shouldDarkenScreen());
++        nbttagcompound.putBoolean("PlayBossMusic", this.shouldPlayBossMusic());
++        nbttagcompound.putBoolean("CreateWorldFog", this.shouldCreateWorldFog());
++        ListTag nbttaglist = new ListTag();
++        Iterator iterator = this.players.iterator();
++
++        while (iterator.hasNext()) {
++            UUID uuid = (UUID) iterator.next();
++
++            nbttaglist.add(NbtUtils.createUUID(uuid));
+         }
+ 
+-        compoundTag.put("Players", listTag);
+-        return compoundTag;
++        nbttagcompound.put("Players", nbttaglist);
++        return nbttagcompound;
+     }
+ 
+     public static CustomBossEvent load(CompoundTag nbt, ResourceLocation id) {
+-        CustomBossEvent customBossEvent = new CustomBossEvent(id, Component.Serializer.fromJson(nbt.getString("Name")));
+-        customBossEvent.setVisible(nbt.getBoolean("Visible"));
+-        customBossEvent.setValue(nbt.getInt("Value"));
+-        customBossEvent.setMax(nbt.getInt("Max"));
+-        customBossEvent.setColor(BossEvent.BossBarColor.byName(nbt.getString("Color")));
+-        customBossEvent.setOverlay(BossEvent.BossBarOverlay.byName(nbt.getString("Overlay")));
+-        customBossEvent.setDarkenScreen(nbt.getBoolean("DarkenScreen"));
+-        customBossEvent.setPlayBossMusic(nbt.getBoolean("PlayBossMusic"));
+-        customBossEvent.setCreateWorldFog(nbt.getBoolean("CreateWorldFog"));
+-        ListTag listTag = nbt.getList("Players", 11);
++        CustomBossEvent bossbattlecustom = new CustomBossEvent(id, Component.Serializer.fromJson(nbt.getString("Name")));
+ 
+-        for(int i = 0; i < listTag.size(); ++i) {
+-            customBossEvent.addOfflinePlayer(NbtUtils.loadUUID(listTag.get(i)));
++        bossbattlecustom.setVisible(nbt.getBoolean("Visible"));
++        bossbattlecustom.setValue(nbt.getInt("Value"));
++        bossbattlecustom.setMax(nbt.getInt("Max"));
++        bossbattlecustom.setColor(BossEvent.BossBarColor.byName(nbt.getString("Color")));
++        bossbattlecustom.setOverlay(BossEvent.BossBarOverlay.byName(nbt.getString("Overlay")));
++        bossbattlecustom.setDarkenScreen(nbt.getBoolean("DarkenScreen"));
++        bossbattlecustom.setPlayBossMusic(nbt.getBoolean("PlayBossMusic"));
++        bossbattlecustom.setCreateWorldFog(nbt.getBoolean("CreateWorldFog"));
++        ListTag nbttaglist = nbt.getList("Players", 11);
++
++        for (int i = 0; i < nbttaglist.size(); ++i) {
++            bossbattlecustom.addOfflinePlayer(NbtUtils.loadUUID(nbttaglist.get(i)));
+         }
+ 
+-        return customBossEvent;
++        return bossbattlecustom;
+     }
+ 
+     public void onPlayerConnect(ServerPlayer player) {

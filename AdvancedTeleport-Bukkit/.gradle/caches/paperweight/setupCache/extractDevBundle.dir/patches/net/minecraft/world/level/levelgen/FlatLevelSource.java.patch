@@ -1,0 +1,135 @@
+--- a/net/minecraft/world/level/levelgen/FlatLevelSource.java
++++ b/net/minecraft/world/level/levelgen/FlatLevelSource.java
+@@ -3,6 +3,8 @@
+ import com.mojang.serialization.Codec;
+ import com.mojang.serialization.codecs.RecordCodecBuilder;
+ import java.util.List;
++import java.util.Objects;
++import java.util.Optional;
+ import java.util.concurrent.CompletableFuture;
+ import java.util.concurrent.Executor;
+ import net.minecraft.Util;
+@@ -23,19 +25,30 @@
+ import net.minecraft.world.level.levelgen.structure.StructureSet;
+ 
+ public class FlatLevelSource extends ChunkGenerator {
++
+     public static final Codec<FlatLevelSource> CODEC = RecordCodecBuilder.create((instance) -> {
+         return commonCodec(instance).and(FlatLevelGeneratorSettings.CODEC.fieldOf("settings").forGetter(FlatLevelSource::settings)).apply(instance, instance.stable(FlatLevelSource::new));
+     });
+     private final FlatLevelGeneratorSettings settings;
+ 
+     public FlatLevelSource(Registry<StructureSet> structureSetRegistry, FlatLevelGeneratorSettings config) {
+-        super(structureSetRegistry, config.structureOverrides(), new FixedBiomeSource(config.getBiome()), Util.memoize(config::adjustGenerationSettings));
+-        this.settings = config;
++        // CraftBukkit start
++        // Optional optional = generatorsettingsflat.structureOverrides();
++        // WorldChunkManagerHell worldchunkmanagerhell = new WorldChunkManagerHell(generatorsettingsflat.getBiome());
++
++        // Objects.requireNonNull(generatorsettingsflat);
++        this(structureSetRegistry, config, new FixedBiomeSource(config.getBiome()));
++    }
++
++    public FlatLevelSource(Registry<StructureSet> iregistry, FlatLevelGeneratorSettings generatorsettingsflat, net.minecraft.world.level.biome.BiomeSource worldchunkmanager) {
++        super(iregistry, generatorsettingsflat.structureOverrides(), worldchunkmanager, Util.memoize(generatorsettingsflat::adjustGenerationSettings));
++        // CraftBukkit end
++        this.settings = generatorsettingsflat;
+     }
+ 
+     @Override
+     protected Codec<? extends ChunkGenerator> codec() {
+-        return CODEC;
++        return FlatLevelSource.CODEC;
+     }
+ 
+     public FlatLevelGeneratorSettings settings() {
+@@ -43,8 +56,7 @@
+     }
+ 
+     @Override
+-    public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {
+-    }
++    public void buildSurface(WorldGenRegion region, StructureManager structures, RandomState noiseConfig, ChunkAccess chunk) {}
+ 
+     @Override
+     public int getSpawnHeight(LevelHeightAccessor world) {
+@@ -54,20 +66,21 @@
+     @Override
+     public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState noiseConfig, StructureManager structureAccessor, ChunkAccess chunk) {
+         List<BlockState> list = this.settings.getLayers();
+-        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
++        BlockPos.MutableBlockPos blockposition_mutableblockposition = new BlockPos.MutableBlockPos();
+         Heightmap heightmap = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
+-        Heightmap heightmap2 = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
++        Heightmap heightmap1 = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+ 
+-        for(int i = 0; i < Math.min(chunk.getHeight(), list.size()); ++i) {
+-            BlockState blockState = list.get(i);
+-            if (blockState != null) {
++        for (int i = 0; i < Math.min(chunk.getHeight(), list.size()); ++i) {
++            BlockState iblockdata = (BlockState) list.get(i);
++
++            if (iblockdata != null) {
+                 int j = chunk.getMinBuildHeight() + i;
+ 
+-                for(int k = 0; k < 16; ++k) {
+-                    for(int l = 0; l < 16; ++l) {
+-                        chunk.setBlockState(mutableBlockPos.set(k, j, l), blockState, false);
+-                        heightmap.update(k, j, l, blockState);
+-                        heightmap2.update(k, j, l, blockState);
++                for (int k = 0; k < 16; ++k) {
++                    for (int l = 0; l < 16; ++l) {
++                        chunk.setBlockState(blockposition_mutableblockposition.set(k, j, l), iblockdata, false);
++                        heightmap.update(k, j, l, iblockdata);
++                        heightmap1.update(k, j, l, iblockdata);
+                     }
+                 }
+             }
+@@ -80,10 +93,11 @@
+     public int getBaseHeight(int x, int z, Heightmap.Types heightmap, LevelHeightAccessor world, RandomState noiseConfig) {
+         List<BlockState> list = this.settings.getLayers();
+ 
+-        for(int i = Math.min(list.size(), world.getMaxBuildHeight()) - 1; i >= 0; --i) {
+-            BlockState blockState = list.get(i);
+-            if (blockState != null && heightmap.isOpaque().test(blockState)) {
+-                return world.getMinBuildHeight() + i + 1;
++        for (int k = Math.min(list.size(), world.getMaxBuildHeight()) - 1; k >= 0; --k) {
++            BlockState iblockdata = (BlockState) list.get(k);
++
++            if (iblockdata != null && heightmap.isOpaque().test(iblockdata)) {
++                return world.getMinBuildHeight() + k + 1;
+             }
+         }
+ 
+@@ -92,24 +106,21 @@
+ 
+     @Override
+     public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor world, RandomState noiseConfig) {
+-        return new NoiseColumn(world.getMinBuildHeight(), this.settings.getLayers().stream().limit((long)world.getHeight()).map((state) -> {
+-            return state == null ? Blocks.AIR.defaultBlockState() : state;
+-        }).toArray((i) -> {
+-            return new BlockState[i];
++        return new NoiseColumn(world.getMinBuildHeight(), (BlockState[]) this.settings.getLayers().stream().limit((long) world.getHeight()).map((iblockdata) -> {
++            return iblockdata == null ? Blocks.AIR.defaultBlockState() : iblockdata;
++        }).toArray((k) -> {
++            return new BlockState[k];
+         }));
+     }
+ 
+     @Override
+-    public void addDebugScreenInfo(List<String> text, RandomState noiseConfig, BlockPos pos) {
+-    }
++    public void addDebugScreenInfo(List<String> text, RandomState noiseConfig, BlockPos pos) {}
+ 
+     @Override
+-    public void applyCarvers(WorldGenRegion chunkRegion, long seed, RandomState noiseConfig, BiomeManager biomeAccess, StructureManager structureAccessor, ChunkAccess chunk, GenerationStep.Carving carverStep) {
+-    }
++    public void applyCarvers(WorldGenRegion chunkRegion, long seed, RandomState noiseConfig, BiomeManager biomeAccess, StructureManager structureAccessor, ChunkAccess chunk, GenerationStep.Carving carverStep) {}
+ 
+     @Override
+-    public void spawnOriginalMobs(WorldGenRegion region) {
+-    }
++    public void spawnOriginalMobs(WorldGenRegion region) {}
+ 
+     @Override
+     public int getMinY() {

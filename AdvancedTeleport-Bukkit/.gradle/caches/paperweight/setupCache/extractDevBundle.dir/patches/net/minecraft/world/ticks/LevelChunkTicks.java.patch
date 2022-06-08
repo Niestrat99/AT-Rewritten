@@ -1,0 +1,67 @@
+--- a/net/minecraft/world/ticks/LevelChunkTicks.java
++++ b/net/minecraft/world/ticks/LevelChunkTicks.java
+@@ -25,6 +25,19 @@
+     @Nullable
+     private BiConsumer<LevelChunkTicks<T>, ScheduledTick<T>> onTickAdded;
+ 
++    // Paper start - add dirty flag
++    private boolean dirty;
++    private long lastSaved = Long.MIN_VALUE;
++
++    public boolean isDirty(final long tick) {
++        return this.dirty || (!this.tickQueue.isEmpty() && tick != this.lastSaved);
++    }
++
++    public void clearDirty() {
++        this.dirty = false;
++    }
++    // Paper end - add dirty flag
++
+     public LevelChunkTicks() {
+     }
+ 
+@@ -50,6 +63,7 @@
+     public ScheduledTick<T> poll() {
+         ScheduledTick<T> scheduledTick = this.tickQueue.poll();
+         if (scheduledTick != null) {
++            this.dirty = true; // Paper - add dirty flag
+             this.ticksPerPosition.remove(scheduledTick);
+         }
+ 
+@@ -59,6 +73,7 @@
+     @Override
+     public void schedule(ScheduledTick<T> orderedTick) {
+         if (this.ticksPerPosition.add(orderedTick)) {
++            this.dirty = true; // Paper - add dirty flag
+             this.scheduleUnchecked(orderedTick);
+         }
+ 
+@@ -83,7 +98,7 @@
+         while(iterator.hasNext()) {
+             ScheduledTick<T> scheduledTick = iterator.next();
+             if (predicate.test(scheduledTick)) {
+-                iterator.remove();
++                iterator.remove(); this.dirty = true; // Paper - add dirty flag
+                 this.ticksPerPosition.remove(scheduledTick);
+             }
+         }
+@@ -101,6 +116,7 @@
+ 
+     @Override
+     public ListTag save(long l, Function<T, String> function) {
++        this.lastSaved = l; // Paper - add dirty system to level ticks
+         ListTag listTag = new ListTag();
+         if (this.pendingTicks != null) {
+             for(SavedTick<T> savedTick : this.pendingTicks) {
+@@ -117,6 +133,11 @@
+ 
+     public void unpack(long time) {
+         if (this.pendingTicks != null) {
++            // Paper start - add dirty system to level chunk ticks
++            if (this.tickQueue.isEmpty()) {
++                this.lastSaved = time;
++            }
++            // Paper end - add dirty system to level chunk ticks
+             int i = -this.pendingTicks.size();
+ 
+             for(SavedTick<T> savedTick : this.pendingTicks) {

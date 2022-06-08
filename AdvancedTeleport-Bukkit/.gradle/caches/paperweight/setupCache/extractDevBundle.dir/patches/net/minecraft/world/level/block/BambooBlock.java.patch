@@ -1,0 +1,228 @@
+--- a/net/minecraft/world/level/block/BambooBlock.java
++++ b/net/minecraft/world/level/block/BambooBlock.java
+@@ -27,6 +27,7 @@
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ 
+ public class BambooBlock extends Block implements BonemealableBlock {
++
+     protected static final float SMALL_LEAVES_AABB_OFFSET = 3.0F;
+     protected static final float LARGE_LEAVES_AABB_OFFSET = 5.0F;
+     protected static final float COLLISION_AABB_OFFSET = 1.5F;
+@@ -44,12 +45,12 @@
+ 
+     public BambooBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue(LEAVES, BambooLeaves.NONE).setValue(STAGE, Integer.valueOf(0)));
++        this.registerDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(BambooBlock.AGE, 0)).setValue(BambooBlock.LEAVES, BambooLeaves.NONE)).setValue(BambooBlock.STAGE, 0));
+     }
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(AGE, LEAVES, STAGE);
++        builder.add(BambooBlock.AGE, BambooBlock.LEAVES, BambooBlock.STAGE);
+     }
+ 
+     @Override
+@@ -59,9 +60,10 @@
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        VoxelShape voxelShape = state.getValue(LEAVES) == BambooLeaves.LARGE ? LARGE_SHAPE : SMALL_SHAPE;
+-        Vec3 vec3 = state.getOffset(world, pos);
+-        return voxelShape.move(vec3.x, vec3.y, vec3.z);
++        VoxelShape voxelshape = state.getValue(BambooBlock.LEAVES) == BambooLeaves.LARGE ? BambooBlock.LARGE_SHAPE : BambooBlock.SMALL_SHAPE;
++        Vec3 vec3d = state.getOffset(world, pos);
++
++        return voxelshape.move(vec3d.x, vec3d.y, vec3d.z);
+     }
+ 
+     @Override
+@@ -71,8 +73,9 @@
+ 
+     @Override
+     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        Vec3 vec3 = state.getOffset(world, pos);
+-        return COLLISION_SHAPE.move(vec3.x, vec3.y, vec3.z);
++        Vec3 vec3d = state.getOffset(world, pos);
++
++        return BambooBlock.COLLISION_SHAPE.move(vec3d.x, vec3d.y, vec3d.z);
+     }
+ 
+     @Override
+@@ -83,20 +86,24 @@
+     @Nullable
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+-        FluidState fluidState = ctx.getLevel().getFluidState(ctx.getClickedPos());
+-        if (!fluidState.isEmpty()) {
++        FluidState fluid = ctx.getLevel().getFluidState(ctx.getClickedPos());
++
++        if (!fluid.isEmpty()) {
+             return null;
+         } else {
+-            BlockState blockState = ctx.getLevel().getBlockState(ctx.getClickedPos().below());
+-            if (blockState.is(BlockTags.BAMBOO_PLANTABLE_ON)) {
+-                if (blockState.is(Blocks.BAMBOO_SAPLING)) {
+-                    return this.defaultBlockState().setValue(AGE, Integer.valueOf(0));
+-                } else if (blockState.is(Blocks.BAMBOO)) {
+-                    int i = blockState.getValue(AGE) > 0 ? 1 : 0;
+-                    return this.defaultBlockState().setValue(AGE, Integer.valueOf(i));
++            BlockState iblockdata = ctx.getLevel().getBlockState(ctx.getClickedPos().below());
++
++            if (iblockdata.is(BlockTags.BAMBOO_PLANTABLE_ON)) {
++                if (iblockdata.is(Blocks.BAMBOO_SAPLING)) {
++                    return (BlockState) this.defaultBlockState().setValue(BambooBlock.AGE, 0);
++                } else if (iblockdata.is(Blocks.BAMBOO)) {
++                    int i = (Integer) iblockdata.getValue(BambooBlock.AGE) > 0 ? 1 : 0;
++
++                    return (BlockState) this.defaultBlockState().setValue(BambooBlock.AGE, i);
+                 } else {
+-                    BlockState blockState2 = ctx.getLevel().getBlockState(ctx.getClickedPos().above());
+-                    return blockState2.is(Blocks.BAMBOO) ? this.defaultBlockState().setValue(AGE, blockState2.getValue(AGE)) : Blocks.BAMBOO_SAPLING.defaultBlockState();
++                    BlockState iblockdata1 = ctx.getLevel().getBlockState(ctx.getClickedPos().above());
++
++                    return iblockdata1.is(Blocks.BAMBOO) ? (BlockState) this.defaultBlockState().setValue(BambooBlock.AGE, (Integer) iblockdata1.getValue(BambooBlock.AGE)) : Blocks.BAMBOO_SAPLING.defaultBlockState();
+                 }
+             } else {
+                 return null;
+@@ -114,15 +121,16 @@
+ 
+     @Override
+     public boolean isRandomlyTicking(BlockState state) {
+-        return state.getValue(STAGE) == 0;
++        return (Integer) state.getValue(BambooBlock.STAGE) == 0;
+     }
+ 
+     @Override
+     public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+-        if (state.getValue(STAGE) == 0) {
+-            if (random.nextInt(3) == 0 && world.isEmptyBlock(pos.above()) && world.getRawBrightness(pos.above(), 0) >= 9) {
++        if ((Integer) state.getValue(BambooBlock.STAGE) == 0) {
++            if (random.nextFloat() < (world.spigotConfig.bambooModifier / (100.0f * 3)) && world.isEmptyBlock(pos.above()) && world.getRawBrightness(pos.above(), 0) >= 9) { // Spigot - SPIGOT-7159: Better modifier resolution
+                 int i = this.getHeightBelowUpToMax(world, pos) + 1;
+-                if (i < 16) {
++
++                if (i < world.paperConfig().maxGrowthHeight.bamboo.max) { // Paper
+                     this.growBamboo(state, world, pos, random, i);
+                 }
+             }
+@@ -138,11 +146,11 @@
+     @Override
+     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+         if (!state.canSurvive(world, pos)) {
+-            world.scheduleTick(pos, this, 1);
++            world.scheduleTick(pos, (Block) this, 1);
+         }
+ 
+-        if (direction == Direction.UP && neighborState.is(Blocks.BAMBOO) && neighborState.getValue(AGE) > state.getValue(AGE)) {
+-            world.setBlock(pos, state.cycle(AGE), 2);
++        if (direction == Direction.UP && neighborState.is(Blocks.BAMBOO) && (Integer) neighborState.getValue(BambooBlock.AGE) > (Integer) state.getValue(BambooBlock.AGE)) {
++            world.setBlock(pos, (BlockState) state.cycle(BambooBlock.AGE), 2);
+         }
+ 
+         return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+@@ -152,7 +160,8 @@
+     public boolean isValidBonemealTarget(BlockGetter world, BlockPos pos, BlockState state, boolean isClient) {
+         int i = this.getHeightAboveUpToMax(world, pos);
+         int j = this.getHeightBelowUpToMax(world, pos);
+-        return i + j + 1 < 16 && world.getBlockState(pos.above(i)).getValue(STAGE) != 1;
++
++        return i + j + 1 < ((Level) world).paperConfig().maxGrowthHeight.bamboo.max && (Integer) world.getBlockState(pos.above(i)).getValue(BambooBlock.STAGE) != 1; // Paper
+     }
+ 
+     @Override
+@@ -167,14 +176,15 @@
+         int k = i + j + 1;
+         int l = 1 + random.nextInt(2);
+ 
+-        for(int m = 0; m < l; ++m) {
+-            BlockPos blockPos = pos.above(i);
+-            BlockState blockState = world.getBlockState(blockPos);
+-            if (k >= 16 || blockState.getValue(STAGE) == 1 || !world.isEmptyBlock(blockPos.above())) {
++        for (int i1 = 0; i1 < l; ++i1) {
++            BlockPos blockposition1 = pos.above(i);
++            BlockState iblockdata1 = world.getBlockState(blockposition1);
++
++            if (k >= world.paperConfig().maxGrowthHeight.bamboo.max || !iblockdata1.is(Blocks.BAMBOO) || (Integer) iblockdata1.getValue(BambooBlock.STAGE) == 1 || !world.isEmptyBlock(blockposition1.above())) { // CraftBukkit - If the BlockSpreadEvent was cancelled, we have no bamboo here // Paper - Configurable cactus bamboo and reed growth heights
+                 return;
+             }
+ 
+-            this.growBamboo(blockState, world, blockPos, random, k);
++            this.growBamboo(iblockdata1, world, blockposition1, random, k);
+             ++i;
+             ++k;
+         }
+@@ -187,32 +197,47 @@
+     }
+ 
+     protected void growBamboo(BlockState state, Level world, BlockPos pos, RandomSource random, int height) {
+-        BlockState blockState = world.getBlockState(pos.below());
+-        BlockPos blockPos = pos.below(2);
+-        BlockState blockState2 = world.getBlockState(blockPos);
+-        BambooLeaves bambooLeaves = BambooLeaves.NONE;
++        BlockState iblockdata1 = world.getBlockState(pos.below());
++        BlockPos blockposition1 = pos.below(2);
++        BlockState iblockdata2 = world.getBlockState(blockposition1);
++        BambooLeaves blockpropertybamboosize = BambooLeaves.NONE;
++        boolean shouldUpdateOthers = false; // CraftBukkit
++
+         if (height >= 1) {
+-            if (blockState.is(Blocks.BAMBOO) && blockState.getValue(LEAVES) != BambooLeaves.NONE) {
+-                if (blockState.is(Blocks.BAMBOO) && blockState.getValue(LEAVES) != BambooLeaves.NONE) {
+-                    bambooLeaves = BambooLeaves.LARGE;
+-                    if (blockState2.is(Blocks.BAMBOO)) {
+-                        world.setBlock(pos.below(), blockState.setValue(LEAVES, BambooLeaves.SMALL), 3);
+-                        world.setBlock(blockPos, blockState2.setValue(LEAVES, BambooLeaves.NONE), 3);
++            if (iblockdata1.is(Blocks.BAMBOO) && iblockdata1.getValue(BambooBlock.LEAVES) != BambooLeaves.NONE) {
++                if (iblockdata1.is(Blocks.BAMBOO) && iblockdata1.getValue(BambooBlock.LEAVES) != BambooLeaves.NONE) {
++                    blockpropertybamboosize = BambooLeaves.LARGE;
++                    if (iblockdata2.is(Blocks.BAMBOO)) {
++                        // CraftBukkit start - moved down
++                        // world.setBlock(blockposition.below(), (IBlockData) iblockdata1.setValue(BlockBamboo.LEAVES, BlockPropertyBambooSize.SMALL), 3);
++                        // world.setBlock(blockposition1, (IBlockData) iblockdata2.setValue(BlockBamboo.LEAVES, BlockPropertyBambooSize.NONE), 3);
++                        shouldUpdateOthers = true;
++                        // CraftBukkit end
+                     }
+                 }
+             } else {
+-                bambooLeaves = BambooLeaves.SMALL;
++                blockpropertybamboosize = BambooLeaves.SMALL;
+             }
+         }
+ 
+-        int i = state.getValue(AGE) != 1 && !blockState2.is(Blocks.BAMBOO) ? 0 : 1;
+-        int j = (height < 11 || !(random.nextFloat() < 0.25F)) && height != 15 ? 0 : 1;
+-        world.setBlock(pos.above(), this.defaultBlockState().setValue(AGE, Integer.valueOf(i)).setValue(LEAVES, bambooLeaves).setValue(STAGE, Integer.valueOf(j)), 3);
++        int j = (Integer) state.getValue(BambooBlock.AGE) != 1 && !iblockdata2.is(Blocks.BAMBOO) ? 0 : 1;
++        int k = (height < world.paperConfig().maxGrowthHeight.bamboo.min || random.nextFloat() >= 0.25F) && height != (world.paperConfig().maxGrowthHeight.bamboo.max - 1) ? 0 : 1; // Paper
++
++        // CraftBukkit start
++        if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.handleBlockSpreadEvent(world, pos, pos.above(), (BlockState) ((BlockState) ((BlockState) this.defaultBlockState().setValue(BambooBlock.AGE, j)).setValue(BambooBlock.LEAVES, blockpropertybamboosize)).setValue(BambooBlock.STAGE, k), 3)) {
++            if (shouldUpdateOthers) {
++                world.setBlock(pos.below(), (BlockState) iblockdata1.setValue(BambooBlock.LEAVES, BambooLeaves.SMALL), 3);
++                world.setBlock(blockposition1, (BlockState) iblockdata2.setValue(BambooBlock.LEAVES, BambooLeaves.NONE), 3);
++            }
++        }
++        // CraftBukkit end
+     }
+ 
+     protected int getHeightAboveUpToMax(BlockGetter world, BlockPos pos) {
+         int i;
+-        for(i = 0; i < 16 && world.getBlockState(pos.above(i + 1)).is(Blocks.BAMBOO); ++i) {
++
++        for (i = 0; i < ((Level) world).paperConfig().maxGrowthHeight.bamboo.max && world.getBlockState(pos.above(i + 1)).is(Blocks.BAMBOO); ++i) { // Paper
++            ;
+         }
+ 
+         return i;
+@@ -220,7 +245,9 @@
+ 
+     protected int getHeightBelowUpToMax(BlockGetter world, BlockPos pos) {
+         int i;
+-        for(i = 0; i < 16 && world.getBlockState(pos.below(i + 1)).is(Blocks.BAMBOO); ++i) {
++
++        for (i = 0; i < ((Level) world).paperConfig().maxGrowthHeight.bamboo.max && world.getBlockState(pos.below(i + 1)).is(Blocks.BAMBOO); ++i) { // Paper
++            ;
+         }
+ 
+         return i;

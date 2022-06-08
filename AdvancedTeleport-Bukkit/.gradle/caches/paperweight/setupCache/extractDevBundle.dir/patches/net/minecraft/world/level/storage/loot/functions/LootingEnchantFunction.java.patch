@@ -1,0 +1,73 @@
+--- a/net/minecraft/world/level/storage/loot/functions/LootingEnchantFunction.java
++++ b/net/minecraft/world/level/storage/loot/functions/LootingEnchantFunction.java
+@@ -18,6 +18,7 @@
+ import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+ 
+ public class LootingEnchantFunction extends LootItemConditionalFunction {
++
+     public static final int NO_LIMIT = 0;
+     final NumberProvider value;
+     final int limit;
+@@ -44,14 +45,22 @@
+ 
+     @Override
+     public ItemStack run(ItemStack stack, LootContext context) {
+-        Entity entity = context.getParamOrNull(LootContextParams.KILLER_ENTITY);
++        Entity entity = (Entity) context.getParamOrNull(LootContextParams.KILLER_ENTITY);
++
+         if (entity instanceof LivingEntity) {
+-            int i = EnchantmentHelper.getMobLooting((LivingEntity)entity);
+-            if (i == 0) {
++            int i = EnchantmentHelper.getMobLooting((LivingEntity) entity);
++            // CraftBukkit start - use lootingModifier if set by plugin
++            if (context.hasParam(LootContextParams.LOOTING_MOD)) {
++                i = context.getParamOrNull(LootContextParams.LOOTING_MOD);
++            }
++            // CraftBukkit end
++
++            if (i <= 0) { // CraftBukkit - account for possible negative looting values from Bukkit
+                 return stack;
+             }
+ 
+-            float f = (float)i * this.value.getFloat(context);
++            float f = (float) i * this.value.getFloat(context);
++
+             stack.grow(Math.round(f));
+             if (this.hasLimit() && stack.getCount() > this.limit) {
+                 stack.setCount(this.limit);
+@@ -66,6 +75,7 @@
+     }
+ 
+     public static class Builder extends LootItemConditionalFunction.Builder<LootingEnchantFunction.Builder> {
++
+         private final NumberProvider count;
+         private int limit = 0;
+ 
+@@ -90,9 +100,11 @@
+     }
+ 
+     public static class Serializer extends LootItemConditionalFunction.Serializer<LootingEnchantFunction> {
+-        @Override
++
++        public Serializer() {}
++
+         public void serialize(JsonObject json, LootingEnchantFunction object, JsonSerializationContext context) {
+-            super.serialize(json, object, context);
++            super.serialize(json, object, context); // CraftBukkit - decompile error
+             json.add("count", context.serialize(object.value));
+             if (object.hasLimit()) {
+                 json.add("limit", context.serialize(object.limit));
+@@ -101,9 +113,10 @@
+         }
+ 
+         @Override
+-        public LootingEnchantFunction deserialize(JsonObject jsonObject, JsonDeserializationContext jsonDeserializationContext, LootItemCondition[] lootItemConditions) {
+-            int i = GsonHelper.getAsInt(jsonObject, "limit", 0);
+-            return new LootingEnchantFunction(lootItemConditions, GsonHelper.getAsObject(jsonObject, "count", jsonDeserializationContext, NumberProvider.class), i);
++        public LootingEnchantFunction deserialize(JsonObject json, JsonDeserializationContext context, LootItemCondition[] conditions) {
++            int i = GsonHelper.getAsInt(json, "limit", 0);
++
++            return new LootingEnchantFunction(conditions, (NumberProvider) GsonHelper.getAsObject(json, "count", context, NumberProvider.class), i);
+         }
+     }
+ }

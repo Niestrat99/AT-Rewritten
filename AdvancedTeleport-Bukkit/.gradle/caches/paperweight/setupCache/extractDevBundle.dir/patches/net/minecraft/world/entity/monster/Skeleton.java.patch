@@ -1,0 +1,75 @@
+--- a/net/minecraft/world/entity/monster/Skeleton.java
++++ b/net/minecraft/world/entity/monster/Skeleton.java
+@@ -11,9 +11,11 @@
+ import net.minecraft.world.entity.EntityType;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.item.Items;
++import net.minecraft.world.level.ItemLike;
+ import net.minecraft.world.level.Level;
+ 
+ public class Skeleton extends AbstractSkeleton {
++
+     public static final EntityDataAccessor<Boolean> DATA_STRAY_CONVERSION_ID = SynchedEntityData.defineId(Skeleton.class, EntityDataSerializers.BOOLEAN);
+     public static final String CONVERSION_TAG = "StrayConversionTime";
+     public int inPowderSnowTime;
+@@ -26,15 +28,15 @@
+     @Override
+     protected void defineSynchedData() {
+         super.defineSynchedData();
+-        this.getEntityData().define(DATA_STRAY_CONVERSION_ID, false);
++        this.getEntityData().define(Skeleton.DATA_STRAY_CONVERSION_ID, false);
+     }
+ 
+     public boolean isFreezeConverting() {
+-        return this.getEntityData().get(DATA_STRAY_CONVERSION_ID);
++        return (Boolean) this.getEntityData().get(Skeleton.DATA_STRAY_CONVERSION_ID);
+     }
+ 
+     public void setFreezeConverting(boolean converting) {
+-        this.entityData.set(DATA_STRAY_CONVERSION_ID, converting);
++        this.entityData.set(Skeleton.DATA_STRAY_CONVERSION_ID, converting);
+     }
+ 
+     @Override
+@@ -80,14 +82,19 @@
+ 
+     public void startFreezeConversion(int time) {
+         this.conversionTime = time;
+-        this.entityData.set(DATA_STRAY_CONVERSION_ID, true);
++        this.entityData.set(Skeleton.DATA_STRAY_CONVERSION_ID, true);
+     }
+ 
+     protected void doFreezeConversion() {
+-        this.convertTo(EntityType.STRAY, true);
+-        if (!this.isSilent()) {
+-            this.level.levelEvent((Player)null, 1048, this.blockPosition(), 0);
++        Stray stray = this.convertTo(EntityType.STRAY, true, org.bukkit.event.entity.EntityTransformEvent.TransformReason.FROZEN, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.FROZEN); // CraftBukkit - add spawn and transform reasons // Paper - track result of conversion
++        if (stray != null && !this.isSilent()) { // Paper - only send event if conversion succeeded
++            this.level.levelEvent((Player) null, 1048, this.blockPosition(), 0);
+         }
++        // Paper start - reset conversion time to prevent event spam
++        if (stray == null) {
++            this.conversionTime = 300;
++        }
++        // Paper end
+ 
+     }
+ 
+@@ -120,10 +127,13 @@
+     protected void dropCustomDeathLoot(DamageSource source, int lootingMultiplier, boolean allowDrops) {
+         super.dropCustomDeathLoot(source, lootingMultiplier, allowDrops);
+         Entity entity = source.getEntity();
+-        if (entity instanceof Creeper creeper) {
+-            if (creeper.canDropMobsSkull()) {
+-                creeper.increaseDroppedSkulls();
+-                this.spawnAtLocation(Items.SKELETON_SKULL);
++
++        if (entity instanceof Creeper) {
++            Creeper entitycreeper = (Creeper) entity;
++
++            if (entitycreeper.canDropMobsSkull()) {
++                entitycreeper.increaseDroppedSkulls();
++                this.spawnAtLocation((ItemLike) Items.SKELETON_SKULL);
+             }
+         }
+ 

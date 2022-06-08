@@ -1,0 +1,169 @@
+--- a/net/minecraft/world/level/chunk/storage/EntityStorage.java
++++ b/net/minecraft/world/level/chunk/storage/EntityStorage.java
+@@ -31,43 +31,31 @@
+     private static final String ENTITIES_TAG = "Entities";
+     private static final String POSITION_TAG = "Position";
+     public final ServerLevel level;
+-    private final IOWorker worker;
++    // Paper - rewrite chunk system
+     private final LongSet emptyChunks = new LongOpenHashSet();
+-    public final ProcessorMailbox<Runnable> entityDeserializerQueue;
++    // Paper - rewrite chunk system
+     protected final DataFixer fixerUpper;
+ 
+     public EntityStorage(ServerLevel world, Path path, DataFixer dataFixer, boolean dsync, Executor executor) {
+         this.level = world;
+         this.fixerUpper = dataFixer;
+-        this.entityDeserializerQueue = ProcessorMailbox.create(executor, "entity-deserializer");
+-        this.worker = new IOWorker(path, dsync, "entities");
++        // Paper - rewrite chunk system
+     }
+ 
+     @Override
+     public CompletableFuture<ChunkEntities<Entity>> loadEntities(ChunkPos pos) {
+-        return this.emptyChunks.contains(pos.toLong()) ? CompletableFuture.completedFuture(emptyChunk(pos)) : this.worker.loadAsync(pos).thenApplyAsync((nbt) -> {
+-            if (nbt.isEmpty()) {
+-                this.emptyChunks.add(pos.toLong());
+-                return emptyChunk(pos);
+-            } else {
+-                try {
+-                    ChunkPos chunkPos2 = readChunkPos(nbt.get());
+-                    if (!Objects.equals(pos, chunkPos2)) {
+-                        LOGGER.error("Chunk file at {} is in the wrong location. (Expected {}, got {})", pos, pos, chunkPos2);
+-                    }
+-                } catch (Exception var6) {
+-                    LOGGER.warn("Failed to parse chunk {} position info", pos, var6);
+-                }
++        throw new UnsupportedOperationException(); // Paper - rewrite chunk system - copy out read logic into readEntities
++    }
+ 
+-                CompoundTag compoundTag = this.upgradeChunkTag(nbt.get());
+-                ListTag listTag = compoundTag.getList("Entities", 10);
+-                List<Entity> list = EntityType.loadEntitiesRecursive(listTag, this.level).collect(ImmutableList.toImmutableList());
+-                return new ChunkEntities<>(pos, list);
+-            }
+-        }, this.entityDeserializerQueue::tell);
++    // Paper start - rewrite chunk system
++    public static List<Entity> readEntities(ServerLevel level, CompoundTag compoundTag) {
++        ListTag listTag = compoundTag.getList("Entities", 10);
++        List<Entity> list = EntityType.loadEntitiesRecursive(listTag, level).collect(ImmutableList.toImmutableList());
++        return list;
+     }
++    // Paper end - rewrite chunk system
+ 
+-    private static ChunkPos readChunkPos(CompoundTag chunkNbt) {
++    public static ChunkPos readChunkPos(CompoundTag chunkNbt) { // Paper - public
+         int[] is = chunkNbt.getIntArray("Position");
+         return new ChunkPos(is[0], is[1]);
+     }
+@@ -82,42 +70,81 @@
+ 
+     @Override
+     public void storeEntities(ChunkEntities<Entity> dataList) {
++        // Paper start - rewrite chunk system
++        if (true) {
++            throw new UnsupportedOperationException();
++        }
++        // Paper end - rewrite chunk system
+         ChunkPos chunkPos = dataList.getPos();
+         if (dataList.isEmpty()) {
+             if (this.emptyChunks.add(chunkPos.toLong())) {
+-                this.worker.store(chunkPos, (CompoundTag)null);
++                // Paper - rewrite chunk system
+             }
+ 
+         } else {
+-            ListTag listTag = new ListTag();
+-            dataList.getEntities().forEach((entity) -> {
+-                CompoundTag compoundTag = new CompoundTag();
+-                if (entity.save(compoundTag)) {
+-                    listTag.add(compoundTag);
+-                }
+-
+-            });
+-            CompoundTag compoundTag = new CompoundTag();
+-            compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+-            compoundTag.put("Entities", listTag);
+-            writeChunkPos(compoundTag, chunkPos);
+-            this.worker.store(chunkPos, compoundTag).exceptionally((ex) -> {
+-                LOGGER.error("Failed to store chunk {}", chunkPos, ex);
+-                return null;
+-            });
++            // Paper - move into saveEntityChunk0
+             this.emptyChunks.remove(chunkPos.toLong());
+         }
+     }
+ 
++    // Paper start - rewrite chunk system
++    public static void copyEntities(final CompoundTag from, final CompoundTag into) {
++        if (from == null) {
++            return;
++        }
++        final ListTag entitiesFrom = from.getList("Entities", net.minecraft.nbt.Tag.TAG_COMPOUND);
++        if (entitiesFrom == null || entitiesFrom.isEmpty()) {
++            return;
++        }
++
++        final ListTag entitiesInto = into.getList("Entities", net.minecraft.nbt.Tag.TAG_COMPOUND);
++        into.put("Entities", entitiesInto); // this is in case into doesn't have any entities
++        entitiesInto.addAll(0, entitiesFrom.copy()); // need to copy, this is coming from the save thread
++    }
++
++    public static CompoundTag saveEntityChunk(List<Entity> entities, ChunkPos chunkPos, ServerLevel level) {
++        return saveEntityChunk0(entities, chunkPos, level, false);
++    }
++    private static CompoundTag saveEntityChunk0(List<Entity> entities, ChunkPos chunkPos, ServerLevel level, boolean force) {
++        if (!force && entities.isEmpty()) {
++            return null;
++        }
++        ListTag listTag = new ListTag();
++        final java.util.Map<net.minecraft.world.entity.EntityType<?>, Integer> savedEntityCounts = new java.util.HashMap<>(); // Paper
++        entities.forEach((entity) -> { // diff here: use entities parameter
++            // Paper start
++            final EntityType<?> entityType = entity.getType();
++            final int saveLimit = level.paperConfig().chunks.entityPerChunkSaveLimit.getOrDefault(entityType, -1);
++            if (saveLimit > -1) {
++                if (savedEntityCounts.getOrDefault(entityType, 0) >= saveLimit) {
++                    return;
++                }
++                savedEntityCounts.merge(entityType, 1, Integer::sum);
++            }
++            // Paper end
++            CompoundTag compoundTag = new CompoundTag();
++            if (entity.save(compoundTag)) {
++                listTag.add(compoundTag);
++            }
++
++        });
++        CompoundTag compoundTag = new CompoundTag();
++        compoundTag.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
++        compoundTag.put("Entities", listTag);
++        writeChunkPos(compoundTag, chunkPos);
++
++        return !force && listTag.isEmpty() ? null : compoundTag;
++    }
++    // Paper end - rewrite chunk system
++
+     @Override
+     public void flush(boolean sync) {
+-        this.worker.synchronize(sync).join();
+-        this.entityDeserializerQueue.runAll();
++        throw new UnsupportedOperationException(); // Paper - rewrite chunk system
+     }
+ 
+-    private CompoundTag upgradeChunkTag(CompoundTag chunkNbt) {
++    public static CompoundTag upgradeChunkTag(CompoundTag chunkNbt) { // Paper - public and static
+         int i = getVersion(chunkNbt);
+-        return NbtUtils.update(this.fixerUpper, DataFixTypes.ENTITY_CHUNK, chunkNbt, i);
++        return ca.spottedleaf.dataconverter.minecraft.MCDataConverter.convertTag(ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry.ENTITY_CHUNK, chunkNbt, i, SharedConstants.getCurrentVersion().getWorldVersion()); // Paper - route to new converter system
+     }
+ 
+     public static int getVersion(CompoundTag chunkNbt) {
+@@ -126,6 +153,6 @@
+ 
+     @Override
+     public void close() throws IOException {
+-        this.worker.close();
++        throw new UnsupportedOperationException(); // Paper - rewrite chunk system
+     }
+ }

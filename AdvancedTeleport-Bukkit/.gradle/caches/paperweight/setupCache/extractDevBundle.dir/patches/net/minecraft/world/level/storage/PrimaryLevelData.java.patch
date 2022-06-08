@@ -1,0 +1,267 @@
+--- a/net/minecraft/world/level/storage/PrimaryLevelData.java
++++ b/net/minecraft/world/level/storage/PrimaryLevelData.java
+@@ -4,12 +4,15 @@
+ import com.google.common.collect.Sets;
+ import com.mojang.datafixers.DataFixer;
+ import com.mojang.logging.LogUtils;
++import com.mojang.serialization.DataResult;
+ import com.mojang.serialization.Dynamic;
+ import com.mojang.serialization.DynamicOps;
+ import com.mojang.serialization.Lifecycle;
++import java.util.Objects;
+ import java.util.Set;
+ import java.util.UUID;
+ import java.util.stream.Collectors;
++import java.util.stream.Stream;
+ import javax.annotation.Nullable;
+ import net.minecraft.CrashReportCategory;
+ import net.minecraft.SharedConstants;
+@@ -23,8 +26,11 @@
+ import net.minecraft.nbt.NbtUtils;
+ import net.minecraft.nbt.StringTag;
+ import net.minecraft.nbt.Tag;
++import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
+ import net.minecraft.resources.RegistryOps;
+ import net.minecraft.server.MinecraftServer;
++import net.minecraft.server.level.ServerLevel;
++import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.util.datafix.DataFixTypes;
+ import net.minecraft.world.Difficulty;
+ import net.minecraft.world.level.DataPackConfig;
+@@ -38,8 +44,13 @@
+ import net.minecraft.world.level.timers.TimerCallbacks;
+ import net.minecraft.world.level.timers.TimerQueue;
+ import org.slf4j.Logger;
++import org.bukkit.Bukkit;
++import org.bukkit.event.weather.ThunderChangeEvent;
++import org.bukkit.event.weather.WeatherChangeEvent;
++// CraftBukkit end
+ 
+ public class PrimaryLevelData implements ServerLevelData, WorldData {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+     protected static final String PLAYER = "Player";
+     protected static final String WORLD_GEN_SETTINGS = "WorldGenSettings";
+@@ -77,12 +88,25 @@
+     private final Set<String> knownServerBrands;
+     private boolean wasModded;
+     private final TimerQueue<MinecraftServer> scheduledEvents;
++    // CraftBukkit start - Add world and pdc
++    private ServerLevel world;
++    protected Tag pdc;
+ 
+-    private PrimaryLevelData(@Nullable DataFixer dataFixer, int dataVersion, @Nullable CompoundTag playerData, boolean modded, int spawnX, int spawnY, int spawnZ, float spawnAngle, long time, long timeOfDay, int version, int clearWeatherTime, int rainTime, boolean raining, int thunderTime, boolean thundering, boolean initialized, boolean difficultyLocked, WorldBorder.Settings worldBorder, int wanderingTraderSpawnDelay, int wanderingTraderSpawnChance, @Nullable UUID wanderingTraderId, Set<String> serverBrands, TimerQueue<MinecraftServer> scheduledEvents, @Nullable CompoundTag customBossEvents, CompoundTag dragonFight, LevelSettings levelInfo, WorldGenSettings generatorOptions, Lifecycle lifecycle) {
++    public void setWorld(ServerLevel world) {
++        if (this.world != null) {
++            return;
++        }
++        this.world = world;
++        world.getWorld().readBukkitValues(pdc);
++        this.pdc = null;
++    }
++    // CraftBukkit end
++
++    private PrimaryLevelData(@Nullable DataFixer datafixer, int dataVersion, @Nullable CompoundTag playerData, boolean modded, int spawnX, int spawnY, int spawnZ, float spawnAngle, long time, long timeOfDay, int version, int clearWeatherTime, int rainTime, boolean raining, int thunderTime, boolean thundering, boolean initialized, boolean difficultyLocked, WorldBorder.Settings worldBorder, int wanderingTraderSpawnDelay, int wanderingTraderSpawnChance, @Nullable UUID wanderingTraderId, Set<String> serverBrands, TimerQueue<MinecraftServer> scheduledEvents, @Nullable CompoundTag customBossEvents, CompoundTag dragonFight, LevelSettings levelInfo, WorldGenSettings generatorOptions, Lifecycle lifecycle) {
+         if (!generatorOptions.dimensions().containsKey(LevelStem.OVERWORLD)) {
+             throw new IllegalStateException("Missing Overworld dimension data");
+         } else {
+-            this.fixerUpper = dataFixer;
++            this.fixerUpper = datafixer;
+             this.wasModded = modded;
+             this.xSpawn = spawnX;
+             this.ySpawn = spawnY;
+@@ -115,17 +139,19 @@
+     }
+ 
+     public PrimaryLevelData(LevelSettings levelInfo, WorldGenSettings generatorOptions, Lifecycle lifecycle) {
+-        this((DataFixer)null, SharedConstants.getCurrentVersion().getWorldVersion(), (CompoundTag)null, false, 0, 0, 0, 0.0F, 0L, 0L, 19133, 0, 0, false, 0, false, false, false, WorldBorder.DEFAULT_SETTINGS, 0, 0, (UUID)null, Sets.newLinkedHashSet(), new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS), (CompoundTag)null, new CompoundTag(), levelInfo.copy(), generatorOptions, lifecycle);
++        this((DataFixer) null, SharedConstants.getCurrentVersion().getWorldVersion(), (CompoundTag) null, false, 0, 0, 0, 0.0F, 0L, 0L, 19133, 0, 0, false, 0, false, false, false, WorldBorder.DEFAULT_SETTINGS, 0, 0, (UUID) null, Sets.newLinkedHashSet(), new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS), (CompoundTag) null, new CompoundTag(), levelInfo.copy(), generatorOptions, lifecycle);
+     }
+ 
+     public static PrimaryLevelData parse(Dynamic<Tag> dynamic, DataFixer dataFixer, int dataVersion, @Nullable CompoundTag playerData, LevelSettings levelInfo, LevelVersion saveVersionInfo, WorldGenSettings generatorOptions, Lifecycle lifecycle) {
+-        long l = dynamic.get("Time").asLong(0L);
+-        CompoundTag compoundTag = dynamic.get("DragonFight").result().map(Dynamic::getValue).orElseGet(() -> {
+-            return dynamic.get("DimensionData").get("1").get("DragonFight").orElseEmptyMap().getValue();
++        long j = dynamic.get("Time").asLong(0L);
++        CompoundTag nbttagcompound1 = (CompoundTag) dynamic.get("DragonFight").result().map(Dynamic::getValue).orElseGet(() -> {
++            return (Tag) dynamic.get("DimensionData").get("1").get("DragonFight").orElseEmptyMap().getValue();
+         });
+-        return new PrimaryLevelData(dataFixer, dataVersion, playerData, dynamic.get("WasModded").asBoolean(false), dynamic.get("SpawnX").asInt(0), dynamic.get("SpawnY").asInt(0), dynamic.get("SpawnZ").asInt(0), dynamic.get("SpawnAngle").asFloat(0.0F), l, dynamic.get("DayTime").asLong(l), saveVersionInfo.levelDataVersion(), dynamic.get("clearWeatherTime").asInt(0), dynamic.get("rainTime").asInt(0), dynamic.get("raining").asBoolean(false), dynamic.get("thunderTime").asInt(0), dynamic.get("thundering").asBoolean(false), dynamic.get("initialized").asBoolean(true), dynamic.get("DifficultyLocked").asBoolean(false), WorldBorder.Settings.read(dynamic, WorldBorder.DEFAULT_SETTINGS), dynamic.get("WanderingTraderSpawnDelay").asInt(0), dynamic.get("WanderingTraderSpawnChance").asInt(0), dynamic.get("WanderingTraderId").read(UUIDUtil.CODEC).result().orElse((UUID)null), dynamic.get("ServerBrands").asStream().flatMap((dynamicx) -> {
+-            return dynamicx.asString().result().stream();
+-        }).collect(Collectors.toCollection(Sets::newLinkedHashSet)), new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS, dynamic.get("ScheduledEvents").asStream()), (CompoundTag)dynamic.get("CustomBossEvents").orElseEmptyMap().getValue(), compoundTag, levelInfo, generatorOptions, lifecycle);
++
++        // CraftBukkit - decompile error
++        return new PrimaryLevelData(dataFixer, dataVersion, playerData, dynamic.get("WasModded").asBoolean(false), dynamic.get("SpawnX").asInt(0), dynamic.get("SpawnY").asInt(0), dynamic.get("SpawnZ").asInt(0), dynamic.get("SpawnAngle").asFloat(0.0F), j, dynamic.get("DayTime").asLong(j), saveVersionInfo.levelDataVersion(), dynamic.get("clearWeatherTime").asInt(0), dynamic.get("rainTime").asInt(0), dynamic.get("raining").asBoolean(false), dynamic.get("thunderTime").asInt(0), dynamic.get("thundering").asBoolean(false), dynamic.get("initialized").asBoolean(true), dynamic.get("DifficultyLocked").asBoolean(false), WorldBorder.Settings.read(dynamic, WorldBorder.DEFAULT_SETTINGS), dynamic.get("WanderingTraderSpawnDelay").asInt(0), dynamic.get("WanderingTraderSpawnChance").asInt(0), (UUID) dynamic.get("WanderingTraderId").read(UUIDUtil.CODEC).result().orElse(null), (Set) dynamic.get("ServerBrands").asStream().flatMap((dynamic1) -> {
++            return dynamic1.asString().result().stream();
++        }).collect(Collectors.toCollection(Sets::newLinkedHashSet)), new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS, dynamic.get("ScheduledEvents").asStream()), (CompoundTag) dynamic.get("CustomBossEvents").orElseEmptyMap().getValue(), nbttagcompound1, levelInfo, generatorOptions, lifecycle);
+     }
+ 
+     @Override
+@@ -135,26 +161,35 @@
+             playerNbt = this.loadedPlayerTag;
+         }
+ 
+-        CompoundTag compoundTag = new CompoundTag();
+-        this.setTagData(registryManager, compoundTag, playerNbt);
+-        return compoundTag;
++        CompoundTag nbttagcompound1 = new CompoundTag();
++
++        this.setTagData(registryManager, nbttagcompound1, playerNbt);
++        return nbttagcompound1;
+     }
+ 
+     private void setTagData(RegistryAccess registryManager, CompoundTag levelNbt, @Nullable CompoundTag playerNbt) {
+-        ListTag listTag = new ListTag();
+-        this.knownServerBrands.stream().map(StringTag::valueOf).forEach(listTag::add);
+-        levelNbt.put("ServerBrands", listTag);
++        ListTag nbttaglist = new ListTag();
++        Stream<StringTag> stream = this.knownServerBrands.stream().map(StringTag::valueOf); // CraftBukkit - decompile error
++
++        Objects.requireNonNull(nbttaglist);
++        stream.forEach(nbttaglist::add);
++        levelNbt.put("ServerBrands", nbttaglist);
+         levelNbt.putBoolean("WasModded", this.wasModded);
+-        CompoundTag compoundTag = new CompoundTag();
+-        compoundTag.putString("Name", SharedConstants.getCurrentVersion().getName());
+-        compoundTag.putInt("Id", SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+-        compoundTag.putBoolean("Snapshot", !SharedConstants.getCurrentVersion().isStable());
+-        compoundTag.putString("Series", SharedConstants.getCurrentVersion().getDataVersion().getSeries());
+-        levelNbt.put("Version", compoundTag);
++        CompoundTag nbttagcompound2 = new CompoundTag();
++
++        nbttagcompound2.putString("Name", SharedConstants.getCurrentVersion().getName());
++        nbttagcompound2.putInt("Id", SharedConstants.getCurrentVersion().getDataVersion().getVersion());
++        nbttagcompound2.putBoolean("Snapshot", !SharedConstants.getCurrentVersion().isStable());
++        nbttagcompound2.putString("Series", SharedConstants.getCurrentVersion().getDataVersion().getSeries());
++        levelNbt.put("Version", nbttagcompound2);
+         levelNbt.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+-        DynamicOps<Tag> dynamicOps = RegistryOps.create(NbtOps.INSTANCE, registryManager);
+-        WorldGenSettings.CODEC.encodeStart(dynamicOps, this.worldGenSettings).resultOrPartial(Util.prefix("WorldGenSettings: ", LOGGER::error)).ifPresent((tag) -> {
+-            levelNbt.put("WorldGenSettings", tag);
++        DynamicOps<Tag> dynamicops = RegistryOps.create(NbtOps.INSTANCE, registryManager);
++        DataResult<Tag> dataresult = WorldGenSettings.CODEC.encodeStart(dynamicops, this.worldGenSettings); // CraftBukkit - decompile error
++        Logger logger = PrimaryLevelData.LOGGER;
++
++        Objects.requireNonNull(logger);
++        dataresult.resultOrPartial(Util.prefix("WorldGenSettings: ", logger::error)).ifPresent((nbtbase) -> {
++            levelNbt.put("WorldGenSettings", nbtbase);
+         });
+         levelNbt.putInt("GameType", this.settings.gameType().getId());
+         levelNbt.putInt("SpawnX", this.xSpawn);
+@@ -175,7 +210,7 @@
+         levelNbt.putBoolean("allowCommands", this.settings.allowCommands());
+         levelNbt.putBoolean("initialized", this.initialized);
+         this.worldBorder.write(levelNbt);
+-        levelNbt.putByte("Difficulty", (byte)this.settings.difficulty().getId());
++        levelNbt.putByte("Difficulty", (byte) this.settings.difficulty().getId());
+         levelNbt.putBoolean("DifficultyLocked", this.difficultyLocked);
+         levelNbt.put("GameRules", this.settings.gameRules().createTag());
+         levelNbt.put("DragonFight", this.endDragonFightData);
+@@ -183,8 +218,8 @@
+             levelNbt.put("Player", playerNbt);
+         }
+ 
+-        DataPackConfig.CODEC.encodeStart(NbtOps.INSTANCE, this.settings.getDataPackConfig()).result().ifPresent((tag) -> {
+-            levelNbt.put("DataPacks", tag);
++        DataPackConfig.CODEC.encodeStart(NbtOps.INSTANCE, this.settings.getDataPackConfig()).result().ifPresent((nbtbase) -> {
++            levelNbt.put("DataPacks", nbtbase);
+         });
+         if (this.customBossEvents != null) {
+             levelNbt.put("CustomBossEvents", this.customBossEvents);
+@@ -197,6 +232,8 @@
+             levelNbt.putUUID("WanderingTraderId", this.wanderingTraderId);
+         }
+ 
++        levelNbt.putString("Bukkit.Version", Bukkit.getName() + "/" + Bukkit.getVersion() + "/" + Bukkit.getBukkitVersion()); // CraftBukkit
++        this.world.getWorld().storeBukkitValues(levelNbt); // CraftBukkit - add pdc
+     }
+ 
+     @Override
+@@ -233,7 +270,7 @@
+         if (!this.upgradedPlayerTag && this.loadedPlayerTag != null) {
+             if (this.playerDataVersion < SharedConstants.getCurrentVersion().getWorldVersion()) {
+                 if (this.fixerUpper == null) {
+-                    throw (NullPointerException)Util.pauseInIde(new NullPointerException("Fixer Upper not set inside LevelData, and the player tag is not upgraded."));
++                    throw (NullPointerException) Util.pauseInIde(new NullPointerException("Fixer Upper not set inside LevelData, and the player tag is not upgraded."));
+                 }
+ 
+                 this.loadedPlayerTag = NbtUtils.update(this.fixerUpper, DataFixTypes.PLAYER, this.loadedPlayerTag, this.playerDataVersion);
+@@ -314,6 +351,25 @@
+ 
+     @Override
+     public void setThundering(boolean thundering) {
++        // Paper start
++        this.setThundering(thundering, org.bukkit.event.weather.ThunderChangeEvent.Cause.UNKNOWN);
++    }
++    public void setThundering(boolean thundering, org.bukkit.event.weather.ThunderChangeEvent.Cause cause) {
++        // Paper end
++        // CraftBukkit start
++        if (this.thundering == thundering) {
++            return;
++        }
++
++        org.bukkit.World world = Bukkit.getWorld(this.getLevelName());
++        if (world != null) {
++            ThunderChangeEvent thunder = new ThunderChangeEvent(world, thundering, cause); // Paper
++            Bukkit.getServer().getPluginManager().callEvent(thunder);
++            if (thunder.isCancelled()) {
++                return;
++            }
++        }
++        // CraftBukkit end
+         this.thundering = thundering;
+     }
+ 
+@@ -334,6 +390,26 @@
+ 
+     @Override
+     public void setRaining(boolean raining) {
++        // Paper start
++        this.setRaining(raining, org.bukkit.event.weather.WeatherChangeEvent.Cause.UNKNOWN);
++    }
++
++    public void setRaining(boolean raining, org.bukkit.event.weather.WeatherChangeEvent.Cause cause) {
++        // Paper end
++        // CraftBukkit start
++        if (this.raining == raining) {
++            return;
++        }
++
++        org.bukkit.World world = Bukkit.getWorld(this.getLevelName());
++        if (world != null) {
++            WeatherChangeEvent weather = new WeatherChangeEvent(world, raining, cause); // Paper
++            Bukkit.getServer().getPluginManager().callEvent(weather);
++            if (weather.isCancelled()) {
++                return;
++            }
++        }
++        // CraftBukkit end
+         this.raining = raining;
+     }
+ 
+@@ -400,6 +476,12 @@
+     @Override
+     public void setDifficulty(Difficulty difficulty) {
+         this.settings = this.settings.withDifficulty(difficulty);
++        // CraftBukkit start
++        ClientboundChangeDifficultyPacket packet = new ClientboundChangeDifficultyPacket(this.getDifficulty(), this.isDifficultyLocked());
++        for (ServerPlayer player : (java.util.List<ServerPlayer>) (java.util.List) this.world.players()) {
++            player.connection.send(packet);
++        }
++        // CraftBukkit end
+     }
+ 
+     @Override
+@@ -520,4 +602,12 @@
+     public LevelSettings getLevelSettings() {
+         return this.settings.copy();
+     }
++
++    // CraftBukkit start - Check if the name stored in NBT is the correct one
++    public void checkName(String name) {
++        if (!this.settings.levelName.equals(name)) {
++            this.settings.levelName = name;
++        }
++    }
++    // CraftBukkit end
+ }

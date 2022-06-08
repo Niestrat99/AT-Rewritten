@@ -1,0 +1,80 @@
+--- a/net/minecraft/server/ServerAdvancementManager.java
++++ b/net/minecraft/server/ServerAdvancementManager.java
+@@ -1,3 +1,4 @@
++// mc-dev import
+ package net.minecraft.server;
+ 
+ import com.google.common.collect.Maps;
+@@ -7,6 +8,7 @@
+ import com.google.gson.JsonObject;
+ import com.mojang.logging.LogUtils;
+ import java.util.Collection;
++import java.util.Iterator;
+ import java.util.Map;
+ import javax.annotation.Nullable;
+ import net.minecraft.advancements.Advancement;
+@@ -22,39 +24,51 @@
+ import org.slf4j.Logger;
+ 
+ public class ServerAdvancementManager extends SimpleJsonResourceReloadListener {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+     public static final Gson GSON = (new GsonBuilder()).create();
+     public AdvancementList advancements = new AdvancementList();
+     private final PredicateManager predicateManager;
+ 
+     public ServerAdvancementManager(PredicateManager conditionManager) {
+-        super(GSON, "advancements");
++        super(ServerAdvancementManager.GSON, "advancements");
+         this.predicateManager = conditionManager;
+     }
+ 
+-    @Override
+     protected void apply(Map<ResourceLocation, JsonElement> prepared, ResourceManager manager, ProfilerFiller profiler) {
+-        Map<ResourceLocation, Advancement.Builder> map = Maps.newHashMap();
+-        prepared.forEach((id, json) -> {
++        Map<ResourceLocation, Advancement.Builder> map1 = Maps.newHashMap();
++
++        prepared.forEach((minecraftkey, jsonelement) -> {
++            // Spigot start
++            if (org.spigotmc.SpigotConfig.disabledAdvancements != null && (org.spigotmc.SpigotConfig.disabledAdvancements.contains("*") || org.spigotmc.SpigotConfig.disabledAdvancements.contains(minecraftkey.toString()) || org.spigotmc.SpigotConfig.disabledAdvancements.contains(minecraftkey.getNamespace()))) {
++                return;
++            }
++            // Spigot end
++
+             try {
+-                JsonObject jsonObject = GsonHelper.convertToJsonObject(json, "advancement");
+-                Advancement.Builder builder = Advancement.Builder.fromJson(jsonObject, new DeserializationContext(id, this.predicateManager));
+-                map.put(id, builder);
+-            } catch (Exception var6) {
+-                LOGGER.error("Parsing error loading custom advancement {}: {}", id, var6.getMessage());
++                JsonObject jsonobject = GsonHelper.convertToJsonObject(jsonelement, "advancement");
++                Advancement.Builder advancement_serializedadvancement = Advancement.Builder.fromJson(jsonobject, new DeserializationContext(minecraftkey, this.predicateManager));
++
++                map1.put(minecraftkey, advancement_serializedadvancement);
++            } catch (Exception exception) {
++                ServerAdvancementManager.LOGGER.error("Parsing error loading custom advancement {}: {}", minecraftkey, exception.getMessage());
+             }
+ 
+         });
+-        AdvancementList advancementList = new AdvancementList();
+-        advancementList.add(map);
++        AdvancementList advancements = new AdvancementList();
++
++        advancements.add(map1);
++        Iterator iterator = advancements.getRoots().iterator();
++
++        while (iterator.hasNext()) {
++            Advancement advancement = (Advancement) iterator.next();
+ 
+-        for(Advancement advancement : advancementList.getRoots()) {
+             if (advancement.getDisplay() != null) {
+                 TreeNodePosition.run(advancement);
+             }
+         }
+ 
+-        this.advancements = advancementList;
++        this.advancements = advancements;
+     }
+ 
+     @Nullable

@@ -1,0 +1,216 @@
+--- a/net/minecraft/world/level/block/DiodeBlock.java
++++ b/net/minecraft/world/level/block/DiodeBlock.java
+@@ -18,8 +18,10 @@
+ import net.minecraft.world.phys.shapes.CollisionContext;
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ import net.minecraft.world.ticks.TickPriority;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory; // CraftBukkit
+ 
+ public abstract class DiodeBlock extends HorizontalDirectionalBlock {
++
+     protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D);
+     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+ 
+@@ -29,7 +31,7 @@
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        return SHAPE;
++        return DiodeBlock.SHAPE;
+     }
+ 
+     @Override
+@@ -40,14 +42,25 @@
+     @Override
+     public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+         if (!this.isLocked(world, pos, state)) {
+-            boolean bl = state.getValue(POWERED);
+-            boolean bl2 = this.shouldTurnOn(world, pos, state);
+-            if (bl && !bl2) {
+-                world.setBlock(pos, state.setValue(POWERED, Boolean.valueOf(false)), 2);
+-            } else if (!bl) {
+-                world.setBlock(pos, state.setValue(POWERED, Boolean.valueOf(true)), 2);
+-                if (!bl2) {
+-                    world.scheduleTick(pos, this, this.getDelay(state), TickPriority.VERY_HIGH);
++            boolean flag = (Boolean) state.getValue(DiodeBlock.POWERED);
++            boolean flag1 = this.shouldTurnOn(world, pos, state);
++
++            if (flag && !flag1) {
++                // CraftBukkit start
++                if (CraftEventFactory.callRedstoneChange(world, pos, 15, 0).getNewCurrent() != 0) {
++                    return;
++                }
++                // CraftBukkit end
++                world.setBlock(pos, (BlockState) state.setValue(DiodeBlock.POWERED, false), 2);
++            } else if (!flag) {
++                // CraftBukkit start
++                if (CraftEventFactory.callRedstoneChange(world, pos, 0, 15).getNewCurrent() != 15) {
++                    return;
++                }
++                // CraftBukkit end
++                world.setBlock(pos, (BlockState) state.setValue(DiodeBlock.POWERED, true), 2);
++                if (!flag1) {
++                    world.scheduleTick(pos, (Block) this, this.getDelay(state), TickPriority.VERY_HIGH);
+                 }
+             }
+ 
+@@ -61,11 +74,7 @@
+ 
+     @Override
+     public int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
+-        if (!state.getValue(POWERED)) {
+-            return 0;
+-        } else {
+-            return state.getValue(FACING) == direction ? this.getOutputSignal(world, pos, state) : 0;
+-        }
++        return !(Boolean) state.getValue(DiodeBlock.POWERED) ? 0 : (state.getValue(DiodeBlock.FACING) == direction ? this.getOutputSignal(world, pos, state) : 0);
+     }
+ 
+     @Override
+@@ -73,12 +82,17 @@
+         if (state.canSurvive(world, pos)) {
+             this.checkTickOnNeighbor(world, pos, state);
+         } else {
+-            BlockEntity blockEntity = state.hasBlockEntity() ? world.getBlockEntity(pos) : null;
+-            dropResources(state, world, pos, blockEntity);
++            BlockEntity tileentity = state.hasBlockEntity() ? world.getBlockEntity(pos) : null;
++
++            dropResources(state, world, pos, tileentity);
+             world.removeBlock(pos, false);
++            Direction[] aenumdirection = Direction.values();
++            int i = aenumdirection.length;
+ 
+-            for(Direction direction : Direction.values()) {
+-                world.updateNeighborsAt(pos.relative(direction), this);
++            for (int j = 0; j < i; ++j) {
++                Direction enumdirection = aenumdirection[j];
++
++                world.updateNeighborsAt(pos.relative(enumdirection), this);
+             }
+ 
+         }
+@@ -86,17 +100,19 @@
+ 
+     protected void checkTickOnNeighbor(Level world, BlockPos pos, BlockState state) {
+         if (!this.isLocked(world, pos, state)) {
+-            boolean bl = state.getValue(POWERED);
+-            boolean bl2 = this.shouldTurnOn(world, pos, state);
+-            if (bl != bl2 && !world.getBlockTicks().willTickThisTick(pos, this)) {
+-                TickPriority tickPriority = TickPriority.HIGH;
++            boolean flag = (Boolean) state.getValue(DiodeBlock.POWERED);
++            boolean flag1 = this.shouldTurnOn(world, pos, state);
++
++            if (flag != flag1 && !world.getBlockTicks().willTickThisTick(pos, this)) {
++                TickPriority ticklistpriority = TickPriority.HIGH;
++
+                 if (this.shouldPrioritize(world, pos, state)) {
+-                    tickPriority = TickPriority.EXTREMELY_HIGH;
+-                } else if (bl) {
+-                    tickPriority = TickPriority.VERY_HIGH;
++                    ticklistpriority = TickPriority.EXTREMELY_HIGH;
++                } else if (flag) {
++                    ticklistpriority = TickPriority.VERY_HIGH;
+                 }
+ 
+-                world.scheduleTick(pos, this, this.getDelay(state), tickPriority);
++                world.scheduleTick(pos, (Block) this, this.getDelay(state), ticklistpriority);
+             }
+ 
+         }
+@@ -111,35 +127,31 @@
+     }
+ 
+     protected int getInputSignal(Level world, BlockPos pos, BlockState state) {
+-        Direction direction = state.getValue(FACING);
+-        BlockPos blockPos = pos.relative(direction);
+-        int i = world.getSignal(blockPos, direction);
++        Direction enumdirection = (Direction) state.getValue(DiodeBlock.FACING);
++        BlockPos blockposition1 = pos.relative(enumdirection);
++        int i = world.getSignal(blockposition1, enumdirection);
++
+         if (i >= 15) {
+             return i;
+         } else {
+-            BlockState blockState = world.getBlockState(blockPos);
+-            return Math.max(i, blockState.is(Blocks.REDSTONE_WIRE) ? blockState.getValue(RedStoneWireBlock.POWER) : 0);
++            BlockState iblockdata1 = world.getBlockState(blockposition1);
++
++            return Math.max(i, iblockdata1.is(Blocks.REDSTONE_WIRE) ? (Integer) iblockdata1.getValue(RedStoneWireBlock.POWER) : 0);
+         }
+     }
+ 
+     protected int getAlternateSignal(LevelReader world, BlockPos pos, BlockState state) {
+-        Direction direction = state.getValue(FACING);
+-        Direction direction2 = direction.getClockWise();
+-        Direction direction3 = direction.getCounterClockWise();
+-        return Math.max(this.getAlternateSignalAt(world, pos.relative(direction2), direction2), this.getAlternateSignalAt(world, pos.relative(direction3), direction3));
++        Direction enumdirection = (Direction) state.getValue(DiodeBlock.FACING);
++        Direction enumdirection1 = enumdirection.getClockWise();
++        Direction enumdirection2 = enumdirection.getCounterClockWise();
++
++        return Math.max(this.getAlternateSignalAt(world, pos.relative(enumdirection1), enumdirection1), this.getAlternateSignalAt(world, pos.relative(enumdirection2), enumdirection2));
+     }
+ 
+     protected int getAlternateSignalAt(LevelReader world, BlockPos pos, Direction dir) {
+-        BlockState blockState = world.getBlockState(pos);
+-        if (this.isAlternateInput(blockState)) {
+-            if (blockState.is(Blocks.REDSTONE_BLOCK)) {
+-                return 15;
+-            } else {
+-                return blockState.is(Blocks.REDSTONE_WIRE) ? blockState.getValue(RedStoneWireBlock.POWER) : world.getDirectSignal(pos, dir);
+-            }
+-        } else {
+-            return 0;
+-        }
++        BlockState iblockdata = world.getBlockState(pos);
++
++        return this.isAlternateInput(iblockdata) ? (iblockdata.is(Blocks.REDSTONE_BLOCK) ? 15 : (iblockdata.is(Blocks.REDSTONE_WIRE) ? (Integer) iblockdata.getValue(RedStoneWireBlock.POWER) : world.getDirectSignal(pos, dir))) : 0;
+     }
+ 
+     @Override
+@@ -149,13 +161,13 @@
+ 
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+-        return this.defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
++        return (BlockState) this.defaultBlockState().setValue(DiodeBlock.FACING, ctx.getHorizontalDirection().getOpposite());
+     }
+ 
+     @Override
+     public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+         if (this.shouldTurnOn(world, pos, state)) {
+-            world.scheduleTick(pos, this, 1);
++            world.scheduleTick(pos, (Block) this, 1);
+         }
+ 
+     }
+@@ -174,10 +186,11 @@
+     }
+ 
+     protected void updateNeighborsInFront(Level world, BlockPos pos, BlockState state) {
+-        Direction direction = state.getValue(FACING);
+-        BlockPos blockPos = pos.relative(direction.getOpposite());
+-        world.neighborChanged(blockPos, this, pos);
+-        world.updateNeighborsAtExceptFromFacing(blockPos, this, direction);
++        Direction enumdirection = (Direction) state.getValue(DiodeBlock.FACING);
++        BlockPos blockposition1 = pos.relative(enumdirection.getOpposite());
++
++        world.neighborChanged(blockposition1, this, pos);
++        world.updateNeighborsAtExceptFromFacing(blockposition1, this, enumdirection);
+     }
+ 
+     protected boolean isAlternateInput(BlockState state) {
+@@ -193,9 +206,10 @@
+     }
+ 
+     public boolean shouldPrioritize(BlockGetter world, BlockPos pos, BlockState state) {
+-        Direction direction = state.getValue(FACING).getOpposite();
+-        BlockState blockState = world.getBlockState(pos.relative(direction));
+-        return isDiode(blockState) && blockState.getValue(FACING) != direction;
++        Direction enumdirection = ((Direction) state.getValue(DiodeBlock.FACING)).getOpposite();
++        BlockState iblockdata1 = world.getBlockState(pos.relative(enumdirection));
++
++        return DiodeBlock.isDiode(iblockdata1) && iblockdata1.getValue(DiodeBlock.FACING) != enumdirection;
+     }
+ 
+     protected abstract int getDelay(BlockState state);

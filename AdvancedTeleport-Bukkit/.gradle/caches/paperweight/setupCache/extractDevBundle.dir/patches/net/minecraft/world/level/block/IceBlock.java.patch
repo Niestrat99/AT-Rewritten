@@ -1,0 +1,30 @@
+--- a/net/minecraft/world/level/block/IceBlock.java
++++ b/net/minecraft/world/level/block/IceBlock.java
+@@ -17,6 +17,7 @@
+ import net.minecraft.world.level.material.PushReaction;
+ 
+ public class IceBlock extends HalfTransparentBlock {
++
+     public IceBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+     }
+@@ -31,6 +32,7 @@
+             }
+ 
+             Material material = world.getBlockState(pos.below()).getMaterial();
++
+             if (material.blocksMotion() || material.isLiquid()) {
+                 world.setBlockAndUpdate(pos, Blocks.WATER.defaultBlockState());
+             }
+@@ -47,6 +49,11 @@
+     }
+ 
+     protected void melt(BlockState state, Level world, BlockPos pos) {
++        // CraftBukkit start
++        if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callBlockFadeEvent(world, pos, world.dimensionType().ultraWarm() ? Blocks.AIR.defaultBlockState() : Blocks.WATER.defaultBlockState()).isCancelled()) {
++            return;
++        }
++        // CraftBukkit end
+         if (world.dimensionType().ultraWarm()) {
+             world.removeBlock(pos, false);
+         } else {

@@ -1,0 +1,756 @@
+--- a/net/minecraft/world/entity/projectile/FishingHook.java
++++ b/net/minecraft/world/entity/projectile/FishingHook.java
+@@ -2,6 +2,7 @@
+ 
+ import com.mojang.logging.LogUtils;
+ import java.util.Collections;
++import java.util.Iterator;
+ import java.util.List;
+ import javax.annotation.Nullable;
+ import net.minecraft.advancements.CriteriaTriggers;
+@@ -26,7 +27,6 @@
+ import net.minecraft.world.entity.ExperienceOrb;
+ import net.minecraft.world.entity.MoverType;
+ import net.minecraft.world.entity.item.ItemEntity;
+-import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.level.Level;
+@@ -44,9 +44,16 @@
+ import net.minecraft.world.phys.Vec3;
+ import org.slf4j.Logger;
+ 
++// CraftBukkit start
++import org.bukkit.entity.Player;
++import org.bukkit.entity.FishHook;
++import org.bukkit.event.player.PlayerFishEvent;
++// CraftBukkit end
++
+ public class FishingHook extends Projectile {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+-    private final RandomSource syncronizedRandom = RandomSource.create();
++    private final RandomSource syncronizedRandom;
+     private boolean biting;
+     private int outOfWaterTime;
+     private static final int MAX_OUT_OF_WATER_TIME = 10;
+@@ -57,64 +64,80 @@
+     public int timeUntilLured;
+     private int timeUntilHooked;
+     private float fishAngle;
+-    private boolean openWater = true;
++    private boolean openWater;
+     @Nullable
+     public Entity hookedIn;
+-    public FishingHook.FishHookState currentState = FishingHook.FishHookState.FLYING;
++    public FishingHook.FishHookState currentState;
+     private final int luck;
+     private final int lureSpeed;
+ 
++    // CraftBukkit start - Extra variables to enable modification of fishing wait time, values are minecraft defaults
++    public int minWaitTime = 100;
++    public int maxWaitTime = 600;
++    public boolean applyLure = true;
++    // CraftBukkit end
++
+     private FishingHook(EntityType<? extends FishingHook> type, Level world, int luckOfTheSeaLevel, int lureLevel) {
+         super(type, world);
++        this.syncronizedRandom = RandomSource.create();
++        this.openWater = true;
++        this.currentState = FishingHook.FishHookState.FLYING;
+         this.noCulling = true;
+         this.luck = Math.max(0, luckOfTheSeaLevel);
+         this.lureSpeed = Math.max(0, lureLevel);
++        // Paper start
++        minWaitTime = world.paperConfig().fishingTimeRange.minimum;
++        maxWaitTime = world.paperConfig().fishingTimeRange.maximum;
++        // Paper end
+     }
+ 
+     public FishingHook(EntityType<? extends FishingHook> type, Level world) {
+         this(type, world, 0, 0);
+     }
+ 
+-    public FishingHook(Player thrower, Level world, int luckOfTheSeaLevel, int lureLevel) {
++    public FishingHook(net.minecraft.world.entity.player.Player thrower, Level world, int luckOfTheSeaLevel, int lureLevel) {
+         this(EntityType.FISHING_BOBBER, world, luckOfTheSeaLevel, lureLevel);
+         this.setOwner(thrower);
+         float f = thrower.getXRot();
+-        float g = thrower.getYRot();
+-        float h = Mth.cos(-g * ((float)Math.PI / 180F) - (float)Math.PI);
+-        float i = Mth.sin(-g * ((float)Math.PI / 180F) - (float)Math.PI);
+-        float j = -Mth.cos(-f * ((float)Math.PI / 180F));
+-        float k = Mth.sin(-f * ((float)Math.PI / 180F));
+-        double d = thrower.getX() - (double)i * 0.3D;
+-        double e = thrower.getEyeY();
+-        double l = thrower.getZ() - (double)h * 0.3D;
+-        this.moveTo(d, e, l, g, f);
+-        Vec3 vec3 = new Vec3((double)(-i), (double)Mth.clamp(-(k / j), -5.0F, 5.0F), (double)(-h));
+-        double m = vec3.length();
+-        vec3 = vec3.multiply(0.6D / m + this.random.triangle(0.5D, 0.0103365D), 0.6D / m + this.random.triangle(0.5D, 0.0103365D), 0.6D / m + this.random.triangle(0.5D, 0.0103365D));
+-        this.setDeltaMovement(vec3);
+-        this.setYRot((float)(Mth.atan2(vec3.x, vec3.z) * (double)(180F / (float)Math.PI)));
+-        this.setXRot((float)(Mth.atan2(vec3.y, vec3.horizontalDistance()) * (double)(180F / (float)Math.PI)));
++        float f1 = thrower.getYRot();
++        float f2 = Mth.cos(-f1 * 0.017453292F - 3.1415927F);
++        float f3 = Mth.sin(-f1 * 0.017453292F - 3.1415927F);
++        float f4 = -Mth.cos(-f * 0.017453292F);
++        float f5 = Mth.sin(-f * 0.017453292F);
++        double d0 = thrower.getX() - (double) f3 * 0.3D;
++        double d1 = thrower.getEyeY();
++        double d2 = thrower.getZ() - (double) f2 * 0.3D;
++
++        this.moveTo(d0, d1, d2, f1, f);
++        Vec3 vec3d = new Vec3((double) (-f3), (double) Mth.clamp(-(f5 / f4), -5.0F, 5.0F), (double) (-f2));
++        double d3 = vec3d.length();
++
++        vec3d = vec3d.multiply(0.6D / d3 + this.random.triangle(0.5D, 0.0103365D), 0.6D / d3 + this.random.triangle(0.5D, 0.0103365D), 0.6D / d3 + this.random.triangle(0.5D, 0.0103365D));
++        this.setDeltaMovement(vec3d);
++        this.setYRot((float) (Mth.atan2(vec3d.x, vec3d.z) * 57.2957763671875D));
++        this.setXRot((float) (Mth.atan2(vec3d.y, vec3d.horizontalDistance()) * 57.2957763671875D));
+         this.yRotO = this.getYRot();
+         this.xRotO = this.getXRot();
+     }
+ 
+     @Override
+     protected void defineSynchedData() {
+-        this.getEntityData().define(DATA_HOOKED_ENTITY, 0);
+-        this.getEntityData().define(DATA_BITING, false);
++        this.getEntityData().define(FishingHook.DATA_HOOKED_ENTITY, 0);
++        this.getEntityData().define(FishingHook.DATA_BITING, false);
+     }
+ 
+     @Override
+     public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
+-        if (DATA_HOOKED_ENTITY.equals(data)) {
+-            int i = this.getEntityData().get(DATA_HOOKED_ENTITY);
++        if (FishingHook.DATA_HOOKED_ENTITY.equals(data)) {
++            int i = (Integer) this.getEntityData().get(FishingHook.DATA_HOOKED_ENTITY);
++
+             this.hookedIn = i > 0 ? this.level.getEntity(i - 1) : null;
+         }
+ 
+-        if (DATA_BITING.equals(data)) {
+-            this.biting = this.getEntityData().get(DATA_BITING);
++        if (FishingHook.DATA_BITING.equals(data)) {
++            this.biting = (Boolean) this.getEntityData().get(FishingHook.DATA_BITING);
+             if (this.biting) {
+-                this.setDeltaMovement(this.getDeltaMovement().x, (double)(-0.4F * Mth.nextFloat(this.syncronizedRandom, 0.6F, 1.0F)), this.getDeltaMovement().z);
++                this.setDeltaMovement(this.getDeltaMovement().x, (double) (-0.4F * Mth.nextFloat(this.syncronizedRandom, 0.6F, 1.0F)), this.getDeltaMovement().z);
+             }
+         }
+ 
+@@ -123,22 +146,23 @@
+ 
+     @Override
+     public boolean shouldRenderAtSqrDistance(double distance) {
+-        double d = 64.0D;
++        double d1 = 64.0D;
++
+         return distance < 4096.0D;
+     }
+ 
+     @Override
+-    public void lerpTo(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
+-    }
++    public void lerpTo(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {}
+ 
+     @Override
+     public void tick() {
+         this.syncronizedRandom.setSeed(this.getUUID().getLeastSignificantBits() ^ this.level.getGameTime());
+         super.tick();
+-        Player player = this.getPlayerOwner();
+-        if (player == null) {
++        net.minecraft.world.entity.player.Player entityhuman = this.getPlayerOwner();
++
++        if (entityhuman == null) {
+             this.discard();
+-        } else if (this.level.isClientSide || !this.shouldStopFishing(player)) {
++        } else if (this.level.isClientSide || !this.shouldStopFishing(entityhuman)) {
+             if (this.onGround) {
+                 ++this.life;
+                 if (this.life >= 1200) {
+@@ -150,13 +174,15 @@
+             }
+ 
+             float f = 0.0F;
+-            BlockPos blockPos = this.blockPosition();
+-            FluidState fluidState = this.level.getFluidState(blockPos);
+-            if (fluidState.is(FluidTags.WATER)) {
+-                f = fluidState.getHeight(this.level, blockPos);
++            BlockPos blockposition = this.blockPosition();
++            FluidState fluid = this.level.getFluidState(blockposition);
++
++            if (fluid.is(FluidTags.WATER)) {
++                f = fluid.getHeight(this.level, blockposition);
+             }
+ 
+-            boolean bl = f > 0.0F;
++            boolean flag = f > 0.0F;
++
+             if (this.currentState == FishingHook.FishHookState.FLYING) {
+                 if (this.hookedIn != null) {
+                     this.setDeltaMovement(Vec3.ZERO);
+@@ -164,7 +190,7 @@
+                     return;
+                 }
+ 
+-                if (bl) {
++                if (flag) {
+                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.3D, 0.2D, 0.3D));
+                     this.currentState = FishingHook.FishHookState.BOBBING;
+                     return;
+@@ -177,7 +203,7 @@
+                         if (!this.hookedIn.isRemoved() && this.hookedIn.level.dimension() == this.level.dimension()) {
+                             this.setPos(this.hookedIn.getX(), this.hookedIn.getY(0.8D), this.hookedIn.getZ());
+                         } else {
+-                            this.setHookedEntity((Entity)null);
++                            this.setHookedEntity((Entity) null);
+                             this.currentState = FishingHook.FishHookState.FLYING;
+                         }
+                     }
+@@ -186,27 +212,28 @@
+                 }
+ 
+                 if (this.currentState == FishingHook.FishHookState.BOBBING) {
+-                    Vec3 vec3 = this.getDeltaMovement();
+-                    double d = this.getY() + vec3.y - (double)blockPos.getY() - (double)f;
+-                    if (Math.abs(d) < 0.01D) {
+-                        d += Math.signum(d) * 0.1D;
++                    Vec3 vec3d = this.getDeltaMovement();
++                    double d0 = this.getY() + vec3d.y - (double) blockposition.getY() - (double) f;
++
++                    if (Math.abs(d0) < 0.01D) {
++                        d0 += Math.signum(d0) * 0.1D;
+                     }
+ 
+-                    this.setDeltaMovement(vec3.x * 0.9D, vec3.y - d * (double)this.random.nextFloat() * 0.2D, vec3.z * 0.9D);
++                    this.setDeltaMovement(vec3d.x * 0.9D, vec3d.y - d0 * (double) this.random.nextFloat() * 0.2D, vec3d.z * 0.9D);
+                     if (this.nibble <= 0 && this.timeUntilHooked <= 0) {
+                         this.openWater = true;
+                     } else {
+-                        this.openWater = this.openWater && this.outOfWaterTime < 10 && this.calculateOpenWater(blockPos);
++                        this.openWater = this.openWater && this.outOfWaterTime < 10 && this.calculateOpenWater(blockposition);
+                     }
+ 
+-                    if (bl) {
++                    if (flag) {
+                         this.outOfWaterTime = Math.max(0, this.outOfWaterTime - 1);
+                         if (this.biting) {
+-                            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -0.1D * (double)this.syncronizedRandom.nextFloat() * (double)this.syncronizedRandom.nextFloat(), 0.0D));
++                            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -0.1D * (double) this.syncronizedRandom.nextFloat() * (double) this.syncronizedRandom.nextFloat(), 0.0D));
+                         }
+ 
+                         if (!this.level.isClientSide) {
+-                            this.catchingFish(blockPos);
++                            this.catchingFish(blockposition);
+                         }
+                     } else {
+                         this.outOfWaterTime = Math.min(10, this.outOfWaterTime + 1);
+@@ -214,7 +241,7 @@
+                 }
+             }
+ 
+-            if (!fluidState.is(FluidTags.WATER)) {
++            if (!fluid.is(FluidTags.WATER)) {
+                 this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -0.03D, 0.0D));
+             }
+ 
+@@ -224,18 +251,20 @@
+                 this.setDeltaMovement(Vec3.ZERO);
+             }
+ 
+-            double e = 0.92D;
++            double d1 = 0.92D;
++
+             this.setDeltaMovement(this.getDeltaMovement().scale(0.92D));
+             this.reapplyPosition();
+         }
+     }
+ 
+-    private boolean shouldStopFishing(Player player) {
+-        ItemStack itemStack = player.getMainHandItem();
+-        ItemStack itemStack2 = player.getOffhandItem();
+-        boolean bl = itemStack.is(Items.FISHING_ROD);
+-        boolean bl2 = itemStack2.is(Items.FISHING_ROD);
+-        if (!player.isRemoved() && player.isAlive() && (bl || bl2) && !(this.distanceToSqr(player) > 1024.0D)) {
++    private boolean shouldStopFishing(net.minecraft.world.entity.player.Player player) {
++        ItemStack itemstack = player.getMainHandItem();
++        ItemStack itemstack1 = player.getOffhandItem();
++        boolean flag = itemstack.is(Items.FISHING_ROD);
++        boolean flag1 = itemstack1.is(Items.FISHING_ROD);
++
++        if (!player.isRemoved() && player.isAlive() && (flag || flag1) && this.distanceToSqr((Entity) player) <= 1024.0D) {
+             return false;
+         } else {
+             this.discard();
+@@ -244,8 +273,9 @@
+     }
+ 
+     private void checkCollision() {
+-        HitResult hitResult = ProjectileUtil.getHitResult(this, this::canHitEntity);
+-        this.onHit(hitResult);
++        HitResult movingobjectposition = ProjectileUtil.getHitResult(this, this::canHitEntity);
++
++        this.preOnHit(movingobjectposition); // CraftBukkit - projectile hit event
+     }
+ 
+     @Override
+@@ -270,18 +300,19 @@
+ 
+     public void setHookedEntity(@Nullable Entity entity) {
+         this.hookedIn = entity;
+-        this.getEntityData().set(DATA_HOOKED_ENTITY, entity == null ? 0 : entity.getId() + 1);
++        this.getEntityData().set(FishingHook.DATA_HOOKED_ENTITY, entity == null ? 0 : entity.getId() + 1);
+     }
+ 
+     private void catchingFish(BlockPos pos) {
+-        ServerLevel serverLevel = (ServerLevel)this.level;
++        ServerLevel worldserver = (ServerLevel) this.level;
+         int i = 1;
+-        BlockPos blockPos = pos.above();
+-        if (this.random.nextFloat() < 0.25F && this.level.isRainingAt(blockPos)) {
++        BlockPos blockposition1 = pos.above();
++
++        if (this.random.nextFloat() < 0.25F && this.level.isRainingAt(blockposition1)) {
+             ++i;
+         }
+ 
+-        if (this.random.nextFloat() < 0.5F && !this.level.canSeeSky(blockPos)) {
++        if (this.random.nextFloat() < 0.5F && !this.level.canSeeSky(blockposition1)) {
+             --i;
+         }
+ 
+@@ -290,107 +321,135 @@
+             if (this.nibble <= 0) {
+                 this.timeUntilLured = 0;
+                 this.timeUntilHooked = 0;
+-                this.getEntityData().set(DATA_BITING, false);
++                this.getEntityData().set(FishingHook.DATA_BITING, false);
++                // CraftBukkit start
++                PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) this.getPlayerOwner().getBukkitEntity(), null, (FishHook) this.getBukkitEntity(), PlayerFishEvent.State.FAILED_ATTEMPT);
++                this.level.getCraftServer().getPluginManager().callEvent(playerFishEvent);
++                // CraftBukkit end
+             }
+-        } else if (this.timeUntilHooked > 0) {
+-            this.timeUntilHooked -= i;
++        } else {
++            float f;
++            float f1;
++            float f2;
++            double d0;
++            double d1;
++            double d2;
++            BlockState iblockdata;
++
+             if (this.timeUntilHooked > 0) {
+-                this.fishAngle += (float)this.random.triangle(0.0D, 9.188D);
+-                float f = this.fishAngle * ((float)Math.PI / 180F);
+-                float g = Mth.sin(f);
+-                float h = Mth.cos(f);
+-                double d = this.getX() + (double)(g * (float)this.timeUntilHooked * 0.1F);
+-                double e = (double)((float)Mth.floor(this.getY()) + 1.0F);
+-                double j = this.getZ() + (double)(h * (float)this.timeUntilHooked * 0.1F);
+-                BlockState blockState = serverLevel.getBlockState(new BlockPos(d, e - 1.0D, j));
+-                if (blockState.is(Blocks.WATER)) {
+-                    if (this.random.nextFloat() < 0.15F) {
+-                        serverLevel.sendParticles(ParticleTypes.BUBBLE, d, e - (double)0.1F, j, 1, (double)g, 0.1D, (double)h, 0.0D);
++                this.timeUntilHooked -= i;
++                if (this.timeUntilHooked > 0) {
++                    this.fishAngle += (float) this.random.triangle(0.0D, 9.188D);
++                    f = this.fishAngle * 0.017453292F;
++                    f1 = Mth.sin(f);
++                    f2 = Mth.cos(f);
++                    d0 = this.getX() + (double) (f1 * (float) this.timeUntilHooked * 0.1F);
++                    d1 = (double) ((float) Mth.floor(this.getY()) + 1.0F);
++                    d2 = this.getZ() + (double) (f2 * (float) this.timeUntilHooked * 0.1F);
++                    iblockdata = worldserver.getBlockState(new BlockPos(d0, d1 - 1.0D, d2));
++                    if (iblockdata.is(Blocks.WATER)) {
++                        if (this.random.nextFloat() < 0.15F) {
++                            worldserver.sendParticles(ParticleTypes.BUBBLE, d0, d1 - 0.10000000149011612D, d2, 1, (double) f1, 0.1D, (double) f2, 0.0D);
++                        }
++
++                        float f3 = f1 * 0.04F;
++                        float f4 = f2 * 0.04F;
++
++                        worldserver.sendParticles(ParticleTypes.FISHING, d0, d1, d2, 0, (double) f4, 0.01D, (double) (-f3), 1.0D);
++                        worldserver.sendParticles(ParticleTypes.FISHING, d0, d1, d2, 0, (double) (-f4), 0.01D, (double) f3, 1.0D);
+                     }
++                } else {
++                    // CraftBukkit start
++                    PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) this.getPlayerOwner().getBukkitEntity(), null, (FishHook) this.getBukkitEntity(), PlayerFishEvent.State.BITE);
++                    this.level.getCraftServer().getPluginManager().callEvent(playerFishEvent);
++                    if (playerFishEvent.isCancelled()) {
++                        return;
++                    }
++                    // CraftBukkit end
++                    this.playSound(SoundEvents.FISHING_BOBBER_SPLASH, 0.25F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
++                    double d3 = this.getY() + 0.5D;
+ 
+-                    float k = g * 0.04F;
+-                    float l = h * 0.04F;
+-                    serverLevel.sendParticles(ParticleTypes.FISHING, d, e, j, 0, (double)l, 0.01D, (double)(-k), 1.0D);
+-                    serverLevel.sendParticles(ParticleTypes.FISHING, d, e, j, 0, (double)(-l), 0.01D, (double)k, 1.0D);
++                    worldserver.sendParticles(ParticleTypes.BUBBLE, this.getX(), d3, this.getZ(), (int) (1.0F + this.getBbWidth() * 20.0F), (double) this.getBbWidth(), 0.0D, (double) this.getBbWidth(), 0.20000000298023224D);
++                    worldserver.sendParticles(ParticleTypes.FISHING, this.getX(), d3, this.getZ(), (int) (1.0F + this.getBbWidth() * 20.0F), (double) this.getBbWidth(), 0.0D, (double) this.getBbWidth(), 0.20000000298023224D);
++                    this.nibble = Mth.nextInt(this.random, 20, 40);
++                    this.getEntityData().set(FishingHook.DATA_BITING, true);
++                }
++            } else if (this.timeUntilLured > 0) {
++                this.timeUntilLured -= i;
++                f = 0.15F;
++                if (this.timeUntilLured < 20) {
++                    f += (float) (20 - this.timeUntilLured) * 0.05F;
++                } else if (this.timeUntilLured < 40) {
++                    f += (float) (40 - this.timeUntilLured) * 0.02F;
++                } else if (this.timeUntilLured < 60) {
++                    f += (float) (60 - this.timeUntilLured) * 0.01F;
+                 }
+-            } else {
+-                this.playSound(SoundEvents.FISHING_BOBBER_SPLASH, 0.25F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
+-                double m = this.getY() + 0.5D;
+-                serverLevel.sendParticles(ParticleTypes.BUBBLE, this.getX(), m, this.getZ(), (int)(1.0F + this.getBbWidth() * 20.0F), (double)this.getBbWidth(), 0.0D, (double)this.getBbWidth(), (double)0.2F);
+-                serverLevel.sendParticles(ParticleTypes.FISHING, this.getX(), m, this.getZ(), (int)(1.0F + this.getBbWidth() * 20.0F), (double)this.getBbWidth(), 0.0D, (double)this.getBbWidth(), (double)0.2F);
+-                this.nibble = Mth.nextInt(this.random, 20, 40);
+-                this.getEntityData().set(DATA_BITING, true);
+-            }
+-        } else if (this.timeUntilLured > 0) {
+-            this.timeUntilLured -= i;
+-            float n = 0.15F;
+-            if (this.timeUntilLured < 20) {
+-                n += (float)(20 - this.timeUntilLured) * 0.05F;
+-            } else if (this.timeUntilLured < 40) {
+-                n += (float)(40 - this.timeUntilLured) * 0.02F;
+-            } else if (this.timeUntilLured < 60) {
+-                n += (float)(60 - this.timeUntilLured) * 0.01F;
+-            }
+ 
+-            if (this.random.nextFloat() < n) {
+-                float o = Mth.nextFloat(this.random, 0.0F, 360.0F) * ((float)Math.PI / 180F);
+-                float p = Mth.nextFloat(this.random, 25.0F, 60.0F);
+-                double q = this.getX() + (double)(Mth.sin(o) * p) * 0.1D;
+-                double r = (double)((float)Mth.floor(this.getY()) + 1.0F);
+-                double s = this.getZ() + (double)(Mth.cos(o) * p) * 0.1D;
+-                BlockState blockState2 = serverLevel.getBlockState(new BlockPos(q, r - 1.0D, s));
+-                if (blockState2.is(Blocks.WATER)) {
+-                    serverLevel.sendParticles(ParticleTypes.SPLASH, q, r, s, 2 + this.random.nextInt(2), (double)0.1F, 0.0D, (double)0.1F, 0.0D);
++                if (this.random.nextFloat() < f) {
++                    f1 = Mth.nextFloat(this.random, 0.0F, 360.0F) * 0.017453292F;
++                    f2 = Mth.nextFloat(this.random, 25.0F, 60.0F);
++                    d0 = this.getX() + (double) (Mth.sin(f1) * f2) * 0.1D;
++                    d1 = (double) ((float) Mth.floor(this.getY()) + 1.0F);
++                    d2 = this.getZ() + (double) (Mth.cos(f1) * f2) * 0.1D;
++                    iblockdata = worldserver.getBlockState(new BlockPos(d0, d1 - 1.0D, d2));
++                    if (iblockdata.is(Blocks.WATER)) {
++                        worldserver.sendParticles(ParticleTypes.SPLASH, d0, d1, d2, 2 + this.random.nextInt(2), 0.10000000149011612D, 0.0D, 0.10000000149011612D, 0.0D);
++                    }
+                 }
+-            }
+ 
+-            if (this.timeUntilLured <= 0) {
+-                this.fishAngle = Mth.nextFloat(this.random, 0.0F, 360.0F);
+-                this.timeUntilHooked = Mth.nextInt(this.random, 20, 80);
++                if (this.timeUntilLured <= 0) {
++                    this.fishAngle = Mth.nextFloat(this.random, 0.0F, 360.0F);
++                    this.timeUntilHooked = Mth.nextInt(this.random, 20, 80);
++                }
++            } else {
++                // CraftBukkit start - logic to modify fishing wait time
++                this.timeUntilLured = Mth.nextInt(this.random, this.minWaitTime, this.maxWaitTime);
++                this.timeUntilLured -= (this.applyLure) ? (this.lureSpeed * 20 * 5 >= this.maxWaitTime ? this.timeUntilLured - 1 : this.lureSpeed * 20 * 5) : 0; // Paper - Fix Lure infinite loop
++                // CraftBukkit end
+             }
+-        } else {
+-            this.timeUntilLured = Mth.nextInt(this.random, 100, 600);
+-            this.timeUntilLured -= this.lureSpeed * 20 * 5;
+         }
+ 
+     }
+ 
+     private boolean calculateOpenWater(BlockPos pos) {
+-        FishingHook.OpenWaterType openWaterType = FishingHook.OpenWaterType.INVALID;
++        FishingHook.OpenWaterType entityfishinghook_waterposition = FishingHook.OpenWaterType.INVALID;
+ 
+-        for(int i = -1; i <= 2; ++i) {
+-            FishingHook.OpenWaterType openWaterType2 = this.getOpenWaterTypeForArea(pos.offset(-2, i, -2), pos.offset(2, i, 2));
+-            switch (openWaterType2) {
++        for (int i = -1; i <= 2; ++i) {
++            FishingHook.OpenWaterType entityfishinghook_waterposition1 = this.getOpenWaterTypeForArea(pos.offset(-2, i, -2), pos.offset(2, i, 2));
++
++            switch (entityfishinghook_waterposition1) {
+                 case INVALID:
+                     return false;
+                 case ABOVE_WATER:
+-                    if (openWaterType == FishingHook.OpenWaterType.INVALID) {
++                    if (entityfishinghook_waterposition == FishingHook.OpenWaterType.INVALID) {
+                         return false;
+                     }
+                     break;
+                 case INSIDE_WATER:
+-                    if (openWaterType == FishingHook.OpenWaterType.ABOVE_WATER) {
++                    if (entityfishinghook_waterposition == FishingHook.OpenWaterType.ABOVE_WATER) {
+                         return false;
+                     }
+             }
+ 
+-            openWaterType = openWaterType2;
++            entityfishinghook_waterposition = entityfishinghook_waterposition1;
+         }
+ 
+         return true;
+     }
+ 
+     private FishingHook.OpenWaterType getOpenWaterTypeForArea(BlockPos start, BlockPos end) {
+-        return BlockPos.betweenClosedStream(start, end).map(this::getOpenWaterTypeForBlock).reduce((openWaterType, openWaterType2) -> {
+-            return openWaterType == openWaterType2 ? openWaterType : FishingHook.OpenWaterType.INVALID;
++        return (FishingHook.OpenWaterType) BlockPos.betweenClosedStream(start, end).map(this::getOpenWaterTypeForBlock).reduce((entityfishinghook_waterposition, entityfishinghook_waterposition1) -> {
++            return entityfishinghook_waterposition == entityfishinghook_waterposition1 ? entityfishinghook_waterposition : FishingHook.OpenWaterType.INVALID;
+         }).orElse(FishingHook.OpenWaterType.INVALID);
+     }
+ 
+     private FishingHook.OpenWaterType getOpenWaterTypeForBlock(BlockPos pos) {
+-        BlockState blockState = this.level.getBlockState(pos);
+-        if (!blockState.isAir() && !blockState.is(Blocks.LILY_PAD)) {
+-            FluidState fluidState = blockState.getFluidState();
+-            return fluidState.is(FluidTags.WATER) && fluidState.isSource() && blockState.getCollisionShape(this.level, pos).isEmpty() ? FishingHook.OpenWaterType.INSIDE_WATER : FishingHook.OpenWaterType.INVALID;
++        BlockState iblockdata = this.level.getBlockState(pos);
++
++        if (!iblockdata.isAir() && !iblockdata.is(Blocks.LILY_PAD)) {
++            FluidState fluid = iblockdata.getFluidState();
++
++            return fluid.is(FluidTags.WATER) && fluid.isSource() && iblockdata.getCollisionShape(this.level, pos).isEmpty() ? FishingHook.OpenWaterType.INSIDE_WATER : FishingHook.OpenWaterType.INVALID;
+         } else {
+             return FishingHook.OpenWaterType.ABOVE_WATER;
+         }
+@@ -401,39 +460,74 @@
+     }
+ 
+     @Override
+-    public void addAdditionalSaveData(CompoundTag nbt) {
+-    }
++    public void addAdditionalSaveData(CompoundTag nbt) {}
+ 
+     @Override
+-    public void readAdditionalSaveData(CompoundTag nbt) {
+-    }
++    public void readAdditionalSaveData(CompoundTag nbt) {}
+ 
+     public int retrieve(ItemStack usedItem) {
+-        Player player = this.getPlayerOwner();
+-        if (!this.level.isClientSide && player != null && !this.shouldStopFishing(player)) {
++        net.minecraft.world.entity.player.Player entityhuman = this.getPlayerOwner();
++
++        if (!this.level.isClientSide && entityhuman != null && !this.shouldStopFishing(entityhuman)) {
+             int i = 0;
++
+             if (this.hookedIn != null) {
++                // CraftBukkit start
++                PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) entityhuman.getBukkitEntity(), this.hookedIn.getBukkitEntity(), (FishHook) this.getBukkitEntity(), PlayerFishEvent.State.CAUGHT_ENTITY);
++                this.level.getCraftServer().getPluginManager().callEvent(playerFishEvent);
++
++                if (playerFishEvent.isCancelled()) {
++                    return 0;
++                }
++                // CraftBukkit end
+                 this.pullEntity(this.hookedIn);
+-                CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer)player, usedItem, this, Collections.emptyList());
+-                this.level.broadcastEntityEvent(this, (byte)31);
++                CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer) entityhuman, usedItem, this, Collections.emptyList());
++                this.level.broadcastEntityEvent(this, (byte) 31);
+                 i = this.hookedIn instanceof ItemEntity ? 3 : 5;
+             } else if (this.nibble > 0) {
+-                LootContext.Builder builder = (new LootContext.Builder((ServerLevel)this.level)).withParameter(LootContextParams.ORIGIN, this.position()).withParameter(LootContextParams.TOOL, usedItem).withParameter(LootContextParams.THIS_ENTITY, this).withRandom(this.random).withLuck((float)this.luck + player.getLuck());
+-                LootTable lootTable = this.level.getServer().getLootTables().get(BuiltInLootTables.FISHING);
+-                List<ItemStack> list = lootTable.getRandomItems(builder.create(LootContextParamSets.FISHING));
+-                CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer)player, usedItem, this, list);
++                LootContext.Builder loottableinfo_builder = (new LootContext.Builder((ServerLevel) this.level)).withParameter(LootContextParams.ORIGIN, this.position()).withParameter(LootContextParams.TOOL, usedItem).withParameter(LootContextParams.THIS_ENTITY, this).withRandom(this.random).withLuck((float) this.luck + entityhuman.getLuck());
++                LootTable loottable = this.level.getServer().getLootTables().get(BuiltInLootTables.FISHING);
++                List<ItemStack> list = loottable.getRandomItems(loottableinfo_builder.create(LootContextParamSets.FISHING));
+ 
+-                for(ItemStack itemStack : list) {
+-                    ItemEntity itemEntity = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), itemStack);
+-                    double d = player.getX() - this.getX();
+-                    double e = player.getY() - this.getY();
+-                    double f = player.getZ() - this.getZ();
+-                    double g = 0.1D;
+-                    itemEntity.setDeltaMovement(d * 0.1D, e * 0.1D + Math.sqrt(Math.sqrt(d * d + e * e + f * f)) * 0.08D, f * 0.1D);
+-                    this.level.addFreshEntity(itemEntity);
+-                    player.level.addFreshEntity(new ExperienceOrb(player.level, player.getX(), player.getY() + 0.5D, player.getZ() + 0.5D, this.random.nextInt(6) + 1));
+-                    if (itemStack.is(ItemTags.FISHES)) {
+-                        player.awardStat(Stats.FISH_CAUGHT, 1);
++                CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer) entityhuman, usedItem, this, list);
++                Iterator iterator = list.iterator();
++
++                while (iterator.hasNext()) {
++                    ItemStack itemstack1 = (ItemStack) iterator.next();
++                    // Paper start, new EntityItem would throw if for whatever reason (mostly shitty datapacks) the itemstack1 turns out to be empty
++                    // if the item stack is empty we instead just have our entityitem as null
++                    ItemEntity entityitem = null;
++                    if (!itemstack1.isEmpty()) {
++                        entityitem = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), itemstack1);
++                    }
++                    // Paper end
++                    // CraftBukkit start
++                    PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) entityhuman.getBukkitEntity(), entityitem != null ? entityitem.getBukkitEntity() : null, (FishHook) this.getBukkitEntity(), PlayerFishEvent.State.CAUGHT_FISH); // Paper - entityitem may be null
++                    playerFishEvent.setExpToDrop(this.random.nextInt(6) + 1);
++                    this.level.getCraftServer().getPluginManager().callEvent(playerFishEvent);
++
++                    if (playerFishEvent.isCancelled()) {
++                        return 0;
++                    }
++                    // CraftBukkit end
++                    double d0 = entityhuman.getX() - this.getX();
++                    double d1 = entityhuman.getY() - this.getY();
++                    double d2 = entityhuman.getZ() - this.getZ();
++                    double d3 = 0.1D;
++
++                    // Paper start, entity item can be null, so we need to check against this
++                    if (entityitem != null) {
++                        entityitem.setDeltaMovement(d0 * 0.1D, d1 * 0.1D + Math.sqrt(Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2)) * 0.08D, d2 * 0.1D);
++                        this.level.addFreshEntity(entityitem);
++                    }
++                    // Paper end
++                    // CraftBukkit start - this.random.nextInt(6) + 1 -> playerFishEvent.getExpToDrop()
++                    if (playerFishEvent.getExpToDrop() > 0) {
++                        entityhuman.level.addFreshEntity(new ExperienceOrb(entityhuman.level, entityhuman.getX(), entityhuman.getY() + 0.5D, entityhuman.getZ() + 0.5D, playerFishEvent.getExpToDrop(), org.bukkit.entity.ExperienceOrb.SpawnReason.FISHING, this.getPlayerOwner(), this)); // Paper
++                    }
++                    // CraftBukkit end
++                    if (itemstack1.is(ItemTags.FISHES)) {
++                        entityhuman.awardStat(Stats.FISH_CAUGHT, 1);
+                     }
+                 }
+ 
+@@ -441,8 +535,25 @@
+             }
+ 
+             if (this.onGround) {
++                // CraftBukkit start
++                PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) entityhuman.getBukkitEntity(), null, (FishHook) this.getBukkitEntity(), PlayerFishEvent.State.IN_GROUND);
++                this.level.getCraftServer().getPluginManager().callEvent(playerFishEvent);
++
++                if (playerFishEvent.isCancelled()) {
++                    return 0;
++                }
++                // CraftBukkit end
+                 i = 2;
+             }
++            // CraftBukkit start
++            if (i == 0) {
++                PlayerFishEvent playerFishEvent = new PlayerFishEvent((Player) entityhuman.getBukkitEntity(), null, (FishHook) this.getBukkitEntity(), PlayerFishEvent.State.REEL_IN);
++                this.level.getCraftServer().getPluginManager().callEvent(playerFishEvent);
++                if (playerFishEvent.isCancelled()) {
++                    return 0;
++                }
++            }
++            // CraftBukkit end
+ 
+             this.discard();
+             return i;
+@@ -453,7 +564,7 @@
+ 
+     @Override
+     public void handleEntityEvent(byte status) {
+-        if (status == 31 && this.level.isClientSide && this.hookedIn instanceof Player && ((Player)this.hookedIn).isLocalPlayer()) {
++        if (status == 31 && this.level.isClientSide && this.hookedIn instanceof net.minecraft.world.entity.player.Player && ((net.minecraft.world.entity.player.Player) this.hookedIn).isLocalPlayer()) {
+             this.pullEntity(this.hookedIn);
+         }
+ 
+@@ -461,10 +572,12 @@
+     }
+ 
+     public void pullEntity(Entity entity) {
+-        Entity entity2 = this.getOwner();
+-        if (entity2 != null) {
+-            Vec3 vec3 = (new Vec3(entity2.getX() - this.getX(), entity2.getY() - this.getY(), entity2.getZ() - this.getZ())).scale(0.1D);
+-            entity.setDeltaMovement(entity.getDeltaMovement().add(vec3));
++        Entity entity1 = this.getOwner();
++
++        if (entity1 != null) {
++            Vec3 vec3d = (new Vec3(entity1.getX() - this.getX(), entity1.getY() - this.getY(), entity1.getZ() - this.getZ())).scale(0.1D);
++
++            entity.setDeltaMovement(entity.getDeltaMovement().add(vec3d));
+         }
+     }
+ 
+@@ -475,13 +588,13 @@
+ 
+     @Override
+     public void remove(Entity.RemovalReason reason) {
+-        this.updateOwnerInfo((FishingHook)null);
++        this.updateOwnerInfo((FishingHook) null);
+         super.remove(reason);
+     }
+ 
+     @Override
+     public void onClientRemoval() {
+-        this.updateOwnerInfo((FishingHook)null);
++        this.updateOwnerInfo((FishingHook) null);
+     }
+ 
+     @Override
+@@ -491,17 +604,19 @@
+     }
+ 
+     private void updateOwnerInfo(@Nullable FishingHook fishingBobber) {
+-        Player player = this.getPlayerOwner();
+-        if (player != null) {
+-            player.fishing = fishingBobber;
++        net.minecraft.world.entity.player.Player entityhuman = this.getPlayerOwner();
++
++        if (entityhuman != null) {
++            entityhuman.fishing = fishingBobber;
+         }
+ 
+     }
+ 
+     @Nullable
+-    public Player getPlayerOwner() {
++    public net.minecraft.world.entity.player.Player getPlayerOwner() {
+         Entity entity = this.getOwner();
+-        return entity instanceof Player ? (Player)entity : null;
++
++        return entity instanceof net.minecraft.world.entity.player.Player ? (net.minecraft.world.entity.player.Player) entity : null;
+     }
+ 
+     @Nullable
+@@ -517,6 +632,7 @@
+     @Override
+     public Packet<?> getAddEntityPacket() {
+         Entity entity = this.getOwner();
++
+         return new ClientboundAddEntityPacket(this, entity == null ? this.getId() : entity.getId());
+     }
+ 
+@@ -525,21 +641,24 @@
+         super.recreateFromPacket(packet);
+         if (this.getPlayerOwner() == null) {
+             int i = packet.getData();
+-            LOGGER.error("Failed to recreate fishing hook on client. {} (id: {}) is not a valid owner.", this.level.getEntity(i), i);
++
++            FishingHook.LOGGER.error("Failed to recreate fishing hook on client. {} (id: {}) is not a valid owner.", this.level.getEntity(i), i);
+             this.kill();
+         }
+ 
+     }
+ 
+     public static enum FishHookState {
+-        FLYING,
+-        HOOKED_IN_ENTITY,
+-        BOBBING;
++
++        FLYING, HOOKED_IN_ENTITY, BOBBING;
++
++        private FishHookState() {}
+     }
+ 
+-    static enum OpenWaterType {
+-        ABOVE_WATER,
+-        INSIDE_WATER,
+-        INVALID;
++    private static enum OpenWaterType {
++
++        ABOVE_WATER, INSIDE_WATER, INVALID;
++
++        private OpenWaterType() {}
+     }
+ }

@@ -1,0 +1,25 @@
+--- a/net/minecraft/network/protocol/game/ClientboundSetSubtitleTextPacket.java
++++ b/net/minecraft/network/protocol/game/ClientboundSetSubtitleTextPacket.java
+@@ -6,6 +6,8 @@
+ 
+ public class ClientboundSetSubtitleTextPacket implements Packet<ClientGamePacketListener> {
+     private final Component text;
++    public net.kyori.adventure.text.Component adventure$text; // Paper
++    public net.md_5.bungee.api.chat.BaseComponent[] components; // Paper
+ 
+     public ClientboundSetSubtitleTextPacket(Component subtitle) {
+         this.text = subtitle;
+@@ -17,6 +19,13 @@
+ 
+     @Override
+     public void write(FriendlyByteBuf buf) {
++        // Paper start
++        if (this.adventure$text != null) {
++            buf.writeComponent(this.adventure$text);
++        } else if (this.components != null) {
++            buf.writeComponent(this.components);
++        } else
++        // Paper end
+         buf.writeComponent(this.text);
+     }
+ 

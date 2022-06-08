@@ -1,0 +1,29 @@
+--- a/net/minecraft/world/level/block/state/properties/IntegerProperty.java
++++ b/net/minecraft/world/level/block/state/properties/IntegerProperty.java
+@@ -11,6 +11,16 @@
+     public final int min;
+     public final int max;
+ 
++    // Paper start - optimise iblockdata state lookup
++    @Override
++    public final int getIdFor(final Integer value) {
++        final int val = value.intValue();
++        final int ret = val - this.min;
++
++        return ret | ((this.max - ret) >> 31);
++    }
++    // Paper end - optimise iblockdata state lookup
++
+     protected IntegerProperty(String name, int min, int max) {
+         super(name, Integer.class);
+         if (min < 0) {
+@@ -35,8 +45,7 @@
+         return this.values;
+     }
+ 
+-    @Override
+-    public boolean equals(Object object) {
++    public boolean equals_unused(Object object) { // Paper
+         if (this == object) {
+             return true;
+         } else if (object instanceof IntegerProperty && super.equals(object)) {

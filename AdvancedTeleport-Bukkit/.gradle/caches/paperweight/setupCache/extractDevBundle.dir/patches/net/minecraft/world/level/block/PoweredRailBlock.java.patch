@@ -1,0 +1,363 @@
+--- a/net/minecraft/world/level/block/PoweredRailBlock.java
++++ b/net/minecraft/world/level/block/PoweredRailBlock.java
+@@ -10,123 +10,120 @@
+ import net.minecraft.world.level.block.state.properties.EnumProperty;
+ import net.minecraft.world.level.block.state.properties.Property;
+ import net.minecraft.world.level.block.state.properties.RailShape;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory; // CraftBukkit
+ 
+ public class PoweredRailBlock extends BaseRailBlock {
++
+     public static final EnumProperty<RailShape> SHAPE = BlockStateProperties.RAIL_SHAPE_STRAIGHT;
+     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+ 
+     protected PoweredRailBlock(BlockBehaviour.Properties settings) {
+         super(true, settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(SHAPE, RailShape.NORTH_SOUTH).setValue(POWERED, Boolean.valueOf(false)).setValue(WATERLOGGED, Boolean.valueOf(false)));
++        this.registerDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_SOUTH)).setValue(PoweredRailBlock.POWERED, false)).setValue(PoweredRailBlock.WATERLOGGED, false));
+     }
+ 
+-    protected boolean findPoweredRailSignal(Level world, BlockPos pos, BlockState state, boolean bl, int distance) {
++    protected boolean findPoweredRailSignal(Level world, BlockPos pos, BlockState state, boolean flag, int distance) {
+         if (distance >= 8) {
+             return false;
+         } else {
+-            int i = pos.getX();
+-            int j = pos.getY();
+-            int k = pos.getZ();
+-            boolean bl2 = true;
+-            RailShape railShape = state.getValue(SHAPE);
+-            switch (railShape) {
++            int j = pos.getX();
++            int k = pos.getY();
++            int l = pos.getZ();
++            boolean flag1 = true;
++            RailShape blockpropertytrackposition = (RailShape) state.getValue(PoweredRailBlock.SHAPE);
++
++            switch (blockpropertytrackposition) {
+                 case NORTH_SOUTH:
+-                    if (bl) {
+-                        ++k;
++                    if (flag) {
++                        ++l;
+                     } else {
+-                        --k;
++                        --l;
+                     }
+                     break;
+                 case EAST_WEST:
+-                    if (bl) {
+-                        --i;
++                    if (flag) {
++                        --j;
+                     } else {
+-                        ++i;
++                        ++j;
+                     }
+                     break;
+                 case ASCENDING_EAST:
+-                    if (bl) {
+-                        --i;
++                    if (flag) {
++                        --j;
+                     } else {
+-                        ++i;
+                         ++j;
+-                        bl2 = false;
++                        ++k;
++                        flag1 = false;
+                     }
+ 
+-                    railShape = RailShape.EAST_WEST;
++                    blockpropertytrackposition = RailShape.EAST_WEST;
+                     break;
+                 case ASCENDING_WEST:
+-                    if (bl) {
+-                        --i;
+-                        ++j;
+-                        bl2 = false;
++                    if (flag) {
++                        --j;
++                        ++k;
++                        flag1 = false;
+                     } else {
+-                        ++i;
++                        ++j;
+                     }
+ 
+-                    railShape = RailShape.EAST_WEST;
++                    blockpropertytrackposition = RailShape.EAST_WEST;
+                     break;
+                 case ASCENDING_NORTH:
+-                    if (bl) {
+-                        ++k;
++                    if (flag) {
++                        ++l;
+                     } else {
+-                        --k;
+-                        ++j;
+-                        bl2 = false;
++                        --l;
++                        ++k;
++                        flag1 = false;
+                     }
+ 
+-                    railShape = RailShape.NORTH_SOUTH;
++                    blockpropertytrackposition = RailShape.NORTH_SOUTH;
+                     break;
+                 case ASCENDING_SOUTH:
+-                    if (bl) {
++                    if (flag) {
++                        ++l;
+                         ++k;
+-                        ++j;
+-                        bl2 = false;
++                        flag1 = false;
+                     } else {
+-                        --k;
++                        --l;
+                     }
+ 
+-                    railShape = RailShape.NORTH_SOUTH;
++                    blockpropertytrackposition = RailShape.NORTH_SOUTH;
+             }
+ 
+-            if (this.isSameRailWithPower(world, new BlockPos(i, j, k), bl, distance, railShape)) {
+-                return true;
+-            } else {
+-                return bl2 && this.isSameRailWithPower(world, new BlockPos(i, j - 1, k), bl, distance, railShape);
+-            }
++            return this.isSameRailWithPower(world, new BlockPos(j, k, l), flag, distance, blockpropertytrackposition) ? true : flag1 && this.isSameRailWithPower(world, new BlockPos(j, k - 1, l), flag, distance, blockpropertytrackposition);
+         }
+     }
+ 
+-    protected boolean isSameRailWithPower(Level world, BlockPos pos, boolean bl, int distance, RailShape shape) {
+-        BlockState blockState = world.getBlockState(pos);
+-        if (!blockState.is(this)) {
++    protected boolean isSameRailWithPower(Level world, BlockPos pos, boolean flag, int distance, RailShape shape) {
++        BlockState iblockdata = world.getBlockState(pos);
++
++        if (!iblockdata.is((Block) this)) {
+             return false;
+         } else {
+-            RailShape railShape = blockState.getValue(SHAPE);
+-            if (shape != RailShape.EAST_WEST || railShape != RailShape.NORTH_SOUTH && railShape != RailShape.ASCENDING_NORTH && railShape != RailShape.ASCENDING_SOUTH) {
+-                if (shape != RailShape.NORTH_SOUTH || railShape != RailShape.EAST_WEST && railShape != RailShape.ASCENDING_EAST && railShape != RailShape.ASCENDING_WEST) {
+-                    if (blockState.getValue(POWERED)) {
+-                        return world.hasNeighborSignal(pos) ? true : this.findPoweredRailSignal(world, pos, blockState, bl, distance + 1);
+-                    } else {
+-                        return false;
+-                    }
+-                } else {
+-                    return false;
+-                }
+-            } else {
+-                return false;
+-            }
++            RailShape blockpropertytrackposition1 = (RailShape) iblockdata.getValue(PoweredRailBlock.SHAPE);
++
++            return shape == RailShape.EAST_WEST && (blockpropertytrackposition1 == RailShape.NORTH_SOUTH || blockpropertytrackposition1 == RailShape.ASCENDING_NORTH || blockpropertytrackposition1 == RailShape.ASCENDING_SOUTH) ? false : (shape == RailShape.NORTH_SOUTH && (blockpropertytrackposition1 == RailShape.EAST_WEST || blockpropertytrackposition1 == RailShape.ASCENDING_EAST || blockpropertytrackposition1 == RailShape.ASCENDING_WEST) ? false : ((Boolean) iblockdata.getValue(PoweredRailBlock.POWERED) ? (world.hasNeighborSignal(pos) ? true : this.findPoweredRailSignal(world, pos, iblockdata, flag, distance + 1)) : false));
+         }
+     }
+ 
+     @Override
+     protected void updateState(BlockState state, Level world, BlockPos pos, Block neighbor) {
+-        boolean bl = state.getValue(POWERED);
+-        boolean bl2 = world.hasNeighborSignal(pos) || this.findPoweredRailSignal(world, pos, state, true, 0) || this.findPoweredRailSignal(world, pos, state, false, 0);
+-        if (bl2 != bl) {
+-            world.setBlock(pos, state.setValue(POWERED, Boolean.valueOf(bl2)), 3);
++        boolean flag = (Boolean) state.getValue(PoweredRailBlock.POWERED);
++        boolean flag1 = world.hasNeighborSignal(pos) || this.findPoweredRailSignal(world, pos, state, true, 0) || this.findPoweredRailSignal(world, pos, state, false, 0);
++
++        if (flag1 != flag) {
++            // CraftBukkit start
++            int power = flag ? 15 : 0;
++            int newPower = CraftEventFactory.callRedstoneChange(world, pos, power, 15 - power).getNewCurrent();
++            if (newPower == power) {
++                return;
++            }
++            // CraftBukkit end
++            world.setBlock(pos, (BlockState) state.setValue(PoweredRailBlock.POWERED, flag1), 3);
+             world.updateNeighborsAt(pos.below(), this);
+-            if (state.getValue(SHAPE).isAscending()) {
++            if (((RailShape) state.getValue(PoweredRailBlock.SHAPE)).isAscending()) {
+                 world.updateNeighborsAt(pos.above(), this);
+             }
+         }
+@@ -135,76 +132,76 @@
+ 
+     @Override
+     public Property<RailShape> getShapeProperty() {
+-        return SHAPE;
++        return PoweredRailBlock.SHAPE;
+     }
+ 
+     @Override
+     public BlockState rotate(BlockState state, Rotation rotation) {
+         switch (rotation) {
+             case CLOCKWISE_180:
+-                switch ((RailShape)state.getValue(SHAPE)) {
++                switch ((RailShape) state.getValue(PoweredRailBlock.SHAPE)) {
+                     case ASCENDING_EAST:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_WEST);
+                     case ASCENDING_WEST:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_EAST);
+                     case ASCENDING_NORTH:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_SOUTH);
+                     case ASCENDING_SOUTH:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_NORTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_NORTH);
+                     case SOUTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_WEST);
+                     case SOUTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_EAST);
+                     case NORTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_EAST);
+                     case NORTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_WEST);
+                 }
+             case COUNTERCLOCKWISE_90:
+-                switch ((RailShape)state.getValue(SHAPE)) {
++                switch ((RailShape) state.getValue(PoweredRailBlock.SHAPE)) {
+                     case NORTH_SOUTH:
+-                        return state.setValue(SHAPE, RailShape.EAST_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.EAST_WEST);
+                     case EAST_WEST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_SOUTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_SOUTH);
+                     case ASCENDING_EAST:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_NORTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_NORTH);
+                     case ASCENDING_WEST:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_SOUTH);
+                     case ASCENDING_NORTH:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_WEST);
+                     case ASCENDING_SOUTH:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_EAST);
+                     case SOUTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_EAST);
+                     case SOUTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_EAST);
+                     case NORTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_WEST);
+                     case NORTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_WEST);
+                 }
+             case CLOCKWISE_90:
+-                switch ((RailShape)state.getValue(SHAPE)) {
++                switch ((RailShape) state.getValue(PoweredRailBlock.SHAPE)) {
+                     case NORTH_SOUTH:
+-                        return state.setValue(SHAPE, RailShape.EAST_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.EAST_WEST);
+                     case EAST_WEST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_SOUTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_SOUTH);
+                     case ASCENDING_EAST:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_SOUTH);
+                     case ASCENDING_WEST:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_NORTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_NORTH);
+                     case ASCENDING_NORTH:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_EAST);
+                     case ASCENDING_SOUTH:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_WEST);
+                     case SOUTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_WEST);
+                     case SOUTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_WEST);
+                     case NORTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_EAST);
+                     case NORTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_EAST);
+                 }
+             default:
+                 return state;
+@@ -213,43 +210,44 @@
+ 
+     @Override
+     public BlockState mirror(BlockState state, Mirror mirror) {
+-        RailShape railShape = state.getValue(SHAPE);
++        RailShape blockpropertytrackposition = (RailShape) state.getValue(PoweredRailBlock.SHAPE);
++
+         switch (mirror) {
+             case LEFT_RIGHT:
+-                switch (railShape) {
++                switch (blockpropertytrackposition) {
+                     case ASCENDING_NORTH:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_SOUTH);
+                     case ASCENDING_SOUTH:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_NORTH);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_NORTH);
+                     case SOUTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_EAST);
+                     case SOUTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_WEST);
+                     case NORTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_WEST);
+                     case NORTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_EAST);
+                     default:
+                         return super.mirror(state, mirror);
+                 }
+             case FRONT_BACK:
+-                switch (railShape) {
++                switch (blockpropertytrackposition) {
+                     case ASCENDING_EAST:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_WEST);
+                     case ASCENDING_WEST:
+-                        return state.setValue(SHAPE, RailShape.ASCENDING_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.ASCENDING_EAST);
+                     case ASCENDING_NORTH:
+                     case ASCENDING_SOUTH:
+                     default:
+                         break;
+                     case SOUTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_WEST);
+                     case SOUTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.SOUTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.SOUTH_EAST);
+                     case NORTH_WEST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_EAST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_EAST);
+                     case NORTH_EAST:
+-                        return state.setValue(SHAPE, RailShape.NORTH_WEST);
++                        return (BlockState) state.setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_WEST);
+                 }
+         }
+ 
+@@ -258,6 +256,6 @@
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(SHAPE, POWERED, WATERLOGGED);
++        builder.add(PoweredRailBlock.SHAPE, PoweredRailBlock.POWERED, PoweredRailBlock.WATERLOGGED);
+     }
+ }

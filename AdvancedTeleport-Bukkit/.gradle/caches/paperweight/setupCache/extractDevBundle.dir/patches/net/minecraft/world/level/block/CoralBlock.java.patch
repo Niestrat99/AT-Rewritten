@@ -1,0 +1,57 @@
+--- a/net/minecraft/world/level/block/CoralBlock.java
++++ b/net/minecraft/world/level/block/CoralBlock.java
+@@ -14,6 +14,7 @@
+ import net.minecraft.world.level.material.FluidState;
+ 
+ public class CoralBlock extends Block {
++
+     private final Block deadBlock;
+ 
+     public CoralBlock(Block deadCoralBlock, BlockBehaviour.Properties settings) {
+@@ -24,6 +25,11 @@
+     @Override
+     public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+         if (!this.scanForWater(world, pos)) {
++            // CraftBukkit start
++            if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callBlockFadeEvent(world, pos, this.deadBlock.defaultBlockState()).isCancelled()) {
++                return;
++            }
++            // CraftBukkit end
+             world.setBlock(pos, this.deadBlock.defaultBlockState(), 2);
+         }
+ 
+@@ -32,16 +38,21 @@
+     @Override
+     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+         if (!this.scanForWater(world, pos)) {
+-            world.scheduleTick(pos, this, 60 + world.getRandom().nextInt(40));
++            world.scheduleTick(pos, (Block) this, 60 + world.getRandom().nextInt(40));
+         }
+ 
+         return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+     }
+ 
+     protected boolean scanForWater(BlockGetter world, BlockPos pos) {
+-        for(Direction direction : Direction.values()) {
+-            FluidState fluidState = world.getFluidState(pos.relative(direction));
+-            if (fluidState.is(FluidTags.WATER)) {
++        Direction[] aenumdirection = Direction.values();
++        int i = aenumdirection.length;
++
++        for (int j = 0; j < i; ++j) {
++            Direction enumdirection = aenumdirection[j];
++            FluidState fluid = world.getFluidState(pos.relative(enumdirection));
++
++            if (fluid.is(FluidTags.WATER)) {
+                 return true;
+             }
+         }
+@@ -53,7 +64,7 @@
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+         if (!this.scanForWater(ctx.getLevel(), ctx.getClickedPos())) {
+-            ctx.getLevel().scheduleTick(ctx.getClickedPos(), this, 60 + ctx.getLevel().getRandom().nextInt(40));
++            ctx.getLevel().scheduleTick(ctx.getClickedPos(), (Block) this, 60 + ctx.getLevel().getRandom().nextInt(40));
+         }
+ 
+         return this.defaultBlockState();

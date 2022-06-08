@@ -1,0 +1,83 @@
+--- a/net/minecraft/world/level/dimension/end/EndDragonFight.java
++++ b/net/minecraft/world/level/dimension/end/EndDragonFight.java
+@@ -89,6 +89,10 @@
+     private List<EndCrystal> respawnCrystals;
+ 
+     public EndDragonFight(ServerLevel world, long gatewaysSeed, CompoundTag nbt) {
++        // Paper start
++        this.needsStateScanning = world.paperConfig().entities.spawning.scanForLegacyEnderDragon;
++        if (!this.needsStateScanning) this.dragonKilled = true;
++        // Paper end
+         this.level = world;
+         if (nbt.contains("NeedsStateScanning")) {
+             this.needsStateScanning = nbt.getBoolean("NeedsStateScanning");
+@@ -108,9 +112,11 @@
+             if (nbt.contains("ExitPortalLocation", 10)) {
+                 this.portalLocation = NbtUtils.readBlockPos(nbt.getCompound("ExitPortalLocation"));
+             }
+-        } else {
+-            this.dragonKilled = true;
+-            this.previouslyKilled = true;
++            // Paper start - Killed statuses should be false for newly created worlds
++            // } else {
++            //     this.dragonKilled = true;
++            //     this.previouslyKilled = true;
++            // Paper end
+         }
+ 
+         if (nbt.contains("Gateways", 9)) {
+@@ -213,7 +219,7 @@
+             this.dragonUUID = enderDragon.getUUID();
+             LOGGER.info("Found that there's a dragon still alive ({})", (Object)enderDragon);
+             this.dragonKilled = false;
+-            if (!bl) {
++            if (!bl && this.level.paperConfig().entities.behavior.shouldRemoveDragon) {
+                 LOGGER.info("But we didn't have a portal, let's remove it.");
+                 enderDragon.discard();
+                 this.dragonUUID = null;
+@@ -364,9 +370,23 @@
+             this.dragonEvent.setVisible(false);
+             this.spawnExitPortal(true);
+             this.spawnNewGateway();
+-            if (!this.previouslyKilled) {
+-                this.level.setBlockAndUpdate(this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, EndPodiumFeature.END_PODIUM_LOCATION), Blocks.DRAGON_EGG.defaultBlockState());
++            // Paper start - DragonEggFormEvent
++            BlockPos eggPosition = this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, EndPodiumFeature.END_PODIUM_LOCATION);
++            org.bukkit.craftbukkit.v1_19_R1.block.CraftBlockState eggState = org.bukkit.craftbukkit.v1_19_R1.block.CraftBlockStates.getBlockState(this.level, eggPosition);
++            eggState.setData(Blocks.DRAGON_EGG.defaultBlockState());
++            io.papermc.paper.event.block.DragonEggFormEvent eggEvent = new io.papermc.paper.event.block.DragonEggFormEvent(org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(this.level, eggPosition), eggState,
++                new org.bukkit.craftbukkit.v1_19_R1.boss.CraftDragonBattle(this));
++            // Paper end - DragonEggFormEvent
++            if (this.level.paperConfig().entities.behavior.enderDragonsDeathAlwaysPlacesDragonEgg || !this.previouslyKilled) { // Paper - always place dragon egg
++                // Paper start - DragonEggFormEvent
++                //this.level.setBlockAndUpdate(this.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, EndPodiumFeature.END_PODIUM_LOCATION), Blocks.DRAGON_EGG.defaultBlockState());
++            } else {
++                eggEvent.setCancelled(true);
+             }
++            if (eggEvent.callEvent()) {
++                eggEvent.getNewState().update(true);
++            }
++            // Paper end - DragonEggFormEvent
+ 
+             this.previouslyKilled = true;
+             this.dragonKilled = true;
+@@ -395,6 +415,11 @@
+             }
+         }
+ 
++        // Paper start - Prevent "softlocked" exit portal generation
++        if (this.portalLocation.getY() <= this.level.getMinBuildHeight()) {
++            this.portalLocation = this.portalLocation.atY(this.level.getMinBuildHeight() + 1);
++        }
++        // Paper end
+         endPodiumFeature.place(FeatureConfiguration.NONE, this.level, this.level.getChunkSource().getGenerator(), RandomSource.create(), this.portalLocation);
+     }
+ 
+@@ -405,6 +430,7 @@
+         enderDragon.moveTo(0.0D, 128.0D, 0.0D, this.level.random.nextFloat() * 360.0F, 0.0F);
+         this.level.addFreshEntity(enderDragon);
+         this.dragonUUID = enderDragon.getUUID();
++        this.resetSpikeCrystals(); // Paper
+         return enderDragon;
+     }
+ 

@@ -1,0 +1,125 @@
+--- a/net/minecraft/world/level/block/ConcretePowderBlock.java
++++ b/net/minecraft/world/level/block/ConcretePowderBlock.java
+@@ -10,8 +10,14 @@
+ import net.minecraft.world.level.LevelAccessor;
+ import net.minecraft.world.level.block.state.BlockBehaviour;
+ import net.minecraft.world.level.block.state.BlockState;
++// CraftBukkit start
++import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlockState;
++import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlockStates;
++import org.bukkit.event.block.BlockFormEvent;
++// CraftBukkit end
+ 
+ public class ConcretePowderBlock extends FallingBlock {
++
+     private final BlockState concrete;
+ 
+     public ConcretePowderBlock(Block hardened, BlockBehaviour.Properties settings) {
+@@ -21,41 +27,63 @@
+ 
+     @Override
+     public void onLand(Level world, BlockPos pos, BlockState fallingBlockState, BlockState currentStateInPos, FallingBlockEntity fallingBlockEntity) {
+-        if (shouldSolidify(world, pos, currentStateInPos)) {
+-            world.setBlock(pos, this.concrete, 3);
++        if (ConcretePowderBlock.shouldSolidify(world, pos, currentStateInPos)) {
++            org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.handleBlockFormEvent(world, pos, this.concrete, 3); // CraftBukkit
+         }
+ 
+     }
+ 
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+-        BlockGetter blockGetter = ctx.getLevel();
+-        BlockPos blockPos = ctx.getClickedPos();
+-        BlockState blockState = blockGetter.getBlockState(blockPos);
+-        return shouldSolidify(blockGetter, blockPos, blockState) ? this.concrete : super.getStateForPlacement(ctx);
++        Level world = ctx.getLevel();
++        BlockPos blockposition = ctx.getClickedPos();
++        BlockState iblockdata = world.getBlockState(blockposition);
++
++        // CraftBukkit start
++        if (!ConcretePowderBlock.shouldSolidify(world, blockposition, iblockdata)) {
++            return super.getStateForPlacement(ctx);
++        }
++
++        // TODO: An event factory call for methods like this
++        CraftBlockState blockState = CraftBlockStates.getBlockState(world, blockposition);
++        blockState.setData(this.concrete);
++
++        BlockFormEvent event = new BlockFormEvent(blockState.getBlock(), blockState);
++        world.getServer().server.getPluginManager().callEvent(event);
++
++        if (!event.isCancelled()) {
++            return blockState.getHandle();
++        }
++
++        return super.getStateForPlacement(ctx);
++        // CraftBukkit end
+     }
+ 
+     private static boolean shouldSolidify(BlockGetter world, BlockPos pos, BlockState state) {
+-        return canSolidify(state) || touchesLiquid(world, pos);
++        return ConcretePowderBlock.canSolidify(state) || ConcretePowderBlock.touchesLiquid(world, pos);
+     }
+ 
+     private static boolean touchesLiquid(BlockGetter world, BlockPos pos) {
+-        boolean bl = false;
+-        BlockPos.MutableBlockPos mutableBlockPos = pos.mutable();
++        boolean flag = false;
++        BlockPos.MutableBlockPos blockposition_mutableblockposition = pos.mutable();
++        Direction[] aenumdirection = Direction.values();
++        int i = aenumdirection.length;
+ 
+-        for(Direction direction : Direction.values()) {
+-            BlockState blockState = world.getBlockState(mutableBlockPos);
+-            if (direction != Direction.DOWN || canSolidify(blockState)) {
+-                mutableBlockPos.setWithOffset(pos, direction);
+-                blockState = world.getBlockState(mutableBlockPos);
+-                if (canSolidify(blockState) && !blockState.isFaceSturdy(world, pos, direction.getOpposite())) {
+-                    bl = true;
++        for (int j = 0; j < i; ++j) {
++            Direction enumdirection = aenumdirection[j];
++            BlockState iblockdata = world.getBlockState(blockposition_mutableblockposition);
++
++            if (enumdirection != Direction.DOWN || ConcretePowderBlock.canSolidify(iblockdata)) {
++                blockposition_mutableblockposition.setWithOffset(pos, enumdirection);
++                iblockdata = world.getBlockState(blockposition_mutableblockposition);
++                if (ConcretePowderBlock.canSolidify(iblockdata) && !iblockdata.isFaceSturdy(world, pos, enumdirection.getOpposite())) {
++                    flag = true;
+                     break;
+                 }
+             }
+         }
+ 
+-        return bl;
++        return flag;
+     }
+ 
+     private static boolean canSolidify(BlockState state) {
+@@ -64,7 +92,25 @@
+ 
+     @Override
+     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+-        return touchesLiquid(world, pos) ? this.concrete : super.updateShape(state, direction, neighborState, world, pos, neighborPos);
++        // CraftBukkit start
++        if (ConcretePowderBlock.touchesLiquid(world, pos)) {
++            // Suppress during worldgen
++            if (!(world instanceof Level)) {
++                return this.concrete;
++            }
++            CraftBlockState blockState = CraftBlockStates.getBlockState(world, pos);
++            blockState.setData(this.concrete);
++
++            BlockFormEvent event = new BlockFormEvent(blockState.getBlock(), blockState);
++            ((Level) world).getCraftServer().getPluginManager().callEvent(event);
++
++            if (!event.isCancelled()) {
++                return blockState.getHandle();
++            }
++        }
++
++        return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
++        // CraftBukkit end
+     }
+ 
+     @Override

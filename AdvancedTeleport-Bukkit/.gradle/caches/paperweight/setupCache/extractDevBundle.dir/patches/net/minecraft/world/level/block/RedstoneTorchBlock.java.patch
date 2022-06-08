@@ -1,0 +1,196 @@
+--- a/net/minecraft/world/level/block/RedstoneTorchBlock.java
++++ b/net/minecraft/world/level/block/RedstoneTorchBlock.java
+@@ -16,10 +16,12 @@
+ import net.minecraft.world.level.block.state.StateDefinition;
+ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+ import net.minecraft.world.level.block.state.properties.BooleanProperty;
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
+ 
+ public class RedstoneTorchBlock extends TorchBlock {
++
+     public static final BooleanProperty LIT = BlockStateProperties.LIT;
+-    private static final Map<BlockGetter, List<RedstoneTorchBlock.Toggle>> RECENT_TOGGLES = new WeakHashMap<>();
++    // Paper - Move the mapped list to World
+     public static final int RECENT_TOGGLE_TIMER = 60;
+     public static final int MAX_RECENT_TOGGLES = 8;
+     public static final int RESTART_DELAY = 160;
+@@ -27,13 +29,18 @@
+ 
+     protected RedstoneTorchBlock(BlockBehaviour.Properties settings) {
+         super(settings, DustParticleOptions.REDSTONE);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, Boolean.valueOf(true)));
++        this.registerDefaultState((BlockState) ((BlockState) this.stateDefinition.any()).setValue(RedstoneTorchBlock.LIT, true));
+     }
+ 
+     @Override
+     public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean notify) {
+-        for(Direction direction : Direction.values()) {
+-            world.updateNeighborsAt(pos.relative(direction), this);
++        Direction[] aenumdirection = Direction.values();
++        int i = aenumdirection.length;
++
++        for (int j = 0; j < i; ++j) {
++            Direction enumdirection = aenumdirection[j];
++
++            world.updateNeighborsAt(pos.relative(enumdirection), this);
+         }
+ 
+     }
+@@ -41,8 +48,13 @@
+     @Override
+     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
+         if (!moved) {
+-            for(Direction direction : Direction.values()) {
+-                world.updateNeighborsAt(pos.relative(direction), this);
++            Direction[] aenumdirection = Direction.values();
++            int i = aenumdirection.length;
++
++            for (int j = 0; j < i; ++j) {
++                Direction enumdirection = aenumdirection[j];
++
++                world.updateNeighborsAt(pos.relative(enumdirection), this);
+             }
+ 
+         }
+@@ -50,7 +62,7 @@
+ 
+     @Override
+     public int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
+-        return state.getValue(LIT) && Direction.UP != direction ? 15 : 0;
++        return (Boolean) state.getValue(RedstoneTorchBlock.LIT) && Direction.UP != direction ? 15 : 0;
+     }
+ 
+     protected boolean hasNeighborSignal(Level world, BlockPos pos, BlockState state) {
+@@ -59,31 +71,60 @@
+ 
+     @Override
+     public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+-        boolean bl = this.hasNeighborSignal(world, pos, state);
+-        List<RedstoneTorchBlock.Toggle> list = RECENT_TOGGLES.get(world);
+-
+-        while(list != null && !list.isEmpty() && world.getGameTime() - (list.get(0)).when > 60L) {
+-            list.remove(0);
++        boolean flag = this.hasNeighborSignal(world, pos, state);
++        // Paper start
++        java.util.ArrayDeque<RedstoneTorchBlock.Toggle> redstoneUpdateInfos = world.redstoneUpdateInfos;
++        if (redstoneUpdateInfos != null) {
++            RedstoneTorchBlock.Toggle curr;
++            while ((curr = redstoneUpdateInfos.peek()) != null && world.getGameTime() - curr.when > 60L) {
++                redstoneUpdateInfos.poll();
++            }
+         }
++        // Paper end
+ 
+-        if (state.getValue(LIT)) {
+-            if (bl) {
+-                world.setBlock(pos, state.setValue(LIT, Boolean.valueOf(false)), 3);
+-                if (isToggledTooFrequently(world, pos, true)) {
++        // CraftBukkit start
++        org.bukkit.plugin.PluginManager manager = world.getCraftServer().getPluginManager();
++        org.bukkit.block.Block block = world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
++        int oldCurrent = ((Boolean) state.getValue(RedstoneTorchBlock.LIT)).booleanValue() ? 15 : 0;
++
++        BlockRedstoneEvent event = new BlockRedstoneEvent(block, oldCurrent, oldCurrent);
++        // CraftBukkit end
++        if ((Boolean) state.getValue(RedstoneTorchBlock.LIT)) {
++            if (flag) {
++                // CraftBukkit start
++                if (oldCurrent != 0) {
++                    event.setNewCurrent(0);
++                    manager.callEvent(event);
++                    if (event.getNewCurrent() != 0) {
++                        return;
++                    }
++                }
++                // CraftBukkit end
++                world.setBlock(pos, (BlockState) state.setValue(RedstoneTorchBlock.LIT, false), 3);
++                if (RedstoneTorchBlock.isToggledTooFrequently(world, pos, true)) {
+                     world.levelEvent(1502, pos, 0);
+                     world.scheduleTick(pos, world.getBlockState(pos).getBlock(), 160);
+                 }
+             }
+-        } else if (!bl && !isToggledTooFrequently(world, pos, false)) {
+-            world.setBlock(pos, state.setValue(LIT, Boolean.valueOf(true)), 3);
++        } else if (!flag && !RedstoneTorchBlock.isToggledTooFrequently(world, pos, false)) {
++            // CraftBukkit start
++            if (oldCurrent != 15) {
++                event.setNewCurrent(15);
++                manager.callEvent(event);
++                if (event.getNewCurrent() != 15) {
++                    return;
++                }
++            }
++            // CraftBukkit end
++            world.setBlock(pos, (BlockState) state.setValue(RedstoneTorchBlock.LIT, true), 3);
+         }
+ 
+     }
+ 
+     @Override
+     public void neighborChanged(BlockState state, Level world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+-        if (state.getValue(LIT) == this.hasNeighborSignal(world, pos, state) && !world.getBlockTicks().willTickThisTick(pos, this)) {
+-            world.scheduleTick(pos, this, 2);
++        if ((Boolean) state.getValue(RedstoneTorchBlock.LIT) == this.hasNeighborSignal(world, pos, state) && !world.getBlockTicks().willTickThisTick(pos, this)) {
++            world.scheduleTick(pos, (Block) this, 2);
+         }
+ 
+     }
+@@ -100,32 +141,38 @@
+ 
+     @Override
+     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
+-        if (state.getValue(LIT)) {
+-            double d = (double)pos.getX() + 0.5D + (random.nextDouble() - 0.5D) * 0.2D;
+-            double e = (double)pos.getY() + 0.7D + (random.nextDouble() - 0.5D) * 0.2D;
+-            double f = (double)pos.getZ() + 0.5D + (random.nextDouble() - 0.5D) * 0.2D;
+-            world.addParticle(this.flameParticle, d, e, f, 0.0D, 0.0D, 0.0D);
++        if ((Boolean) state.getValue(RedstoneTorchBlock.LIT)) {
++            double d0 = (double) pos.getX() + 0.5D + (random.nextDouble() - 0.5D) * 0.2D;
++            double d1 = (double) pos.getY() + 0.7D + (random.nextDouble() - 0.5D) * 0.2D;
++            double d2 = (double) pos.getZ() + 0.5D + (random.nextDouble() - 0.5D) * 0.2D;
++
++            world.addParticle(this.flameParticle, d0, d1, d2, 0.0D, 0.0D, 0.0D);
+         }
+     }
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(LIT);
++        builder.add(RedstoneTorchBlock.LIT);
+     }
+ 
+     private static boolean isToggledTooFrequently(Level world, BlockPos pos, boolean addNew) {
+-        List<RedstoneTorchBlock.Toggle> list = RECENT_TOGGLES.computeIfAbsent(world, (worldx) -> {
+-            return Lists.newArrayList();
+-        });
++        // Paper start
++        java.util.ArrayDeque<RedstoneTorchBlock.Toggle> list = world.redstoneUpdateInfos;
++        if (list == null) {
++            list = world.redstoneUpdateInfos = new java.util.ArrayDeque<>();
++        }
++
++
+         if (addNew) {
+             list.add(new RedstoneTorchBlock.Toggle(pos.immutable(), world.getGameTime()));
+         }
+ 
+         int i = 0;
+ 
+-        for(int j = 0; j < list.size(); ++j) {
+-            RedstoneTorchBlock.Toggle toggle = list.get(j);
+-            if (toggle.pos.equals(pos)) {
++        for (java.util.Iterator<RedstoneTorchBlock.Toggle> iterator = list.iterator(); iterator.hasNext();) {
++            RedstoneTorchBlock.Toggle blockredstonetorch_redstoneupdateinfo = iterator.next();
++            // Paper end
++            if (blockredstonetorch_redstoneupdateinfo.pos.equals(pos)) {
+                 ++i;
+                 if (i >= 8) {
+                     return true;
+@@ -137,6 +184,7 @@
+     }
+ 
+     public static class Toggle {
++
+         final BlockPos pos;
+         final long when;
+ 

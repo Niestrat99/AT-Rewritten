@@ -1,0 +1,101 @@
+--- a/net/minecraft/world/entity/ai/gossip/GossipContainer.java
++++ b/net/minecraft/world/entity/ai/gossip/GossipContainer.java
+@@ -27,7 +27,7 @@
+ 
+ public class GossipContainer {
+     public static final int DISCARD_THRESHOLD = 2;
+-    private final Map<UUID, GossipContainer.EntityGossips> gossips = Maps.newHashMap();
++    private final Map<UUID, GossipContainer.EntityGossips> gossips = Maps.newHashMap(); public Map<UUID, GossipContainer.EntityGossips> getReputations() { return this.gossips; } // Paper - add getter for reputations
+ 
+     @VisibleForDebug
+     public Map<UUID, Object2IntMap<GossipType>> getGossipEntries() {
+@@ -58,8 +58,21 @@
+         });
+     }
+ 
++    // Paper start - Remove streams from reputation
++    private List<GossipContainer.GossipEntry> decompress() {
++        List<GossipContainer.GossipEntry> list = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>();
++        for (Map.Entry<UUID, GossipContainer.EntityGossips> entry : getReputations().entrySet()) {
++            for (GossipContainer.GossipEntry cur : entry.getValue().decompress(entry.getKey())) {
++                if (cur.weightedValue() != 0)
++                    list.add(cur);
++            }
++        }
++        return list;
++    }
++    // Paper end
++
+     private Collection<GossipContainer.GossipEntry> selectGossipsForTransfer(RandomSource random, int count) {
+-        List<GossipContainer.GossipEntry> list = this.unpack().collect(Collectors.toList());
++        List<GossipContainer.GossipEntry> list = this.decompress(); // Paper - Remove streams from reputation
+         if (list.isEmpty()) {
+             return Collections.emptyList();
+         } else {
+@@ -153,7 +166,7 @@
+     }
+ 
+     public <T> Dynamic<T> store(DynamicOps<T> dynamicOps) {
+-        return new Dynamic<>(dynamicOps, dynamicOps.createList(this.unpack().map((gossipEntry) -> {
++        return new Dynamic<>(dynamicOps, dynamicOps.createList(this.decompress().stream().map((gossipEntry) -> {
+             return gossipEntry.store(dynamicOps);
+         }).map(Dynamic::getValue)));
+     }
+@@ -179,11 +192,23 @@
+         final Object2IntMap<GossipType> entries = new Object2IntOpenHashMap<>();
+ 
+         public int weightedValue(Predicate<GossipType> gossipTypeFilter) {
+-            return this.entries.object2IntEntrySet().stream().filter((entry) -> {
+-                return gossipTypeFilter.test(entry.getKey());
+-            }).mapToInt((entry) -> {
+-                return entry.getIntValue() * (entry.getKey()).weight;
+-            }).sum();
++            // Paper start - Remove streams from reputation
++            int weight = 0;
++            for (Object2IntMap.Entry<GossipType> entry : entries.object2IntEntrySet()) {
++                if (gossipTypeFilter.test(entry.getKey())) {
++                    weight += entry.getIntValue() * entry.getKey().weight;
++                }
++            }
++            return weight;
++        }
++
++        public List<GossipContainer.GossipEntry> decompress(UUID uuid) {
++            List<GossipContainer.GossipEntry> list = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>();
++            for (Object2IntMap.Entry<GossipType> entry : entries.object2IntEntrySet()) {
++                list.add(new GossipContainer.GossipEntry(uuid, entry.getKey(), entry.getIntValue()));
++            }
++            return list;
++            // Paper - end
+         }
+ 
+         public Stream<GossipContainer.GossipEntry> unpack(UUID target) {
+@@ -226,6 +251,28 @@
+         public void remove(GossipType gossipType) {
+             this.entries.removeInt(gossipType);
+         }
++
++        // Paper start - Add villager reputation API
++        private static final com.destroystokyo.paper.entity.villager.ReputationType[] REPUTATION_TYPES = com.destroystokyo.paper.entity.villager.ReputationType.values();
++        public com.destroystokyo.paper.entity.villager.Reputation getPaperReputation() {
++            int[] reputation = new int[REPUTATION_TYPES.length];
++            reputation[com.destroystokyo.paper.entity.villager.ReputationType.MAJOR_NEGATIVE.ordinal()] = entries.getOrDefault(GossipType.MAJOR_NEGATIVE, 0);
++            reputation[com.destroystokyo.paper.entity.villager.ReputationType.MAJOR_POSITIVE.ordinal()] = entries.getOrDefault(GossipType.MAJOR_POSITIVE, 0);
++            reputation[com.destroystokyo.paper.entity.villager.ReputationType.MINOR_NEGATIVE.ordinal()] = entries.getOrDefault(GossipType.MINOR_NEGATIVE, 0);
++            reputation[com.destroystokyo.paper.entity.villager.ReputationType.MINOR_POSITIVE.ordinal()] = entries.getOrDefault(GossipType.MINOR_POSITIVE, 0);
++            reputation[com.destroystokyo.paper.entity.villager.ReputationType.TRADING.ordinal()] = entries.getOrDefault(GossipType.TRADING, 0);
++            return com.destroystokyo.paper.entity.villager.ReputationConstructor.construct(reputation);
++        }
++
++        public void assignFromPaperReputation(com.destroystokyo.paper.entity.villager.Reputation rep) {
++            int val;
++            if ((val = rep.getReputation(com.destroystokyo.paper.entity.villager.ReputationType.MAJOR_NEGATIVE)) != 0) this.entries.put(GossipType.MAJOR_NEGATIVE, val);
++            if ((val = rep.getReputation(com.destroystokyo.paper.entity.villager.ReputationType.MAJOR_POSITIVE)) != 0) this.entries.put(GossipType.MAJOR_POSITIVE, val);
++            if ((val = rep.getReputation(com.destroystokyo.paper.entity.villager.ReputationType.MINOR_NEGATIVE)) != 0) this.entries.put(GossipType.MINOR_NEGATIVE, val);
++            if ((val = rep.getReputation(com.destroystokyo.paper.entity.villager.ReputationType.MINOR_POSITIVE)) != 0) this.entries.put(GossipType.MINOR_POSITIVE, val);
++            if ((val = rep.getReputation(com.destroystokyo.paper.entity.villager.ReputationType.TRADING)) != 0) this.entries.put(GossipType.TRADING, val);
++        }
++        // Paper end
+     }
+ 
+     static class GossipEntry {

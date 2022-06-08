@@ -1,0 +1,63 @@
+--- a/net/minecraft/server/commands/GameRuleCommand.java
++++ b/net/minecraft/server/commands/GameRuleCommand.java
+@@ -4,39 +4,44 @@
+ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+ import com.mojang.brigadier.context.CommandContext;
+ import net.minecraft.commands.CommandSourceStack;
+-import net.minecraft.commands.Commands;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.world.level.GameRules;
+ 
+ public class GameRuleCommand {
++
++    public GameRuleCommand() {}
++
+     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+-        final LiteralArgumentBuilder<CommandSourceStack> literalArgumentBuilder = Commands.literal("gamerule").requires((source) -> {
+-            return source.hasPermission(2);
++        final LiteralArgumentBuilder<CommandSourceStack> literalargumentbuilder = (LiteralArgumentBuilder) net.minecraft.commands.Commands.literal("gamerule").requires((commandlistenerwrapper) -> {
++            return commandlistenerwrapper.hasPermission(2);
+         });
++
+         GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
+             @Override
+             public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
+-                literalArgumentBuilder.then(Commands.literal(key.getId()).executes((context) -> {
+-                    return GameRuleCommand.queryRule(context.getSource(), key);
+-                }).then(type.createArgument("value").executes((context) -> {
+-                    return GameRuleCommand.setRule(context, key);
++                literalargumentbuilder.then(((LiteralArgumentBuilder) net.minecraft.commands.Commands.literal(key.getId()).executes((commandcontext) -> {
++                    return GameRuleCommand.queryRule((CommandSourceStack) commandcontext.getSource(), key);
++                })).then(type.createArgument("value").executes((commandcontext) -> {
++                    return GameRuleCommand.setRule(commandcontext, key);
+                 })));
+             }
+         });
+-        dispatcher.register(literalArgumentBuilder);
++        dispatcher.register(literalargumentbuilder);
+     }
+ 
+     static <T extends GameRules.Value<T>> int setRule(CommandContext<CommandSourceStack> context, GameRules.Key<T> key) {
+-        CommandSourceStack commandSourceStack = context.getSource();
+-        T value = commandSourceStack.getServer().getGameRules().getRule(key);
+-        value.setFromArgument(context, "value");
+-        commandSourceStack.sendSuccess(Component.translatable("commands.gamerule.set", key.getId(), value.toString()), true);
+-        return value.getCommandResult();
++        CommandSourceStack commandlistenerwrapper = (CommandSourceStack) context.getSource();
++        T t0 = commandlistenerwrapper.getLevel().getGameRules().getRule(key); // CraftBukkit
++
++        t0.setFromArgument(context, "value", key); // Paper
++        commandlistenerwrapper.sendSuccess(Component.translatable("commands.gamerule.set", key.getId(), t0.toString()), true);
++        return t0.getCommandResult();
+     }
+ 
+     static <T extends GameRules.Value<T>> int queryRule(CommandSourceStack source, GameRules.Key<T> key) {
+-        T value = source.getServer().getGameRules().getRule(key);
+-        source.sendSuccess(Component.translatable("commands.gamerule.query", key.getId(), value.toString()), false);
+-        return value.getCommandResult();
++        T t0 = source.getLevel().getGameRules().getRule(key); // CraftBukkit
++
++        source.sendSuccess(Component.translatable("commands.gamerule.query", key.getId(), t0.toString()), false);
++        return t0.getCommandResult();
+     }
+ }

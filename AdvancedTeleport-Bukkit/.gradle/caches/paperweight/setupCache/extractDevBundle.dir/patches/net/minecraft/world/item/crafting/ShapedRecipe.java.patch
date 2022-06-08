@@ -1,0 +1,426 @@
+--- a/net/minecraft/world/item/crafting/ShapedRecipe.java
++++ b/net/minecraft/world/item/crafting/ShapedRecipe.java
+@@ -8,7 +8,9 @@
+ import com.google.gson.JsonObject;
+ import com.google.gson.JsonParseException;
+ import com.google.gson.JsonSyntaxException;
++import java.util.Iterator;
+ import java.util.Map;
++import java.util.Map.Entry;
+ import java.util.Set;
+ import net.minecraft.core.NonNullList;
+ import net.minecraft.core.Registry;
+@@ -20,8 +22,15 @@
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.level.Level;
++// CraftBukkit start
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftRecipe;
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftShapedRecipe;
++import org.bukkit.inventory.RecipeChoice;
++// CraftBukkit end
+ 
+ public class ShapedRecipe implements CraftingRecipe {
++
+     final int width;
+     final int height;
+     final NonNullList<Ingredient> recipeItems;
+@@ -38,6 +47,66 @@
+         this.result = output;
+     }
+ 
++    // CraftBukkit start
++    public org.bukkit.inventory.ShapedRecipe toBukkitRecipe() {
++        CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
++        CraftShapedRecipe recipe = new CraftShapedRecipe(result, this);
++        recipe.setGroup(this.group);
++
++        switch (this.height) {
++        case 1:
++            switch (this.width) {
++            case 1:
++                recipe.shape("a");
++                break;
++            case 2:
++                recipe.shape("ab");
++                break;
++            case 3:
++                recipe.shape("abc");
++                break;
++            }
++            break;
++        case 2:
++            switch (this.width) {
++            case 1:
++                recipe.shape("a","b");
++                break;
++            case 2:
++                recipe.shape("ab","cd");
++                break;
++            case 3:
++                recipe.shape("abc","def");
++                break;
++            }
++            break;
++        case 3:
++            switch (this.width) {
++            case 1:
++                recipe.shape("a","b","c");
++                break;
++            case 2:
++                recipe.shape("ab","cd","ef");
++                break;
++            case 3:
++                recipe.shape("abc","def","ghi");
++                break;
++            }
++            break;
++        }
++        char c = 'a';
++        for (Ingredient list : this.recipeItems) {
++            RecipeChoice choice = CraftRecipe.toBukkit(list);
++            if (choice != null) {
++                recipe.setIngredient(c, choice);
++            }
++
++            c++;
++        }
++        return recipe;
++    }
++    // CraftBukkit end
++
+     @Override
+     public ResourceLocation getId() {
+         return this.id;
+@@ -68,10 +137,9 @@
+         return width >= this.width && height >= this.height;
+     }
+ 
+-    @Override
+     public boolean matches(CraftingContainer inventory, Level world) {
+-        for(int i = 0; i <= inventory.getWidth() - this.width; ++i) {
+-            for(int j = 0; j <= inventory.getHeight() - this.height; ++j) {
++        for (int i = 0; i <= inventory.getWidth() - this.width; ++i) {
++            for (int j = 0; j <= inventory.getHeight() - this.height; ++j) {
+                 if (this.matches(inventory, i, j, true)) {
+                     return true;
+                 }
+@@ -86,20 +154,21 @@
+     }
+ 
+     private boolean matches(CraftingContainer inv, int offsetX, int offsetY, boolean flipped) {
+-        for(int i = 0; i < inv.getWidth(); ++i) {
+-            for(int j = 0; j < inv.getHeight(); ++j) {
+-                int k = i - offsetX;
+-                int l = j - offsetY;
+-                Ingredient ingredient = Ingredient.EMPTY;
+-                if (k >= 0 && l >= 0 && k < this.width && l < this.height) {
++        for (int k = 0; k < inv.getWidth(); ++k) {
++            for (int l = 0; l < inv.getHeight(); ++l) {
++                int i1 = k - offsetX;
++                int j1 = l - offsetY;
++                Ingredient recipeitemstack = Ingredient.EMPTY;
++
++                if (i1 >= 0 && j1 >= 0 && i1 < this.width && j1 < this.height) {
+                     if (flipped) {
+-                        ingredient = this.recipeItems.get(this.width - k - 1 + l * this.width);
++                        recipeitemstack = (Ingredient) this.recipeItems.get(this.width - i1 - 1 + j1 * this.width);
+                     } else {
+-                        ingredient = this.recipeItems.get(k + l * this.width);
++                        recipeitemstack = (Ingredient) this.recipeItems.get(i1 + j1 * this.width);
+                     }
+                 }
+ 
+-                if (!ingredient.test(inv.getItem(i + j * inv.getWidth()))) {
++                if (!recipeitemstack.test(inv.getItem(k + l * inv.getWidth()))) {
+                     return false;
+                 }
+             }
+@@ -108,7 +177,6 @@
+         return true;
+     }
+ 
+-    @Override
+     public ItemStack assemble(CraftingContainer inventory) {
+         return this.getResultItem().copy();
+     }
+@@ -122,27 +190,29 @@
+     }
+ 
+     static NonNullList<Ingredient> dissolvePattern(String[] pattern, Map<String, Ingredient> symbols, int width, int height) {
+-        NonNullList<Ingredient> nonNullList = NonNullList.withSize(width * height, Ingredient.EMPTY);
++        NonNullList<Ingredient> nonnulllist = NonNullList.withSize(width * height, Ingredient.EMPTY);
+         Set<String> set = Sets.newHashSet(symbols.keySet());
++
+         set.remove(" ");
+ 
+-        for(int i = 0; i < pattern.length; ++i) {
+-            for(int j = 0; j < pattern[i].length(); ++j) {
+-                String string = pattern[i].substring(j, j + 1);
+-                Ingredient ingredient = symbols.get(string);
+-                if (ingredient == null) {
+-                    throw new JsonSyntaxException("Pattern references symbol '" + string + "' but it's not defined in the key");
++        for (int k = 0; k < pattern.length; ++k) {
++            for (int l = 0; l < pattern[k].length(); ++l) {
++                String s = pattern[k].substring(l, l + 1);
++                Ingredient recipeitemstack = (Ingredient) symbols.get(s);
++
++                if (recipeitemstack == null) {
++                    throw new JsonSyntaxException("Pattern references symbol '" + s + "' but it's not defined in the key");
+                 }
+ 
+-                set.remove(string);
+-                nonNullList.set(j + width * i, ingredient);
++                set.remove(s);
++                nonnulllist.set(l + width * k, recipeitemstack);
+             }
+         }
+ 
+         if (!set.isEmpty()) {
+             throw new JsonSyntaxException("Key defines symbols that aren't used in pattern: " + set);
+         } else {
+-            return nonNullList;
++            return nonnulllist;
+         }
+     }
+ 
+@@ -153,13 +223,15 @@
+         int k = 0;
+         int l = 0;
+ 
+-        for(int m = 0; m < pattern.length; ++m) {
+-            String string = pattern[m];
+-            i = Math.min(i, firstNonSpace(string));
+-            int n = lastNonSpace(string);
+-            j = Math.max(j, n);
+-            if (n < 0) {
+-                if (k == m) {
++        for (int i1 = 0; i1 < pattern.length; ++i1) {
++            String s = pattern[i1];
++
++            i = Math.min(i, ShapedRecipe.firstNonSpace(s));
++            int j1 = ShapedRecipe.lastNonSpace(s);
++
++            j = Math.max(j, j1);
++            if (j1 < 0) {
++                if (k == i1) {
+                     ++k;
+                 }
+ 
+@@ -172,29 +244,32 @@
+         if (pattern.length == l) {
+             return new String[0];
+         } else {
+-            String[] strings = new String[pattern.length - l - k];
++            String[] astring1 = new String[pattern.length - l - k];
+ 
+-            for(int o = 0; o < strings.length; ++o) {
+-                strings[o] = pattern[o + k].substring(i, j + 1);
++            for (int k1 = 0; k1 < astring1.length; ++k1) {
++                astring1[k1] = pattern[k1 + k].substring(i, j + 1);
+             }
+ 
+-            return strings;
++            return astring1;
+         }
+     }
+ 
+     @Override
+     public boolean isIncomplete() {
+-        NonNullList<Ingredient> nonNullList = this.getIngredients();
+-        return nonNullList.isEmpty() || nonNullList.stream().filter((ingredient) -> {
+-            return !ingredient.isEmpty();
+-        }).anyMatch((ingredient) -> {
+-            return ingredient.getItems().length == 0;
++        NonNullList<Ingredient> nonnulllist = this.getIngredients();
++
++        return nonnulllist.isEmpty() || nonnulllist.stream().filter((recipeitemstack) -> {
++            return !recipeitemstack.isEmpty();
++        }).anyMatch((recipeitemstack) -> {
++            return recipeitemstack.getItems().length == 0;
+         });
+     }
+ 
+     private static int firstNonSpace(String line) {
+         int i;
+-        for(i = 0; i < line.length() && line.charAt(i) == ' '; ++i) {
++
++        for (i = 0; i < line.length() && line.charAt(i) == ' '; ++i) {
++            ;
+         }
+ 
+         return i;
+@@ -202,49 +277,56 @@
+ 
+     private static int lastNonSpace(String pattern) {
+         int i;
+-        for(i = pattern.length() - 1; i >= 0 && pattern.charAt(i) == ' '; --i) {
++
++        for (i = pattern.length() - 1; i >= 0 && pattern.charAt(i) == ' '; --i) {
++            ;
+         }
+ 
+         return i;
+     }
+ 
+     static String[] patternFromJson(JsonArray json) {
+-        String[] strings = new String[json.size()];
+-        if (strings.length > 3) {
++        String[] astring = new String[json.size()];
++
++        if (astring.length > 3) {
+             throw new JsonSyntaxException("Invalid pattern: too many rows, 3 is maximum");
+-        } else if (strings.length == 0) {
++        } else if (astring.length == 0) {
+             throw new JsonSyntaxException("Invalid pattern: empty pattern not allowed");
+         } else {
+-            for(int i = 0; i < strings.length; ++i) {
+-                String string = GsonHelper.convertToString(json.get(i), "pattern[" + i + "]");
+-                if (string.length() > 3) {
++            for (int i = 0; i < astring.length; ++i) {
++                String s = GsonHelper.convertToString(json.get(i), "pattern[" + i + "]");
++
++                if (s.length() > 3) {
+                     throw new JsonSyntaxException("Invalid pattern: too many columns, 3 is maximum");
+                 }
+ 
+-                if (i > 0 && strings[0].length() != string.length()) {
++                if (i > 0 && astring[0].length() != s.length()) {
+                     throw new JsonSyntaxException("Invalid pattern: each row must be the same width");
+                 }
+ 
+-                strings[i] = string;
++                astring[i] = s;
+             }
+ 
+-            return strings;
++            return astring;
+         }
+     }
+ 
+     static Map<String, Ingredient> keyFromJson(JsonObject json) {
+         Map<String, Ingredient> map = Maps.newHashMap();
++        Iterator iterator = json.entrySet().iterator();
+ 
+-        for(Map.Entry<String, JsonElement> entry : json.entrySet()) {
+-            if (entry.getKey().length() != 1) {
+-                throw new JsonSyntaxException("Invalid key entry: '" + (String)entry.getKey() + "' is an invalid symbol (must be 1 character only).");
++        while (iterator.hasNext()) {
++            Entry<String, JsonElement> entry = (Entry) iterator.next();
++
++            if (((String) entry.getKey()).length() != 1) {
++                throw new JsonSyntaxException("Invalid key entry: '" + (String) entry.getKey() + "' is an invalid symbol (must be 1 character only).");
+             }
+ 
+             if (" ".equals(entry.getKey())) {
+                 throw new JsonSyntaxException("Invalid key entry: ' ' is a reserved symbol.");
+             }
+ 
+-            map.put(entry.getKey(), Ingredient.fromJson(entry.getValue()));
++            map.put((String) entry.getKey(), Ingredient.fromJson((JsonElement) entry.getValue()));
+         }
+ 
+         map.put(" ", Ingredient.EMPTY);
+@@ -252,11 +334,13 @@
+     }
+ 
+     public static ItemStack itemStackFromJson(JsonObject json) {
+-        Item item = itemFromJson(json);
++        Item item = ShapedRecipe.itemFromJson(json);
++
+         if (json.has("data")) {
+             throw new JsonParseException("Disallowed data tag found");
+         } else {
+             int i = GsonHelper.getAsInt(json, "count", 1);
++
+             if (i < 1) {
+                 throw new JsonSyntaxException("Invalid output count: " + i);
+             } else {
+@@ -266,53 +350,61 @@
+     }
+ 
+     public static Item itemFromJson(JsonObject json) {
+-        String string = GsonHelper.getAsString(json, "item");
+-        Item item = Registry.ITEM.getOptional(new ResourceLocation(string)).orElseThrow(() -> {
+-            return new JsonSyntaxException("Unknown item '" + string + "'");
++        String s = GsonHelper.getAsString(json, "item");
++        Item item = (Item) Registry.ITEM.getOptional(new ResourceLocation(s)).orElseThrow(() -> {
++            return new JsonSyntaxException("Unknown item '" + s + "'");
+         });
++
+         if (item == Items.AIR) {
+-            throw new JsonSyntaxException("Invalid item: " + string);
++            throw new JsonSyntaxException("Invalid item: " + s);
+         } else {
+             return item;
+         }
+     }
+ 
+     public static class Serializer implements RecipeSerializer<ShapedRecipe> {
++
++        public Serializer() {}
++
+         @Override
+-        public ShapedRecipe fromJson(ResourceLocation resourceLocation, JsonObject jsonObject) {
+-            String string = GsonHelper.getAsString(jsonObject, "group", "");
+-            Map<String, Ingredient> map = ShapedRecipe.keyFromJson(GsonHelper.getAsJsonObject(jsonObject, "key"));
+-            String[] strings = ShapedRecipe.shrink(ShapedRecipe.patternFromJson(GsonHelper.getAsJsonArray(jsonObject, "pattern")));
+-            int i = strings[0].length();
+-            int j = strings.length;
+-            NonNullList<Ingredient> nonNullList = ShapedRecipe.dissolvePattern(strings, map, i, j);
+-            ItemStack itemStack = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(jsonObject, "result"));
+-            return new ShapedRecipe(resourceLocation, string, i, j, nonNullList, itemStack);
++        public ShapedRecipe fromJson(ResourceLocation id, JsonObject json) {
++            String s = GsonHelper.getAsString(json, "group", "");
++            Map<String, Ingredient> map = ShapedRecipe.keyFromJson(GsonHelper.getAsJsonObject(json, "key"));
++            String[] astring = ShapedRecipe.shrink(ShapedRecipe.patternFromJson(GsonHelper.getAsJsonArray(json, "pattern")));
++            int i = astring[0].length();
++            int j = astring.length;
++            NonNullList<Ingredient> nonnulllist = ShapedRecipe.dissolvePattern(astring, map, i, j);
++            ItemStack itemstack = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
++
++            return new ShapedRecipe(id, s, i, j, nonnulllist, itemstack);
+         }
+ 
+         @Override
+-        public ShapedRecipe fromNetwork(ResourceLocation resourceLocation, FriendlyByteBuf friendlyByteBuf) {
+-            int i = friendlyByteBuf.readVarInt();
+-            int j = friendlyByteBuf.readVarInt();
+-            String string = friendlyByteBuf.readUtf();
+-            NonNullList<Ingredient> nonNullList = NonNullList.withSize(i * j, Ingredient.EMPTY);
++        public ShapedRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
++            int i = buf.readVarInt();
++            int j = buf.readVarInt();
++            String s = buf.readUtf();
++            NonNullList<Ingredient> nonnulllist = NonNullList.withSize(i * j, Ingredient.EMPTY);
+ 
+-            for(int k = 0; k < nonNullList.size(); ++k) {
+-                nonNullList.set(k, Ingredient.fromNetwork(friendlyByteBuf));
++            for (int k = 0; k < nonnulllist.size(); ++k) {
++                nonnulllist.set(k, Ingredient.fromNetwork(buf));
+             }
+ 
+-            ItemStack itemStack = friendlyByteBuf.readItem();
+-            return new ShapedRecipe(resourceLocation, string, i, j, nonNullList, itemStack);
++            ItemStack itemstack = buf.readItem();
++
++            return new ShapedRecipe(id, s, i, j, nonnulllist, itemstack);
+         }
+ 
+-        @Override
+         public void toNetwork(FriendlyByteBuf buf, ShapedRecipe recipe) {
+             buf.writeVarInt(recipe.width);
+             buf.writeVarInt(recipe.height);
+             buf.writeUtf(recipe.group);
++            Iterator iterator = recipe.recipeItems.iterator();
+ 
+-            for(Ingredient ingredient : recipe.recipeItems) {
+-                ingredient.toNetwork(buf);
++            while (iterator.hasNext()) {
++                Ingredient recipeitemstack = (Ingredient) iterator.next();
++
++                recipeitemstack.toNetwork(buf);
+             }
+ 
+             buf.writeItem(recipe.result);

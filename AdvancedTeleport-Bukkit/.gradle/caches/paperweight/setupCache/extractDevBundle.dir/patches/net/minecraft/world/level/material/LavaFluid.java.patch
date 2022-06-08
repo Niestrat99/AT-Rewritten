@@ -1,0 +1,195 @@
+--- a/net/minecraft/world/level/material/LavaFluid.java
++++ b/net/minecraft/world/level/material/LavaFluid.java
+@@ -25,8 +25,11 @@
+ import net.minecraft.world.level.block.state.StateDefinition;
+ 
+ public abstract class LavaFluid extends FlowingFluid {
++
+     public static final float MIN_LEVEL_CUTOFF = 0.44444445F;
+ 
++    public LavaFluid() {}
++
+     @Override
+     public Fluid getFlowing() {
+         return Fluids.FLOWING_LAVA;
+@@ -44,18 +47,20 @@
+ 
+     @Override
+     public void animateTick(Level world, BlockPos pos, FluidState state, RandomSource random) {
+-        BlockPos blockPos = pos.above();
+-        if (world.getBlockState(blockPos).isAir() && !world.getBlockState(blockPos).isSolidRender(world, blockPos)) {
++        BlockPos blockposition1 = pos.above();
++
++        if (world.getBlockState(blockposition1).isAir() && !world.getBlockState(blockposition1).isSolidRender(world, blockposition1)) {
+             if (random.nextInt(100) == 0) {
+-                double d = (double)pos.getX() + random.nextDouble();
+-                double e = (double)pos.getY() + 1.0D;
+-                double f = (double)pos.getZ() + random.nextDouble();
+-                world.addParticle(ParticleTypes.LAVA, d, e, f, 0.0D, 0.0D, 0.0D);
+-                world.playLocalSound(d, e, f, SoundEvents.LAVA_POP, SoundSource.BLOCKS, 0.2F + random.nextFloat() * 0.2F, 0.9F + random.nextFloat() * 0.15F, false);
++                double d0 = (double) pos.getX() + random.nextDouble();
++                double d1 = (double) pos.getY() + 1.0D;
++                double d2 = (double) pos.getZ() + random.nextDouble();
++
++                world.addParticle(ParticleTypes.LAVA, d0, d1, d2, 0.0D, 0.0D, 0.0D);
++                world.playLocalSound(d0, d1, d2, SoundEvents.LAVA_POP, SoundSource.BLOCKS, 0.2F + random.nextFloat() * 0.2F, 0.9F + random.nextFloat() * 0.15F, false);
+             }
+ 
+             if (random.nextInt(200) == 0) {
+-                world.playLocalSound((double)pos.getX(), (double)pos.getY(), (double)pos.getZ(), SoundEvents.LAVA_AMBIENT, SoundSource.BLOCKS, 0.2F + random.nextFloat() * 0.2F, 0.9F + random.nextFloat() * 0.15F, false);
++                world.playLocalSound((double) pos.getX(), (double) pos.getY(), (double) pos.getZ(), SoundEvents.LAVA_AMBIENT, SoundSource.BLOCKS, 0.2F + random.nextFloat() * 0.2F, 0.9F + random.nextFloat() * 0.15F, false);
+             }
+         }
+ 
+@@ -65,34 +70,52 @@
+     public void randomTick(Level world, BlockPos pos, FluidState state, RandomSource random) {
+         if (world.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
+             int i = random.nextInt(3);
++
+             if (i > 0) {
+-                BlockPos blockPos = pos;
++                BlockPos blockposition1 = pos;
+ 
+-                for(int j = 0; j < i; ++j) {
+-                    blockPos = blockPos.offset(random.nextInt(3) - 1, 1, random.nextInt(3) - 1);
+-                    if (!world.isLoaded(blockPos)) {
++                for (int j = 0; j < i; ++j) {
++                    blockposition1 = blockposition1.offset(random.nextInt(3) - 1, 1, random.nextInt(3) - 1);
++                    if (!world.isLoaded(blockposition1)) {
+                         return;
+                     }
+ 
+-                    BlockState blockState = world.getBlockState(blockPos);
+-                    if (blockState.isAir()) {
+-                        if (this.hasFlammableNeighbours(world, blockPos)) {
+-                            world.setBlockAndUpdate(blockPos, BaseFireBlock.getState(world, blockPos));
++                    BlockState iblockdata = world.getBlockState(blockposition1);
++
++                    if (iblockdata.isAir()) {
++                        if (this.hasFlammableNeighbours(world, blockposition1)) {
++                            // CraftBukkit start - Prevent lava putting something on fire
++                            if (world.getBlockState(blockposition1).getBlock() != Blocks.FIRE) {
++                                if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callBlockIgniteEvent(world, blockposition1, pos).isCancelled()) {
++                                    continue;
++                                }
++                            }
++                            // CraftBukkit end
++                            world.setBlockAndUpdate(blockposition1, BaseFireBlock.getState(world, blockposition1));
+                             return;
+                         }
+-                    } else if (blockState.getMaterial().blocksMotion()) {
++                    } else if (iblockdata.getMaterial().blocksMotion()) {
+                         return;
+                     }
+                 }
+             } else {
+-                for(int k = 0; k < 3; ++k) {
+-                    BlockPos blockPos2 = pos.offset(random.nextInt(3) - 1, 0, random.nextInt(3) - 1);
+-                    if (!world.isLoaded(blockPos2)) {
++                for (int k = 0; k < 3; ++k) {
++                    BlockPos blockposition2 = pos.offset(random.nextInt(3) - 1, 0, random.nextInt(3) - 1);
++
++                    if (!world.isLoaded(blockposition2)) {
+                         return;
+                     }
+ 
+-                    if (world.isEmptyBlock(blockPos2.above()) && this.isFlammable(world, blockPos2)) {
+-                        world.setBlockAndUpdate(blockPos2.above(), BaseFireBlock.getState(world, blockPos2));
++                    if (world.isEmptyBlock(blockposition2.above()) && this.isFlammable(world, blockposition2)) {
++                        // CraftBukkit start - Prevent lava putting something on fire
++                        BlockPos up = blockposition2.above();
++                        if (world.getBlockState(up).getBlock() != Blocks.FIRE) {
++                            if (org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.callBlockIgniteEvent(world, up, pos).isCancelled()) {
++                                continue;
++                            }
++                        }
++                        // CraftBukkit end
++                        world.setBlockAndUpdate(blockposition2.above(), BaseFireBlock.getState(world, blockposition2));
+                     }
+                 }
+             }
+@@ -101,8 +124,13 @@
+     }
+ 
+     private boolean hasFlammableNeighbours(LevelReader world, BlockPos pos) {
+-        for(Direction direction : Direction.values()) {
+-            if (this.isFlammable(world, pos.relative(direction))) {
++        Direction[] aenumdirection = Direction.values();
++        int i = aenumdirection.length;
++
++        for (int j = 0; j < i; ++j) {
++            Direction enumdirection = aenumdirection[j];
++
++            if (this.isFlammable(world, pos.relative(enumdirection))) {
+                 return true;
+             }
+         }
+@@ -132,7 +160,7 @@
+ 
+     @Override
+     public BlockState createLegacyBlock(FluidState state) {
+-        return Blocks.LAVA.defaultBlockState().setValue(LiquidBlock.LEVEL, Integer.valueOf(getLegacyLevel(state)));
++        return (BlockState) Blocks.LAVA.defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
+     }
+ 
+     @Override
+@@ -158,7 +186,8 @@
+     @Override
+     public int getSpreadDelay(Level world, BlockPos pos, FluidState oldState, FluidState newState) {
+         int i = this.getTickDelay(world);
+-        if (!oldState.isEmpty() && !newState.isEmpty() && !oldState.getValue(FALLING) && !newState.getValue(FALLING) && newState.getHeight(world, pos) > oldState.getHeight(world, pos) && world.getRandom().nextInt(4) != 0) {
++
++        if (!oldState.isEmpty() && !newState.isEmpty() && !(Boolean) oldState.getValue(LavaFluid.FALLING) && !(Boolean) newState.getValue(LavaFluid.FALLING) && newState.getHeight(world, pos) > oldState.getHeight(world, pos) && world.getRandom().nextInt(4) != 0) {
+             i *= 4;
+         }
+ 
+@@ -177,10 +206,15 @@
+     @Override
+     protected void spreadTo(LevelAccessor world, BlockPos pos, BlockState state, Direction direction, FluidState fluidState) {
+         if (direction == Direction.DOWN) {
+-            FluidState fluidState2 = world.getFluidState(pos);
+-            if (this.is(FluidTags.LAVA) && fluidState2.is(FluidTags.WATER)) {
++            FluidState fluid1 = world.getFluidState(pos);
++
++            if (this.is(FluidTags.LAVA) && fluid1.is(FluidTags.WATER)) {
+                 if (state.getBlock() instanceof LiquidBlock) {
+-                    world.setBlock(pos, Blocks.STONE.defaultBlockState(), 3);
++                    // CraftBukkit start
++                    if (!org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory.handleBlockFormEvent(world.getMinecraftWorld(), pos, Blocks.STONE.defaultBlockState(), 3)) {
++                        return;
++                    }
++                    // CraftBukkit end
+                 }
+ 
+                 this.fizz(world, pos);
+@@ -207,15 +241,18 @@
+     }
+ 
+     public static class Flowing extends LavaFluid {
++
++        public Flowing() {}
++
+         @Override
+         protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+             super.createFluidStateDefinition(builder);
+-            builder.add(LEVEL);
++            builder.add(LavaFluid.Flowing.LEVEL);
+         }
+ 
+         @Override
+         public int getAmount(FluidState state) {
+-            return state.getValue(LEVEL);
++            return (Integer) state.getValue(LavaFluid.Flowing.LEVEL);
+         }
+ 
+         @Override
+@@ -225,6 +262,9 @@
+     }
+ 
+     public static class Source extends LavaFluid {
++
++        public Source() {}
++
+         @Override
+         public int getAmount(FluidState state) {
+             return 8;

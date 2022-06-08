@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/block/entity/Hopper.java
++++ b/net/minecraft/world/level/block/entity/Hopper.java
+@@ -14,6 +14,8 @@
+         return SUCK;
+     }
+ 
++    default net.minecraft.core.BlockPos getBlockPosition() { return new net.minecraft.core.BlockPos(getLevelX(), getLevelY(), getLevelZ()); } // Paper
++
+     double getLevelX();
+ 
+     double getLevelY();

@@ -1,0 +1,85 @@
+--- a/net/minecraft/world/damagesource/DamageSource.java
++++ b/net/minecraft/world/damagesource/DamageSource.java
+@@ -13,6 +13,7 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class DamageSource {
++
+     public static final DamageSource IN_FIRE = (new DamageSource("inFire")).bypassArmor().setIsFire();
+     public static final DamageSource LIGHTNING_BOLT = new DamageSource("lightningBolt");
+     public static final DamageSource ON_FIRE = (new DamageSource("onFire")).bypassArmor().setIsFire();
+@@ -51,6 +52,31 @@
+     private boolean isFall;
+     private boolean noAggro;
+     public final String msgId;
++    // CraftBukkit start
++    private boolean sweep;
++
++    public boolean isSweep() {
++        return this.sweep;
++    }
++
++    public DamageSource sweep() {
++        this.sweep = true;
++        return this;
++    }
++    // CraftBukkit end
++    // Paper start - add critical damage API
++    private boolean critical;
++    public boolean isCritical() {
++        return this.critical;
++    }
++    public DamageSource critical() {
++        return this.critical(true);
++    }
++    public DamageSource critical(boolean critical) {
++        this.critical = critical;
++        return this;
++    }
++    // Paper end
+ 
+     public static DamageSource sting(LivingEntity attacker) {
+         return new EntityDamageSource("sting", attacker);
+@@ -101,7 +127,7 @@
+     }
+ 
+     public static DamageSource explosion(@Nullable Explosion explosion) {
+-        return explosion(explosion != null ? explosion.getSourceMob() : null);
++        return DamageSource.explosion(explosion != null ? explosion.getSourceMob() : null);
+     }
+ 
+     public static DamageSource explosion(@Nullable LivingEntity attacker) {
+@@ -116,7 +142,6 @@
+         return new BadRespawnPointDamage();
+     }
+ 
+-    @Override
+     public String toString() {
+         return "DamageSource (" + this.msgId + ")";
+     }
+@@ -215,10 +240,11 @@
+     }
+ 
+     public Component getLocalizedDeathMessage(LivingEntity entity) {
+-        LivingEntity livingEntity = entity.getKillCredit();
+-        String string = "death.attack." + this.msgId;
+-        String string2 = string + ".player";
+-        return livingEntity != null ? Component.translatable(string2, entity.getDisplayName(), livingEntity.getDisplayName()) : Component.translatable(string, entity.getDisplayName());
++        LivingEntity entityliving1 = entity.getKillCredit();
++        String s = "death.attack." + this.msgId;
++        String s1 = s + ".player";
++
++        return entityliving1 != null ? Component.translatable(s1, entity.getDisplayName(), entityliving1.getDisplayName()) : Component.translatable(s, entity.getDisplayName());
+     }
+ 
+     public boolean isFire() {
+@@ -262,7 +288,8 @@
+ 
+     public boolean isCreativePlayer() {
+         Entity entity = this.getEntity();
+-        return entity instanceof Player && ((Player)entity).getAbilities().instabuild;
++
++        return entity instanceof Player && ((Player) entity).getAbilities().instabuild;
+     }
+ 
+     @Nullable

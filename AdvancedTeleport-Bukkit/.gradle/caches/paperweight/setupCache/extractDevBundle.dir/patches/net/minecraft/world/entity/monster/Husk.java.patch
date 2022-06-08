@@ -1,0 +1,39 @@
+--- a/net/minecraft/world/entity/monster/Husk.java
++++ b/net/minecraft/world/entity/monster/Husk.java
+@@ -17,6 +17,7 @@
+ import net.minecraft.world.level.ServerLevelAccessor;
+ 
+ public class Husk extends Zombie {
++
+     public Husk(EntityType<? extends Husk> type, Level world) {
+         super(type, world);
+     }
+@@ -52,13 +53,15 @@
+ 
+     @Override
+     public boolean doHurtTarget(Entity target) {
+-        boolean bl = super.doHurtTarget(target);
+-        if (bl && this.getMainHandItem().isEmpty() && target instanceof LivingEntity) {
++        boolean flag = super.doHurtTarget(target);
++
++        if (flag && this.getMainHandItem().isEmpty() && target instanceof LivingEntity) {
+             float f = this.level.getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
+-            ((LivingEntity)target).addEffect(new MobEffectInstance(MobEffects.HUNGER, 140 * (int)f), this);
++
++            ((LivingEntity) target).addEffect(new MobEffectInstance(MobEffects.HUNGER, 140 * (int) f), this, org.bukkit.event.entity.EntityPotionEffectEvent.Cause.ATTACK); // CraftBukkit
+         }
+ 
+-        return bl;
++        return flag;
+     }
+ 
+     @Override
+@@ -70,7 +73,7 @@
+     protected void doUnderWaterConversion() {
+         this.convertToZombieType(EntityType.ZOMBIE);
+         if (!this.isSilent()) {
+-            this.level.levelEvent((Player)null, 1041, this.blockPosition(), 0);
++            this.level.levelEvent((Player) null, 1041, this.blockPosition(), 0);
+         }
+ 
+     }

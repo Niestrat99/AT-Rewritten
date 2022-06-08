@@ -1,0 +1,10 @@
+--- a/net/minecraft/world/level/block/BubbleColumnBlock.java
++++ b/net/minecraft/world/level/block/BubbleColumnBlock.java
+@@ -38,6 +38,7 @@
+ 
+     @Override
+     public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
++        if (!new io.papermc.paper.event.entity.EntityInsideBlockEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, pos)).callEvent()) { return; } // Paper
+         BlockState blockState = world.getBlockState(pos.above());
+         if (blockState.isAir()) {
+             entity.onAboveBubbleCol(state.getValue(DRAG_DOWN));

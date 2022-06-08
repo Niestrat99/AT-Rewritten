@@ -1,0 +1,164 @@
+--- a/net/minecraft/world/level/block/entity/BannerBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/BannerBlockEntity.java
+@@ -20,6 +20,7 @@
+ import net.minecraft.world.level.block.state.BlockState;
+ 
+ public class BannerBlockEntity extends BlockEntity implements Nameable {
++
+     public static final int MAX_PATTERNS = 6;
+     public static final String TAG_PATTERNS = "Patterns";
+     public static final String TAG_PATTERN = "Pattern";
+@@ -34,7 +35,7 @@
+ 
+     public BannerBlockEntity(BlockPos pos, BlockState state) {
+         super(BlockEntityType.BANNER, pos, state);
+-        this.baseColor = ((AbstractBannerBlock)state.getBlock()).getColor();
++        this.baseColor = ((AbstractBannerBlock) state.getBlock()).getColor();
+     }
+ 
+     public BannerBlockEntity(BlockPos pos, BlockState state, DyeColor baseColor) {
+@@ -44,13 +45,14 @@
+ 
+     @Nullable
+     public static ListTag getItemPatterns(ItemStack stack) {
+-        ListTag listTag = null;
+-        CompoundTag compoundTag = BlockItem.getBlockEntityData(stack);
+-        if (compoundTag != null && compoundTag.contains("Patterns", 9)) {
+-            listTag = compoundTag.getList("Patterns", 10).copy();
++        ListTag nbttaglist = null;
++        CompoundTag nbttagcompound = BlockItem.getBlockEntityData(stack);
++
++        if (nbttagcompound != null && nbttagcompound.contains("Patterns", 9)) {
++            nbttaglist = nbttagcompound.getList("Patterns", 10).copy();
+         }
+ 
+-        return listTag;
++        return nbttaglist;
+     }
+ 
+     public void fromItem(ItemStack stack, DyeColor baseColor) {
+@@ -59,14 +61,14 @@
+     }
+ 
+     public void fromItem(ItemStack stack) {
+-        this.itemPatterns = getItemPatterns(stack);
++        this.itemPatterns = BannerBlockEntity.getItemPatterns(stack);
+         this.patterns = null;
+         this.name = stack.hasCustomHoverName() ? stack.getHoverName() : null;
+     }
+ 
+     @Override
+     public Component getName() {
+-        return (Component)(this.name != null ? this.name : Component.translatable("block.minecraft.banner"));
++        return (Component) (this.name != null ? this.name : Component.translatable("block.minecraft.banner"));
+     }
+ 
+     @Nullable
+@@ -96,10 +98,15 @@
+     public void load(CompoundTag nbt) {
+         super.load(nbt);
+         if (nbt.contains("CustomName", 8)) {
+-            this.name = Component.Serializer.fromJson(nbt.getString("CustomName"));
++            this.name = io.papermc.paper.util.MCUtil.getBaseComponentFromNbt("CustomName", nbt); // Paper - Catch ParseException
+         }
+ 
+         this.itemPatterns = nbt.getList("Patterns", 10);
++        // CraftBukkit start
++        while (this.itemPatterns.size() > 20) {
++            this.itemPatterns.remove(20);
++        }
++        // CraftBukkit end
+         this.patterns = null;
+     }
+ 
+@@ -114,13 +121,14 @@
+     }
+ 
+     public static int getPatternCount(ItemStack stack) {
+-        CompoundTag compoundTag = BlockItem.getBlockEntityData(stack);
+-        return compoundTag != null && compoundTag.contains("Patterns") ? compoundTag.getList("Patterns", 10).size() : 0;
++        CompoundTag nbttagcompound = BlockItem.getBlockEntityData(stack);
++
++        return nbttagcompound != null && nbttagcompound.contains("Patterns") ? nbttagcompound.getList("Patterns", 10).size() : 0;
+     }
+ 
+     public List<Pair<Holder<BannerPattern>, DyeColor>> getPatterns() {
+         if (this.patterns == null) {
+-            this.patterns = createPatterns(this.baseColor, this.itemPatterns);
++            this.patterns = BannerBlockEntity.createPatterns(this.baseColor, this.itemPatterns);
+         }
+ 
+         return this.patterns;
+@@ -128,13 +136,16 @@
+ 
+     public static List<Pair<Holder<BannerPattern>, DyeColor>> createPatterns(DyeColor baseColor, @Nullable ListTag patternListNbt) {
+         List<Pair<Holder<BannerPattern>, DyeColor>> list = Lists.newArrayList();
++
+         list.add(Pair.of(Registry.BANNER_PATTERN.getHolderOrThrow(BannerPatterns.BASE), baseColor));
+         if (patternListNbt != null) {
+-            for(int i = 0; i < patternListNbt.size(); ++i) {
+-                CompoundTag compoundTag = patternListNbt.getCompound(i);
+-                Holder<BannerPattern> holder = BannerPattern.byHash(compoundTag.getString("Pattern"));
++            for (int i = 0; i < patternListNbt.size(); ++i) {
++                CompoundTag nbttagcompound = patternListNbt.getCompound(i);
++                Holder<BannerPattern> holder = BannerPattern.byHash(nbttagcompound.getString("Pattern"));
++
+                 if (holder != null) {
+-                    int j = compoundTag.getInt("Color");
++                    int j = nbttagcompound.getInt("Color");
++
+                     list.add(Pair.of(holder, DyeColor.byId(j)));
+                 }
+             }
+@@ -144,33 +155,37 @@
+     }
+ 
+     public static void removeLastPattern(ItemStack stack) {
+-        CompoundTag compoundTag = BlockItem.getBlockEntityData(stack);
+-        if (compoundTag != null && compoundTag.contains("Patterns", 9)) {
+-            ListTag listTag = compoundTag.getList("Patterns", 10);
+-            if (!listTag.isEmpty()) {
+-                listTag.remove(listTag.size() - 1);
+-                if (listTag.isEmpty()) {
+-                    compoundTag.remove("Patterns");
++        CompoundTag nbttagcompound = BlockItem.getBlockEntityData(stack);
++
++        if (nbttagcompound != null && nbttagcompound.contains("Patterns", 9)) {
++            ListTag nbttaglist = nbttagcompound.getList("Patterns", 10);
++
++            if (!nbttaglist.isEmpty()) {
++                nbttaglist.remove(nbttaglist.size() - 1);
++                if (nbttaglist.isEmpty()) {
++                    nbttagcompound.remove("Patterns");
+                 }
+ 
+-                BlockItem.setBlockEntityData(stack, BlockEntityType.BANNER, compoundTag);
++                BlockItem.setBlockEntityData(stack, BlockEntityType.BANNER, nbttagcompound);
+             }
+         }
+     }
+ 
+     public ItemStack getItem() {
+-        ItemStack itemStack = new ItemStack(BannerBlock.byColor(this.baseColor));
++        ItemStack itemstack = new ItemStack(BannerBlock.byColor(this.baseColor));
++
+         if (this.itemPatterns != null && !this.itemPatterns.isEmpty()) {
+-            CompoundTag compoundTag = new CompoundTag();
+-            compoundTag.put("Patterns", this.itemPatterns.copy());
+-            BlockItem.setBlockEntityData(itemStack, this.getType(), compoundTag);
++            CompoundTag nbttagcompound = new CompoundTag();
++
++            nbttagcompound.put("Patterns", this.itemPatterns.copy());
++            BlockItem.setBlockEntityData(itemstack, this.getType(), nbttagcompound);
+         }
+ 
+         if (this.name != null) {
+-            itemStack.setHoverName(this.name);
++            itemstack.setHoverName(this.name);
+         }
+ 
+-        return itemStack;
++        return itemstack;
+     }
+ 
+     public DyeColor getBaseColor() {

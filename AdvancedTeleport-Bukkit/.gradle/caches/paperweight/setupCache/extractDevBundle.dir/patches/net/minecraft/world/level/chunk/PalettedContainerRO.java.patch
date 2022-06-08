@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/level/chunk/PalettedContainerRO.java
++++ b/net/minecraft/world/level/chunk/PalettedContainerRO.java
+@@ -14,7 +14,10 @@
+ 
+     void getAll(Consumer<T> action);
+ 
+-    void write(FriendlyByteBuf buf);
++    // Paper start - Anti-Xray - Add chunk packet info
++    @Deprecated @io.papermc.paper.annotation.DoNotUse void write(FriendlyByteBuf buf);
++    void write(FriendlyByteBuf buf, @javax.annotation.Nullable com.destroystokyo.paper.antixray.ChunkPacketInfo<T> chunkPacketInfo, int bottomBlockY);
++    // Paper end
+ 
+     int getSerializedSize();
+ 

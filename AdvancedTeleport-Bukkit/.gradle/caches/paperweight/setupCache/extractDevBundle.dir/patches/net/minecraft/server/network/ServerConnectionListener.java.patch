@@ -1,0 +1,317 @@
+--- a/net/minecraft/server/network/ServerConnectionListener.java
++++ b/net/minecraft/server/network/ServerConnectionListener.java
+@@ -7,6 +7,7 @@
+ import io.netty.channel.Channel;
+ import io.netty.channel.ChannelException;
+ import io.netty.channel.ChannelFuture;
++import io.netty.channel.ChannelHandler;
+ import io.netty.channel.ChannelHandlerContext;
+ import io.netty.channel.ChannelInboundHandlerAdapter;
+ import io.netty.channel.ChannelInitializer;
+@@ -42,6 +43,7 @@
+ import net.minecraft.network.Varint21FrameDecoder;
+ import net.minecraft.network.Varint21LengthFieldPrepender;
+ import net.minecraft.network.chat.Component;
++import net.minecraft.network.chat.MutableComponent;
+ import net.minecraft.network.protocol.PacketFlow;
+ import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
+ import net.minecraft.server.MinecraftServer;
+@@ -49,110 +51,206 @@
+ import org.slf4j.Logger;
+ 
+ public class ServerConnectionListener {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+     public static final LazyLoadedValue<NioEventLoopGroup> SERVER_EVENT_GROUP = new LazyLoadedValue<>(() -> {
+-        return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Server IO #%d").setDaemon(true).build());
++        return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Server IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
+     });
+     public static final LazyLoadedValue<EpollEventLoopGroup> SERVER_EPOLL_EVENT_GROUP = new LazyLoadedValue<>(() -> {
+-        return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Server IO #%d").setDaemon(true).build());
++        return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Server IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
+     });
+     final MinecraftServer server;
+     public volatile boolean running;
+     private final List<ChannelFuture> channels = Collections.synchronizedList(Lists.newArrayList());
+     final List<Connection> connections = Collections.synchronizedList(Lists.newArrayList());
++    // Paper start - prevent blocking on adding a new network manager while the server is ticking
++    private final java.util.Queue<Connection> pending = new java.util.concurrent.ConcurrentLinkedQueue<>();
++    private static final boolean disableFlushConsolidation = Boolean.getBoolean("Paper.disableFlushConsolidate"); // Paper
++    private final void addPending() {
++        Connection manager = null;
++        while ((manager = pending.poll()) != null) {
++            connections.add(manager);
++            manager.isPending = false;
++        }
++    }
++    // Paper end
+ 
+     public ServerConnectionListener(MinecraftServer server) {
+         this.server = server;
+         this.running = true;
+     }
+ 
++    // Paper start
+     public void startTcpServerListener(@Nullable InetAddress address, int port) throws IOException {
+-        synchronized(this.channels) {
+-            Class<? extends ServerSocketChannel> class_;
+-            LazyLoadedValue<? extends EventLoopGroup> lazyLoadedValue;
++        bind(new java.net.InetSocketAddress(address, port));
++    }
++    public void bind(java.net.SocketAddress address) throws IOException {
++    // Paper end
++        List list = this.channels;
++
++        synchronized (this.channels) {
++            Class oclass;
++            LazyLoadedValue lazyinitvar;
++
+             if (Epoll.isAvailable() && this.server.isEpollEnabled()) {
+-                class_ = EpollServerSocketChannel.class;
+-                lazyLoadedValue = SERVER_EPOLL_EVENT_GROUP;
+-                LOGGER.info("Using epoll channel type");
++                if (address instanceof io.netty.channel.unix.DomainSocketAddress) {
++                    oclass = io.netty.channel.epoll.EpollServerDomainSocketChannel.class;
++                } else {
++                oclass = EpollServerSocketChannel.class;
++                }
++                lazyinitvar = ServerConnectionListener.SERVER_EPOLL_EVENT_GROUP;
++                ServerConnectionListener.LOGGER.info("Using epoll channel type");
+             } else {
+-                class_ = NioServerSocketChannel.class;
+-                lazyLoadedValue = SERVER_EVENT_GROUP;
+-                LOGGER.info("Using default channel type");
++                oclass = NioServerSocketChannel.class;
++                lazyinitvar = ServerConnectionListener.SERVER_EVENT_GROUP;
++                ServerConnectionListener.LOGGER.info("Using default channel type");
+             }
+ 
+-            this.channels.add((new ServerBootstrap()).channel(class_).childHandler(new ChannelInitializer<Channel>() {
++            // Paper start - indicate Velocity natives in use
++            ServerConnectionListener.LOGGER.info("Paper: Using " + com.velocitypowered.natives.util.Natives.compress.getLoadedVariant() + " compression from Velocity.");
++            ServerConnectionListener.LOGGER.info("Paper: Using " + com.velocitypowered.natives.util.Natives.cipher.getLoadedVariant() + " cipher from Velocity.");
++            // Paper end
++
++            // Paper start - indicate Proxy Protocol usage
++            if (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.proxyProtocol) {
++                ServerConnectionListener.LOGGER.info("Paper: Using Proxy Protocol");
++            }
++            // Paper end
++
++            this.channels.add(((ServerBootstrap) ((ServerBootstrap) (new ServerBootstrap()).channel(oclass)).childHandler(new ChannelInitializer<Channel>() {
+                 protected void initChannel(Channel channel) {
+                     try {
+                         channel.config().setOption(ChannelOption.TCP_NODELAY, true);
+-                    } catch (ChannelException var4) {
++                    } catch (ChannelException channelexception) {
++                        ;
+                     }
+ 
++                    if (!disableFlushConsolidation) channel.pipeline().addFirst(new io.netty.handler.flush.FlushConsolidationHandler()); // Paper
+                     channel.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("legacy_query", new LegacyQueryHandler(ServerConnectionListener.this)).addLast("splitter", new Varint21FrameDecoder()).addLast("decoder", new PacketDecoder(PacketFlow.SERVERBOUND)).addLast("prepender", new Varint21LengthFieldPrepender()).addLast("encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
+-                    int i = ServerConnectionListener.this.server.getRateLimitPacketsPerSecond();
+-                    Connection connection = (Connection)(i > 0 ? new RateKickingConnection(i) : new Connection(PacketFlow.SERVERBOUND));
+-                    ServerConnectionListener.this.connections.add(connection);
+-                    channel.pipeline().addLast("packet_handler", connection);
+-                    connection.setListener(new ServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, connection));
++                    int j = ServerConnectionListener.this.server.getRateLimitPacketsPerSecond();
++                    Object object = j > 0 ? new RateKickingConnection(j) : new Connection(PacketFlow.SERVERBOUND);
++
++                    // Paper start - Add support for Proxy Protocol
++                    if (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.proxyProtocol) {
++                        channel.pipeline().addAfter("timeout", "haproxy-decoder", new io.netty.handler.codec.haproxy.HAProxyMessageDecoder());
++                        channel.pipeline().addAfter("haproxy-decoder", "haproxy-handler", new ChannelInboundHandlerAdapter() {
++                            @Override
++                            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
++                                if (msg instanceof io.netty.handler.codec.haproxy.HAProxyMessage message) {
++                                    if (message.command() == io.netty.handler.codec.haproxy.HAProxyCommand.PROXY) {
++                                        String realaddress = message.sourceAddress();
++                                        int realport = message.sourcePort();
++
++                                        SocketAddress socketaddr = new java.net.InetSocketAddress(realaddress, realport);
++
++                                        Connection connection = (Connection) channel.pipeline().get("packet_handler");
++                                        connection.address = socketaddr;
++                                    }
++                                } else {
++                                    super.channelRead(ctx, msg);
++                                }
++                            }
++                        });
++                    }
++                    // Paper end
++
++                    // ServerConnectionListener.this.connections.add((Connection) object); // CraftBukkit - decompile error
++                    pending.add((Connection) object); // Paper
++                    channel.pipeline().addLast("packet_handler", (ChannelHandler) object);
++                    ((Connection) object).setListener(new ServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, (Connection) object));
++                    io.papermc.paper.network.ChannelInitializeListenerHolder.callListeners(channel); // Paper
+                 }
+-            }).group(lazyLoadedValue.get()).localAddress(address, port).bind().syncUninterruptibly());
++            }).group((EventLoopGroup) lazyinitvar.get()).localAddress(address)).option(ChannelOption.AUTO_READ, false).bind().syncUninterruptibly()); // CraftBukkit // Paper
++        }
++    }
++
++    // CraftBukkit start
++    public void acceptConnections() {
++        synchronized (this.channels) {
++            for (ChannelFuture future : this.channels) {
++                future.channel().config().setAutoRead(true);
++            }
+         }
+     }
++    // CraftBukkit end
+ 
+     public SocketAddress startMemoryChannel() {
+-        ChannelFuture channelFuture;
+-        synchronized(this.channels) {
+-            channelFuture = (new ServerBootstrap()).channel(LocalServerChannel.class).childHandler(new ChannelInitializer<Channel>() {
++        List list = this.channels;
++        ChannelFuture channelfuture;
++
++        synchronized (this.channels) {
++            channelfuture = ((ServerBootstrap) ((ServerBootstrap) (new ServerBootstrap()).channel(LocalServerChannel.class)).childHandler(new ChannelInitializer<Channel>() {
+                 protected void initChannel(Channel channel) {
+-                    Connection connection = new Connection(PacketFlow.SERVERBOUND);
+-                    connection.setListener(new MemoryServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, connection));
+-                    ServerConnectionListener.this.connections.add(connection);
+-                    channel.pipeline().addLast("packet_handler", connection);
++                    Connection networkmanager = new Connection(PacketFlow.SERVERBOUND);
++
++                    networkmanager.setListener(new MemoryServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, networkmanager));
++                    ServerConnectionListener.this.connections.add(networkmanager);
++                    channel.pipeline().addLast("packet_handler", networkmanager);
+                 }
+-            }).group(SERVER_EVENT_GROUP.get()).localAddress(LocalAddress.ANY).bind().syncUninterruptibly();
+-            this.channels.add(channelFuture);
++            }).group((EventLoopGroup) ServerConnectionListener.SERVER_EVENT_GROUP.get()).localAddress(LocalAddress.ANY)).bind().syncUninterruptibly();
++            this.channels.add(channelfuture);
+         }
+ 
+-        return channelFuture.channel().localAddress();
++        return channelfuture.channel().localAddress();
+     }
+ 
+     public void stop() {
+         this.running = false;
++        Iterator iterator = this.channels.iterator();
++
++        while (iterator.hasNext()) {
++            ChannelFuture channelfuture = (ChannelFuture) iterator.next();
+ 
+-        for(ChannelFuture channelFuture : this.channels) {
+             try {
+-                channelFuture.channel().close().sync();
+-            } catch (InterruptedException var4) {
+-                LOGGER.error("Interrupted whilst closing channel");
++                channelfuture.channel().close().sync();
++            } catch (InterruptedException interruptedexception) {
++                ServerConnectionListener.LOGGER.error("Interrupted whilst closing channel");
+             }
+         }
+ 
+     }
+ 
+     public void tick() {
+-        synchronized(this.connections) {
+-            Iterator<Connection> iterator = this.connections.iterator();
++        List list = this.connections;
+ 
+-            while(iterator.hasNext()) {
+-                Connection connection = iterator.next();
+-                if (!connection.isConnecting()) {
+-                    if (connection.isConnected()) {
++        synchronized (this.connections) {
++            // Spigot Start
++            this.addPending(); // Paper
++            // This prevents players from 'gaming' the server, and strategically relogging to increase their position in the tick order
++            if ( org.spigotmc.SpigotConfig.playerShuffle > 0 && MinecraftServer.currentTick % org.spigotmc.SpigotConfig.playerShuffle == 0 )
++            {
++                Collections.shuffle( this.connections );
++            }
++            // Spigot End
++            Iterator iterator = this.connections.iterator();
++
++            while (iterator.hasNext()) {
++                Connection networkmanager = (Connection) iterator.next();
++
++                if (!networkmanager.isConnecting()) {
++                    if (networkmanager.isConnected()) {
+                         try {
+-                            connection.tick();
+-                        } catch (Exception var7) {
+-                            if (connection.isMemoryConnection()) {
+-                                throw new ReportedException(CrashReport.forThrowable(var7, "Ticking memory connection"));
++                            networkmanager.tick();
++                        } catch (Exception exception) {
++                            if (networkmanager.isMemoryConnection()) {
++                                throw new ReportedException(CrashReport.forThrowable(exception, "Ticking memory connection"));
+                             }
+ 
+-                            LOGGER.warn("Failed to handle packet for {}", connection.getRemoteAddress(), var7);
+-                            Component component = Component.literal("Internal server error");
+-                            connection.send(new ClientboundDisconnectPacket(component), PacketSendListener.thenRun(() -> {
+-                                connection.disconnect(component);
++                            ServerConnectionListener.LOGGER.warn("Failed to handle packet for {}", io.papermc.paper.configuration.GlobalConfiguration.get().logging.logPlayerIpAddresses ? String.valueOf(networkmanager.getRemoteAddress()) : "<ip address withheld>", exception); // Paper
++                            MutableComponent ichatmutablecomponent = Component.literal("Internal server error");
++
++                            networkmanager.send(new ClientboundDisconnectPacket(ichatmutablecomponent), PacketSendListener.thenRun(() -> {
++                                networkmanager.disconnect(ichatmutablecomponent);
+                             }));
+-                            connection.setReadOnly();
++                            networkmanager.setReadOnly();
+                         }
+                     } else {
++                        // Spigot Start
++                        // Fix a race condition where a NetworkManager could be unregistered just before connection.
++                        if (networkmanager.preparing) continue;
++                        // Spigot End
+                         iterator.remove();
+-                        connection.handleDisconnection();
++                        networkmanager.handleDisconnection();
+                     }
+                 }
+             }
+@@ -168,7 +266,8 @@
+         return this.connections;
+     }
+ 
+-    static class LatencySimulator extends ChannelInboundHandlerAdapter {
++    private static class LatencySimulator extends ChannelInboundHandlerAdapter {
++
+         private static final Timer TIMER = new HashedWheelTimer();
+         private final int delay;
+         private final int jitter;
+@@ -179,22 +278,25 @@
+             this.jitter = extraDelay;
+         }
+ 
+-        public void channelRead(ChannelHandlerContext channelHandlerContext, Object object) {
+-            this.delayDownstream(channelHandlerContext, object);
++        public void channelRead(ChannelHandlerContext channelhandlercontext, Object object) {
++            this.delayDownstream(channelhandlercontext, object);
+         }
+ 
+         private void delayDownstream(ChannelHandlerContext ctx, Object msg) {
+-            int i = this.delay + (int)(Math.random() * (double)this.jitter);
++            int i = this.delay + (int) (Math.random() * (double) this.jitter);
++
+             this.queuedMessages.add(new ServerConnectionListener.LatencySimulator.DelayedMessage(ctx, msg));
+-            TIMER.newTimeout(this::onTimeout, (long)i, TimeUnit.MILLISECONDS);
++            ServerConnectionListener.LatencySimulator.TIMER.newTimeout(this::onTimeout, (long) i, TimeUnit.MILLISECONDS);
+         }
+ 
+         private void onTimeout(Timeout timeout) {
+-            ServerConnectionListener.LatencySimulator.DelayedMessage delayedMessage = this.queuedMessages.remove(0);
+-            delayedMessage.ctx.fireChannelRead(delayedMessage.msg);
++            ServerConnectionListener.LatencySimulator.DelayedMessage serverconnection_latencysimulator_delayedmessage = (ServerConnectionListener.LatencySimulator.DelayedMessage) this.queuedMessages.remove(0);
++
++            serverconnection_latencysimulator_delayedmessage.ctx.fireChannelRead(serverconnection_latencysimulator_delayedmessage.msg);
+         }
+ 
+-        static class DelayedMessage {
++        private static class DelayedMessage {
++
+             public final ChannelHandlerContext ctx;
+             public final Object msg;
+ 

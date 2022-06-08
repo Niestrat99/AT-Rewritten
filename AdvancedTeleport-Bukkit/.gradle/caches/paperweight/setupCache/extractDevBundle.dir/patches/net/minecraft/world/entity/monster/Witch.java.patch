@@ -1,0 +1,274 @@
+--- a/net/minecraft/world/entity/monster/Witch.java
++++ b/net/minecraft/world/entity/monster/Witch.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.world.entity.monster;
+ 
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.UUID;
+ import java.util.function.Predicate;
+@@ -13,6 +14,7 @@
+ import net.minecraft.world.damagesource.DamageSource;
+ import net.minecraft.world.effect.MobEffectInstance;
+ import net.minecraft.world.effect.MobEffects;
++import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.EntityDimensions;
+ import net.minecraft.world.entity.EntityType;
+ import net.minecraft.world.entity.EquipmentSlot;
+@@ -42,8 +44,9 @@
+ import net.minecraft.world.phys.Vec3;
+ 
+ public class Witch extends Raider implements RangedAttackMob {
++
+     private static final UUID SPEED_MODIFIER_DRINKING_UUID = UUID.fromString("5CD17E52-A79A-43D3-A529-90FDE04B181E");
+-    private static final AttributeModifier SPEED_MODIFIER_DRINKING = new AttributeModifier(SPEED_MODIFIER_DRINKING_UUID, "Drinking speed penalty", -0.25D, AttributeModifier.Operation.ADDITION);
++    private static final AttributeModifier SPEED_MODIFIER_DRINKING = new AttributeModifier(Witch.SPEED_MODIFIER_DRINKING_UUID, "Drinking speed penalty", -0.25D, AttributeModifier.Operation.ADDITION);
+     private static final EntityDataAccessor<Boolean> DATA_USING_ITEM = SynchedEntityData.defineId(Witch.class, EntityDataSerializers.BOOLEAN);
+     public int usingTime;
+     private NearestHealableRaiderTargetGoal<Raider> healRaidersGoal;
+@@ -56,16 +59,16 @@
+     @Override
+     protected void registerGoals() {
+         super.registerGoals();
+-        this.healRaidersGoal = new NearestHealableRaiderTargetGoal<>(this, Raider.class, true, (entity) -> {
+-            return entity != null && this.hasActiveRaid() && entity.getType() != EntityType.WITCH;
++        this.healRaidersGoal = new NearestHealableRaiderTargetGoal<>(this, Raider.class, true, (entityliving) -> {
++            return entityliving != null && this.hasActiveRaid() && entityliving.getType() != EntityType.WITCH;
+         });
+-        this.attackPlayersGoal = new NearestAttackableWitchTargetGoal<>(this, Player.class, 10, true, false, (Predicate<LivingEntity>)null);
++        this.attackPlayersGoal = new NearestAttackableWitchTargetGoal<>(this, Player.class, 10, true, false, (Predicate) null);
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+         this.goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0D, 60, 10.0F));
+         this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+         this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F));
+         this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
+-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this, Raider.class));
++        this.targetSelector.addGoal(1, new HurtByTargetGoal(this, new Class[]{Raider.class}));
+         this.targetSelector.addGoal(2, this.healRaidersGoal);
+         this.targetSelector.addGoal(3, this.attackPlayersGoal);
+     }
+@@ -73,7 +76,7 @@
+     @Override
+     protected void defineSynchedData() {
+         super.defineSynchedData();
+-        this.getEntityData().define(DATA_USING_ITEM, false);
++        this.getEntityData().define(Witch.DATA_USING_ITEM, false);
+     }
+ 
+     @Override
+@@ -92,11 +95,11 @@
+     }
+ 
+     public void setUsingItem(boolean drinking) {
+-        this.getEntityData().set(DATA_USING_ITEM, drinking);
++        this.getEntityData().set(Witch.DATA_USING_ITEM, drinking);
+     }
+ 
+     public boolean isDrinkingPotion() {
+-        return this.getEntityData().get(DATA_USING_ITEM);
++        return (Boolean) this.getEntityData().get(Witch.DATA_USING_ITEM);
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+@@ -116,53 +119,90 @@
+             if (this.isDrinkingPotion()) {
+                 if (this.usingTime-- <= 0) {
+                     this.setUsingItem(false);
+-                    ItemStack itemStack = this.getMainHandItem();
++                    ItemStack itemstack = this.getMainHandItem();
++
+                     this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+-                    if (itemStack.is(Items.POTION)) {
+-                        List<MobEffectInstance> list = PotionUtils.getMobEffects(itemStack);
++                    if (itemstack.is(Items.POTION)) {
++                        // Paper start
++                        com.destroystokyo.paper.event.entity.WitchConsumePotionEvent event = new com.destroystokyo.paper.event.entity.WitchConsumePotionEvent((org.bukkit.entity.Witch) this.getBukkitEntity(), org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asCraftMirror(itemstack));
++
++                        List<MobEffectInstance> list = event.callEvent() ? PotionUtils.getMobEffects(org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asNMSCopy(event.getPotion())) : null;
++                        // Paper end
++
+                         if (list != null) {
+-                            for(MobEffectInstance mobEffectInstance : list) {
+-                                this.addEffect(new MobEffectInstance(mobEffectInstance));
++                            Iterator iterator = list.iterator();
++
++                            while (iterator.hasNext()) {
++                                MobEffectInstance mobeffect = (MobEffectInstance) iterator.next();
++
++                                this.addEffect(new MobEffectInstance(mobeffect), org.bukkit.event.entity.EntityPotionEffectEvent.Cause.ATTACK); // CraftBukkit
+                             }
+                         }
+                     }
+ 
+-                    this.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(SPEED_MODIFIER_DRINKING);
++                    this.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(Witch.SPEED_MODIFIER_DRINKING);
+                 }
+             } else {
+-                Potion potion = null;
++                Potion potionregistry = null;
++
+                 if (this.random.nextFloat() < 0.15F && this.isEyeInFluid(FluidTags.WATER) && !this.hasEffect(MobEffects.WATER_BREATHING)) {
+-                    potion = Potions.WATER_BREATHING;
++                    potionregistry = Potions.WATER_BREATHING;
+                 } else if (this.random.nextFloat() < 0.15F && (this.isOnFire() || this.getLastDamageSource() != null && this.getLastDamageSource().isFire()) && !this.hasEffect(MobEffects.FIRE_RESISTANCE)) {
+-                    potion = Potions.FIRE_RESISTANCE;
++                    potionregistry = Potions.FIRE_RESISTANCE;
+                 } else if (this.random.nextFloat() < 0.05F && this.getHealth() < this.getMaxHealth()) {
+-                    potion = Potions.HEALING;
+-                } else if (this.random.nextFloat() < 0.5F && this.getTarget() != null && !this.hasEffect(MobEffects.MOVEMENT_SPEED) && this.getTarget().distanceToSqr(this) > 121.0D) {
+-                    potion = Potions.SWIFTNESS;
++                    potionregistry = Potions.HEALING;
++                } else if (this.random.nextFloat() < 0.5F && this.getTarget() != null && !this.hasEffect(MobEffects.MOVEMENT_SPEED) && this.getTarget().distanceToSqr((Entity) this) > 121.0D) {
++                    potionregistry = Potions.SWIFTNESS;
+                 }
+ 
+-                if (potion != null) {
+-                    this.setItemSlot(EquipmentSlot.MAINHAND, PotionUtils.setPotion(new ItemStack(Items.POTION), potion));
+-                    this.usingTime = this.getMainHandItem().getUseDuration();
+-                    this.setUsingItem(true);
+-                    if (!this.isSilent()) {
+-                        this.level.playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.WITCH_DRINK, this.getSoundSource(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
+-                    }
++                if (potionregistry != null) {
++                    ItemStack potion = PotionUtils.setPotion(new ItemStack(Items.POTION), potionregistry);
++                    // Paper start - logic moved into setDrinkingPotion, copy exact impl into the method and then comment out
++                    this.setDrinkingPotion(potion);
++//                    org.bukkit.inventory.ItemStack bukkitStack = com.destroystokyo.paper.event.entity.WitchReadyPotionEvent.process((org.bukkit.entity.Witch) this.getBukkitEntity(), org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asCraftMirror(potion));
++//                    this.setSlot(EnumItemSlot.MAINHAND, org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asNMSCopy(bukkitStack));
++//                    // Paper end
++//                    this.bq = this.getItemInMainHand().k();
++//                    this.v(true);
++//                    if (!this.isSilent()) {
++//                        this.world.playSound((EntityHuman) null, this.locX(), this.locY(), this.locZ(), SoundEffects.ENTITY_WITCH_DRINK, this.getSoundCategory(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
++//                    }
++//
++//                    AttributeModifiable attributemodifiable = this.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
++//
++//                    attributemodifiable.removeModifier(EntityWitch.bo);
++//                    attributemodifiable.b(EntityWitch.bo);
++                    // Paper end
+ 
+-                    AttributeInstance attributeInstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
+-                    attributeInstance.removeModifier(SPEED_MODIFIER_DRINKING);
+-                    attributeInstance.addTransientModifier(SPEED_MODIFIER_DRINKING);
+                 }
+             }
+ 
+             if (this.random.nextFloat() < 7.5E-4F) {
+-                this.level.broadcastEntityEvent(this, (byte)15);
++                this.level.broadcastEntityEvent(this, (byte) 15);
+             }
+         }
+ 
+         super.aiStep();
+     }
+ 
++    // Paper start - moved to its own method
++    public void setDrinkingPotion(ItemStack potion) {
++        org.bukkit.inventory.ItemStack bukkitStack = com.destroystokyo.paper.event.entity.WitchReadyPotionEvent.process((org.bukkit.entity.Witch) this.getBukkitEntity(), org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asCraftMirror(potion));
++        this.setItemSlot(EquipmentSlot.MAINHAND, org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asNMSCopy(bukkitStack));
++        // Paper end
++        this.usingTime = this.getMainHandItem().getUseDuration();
++        this.setUsingItem(true);
++        if (!this.isSilent()) {
++            this.level.playSound((Player) null, this.getX(), this.getY(), this.getZ(), SoundEvents.WITCH_DRINK, this.getSoundSource(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
++        }
++
++        AttributeInstance attributemodifiable = this.getAttribute(Attributes.MOVEMENT_SPEED);
++
++        attributemodifiable.removeModifier(Witch.SPEED_MODIFIER_DRINKING);
++        attributemodifiable.addTransientModifier(Witch.SPEED_MODIFIER_DRINKING);
++    }
++    // Paper end
++
+     @Override
+     public SoundEvent getCelebrateSound() {
+         return SoundEvents.WITCH_CELEBRATE;
+@@ -171,8 +211,8 @@
+     @Override
+     public void handleEntityEvent(byte status) {
+         if (status == 15) {
+-            for(int i = 0; i < this.random.nextInt(35) + 10; ++i) {
+-                this.level.addParticle(ParticleTypes.WITCH, this.getX() + this.random.nextGaussian() * (double)0.13F, this.getBoundingBox().maxY + 0.5D + this.random.nextGaussian() * (double)0.13F, this.getZ() + this.random.nextGaussian() * (double)0.13F, 0.0D, 0.0D, 0.0D);
++            for (int i = 0; i < this.random.nextInt(35) + 10; ++i) {
++                this.level.addParticle(ParticleTypes.WITCH, this.getX() + this.random.nextGaussian() * 0.12999999523162842D, this.getBoundingBox().maxY + 0.5D + this.random.nextGaussian() * 0.12999999523162842D, this.getZ() + this.random.nextGaussian() * 0.12999999523162842D, 0.0D, 0.0D, 0.0D);
+             }
+         } else {
+             super.handleEntityEvent(status);
+@@ -197,37 +237,46 @@
+     @Override
+     public void performRangedAttack(LivingEntity target, float pullProgress) {
+         if (!this.isDrinkingPotion()) {
+-            Vec3 vec3 = target.getDeltaMovement();
+-            double d = target.getX() + vec3.x - this.getX();
+-            double e = target.getEyeY() - (double)1.1F - this.getY();
+-            double f = target.getZ() + vec3.z - this.getZ();
+-            double g = Math.sqrt(d * d + f * f);
+-            Potion potion = Potions.HARMING;
++            Vec3 vec3d = target.getDeltaMovement();
++            double d0 = target.getX() + vec3d.x - this.getX();
++            double d1 = target.getEyeY() - 1.100000023841858D - this.getY();
++            double d2 = target.getZ() + vec3d.z - this.getZ();
++            double d3 = Math.sqrt(d0 * d0 + d2 * d2);
++            Potion potionregistry = Potions.HARMING;
++
+             if (target instanceof Raider) {
+                 if (target.getHealth() <= 4.0F) {
+-                    potion = Potions.HEALING;
++                    potionregistry = Potions.HEALING;
+                 } else {
+-                    potion = Potions.REGENERATION;
++                    potionregistry = Potions.REGENERATION;
+                 }
+ 
+-                this.setTarget((LivingEntity)null);
+-            } else if (g >= 8.0D && !target.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
+-                potion = Potions.SLOWNESS;
++                this.setTarget((LivingEntity) null);
++            } else if (d3 >= 8.0D && !target.hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
++                potionregistry = Potions.SLOWNESS;
+             } else if (target.getHealth() >= 8.0F && !target.hasEffect(MobEffects.POISON)) {
+-                potion = Potions.POISON;
+-            } else if (g <= 3.0D && !target.hasEffect(MobEffects.WEAKNESS) && this.random.nextFloat() < 0.25F) {
+-                potion = Potions.WEAKNESS;
++                potionregistry = Potions.POISON;
++            } else if (d3 <= 3.0D && !target.hasEffect(MobEffects.WEAKNESS) && this.random.nextFloat() < 0.25F) {
++                potionregistry = Potions.WEAKNESS;
+             }
+ 
+-            ThrownPotion thrownPotion = new ThrownPotion(this.level, this);
+-            thrownPotion.setItem(PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), potion));
+-            thrownPotion.setXRot(thrownPotion.getXRot() - -20.0F);
+-            thrownPotion.shoot(d, e + g * 0.2D, f, 0.75F, 8.0F);
++            // Paper start
++            ItemStack potion = PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), potionregistry);
++            com.destroystokyo.paper.event.entity.WitchThrowPotionEvent event = new com.destroystokyo.paper.event.entity.WitchThrowPotionEvent((org.bukkit.entity.Witch) this.getBukkitEntity(), (org.bukkit.entity.LivingEntity) target.getBukkitEntity(), org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asCraftMirror(potion));
++            if (!event.callEvent()) {
++                return;
++            }
++            potion = org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack.asNMSCopy(event.getPotion());
++            ThrownPotion entitypotion = new ThrownPotion(this.level, this);
++            entitypotion.setItem(potion);
++            // Paper end
++            entitypotion.setXRot(entitypotion.getXRot() - -20.0F);
++            entitypotion.shoot(d0, d1 + d3 * 0.2D, d2, 0.75F, 8.0F);
+             if (!this.isSilent()) {
+-                this.level.playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.WITCH_THROW, this.getSoundSource(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
++                this.level.playSound((Player) null, this.getX(), this.getY(), this.getZ(), SoundEvents.WITCH_THROW, this.getSoundSource(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
+             }
+ 
+-            this.level.addFreshEntity(thrownPotion);
++            this.level.addFreshEntity(entitypotion);
+         }
+     }
+ 
+@@ -237,8 +286,7 @@
+     }
+ 
+     @Override
+-    public void applyRaidBuffs(int wave, boolean unused) {
+-    }
++    public void applyRaidBuffs(int wave, boolean unused) {}
+ 
+     @Override
+     public boolean canBeLeader() {

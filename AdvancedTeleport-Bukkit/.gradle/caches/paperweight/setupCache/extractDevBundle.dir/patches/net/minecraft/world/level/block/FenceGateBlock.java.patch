@@ -1,0 +1,178 @@
+--- a/net/minecraft/world/level/block/FenceGateBlock.java
++++ b/net/minecraft/world/level/block/FenceGateBlock.java
+@@ -24,6 +24,7 @@
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ 
+ public class FenceGateBlock extends HorizontalDirectionalBlock {
++
+     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
+     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+     public static final BooleanProperty IN_WALL = BlockStateProperties.IN_WALL;
+@@ -40,56 +41,46 @@
+ 
+     public FenceGateBlock(BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(OPEN, Boolean.valueOf(false)).setValue(POWERED, Boolean.valueOf(false)).setValue(IN_WALL, Boolean.valueOf(false)));
++        this.registerDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(FenceGateBlock.OPEN, false)).setValue(FenceGateBlock.POWERED, false)).setValue(FenceGateBlock.IN_WALL, false));
+     }
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        if (state.getValue(IN_WALL)) {
+-            return state.getValue(FACING).getAxis() == Direction.Axis.X ? X_SHAPE_LOW : Z_SHAPE_LOW;
+-        } else {
+-            return state.getValue(FACING).getAxis() == Direction.Axis.X ? X_SHAPE : Z_SHAPE;
+-        }
++        return (Boolean) state.getValue(FenceGateBlock.IN_WALL) ? (((Direction) state.getValue(FenceGateBlock.FACING)).getAxis() == Direction.Axis.X ? FenceGateBlock.X_SHAPE_LOW : FenceGateBlock.Z_SHAPE_LOW) : (((Direction) state.getValue(FenceGateBlock.FACING)).getAxis() == Direction.Axis.X ? FenceGateBlock.X_SHAPE : FenceGateBlock.Z_SHAPE);
+     }
+ 
+     @Override
+     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+-        Direction.Axis axis = direction.getAxis();
+-        if (state.getValue(FACING).getClockWise().getAxis() != axis) {
++        Direction.Axis enumdirection_enumaxis = direction.getAxis();
++
++        if (((Direction) state.getValue(FenceGateBlock.FACING)).getClockWise().getAxis() != enumdirection_enumaxis) {
+             return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+         } else {
+-            boolean bl = this.isWall(neighborState) || this.isWall(world.getBlockState(pos.relative(direction.getOpposite())));
+-            return state.setValue(IN_WALL, Boolean.valueOf(bl));
++            boolean flag = this.isWall(neighborState) || this.isWall(world.getBlockState(pos.relative(direction.getOpposite())));
++
++            return (BlockState) state.setValue(FenceGateBlock.IN_WALL, flag);
+         }
+     }
+ 
+     @Override
+     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        if (state.getValue(OPEN)) {
+-            return Shapes.empty();
+-        } else {
+-            return state.getValue(FACING).getAxis() == Direction.Axis.Z ? Z_COLLISION_SHAPE : X_COLLISION_SHAPE;
+-        }
++        return (Boolean) state.getValue(FenceGateBlock.OPEN) ? Shapes.empty() : (((Direction) state.getValue(FenceGateBlock.FACING)).getAxis() == Direction.Axis.Z ? FenceGateBlock.Z_COLLISION_SHAPE : FenceGateBlock.X_COLLISION_SHAPE);
+     }
+ 
+     @Override
+     public VoxelShape getOcclusionShape(BlockState state, BlockGetter world, BlockPos pos) {
+-        if (state.getValue(IN_WALL)) {
+-            return state.getValue(FACING).getAxis() == Direction.Axis.X ? X_OCCLUSION_SHAPE_LOW : Z_OCCLUSION_SHAPE_LOW;
+-        } else {
+-            return state.getValue(FACING).getAxis() == Direction.Axis.X ? X_OCCLUSION_SHAPE : Z_OCCLUSION_SHAPE;
+-        }
++        return (Boolean) state.getValue(FenceGateBlock.IN_WALL) ? (((Direction) state.getValue(FenceGateBlock.FACING)).getAxis() == Direction.Axis.X ? FenceGateBlock.X_OCCLUSION_SHAPE_LOW : FenceGateBlock.Z_OCCLUSION_SHAPE_LOW) : (((Direction) state.getValue(FenceGateBlock.FACING)).getAxis() == Direction.Axis.X ? FenceGateBlock.X_OCCLUSION_SHAPE : FenceGateBlock.Z_OCCLUSION_SHAPE);
+     }
+ 
+     @Override
+     public boolean isPathfindable(BlockState state, BlockGetter world, BlockPos pos, PathComputationType type) {
+         switch (type) {
+             case LAND:
+-                return state.getValue(OPEN);
++                return (Boolean) state.getValue(FenceGateBlock.OPEN);
+             case WATER:
+                 return false;
+             case AIR:
+-                return state.getValue(OPEN);
++                return (Boolean) state.getValue(FenceGateBlock.OPEN);
+             default:
+                 return false;
+         }
+@@ -97,13 +88,14 @@
+ 
+     @Override
+     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+-        Level level = ctx.getLevel();
+-        BlockPos blockPos = ctx.getClickedPos();
+-        boolean bl = level.hasNeighborSignal(blockPos);
+-        Direction direction = ctx.getHorizontalDirection();
+-        Direction.Axis axis = direction.getAxis();
+-        boolean bl2 = axis == Direction.Axis.Z && (this.isWall(level.getBlockState(blockPos.west())) || this.isWall(level.getBlockState(blockPos.east()))) || axis == Direction.Axis.X && (this.isWall(level.getBlockState(blockPos.north())) || this.isWall(level.getBlockState(blockPos.south())));
+-        return this.defaultBlockState().setValue(FACING, direction).setValue(OPEN, Boolean.valueOf(bl)).setValue(POWERED, Boolean.valueOf(bl)).setValue(IN_WALL, Boolean.valueOf(bl2));
++        Level world = ctx.getLevel();
++        BlockPos blockposition = ctx.getClickedPos();
++        boolean flag = world.hasNeighborSignal(blockposition);
++        Direction enumdirection = ctx.getHorizontalDirection();
++        Direction.Axis enumdirection_enumaxis = enumdirection.getAxis();
++        boolean flag1 = enumdirection_enumaxis == Direction.Axis.Z && (this.isWall(world.getBlockState(blockposition.west())) || this.isWall(world.getBlockState(blockposition.east()))) || enumdirection_enumaxis == Direction.Axis.X && (this.isWall(world.getBlockState(blockposition.north())) || this.isWall(world.getBlockState(blockposition.south())));
++
++        return (BlockState) ((BlockState) ((BlockState) ((BlockState) this.defaultBlockState().setValue(FenceGateBlock.FACING, enumdirection)).setValue(FenceGateBlock.OPEN, flag)).setValue(FenceGateBlock.POWERED, flag)).setValue(FenceGateBlock.IN_WALL, flag1);
+     }
+ 
+     private boolean isWall(BlockState state) {
+@@ -112,34 +104,48 @@
+ 
+     @Override
+     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+-        if (state.getValue(OPEN)) {
+-            state = state.setValue(OPEN, Boolean.valueOf(false));
++        if ((Boolean) state.getValue(FenceGateBlock.OPEN)) {
++            state = (BlockState) state.setValue(FenceGateBlock.OPEN, false);
+             world.setBlock(pos, state, 10);
+         } else {
+-            Direction direction = player.getDirection();
+-            if (state.getValue(FACING) == direction.getOpposite()) {
+-                state = state.setValue(FACING, direction);
++            Direction enumdirection = player.getDirection();
++
++            if (state.getValue(FenceGateBlock.FACING) == enumdirection.getOpposite()) {
++                state = (BlockState) state.setValue(FenceGateBlock.FACING, enumdirection);
+             }
+ 
+-            state = state.setValue(OPEN, Boolean.valueOf(true));
++            state = (BlockState) state.setValue(FenceGateBlock.OPEN, true);
+             world.setBlock(pos, state, 10);
+         }
+ 
+-        boolean bl = state.getValue(OPEN);
+-        world.levelEvent(player, bl ? 1008 : 1014, pos, 0);
+-        world.gameEvent(player, bl ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
++        boolean flag = (Boolean) state.getValue(FenceGateBlock.OPEN);
++
++        world.levelEvent(player, flag ? 1008 : 1014, pos, 0);
++        world.gameEvent((Entity) player, flag ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
+         return InteractionResult.sidedSuccess(world.isClientSide);
+     }
+ 
+     @Override
+     public void neighborChanged(BlockState state, Level world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+         if (!world.isClientSide) {
+-            boolean bl = world.hasNeighborSignal(pos);
+-            if (state.getValue(POWERED) != bl) {
+-                world.setBlock(pos, state.setValue(POWERED, Boolean.valueOf(bl)).setValue(OPEN, Boolean.valueOf(bl)), 2);
+-                if (state.getValue(OPEN) != bl) {
+-                    world.levelEvent((Player)null, bl ? 1008 : 1014, pos, 0);
+-                    world.gameEvent((Entity)null, bl ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
++            boolean flag1 = world.hasNeighborSignal(pos);
++            // CraftBukkit start
++            boolean oldPowered = state.getValue(FenceGateBlock.POWERED);
++            if (oldPowered != flag1) {
++                int newPower = flag1 ? 15 : 0;
++                int oldPower = oldPowered ? 15 : 0;
++                org.bukkit.block.Block bukkitBlock = org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, pos);
++                org.bukkit.event.block.BlockRedstoneEvent eventRedstone = new org.bukkit.event.block.BlockRedstoneEvent(bukkitBlock, oldPower, newPower);
++                world.getCraftServer().getPluginManager().callEvent(eventRedstone);
++                flag1 = eventRedstone.getNewCurrent() > 0;
++            }
++            // CraftBukkit end
++
++            if ((Boolean) state.getValue(FenceGateBlock.POWERED) != flag1) {
++                world.setBlock(pos, (BlockState) ((BlockState) state.setValue(FenceGateBlock.POWERED, flag1)).setValue(FenceGateBlock.OPEN, flag1), 2);
++                if ((Boolean) state.getValue(FenceGateBlock.OPEN) != flag1) {
++                    world.levelEvent((Player) null, flag1 ? 1008 : 1014, pos, 0);
++                    world.gameEvent((Entity) null, flag1 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
+                 }
+             }
+ 
+@@ -148,10 +154,10 @@
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(FACING, OPEN, POWERED, IN_WALL);
++        builder.add(FenceGateBlock.FACING, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL);
+     }
+ 
+     public static boolean connectsToDirection(BlockState state, Direction side) {
+-        return state.getValue(FACING).getAxis() == side.getClockWise().getAxis();
++        return ((Direction) state.getValue(FenceGateBlock.FACING)).getAxis() == side.getClockWise().getAxis();
+     }
+ }

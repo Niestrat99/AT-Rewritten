@@ -1,0 +1,129 @@
+--- a/net/minecraft/world/entity/EntitySelector.java
++++ b/net/minecraft/world/entity/EntitySelector.java
+@@ -9,6 +9,7 @@
+ import net.minecraft.world.scores.Team;
+ 
+ public final class EntitySelector {
++
+     public static final Predicate<Entity> ENTITY_STILL_ALIVE = Entity::isAlive;
+     public static final Predicate<Entity> LIVING_ENTITY_STILL_ALIVE = (entity) -> {
+         return entity.isAlive() && entity instanceof LivingEntity;
+@@ -20,54 +21,65 @@
+         return entity instanceof Container && entity.isAlive();
+     };
+     public static final Predicate<Entity> NO_CREATIVE_OR_SPECTATOR = (entity) -> {
+-        return !(entity instanceof Player) || !entity.isSpectator() && !((Player)entity).isCreative();
++        return !(entity instanceof Player) || !entity.isSpectator() && !((Player) entity).isCreative();
+     };
+     public static final Predicate<Entity> NO_SPECTATORS = (entity) -> {
+         return !entity.isSpectator();
+     };
+-    public static final Predicate<Entity> CAN_BE_COLLIDED_WITH = NO_SPECTATORS.and(Entity::canBeCollidedWith);
++    public static final Predicate<Entity> CAN_BE_COLLIDED_WITH = EntitySelector.NO_SPECTATORS.and(Entity::canBeCollidedWith);
++    public static Predicate<Player> isInsomniac = (player) -> net.minecraft.util.Mth.clamp(((net.minecraft.server.level.ServerPlayer) player).getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.TIME_SINCE_REST)), 1, Integer.MAX_VALUE) >= 72000; // Paper
+ 
+-    private EntitySelector() {
+-    }
++    private EntitySelector() {}
++    // Paper start
++    public static final Predicate<Entity> affectsSpawning = (entity) -> {
++        return !entity.isSpectator() && entity.isAlive() && (entity instanceof net.minecraft.server.level.ServerPlayer) && ((net.minecraft.server.level.ServerPlayer) entity).affectsSpawning;
++    };
++    // Paper end
+ 
+     public static Predicate<Entity> withinDistance(double x, double y, double z, double max) {
+-        double d = max * max;
++        double d4 = max * max;
++
+         return (entity) -> {
+-            return entity != null && entity.distanceToSqr(x, y, z) <= d;
++            return entity != null && entity.distanceToSqr(x, y, z) <= d4;
+         };
+     }
+ 
+     public static Predicate<Entity> pushableBy(Entity entity) {
+-        Team team = entity.getTeam();
+-        Team.CollisionRule collisionRule = team == null ? Team.CollisionRule.ALWAYS : team.getCollisionRule();
+-        return (Predicate<Entity>)(collisionRule == Team.CollisionRule.NEVER ? Predicates.alwaysFalse() : NO_SPECTATORS.and((entityx) -> {
+-            if (!entityx.isPushable()) {
++        // Paper start - ignoreClimbing param
++        return pushable(entity, false);
++    }
++
++    public static Predicate<Entity> pushable(Entity entity, boolean ignoreClimbing) {
++        // Paper end
++        Team scoreboardteambase = entity.getTeam();
++        Team.CollisionRule scoreboardteambase_enumteampush = scoreboardteambase == null ? Team.CollisionRule.ALWAYS : scoreboardteambase.getCollisionRule();
++
++        return (Predicate) (scoreboardteambase_enumteampush == Team.CollisionRule.NEVER ? Predicates.alwaysFalse() : EntitySelector.NO_SPECTATORS.and((entity1) -> {
++            if (!entity1.isCollidable(ignoreClimbing) || !entity1.canCollideWithBukkit(entity) || !entity.canCollideWithBukkit(entity1)) { // CraftBukkit - collidable API // Paper - isCollidable
+                 return false;
+-            } else if (!entity.level.isClientSide || entityx instanceof Player && ((Player)entityx).isLocalPlayer()) {
+-                Team team2 = entityx.getTeam();
+-                Team.CollisionRule collisionRule2 = team2 == null ? Team.CollisionRule.ALWAYS : team2.getCollisionRule();
+-                if (collisionRule2 == Team.CollisionRule.NEVER) {
++            } else if (entity.level.isClientSide && (!(entity1 instanceof Player) || !((Player) entity1).isLocalPlayer())) {
++                return false;
++            } else {
++                Team scoreboardteambase1 = entity1.getTeam();
++                Team.CollisionRule scoreboardteambase_enumteampush1 = scoreboardteambase1 == null ? Team.CollisionRule.ALWAYS : scoreboardteambase1.getCollisionRule();
++
++                if (scoreboardteambase_enumteampush1 == Team.CollisionRule.NEVER) {
+                     return false;
+                 } else {
+-                    boolean bl = team != null && team.isAlliedTo(team2);
+-                    if ((collisionRule == Team.CollisionRule.PUSH_OWN_TEAM || collisionRule2 == Team.CollisionRule.PUSH_OWN_TEAM) && bl) {
+-                        return false;
+-                    } else {
+-                        return collisionRule != Team.CollisionRule.PUSH_OTHER_TEAMS && collisionRule2 != Team.CollisionRule.PUSH_OTHER_TEAMS || bl;
+-                    }
++                    boolean flag = scoreboardteambase != null && scoreboardteambase.isAlliedTo(scoreboardteambase1);
++
++                    return (scoreboardteambase_enumteampush == Team.CollisionRule.PUSH_OWN_TEAM || scoreboardteambase_enumteampush1 == Team.CollisionRule.PUSH_OWN_TEAM) && flag ? false : scoreboardteambase_enumteampush != Team.CollisionRule.PUSH_OTHER_TEAMS && scoreboardteambase_enumteampush1 != Team.CollisionRule.PUSH_OTHER_TEAMS || flag;
+                 }
+-            } else {
+-                return false;
+             }
+         }));
+     }
+ 
+     public static Predicate<Entity> notRiding(Entity entity) {
+-        return (entity2) -> {
+-            while(true) {
+-                if (entity2.isPassenger()) {
+-                    entity2 = entity2.getVehicle();
+-                    if (entity2 != entity) {
++        return (entity1) -> {
++            while (true) {
++                if (entity1.isPassenger()) {
++                    entity1 = entity1.getVehicle();
++                    if (entity1 != entity) {
+                         continue;
+                     }
+ 
+@@ -80,21 +92,22 @@
+     }
+ 
+     public static class MobCanWearArmorEntitySelector implements Predicate<Entity> {
++
+         private final ItemStack itemStack;
+ 
+         public MobCanWearArmorEntitySelector(ItemStack stack) {
+             this.itemStack = stack;
+         }
+ 
+-        @Override
+         public boolean test(@Nullable Entity entity) {
+             if (!entity.isAlive()) {
+                 return false;
+             } else if (!(entity instanceof LivingEntity)) {
+                 return false;
+             } else {
+-                LivingEntity livingEntity = (LivingEntity)entity;
+-                return livingEntity.canTakeItem(this.itemStack);
++                LivingEntity entityliving = (LivingEntity) entity;
++
++                return entityliving.canTakeItem(this.itemStack);
+             }
+         }
+     }

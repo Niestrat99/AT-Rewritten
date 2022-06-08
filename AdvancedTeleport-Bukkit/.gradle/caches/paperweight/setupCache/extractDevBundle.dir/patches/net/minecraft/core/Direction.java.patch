@@ -1,0 +1,45 @@
+--- a/net/minecraft/core/Direction.java
++++ b/net/minecraft/core/Direction.java
+@@ -61,6 +61,11 @@
+     }, (direction1, direction2) -> {
+         throw new IllegalArgumentException("Duplicate keys");
+     }, Long2ObjectOpenHashMap::new));
++    // Paper start
++    private final int adjX;
++    private final int adjY;
++    private final int adjZ;
++    // Paper end
+ 
+     private Direction(int id, int idOpposite, int idHorizontal, String name, Direction.AxisDirection direction, Direction.Axis axis, Vec3i vector) {
+         this.data3d = id;
+@@ -70,6 +75,11 @@
+         this.axis = axis;
+         this.axisDirection = direction;
+         this.normal = vector;
++        // Paper start
++        this.adjX = vector.getX();
++        this.adjY = vector.getY();
++        this.adjZ = vector.getZ();
++        // Paper end
+     }
+ 
+     public static Direction[] orderedByNearest(Entity entity) {
+@@ -362,15 +372,15 @@
+     }
+ 
+     public int getStepX() {
+-        return this.normal.getX();
++        return this.adjX; // Paper
+     }
+ 
+     public int getStepY() {
+-        return this.normal.getY();
++        return this.adjY; // Paper
+     }
+ 
+     public int getStepZ() {
+-        return this.normal.getZ();
++        return this.adjZ; // Paper
+     }
+ 
+     public Vector3f step() {

@@ -1,0 +1,243 @@
+--- a/net/minecraft/world/level/block/ButtonBlock.java
++++ b/net/minecraft/world/level/block/ButtonBlock.java
+@@ -26,8 +26,13 @@
+ import net.minecraft.world.phys.BlockHitResult;
+ import net.minecraft.world.phys.shapes.CollisionContext;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++// CraftBukkit start
++import org.bukkit.event.block.BlockRedstoneEvent;
++import org.bukkit.event.entity.EntityInteractEvent;
++// CraftBukkit end
+ 
+ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock {
++
+     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+     private static final int PRESSED_DEPTH = 1;
+     private static final int UNPRESSED_DEPTH = 2;
+@@ -53,7 +58,7 @@
+ 
+     protected ButtonBlock(boolean wooden, BlockBehaviour.Properties settings) {
+         super(settings);
+-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, Boolean.valueOf(false)).setValue(FACE, AttachFace.WALL));
++        this.registerDefaultState((BlockState) ((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(ButtonBlock.FACING, Direction.NORTH)).setValue(ButtonBlock.POWERED, false)).setValue(ButtonBlock.FACE, AttachFace.WALL));
+         this.sensitive = wooden;
+     }
+ 
+@@ -63,53 +68,63 @@
+ 
+     @Override
+     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+-        Direction direction = state.getValue(FACING);
+-        boolean bl = state.getValue(POWERED);
+-        switch ((AttachFace)state.getValue(FACE)) {
++        Direction enumdirection = (Direction) state.getValue(ButtonBlock.FACING);
++        boolean flag = (Boolean) state.getValue(ButtonBlock.POWERED);
++
++        switch ((AttachFace) state.getValue(ButtonBlock.FACE)) {
+             case FLOOR:
+-                if (direction.getAxis() == Direction.Axis.X) {
+-                    return bl ? PRESSED_FLOOR_AABB_X : FLOOR_AABB_X;
++                if (enumdirection.getAxis() == Direction.Axis.X) {
++                    return flag ? ButtonBlock.PRESSED_FLOOR_AABB_X : ButtonBlock.FLOOR_AABB_X;
+                 }
+ 
+-                return bl ? PRESSED_FLOOR_AABB_Z : FLOOR_AABB_Z;
++                return flag ? ButtonBlock.PRESSED_FLOOR_AABB_Z : ButtonBlock.FLOOR_AABB_Z;
+             case WALL:
+-                switch (direction) {
++                switch (enumdirection) {
+                     case EAST:
+-                        return bl ? PRESSED_EAST_AABB : EAST_AABB;
++                        return flag ? ButtonBlock.PRESSED_EAST_AABB : ButtonBlock.EAST_AABB;
+                     case WEST:
+-                        return bl ? PRESSED_WEST_AABB : WEST_AABB;
++                        return flag ? ButtonBlock.PRESSED_WEST_AABB : ButtonBlock.WEST_AABB;
+                     case SOUTH:
+-                        return bl ? PRESSED_SOUTH_AABB : SOUTH_AABB;
++                        return flag ? ButtonBlock.PRESSED_SOUTH_AABB : ButtonBlock.SOUTH_AABB;
+                     case NORTH:
+                     default:
+-                        return bl ? PRESSED_NORTH_AABB : NORTH_AABB;
++                        return flag ? ButtonBlock.PRESSED_NORTH_AABB : ButtonBlock.NORTH_AABB;
+                 }
+             case CEILING:
+             default:
+-                if (direction.getAxis() == Direction.Axis.X) {
+-                    return bl ? PRESSED_CEILING_AABB_X : CEILING_AABB_X;
+-                } else {
+-                    return bl ? PRESSED_CEILING_AABB_Z : CEILING_AABB_Z;
+-                }
++                return enumdirection.getAxis() == Direction.Axis.X ? (flag ? ButtonBlock.PRESSED_CEILING_AABB_X : ButtonBlock.CEILING_AABB_X) : (flag ? ButtonBlock.PRESSED_CEILING_AABB_Z : ButtonBlock.CEILING_AABB_Z);
+         }
+     }
+ 
+     @Override
+     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+-        if (state.getValue(POWERED)) {
++        if ((Boolean) state.getValue(ButtonBlock.POWERED)) {
+             return InteractionResult.CONSUME;
+         } else {
++            // CraftBukkit start
++            boolean powered = ((Boolean) state.getValue(POWERED));
++            org.bukkit.block.Block block = world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
++            int old = (powered) ? 15 : 0;
++            int current = (!powered) ? 15 : 0;
++
++            BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(block, old, current);
++            world.getCraftServer().getPluginManager().callEvent(eventRedstone);
++
++            if ((eventRedstone.getNewCurrent() > 0) != (!powered)) {
++                return InteractionResult.SUCCESS;
++            }
++            // CraftBukkit end
+             this.press(state, world, pos);
+             this.playSound(player, world, pos, true);
+-            world.gameEvent(player, GameEvent.BLOCK_ACTIVATE, pos);
++            world.gameEvent((Entity) player, GameEvent.BLOCK_ACTIVATE, pos);
+             return InteractionResult.sidedSuccess(world.isClientSide);
+         }
+     }
+ 
+     public void press(BlockState state, Level world, BlockPos pos) {
+-        world.setBlock(pos, state.setValue(POWERED, Boolean.valueOf(true)), 3);
++        world.setBlock(pos, (BlockState) state.setValue(ButtonBlock.POWERED, true), 3);
+         this.updateNeighbours(state, world, pos);
+-        world.scheduleTick(pos, this, this.getPressDuration());
++        world.scheduleTick(pos, (Block) this, this.getPressDuration());
+     }
+ 
+     protected void playSound(@Nullable Player player, LevelAccessor world, BlockPos pos, boolean powered) {
+@@ -121,7 +136,7 @@
+     @Override
+     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
+         if (!moved && !state.is(newState.getBlock())) {
+-            if (state.getValue(POWERED)) {
++            if ((Boolean) state.getValue(ButtonBlock.POWERED)) {
+                 this.updateNeighbours(state, world, pos);
+             }
+ 
+@@ -131,12 +146,12 @@
+ 
+     @Override
+     public int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
+-        return state.getValue(POWERED) ? 15 : 0;
++        return (Boolean) state.getValue(ButtonBlock.POWERED) ? 15 : 0;
+     }
+ 
+     @Override
+     public int getDirectSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
+-        return state.getValue(POWERED) && getConnectedDirection(state) == direction ? 15 : 0;
++        return (Boolean) state.getValue(ButtonBlock.POWERED) && getConnectedDirection(state) == direction ? 15 : 0;
+     }
+ 
+     @Override
+@@ -146,14 +161,24 @@
+ 
+     @Override
+     public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+-        if (state.getValue(POWERED)) {
++        if ((Boolean) state.getValue(ButtonBlock.POWERED)) {
+             if (this.sensitive) {
+                 this.checkPressed(state, world, pos);
+             } else {
+-                world.setBlock(pos, state.setValue(POWERED, Boolean.valueOf(false)), 3);
++                // CraftBukkit start
++                org.bukkit.block.Block block = world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
++
++                BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(block, 15, 0);
++                world.getCraftServer().getPluginManager().callEvent(eventRedstone);
++
++                if (eventRedstone.getNewCurrent() > 0) {
++                    return;
++                }
++                // CraftBukkit end
++                world.setBlock(pos, (BlockState) state.setValue(ButtonBlock.POWERED, false), 3);
+                 this.updateNeighbours(state, world, pos);
+-                this.playSound((Player)null, world, pos, false);
+-                world.gameEvent((Entity)null, GameEvent.BLOCK_DEACTIVATE, pos);
++                this.playSound((Player) null, world, pos, false);
++                world.gameEvent((Entity) null, GameEvent.BLOCK_DEACTIVATE, pos);
+             }
+ 
+         }
+@@ -161,24 +186,63 @@
+ 
+     @Override
+     public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
+-        if (!world.isClientSide && this.sensitive && !state.getValue(POWERED)) {
++        if (!new io.papermc.paper.event.entity.EntityInsideBlockEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, pos)).callEvent()) { return; } // Paper
++        if (!world.isClientSide && this.sensitive && !(Boolean) state.getValue(ButtonBlock.POWERED)) {
+             this.checkPressed(state, world, pos);
+         }
+     }
+ 
+     private void checkPressed(BlockState state, Level world, BlockPos pos) {
+         List<? extends Entity> list = world.getEntitiesOfClass(AbstractArrow.class, state.getShape(world, pos).bounds().move(pos));
+-        boolean bl = !list.isEmpty();
+-        boolean bl2 = state.getValue(POWERED);
+-        if (bl != bl2) {
+-            world.setBlock(pos, state.setValue(POWERED, Boolean.valueOf(bl)), 3);
++        boolean flag = !list.isEmpty();
++        boolean flag1 = (Boolean) state.getValue(ButtonBlock.POWERED);
++
++        // CraftBukkit start - Call interact event when arrows turn on wooden buttons
++        if (flag1 != flag && flag) {
++            org.bukkit.block.Block block = world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
++            boolean allowed = false;
++
++            // If all of the events are cancelled block the button press, else allow
++            for (Object object : list) {
++                if (object != null) {
++                    EntityInteractEvent event = new EntityInteractEvent(((Entity) object).getBukkitEntity(), block);
++                    world.getCraftServer().getPluginManager().callEvent(event);
++
++                    if (!event.isCancelled()) {
++                        allowed = true;
++                        break;
++                    }
++                }
++            }
++
++            if (!allowed) {
++                return;
++            }
++        }
++        // CraftBukkit end
++
++        if (flag != flag1) {
++            // CraftBukkit start
++            boolean powered = flag1;
++            org.bukkit.block.Block block = world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
++            int old = (powered) ? 15 : 0;
++            int current = (!powered) ? 15 : 0;
++
++            BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(block, old, current);
++            world.getCraftServer().getPluginManager().callEvent(eventRedstone);
++
++            if ((flag && eventRedstone.getNewCurrent() <= 0) || (!flag && eventRedstone.getNewCurrent() > 0)) {
++                return;
++            }
++            // CraftBukkit end
++            world.setBlock(pos, (BlockState) state.setValue(ButtonBlock.POWERED, flag), 3);
+             this.updateNeighbours(state, world, pos);
+-            this.playSound((Player)null, world, pos, bl);
+-            world.gameEvent(list.stream().findFirst().orElse((Entity)null), bl ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, pos);
++            this.playSound((Player) null, world, pos, flag);
++            world.gameEvent((Entity) list.stream().findFirst().orElse(null), flag ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, pos); // CraftBukkit - decompile error
+         }
+ 
+-        if (bl) {
+-            world.scheduleTick(new BlockPos(pos), this, this.getPressDuration());
++        if (flag) {
++            world.scheduleTick(new BlockPos(pos), (Block) this, this.getPressDuration());
+         }
+ 
+     }
+@@ -190,6 +254,6 @@
+ 
+     @Override
+     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+-        builder.add(FACING, POWERED, FACE);
++        builder.add(ButtonBlock.FACING, ButtonBlock.POWERED, ButtonBlock.FACE);
+     }
+ }

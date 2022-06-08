@@ -1,0 +1,546 @@
+--- a/net/minecraft/world/level/border/WorldBorder.java
++++ b/net/minecraft/world/level/border/WorldBorder.java
+@@ -2,6 +2,7 @@
+ 
+ import com.google.common.collect.Lists;
+ import com.mojang.serialization.DynamicLike;
++import java.util.Iterator;
+ import java.util.List;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
+@@ -15,6 +16,7 @@
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ 
+ public class WorldBorder {
++
+     public static final double MAX_SIZE = 5.9999968E7D;
+     public static final double MAX_CENTER_COORDINATE = 2.9999984E7D;
+     private final List<BorderChangeListener> listeners = Lists.newArrayList();
+@@ -27,13 +29,28 @@
+     int absoluteMaxSize = 29999984;
+     private WorldBorder.BorderExtent extent = new WorldBorder.StaticBorderExtent(5.9999968E7D);
+     public static final WorldBorder.Settings DEFAULT_SETTINGS = new WorldBorder.Settings(0.0D, 0.0D, 0.2D, 5.0D, 5, 15, 5.9999968E7D, 0L, 0.0D);
++    public net.minecraft.server.level.ServerLevel world; // CraftBukkit
++
++    public WorldBorder() {}
+ 
+     public boolean isWithinBounds(BlockPos pos) {
+-        return (double)(pos.getX() + 1) > this.getMinX() && (double)pos.getX() < this.getMaxX() && (double)(pos.getZ() + 1) > this.getMinZ() && (double)pos.getZ() < this.getMaxZ();
++        return (double) (pos.getX() + 1) > this.getMinX() && (double) pos.getX() < this.getMaxX() && (double) (pos.getZ() + 1) > this.getMinZ() && (double) pos.getZ() < this.getMaxZ();
+     }
+ 
++    // Paper start
++    private final BlockPos.MutableBlockPos mutPos = new BlockPos.MutableBlockPos();
++    public boolean isBlockInBounds(int chunkX, int chunkZ) {
++        this.mutPos.set(chunkX, 64, chunkZ);
++        return this.isWithinBounds(this.mutPos);
++    }
++    public boolean isChunkInBounds(int chunkX, int chunkZ) {
++        this.mutPos.set(((chunkX << 4) + 15), 64, (chunkZ << 4) + 15);
++        return this.isWithinBounds(this.mutPos);
++    }
++    // Paper end
++
+     public boolean isWithinBounds(ChunkPos pos) {
+-        return (double)pos.getMaxBlockX() > this.getMinX() && (double)pos.getMinBlockX() < this.getMaxX() && (double)pos.getMaxBlockZ() > this.getMinZ() && (double)pos.getMinBlockZ() < this.getMaxZ();
++        return (double) pos.getMaxBlockX() > this.getMinX() && (double) pos.getMinBlockX() < this.getMaxX() && (double) pos.getMaxBlockZ() > this.getMinZ() && (double) pos.getMinBlockZ() < this.getMaxZ();
+     }
+ 
+     public boolean isWithinBounds(double x, double z) {
+@@ -61,18 +78,20 @@
+     }
+ 
+     public double getDistanceToBorder(double x, double z) {
+-        double d = z - this.getMinZ();
+-        double e = this.getMaxZ() - z;
+-        double f = x - this.getMinX();
+-        double g = this.getMaxX() - x;
+-        double h = Math.min(f, g);
+-        h = Math.min(h, d);
+-        return Math.min(h, e);
++        double d2 = z - this.getMinZ();
++        double d3 = this.getMaxZ() - z;
++        double d4 = x - this.getMinX();
++        double d5 = this.getMaxX() - x;
++        double d6 = Math.min(d4, d5);
++
++        d6 = Math.min(d6, d2);
++        return Math.min(d6, d3);
+     }
+ 
+     public boolean isInsideCloseToBorder(Entity entity, AABB box) {
+-        double d = Math.max(Mth.absMax(box.getXsize(), box.getZsize()), 1.0D);
+-        return this.getDistanceToBorder(entity) < d * 2.0D && this.isWithinBounds(entity.getX(), entity.getZ(), d);
++        double d0 = Math.max(Mth.absMax(box.getXsize(), box.getZsize()), 1.0D);
++
++        return this.getDistanceToBorder(entity) < d0 * 2.0D && this.isWithinBounds(entity.getX(), entity.getZ(), d0);
+     }
+ 
+     public BorderStatus getStatus() {
+@@ -104,12 +123,23 @@
+     }
+ 
+     public void setCenter(double x, double z) {
++        // Paper start
++        if (this.world != null) {
++            io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent event = new io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent(world.getWorld(), world.getWorld().getWorldBorder(), new org.bukkit.Location(world.getWorld(), this.getCenterX(), 0, this.getCenterZ()), new org.bukkit.Location(world.getWorld(), x, 0, z));
++            if (!event.callEvent()) return;
++            x = event.getNewCenter().getX();
++            z = event.getNewCenter().getZ();
++        }
++        // Paper end
+         this.centerX = x;
+         this.centerZ = z;
+         this.extent.onCenterChange();
++        Iterator iterator = this.getListeners().iterator();
+ 
+-        for(BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderCenterSet(this, x, z);
++        while (iterator.hasNext()) {
++            BorderChangeListener iworldborderlistener = (BorderChangeListener) iterator.next();
++
++            iworldborderlistener.onBorderCenterSet(this, x, z);
+         }
+ 
+     }
+@@ -127,19 +157,50 @@
+     }
+ 
+     public void setSize(double size) {
++        // Paper start
++        if (this.world != null) {
++            io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent event = new io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent(world.getWorld(), world.getWorld().getWorldBorder(), io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent.Type.INSTANT_MOVE, getSize(), size, 0);
++            if (!event.callEvent()) return;
++            if (event.getType() == io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent.Type.STARTED_MOVE && event.getDuration() > 0) { // If changed to a timed transition
++                lerpSizeBetween(event.getOldSize(), event.getNewSize(), event.getDuration());
++                return;
++            }
++            size = event.getNewSize();
++        }
++        // Paper end
+         this.extent = new WorldBorder.StaticBorderExtent(size);
++        Iterator iterator = this.getListeners().iterator();
+ 
+-        for(BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSizeSet(this, size);
++        while (iterator.hasNext()) {
++            BorderChangeListener iworldborderlistener = (BorderChangeListener) iterator.next();
++
++            iworldborderlistener.onBorderSizeSet(this, size);
+         }
+ 
+     }
+ 
+     public void lerpSizeBetween(double fromSize, double toSize, long time) {
+-        this.extent = (WorldBorder.BorderExtent)(fromSize == toSize ? new WorldBorder.StaticBorderExtent(toSize) : new WorldBorder.MovingBorderExtent(fromSize, toSize, time));
++        // Paper start
++        if (this.world != null) {
++            io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent.Type type;
++            if (fromSize == toSize) { // new size = old size
++                type = io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent.Type.INSTANT_MOVE; // Use INSTANT_MOVE because below it creates a Static border if they are equal.
++            } else {
++                type = io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent.Type.STARTED_MOVE;
++            }
++            io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent event = new io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent(world.getWorld(), world.getWorld().getWorldBorder(), type, fromSize, toSize, time);
++            if (!event.callEvent()) return;
++            toSize = event.getNewSize();
++            time = event.getDuration();
++        }
++        // Paper end
++        this.extent = (WorldBorder.BorderExtent) (fromSize == toSize ? new WorldBorder.StaticBorderExtent(toSize) : new WorldBorder.MovingBorderExtent(fromSize, toSize, time));
++        Iterator iterator = this.getListeners().iterator();
+ 
+-        for(BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSizeLerping(this, fromSize, toSize, time);
++        while (iterator.hasNext()) {
++            BorderChangeListener iworldborderlistener = (BorderChangeListener) iterator.next();
++
++            iworldborderlistener.onBorderSizeLerping(this, fromSize, toSize, time);
+         }
+ 
+     }
+@@ -149,6 +210,7 @@
+     }
+ 
+     public void addListener(BorderChangeListener listener) {
++        if (this.listeners.contains(listener)) return; // CraftBukkit
+         this.listeners.add(listener);
+     }
+ 
+@@ -171,9 +233,12 @@
+ 
+     public void setDamageSafeZone(double safeZone) {
+         this.damageSafeZone = safeZone;
++        Iterator iterator = this.getListeners().iterator();
+ 
+-        for(BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSetDamageSafeZOne(this, safeZone);
++        while (iterator.hasNext()) {
++            BorderChangeListener iworldborderlistener = (BorderChangeListener) iterator.next();
++
++            iworldborderlistener.onBorderSetDamageSafeZOne(this, safeZone);
+         }
+ 
+     }
+@@ -184,9 +249,12 @@
+ 
+     public void setDamagePerBlock(double damagePerBlock) {
+         this.damagePerBlock = damagePerBlock;
++        Iterator iterator = this.getListeners().iterator();
+ 
+-        for(BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSetDamagePerBlock(this, damagePerBlock);
++        while (iterator.hasNext()) {
++            BorderChangeListener iworldborderlistener = (BorderChangeListener) iterator.next();
++
++            iworldborderlistener.onBorderSetDamagePerBlock(this, damagePerBlock);
+         }
+ 
+     }
+@@ -201,9 +269,12 @@
+ 
+     public void setWarningTime(int warningTime) {
+         this.warningTime = warningTime;
++        Iterator iterator = this.getListeners().iterator();
+ 
+-        for(BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSetWarningTime(this, warningTime);
++        while (iterator.hasNext()) {
++            BorderChangeListener iworldborderlistener = (BorderChangeListener) iterator.next();
++
++            iworldborderlistener.onBorderSetWarningTime(this, warningTime);
+         }
+ 
+     }
+@@ -214,9 +285,12 @@
+ 
+     public void setWarningBlocks(int warningBlocks) {
+         this.warningBlocks = warningBlocks;
++        Iterator iterator = this.getListeners().iterator();
+ 
+-        for(BorderChangeListener borderChangeListener : this.getListeners()) {
+-            borderChangeListener.onBorderSetWarningBlocks(this, warningBlocks);
++        while (iterator.hasNext()) {
++            BorderChangeListener iworldborderlistener = (BorderChangeListener) iterator.next();
++
++            iworldborderlistener.onBorderSetWarningBlocks(this, warningBlocks);
+         }
+ 
+     }
+@@ -243,7 +317,96 @@
+ 
+     }
+ 
+-    interface BorderExtent {
++    private class StaticBorderExtent implements WorldBorder.BorderExtent {
++
++        private final double size;
++        private double minX;
++        private double minZ;
++        private double maxX;
++        private double maxZ;
++        private VoxelShape shape;
++
++        public StaticBorderExtent(double d0) {
++            this.size = d0;
++            this.updateBox();
++        }
++
++        @Override
++        public double getMinX() {
++            return this.minX;
++        }
++
++        @Override
++        public double getMaxX() {
++            return this.maxX;
++        }
++
++        @Override
++        public double getMinZ() {
++            return this.minZ;
++        }
++
++        @Override
++        public double getMaxZ() {
++            return this.maxZ;
++        }
++
++        @Override
++        public double getSize() {
++            return this.size;
++        }
++
++        @Override
++        public BorderStatus getStatus() {
++            return BorderStatus.STATIONARY;
++        }
++
++        @Override
++        public double getLerpSpeed() {
++            return 0.0D;
++        }
++
++        @Override
++        public long getLerpRemainingTime() {
++            return 0L;
++        }
++
++        @Override
++        public double getLerpTarget() {
++            return this.size;
++        }
++
++        private void updateBox() {
++            this.minX = Mth.clamp(WorldBorder.this.getCenterX() - this.size / 2.0D, (double) (-WorldBorder.this.absoluteMaxSize), (double) WorldBorder.this.absoluteMaxSize);
++            this.minZ = Mth.clamp(WorldBorder.this.getCenterZ() - this.size / 2.0D, (double) (-WorldBorder.this.absoluteMaxSize), (double) WorldBorder.this.absoluteMaxSize);
++            this.maxX = Mth.clamp(WorldBorder.this.getCenterX() + this.size / 2.0D, (double) (-WorldBorder.this.absoluteMaxSize), (double) WorldBorder.this.absoluteMaxSize);
++            this.maxZ = Mth.clamp(WorldBorder.this.getCenterZ() + this.size / 2.0D, (double) (-WorldBorder.this.absoluteMaxSize), (double) WorldBorder.this.absoluteMaxSize);
++            this.shape = Shapes.join(Shapes.INFINITY, Shapes.box(Math.floor(this.getMinX()), Double.NEGATIVE_INFINITY, Math.floor(this.getMinZ()), Math.ceil(this.getMaxX()), Double.POSITIVE_INFINITY, Math.ceil(this.getMaxZ())), BooleanOp.ONLY_FIRST);
++        }
++
++        @Override
++        public void onAbsoluteMaxSizeChange() {
++            this.updateBox();
++        }
++
++        @Override
++        public void onCenterChange() {
++            this.updateBox();
++        }
++
++        @Override
++        public WorldBorder.BorderExtent update() {
++            return this;
++        }
++
++        @Override
++        public VoxelShape getCollisionShape() {
++            return this.shape;
++        }
++    }
++
++    private interface BorderExtent {
++
+         double getMinX();
+ 
+         double getMaxX();
+@@ -271,50 +434,52 @@
+         VoxelShape getCollisionShape();
+     }
+ 
+-    class MovingBorderExtent implements WorldBorder.BorderExtent {
++    private class MovingBorderExtent implements WorldBorder.BorderExtent {
++
+         private final double from;
+         private final double to;
+         private final long lerpEnd;
+         private final long lerpBegin;
+         private final double lerpDuration;
+ 
+-        MovingBorderExtent(double oldSize, double newSize, long timeDuration) {
+-            this.from = oldSize;
+-            this.to = newSize;
+-            this.lerpDuration = (double)timeDuration;
++        MovingBorderExtent(double d0, double d1, long i) {
++            this.from = d0;
++            this.to = d1;
++            this.lerpDuration = (double) i;
+             this.lerpBegin = Util.getMillis();
+-            this.lerpEnd = this.lerpBegin + timeDuration;
++            this.lerpEnd = this.lerpBegin + i;
+         }
+ 
+         @Override
+         public double getMinX() {
+-            return Mth.clamp(WorldBorder.this.getCenterX() - this.getSize() / 2.0D, (double)(-WorldBorder.this.absoluteMaxSize), (double)WorldBorder.this.absoluteMaxSize);
++            return Mth.clamp(WorldBorder.this.getCenterX() - this.getSize() / 2.0D, (double) (-WorldBorder.this.absoluteMaxSize), (double) WorldBorder.this.absoluteMaxSize);
+         }
+ 
+         @Override
+         public double getMinZ() {
+-            return Mth.clamp(WorldBorder.this.getCenterZ() - this.getSize() / 2.0D, (double)(-WorldBorder.this.absoluteMaxSize), (double)WorldBorder.this.absoluteMaxSize);
++            return Mth.clamp(WorldBorder.this.getCenterZ() - this.getSize() / 2.0D, (double) (-WorldBorder.this.absoluteMaxSize), (double) WorldBorder.this.absoluteMaxSize);
+         }
+ 
+         @Override
+         public double getMaxX() {
+-            return Mth.clamp(WorldBorder.this.getCenterX() + this.getSize() / 2.0D, (double)(-WorldBorder.this.absoluteMaxSize), (double)WorldBorder.this.absoluteMaxSize);
++            return Mth.clamp(WorldBorder.this.getCenterX() + this.getSize() / 2.0D, (double) (-WorldBorder.this.absoluteMaxSize), (double) WorldBorder.this.absoluteMaxSize);
+         }
+ 
+         @Override
+         public double getMaxZ() {
+-            return Mth.clamp(WorldBorder.this.getCenterZ() + this.getSize() / 2.0D, (double)(-WorldBorder.this.absoluteMaxSize), (double)WorldBorder.this.absoluteMaxSize);
++            return Mth.clamp(WorldBorder.this.getCenterZ() + this.getSize() / 2.0D, (double) (-WorldBorder.this.absoluteMaxSize), (double) WorldBorder.this.absoluteMaxSize);
+         }
+ 
+         @Override
+         public double getSize() {
+-            double d = (double)(Util.getMillis() - this.lerpBegin) / this.lerpDuration;
+-            return d < 1.0D ? Mth.lerp(d, this.from, this.to) : this.to;
++            double d0 = (double) (Util.getMillis() - this.lerpBegin) / this.lerpDuration;
++
++            return d0 < 1.0D ? Mth.lerp(d0, this.from, this.to) : this.to;
+         }
+ 
+         @Override
+         public double getLerpSpeed() {
+-            return Math.abs(this.from - this.to) / (double)(this.lerpEnd - this.lerpBegin);
++            return Math.abs(this.from - this.to) / (double) (this.lerpEnd - this.lerpBegin);
+         }
+ 
+         @Override
+@@ -333,16 +498,15 @@
+         }
+ 
+         @Override
+-        public void onCenterChange() {
+-        }
++        public void onCenterChange() {}
+ 
+         @Override
+-        public void onAbsoluteMaxSizeChange() {
+-        }
++        public void onAbsoluteMaxSizeChange() {}
+ 
+         @Override
+         public WorldBorder.BorderExtent update() {
+-            return (WorldBorder.BorderExtent)(this.getLerpRemainingTime() <= 0L ? WorldBorder.this.new StaticBorderExtent(this.to) : this);
++            if (world != null && this.getLerpRemainingTime() <= 0L) new io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent(world.getWorld(), world.getWorld().getWorldBorder(), this.from, this.to, this.lerpDuration).callEvent(); // Paper
++            return (WorldBorder.BorderExtent) (this.getLerpRemainingTime() <= 0L ? WorldBorder.this.new StaticBorderExtent(this.to) : this);
+         }
+ 
+         @Override
+@@ -352,6 +516,7 @@
+     }
+ 
+     public static class Settings {
++
+         private final double centerX;
+         private final double centerZ;
+         private final double damagePerBlock;
+@@ -423,16 +588,17 @@
+         }
+ 
+         public static WorldBorder.Settings read(DynamicLike<?> dynamic, WorldBorder.Settings properties) {
+-            double d = Mth.clamp(dynamic.get("BorderCenterX").asDouble(properties.centerX), -2.9999984E7D, 2.9999984E7D);
+-            double e = Mth.clamp(dynamic.get("BorderCenterZ").asDouble(properties.centerZ), -2.9999984E7D, 2.9999984E7D);
+-            double f = dynamic.get("BorderSize").asDouble(properties.size);
+-            long l = dynamic.get("BorderSizeLerpTime").asLong(properties.sizeLerpTime);
+-            double g = dynamic.get("BorderSizeLerpTarget").asDouble(properties.sizeLerpTarget);
+-            double h = dynamic.get("BorderSafeZone").asDouble(properties.safeZone);
+-            double i = dynamic.get("BorderDamagePerBlock").asDouble(properties.damagePerBlock);
++            double d0 = Mth.clamp(dynamic.get("BorderCenterX").asDouble(properties.centerX), -2.9999984E7D, 2.9999984E7D);
++            double d1 = Mth.clamp(dynamic.get("BorderCenterZ").asDouble(properties.centerZ), -2.9999984E7D, 2.9999984E7D);
++            double d2 = dynamic.get("BorderSize").asDouble(properties.size);
++            long i = dynamic.get("BorderSizeLerpTime").asLong(properties.sizeLerpTime);
++            double d3 = dynamic.get("BorderSizeLerpTarget").asDouble(properties.sizeLerpTarget);
++            double d4 = dynamic.get("BorderSafeZone").asDouble(properties.safeZone);
++            double d5 = dynamic.get("BorderDamagePerBlock").asDouble(properties.damagePerBlock);
+             int j = dynamic.get("BorderWarningBlocks").asInt(properties.warningBlocks);
+             int k = dynamic.get("BorderWarningTime").asInt(properties.warningTime);
+-            return new WorldBorder.Settings(d, e, i, h, j, k, f, l, g);
++
++            return new WorldBorder.Settings(d0, d1, d5, d4, j, k, d2, i, d3);
+         }
+ 
+         public void write(CompoundTag nbt) {
+@@ -443,95 +609,8 @@
+             nbt.putDouble("BorderSafeZone", this.safeZone);
+             nbt.putDouble("BorderDamagePerBlock", this.damagePerBlock);
+             nbt.putDouble("BorderSizeLerpTarget", this.sizeLerpTarget);
+-            nbt.putDouble("BorderWarningBlocks", (double)this.warningBlocks);
+-            nbt.putDouble("BorderWarningTime", (double)this.warningTime);
+-        }
+-    }
+-
+-    class StaticBorderExtent implements WorldBorder.BorderExtent {
+-        private final double size;
+-        private double minX;
+-        private double minZ;
+-        private double maxX;
+-        private double maxZ;
+-        private VoxelShape shape;
+-
+-        public StaticBorderExtent(double size) {
+-            this.size = size;
+-            this.updateBox();
+-        }
+-
+-        @Override
+-        public double getMinX() {
+-            return this.minX;
+-        }
+-
+-        @Override
+-        public double getMaxX() {
+-            return this.maxX;
+-        }
+-
+-        @Override
+-        public double getMinZ() {
+-            return this.minZ;
+-        }
+-
+-        @Override
+-        public double getMaxZ() {
+-            return this.maxZ;
+-        }
+-
+-        @Override
+-        public double getSize() {
+-            return this.size;
+-        }
+-
+-        @Override
+-        public BorderStatus getStatus() {
+-            return BorderStatus.STATIONARY;
+-        }
+-
+-        @Override
+-        public double getLerpSpeed() {
+-            return 0.0D;
+-        }
+-
+-        @Override
+-        public long getLerpRemainingTime() {
+-            return 0L;
+-        }
+-
+-        @Override
+-        public double getLerpTarget() {
+-            return this.size;
+-        }
+-
+-        private void updateBox() {
+-            this.minX = Mth.clamp(WorldBorder.this.getCenterX() - this.size / 2.0D, (double)(-WorldBorder.this.absoluteMaxSize), (double)WorldBorder.this.absoluteMaxSize);
+-            this.minZ = Mth.clamp(WorldBorder.this.getCenterZ() - this.size / 2.0D, (double)(-WorldBorder.this.absoluteMaxSize), (double)WorldBorder.this.absoluteMaxSize);
+-            this.maxX = Mth.clamp(WorldBorder.this.getCenterX() + this.size / 2.0D, (double)(-WorldBorder.this.absoluteMaxSize), (double)WorldBorder.this.absoluteMaxSize);
+-            this.maxZ = Mth.clamp(WorldBorder.this.getCenterZ() + this.size / 2.0D, (double)(-WorldBorder.this.absoluteMaxSize), (double)WorldBorder.this.absoluteMaxSize);
+-            this.shape = Shapes.join(Shapes.INFINITY, Shapes.box(Math.floor(this.getMinX()), Double.NEGATIVE_INFINITY, Math.floor(this.getMinZ()), Math.ceil(this.getMaxX()), Double.POSITIVE_INFINITY, Math.ceil(this.getMaxZ())), BooleanOp.ONLY_FIRST);
+-        }
+-
+-        @Override
+-        public void onAbsoluteMaxSizeChange() {
+-            this.updateBox();
+-        }
+-
+-        @Override
+-        public void onCenterChange() {
+-            this.updateBox();
+-        }
+-
+-        @Override
+-        public WorldBorder.BorderExtent update() {
+-            return this;
+-        }
+-
+-        @Override
+-        public VoxelShape getCollisionShape() {
+-            return this.shape;
++            nbt.putDouble("BorderWarningBlocks", (double) this.warningBlocks);
++            nbt.putDouble("BorderWarningTime", (double) this.warningTime);
+         }
+     }
+ }

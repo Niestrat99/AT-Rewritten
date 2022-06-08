@@ -1,0 +1,43 @@
+--- a/net/minecraft/world/level/block/state/properties/EnumProperty.java
++++ b/net/minecraft/world/level/block/state/properties/EnumProperty.java
+@@ -15,6 +15,15 @@
+     private final ImmutableSet<T> values;
+     private final Map<String, T> names = Maps.newHashMap();
+ 
++    // Paper start - optimise iblockdata state lookup
++    private int[] idLookupTable;
++
++    @Override
++    public final int getIdFor(final T value) {
++        return this.idLookupTable[value.ordinal()];
++    }
++    // Paper end - optimise iblockdata state lookup
++
+     protected EnumProperty(String name, Class<T> type, Collection<T> values) {
+         super(name, type);
+         this.values = ImmutableSet.copyOf(values);
+@@ -28,6 +37,14 @@
+             this.names.put(string, enum_);
+         }
+ 
++        // Paper start - optimise iblockdata state lookup
++        int id = 0;
++        this.idLookupTable = new int[type.getEnumConstants().length];
++        java.util.Arrays.fill(this.idLookupTable, -1);
++        for (final T value : this.getPossibleValues()) {
++            this.idLookupTable[value.ordinal()] = id++;
++        }
++        // Paper end - optimise iblockdata state lookup
+     }
+ 
+     @Override
+@@ -45,8 +62,7 @@
+         return value.getSerializedName();
+     }
+ 
+-    @Override
+-    public boolean equals(Object object) {
++    public boolean equals_unused(Object object) { // Paper
+         if (this == object) {
+             return true;
+         } else if (object instanceof EnumProperty && super.equals(object)) {

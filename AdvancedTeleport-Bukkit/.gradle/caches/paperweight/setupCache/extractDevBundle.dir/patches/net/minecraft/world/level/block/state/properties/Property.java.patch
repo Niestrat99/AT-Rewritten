@@ -1,0 +1,36 @@
+--- a/net/minecraft/world/level/block/state/properties/Property.java
++++ b/net/minecraft/world/level/block/state/properties/Property.java
+@@ -22,6 +22,17 @@
+     }, this::getName);
+     private final Codec<Property.Value<T>> valueCodec = this.codec.xmap(this::value, Property.Value::value);
+ 
++    // Paper start - optimise iblockdata state lookup
++    private static final java.util.concurrent.atomic.AtomicInteger ID_GENERATOR = new java.util.concurrent.atomic.AtomicInteger();
++    private final int id = ID_GENERATOR.getAndIncrement();
++
++    public final int getId() {
++        return this.id;
++    }
++
++    public abstract int getIdFor(final T value);
++    // Paper end - optimise state lookup
++
+     protected Property(String name, Class<T> type) {
+         this.clazz = type;
+         this.name = name;
+@@ -68,14 +79,7 @@
+ 
+     @Override
+     public boolean equals(Object object) {
+-        if (this == object) {
+-            return true;
+-        } else if (!(object instanceof Property)) {
+-            return false;
+-        } else {
+-            Property<?> property = (Property)object;
+-            return this.clazz.equals(property.clazz) && this.name.equals(property.name);
+-        }
++        return this == object; // Paper
+     }
+ 
+     @Override

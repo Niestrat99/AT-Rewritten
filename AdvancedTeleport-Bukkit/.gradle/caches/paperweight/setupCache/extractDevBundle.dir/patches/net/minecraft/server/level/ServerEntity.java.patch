@@ -1,0 +1,461 @@
+--- a/net/minecraft/server/level/ServerEntity.java
++++ b/net/minecraft/server/level/ServerEntity.java
+@@ -5,7 +5,9 @@
+ import com.mojang.logging.LogUtils;
+ import java.util.Collection;
+ import java.util.Collections;
++import java.util.Iterator;
+ import java.util.List;
++import java.util.Objects;
+ import java.util.Set;
+ import java.util.function.Consumer;
+ import net.minecraft.network.protocol.Packet;
+@@ -22,7 +24,6 @@
+ import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+ import net.minecraft.network.protocol.game.VecDeltaCodec;
+ import net.minecraft.network.syncher.SynchedEntityData;
+-import net.minecraft.util.Mth;
+ import net.minecraft.world.effect.MobEffectInstance;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.EquipmentSlot;
+@@ -36,8 +37,16 @@
+ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+ import net.minecraft.world.phys.Vec3;
+ import org.slf4j.Logger;
++import net.minecraft.server.network.ServerGamePacketListenerImpl;
++// CraftBukkit start
++import net.minecraft.server.network.ServerPlayerConnection;
++import net.minecraft.util.Mth;
++import org.bukkit.entity.Player;
++import org.bukkit.event.player.PlayerVelocityEvent;
++// CraftBukkit end
+ 
+ public class ServerEntity {
++
+     private static final Logger LOGGER = LogUtils.getLogger();
+     private static final int TOLERANCE_LEVEL_ROTATION = 1;
+     private final ServerLevel level;
+@@ -49,19 +58,25 @@
+     private int yRotp;
+     private int xRotp;
+     private int yHeadRotp;
+-    private Vec3 ap = Vec3.ZERO;
++    private Vec3 ap;
+     private int tickCount;
+     private int teleportDelay;
+-    private List<Entity> lastPassengers = Collections.emptyList();
++    private List<Entity> lastPassengers;
+     private boolean wasRiding;
+     private boolean wasOnGround;
++    // CraftBukkit start
++    final Set<ServerPlayerConnection> trackedPlayers; // Paper - private -> package
+ 
+-    public ServerEntity(ServerLevel world, Entity entity, int tickInterval, boolean alwaysUpdateVelocity, Consumer<Packet<?>> receiver) {
+-        this.level = world;
+-        this.broadcast = receiver;
++    public ServerEntity(ServerLevel worldserver, Entity entity, int i, boolean flag, Consumer<Packet<?>> consumer, Set<ServerPlayerConnection> trackedPlayers) {
++        this.trackedPlayers = trackedPlayers;
++        // CraftBukkit end
++        this.ap = Vec3.ZERO;
++        this.lastPassengers = com.google.common.collect.ImmutableList.of(); // Paper - optimize passenger checks
++        this.level = worldserver;
++        this.broadcast = consumer;
+         this.entity = entity;
+-        this.updateInterval = tickInterval;
+-        this.trackDelta = alwaysUpdateVelocity;
++        this.updateInterval = i;
++        this.trackDelta = flag;
+         this.positionCodec.setBase(entity.trackingPosition());
+         this.yRotp = Mth.floor(entity.getYRot() * 256.0F / 360.0F);
+         this.xRotp = Mth.floor(entity.getXRot() * 256.0F / 360.0F);
+@@ -71,24 +86,35 @@
+ 
+     public void sendChanges() {
+         List<Entity> list = this.entity.getPassengers();
++
+         if (!list.equals(this.lastPassengers)) {
+             this.lastPassengers = list;
+-            this.broadcast.accept(new ClientboundSetPassengersPacket(this.entity));
++            this.broadcastAndSend(new ClientboundSetPassengersPacket(this.entity)); // CraftBukkit
+         }
+ 
+-        Entity l = this.entity;
+-        if (l instanceof ItemFrame itemFrame) {
+-            if (this.tickCount % 10 == 0) {
+-                ItemStack itemStack = itemFrame.getItem();
+-                if (itemStack.getItem() instanceof MapItem) {
+-                    Integer integer = MapItem.getMapId(itemStack);
+-                    MapItemSavedData mapItemSavedData = MapItem.getSavedData(integer, this.level);
+-                    if (mapItemSavedData != null) {
+-                        for(ServerPlayer serverPlayer : this.level.players()) {
+-                            mapItemSavedData.tickCarriedBy(serverPlayer, itemStack);
+-                            Packet<?> packet = mapItemSavedData.getUpdatePacket(integer, serverPlayer);
++        Entity entity = this.entity;
++
++        if (entity instanceof ItemFrame) {
++            ItemFrame entityitemframe = (ItemFrame) entity;
++
++            if (true || this.tickCount % 10 == 0) { // CraftBukkit - Moved below, should always enter this block
++                ItemStack itemstack = entityitemframe.getItem();
++
++                if (this.level.paperConfig().maps.itemFrameCursorUpdateInterval > 0 && this.tickCount % this.level.paperConfig().maps.itemFrameCursorUpdateInterval == 0 && itemstack.getItem() instanceof MapItem) { // CraftBukkit - Moved this.tickCounter % 10 logic here so item frames do not enter the other blocks // Paper - Make item frame map cursor update interval configurable
++                    Integer integer = MapItem.getMapId(itemstack);
++                    MapItemSavedData worldmap = MapItem.getSavedData(integer, this.level);
++
++                    if (worldmap != null) {
++                        Iterator<ServerPlayerConnection> iterator = this.trackedPlayers.iterator(); // CraftBukkit
++
++                        while (iterator.hasNext()) {
++                            ServerPlayer entityplayer = iterator.next().getPlayer(); // CraftBukkit
++
++                            worldmap.tickCarriedBy(entityplayer, itemstack);
++                            Packet<?> packet = worldmap.getUpdatePacket(integer, entityplayer);
++
+                             if (packet != null) {
+-                                serverPlayer.connection.send(packet);
++                                entityplayer.connection.send(packet);
+                             }
+                         }
+                     }
+@@ -99,12 +125,16 @@
+         }
+ 
+         if (this.tickCount % this.updateInterval == 0 || this.entity.hasImpulse || this.entity.getEntityData().isDirty()) {
++            int i;
++            int j;
++
+             if (this.entity.isPassenger()) {
+-                int i = Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
+-                int j = Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
+-                boolean bl = Math.abs(i - this.yRotp) >= 1 || Math.abs(j - this.xRotp) >= 1;
+-                if (bl) {
+-                    this.broadcast.accept(new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)i, (byte)j, this.entity.isOnGround()));
++                i = Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
++                j = Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
++                boolean flag = Math.abs(i - this.yRotp) >= 1 || Math.abs(j - this.xRotp) >= 1;
++
++                if (flag) {
++                    this.broadcast.accept(new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte) i, (byte) j, this.entity.isOnGround()));
+                     this.yRotp = i;
+                     this.xRotp = j;
+                 }
+@@ -114,65 +144,74 @@
+                 this.wasRiding = true;
+             } else {
+                 ++this.teleportDelay;
+-                int k = Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
+-                int l = Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
+-                Vec3 vec3 = this.entity.trackingPosition();
+-                boolean bl2 = this.positionCodec.delta(vec3).lengthSqr() >= (double)7.6293945E-6F;
+-                Packet<?> packet2 = null;
+-                boolean bl3 = bl2 || this.tickCount % 60 == 0;
+-                boolean bl4 = Math.abs(k - this.yRotp) >= 1 || Math.abs(l - this.xRotp) >= 1;
+-                if (this.tickCount > 0 || this.entity instanceof AbstractArrow) {
+-                    long m = this.positionCodec.encodeX(vec3);
+-                    long n = this.positionCodec.encodeY(vec3);
+-                    long o = this.positionCodec.encodeZ(vec3);
+-                    boolean bl5 = m < -32768L || m > 32767L || n < -32768L || n > 32767L || o < -32768L || o > 32767L;
+-                    if (!bl5 && this.teleportDelay <= 400 && !this.wasRiding && this.wasOnGround == this.entity.isOnGround()) {
+-                        if ((!bl3 || !bl4) && !(this.entity instanceof AbstractArrow)) {
+-                            if (bl3) {
+-                                packet2 = new ClientboundMoveEntityPacket.Pos(this.entity.getId(), (short)((int)m), (short)((int)n), (short)((int)o), this.entity.isOnGround());
+-                            } else if (bl4) {
+-                                packet2 = new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)k, (byte)l, this.entity.isOnGround());
++                i = Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
++                j = Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
++                Vec3 vec3d = this.entity.trackingPosition();
++                // Paper start - reduce allocation of Vec3D here
++                Vec3 base = this.positionCodec.base;
++                double vec3d_dx = vec3d.x - base.x;
++                double vec3d_dy = vec3d.y - base.y;
++                double vec3d_dz = vec3d.z - base.z;
++                boolean flag1 = (vec3d_dx * vec3d_dx + vec3d_dy * vec3d_dy + vec3d_dz * vec3d_dz) >= 7.62939453125E-6D;
++                // Paper end - reduce allocation of Vec3D here
++                Packet<?> packet1 = null;
++                boolean flag2 = flag1 || this.tickCount % 60 == 0;
++                boolean flag3 = Math.abs(i - this.yRotp) >= 1 || Math.abs(j - this.xRotp) >= 1;
++
++                if (!(this.entity instanceof net.minecraft.world.entity.decoration.HangingEntity) || this.tickCount > 0 || this.entity instanceof AbstractArrow) { // Paper - Always update position
++                    long k = this.positionCodec.encodeX(vec3d);
++                    long l = this.positionCodec.encodeY(vec3d);
++                    long i1 = this.positionCodec.encodeZ(vec3d);
++                    boolean flag4 = k < -32768L || k > 32767L || l < -32768L || l > 32767L || i1 < -32768L || i1 > 32767L;
++
++                    if (!flag4 && this.teleportDelay <= 400 && !this.wasRiding && this.wasOnGround == this.entity.isOnGround() && !(io.papermc.paper.configuration.GlobalConfiguration.get().collisions.sendFullPosForHardCollidingEntities && this.entity.hardCollides())) { // Paper - send full pos for hard colliding entities to prevent collision problems due to desync
++                        if ((!flag2 || !flag3) && !(this.entity instanceof AbstractArrow)) {
++                            if (flag2) {
++                                packet1 = new ClientboundMoveEntityPacket.Pos(this.entity.getId(), (short) ((int) k), (short) ((int) l), (short) ((int) i1), this.entity.isOnGround());
++                            } else if (flag3) {
++                                packet1 = new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte) i, (byte) j, this.entity.isOnGround());
+                             }
+                         } else {
+-                            packet2 = new ClientboundMoveEntityPacket.PosRot(this.entity.getId(), (short)((int)m), (short)((int)n), (short)((int)o), (byte)k, (byte)l, this.entity.isOnGround());
++                            packet1 = new ClientboundMoveEntityPacket.PosRot(this.entity.getId(), (short) ((int) k), (short) ((int) l), (short) ((int) i1), (byte) i, (byte) j, this.entity.isOnGround());
+                         }
+                     } else {
+                         this.wasOnGround = this.entity.isOnGround();
+                         this.teleportDelay = 0;
+-                        packet2 = new ClientboundTeleportEntityPacket(this.entity);
++                        packet1 = new ClientboundTeleportEntityPacket(this.entity);
+                     }
+                 }
+ 
+-                if ((this.trackDelta || this.entity.hasImpulse || this.entity instanceof LivingEntity && ((LivingEntity)this.entity).isFallFlying()) && this.tickCount > 0) {
+-                    Vec3 vec32 = this.entity.getDeltaMovement();
+-                    double d = vec32.distanceToSqr(this.ap);
+-                    if (d > 1.0E-7D || d > 0.0D && vec32.lengthSqr() == 0.0D) {
+-                        this.ap = vec32;
++                if ((this.trackDelta || this.entity.hasImpulse || this.entity instanceof LivingEntity && ((LivingEntity) this.entity).isFallFlying()) && this.tickCount > 0) {
++                    Vec3 vec3d1 = this.entity.getDeltaMovement();
++                    double d0 = vec3d1.distanceToSqr(this.ap);
++
++                    if (d0 > 1.0E-7D || d0 > 0.0D && vec3d1.lengthSqr() == 0.0D) {
++                        this.ap = vec3d1;
+                         this.broadcast.accept(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
+                     }
+                 }
+ 
+-                if (packet2 != null) {
+-                    this.broadcast.accept(packet2);
++                if (packet1 != null) {
++                    this.broadcast.accept(packet1);
+                 }
+ 
+                 this.sendDirtyEntityData();
+-                if (bl3) {
+-                    this.positionCodec.setBase(vec3);
++                if (flag2) {
++                    this.positionCodec.setBase(vec3d);
+                 }
+ 
+-                if (bl4) {
+-                    this.yRotp = k;
+-                    this.xRotp = l;
++                if (flag3) {
++                    this.yRotp = i;
++                    this.xRotp = j;
+                 }
+ 
+                 this.wasRiding = false;
+             }
+ 
+-            int p = Mth.floor(this.entity.getYHeadRot() * 256.0F / 360.0F);
+-            if (Math.abs(p - this.yHeadRotp) >= 1) {
+-                this.broadcast.accept(new ClientboundRotateHeadPacket(this.entity, (byte)p));
+-                this.yHeadRotp = p;
++            i = Mth.floor(this.entity.getYHeadRot() * 256.0F / 360.0F);
++            if (Math.abs(i - this.yHeadRotp) >= 1) {
++                this.broadcast.accept(new ClientboundRotateHeadPacket(this.entity, (byte) i));
++                this.yHeadRotp = i;
+             }
+ 
+             this.entity.hasImpulse = false;
+@@ -180,7 +219,27 @@
+ 
+         ++this.tickCount;
+         if (this.entity.hurtMarked) {
+-            this.broadcastAndSend(new ClientboundSetEntityMotionPacket(this.entity));
++            // CraftBukkit start - Create PlayerVelocity event
++            boolean cancelled = false;
++
++            if (this.entity instanceof ServerPlayer) {
++                Player player = (Player) this.entity.getBukkitEntity();
++                org.bukkit.util.Vector velocity = player.getVelocity();
++
++                PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity.clone());
++                this.entity.level.getCraftServer().getPluginManager().callEvent(event);
++
++                if (event.isCancelled()) {
++                    cancelled = true;
++                } else if (!velocity.equals(event.getVelocity())) {
++                    player.setVelocity(event.getVelocity());
++                }
++            }
++
++            if (!cancelled) {
++                this.broadcastAndSend(new ClientboundSetEntityMotionPacket(this.entity));
++            }
++            // CraftBukkit end
+             this.entity.hurtMarked = false;
+         }
+ 
+@@ -188,92 +247,131 @@
+ 
+     public void removePairing(ServerPlayer player) {
+         this.entity.stopSeenByPlayer(player);
+-        player.connection.send(new ClientboundRemoveEntitiesPacket(this.entity.getId()));
++        player.connection.send(new ClientboundRemoveEntitiesPacket(new int[]{this.entity.getId()}));
+     }
+ 
+     public void addPairing(ServerPlayer player) {
+-        this.sendPairingData(player.connection::send);
++        ServerGamePacketListenerImpl playerconnection = player.connection;
++
++        Objects.requireNonNull(player.connection);
++        this.sendPairingData(playerconnection::send, player); // CraftBukkit - add player
+         this.entity.startSeenByPlayer(player);
+     }
+ 
+-    public void sendPairingData(Consumer<Packet<?>> sender) {
++    public void sendPairingData(Consumer<Packet<?>> consumer, ServerPlayer entityplayer) { // CraftBukkit - add player
+         if (this.entity.isRemoved()) {
+-            LOGGER.warn("Fetching packet for removed entity {}", (Object)this.entity);
++            // CraftBukkit start - Remove useless error spam, just return
++            // EntityTrackerEntry.LOGGER.warn("Fetching packet for removed entity {}", this.entity);
++            return;
++            // CraftBukkit end
+         }
+ 
+         Packet<?> packet = this.entity.getAddEntityPacket();
++
+         this.yHeadRotp = Mth.floor(this.entity.getYHeadRot() * 256.0F / 360.0F);
+-        sender.accept(packet);
++        consumer.accept(packet);
+         if (!this.entity.getEntityData().isEmpty()) {
+-            sender.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), this.entity.getEntityData(), true));
++            consumer.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), this.entity.getEntityData(), true));
+         }
+ 
+-        boolean bl = this.trackDelta;
++        boolean flag = this.trackDelta;
++
+         if (this.entity instanceof LivingEntity) {
+-            Collection<AttributeInstance> collection = ((LivingEntity)this.entity).getAttributes().getSyncableAttributes();
++            Collection<AttributeInstance> collection = ((LivingEntity) this.entity).getAttributes().getSyncableAttributes();
++
++            // CraftBukkit start - If sending own attributes send scaled health instead of current maximum health
++            if (this.entity.getId() == entityplayer.getId()) {
++                ((ServerPlayer) this.entity).getBukkitEntity().injectScaledMaxHealth(collection, false);
++            }
++            // CraftBukkit end
++
+             if (!collection.isEmpty()) {
+-                sender.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), collection));
++                consumer.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), collection));
+             }
+ 
+-            if (((LivingEntity)this.entity).isFallFlying()) {
+-                bl = true;
++            if (((LivingEntity) this.entity).isFallFlying()) {
++                flag = true;
+             }
+         }
+ 
+         this.ap = this.entity.getDeltaMovement();
+-        if (bl && !(this.entity instanceof LivingEntity)) {
+-            sender.accept(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
++        if (flag && !(this.entity instanceof LivingEntity)) {
++            consumer.accept(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
+         }
+ 
+         if (this.entity instanceof LivingEntity) {
+             List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayList();
++            EquipmentSlot[] aenumitemslot = EquipmentSlot.values();
++            int i = aenumitemslot.length;
+ 
+-            for(EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+-                ItemStack itemStack = ((LivingEntity)this.entity).getItemBySlot(equipmentSlot);
+-                if (!itemStack.isEmpty()) {
+-                    list.add(Pair.of(equipmentSlot, itemStack.copy()));
++            for (int j = 0; j < i; ++j) {
++                EquipmentSlot enumitemslot = aenumitemslot[j];
++                ItemStack itemstack = ((LivingEntity) this.entity).getItemBySlot(enumitemslot);
++
++                if (!itemstack.isEmpty()) {
++                    // Paper start - prevent oversized data
++                    final ItemStack sanitized = LivingEntity.sanitizeItemStack(itemstack.copy(), false);
++                    list.add(Pair.of(enumitemslot, ((LivingEntity) this.entity).stripMeta(sanitized, false))); // Paper - remove unnecessary item meta
++                    // Paper end
+                 }
+             }
+ 
+             if (!list.isEmpty()) {
+-                sender.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), list));
++                consumer.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), list));
+             }
++            ((LivingEntity) this.entity).detectEquipmentUpdates(); // CraftBukkit - SPIGOT-3789: sync again immediately after sending
+         }
+ 
++        // CraftBukkit start - Fix for nonsensical head yaw
++        this.yHeadRotp = Mth.floor(this.entity.getYHeadRot() * 256.0F / 360.0F);
++        consumer.accept(new ClientboundRotateHeadPacket(this.entity, (byte) this.yHeadRotp));
++        // CraftBukkit end
++
+         if (this.entity instanceof LivingEntity) {
+-            LivingEntity livingEntity = (LivingEntity)this.entity;
++            LivingEntity entityliving = (LivingEntity) this.entity;
++            Iterator iterator = entityliving.getActiveEffects().iterator();
+ 
+-            for(MobEffectInstance mobEffectInstance : livingEntity.getActiveEffects()) {
+-                sender.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), mobEffectInstance));
++            while (iterator.hasNext()) {
++                MobEffectInstance mobeffect = (MobEffectInstance) iterator.next();
++
++                consumer.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), mobeffect));
+             }
+         }
+ 
+         if (!this.entity.getPassengers().isEmpty()) {
+-            sender.accept(new ClientboundSetPassengersPacket(this.entity));
++            consumer.accept(new ClientboundSetPassengersPacket(this.entity));
+         }
+ 
+         if (this.entity.isPassenger()) {
+-            sender.accept(new ClientboundSetPassengersPacket(this.entity.getVehicle()));
++            consumer.accept(new ClientboundSetPassengersPacket(this.entity.getVehicle()));
+         }
+ 
+         if (this.entity instanceof Mob) {
+-            Mob mob = (Mob)this.entity;
+-            if (mob.isLeashed()) {
+-                sender.accept(new ClientboundSetEntityLinkPacket(mob, mob.getLeashHolder()));
++            Mob entityinsentient = (Mob) this.entity;
++
++            if (entityinsentient.isLeashed()) {
++                consumer.accept(new ClientboundSetEntityLinkPacket(entityinsentient, entityinsentient.getLeashHolder()));
+             }
+         }
+ 
+     }
+ 
+     private void sendDirtyEntityData() {
+-        SynchedEntityData synchedEntityData = this.entity.getEntityData();
+-        if (synchedEntityData.isDirty()) {
+-            this.broadcastAndSend(new ClientboundSetEntityDataPacket(this.entity.getId(), synchedEntityData, false));
++        SynchedEntityData datawatcher = this.entity.getEntityData();
++
++        if (datawatcher.isDirty()) {
++            this.broadcastAndSend(new ClientboundSetEntityDataPacket(this.entity.getId(), datawatcher, false));
+         }
+ 
+         if (this.entity instanceof LivingEntity) {
+-            Set<AttributeInstance> set = ((LivingEntity)this.entity).getAttributes().getDirtyAttributes();
++            Set<AttributeInstance> set = ((LivingEntity) this.entity).getAttributes().getDirtyAttributes();
++
+             if (!set.isEmpty()) {
++                // CraftBukkit start - Send scaled max health
++                if (this.entity instanceof ServerPlayer) {
++                    ((ServerPlayer) this.entity).getBukkitEntity().injectScaledMaxHealth(set, false);
++                }
++                // CraftBukkit end
+                 this.broadcastAndSend(new ClientboundUpdateAttributesPacket(this.entity.getId(), set));
+             }
+ 
+@@ -282,10 +380,16 @@
+ 
+     }
+ 
++    // Paper start - Add broadcast method
++    void broadcast(Packet<?> packet) {
++        this.broadcast.accept(packet);
++    }
++    // Paper end
++
+     private void broadcastAndSend(Packet<?> packet) {
+         this.broadcast.accept(packet);
+         if (this.entity instanceof ServerPlayer) {
+-            ((ServerPlayer)this.entity).connection.send(packet);
++            ((ServerPlayer) this.entity).connection.send(packet);
+         }
+ 
+     }

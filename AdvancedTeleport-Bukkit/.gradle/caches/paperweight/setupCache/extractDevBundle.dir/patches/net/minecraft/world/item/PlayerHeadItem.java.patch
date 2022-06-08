@@ -1,0 +1,79 @@
+--- a/net/minecraft/world/item/PlayerHeadItem.java
++++ b/net/minecraft/world/item/PlayerHeadItem.java
+@@ -10,6 +10,7 @@
+ import org.apache.commons.lang3.StringUtils;
+ 
+ public class PlayerHeadItem extends StandingAndWallBlockItem {
++
+     public static final String TAG_SKULL_OWNER = "SkullOwner";
+ 
+     public PlayerHeadItem(Block standingBlock, Block wallBlock, Item.Properties settings) {
+@@ -19,19 +20,21 @@
+     @Override
+     public Component getName(ItemStack stack) {
+         if (stack.is(Items.PLAYER_HEAD) && stack.hasTag()) {
+-            String string = null;
+-            CompoundTag compoundTag = stack.getTag();
+-            if (compoundTag.contains("SkullOwner", 8)) {
+-                string = compoundTag.getString("SkullOwner");
+-            } else if (compoundTag.contains("SkullOwner", 10)) {
+-                CompoundTag compoundTag2 = compoundTag.getCompound("SkullOwner");
+-                if (compoundTag2.contains("Name", 8)) {
+-                    string = compoundTag2.getString("Name");
++            String s = null;
++            CompoundTag nbttagcompound = stack.getTag();
++
++            if (nbttagcompound.contains("SkullOwner", 8)) {
++                s = nbttagcompound.getString("SkullOwner");
++            } else if (nbttagcompound.contains("SkullOwner", 10)) {
++                CompoundTag nbttagcompound1 = nbttagcompound.getCompound("SkullOwner");
++
++                if (nbttagcompound1.contains("Name", 8)) {
++                    s = nbttagcompound1.getString("Name");
+                 }
+             }
+ 
+-            if (string != null) {
+-                return Component.translatable(this.getDescriptionId() + ".named", string);
++            if (s != null) {
++                return Component.translatable(this.getDescriptionId() + ".named", s);
+             }
+         }
+ 
+@@ -42,10 +45,33 @@
+     public void verifyTagAfterLoad(CompoundTag nbt) {
+         super.verifyTagAfterLoad(nbt);
+         if (nbt.contains("SkullOwner", 8) && !StringUtils.isBlank(nbt.getString("SkullOwner"))) {
+-            GameProfile gameProfile = new GameProfile((UUID)null, nbt.getString("SkullOwner"));
+-            SkullBlockEntity.updateGameprofile(gameProfile, (profile) -> {
+-                nbt.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), profile));
++            GameProfile gameprofile = new GameProfile((UUID) null, nbt.getString("SkullOwner"));
++
++            SkullBlockEntity.updateGameprofile(gameprofile, (gameprofile1) -> {
++                nbt.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), gameprofile1));
+             });
++            // CraftBukkit start
++        } else {
++            // Paper start - clean up old duplicated properties
++            CompoundTag properties = nbt.getCompound("SkullOwner").getCompound("Properties");
++            for (String key : properties.getAllKeys()) {
++                net.minecraft.nbt.ListTag values = properties.getList(key, 10);
++                if (values.size() > 1) {
++                    net.minecraft.nbt.Tag texture = values.get(values.size() - 1);
++                    values = new net.minecraft.nbt.ListTag();
++                    values.add(texture);
++                    properties.put(key, values);
++                }
++            }
++            // Paper end
++            net.minecraft.nbt.ListTag textures = nbt.getCompound("SkullOwner").getCompound("Properties").getList("textures", 10); // Safe due to method contracts
++            for (int i = 0; i < textures.size(); i++) {
++                if (textures.get(i) instanceof CompoundTag && !((CompoundTag) textures.get(i)).contains("Signature", 8) && ((CompoundTag) textures.get(i)).getString("Value").trim().isEmpty()) {
++                    nbt.remove("SkullOwner");
++                    break;
++                }
++            }
++            // CraftBukkit end
+         }
+ 
+     }

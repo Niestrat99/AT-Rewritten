@@ -1,0 +1,114 @@
+--- a/net/minecraft/world/entity/animal/Bucketable.java
++++ b/net/minecraft/world/entity/animal/Bucketable.java
+@@ -3,6 +3,8 @@
+ import java.util.Optional;
+ import net.minecraft.advancements.CriteriaTriggers;
+ import net.minecraft.nbt.CompoundTag;
++import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
++import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.sounds.SoundEvent;
+ import net.minecraft.world.InteractionHand;
+@@ -14,8 +16,13 @@
+ import net.minecraft.world.item.ItemUtils;
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.level.Level;
++import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
++import org.bukkit.event.player.PlayerBucketEntityEvent;
++// CraftBukkit end
+ 
+ public interface Bucketable {
++
+     boolean fromBucket();
+ 
+     void setFromBucket(boolean fromBucket);
+@@ -31,32 +38,33 @@
+     /** @deprecated */
+     @Deprecated
+     static void saveDefaultDataToBucketTag(Mob entity, ItemStack stack) {
+-        CompoundTag compoundTag = stack.getOrCreateTag();
++        CompoundTag nbttagcompound = stack.getOrCreateTag();
++
+         if (entity.hasCustomName()) {
+             stack.setHoverName(entity.getCustomName());
+         }
+ 
+         if (entity.isNoAi()) {
+-            compoundTag.putBoolean("NoAI", entity.isNoAi());
++            nbttagcompound.putBoolean("NoAI", entity.isNoAi());
+         }
+ 
+         if (entity.isSilent()) {
+-            compoundTag.putBoolean("Silent", entity.isSilent());
++            nbttagcompound.putBoolean("Silent", entity.isSilent());
+         }
+ 
+         if (entity.isNoGravity()) {
+-            compoundTag.putBoolean("NoGravity", entity.isNoGravity());
++            nbttagcompound.putBoolean("NoGravity", entity.isNoGravity());
+         }
+ 
+         if (entity.hasGlowingTag()) {
+-            compoundTag.putBoolean("Glowing", entity.hasGlowingTag());
++            nbttagcompound.putBoolean("Glowing", entity.hasGlowingTag());
+         }
+ 
+         if (entity.isInvulnerable()) {
+-            compoundTag.putBoolean("Invulnerable", entity.isInvulnerable());
++            nbttagcompound.putBoolean("Invulnerable", entity.isInvulnerable());
+         }
+ 
+-        compoundTag.putFloat("Health", entity.getHealth());
++        nbttagcompound.putFloat("Health", entity.getHealth());
+     }
+ 
+     /** @deprecated */
+@@ -89,20 +97,36 @@
+     }
+ 
+     static <T extends LivingEntity & Bucketable> Optional<InteractionResult> bucketMobPickup(Player player, InteractionHand hand, T entity) {
+-        ItemStack itemStack = player.getItemInHand(hand);
+-        if (itemStack.getItem() == Items.WATER_BUCKET && entity.isAlive()) {
+-            entity.playSound(entity.getPickupSound(), 1.0F, 1.0F);
+-            ItemStack itemStack2 = entity.getBucketItemStack();
+-            entity.saveToBucketTag(itemStack2);
+-            ItemStack itemStack3 = ItemUtils.createFilledResult(itemStack, player, itemStack2, false);
+-            player.setItemInHand(hand, itemStack3);
+-            Level level = entity.level;
+-            if (!level.isClientSide) {
+-                CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)player, itemStack2);
++        ItemStack itemstack = player.getItemInHand(hand);
++
++        if (itemstack.getItem() == Items.WATER_BUCKET && entity.isAlive()) {
++            // CraftBukkit start
++            // t0.playSound(((Bucketable) t0).getPickupSound(), 1.0F, 1.0F); // CraftBukkit - moved down
++            ItemStack itemstack1 = ((Bucketable) entity).getBucketItemStack();
++
++            ((Bucketable) entity).saveToBucketTag(itemstack1);
++
++            PlayerBucketEntityEvent playerBucketFishEvent = CraftEventFactory.callPlayerFishBucketEvent(entity, player, itemstack, itemstack1, hand);
++            itemstack1 = CraftItemStack.asNMSCopy(playerBucketFishEvent.getEntityBucket());
++            if (playerBucketFishEvent.isCancelled()) {
++                ((ServerPlayer) player).containerMenu.sendAllDataToRemote(); // We need to update inventory to resync client's bucket
++                ((ServerPlayer) player).connection.send(new ClientboundAddEntityPacket(entity)); // We need to play out these packets as the client assumes the fish is gone
++                ((ServerPlayer) player).connection.send(new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData(), true)); // Need to send data such as the display name to client
++                return Optional.of(InteractionResult.FAIL);
++            }
++            entity.playSound(((Bucketable) entity).getPickupSound(), 1.0F, 1.0F);
++            // CraftBukkit end
++            ItemStack itemstack2 = ItemUtils.createFilledResult(itemstack, player, itemstack1, false);
++
++            player.setItemInHand(hand, itemstack2);
++            Level world = entity.level;
++
++            if (!world.isClientSide) {
++                CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer) player, itemstack1);
+             }
+ 
+             entity.discard();
+-            return Optional.of(InteractionResult.sidedSuccess(level.isClientSide));
++            return Optional.of(InteractionResult.sidedSuccess(world.isClientSide));
+         } else {
+             return Optional.empty();
+         }

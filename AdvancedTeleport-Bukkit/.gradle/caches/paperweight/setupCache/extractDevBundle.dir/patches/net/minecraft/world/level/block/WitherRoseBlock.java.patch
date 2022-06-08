@@ -1,0 +1,48 @@
+--- a/net/minecraft/world/level/block/WitherRoseBlock.java
++++ b/net/minecraft/world/level/block/WitherRoseBlock.java
+@@ -19,6 +19,7 @@
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ 
+ public class WitherRoseBlock extends FlowerBlock {
++
+     public WitherRoseBlock(MobEffect effect, BlockBehaviour.Properties settings) {
+         super(effect, 8, settings);
+     }
+@@ -30,14 +31,14 @@
+ 
+     @Override
+     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
+-        VoxelShape voxelShape = this.getShape(state, world, pos, CollisionContext.empty());
+-        Vec3 vec3 = voxelShape.bounds().getCenter();
+-        double d = (double)pos.getX() + vec3.x;
+-        double e = (double)pos.getZ() + vec3.z;
++        VoxelShape voxelshape = this.getShape(state, world, pos, CollisionContext.empty());
++        Vec3 vec3d = voxelshape.bounds().getCenter();
++        double d0 = (double) pos.getX() + vec3d.x;
++        double d1 = (double) pos.getZ() + vec3d.z;
+ 
+-        for(int i = 0; i < 3; ++i) {
++        for (int i = 0; i < 3; ++i) {
+             if (random.nextBoolean()) {
+-                world.addParticle(ParticleTypes.SMOKE, d + random.nextDouble() / 5.0D, (double)pos.getY() + (0.5D - random.nextDouble()), e + random.nextDouble() / 5.0D, 0.0D, 0.0D, 0.0D);
++                world.addParticle(ParticleTypes.SMOKE, d0 + random.nextDouble() / 5.0D, (double) pos.getY() + (0.5D - random.nextDouble()), d1 + random.nextDouble() / 5.0D, 0.0D, 0.0D, 0.0D);
+             }
+         }
+ 
+@@ -45,11 +46,13 @@
+ 
+     @Override
+     public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
++        if (!new io.papermc.paper.event.entity.EntityInsideBlockEvent(entity.getBukkitEntity(), org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock.at(world, pos)).callEvent()) { return; } // Paper
+         if (!world.isClientSide && world.getDifficulty() != Difficulty.PEACEFUL) {
+             if (entity instanceof LivingEntity) {
+-                LivingEntity livingEntity = (LivingEntity)entity;
+-                if (!livingEntity.isInvulnerableTo(DamageSource.WITHER)) {
+-                    livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 40));
++                LivingEntity entityliving = (LivingEntity) entity;
++
++                if (!entityliving.isInvulnerableTo(DamageSource.WITHER)) {
++                    entityliving.addEffect(new MobEffectInstance(MobEffects.WITHER, 40), org.bukkit.event.entity.EntityPotionEffectEvent.Cause.WITHER_ROSE); // CraftBukkit
+                 }
+             }
+ 

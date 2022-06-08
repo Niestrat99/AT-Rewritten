@@ -1,0 +1,84 @@
+--- a/net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData.java
++++ b/net/minecraft/network/protocol/game/ClientboundLevelChunkPacketData.java
+@@ -24,8 +24,19 @@
+     private final CompoundTag heightmaps;
+     private final byte[] buffer;
+     private final List<ClientboundLevelChunkPacketData.BlockEntityInfo> blockEntitiesData;
++    // Paper start
++    private final java.util.List<net.minecraft.network.protocol.Packet> extraPackets = new java.util.ArrayList<>();
++    private static final int TE_LIMIT = Integer.getInteger("Paper.excessiveTELimit", 750);
+ 
+-    public ClientboundLevelChunkPacketData(LevelChunk chunk) {
++    public List<net.minecraft.network.protocol.Packet> getExtraPackets() {
++        return this.extraPackets;
++    }
++    // Paper end
++
++    // Paper start - Anti-Xray - Add chunk packet info
++    @Deprecated @io.papermc.paper.annotation.DoNotUse public ClientboundLevelChunkPacketData(LevelChunk chunk) { this(chunk, null); }
++    public ClientboundLevelChunkPacketData(LevelChunk chunk, com.destroystokyo.paper.antixray.ChunkPacketInfo<net.minecraft.world.level.block.state.BlockState> chunkPacketInfo) {
++        // Paper end
+         this.heightmaps = new CompoundTag();
+ 
+         for(Map.Entry<Heightmap.Types, Heightmap> entry : chunk.getHeightmaps()) {
+@@ -35,10 +46,27 @@
+         }
+ 
+         this.buffer = new byte[calculateChunkSize(chunk)];
+-        extractChunkData(new FriendlyByteBuf(this.getWriteBuffer()), chunk);
++
++        // Paper start - Anti-Xray - Add chunk packet info
++        if (chunkPacketInfo != null) {
++            chunkPacketInfo.setBuffer(this.buffer);
++        }
++
++        extractChunkData(new FriendlyByteBuf(this.getWriteBuffer()), chunk, chunkPacketInfo);
++        // Paper end
+         this.blockEntitiesData = Lists.newArrayList();
++        int totalTileEntities = 0; // Paper
+ 
+         for(Map.Entry<BlockPos, BlockEntity> entry2 : chunk.getBlockEntities().entrySet()) {
++            // Paper start
++            if (++totalTileEntities > TE_LIMIT) {
++                var packet = entry2.getValue().getUpdatePacket();
++                if (packet != null) {
++                    this.extraPackets.add(packet);
++                    continue;
++                }
++            }
++            // Paper end
+             this.blockEntitiesData.add(ClientboundLevelChunkPacketData.BlockEntityInfo.create(entry2.getValue()));
+         }
+ 
+@@ -50,7 +78,7 @@
+             throw new RuntimeException("Can't read heightmap in packet for [" + x + ", " + z + "]");
+         } else {
+             int i = buf.readVarInt();
+-            if (i > 2097152) {
++            if (i > 2097152) { // Paper - diff on change - if this changes, update PacketEncoder
+                 throw new RuntimeException("Chunk Packet trying to allocate too much memory on read.");
+             } else {
+                 this.buffer = new byte[i];
+@@ -85,9 +113,12 @@
+         return byteBuf;
+     }
+ 
+-    public static void extractChunkData(FriendlyByteBuf buf, LevelChunk chunk) {
++    // Paper start - Anti-Xray - Add chunk packet info
++    @Deprecated @io.papermc.paper.annotation.DoNotUse public static void extractChunkData(FriendlyByteBuf buf, LevelChunk chunk) { ClientboundLevelChunkPacketData.extractChunkData(buf, chunk, null); }
++    public static void extractChunkData(FriendlyByteBuf buf, LevelChunk chunk, com.destroystokyo.paper.antixray.ChunkPacketInfo<net.minecraft.world.level.block.state.BlockState> chunkPacketInfo) {
+         for(LevelChunkSection levelChunkSection : chunk.getSections()) {
+-            levelChunkSection.write(buf);
++            levelChunkSection.write(buf, chunkPacketInfo);
++            // Paper end
+         }
+ 
+     }
+@@ -152,6 +183,7 @@
+             CompoundTag compoundTag = blockEntity.getUpdateTag();
+             BlockPos blockPos = blockEntity.getBlockPos();
+             int i = SectionPos.sectionRelative(blockPos.getX()) << 4 | SectionPos.sectionRelative(blockPos.getZ());
++            blockEntity.sanitizeSentNbt(compoundTag); // Paper - Sanitize sent data
+             return new ClientboundLevelChunkPacketData.BlockEntityInfo(i, blockPos.getY(), blockEntity.getType(), compoundTag.isEmpty() ? null : compoundTag);
+         }
+     }

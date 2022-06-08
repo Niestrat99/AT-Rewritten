@@ -1,0 +1,30 @@
+--- a/net/minecraft/world/level/LevelWriter.java
++++ b/net/minecraft/world/level/LevelWriter.java
+@@ -6,6 +6,7 @@
+ import net.minecraft.world.level.block.state.BlockState;
+ 
+ public interface LevelWriter {
++
+     boolean setBlock(BlockPos pos, BlockState state, int flags, int maxUpdateDepth);
+ 
+     default boolean setBlock(BlockPos pos, BlockState state, int flags) {
+@@ -15,7 +16,7 @@
+     boolean removeBlock(BlockPos pos, boolean move);
+ 
+     default boolean destroyBlock(BlockPos pos, boolean drop) {
+-        return this.destroyBlock(pos, drop, (Entity)null);
++        return this.destroyBlock(pos, drop, (Entity) null);
+     }
+ 
+     default boolean destroyBlock(BlockPos pos, boolean drop, @Nullable Entity breakingEntity) {
+@@ -27,4 +28,10 @@
+     default boolean addFreshEntity(Entity entity) {
+         return false;
+     }
++
++    // CraftBukkit start
++    default boolean addFreshEntity(Entity entity, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason) {
++        return false;
++    }
++    // CraftBukkit end
+ }
