@@ -110,25 +110,34 @@ public class Spawn extends ATConfig {
                 String priorName = toSection.getString("mirror");
                 boolean requiresPermission = toSection.getBoolean("requires-permission", true);
                 // Just to note, "requires permission" indicates that the player can teleport to the spawn itself. Not the mirrored one.
-                if (priorName != null && !priorName.isEmpty() && !priorName.equals(name) && (requiresPermission
-                        && player.hasPermission("at.member.spawn." + priorName)
-                        && !bypassPermission)) {
-                    name = priorName;
-                    toSection = spawns.getConfigSection(name);
-                } else if (toSection.contains("x")
+                boolean hasCoords = toSection.contains("x")
                         && toSection.contains("y")
                         && toSection.contains("z")
                         && toSection.contains("yaw")
                         && toSection.contains("pitch")
-                        && toSection.contains("world")) {
-                    return new Location(Bukkit.getWorld(toSection.getString("world")),
-                            toSection.getDouble("x"),
-                            toSection.getDouble("y"),
-                            toSection.getDouble("z"),
-                            (float) toSection.getDouble("yaw"),
-                            (float) toSection.getDouble("pitch"));
+                        && toSection.contains("world");
+                boolean hasMirror = priorName != null && !priorName.isEmpty() && !priorName.equals(name);
+                if (hasCoords) {
+                    if (hasMirror && (requiresPermission
+                            && !player.hasPermission("at.member.spawn." + name)
+                            && !bypassPermission)) {
+                        name = priorName;
+                        toSection = spawns.getConfigSection(name);
+                    } else {
+                        return new Location(Bukkit.getWorld(toSection.getString("world")),
+                                toSection.getDouble("x"),
+                                toSection.getDouble("y"),
+                                toSection.getDouble("z"),
+                                (float) toSection.getDouble("yaw"),
+                                (float) toSection.getDouble("pitch"));
+                    }
                 } else {
-                    break;
+                    if (hasMirror) {
+                        name = priorName;
+                        toSection = spawns.getConfigSection(name);
+                    } else {
+                        break;
+                    }
                 }
             } else {
                 break;
