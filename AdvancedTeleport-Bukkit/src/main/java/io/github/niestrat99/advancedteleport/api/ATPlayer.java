@@ -362,7 +362,7 @@ public class ATPlayer {
     @Deprecated
     public void addHome(@NotNull String name, @NotNull Location location, SQLManager.SQLCallback<Boolean> callback) {
         addHome(name, location, getPlayer(), true);
-        callback.onSuccess(true);
+        if (callback != null) callback.onSuccess(true);
     }
 
     /**
@@ -433,7 +433,7 @@ public class ATPlayer {
         homes.get(name).move(newLocation);
         HomeSQLManager.get().moveHome(newLocation, uuid, name, callback, async);
         moveHome(name, newLocation);
-        callback.onSuccess(true);
+        if (callback != null) callback.onSuccess(true);
     }
 
     /**

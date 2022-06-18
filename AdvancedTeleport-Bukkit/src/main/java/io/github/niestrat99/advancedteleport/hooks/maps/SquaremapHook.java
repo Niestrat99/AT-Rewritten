@@ -60,10 +60,6 @@ public class SquaremapHook extends MapPlugin {
 
     }
 
-    private void checkIcons(String subfolder) {
-
-    }
-
     private void registerImage(String key, InputStream stream) {
         try {
             if (stream == null) throw new IllegalArgumentException("Image for key " + key + " was not found!");
