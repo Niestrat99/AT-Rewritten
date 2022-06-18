@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -83,8 +84,8 @@ public class Spawn extends ATConfig {
                     && toSection.contains("z")
                     && toSection.contains("yaw")
                     && toSection.contains("pitch")) {
-                set("spawns." + from, null);
                 set("spawns." + from + ".mirror", mirror);
+                set("spawns." + from + ".requires-permission", false);
                 try {
                     save();
                 } catch (IOException e) {
@@ -97,13 +98,20 @@ public class Spawn extends ATConfig {
     }
 
     public Location getSpawn(String name) {
+        return getSpawn(name, null, false);
+    }
+
+    public Location getSpawn(String name, Player player, boolean bypassPermission) {
         if (get("spawns." + name) == null) return getProperMainSpawn();
         ConfigSection spawns = getConfigSection("spawns");
         ConfigSection toSection = spawns.getConfigSection(name);
         while (true) {
             if (toSection != null) {
                 String priorName = toSection.getString("mirror");
-                if (priorName != null && !priorName.isEmpty() && !priorName.equals(name)) {
+                boolean requiresPermission = toSection.getBoolean("requires-permission", true);
+                if (priorName != null && !priorName.isEmpty() && !priorName.equals(name) && (!requiresPermission
+                        || player.hasPermission("at.member.spawn." + priorName)
+                        || bypassPermission)) {
                     name = priorName;
                     toSection = spawns.getConfigSection(name);
                 } else if (toSection.contains("x")
