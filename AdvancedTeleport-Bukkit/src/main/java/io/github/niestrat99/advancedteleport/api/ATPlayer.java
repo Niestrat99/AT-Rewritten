@@ -362,7 +362,7 @@ public class ATPlayer {
     @Deprecated
     public void addHome(@NotNull String name, @NotNull Location location, SQLManager.SQLCallback<Boolean> callback) {
         addHome(name, location, getPlayer());
-        callback.onSuccess(true);
+        if (callback != null) callback.onSuccess(true);
     }
 
     /**
@@ -414,7 +414,7 @@ public class ATPlayer {
     @Deprecated
     public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
         moveHome(name, newLocation);
-        callback.onSuccess(true);
+        if (callback != null) callback.onSuccess(true);
     }
 
     /**
