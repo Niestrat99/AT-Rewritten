@@ -109,9 +109,10 @@ public class Spawn extends ATConfig {
             if (toSection != null) {
                 String priorName = toSection.getString("mirror");
                 boolean requiresPermission = toSection.getBoolean("requires-permission", true);
-                if (priorName != null && !priorName.isEmpty() && !priorName.equals(name) && (!requiresPermission
-                        || player.hasPermission("at.member.spawn." + priorName)
-                        || bypassPermission)) {
+                // Just to note, "requires permission" indicates that the player can teleport to the spawn itself. Not the mirrored one.
+                if (priorName != null && !priorName.isEmpty() && !priorName.equals(name) && (requiresPermission
+                        && player.hasPermission("at.member.spawn." + priorName)
+                        && !bypassPermission)) {
                     name = priorName;
                     toSection = spawns.getConfigSection(name);
                 } else if (toSection.contains("x")
