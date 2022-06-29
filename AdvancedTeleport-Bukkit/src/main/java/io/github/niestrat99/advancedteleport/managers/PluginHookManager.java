@@ -30,7 +30,7 @@ public class PluginHookManager {
         borderPlugins = new HashMap<>();
         mapPlugins = new HashMap<>();
 
-        loadImportPlugin("essentials", EssentialsHook.class);
+        loadPlugin(importPlugins, "essentials", EssentialsHook.class);
 
         // World border Plugins
         loadBorderPlugin("worldborder", WorldBorderHook.class);
@@ -42,7 +42,7 @@ public class PluginHookManager {
         loadPlugin(claimPlugins, "lands", LandsClaimHook.class);
         loadPlugin(claimPlugins, "griefprevention", GriefPreventionClaimHook.class);
 
-        loadMapPlugin("squaremap", SquaremapHook.class);
+        loadPlugin(mapPlugins, "squaremap", SquaremapHook.class);
 
         for (MapPlugin plugin : mapPlugins.values()) {
             if (plugin.canEnable()) plugin.enable();
@@ -61,9 +61,13 @@ public class PluginHookManager {
         return importPlugins.get(name);
     }
 
-    private void loadImportPlugin(String name, Class<? extends ImportExportPlugin> clazz) {
+    public HashMap<String, MapPlugin> getMapPlugins() {
+        return mapPlugins;
+    }
+
+    private <T> void loadPlugin(HashMap<String, T> map, String name, Class<? extends T> clazz) {
         try {
-            importPlugins.put(name, clazz.newInstance());
+            map.put(name, clazz.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (NoClassDefFoundError ignored) {
@@ -74,16 +78,6 @@ public class PluginHookManager {
     private void loadBorderPlugin(String name, Class<? extends BorderPlugin> clazz) {
         try {
             borderPlugins.put(name, clazz.newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (NoClassDefFoundError ignored) {
-
-        }
-    }
-
-    private void loadMapPlugin(String name, Class<? extends MapPlugin> clazz) {
-        try {
-            mapPlugins.put(name, clazz.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (NoClassDefFoundError ignored) {
