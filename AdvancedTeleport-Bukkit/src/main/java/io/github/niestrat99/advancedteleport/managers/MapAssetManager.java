@@ -30,10 +30,12 @@ public class MapAssetManager {
                 return;
             }
         }
+
         // Register default images
         registerImage("warp_default", CoreClass.getInstance().getResource("warp-default.png"));
         registerImage("home_default", CoreClass.getInstance().getResource("home-default.png"));
         registerImage("spawn_default", CoreClass.getInstance().getResource("spawn-default.png"));
+
         // Register extra images
         String[] fileNames = mapAssetsFolder.list();
         if (fileNames == null) return;
