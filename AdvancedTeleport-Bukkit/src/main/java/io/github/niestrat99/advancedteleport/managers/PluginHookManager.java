@@ -70,22 +70,16 @@ public class PluginHookManager {
         return importPlugins.get(name);
     }
 
+    public HashMap<String, MapPlugin> getMapPlugins() {
+        return mapPlugins;
+    }
+
     private <T> void loadPlugin(HashMap<String, T> map, String name, Class<? extends T> clazz) {
         try {
             map.put(name, clazz.getConstructor().newInstance());
         } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (NoClassDefFoundError ignored) { // Why are you like this essentials?
-        }
-    }
-
-    private void loadMapPlugin(String name, Class<? extends MapPlugin> clazz) {
-        try {
-            mapPlugins.put(name, clazz.newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (NoClassDefFoundError ignored) {
-
         }
     }
 
