@@ -99,6 +99,7 @@ public class CoreClass extends JavaPlugin {
             }
         }
 
+        new PluginHookManager();
         CommandManager.registerCommands();
         {
             new BlocklistManager();
@@ -111,7 +112,6 @@ public class CoreClass extends JavaPlugin {
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
-        new PluginHookManager();
 
         setupVersion();
         new Metrics(this, 5146);
