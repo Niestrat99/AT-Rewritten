@@ -104,6 +104,7 @@ public class NewConfig extends ATConfig {
 
     public ConfigOption<Boolean> CHECK_FOR_UPDATES;
     public ConfigOption<Boolean> NOTIFY_ADMINS;
+    public ConfigOption<Boolean> DEBUG;
 
     private static NewConfig instance;
     private static List<String> defaults;
@@ -473,6 +474,7 @@ public class NewConfig extends ATConfig {
         addDefault("check-for-updates", true, "Whether or not the plugin should check for updates.");
         addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
                 "Anyone with the permission at.admin.notify will receive this notification.");
+        addDefault("debug", false, "Used for debugging purposes.");
 
     }
 
@@ -691,6 +693,7 @@ public class NewConfig extends ATConfig {
 
         CHECK_FOR_UPDATES = new ConfigOption<>("check-for-updates");
         NOTIFY_ADMINS = new ConfigOption<>("notify-admins-on-update");
+        DEBUG = new ConfigOption<>("debug");
 
         new PaymentManager();
         LimitationsManager.init();

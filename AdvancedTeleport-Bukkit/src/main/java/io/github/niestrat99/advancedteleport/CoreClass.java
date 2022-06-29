@@ -14,6 +14,7 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -245,5 +246,15 @@ public class CoreClass extends JavaPlugin {
 
     public Object[] getUpdateInfo() {
         return updateInfo;
+    }
+
+    public static void debug(String message) {
+        if (NewConfig.get().DEBUG.get()) {
+            CoreClass.getInstance().getLogger().info(message);
+        }
+    }
+
+    public static String getShortLocation(Location location) {
+        return location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " + location.getWorld();
     }
 }
