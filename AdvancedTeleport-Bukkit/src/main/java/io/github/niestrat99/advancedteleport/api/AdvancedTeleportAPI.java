@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnMirrorEvent;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SwitchMainSpawnEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
+import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
@@ -38,7 +39,11 @@ public class AdvancedTeleportAPI {
             Warp.registerWarp(warp);
             WarpSQLManager.get().addWarp(warp, callback);
             return callback.data;
-        }, CoreClass.async).thenApplyAsync(data -> data, CoreClass.sync);
+        }, CoreClass.async).thenApplyAsync(data -> {
+            WarpPostCreateEvent postEvent = new WarpPostCreateEvent(warp);
+            Bukkit.getPluginManager().callEvent(postEvent);
+            return data;
+        }, CoreClass.sync);
     }
 
     public static HashMap<String, Warp> getWarps() {
