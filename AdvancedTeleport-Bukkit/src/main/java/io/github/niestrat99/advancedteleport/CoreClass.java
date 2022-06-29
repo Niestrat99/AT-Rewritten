@@ -102,6 +102,7 @@ public class CoreClass extends JavaPlugin {
             }
         }
 
+        new PluginHookManager();
         CommandManager.registerCommands();
         {
             new BlocklistManager();
