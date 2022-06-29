@@ -18,6 +18,7 @@ import io.github.niestrat99.advancedteleport.fanciful.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.fanciful.sql.WarpSQLManager;
 import org.bukkit.World;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -85,11 +86,10 @@ public class PluginHookManager {
 
     private <T> void loadPlugin(HashMap<String, T> map, String name, Class<? extends T> clazz) {
         try {
-            map.put(name, clazz.newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
+            map.put(name, clazz.getConstructor().newInstance());
+        } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
-        } catch (NoClassDefFoundError ignored) {
-
+        } catch (NoClassDefFoundError ignored) { // Why are you like this essentials?
         }
     }
 
