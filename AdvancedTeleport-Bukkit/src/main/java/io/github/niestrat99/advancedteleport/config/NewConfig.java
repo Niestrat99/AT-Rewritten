@@ -697,8 +697,7 @@ public class NewConfig extends ATConfig {
 
         // HANDLING DEFAULT PERMISSIONS
 
-        List<String> permissions = DEFAULT_PERMISSIONS.get();
-        if (permissions == null) permissions = new ArrayList<>();
+        List<String> permissions = DEFAULT_PERMISSIONS.get() == null ? new ArrayList<>() : DEFAULT_PERMISSIONS.get();
         if (defaults == null) {
             defaults = new ArrayList<>();
         } else {
