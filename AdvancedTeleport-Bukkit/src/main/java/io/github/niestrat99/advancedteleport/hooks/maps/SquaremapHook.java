@@ -5,7 +5,6 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
-import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import org.bukkit.Bukkit;
@@ -14,7 +13,6 @@ import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import xyz.jpenilla.squaremap.api.*;
 import xyz.jpenilla.squaremap.api.marker.Icon;
-import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

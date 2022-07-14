@@ -231,6 +231,21 @@ public class WarpSQLManager extends SQLManager {
         return -1;
     }
 
+    public int getWarpIdSync(String name) {
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection,
+                    "SELECT id FROM " + tablePrefix + "_warps WHERE warp = ?;");
+            statement.setString(1, name);
+            ResultSet set = executeQuery(statement);
+            if (set.next()) {
+                return set.getInt("id");
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return -1;
+    }
+
     public void purgeWarps(String worldName, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
