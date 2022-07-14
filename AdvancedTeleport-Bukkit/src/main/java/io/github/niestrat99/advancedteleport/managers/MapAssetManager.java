@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +43,14 @@ public class MapAssetManager {
         }
     }
 
-    public Collection<String> getImageNames() {
+    public static Collection<String> getImageNames() {
         return images.keySet();
+    }
+
+    public static void registerImage(String name, InputStream stream) {
+        images.put(name, stream);
+        for (MapPlugin plugin : PluginHookManager.get().getMapPlugins().values()) {
+            plugin.registerImage(name, stream);
+        }
     }
 }

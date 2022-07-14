@@ -2,9 +2,11 @@ package io.github.niestrat99.advancedteleport.hooks.maps;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import xyz.jpenilla.squaremap.api.*;
@@ -60,7 +62,8 @@ public class SquaremapHook extends MapPlugin {
 
     }
 
-    private void registerImage(String key, InputStream stream) {
+    @Override
+    public void registerImage(String key, InputStream stream) {
         try {
             if (stream == null) throw new IllegalArgumentException("Image for key " + key + " was not found!");
             BufferedImage image = ImageIO.read(stream);
@@ -72,6 +75,7 @@ public class SquaremapHook extends MapPlugin {
         }
     }
 
+    @Override
     public void addWarp(Warp warp) {
         World world = warp.getLocation().getWorld();
         Objects.requireNonNull(world, "The world for " + warp.getName() + " is not loaded.");
@@ -90,5 +94,15 @@ public class SquaremapHook extends MapPlugin {
             layer.addMarker(key, icon);
             CoreClass.getInstance().getLogger().info("Added the warp for " + warp.getName() + ".");
         });
+    }
+
+    @Override
+    public void addHome(Home home) {
+
+    }
+
+    @Override
+    public void addSpawn(String name, Location location) {
+
     }
 }
