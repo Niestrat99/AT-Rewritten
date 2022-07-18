@@ -102,7 +102,7 @@ public class Spawn extends ATConfig {
     }
 
     public Location getSpawn(String name, Player player, boolean bypassPermission) {
-        if (get("spawns." + name) == null) return getProperMainSpawn();
+        // if (get("spawns." + name) == null) return getProperMainSpawn();
         ConfigSection spawns = getConfigSection("spawns");
         ConfigSection toSection = spawns.getConfigSection(name);
         while (true) {
@@ -140,7 +140,10 @@ public class Spawn extends ATConfig {
                     }
                 }
             } else {
-                break;
+                String mainSpawn = getString("main-spawn");
+                if (mainSpawn == null || mainSpawn.equals(name)) break;
+                toSection = spawns.getConfigSection(mainSpawn);
+                name = mainSpawn;
             }
         }
         return mainSpawn;
