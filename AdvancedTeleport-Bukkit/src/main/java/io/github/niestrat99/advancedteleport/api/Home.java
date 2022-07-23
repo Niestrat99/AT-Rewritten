@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.api;
 
-import io.github.niestrat99.advancedteleport.fanciful.sql.HomeSQLManager;
+import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
