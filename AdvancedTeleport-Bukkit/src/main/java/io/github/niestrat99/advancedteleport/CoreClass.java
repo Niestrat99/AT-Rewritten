@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport;
 import com.wimbli.WorldBorder.WorldBorder;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
 import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
 import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
@@ -169,6 +170,7 @@ public class CoreClass extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
         getServer().getPluginManager().registerEvents(new WorldLoadListener(), this);
+        getServer().getPluginManager().registerEvents(new MapEventListeners(), this);
     }
 
     /**
