@@ -12,6 +12,17 @@ import java.util.concurrent.CompletableFuture;
 
 public class MetadataSQLManager extends SQLManager {
 
+    private static MetadataSQLManager instance;
+
+    public MetadataSQLManager() {
+        super();
+        instance = this;
+    }
+
+    public static MetadataSQLManager get() {
+        return instance;
+    }
+
     @Override
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
