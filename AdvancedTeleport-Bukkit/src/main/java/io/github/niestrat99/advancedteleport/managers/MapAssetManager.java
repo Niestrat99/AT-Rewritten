@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
+import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 public class MapAssetManager {
 
@@ -27,6 +29,11 @@ public class MapAssetManager {
                 return;
             }
         }
+        // Register default images
+        registerImage("warp_default", CoreClass.getInstance().getResource("warp-default.png"));
+        registerImage("home_default", CoreClass.getInstance().getResource("home-default.png"));
+        registerImage("spawn_default", CoreClass.getInstance().getResource("spawn-default.png"));
+        // Register extra images
         String[] fileNames = mapAssetsFolder.list();
         if (fileNames == null) return;
         for (String fileName : fileNames) {
@@ -39,7 +46,9 @@ public class MapAssetManager {
                 CoreClass.getInstance().getLogger().warning("Failed to find the file " + fileName + "!");
                 continue;
             }
-            images.put(fileName.replace("-", "_"), stream);
+            String id = fileName.replace("-", "_").substring(0, fileName.lastIndexOf('.'));
+            registerImage(id, stream);
+
         }
     }
 
@@ -51,6 +60,40 @@ public class MapAssetManager {
         images.put(name, stream);
         for (MapPlugin plugin : PluginHookManager.get().getMapPlugins().values()) {
             plugin.registerImage(name, stream);
+        }
+        CoreClass.getInstance().getLogger().info("Registered the image " + name + "!");
+    }
+
+    public static CompletableFuture<String> getImageKey(String name, String type) {
+        return MetadataSQLManager.get().getWarpMetadata(name, "map_icon").thenApplyAsync(result -> {
+            if (result != null && images.containsKey(result)) return result;
+            result = type + "_" + name;
+            if (images.containsKey(result)) return result;
+            return type + "_default";
+        });
+    }
+
+    public static class IconInfo {
+        private final String imageKey;
+        private final int size;
+        private final boolean hidden;
+        private final String label;
+        private final String clickTooltip;
+        
+        public IconInfo(String imageKey, int size, boolean hidden, String label, String clickTooltip) {
+            this.imageKey = imageKey;
+            this.size = size;
+            this.hidden = hidden;
+            this.label = label;
+            this.clickTooltip = clickTooltip;
+        }
+
+        public String getImageKey() {
+            return imageKey;
+        }
+
+        public int getSize() {
+            return size;
         }
     }
 }
