@@ -4,14 +4,15 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
+import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import xyz.jpenilla.squaremap.api.*;
 import xyz.jpenilla.squaremap.api.marker.Icon;
-import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -22,9 +23,6 @@ import java.util.Objects;
 public class SquaremapHook extends MapPlugin {
 
     private Squaremap provider;
-    private LayerProvider WARP_LAYER;
-    private LayerProvider HOME_LAYER;
-    private LayerProvider SPAWN_LAYER;
 
     @Override
     public boolean canEnable() {
@@ -38,12 +36,9 @@ public class SquaremapHook extends MapPlugin {
         // Get the API provider
         provider = SquaremapProvider.get();
 
-        registerImage("warp_default", CoreClass.getInstance().getResource("warp-default.png"));
-        registerImage("home_default", CoreClass.getInstance().getResource("home-default.png"));
-        registerImage("spawn_default", CoreClass.getInstance().getResource("spawn-default.png"));
-
         for (World world : Bukkit.getWorlds()) {
             provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
+                // Warps
                 Key key = Key.of("advancedteleport_warps");
                 SimpleLayerProvider warpProvider = SimpleLayerProvider.builder("Warps")
                         .showControls(true)
@@ -51,6 +46,22 @@ public class SquaremapHook extends MapPlugin {
                         .build();
                 mapWorld.layerRegistry().register(key, warpProvider);
                 CoreClass.getInstance().getLogger().info("Added the warp layer for " + world.getName() + ".");
+                // Homes
+                Key homesKey = Key.of("advancedteleport_homes");
+                SimpleLayerProvider homesProvider = SimpleLayerProvider.builder("Homes")
+                        .showControls(true)
+                        .defaultHidden(false)
+                        .build();
+                mapWorld.layerRegistry().register(homesKey, homesProvider);
+                CoreClass.getInstance().getLogger().info("Added the homes layer for " + world.getName() + ".");
+                // Spawns
+                Key spawnsKey = Key.of("advancedteleport_spawns");
+                SimpleLayerProvider spawnsProvider = SimpleLayerProvider.builder("Spawnpoints")
+                        .showControls(true)
+                        .defaultHidden(false)
+                        .build();
+                mapWorld.layerRegistry().register(spawnsKey, spawnsProvider);
+                CoreClass.getInstance().getLogger().info("Added the spawns layer for " + world.getName() + ".");
             });
         }
 
@@ -77,32 +88,91 @@ public class SquaremapHook extends MapPlugin {
 
     @Override
     public void addWarp(Warp warp) {
-        World world = warp.getLocation().getWorld();
-        Objects.requireNonNull(world, "The world for " + warp.getName() + " is not loaded.");
-        provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
-            // Get the warp registry
-            Key warpKey = Key.of("advancedteleport_warps");
-            // Get the layer provider associated
-            SimpleLayerProvider layer = (SimpleLayerProvider) mapWorld.layerRegistry().get(warpKey);
-            // Create the warp ID
-            Key key = Key.of("advancedteleport_warp_" + warp.getName());
-            // Get the point
-            Point point = Point.of(warp.getLocation().getX(), warp.getLocation().getZ());
-            // Get the image associated with the warp
-            Icon icon = Icon.icon(point, Key.of("advancedteleport_warp_default"), 40);
-            icon.markerOptions(MarkerOptions.builder().hoverTooltip("Warp: " + warp.getName()).build());
-            layer.addMarker(key, icon);
-            CoreClass.getInstance().getLogger().info("Added the warp for " + warp.getName() + ".");
-        });
+        addMarker(warp.getName(), "warp", warp.getLocation());
     }
 
     @Override
     public void addHome(Home home) {
-
+        addMarker(home.getName() + home.getOwner(), "home", home.getLocation());
     }
 
     @Override
     public void addSpawn(String name, Location location) {
+        addMarker(name, "spawn", location);
+    }
 
+    @Override
+    public void removeWarp(Warp warp) {
+        removeMarker(warp.getName(), "warp", warp.getLocation().getWorld());
+    }
+
+    @Override
+    public void removeHome(Home home) {
+        removeMarker(home.getName() + home.getOwner(), "home", home.getLocation().getWorld());
+    }
+
+    @Override
+    public void removeSpawn(String name) {
+        Location spawn = Spawn.get().getSpawn(name);
+        removeMarker(name, "spawn", spawn.getWorld());
+    }
+
+    @Override
+    public void moveWarp(Warp warp) {
+        moveMarker(warp.getName(), "warp", warp.getLocation());
+    }
+
+    @Override
+    public void moveHome(Home home) {
+        moveMarker(home.getName(), "home", home.getLocation());
+    }
+
+    @Override
+    public void moveSpawn(String name, Location location) {
+        moveMarker(name, "spawn", location);
+    }
+
+    private void addMarker(String name, String type, Location location) {
+        World world = location.getWorld();
+        Objects.requireNonNull(world, "The world for " + name + " is not loaded.");
+        provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
+            // Get the key
+            Key layerKey = Key.of("advancedteleport_" + type + "s");
+            // Get the layer provider associated
+            SimpleLayerProvider layer = (SimpleLayerProvider) mapWorld.layerRegistry().get(layerKey);
+            // Create the icon key
+            Key key = Key.of("advancedteleport_" + type + "_" + name);
+            // Get the point
+            Point point = Point.of(location.getX(), location.getZ());
+            // Get the image associated with the icon
+            MapAssetManager.getImageKey(name, type).thenAcceptAsync(result -> {
+                result = "advancedteleport_" + result;
+                if (!provider.iconRegistry().hasEntry(Key.of(result))) {
+                    CoreClass.getInstance().getLogger().severe("Key " + result + " is not registered.");
+                }
+                Icon icon = Icon.icon(point, Key.of(result), 40);
+                layer.addMarker(key, icon);
+                CoreClass.getInstance().getLogger().info("Added the " + location + " for " + name + ".");
+            }, task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task));
+        });
+    }
+
+    private void removeMarker(String name, String type, World world) {
+        Objects.requireNonNull(world, "The world for " + name + " is not loaded.");
+        provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
+            // Get the key
+            Key layerKey = Key.of("advancedteleport_" + type + "s");
+            // Get the layer provider associated
+            SimpleLayerProvider layer = (SimpleLayerProvider) mapWorld.layerRegistry().get(layerKey);
+            // Get the icon key
+            Key key = Key.of("advancedteleport_" + type + "_" + name);
+            // Remove the icon
+            layer.removeMarker(key);
+        });
+    }
+
+    private void moveMarker(String name, String type, Location location) {
+        removeMarker(name, type, location.getWorld());
+        addMarker(name, type, location);
     }
 }
