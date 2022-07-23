@@ -1,6 +1,8 @@
 package io.github.niestrat99.advancedteleport.listeners;
 
 import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
+import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
@@ -16,4 +18,14 @@ public class MapEventListeners implements Listener {
         PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> mapPlugin.addWarp(warp));
     }
 
+    @EventHandler
+    public void onWarpRemove(WarpDeleteEvent event) {
+        PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> mapPlugin.removeWarp(event.getWarp()));
+    }
+
+    @EventHandler
+    public void onWarpMove(WarpMoveEvent event) {
+        if (!NewConfig.get().ADD_WARPS.get()) return;
+        PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> mapPlugin.moveWarp(event.getWarp()));
+    }
 }
