@@ -365,7 +365,8 @@ public class NewConfig extends ATConfig {
                 "com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld",
                 "b.a",
                 "com.chaseoes.voidworld.VoidWorld.VoidWorldGenerator",
-                "club.bastonbolado.voidgenerator.EmptyChunkGenerator")), "AT's Rapid Response system automatically " +
+                "club.bastonbolado.voidgenerator.EmptyChunkGenerator",
+                "de.xtkq.voidgen.generator.interfaces.ChunkGen")), "AT's Rapid Response system automatically " +
                 "loads locations for each world, but can be problematic on some worlds, mostly SkyBlock worlds.\n" +
                 "In response, this list acts as pro-active protection and ignores worlds generated using the " +
                 "following generators.\n" +
