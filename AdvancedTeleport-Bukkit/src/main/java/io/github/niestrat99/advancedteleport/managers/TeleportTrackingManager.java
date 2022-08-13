@@ -138,8 +138,9 @@ public class TeleportTrackingManager implements Listener {
                 }
                 break;
             case "bed":
+                return e.getPlayer().getBedSpawnLocation() != null;
             case "anchor":
-                // Vanilla just handles those
+                // Vanilla just handles that
                 break;
             default:
                 if (spawnCommand.startsWith("warp:")) {
