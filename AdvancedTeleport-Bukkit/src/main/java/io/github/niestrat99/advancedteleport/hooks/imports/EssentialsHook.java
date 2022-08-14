@@ -65,8 +65,8 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (user == null) continue;
                 if (user.getName() == null) continue;
                 for (String home : user.getHomes()) {
-                    ATPlayer player = ATPlayer.getPlayer(user.getName());
-                    if (player != null) {
+                    if (ATPlayer.isPlayerCached(user.getName())) {
+                        ATPlayer player = ATPlayer.getPlayer(user.getName());
                         if (!player.hasHome(home)) {
                             player.addHome(home, user.getHome(home), null);
                         } else {
@@ -109,8 +109,8 @@ public class EssentialsHook extends ImportExportPlugin {
                         || user.getName() == null
                         || user.getLastLocation() == null
                         || user.getLastLocation().getWorld() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setPreviousLocation(user.getLastLocation());
                 } else {
                     PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation(), null);
@@ -212,10 +212,10 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player == null) {
+                if (!ATPlayer.isPlayerCached(user.getName())) {
                     PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled(), null);
                 } else {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setTeleportationEnabled(user.isTeleportEnabled(), null);
                 }
             } catch (Exception ex) {
@@ -240,8 +240,8 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     for (String home : player.getHomes().keySet()) {
                         user.setHome(home, player.getHome(home).getLocation());
                     }
@@ -283,8 +283,8 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     user.setLastLocation(player.getPreviousLocation());
                 } else {
                     try (Connection connection = HomeSQLManager.get().implementConnection()) {
@@ -366,8 +366,8 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     user.setTeleportEnabled(player.isTeleportationEnabled());
                 } else {
                     try (Connection connection = HomeSQLManager.get().implementConnection()) {
