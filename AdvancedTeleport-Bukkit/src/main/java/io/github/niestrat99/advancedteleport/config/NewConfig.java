@@ -96,9 +96,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> ADD_SPAWNS;
     public ConfigOption<Boolean> ADD_WARPS;
     public ConfigOption<Boolean> ADD_HOMES;
-    public ConfigOption<String> DEFAULT_SPAWN_ICON;
-    public ConfigOption<String> DEFAULT_WARP_ICON;
-    public ConfigOption<String> DEFAULT_HOME_ICON;
+    public ConfigOption<Integer> DEFAULT_ICON_SIZE;
 
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
@@ -716,10 +714,6 @@ public class NewConfig extends ATConfig {
         ADD_SPAWNS = new ConfigOption<>("add-spawns");
         ADD_WARPS = new ConfigOption<>("add-warps");
         ADD_HOMES = new ConfigOption<>("add-homes");
-        DEFAULT_SPAWN_ICON = new ConfigOption<>("default-spawn-icon");
-        DEFAULT_WARP_ICON = new ConfigOption<>("default-warp-icon");
-        DEFAULT_HOME_ICON = new ConfigOption<>("default-home-icon");
-
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
