@@ -100,9 +100,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> ADD_SPAWNS;
     public ConfigOption<Boolean> ADD_WARPS;
     public ConfigOption<Boolean> ADD_HOMES;
-    public ConfigOption<String> DEFAULT_SPAWN_ICON;
-    public ConfigOption<String> DEFAULT_WARP_ICON;
-    public ConfigOption<String> DEFAULT_HOME_ICON;
+    public ConfigOption<Integer> DEFAULT_ICON_SIZE;
 
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
@@ -467,13 +465,7 @@ public class NewConfig extends ATConfig {
         addDefault("add-spawns", true, "Whether to make spawnpoints visible for everyone on the map.");
         addDefault("add-warps", true, "Whether to make warps visible for everyone on the map.");
         addDefault("add-homes", false, "Whether to make all homes visible for everyone on the map.");
-        addDefault("default-spawn-icon", "inbuilt", "Selects the default icon to use for spawns.\n" +
-                "If none is found, then the default internal icon is used.\n" +
-                "If your map plugin has inbuilt icons too, you can specify the IDs of those.");
-        addDefault("default-warp-icon", "inbuilt", "Selects the default icon for warps.\n" +
-                "If none is found, then the default internal icon is used.");
-        addDefault("default-home-icon", "inbuilt", "Selects the default icon for homes.\n" +
-                "If none is found, then the default internal icon is used.");
+        addDefault("default-icon-size", 40, "The default icon size for AT's icons on the map.");
 
         addDefault("teleport-to-spawn-on-first-join", true, "Spawn Management",
                 "Whether the player should be teleported to the spawnpoint when they join for the first time.");
@@ -731,10 +723,6 @@ public class NewConfig extends ATConfig {
         ADD_SPAWNS = new ConfigOption<>("add-spawns");
         ADD_WARPS = new ConfigOption<>("add-warps");
         ADD_HOMES = new ConfigOption<>("add-homes");
-        DEFAULT_SPAWN_ICON = new ConfigOption<>("default-spawn-icon");
-        DEFAULT_WARP_ICON = new ConfigOption<>("default-warp-icon");
-        DEFAULT_HOME_ICON = new ConfigOption<>("default-home-icon");
-
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
 
@@ -880,6 +868,10 @@ public class NewConfig extends ATConfig {
         private boolean enabled;
         private String defaultIcon;
         private boolean shownByDefault;
+        private String hoverTooltip;
+        private String clickTooltip;
+        private int iconSize;
+        private String layerName;
 
     }
 }

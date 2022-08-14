@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -57,6 +59,20 @@ public class MetadataSQLManager extends SQLManager {
             return set.getString("value");
         }
         return null;
+    }
+
+    public List<String> getAllValues(Connection connection, int dataId, String type, String key) throws SQLException {
+        List<String> results = new ArrayList<>();
+        PreparedStatement statement = prepareStatement(connection,
+                "SELECT value FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;");
+        statement.setInt(1, dataId);
+        statement.setString(2, type);
+        statement.setString(3, key);
+        ResultSet set = executeQuery(statement);
+        while (set.next()) {
+            results.add(set.getString("value"));
+        }
+        return results;
     }
 
     public boolean addMetadata(Connection connection, int dataId, String type, String key, String value) throws SQLException {
