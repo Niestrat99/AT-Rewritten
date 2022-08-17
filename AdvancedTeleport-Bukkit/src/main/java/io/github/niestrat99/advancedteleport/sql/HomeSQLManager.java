@@ -31,7 +31,8 @@ public class HomeSQLManager extends SQLManager {
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement createTable = prepareStatement(connection, "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_homes " +
+                PreparedStatement createTable = prepareStatement(connection,
+                        "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_homes " +
                         "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "uuid_owner VARCHAR(256) NOT NULL, " +
                         "home VARCHAR(256) NOT NULL," +
@@ -85,45 +86,57 @@ public class HomeSQLManager extends SQLManager {
     }
 
     public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,
-                        "INSERT INTO " + tablePrefix + "_homes (uuid_owner, home, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        addHome(location, owner, name, callback, true);
+    }
 
-                statement.setString(1, owner.toString());
-                statement.setString(2, name);
-                statement.setDouble(3, location.getX());
-                statement.setDouble(4, location.getY());
-                statement.setDouble(5, location.getZ());
-                statement.setDouble(6, location.getYaw());
-                statement.setDouble(7, location.getPitch());
-                statement.setString(8, location.getWorld().getName());
-                statement.setLong(9, System.currentTimeMillis());
-                statement.setLong(10, System.currentTimeMillis());
-                executeUpdate(statement);
+    public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback, boolean async) {
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> addHomePrivate(location, owner
+                    , name, callback));
+        } else {
+            addHomePrivate(location, owner, name, callback);
+        }
+    }
 
-                if (callback != null) {
-                    callback.onSuccess(true);
-                }
-            } catch (SQLException exception) {
-                DataFailManager.get().addFailure(
-                        DataFailManager.Operation.ADD_HOME,
-                        location.getWorld().getName(),
-                        String.valueOf(location.getX()),
-                        String.valueOf(location.getY()),
-                        String.valueOf(location.getZ()),
-                        String.valueOf(location.getYaw()),
-                        String.valueOf(location.getPitch()),
-                        name,
-                        owner.toString()
+    private void addHomePrivate(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection,
+                    "INSERT INTO " + tablePrefix + "_homes (uuid_owner, home, x, y, z, yaw, pitch, world, " +
+                            "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-                );
-                exception.printStackTrace();
-                if (callback != null) {
-                    callback.onFail();
-                }
+            statement.setString(1, owner.toString());
+            statement.setString(2, name);
+            statement.setDouble(3, location.getX());
+            statement.setDouble(4, location.getY());
+            statement.setDouble(5, location.getZ());
+            statement.setDouble(6, location.getYaw());
+            statement.setDouble(7, location.getPitch());
+            statement.setString(8, location.getWorld().getName());
+            statement.setLong(9, System.currentTimeMillis());
+            statement.setLong(10, System.currentTimeMillis());
+            executeUpdate(statement);
+
+            if (callback != null) {
+                callback.onSuccess(true);
             }
-        });
+        } catch (SQLException exception) {
+            DataFailManager.get().addFailure(
+                    DataFailManager.Operation.ADD_HOME,
+                    location.getWorld().getName(),
+                    String.valueOf(location.getX()),
+                    String.valueOf(location.getY()),
+                    String.valueOf(location.getZ()),
+                    String.valueOf(location.getYaw()),
+                    String.valueOf(location.getPitch()),
+                    name,
+                    owner.toString()
+
+            );
+            exception.printStackTrace();
+            if (callback != null) {
+                callback.onFail();
+            }
+        }
     }
 
     public void removeHome(UUID owner, String name, SQLCallback<Boolean> callback) {
@@ -151,41 +164,53 @@ public class HomeSQLManager extends SQLManager {
     }
 
     public void moveHome(Location newLocation, UUID owner, String name, SQLCallback<Boolean> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,
-                        "UPDATE " + tablePrefix + "_homes SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_updated = ? WHERE uuid_owner = ? AND home = ? ");
+        moveHome(newLocation, owner, name, callback, true);
+    }
 
-                statement.setDouble(1, newLocation.getX());
-                statement.setDouble(2, newLocation.getY());
-                statement.setDouble(3, newLocation.getZ());
-                statement.setDouble(4, newLocation.getYaw());
-                statement.setDouble(5, newLocation.getPitch());
-                statement.setString(6, newLocation.getWorld().getName());
-                statement.setLong(7, System.currentTimeMillis());
-                statement.setString(8, owner.toString());
-                statement.setString(9, name);
-                executeUpdate(statement);
-                if (callback != null) {
-                    callback.onSuccess(true);
-                }
-            } catch (SQLException exception) {
-                DataFailManager.get().addFailure(
-                        DataFailManager.Operation.MOVE_HOME,
-                        newLocation.getWorld().getName(),
-                        String.valueOf(newLocation.getX()),
-                        String.valueOf(newLocation.getY()),
-                        String.valueOf(newLocation.getZ()),
-                        String.valueOf(newLocation.getYaw()),
-                        String.valueOf(newLocation.getPitch()),
-                        name,
-                        owner.toString());
-                exception.printStackTrace();
-                if (callback != null) {
-                    callback.onFail();
-                }
+    public void moveHome(Location newLocation, UUID owner, String name, SQLCallback<Boolean> callback, boolean async) {
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> moveHomePrivate(newLocation,
+                    owner, name, callback));
+        } else {
+            moveHomePrivate(newLocation, owner, name, callback);
+        }
+    }
+
+    public void moveHomePrivate(Location newLocation, UUID owner, String name, SQLCallback<Boolean> callback) {
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection,
+                    "UPDATE " + tablePrefix + "_homes SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, " +
+                            "timestamp_updated = ? WHERE uuid_owner = ? AND home = ? ");
+
+            statement.setDouble(1, newLocation.getX());
+            statement.setDouble(2, newLocation.getY());
+            statement.setDouble(3, newLocation.getZ());
+            statement.setDouble(4, newLocation.getYaw());
+            statement.setDouble(5, newLocation.getPitch());
+            statement.setString(6, newLocation.getWorld().getName());
+            statement.setLong(7, System.currentTimeMillis());
+            statement.setString(8, owner.toString());
+            statement.setString(9, name);
+            executeUpdate(statement);
+            if (callback != null) {
+                callback.onSuccess(true);
             }
-        });
+        } catch (SQLException exception) {
+            DataFailManager.get().addFailure(
+                    DataFailManager.Operation.MOVE_HOME,
+                    newLocation.getWorld().getName(),
+                    String.valueOf(newLocation.getX()),
+                    String.valueOf(newLocation.getY()),
+                    String.valueOf(newLocation.getZ()),
+                    String.valueOf(newLocation.getYaw()),
+                    String.valueOf(newLocation.getPitch()),
+                    name,
+                    owner.toString());
+            exception.printStackTrace();
+            if (callback != null) {
+                callback.onFail();
+            }
+        }
     }
 
     public void getHomes(String ownerUUID, SQLCallback<LinkedHashMap<String, Home>> callback) {
@@ -228,7 +253,8 @@ public class HomeSQLManager extends SQLManager {
     public void purgeHomes(String worldName, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "SELECT uuid_owner, home FROM " + tablePrefix + "_homes WHERE world = ?");
+                PreparedStatement statement = prepareStatement(connection,
+                        "SELECT uuid_owner, home FROM " + tablePrefix + "_homes WHERE world = ?");
                 statement.setString(1, worldName);
 
                 ResultSet set = statement.executeQuery();
@@ -259,7 +285,8 @@ public class HomeSQLManager extends SQLManager {
                 OfflinePlayer player = Bukkit.getOfflinePlayer(owner);
                 if (player.getName() != null && ATPlayer.isPlayerCached(player.getName())) {
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    PreparedStatement statement = prepareStatement(connection, "SELECT home FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
+                    PreparedStatement statement = prepareStatement(connection, "SELECT home FROM " + tablePrefix +
+                            "_homes WHERE uuid_owner = ?");
                     statement.setString(1, owner.toString());
 
                     ResultSet set = statement.executeQuery();
@@ -270,7 +297,8 @@ public class HomeSQLManager extends SQLManager {
                     set.close();
                 }
 
-                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
+                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes " +
+                        "WHERE uuid_owner = ?");
                 statement.setString(1, owner.toString());
 
                 executeUpdate(statement);

@@ -171,17 +171,25 @@ public class ATPlayer {
     }
 
     public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback) {
+        addHome(name, location, callback, true);
+    }
+
+    public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback, boolean async) {
         if (hasHome(name)) {
             moveHome(name, location, callback);
             return;
         }
         homes.put(name, new Home(uuid, name, location, System.currentTimeMillis(), System.currentTimeMillis()));
-        HomeSQLManager.get().addHome(location, uuid, name, callback);
+        HomeSQLManager.get().addHome(location, uuid, name, callback, async);
     }
 
     public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
+        moveHome(name, newLocation, callback, true);
+    }
+
+    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback, boolean async) {
         homes.get(name).setLocation(newLocation);
-        HomeSQLManager.get().moveHome(newLocation, uuid, name, callback);
+        HomeSQLManager.get().moveHome(newLocation, uuid, name, callback, async);
     }
 
     public void removeHome(String name, SQLManager.SQLCallback<Boolean> callback) {

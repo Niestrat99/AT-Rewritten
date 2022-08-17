@@ -22,8 +22,8 @@ public abstract class AbstractHomeCommand implements ATCommand {
             Player player = (Player) sender;
             if (player.hasPermission("at.admin." + cmd.getName())) {
                 if (!args[0].isEmpty() && args.length == 2) {
+                    if (!ATPlayer.isPlayerCached(args[0])) return new ArrayList<>();
                     ATPlayer target = ATPlayer.getPlayer(args[0]);
-                    if (target == null) return new ArrayList<>();
                     StringUtil.copyPartialMatches(args[1], target.getHomes().keySet(), results);
                     return results;
                 }
