@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class MapAssetManager {
@@ -64,8 +65,22 @@ public class MapAssetManager {
         CoreClass.getInstance().getLogger().info("Registered the image " + name + "!");
     }
 
-    public static CompletableFuture<String> getImageKey(String name, String type) {
-        return MetadataSQLManager.get().getWarpMetadata(name, "map_icon").thenApplyAsync(result -> {
+    public static CompletableFuture<String> getImageKey(String name, String type, UUID owner) {
+        CompletableFuture<String> completableFuture;
+        switch (type) {
+            case "warp":
+                completableFuture = MetadataSQLManager.get().getWarpMetadata(name, "map_icon");
+                break;
+            case "home":
+                completableFuture = MetadataSQLManager.get().getHomeMetadata(name, owner, "map_icon");
+                break;
+            case "spawn":
+                completableFuture = MetadataSQLManager.get().getSpawnMetadata(name, "map_icon");
+                break;
+            default:
+                return null;
+        }
+        return completableFuture.thenApplyAsync(result -> {
             if (result != null && images.containsKey(result)) return result;
             result = type + "_" + name;
             if (images.containsKey(result)) return result;
