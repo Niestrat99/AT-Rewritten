@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
@@ -19,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.UUID;
 
 public class SquaremapHook extends MapPlugin {
 
@@ -40,27 +42,15 @@ public class SquaremapHook extends MapPlugin {
             provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
                 // Warps
                 Key key = Key.of("advancedteleport_warps");
-                SimpleLayerProvider warpProvider = SimpleLayerProvider.builder("Warps")
-                        .showControls(true)
-                        .defaultHidden(false)
-                        .build();
-                mapWorld.layerRegistry().register(key, warpProvider);
+                mapWorld.layerRegistry().register(key, createLayerProvider(NewConfig.get().MAP_WARPS));
                 CoreClass.getInstance().getLogger().info("Added the warp layer for " + world.getName() + ".");
                 // Homes
                 Key homesKey = Key.of("advancedteleport_homes");
-                SimpleLayerProvider homesProvider = SimpleLayerProvider.builder("Homes")
-                        .showControls(true)
-                        .defaultHidden(false)
-                        .build();
-                mapWorld.layerRegistry().register(homesKey, homesProvider);
+                mapWorld.layerRegistry().register(homesKey, createLayerProvider(NewConfig.get().MAP_HOMES));
                 CoreClass.getInstance().getLogger().info("Added the homes layer for " + world.getName() + ".");
                 // Spawns
                 Key spawnsKey = Key.of("advancedteleport_spawns");
-                SimpleLayerProvider spawnsProvider = SimpleLayerProvider.builder("Spawnpoints")
-                        .showControls(true)
-                        .defaultHidden(false)
-                        .build();
-                mapWorld.layerRegistry().register(spawnsKey, spawnsProvider);
+                mapWorld.layerRegistry().register(spawnsKey, createLayerProvider(NewConfig.get().MAP_SPAWNS));
                 CoreClass.getInstance().getLogger().info("Added the spawns layer for " + world.getName() + ".");
             });
         }
@@ -174,5 +164,12 @@ public class SquaremapHook extends MapPlugin {
     private void moveMarker(String name, String type, Location location) {
         removeMarker(name, type, location.getWorld());
         addMarker(name, type, location);
+    }
+
+    private LayerProvider createLayerProvider(NewConfig.MapOptions options) {
+        return SimpleLayerProvider.builder(options.getLayerName())
+                .showControls(true)
+                .defaultHidden(!options.isShownByDefault())
+                .build();
     }
 }
