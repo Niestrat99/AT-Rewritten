@@ -1,10 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.core.map;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
+import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class SetIconCommand implements SubATCommand {
     @Override
@@ -24,8 +27,27 @@ public class SetIconCommand implements SubATCommand {
         if (args.length < 3) {
             return true;
         }
+        CompletableFuture<Boolean> completableFuture;
+        switch (args[0].toLowerCase()) {
+            case "warp":
+                completableFuture = MetadataSQLManager.get().addWarpMetadata(args[1], "map_icon", args[2]);
+                break;
+            case "spawn":
+                completableFuture = MetadataSQLManager.get().addSpawnMetadata(args[1], "map_icon", args[2]);
+                break;
+            case "home":
+                if (args.length < 4) {
+                    return true;
+                }
+                CompletableFuture.supplyAsync(() -> Bukkit.getOfflinePlayer(args[1]).getUniqueId(), CoreClass.async)
+                        .thenAcceptAsync(uuid -> MetadataSQLManager.get().addHomeMetadata(args[2], uuid, "map_icon", args[3]));
+                return true;
+            default:
+                return false;
+        }
 
-        return false;
+        completableFuture.thenAcceptAsync(result -> sender.sendMessage(String.valueOf(result)));
+        return true;
     }
 
     @Nullable
