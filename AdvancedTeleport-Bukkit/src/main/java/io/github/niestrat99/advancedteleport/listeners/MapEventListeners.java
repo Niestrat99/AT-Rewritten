@@ -13,7 +13,7 @@ public class MapEventListeners implements Listener {
 
     @EventHandler
     public void onWarpAdd(WarpPostCreateEvent event) {
-        if (!NewConfig.get().ADD_WARPS.get()) return;
+        if (!NewConfig.get().MAP_WARPS.isEnabled()) return;
         Warp warp = event.getWarp();
         PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> mapPlugin.addWarp(warp));
     }
@@ -25,7 +25,7 @@ public class MapEventListeners implements Listener {
 
     @EventHandler
     public void onWarpMove(WarpMoveEvent event) {
-        if (!NewConfig.get().ADD_WARPS.get()) return;
+        if (!NewConfig.get().MAP_WARPS.isEnabled()) return;
         PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> mapPlugin.moveWarp(event.getWarp()));
     }
 }
