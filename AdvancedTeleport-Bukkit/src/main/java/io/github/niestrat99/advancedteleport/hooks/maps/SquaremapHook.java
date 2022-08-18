@@ -164,4 +164,11 @@ public class SquaremapHook extends MapPlugin {
                 .defaultHidden(!options.isShownByDefault())
                 .build();
     }
+
+    private LayerProvider createLayerProvider(NewConfig.MapOptions options) {
+        return SimpleLayerProvider.builder(options.getLayerName())
+                .showControls(true)
+                .defaultHidden(!options.isShownByDefault())
+                .build();
+    }
 }

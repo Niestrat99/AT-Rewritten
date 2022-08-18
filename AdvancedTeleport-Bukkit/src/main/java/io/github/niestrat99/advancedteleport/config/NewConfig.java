@@ -93,10 +93,9 @@ public class NewConfig extends ATConfig {
     public ConfigOption<List<String>> BACK_TELEPORT_CAUSES;
     public ConfigOption<Integer> BACK_SEARCH_RADIUS;
 
-    public ConfigOption<Boolean> ADD_SPAWNS;
-    public ConfigOption<Boolean> ADD_WARPS;
-    public ConfigOption<Boolean> ADD_HOMES;
-    public ConfigOption<Integer> DEFAULT_ICON_SIZE;
+    public MapOptions MAP_HOMES;
+    public MapOptions MAP_WARPS;
+    public MapOptions MAP_SPAWNS;
 
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
@@ -711,9 +710,10 @@ public class NewConfig extends ATConfig {
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
 
-        ADD_SPAWNS = new ConfigOption<>("add-spawns");
-        ADD_WARPS = new ConfigOption<>("add-warps");
-        ADD_HOMES = new ConfigOption<>("add-homes");
+        MAP_HOMES = new MapOptions("homes");
+        MAP_SPAWNS = new MapOptions("spawns");
+        MAP_WARPS = new MapOptions("warps");
+
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
