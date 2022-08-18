@@ -31,7 +31,7 @@ public class MetadataSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 PreparedStatement createTable = prepareStatement(connection,
                         "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_metadata " +
-                                "(data_id INTEGER, " +
+                                "(data_id VARCHAR(256) NOT NULL, " +
                                 "type VARCHAR(256) NOT NULL," +
                                 "key VARCHAR(256) NOT NULL, " +
                                 "value TEXT NOT NULL)");
@@ -48,10 +48,10 @@ public class MetadataSQLManager extends SQLManager {
     public void transferOldData() {
     }
 
-    public String getValue(Connection connection, int dataId, String type, String key) throws SQLException {
+    public String getValue(Connection connection, String dataId, String type, String key) throws SQLException {
         PreparedStatement statement = prepareStatement(connection,
                 "SELECT value FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;");
-        statement.setInt(1, dataId);
+        statement.setString(1, dataId);
         statement.setString(2, type);
         statement.setString(3, key);
         ResultSet set = executeQuery(statement);
@@ -75,10 +75,10 @@ public class MetadataSQLManager extends SQLManager {
         return results;
     }
 
-    public boolean addMetadata(Connection connection, int dataId, String type, String key, String value) throws SQLException {
+    public boolean addMetadata(Connection connection, String dataId, String type, String key, String value) throws SQLException {
         PreparedStatement statement = prepareStatement(connection,
                 "INSERT INTO " + tablePrefix + "_metadata (data_id, type, key, value) VALUES (?, ?, ?, ?);");
-        statement.setInt(1, dataId);
+        statement.setString(1, dataId);
         statement.setString(2, type);
         statement.setString(3, key);
         statement.setString(4, value);
@@ -100,7 +100,7 @@ public class MetadataSQLManager extends SQLManager {
         return WarpSQLManager.get().getWarpId(warpName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;
-                return addMetadata(connection, id, "WARP", key, value);
+                return addMetadata(connection, String.valueOf(id), "WARP", key, value);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
@@ -112,7 +112,19 @@ public class MetadataSQLManager extends SQLManager {
         return HomeSQLManager.get().getHomeId(homeName, owner).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;
-                return addMetadata(connection, id, "HOME", key, value);
+                return addMetadata(connection, String.valueOf(id), "HOME", key, value);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            return false;
+        });
+    }
+
+    public CompletableFuture<Boolean> addSpawnMetadata(String spawnName, String key, String value) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                if (spawnName == null) return false;
+                return addMetadata(connection, spawnName, "SPAWN", key, value);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
@@ -124,7 +136,7 @@ public class MetadataSQLManager extends SQLManager {
         return WarpSQLManager.get().getWarpId(warpName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return null;
-                return getValue(connection, id, "WARP", key);
+                return getValue(connection, String.valueOf(id), "WARP", key);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
@@ -136,7 +148,19 @@ public class MetadataSQLManager extends SQLManager {
         return HomeSQLManager.get().getHomeId(homeName, owner).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return null;
-                return getValue(connection, id, "HOME", key);
+                return getValue(connection, String.valueOf(id), "HOME", key);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            return null;
+        });
+    }
+
+    public CompletableFuture<String> getSpawnMetadata(String spawnName, String key) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                if (spawnName == null) return null;
+                return getValue(connection, spawnName, "SPAWN", key);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
