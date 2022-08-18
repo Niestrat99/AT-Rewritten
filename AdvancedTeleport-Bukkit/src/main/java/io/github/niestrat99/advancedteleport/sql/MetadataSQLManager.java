@@ -75,7 +75,6 @@ public class MetadataSQLManager extends SQLManager {
         return results;
     }
 
-
     public boolean addMetadata(Connection connection, String dataId, String type, String key, String value) throws SQLException {
         PreparedStatement statement = prepareStatement(connection,
                 "INSERT INTO " + tablePrefix + "_metadata (data_id, type, key, value) VALUES (?, ?, ?, ?);");
