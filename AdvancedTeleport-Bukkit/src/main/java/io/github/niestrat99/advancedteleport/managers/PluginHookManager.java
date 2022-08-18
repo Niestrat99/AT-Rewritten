@@ -11,6 +11,7 @@ import io.github.niestrat99.advancedteleport.hooks.claims.GriefPreventionClaimHo
 import io.github.niestrat99.advancedteleport.hooks.claims.LandsClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
+import io.github.niestrat99.advancedteleport.hooks.maps.DynmapHook;
 import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
@@ -52,6 +53,7 @@ public class PluginHookManager {
         loadPlugin(claimPlugins, "griefprevention", GriefPreventionClaimHook.class);
 
         loadPlugin(mapPlugins, "squaremap", SquaremapHook.class);
+        loadPlugin(mapPlugins, "dynmap", DynmapHook.class);
 
         for (MapPlugin plugin : mapPlugins.values()) {
             if (plugin.canEnable()) plugin.enable();
