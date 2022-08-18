@@ -78,17 +78,17 @@ public class SquaremapHook extends MapPlugin {
 
     @Override
     public void addWarp(Warp warp) {
-        addMarker(warp.getName(), "warp", warp.getLocation());
+        addMarker(warp.getName(), "warp", warp.getLocation(), null);
     }
 
     @Override
     public void addHome(Home home) {
-        addMarker(home.getName() + home.getOwner(), "home", home.getLocation());
+        addMarker(home.getName() + home.getOwner(), "home", home.getLocation(), home.getOwner());
     }
 
     @Override
     public void addSpawn(String name, Location location) {
-        addMarker(name, "spawn", location);
+        addMarker(name, "spawn", location, null);
     }
 
     @Override
@@ -109,20 +109,20 @@ public class SquaremapHook extends MapPlugin {
 
     @Override
     public void moveWarp(Warp warp) {
-        moveMarker(warp.getName(), "warp", warp.getLocation());
+        moveMarker(warp.getName(), "warp", warp.getLocation(), null);
     }
 
     @Override
     public void moveHome(Home home) {
-        moveMarker(home.getName(), "home", home.getLocation());
+        moveMarker(home.getName(), "home", home.getLocation(), home.getOwner());
     }
 
     @Override
     public void moveSpawn(String name, Location location) {
-        moveMarker(name, "spawn", location);
+        moveMarker(name, "spawn", location, null);
     }
 
-    private void addMarker(String name, String type, Location location) {
+    private void addMarker(String name, String type, Location location, UUID owner) {
         World world = location.getWorld();
         Objects.requireNonNull(world, "The world for " + name + " is not loaded.");
         provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
@@ -135,7 +135,7 @@ public class SquaremapHook extends MapPlugin {
             // Get the point
             Point point = Point.of(location.getX(), location.getZ());
             // Get the image associated with the icon
-            MapAssetManager.getImageKey(name, type).thenAcceptAsync(result -> {
+            MapAssetManager.getImageKey(name, type, owner).thenAcceptAsync(result -> {
                 result = "advancedteleport_" + result;
                 if (!provider.iconRegistry().hasEntry(Key.of(result))) {
                     CoreClass.getInstance().getLogger().severe("Key " + result + " is not registered.");
@@ -161,9 +161,9 @@ public class SquaremapHook extends MapPlugin {
         });
     }
 
-    private void moveMarker(String name, String type, Location location) {
+    private void moveMarker(String name, String type, Location location, UUID owner) {
         removeMarker(name, type, location.getWorld());
-        addMarker(name, type, location);
+        addMarker(name, type, location, owner);
     }
 
     private LayerProvider createLayerProvider(NewConfig.MapOptions options) {
