@@ -98,6 +98,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Integer> BACK_SEARCH_RADIUS;
 
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
+    public ConfigOption<String> FIRST_SPAWN_POINT;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
 
     public ConfigOption<ConfigSection> DEATH_MANAGEMENT;
@@ -107,6 +108,7 @@ public class NewConfig extends ATConfig {
 
     public ConfigOption<Boolean> CHECK_FOR_UPDATES;
     public ConfigOption<Boolean> NOTIFY_ADMINS;
+    public ConfigOption<Boolean> DEBUG;
 
     private static NewConfig instance;
     private static List<String> defaults;
@@ -391,7 +393,8 @@ public class NewConfig extends ATConfig {
                 "com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld",
                 "b.a",
                 "com.chaseoes.voidworld.VoidWorld.VoidWorldGenerator",
-                "club.bastonbolado.voidgenerator.EmptyChunkGenerator")), "AT's Rapid Response system automatically " +
+                "club.bastonbolado.voidgenerator.EmptyChunkGenerator",
+                "de.xtkq.voidgen.generator.interfaces.ChunkGen")), "AT's Rapid Response system automatically " +
                 "loads locations for each world, but can be problematic on some worlds, mostly SkyBlock worlds.\n" +
                 "In response, this list acts as pro-active protection and ignores worlds generated using the " +
                 "following generators.\n" +
@@ -457,6 +460,8 @@ public class NewConfig extends ATConfig {
 
         addDefault("teleport-to-spawn-on-first-join", true, "Spawn Management",
                 "Whether the player should be teleported to the spawnpoint when they join for the first time.");
+        addDefault("first-spawn-point", "", "The name of the spawnpoint players will be first teleported to if they joined for the first time.\n" +
+                "If it is blank, then it will take the main spawnpoint.");
         addDefault("teleport-to-spawn-on-every-join", false,
                 "Whether the player should be teleported to the spawnpoint every time they join.");
 
@@ -498,6 +503,7 @@ public class NewConfig extends ATConfig {
         addDefault("check-for-updates", true, "Whether or not the plugin should check for updates.");
         addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
                 "Anyone with the permission at.admin.notify will receive this notification.");
+        addDefault("debug", false, "Used for debugging purposes.");
 
     }
 
@@ -709,6 +715,7 @@ public class NewConfig extends ATConfig {
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
 
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
+        FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
 
         DEATH_MANAGEMENT = new ConfigOption<>("death-management");
@@ -718,13 +725,14 @@ public class NewConfig extends ATConfig {
 
         CHECK_FOR_UPDATES = new ConfigOption<>("check-for-updates");
         NOTIFY_ADMINS = new ConfigOption<>("notify-admins-on-update");
+        DEBUG = new ConfigOption<>("debug");
 
         new PaymentManager();
         LimitationsManager.init();
 
         // HANDLING DEFAULT PERMISSIONS
 
-        List<String> permissions = DEFAULT_PERMISSIONS.get();
+        List<String> permissions = DEFAULT_PERMISSIONS.get() == null ? new ArrayList<>() : DEFAULT_PERMISSIONS.get();
         if (defaults == null) {
             defaults = new ArrayList<>();
         } else {

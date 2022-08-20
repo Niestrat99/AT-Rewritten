@@ -61,7 +61,7 @@ public class SpawnCommand extends SpawnATCommand {
     }
 
     public static void spawn(Player player, String name) {
-        Location spawn = Spawn.get().getSpawn(name);
+        Location spawn = Spawn.get().getSpawn(name, player, false);
         if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
         }
