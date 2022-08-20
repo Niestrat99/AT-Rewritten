@@ -39,6 +39,16 @@ public class CoreCommand implements ATCommand {
         return true;
     }
 
+    @Override
+    public boolean getRequiredFeature() {
+        return true;
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.core";
+    }
+
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {

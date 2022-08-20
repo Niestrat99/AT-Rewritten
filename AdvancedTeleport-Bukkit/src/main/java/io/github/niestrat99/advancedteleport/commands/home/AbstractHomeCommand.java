@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,5 +41,10 @@ public abstract class AbstractHomeCommand implements ATCommand {
             }
         }
         return results;
+    }
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_HOMES.get();
     }
 }

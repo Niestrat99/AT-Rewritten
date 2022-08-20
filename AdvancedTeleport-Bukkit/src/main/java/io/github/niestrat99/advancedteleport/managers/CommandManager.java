@@ -23,6 +23,7 @@ public class CommandManager {
 
     public static LinkedHashMap<String, SubATCommand> subcommands = new LinkedHashMap<>();
     public static LinkedHashMap<String, PluginCommand> registeredCommands = new LinkedHashMap<>();
+    private static LinkedHashMap<String, PluginCommand> atCommands = new LinkedHashMap<>();
 
     public static void registerCommands() {
         register("at", new CoreCommand());
@@ -75,15 +76,16 @@ public class CommandManager {
     }
 
     private static void register(String name, ATCommand atCommand) {
-        PluginCommand command = Bukkit.getPluginCommand(name);
+        PluginCommand command = Bukkit.getPluginCommand("advancedteleport:" + name);
+        if (command == null) command = atCommands.get(name);
         if (command == null) return;
 
         if (command.getPlugin() != CoreClass.getInstance()) {
             command = Bukkit.getPluginCommand("advancedteleport:" + name);
         }
-
         if (command == null) return;
 
+        atCommands.put(name, command);
         CommandMap map = getMap();
         if (map == null) return;
 
@@ -92,14 +94,12 @@ public class CommandManager {
 
         List<String> aliases = new ArrayList<>(command.getAliases());
         aliases.add(name);
-
         boolean removed = false;
         for (String alias : aliases) {
-            if (NewConfig.get().DISABLED_COMMANDS.get().contains(alias) || removed) {
+            if (NewConfig.get().DISABLED_COMMANDS.get().contains(alias) || removed || !atCommand.getRequiredFeature()) {
                 if (command.isRegistered()) {
                     removed = true;
                     command.unregister(map);
-
                 }
             }
         }
@@ -109,7 +109,7 @@ public class CommandManager {
                 commands.remove(alias);
                 commands.remove("advancedteleport:" + alias);
                 // Let another plugin take over
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), () -> {
                     Iterator<String> commandIterator = commands.keySet().iterator();
                     HashMap<String, Command> pendingChanges = new HashMap<>();
                     // Ignore warning, can yield CME
@@ -123,9 +123,8 @@ public class CommandManager {
                             break;
                         }
                     }
-
                     commands.putAll(pendingChanges);
-                });
+                }, 100);
             }
             return;
         }
