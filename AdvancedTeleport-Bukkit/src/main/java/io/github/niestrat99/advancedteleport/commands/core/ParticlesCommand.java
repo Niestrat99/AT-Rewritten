@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
@@ -22,12 +23,15 @@ public class ParticlesCommand implements SubATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!NewConfig.get().USE_PARTICLES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
         if (PluginHookManager.get().getParticlesPlugins().size() == 0) {
+            CustomMessages.sendMessage(sender, "Error.noParticlePlugins");
             return true;
         }
         if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
         Player player = (Player) sender;
@@ -36,6 +40,7 @@ public class ParticlesCommand implements SubATCommand {
         if (args.length == 0) {
             if (data == null) data = "";
             NewConfig.get().set("default-waiting-particles", data);
+            CustomMessages.sendMessage(sender, "Info.defaultParticlesUpdated");
         } else {
             if (data == null) data = "default";
             String type = args[0];
@@ -43,6 +48,7 @@ public class ParticlesCommand implements SubATCommand {
                 return false;
             }
             NewConfig.get().set("waiting-particles." + type, data);
+            CustomMessages.sendMessage(sender, "Info.specificParticlesUpdated", "{type}", type);
         }
         try {
             NewConfig.get().save();

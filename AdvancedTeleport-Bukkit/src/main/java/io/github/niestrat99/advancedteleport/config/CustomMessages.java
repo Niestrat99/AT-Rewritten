@@ -140,6 +140,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
         addDefault("Error.blockFail", "&b↑ &8» &7Failed to save the block against &b{player}&7!");
         addDefault("Error.unblockFail", "&b↑ &8» &7Failed to save the block removal against &b{player}&7!");
+        addDefault("Error.noParticlePlugins", "&b↑ &8» &7There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -224,6 +225,8 @@ public class CustomMessages extends ATConfig {
                 "Click/hover over this text for more information.]" +
                 "(&bCurrent Version &8» &7{version}|&bNew Version &8» &7{new-version}|&bTitle &8» &7{title}" +
                 "|https://www.spigotmc.org/resources/advancedteleport.64139/)");
+        addDefault("Info.defaultParticlesUpdated", "&b↑ &8» &7The default waiting particles have been set to your current particle setup!");
+        addDefault("Info.specificParticlesUpdated", "&b↑ &8» &7The waiting particles settings for &b{type} &7have been set to your current particle setup!");
 
         addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
         addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");
@@ -275,6 +278,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Descriptions.movehome", "Moves a home to a new location.");
         addDefault("Descriptions.setmainhome", "Sets a home at your location or makes an existing one your main home.");
         addDefault("Descriptions.purge", "Removes all warps or homes for the specified player or world.");
+        addDefault("Descriptions.particles", "Ports your current particle selection to the default waiting particles configuration, or a command one.");
 
         addDefault("Usages.Subcommands.help", "/at help [Category|Page]");
         addDefault("Usages.Subcommands.info", "/at info");
@@ -282,6 +286,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Usages.Subcommands.export", "/at export <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
         addDefault("Usages.Subcommands.purge", "/at purge <Homes|Warps> <Player|World> <Player Name|World Name>");
         addDefault("Usages.Subcommands.reload", "/at reload");
+        addDefault("Usages.Subcommands.particles", "/at particles [Tpa|Tpahere|Home|Tpr|Warp|Spawn|Back]");
         addDefault("Usages.at", "/at <Command>");
         addDefault("Usages.tpa", "/tpa <Player>");
         addDefault("Usages.tpahere", "/tpahere <Player>");
@@ -358,7 +363,7 @@ public class CustomMessages extends ATConfig {
 
     public static void sendMessage(CommandSender sender, String path, String... placeholders) {
         if (config == null) return;
-        if (false && supportsTitles() && sender instanceof Player) {
+        if (supportsTitles() && sender instanceof Player) {
             Player player = (Player) sender;
 
             ConfigSection titles = config.getConfigSection(path + "_title");
