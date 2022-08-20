@@ -253,7 +253,8 @@ public class NewConfig extends ATConfig {
 
         addDefault("use-particles", true, "Particles", "Whether particles should be used in the plugin.\n" +
                 "Some standalone implementation is used, but otherwise, PlayerParticles is used.");
-        addDefault("default-waiting-particles", "", "The default waiting particles for ");
+        addDefault("default-waiting-particles", "", "The default waiting particles during the warm-up period.");
+        addComment("waiting-particles", "Command-specific waiting particles.");
         addDefault("waiting-particles.tpa", "default");
         addDefault("waiting-particles.tpahere", "default");
         addDefault("waiting-particles.tpr", "default");
@@ -262,7 +263,9 @@ public class NewConfig extends ATConfig {
         addDefault("waiting-particles.home", "default");
         addDefault("waiting-particles.back", "default");
 
-        addDefault("default-teleporting-particles", "spark", "The default particles used when the player teleports.");
+        addDefault("default-teleporting-particles", "spark", "The default particles used as soon as the player teleports. \n" +
+                "At this time, only spark is supported. However, other recommendations are welcome with that.");
+        addComment("teleporting-particles", "Command-specific teleporting particles.");
         addDefault("teleporting-particles.tpa", "default");
         addDefault("teleporting-particles.tpahere", "default");
         addDefault("teleporting-particles.tpr", "default");
