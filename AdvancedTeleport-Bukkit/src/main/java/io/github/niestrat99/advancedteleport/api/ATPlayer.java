@@ -144,6 +144,7 @@ public class ATPlayer {
             PaymentManager.getInstance().withdraw(command, player);
         }
     }
+    
     /**
      * Returns whether teleportation is enabled for the player. This allows the player to receive teleportation requests
      * if set to true.

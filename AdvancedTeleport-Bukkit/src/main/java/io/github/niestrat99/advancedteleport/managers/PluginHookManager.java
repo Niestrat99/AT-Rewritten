@@ -15,6 +15,7 @@ import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.hooks.particles.PlayerParticlesHook;
+import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import org.bukkit.World;
 
 import java.lang.reflect.InvocationTargetException;
@@ -93,8 +94,7 @@ public class PluginHookManager {
             mapPlugins.put(name, clazz.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
-        } catch (NoClassDefFoundError ignored) {
-
+        } catch (NoClassDefFoundError ignored) { // Why are you like this essentials?
         }
     }
 
