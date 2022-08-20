@@ -12,6 +12,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
+import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
@@ -136,13 +137,13 @@ public class ATPlayer {
             MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp,
                     "{home}", event.getLocName(), "{warp}", event.getLocName());
         } else {
+            ParticleManager.onTeleport(player, command);
             PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
             CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
                     event.getLocName());
             PaymentManager.getInstance().withdraw(command, player);
         }
     }
-
     /**
      * Returns whether teleportation is enabled for the player. This allows the player to receive teleportation requests
      * if set to true.

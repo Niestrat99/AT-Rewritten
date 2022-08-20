@@ -4,8 +4,11 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.managers.MovementManager;
+import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -30,9 +33,12 @@ public class PlayerListeners implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        if (event.getPlayer().hasMetadata("NPC")) return;
-        ATPlayer.removePlayer(event.getPlayer());
+        Player player = event.getPlayer();
+        if (player.hasMetadata("NPC")) return;
+        ATPlayer.removePlayer(player);
+        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+            MovementManager.ImprovedRunnable runnable = MovementManager.getMovement().get(player.getUniqueId());
+            ParticleManager.removeParticles(event.getPlayer(), runnable.getCommand());
+        }
     }
-
-
 }

@@ -43,6 +43,10 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
 
+    public ConfigOption<Boolean> USE_PARTICLES;
+    public PerCommandOption<String> TELEPORT_PARTICLES;
+    public PerCommandOption<String> WAITING_PARTICLES;
+
     public ConfigOption<Boolean> USE_MYSQL;
     public ConfigOption<String> MYSQL_HOST;
     public ConfigOption<Integer> MYSQL_PORT;
@@ -246,6 +250,26 @@ public class NewConfig extends ATConfig {
         addDefault("per-command-cost.back", "default", "Cost for /back");
         //addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
         //addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
+
+        addDefault("use-particles", true, "Particles", "Whether particles should be used in the plugin.\n" +
+                "Some standalone implementation is used, but otherwise, PlayerParticles is used.");
+        addDefault("default-waiting-particles", "", "The default waiting particles for ");
+        addDefault("waiting-particles.tpa", "default");
+        addDefault("waiting-particles.tpahere", "default");
+        addDefault("waiting-particles.tpr", "default");
+        addDefault("waiting-particles.warp", "default");
+        addDefault("waiting-particles.spawn", "default");
+        addDefault("waiting-particles.home", "default");
+        addDefault("waiting-particles.back", "default");
+
+        addDefault("default-teleporting-particles", "spark", "The default particles used when the player teleports.");
+        addDefault("teleporting-particles.tpa", "default");
+        addDefault("teleporting-particles.tpahere", "default");
+        addDefault("teleporting-particles.tpr", "default");
+        addDefault("teleporting-particles.warp", "default");
+        addDefault("teleporting-particles.spawn", "default");
+        addDefault("teleporting-particles.home", "default");
+        addDefault("teleporting-particles.back", "default");
 
         addSection("SQL Storage");
 
@@ -661,6 +685,10 @@ public class NewConfig extends ATConfig {
         COST_AMOUNT = new ConfigOption<>("cost-amount");
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
 
+        USE_PARTICLES = new ConfigOption<>("use-particles");
+        WAITING_PARTICLES = new PerCommandOption<>("waiting-particles", "default-waiting-particles");
+        TELEPORT_PARTICLES = new PerCommandOption<>("teleporting-particles", "default-teleporting-particles");
+
         USE_MYSQL = new ConfigOption<>("use-mysql");
         MYSQL_HOST = new ConfigOption<>("mysql-host");
         MYSQL_PORT = new ConfigOption<>("mysql-port");
@@ -808,7 +836,6 @@ public class NewConfig extends ATConfig {
             } else {
                 return (T) instance.get(path);
             }
-
         }
     }
 

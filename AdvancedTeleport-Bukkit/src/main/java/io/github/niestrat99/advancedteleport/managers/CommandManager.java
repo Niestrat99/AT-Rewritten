@@ -73,6 +73,7 @@ public class CommandManager {
         subcommands.put("info", new InfoCommand());
         subcommands.put("export", new ExportCommand());
         subcommands.put("purge", new PurgeCommand());
+        subcommands.put("particles", new ParticlesCommand());
     }
 
     private static void register(String name, ATCommand atCommand) {

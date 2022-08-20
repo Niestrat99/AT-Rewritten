@@ -4,8 +4,12 @@ import org.bukkit.entity.Player;
 
 public abstract class ParticlesPlugin {
 
-    public abstract void canUse();
+    public abstract boolean canUse();
 
     public abstract void applyParticles(Player player, String command);
+
+    public abstract void removeParticles(Player player, String command);
+
+    public abstract String getParticle(Player player);
 
 }
