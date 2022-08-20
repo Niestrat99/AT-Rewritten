@@ -23,7 +23,7 @@ public class RTPManager {
         try {
             getPreviousLocations();
         } catch (IOException e) {
-            e.printStackTrace();
+            CoreClass.getInstance().getLogger().severe("Failed to load previous RTP locations, generating new ones: " + e.getMessage());
         }
         for (World loadedWorld : Bukkit.getWorlds()) {
             loadWorldData(loadedWorld);
@@ -62,7 +62,10 @@ public class RTPManager {
         if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
         tries++;
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
-            return CompletableFuture.completedFuture(locQueue.get(world.getUID()).poll());
+            Location loc = locQueue.get(world.getUID()).poll();
+            if (!PluginHookManager.get().isClaimed(loc)) {
+                return CompletableFuture.completedFuture(loc);
+            }
         }
         Location location = RandomCoords.generateCoords(world);
         int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};

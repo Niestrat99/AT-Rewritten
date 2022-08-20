@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands;
 
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -11,6 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface ATCommand extends TabExecutor {
+
+    default boolean canProceed(@NotNull CommandSender sender) {
+        if (!getRequiredFeature()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return false;
+        }
+        return sender.hasPermission(getPermission());
+    }
+
+    boolean getRequiredFeature();
+
+    String getPermission();
 
     @Nullable
     @Override

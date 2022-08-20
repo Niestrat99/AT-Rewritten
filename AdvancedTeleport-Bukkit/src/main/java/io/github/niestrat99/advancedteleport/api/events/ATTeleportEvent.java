@@ -3,11 +3,12 @@ package io.github.niestrat99.advancedteleport.api.events;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class ATTeleportEvent extends Event implements Cancellable {
+/**
+ * Fired when a player is teleporting using AT.
+ */
+public class ATTeleportEvent extends CancellableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
     private Player player;
@@ -15,7 +16,6 @@ public class ATTeleportEvent extends Event implements Cancellable {
     private Location fromLoc;
     private String locName;
     private TeleportType type;
-    private boolean cancelled = false;
 
     public ATTeleportEvent(Player player, Location toLoc, Location fromLoc, String locName, TeleportType type) {
         this.player = player;
@@ -58,16 +58,6 @@ public class ATTeleportEvent extends Event implements Cancellable {
 
     public void setToLocation(Location toLoc) {
         this.toLoc = toLoc;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean b) {
-        cancelled = b;
     }
 
     public enum TeleportType {
