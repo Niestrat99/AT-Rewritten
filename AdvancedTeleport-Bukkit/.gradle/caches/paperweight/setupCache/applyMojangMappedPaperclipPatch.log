@@ -1,2 +1,0 @@
-Command: C:\Users\holly\.gradle\jdks\jdk-17.0.1+12\bin\java.exe -Dpaperclip.patchonly=true -classpath C:\Users\holly\Documents\AT-Rewritten\AdvancedTeleport-Bukkit\.gradle\caches\paperweight\setupCache\extractDevBundle.dir\data\paperclip-mojang+yarn.jar io.papermc.paperclip.Main
-Applying patches

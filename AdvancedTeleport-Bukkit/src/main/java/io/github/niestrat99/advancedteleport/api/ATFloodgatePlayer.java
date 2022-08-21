@@ -178,6 +178,8 @@ public class ATFloodgatePlayer extends ATPlayer {
 
             getPlayer().performCommand("advancedteleport:" + command + " " + result);
         });
+
+        FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
 
     private List<String> getVisiblePlayerNames() {
