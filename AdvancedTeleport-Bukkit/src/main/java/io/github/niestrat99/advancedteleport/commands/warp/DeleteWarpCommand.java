@@ -16,7 +16,6 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-
         if (args.length == 0) {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
