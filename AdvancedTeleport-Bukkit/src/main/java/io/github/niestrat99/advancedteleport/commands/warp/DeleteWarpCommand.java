@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -13,16 +15,19 @@ public class DeleteWarpCommand extends AbstractWarpCommand implements AsyncATCom
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
-
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
         if (!sender.hasPermission("at.admin.delwarp")) {
             CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
         if (args.length == 0) {
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
+                ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                if (atPlayer instanceof ATFloodgatePlayer) {
+                    ((ATFloodgatePlayer) atPlayer).sendDeleteWarpForm();
+                    return true;
+                }
+            }
             CustomMessages.sendMessage(sender, "Error.noWarpInput");
             return true;
         }

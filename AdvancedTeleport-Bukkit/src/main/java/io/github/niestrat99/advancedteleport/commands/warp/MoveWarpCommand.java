@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import org.bukkit.Location;
@@ -21,11 +23,16 @@ public class MoveWarpCommand extends AbstractWarpCommand {
             CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
+        Player player = (Player) sender;
         if (args.length == 0) {
-            CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) atPlayer).sendMoveWarpForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            }
             return true;
         }
-        Player player = (Player) sender;
         Location warpLoc = player.getLocation();
         Warp warp = Warp.getWarps().get(args[0]);
         if (warp != null) {

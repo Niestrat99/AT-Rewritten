@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
@@ -25,8 +26,16 @@ public class WarpCommand extends AbstractWarpCommand {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
+
+        Player player = (Player) sender;
+
         if (args.length == 0) {
-            CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) atPlayer).sendWarpForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            }
             return true;
         }
         if (!sender.hasPermission("at.member.warp")) {
@@ -34,7 +43,6 @@ public class WarpCommand extends AbstractWarpCommand {
             return true;
         }
 
-        Player player = (Player) sender;
         int cooldown = CooldownManager.secondsLeftOnCooldown("warp", player);
         if (cooldown > 0) {
             CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
