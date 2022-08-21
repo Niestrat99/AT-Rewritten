@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
@@ -19,26 +20,39 @@ public class WarpCommand extends AbstractWarpCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (args.length > 0) {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                int cooldown = CooldownManager.secondsLeftOnCooldown("warp", player);
-                if (cooldown > 0) {
-                    CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-                    return true;
-                }
-                if (AdvancedTeleportAPI.getWarps().containsKey(args[0])) {
-                    if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                        CustomMessages.sendMessage(player, "Error.onCountdown");
-                        return true;
-                    }
-                    Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
-                    warp(warp, player);
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.noSuchWarp");
-                }
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+
+        Player player = (Player) sender;
+
+        if (args.length == 0) {
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) atPlayer).sendWarpForm();
             } else {
-                CustomMessages.sendMessage(sender, "Error.notAPlayer");
+                CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            }
+            return true;
+        }
+        if (!sender.hasPermission("at.member.warp")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+
+        int cooldown = CooldownManager.secondsLeftOnCooldown("warp", player);
+        if (cooldown > 0) {
+            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            return true;
+        }
+        if (AdvancedTeleportAPI.getWarps().containsKey(args[0])) {
+            if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+                CustomMessages.sendMessage(player, "Error.onCountdown");
+                return true;
+            } else {
+                Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
+                warp(warp, player);
             }
         } else {
             CustomMessages.sendMessage(sender, "Error.noWarpInput");
