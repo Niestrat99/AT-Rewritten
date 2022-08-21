@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -45,6 +46,8 @@ public class SetHomeCommand implements AsyncATCommand {
                 int limit = atPlayer.getHomesLimit();
                 if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
                     setHome(player, "home");
+                } else if (atPlayer instanceof ATFloodgatePlayer) {
+                    ((ATFloodgatePlayer) atPlayer).sendSetHomeForm();
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noHomeInput");
                 }

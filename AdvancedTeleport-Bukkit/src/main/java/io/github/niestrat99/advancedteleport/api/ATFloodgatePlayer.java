@@ -10,9 +10,7 @@ import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class ATFloodgatePlayer extends ATPlayer {
 
@@ -34,25 +32,11 @@ public class ATFloodgatePlayer extends ATPlayer {
             players.add(player.getName());
         }
 
-        CustomForm form = CustomForm.builder()
-                .title("TPA Request")
-                .dropdown("Select a player to send a TPA request to.", players.toArray(new String[0]))
-                .build();
-
-        form.setResponseHandler(responseData -> {
-            CustomFormResponse response = form.parseResponse(responseData);
-            if (getPlayer() == null) {
-                CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid.toString() + " is null, WHY?");
-                return;
-            }
-
-            int index = response.getDropdown(0);
-            String player = players.get(index);
-
-            getPlayer().performCommand((here ? "advancedteleport:tpa " : "advancedteleport:tpahere ") + player);
-        });
-
-        FloodgateApi.getInstance().sendForm(floodgateUuid, form);
+        if (here) {
+            sendDropdownForm("tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.", players);
+        } else {
+            sendDropdownForm("tpa", "TPA Request", "Select a player to send a TPA request to.", players);
+        }
     }
 
     public void sendRequestFormTPA(Player sender) {
@@ -98,14 +82,31 @@ public class ATFloodgatePlayer extends ATPlayer {
     }
 
     public void sendHomeForm() {
-        String[] homes = new String[getHomes().size()];
-        int i = 0;
-        for (String home : getHomes().keySet()) {
-            homes[i] = home;
-            i++;
-        }
+        sendDropdownForm("home", "Homes", "Select a home to teleport to.", getHomes().keySet());
+    }
 
-        CustomForm form = CustomForm.builder().title("Homes").dropdown("Select a home to teleport to.", homes).build();
+    public void sendSetHomeForm() {
+        sendInputForm("sethome", "Set Home", "Enter a home name.");
+    }
+
+    public void sendDeleteHomeForm() {
+        sendDropdownForm("delhome", "Delete Home", "Select the home to delete.", getHomes().keySet());
+    }
+
+    public void sendSetMainHomeForm() {
+        sendInputForm("setmainhome", "Set Main Home", "Enter an existing home name or a new one.");
+    }
+
+    public void sendMoveHomeForm() {
+        sendDropdownForm("movehome", "Move Home", "Choose the home to be moved.", getHomes().keySet());
+    }
+
+    public void sendWarpForm() {
+        sendDropdownForm("warp", "Warps", "Select a warp to teleport to.", Warp.getWarps().keySet());
+    }
+
+    private void sendInputForm(String command, String title, String prompt) {
+        CustomForm form = CustomForm.builder().title(title).input(prompt).build();
 
         form.setResponseHandler(responseData -> {
             CustomFormResponse response = form.parseResponse(responseData);
@@ -114,11 +115,36 @@ public class ATFloodgatePlayer extends ATPlayer {
                 return;
             }
 
-            int index = response.getDropdown(0);
-            String home = homes[index];
-
-            getPlayer().performCommand("advancedteleport:home " + home);
+            String name = response.getInput(0);
+            getPlayer().performCommand("advancedteleport:" + command + " " + name);
         });
+
+        FloodgateApi.getInstance().sendForm(floodgateUuid, form);
+    }
+
+    private void sendDropdownForm(String command, String title, String prompt, Collection<String> inputs) {
+        String[] items = new String[inputs.size()];
+        int index = 0;
+        for (String input : inputs) {
+            items[index++] = input;
+        }
+
+        CustomForm form = CustomForm.builder().title(title).dropdown(prompt, items).build();
+
+        form.setResponseHandler(responseData -> {
+            CustomFormResponse response = form.parseResponse(responseData);
+            if (getPlayer() == null) {
+                CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid.toString() + " is null, WHY?");
+                return;
+            }
+
+            int i = response.getDropdown(0);
+            String result = items[i];
+
+            getPlayer().performCommand("advancedteleport:" + command + " " + result);
+        });
+
+        FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
 
     @Nullable

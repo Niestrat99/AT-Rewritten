@@ -33,9 +33,15 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
                                                     ".setMainHomeFail",
                                             "{home}", homeName, "{player}", args[0]));
                         } else {
-                            atTarget.addHome(homeName, player.getLocation(), player).thenAccept(result ->
-                                    CustomMessages.sendMessage(sender, result ? "Info.setAndMadeMainHomeOther" :
-                                            "Error.setMainHomeFail", "{home}", homeName, "{player}", args[0]));
+                            if (atPlayer.canSetMoreHomes()) {
+                                atPlayer.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result ->
+                                                atPlayer.setMainHome(homeName).thenAcceptAsync(result2 ->
+                                                                CustomMessages.sendMessage(sender, result2 ? "Info" +
+                                                                        ".setAndMadeMainHome" :
+                                                                        "Error.setMainHomeFail", "{home}", homeName),
+                                                        CoreClass.async),
+                                        CoreClass.async);
+                            }
                         }
                         return true;
                     }
