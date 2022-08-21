@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
@@ -34,7 +35,11 @@ public class SetMainHomeCommand extends AbstractHomeCommand implements AsyncATCo
         Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (args.length == 0) {
-            CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            if (atPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) atPlayer).sendSetMainHomeForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            }
             return true;
         }
         if (args.length > 1 && sender.hasPermission("at.admin.setmainhome")) {
@@ -71,7 +76,6 @@ public class SetMainHomeCommand extends AbstractHomeCommand implements AsyncATCo
                                 sender, "Info.setAndMadeMainHome", "Error.setMainHomeFail", "{home}", homeName)));
             }
         }
-
 
         return true;
     }
