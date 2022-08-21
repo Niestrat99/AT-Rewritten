@@ -105,6 +105,18 @@ public class ATFloodgatePlayer extends ATPlayer {
         sendDropdownForm("warp", "Warps", "Select a warp to teleport to.", Warp.getWarps().keySet());
     }
 
+    public void sendDeleteWarpForm() {
+        sendDropdownForm("delwarp", "Delete Warp", "Select a warp to delete.", Warp.getWarps().keySet());
+    }
+
+    public void sendSetWarpForm() {
+        sendInputForm("setwarp", "Set Warp", "Enter a warp name.");
+    }
+
+    public void sendMoveWarpForm() {
+        sendDropdownForm("movewarp", "Move Warp", "Select a warp to move.", Warp.getWarps().keySet());
+    }
+
     private void sendInputForm(String command, String title, String prompt) {
         CustomForm form = CustomForm.builder().title(title).input(prompt).build();
 
