@@ -109,6 +109,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> CHECK_FOR_UPDATES;
     public ConfigOption<Boolean> NOTIFY_ADMINS;
     public ConfigOption<Boolean> DEBUG;
+    public ConfigOption<Boolean> USE_FLOODGATE_FORMS;
 
     private static NewConfig instance;
     private static List<String> defaults;
@@ -504,6 +505,9 @@ public class NewConfig extends ATConfig {
         addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
                 "Anyone with the permission at.admin.notify will receive this notification.");
         addDefault("debug", false, "Used for debugging purposes.");
+        addDefault("use-floodgate-forms", true, "Whether to use Cumulus forms for Bedrock players.\n" +
+                "These work by having a Bedrock player type in the command itself (such as /warp, /tpa, /setwarp), then fill in the rest of the commands through a form.\n" +
+                "This only works when Geyser and Floodgate are used on the server. This improves accessibility for mobile or console players.");
 
     }
 
@@ -726,6 +730,7 @@ public class NewConfig extends ATConfig {
         CHECK_FOR_UPDATES = new ConfigOption<>("check-for-updates");
         NOTIFY_ADMINS = new ConfigOption<>("notify-admins-on-update");
         DEBUG = new ConfigOption<>("debug");
+        USE_FLOODGATE_FORMS = new ConfigOption<>("use-floodgate-forms");
 
         new PaymentManager();
         LimitationsManager.init();

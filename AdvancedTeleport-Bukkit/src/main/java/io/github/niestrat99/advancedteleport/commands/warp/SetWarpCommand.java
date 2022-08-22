@@ -4,6 +4,11 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+<<<<<<< HEAD
+=======
+import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+>>>>>>> 771f0be (Add config option to toggle forms)
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -29,7 +34,7 @@ public class SetWarpCommand extends AbstractWarpCommand {
 
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer) {
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendSetWarpForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");

@@ -46,7 +46,7 @@ public class SetHomeCommand implements AsyncATCommand {
                 int limit = atPlayer.getHomesLimit();
                 if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
                     setHome(player, "home");
-                } else if (atPlayer instanceof ATFloodgatePlayer) {
+                } else if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                     ((ATFloodgatePlayer) atPlayer).sendSetHomeForm();
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noHomeInput");

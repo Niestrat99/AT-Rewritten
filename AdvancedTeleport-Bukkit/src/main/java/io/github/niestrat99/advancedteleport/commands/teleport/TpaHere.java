@@ -46,7 +46,7 @@ public class TpaHere extends TeleportATCommand {
         }
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer) {
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendTPAForm(true);
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
@@ -66,7 +66,7 @@ public class TpaHere extends TeleportATCommand {
             CoreClass.playSound("tpahere", "sent", player);
             ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
-            if (targetPlayer instanceof ATFloodgatePlayer) {
+            if (targetPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPAHere(player);
             } else {
                 CustomMessages.sendMessage(target, "Info.tpaRequestHere",

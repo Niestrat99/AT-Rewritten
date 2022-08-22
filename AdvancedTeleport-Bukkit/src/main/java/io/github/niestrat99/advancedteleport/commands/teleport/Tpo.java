@@ -26,7 +26,7 @@ public class Tpo extends TeleportATCommand {
         Player player = (Player) sender;
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer) {
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendTpoForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
