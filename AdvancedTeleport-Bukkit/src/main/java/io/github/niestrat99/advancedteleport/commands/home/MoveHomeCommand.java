@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -13,26 +14,24 @@ public class MoveHomeCommand extends AbstractHomeCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
+        
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (args.length > 0) {
-                if (sender.hasPermission("at.admin.movehome")) {
-                    // We'll just assume that the admin command overrides the homes limit.
-                    if (args.length > 1) {
-                        ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
-                            if (!atTarget.getHomes().containsKey(args[1])) {
-                                CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                                return;
-                            }
-                            atTarget.moveHome(args[1], player.getLocation()).thenAcceptAsync(result ->
-                                    CustomMessages.sendMessage(sender, result ? "Info.movedHomeOther" :
-                                            "Error.moveHomeFail", "{player}", args[0], "{home}", args[1]));
-
-                        });
-
-                        return true;
+        if (args.length == 0) {
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendMoveHomeForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            }
+            return true;
+        }
+        if (sender.hasPermission("at.admin.movehome")) {
+            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+            // We'll just assume that the admin command overrides the homes limit.
+            if (args.length > 1) {
+                ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
+                    if (!atTarget.getHomes().containsKey(args[1])) {
+                        CustomMessages.sendMessage(sender, "Error.noSuchHome");
+                        return;
                     }
                 }
 

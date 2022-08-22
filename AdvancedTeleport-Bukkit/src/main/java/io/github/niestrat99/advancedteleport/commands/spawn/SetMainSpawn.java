@@ -22,6 +22,14 @@ public class SetMainSpawn extends SpawnATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
+        if (!NewConfig.get().USE_SPAWN.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+        if (!sender.hasPermission("at.admin.setmainspawn")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
         String id;
         boolean world = true;
         if (args.length > 0) {

@@ -1,6 +1,9 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
@@ -15,26 +18,37 @@ public class Tpo extends TeleportATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            if (args.length > 0) {
-                if (args[0].equalsIgnoreCase(player.getName())) {
-                    CustomMessages.sendMessage(sender, "Error.requestSentToSelf");
-                    return true;
-                }
-                Player target = Bukkit.getPlayer(args[0]);
-                if (target == null) {
-                    CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
-                } else {
-                    CustomMessages.sendMessage(sender, "Teleport.teleporting", "{player}", target.getName());
-                    PaperLib.teleportAsync(player, target.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                }
-                return true;
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
+            CustomMessages.sendMessage(sender, "Error.featureDisabled");
+            return true;
+        }
+
+        if (!sender.hasPermission("at.admin.tpo")) {
+            CustomMessages.sendMessage(sender, "Error.noPermission");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        if (args.length == 0) {
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendTpoForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
             }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (args[0].equalsIgnoreCase(player.getName())) {
+            CustomMessages.sendMessage(sender, "Error.requestSentToSelf");
+            return true;
+        }
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null) {
+            CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
         }
         return true;
     }

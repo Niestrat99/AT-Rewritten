@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
@@ -59,6 +60,12 @@ public class HomesCommand implements ATCommand {
 
     private void getHomes(CommandSender sender, OfflinePlayer target) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
+
+        if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+            ((ATFloodgatePlayer) atPlayer).sendHomeForm();
+            return;
+        }
+
         FancyMessage hList = new FancyMessage();
 
         String infoPath = "Info.homes";
@@ -99,9 +106,9 @@ public class HomesCommand implements ATCommand {
     }
 
     private List<String> getTooltip(CommandSender sender, Home home) {
-        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringA("Tooltip.homes")));
+        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringRaw("Tooltip.homes")));
         if (sender.hasPermission("at.member.homes.location")) {
-            tooltip.addAll(Arrays.asList(CustomMessages.getStringA("Tooltip.location").split("\n")));
+            tooltip.addAll(Arrays.asList(CustomMessages.getStringRaw("Tooltip.location").split("\n")));
         }
         List<String> homeTooltip = new ArrayList<>(tooltip);
         for (int i = 0; i < homeTooltip.size(); i++) {
