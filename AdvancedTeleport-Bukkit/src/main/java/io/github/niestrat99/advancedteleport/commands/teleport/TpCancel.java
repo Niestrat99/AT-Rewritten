@@ -3,6 +3,8 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportCancelEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
@@ -52,6 +54,11 @@ public class TpCancel extends TeleportATCommand {
                         return true;
 
                     } else {
+                        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                        if (atPlayer instanceof ATFloodgatePlayer) {
+                            ((ATFloodgatePlayer) atPlayer).sendCancelForm();
+                            return true;
+                        }
                         // This utility helps in splitting lists into separate pages, like when you list your
                         // plots with PlotMe/PlotSquared.
                         PagedLists<TeleportRequest> requests =
