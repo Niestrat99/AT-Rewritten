@@ -51,7 +51,7 @@ public class WarpsCommand implements ATCommand {
                 }
             }
             int pages = maxPage - minPage + 1;
-            IconMenu menu = new IconMenu(CustomMessages.getStringA("Info.warps"), GUI.getWarpsMenuSlots(), pages, CoreClass.getInstance());
+            IconMenu menu = new IconMenu(CustomMessages.getStringRaw("Info.warps"), GUI.getWarpsMenuSlots(), pages, CoreClass.getInstance());
 
             for (String warpName : warps.getKeys(false)) {
                 ConfigurationSection warp = warps.getConfigurationSection(warpName);
@@ -110,7 +110,7 @@ public class WarpsCommand implements ATCommand {
         } else {
             if (Warp.getWarps().size() > 0) {
                 FancyMessage wList = new FancyMessage();
-                wList.text(CustomMessages.getStringA("Info.warps"));
+                wList.text(CustomMessages.getStringRaw("Info.warps"));
                 int count = 0;
                 for(String warp: Warp.getWarps().keySet()){
                     if (sender.hasPermission("at.member.warp.*") || sender.hasPermission("at.member.warp." + warp)) {
@@ -126,7 +126,7 @@ public class WarpsCommand implements ATCommand {
                     wList.sendProposal(sender, 0);
                     FancyMessage.send(sender);
                 } else {
-                    sender.sendMessage(CustomMessages.getStringA("Error.noWarps"));
+                    sender.sendMessage(CustomMessages.getStringRaw("Error.noWarps"));
                 }
 
             } else {
@@ -137,9 +137,9 @@ public class WarpsCommand implements ATCommand {
     }
 
     private static List<String> getTooltip(CommandSender sender, String warp) {
-        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringA("Tooltip.warps")));
+        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringRaw("Tooltip.warps")));
         if (sender.hasPermission("at.member.warps.location")) {
-            tooltip.addAll(Arrays.asList(CustomMessages.getStringA("Tooltip.location").split("\n")));
+            tooltip.addAll(Arrays.asList(CustomMessages.getStringRaw("Tooltip.location").split("\n")));
         }
         List<String> homeTooltip = new ArrayList<>(tooltip);
         for (int i = 0; i < homeTooltip.size(); i++) {

@@ -327,7 +327,7 @@ public class CustomMessages extends CMFile {
 
     }
 
-    public static String getStringA(String path) {
+    public static String getStringRaw(String path) {
         return translateString(config.getString(path));
     }
 
