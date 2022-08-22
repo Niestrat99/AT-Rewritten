@@ -17,27 +17,28 @@ public class DelHomeCommand extends AbstractHomeCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            if (args.length > 0) {
-                if (sender.hasPermission("at.admin.delhome")) {
-                    if (args.length > 1) {
-                        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                        delHome(target, player, args[1]);
-                        return true;
-                    }
-                }
-                delHome(player, args[0]);
-            } else {
-                ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
-                    ((ATFloodgatePlayer) atPlayer).sendDeleteHomeForm();
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.noHomeInput");
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        if (args.length > 0) {
+            if (sender.hasPermission("at.admin.delhome")) {
+                if (args.length > 1) {
+                    OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+                    delHome(target, player, args[1]);
+                    return true;
                 }
             }
+            delHome(player, args[0]);
         } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendDeleteHomeForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            }
         }
         return true;
     }

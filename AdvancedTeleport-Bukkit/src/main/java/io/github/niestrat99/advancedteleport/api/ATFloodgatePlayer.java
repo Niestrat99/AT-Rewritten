@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.CustomForm;
@@ -94,11 +93,11 @@ public class ATFloodgatePlayer extends ATPlayer {
     }
 
     public void sendWarpForm() {
-        sendDropdownForm("warp", Warp.getWarps().keySet());
+        sendDropdownForm("warp", AdvancedTeleportAPI.getWarps().keySet());
     }
 
     public void sendDeleteWarpForm() {
-        sendDropdownForm("delwarp", Warp.getWarps().keySet());
+        sendDropdownForm("delwarp", AdvancedTeleportAPI.getWarps().keySet());
     }
 
     public void sendSetWarpForm() {
@@ -106,7 +105,7 @@ public class ATFloodgatePlayer extends ATPlayer {
     }
 
     public void sendMoveWarpForm() {
-        sendDropdownForm("movewarp", Warp.getWarps().keySet());
+        sendDropdownForm("movewarp", AdvancedTeleportAPI.getWarps().keySet());
     }
 
     public void sendBlockForm() {
@@ -118,9 +117,9 @@ public class ATFloodgatePlayer extends ATPlayer {
     }
 
     public void sendCancelForm() {
-        List<TPRequest> requests = TPRequest.getRequestsByRequester(getPlayer());
+        List<TeleportRequest> requests = TeleportRequest.getRequestsByRequester(getPlayer());
         List<String> responders = new ArrayList<>();
-        for (TPRequest request : requests) {
+        for (TeleportRequest request : requests) {
             responders.add(request.getResponder().getName());
         }
         sendDropdownForm("tpcancel", responders);

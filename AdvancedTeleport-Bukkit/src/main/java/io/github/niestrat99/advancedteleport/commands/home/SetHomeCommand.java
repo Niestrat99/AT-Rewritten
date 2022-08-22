@@ -23,44 +23,37 @@ public class SetHomeCommand implements AsyncATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (args.length > 0) {
-                OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                if (sender.hasPermission("at.admin.sethome") && player != target) {
-                    // We'll just assume that the admin command overrides the homes limit.
-                    if (args.length > 1) {
-                        setHome(player, target.getUniqueId(), args[1], args[0]);
-                        return true;
-                    }
+        // If the sender isn't a player
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        Player player = (Player) sender;
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+        if (args.length > 0) {
+            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+            if (sender.hasPermission("at.admin.sethome") && player != target) {
+                // We'll just assume that the admin command overrides the homes limit.
+                if (args.length > 1) {
+                    setHome(player, target.getUniqueId(), args[1], args[0]);
+                    return true;
                 }
-
-                if (atPlayer.canSetMoreHomes()) {
-                    setHome(player, args[0]);
-
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
-                }
-<<<<<<< HEAD
             }
 
             if (atPlayer.canSetMoreHomes() || (NewConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
                 setHome(player, args[0]);
-=======
->>>>>>> d8e14ed (Improved API and more events (#78))
             } else {
-                int limit = atPlayer.getHomesLimit();
-                if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
-                    setHome(player, "home");
-                } else if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
-                    ((ATFloodgatePlayer) atPlayer).sendSetHomeForm();
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.noHomeInput");
-                }
+                CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
             }
         } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            int limit = atPlayer.getHomesLimit();
+            if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
+                setHome(player, "home");
+            } else if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendSetHomeForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            }
         }
         return true;
     }
