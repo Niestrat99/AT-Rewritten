@@ -325,6 +325,28 @@ public class CustomMessages extends CMFile {
         addDefault("Usages-Admin.setmainhome", "/setmainhome <Home>|<Player> <Home>");
         addDefault("Usages-Admin.spawn", "/spawn <ID>");
 
+        addFormsDefault("tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");
+        addFormsDefault("tpa", "TPA Request", "Select a player to send a TPA request to.");
+        addFormsDefault("tpa-received", "TPA Request", "The player {player} wants to teleport to you!");
+        addDefault("Forms.tpa-received-accept", "Accept");
+        addDefault("Forms.tpa-received-deny", "Deny");
+        addFormsDefault("tpahere-received", "TPAHere Request", "The player {player} wants you to teleport to them!");
+        addDefault("Forms.tpahere-received-accept", "Accept");
+        addDefault("Forms.tpahere-received-deny", "Deny");
+        addFormsDefault("home", "Homes", "Select a home to teleport to.");
+        addFormsDefault("sethome", "Set Home", "Enter a home name.");
+        addFormsDefault("delhome", "Delete Home", "Select the home to delete.");
+        addFormsDefault("setmainhome", "Set Main Home", "Enter an existing home name or a new one.");
+        addFormsDefault("movehome", "Move Home", "Choose the home to be moved.");
+        addFormsDefault("warp", "Warps", "Select a warp to teleport to.");
+        addFormsDefault("delwarp", "Delete Warp", "Select a warp to delete.");
+        addFormsDefault("setwarp", "Set Warp", "Enter a warp name.");
+        addFormsDefault("movewarp", "Move Warp", "Select a warp to move.");
+        addFormsDefault("tpblock", "Block Player", "Select a player to block.");
+        addFormsDefault("tpunblock", "Unblock Player", "Select a player to unblock.");
+        addFormsDefault("tpcancel", "Cancel TP Request", "Select a request to cancel.");
+        addFormsDefault("tpo", "Teleport", "Select a player to teleport to.");
+        addFormsDefault("tpohere", "Teleport Here", "Select a player to teleport to your location.");
     }
 
     public static String getStringRaw(String path) {
@@ -515,5 +537,11 @@ public class CustomMessages extends CMFile {
         builder.text(str.substring(lastMarkdownPointer));
 
         return builder;
+    }
+
+    private void addFormsDefault(String command, String title, String description) {
+        addDefault("Forms." + command + "-title", title);
+        addDefault("Forms." + command + "-description", description);
+
     }
 }
