@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import org.bukkit.Bukkit;
@@ -58,7 +59,7 @@ public class TpCancel extends TeleportATCommand {
 
                 } else {
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    if (atPlayer instanceof ATFloodgatePlayer) {
+                    if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                         ((ATFloodgatePlayer) atPlayer).sendCancelForm();
                         return true;
                     }

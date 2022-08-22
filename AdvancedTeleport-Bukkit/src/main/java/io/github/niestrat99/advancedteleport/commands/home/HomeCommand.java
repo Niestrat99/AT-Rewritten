@@ -74,7 +74,7 @@ public class HomeCommand extends AbstractHomeCommand {
             if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendHomeForm();
             } else {
-                if (atPlayer instanceof ATFloodgatePlayer) {
+                if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                     ((ATFloodgatePlayer) atPlayer).sendHomeForm();
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noHomeInput");
