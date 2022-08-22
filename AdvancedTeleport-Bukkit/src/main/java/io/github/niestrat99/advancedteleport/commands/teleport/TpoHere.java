@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -29,7 +31,12 @@ public class TpoHere implements ATCommand {
         }
         Player player = (Player) sender;
         if (args.length == 0) {
-            CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) atPlayer).sendTpoHereForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            }
             return true;
         }
         if (args[0].equalsIgnoreCase(player.getName())) {

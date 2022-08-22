@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -32,15 +33,19 @@ public class TpUnblock implements AsyncATCommand {
         }
 
         Player player = (Player) sender;
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (args.length == 0) {
-            CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            if (atPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) atPlayer).sendUnblockForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            }
             return true;
         }
         if (args[0].equalsIgnoreCase(player.getName())) {
             CustomMessages.sendMessage(sender, "Error.blockSelf");
             return true;
         }
-        ATPlayer atPlayer = ATPlayer.getPlayer(player);
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
             if (!atPlayer.hasBlocked(target)) {

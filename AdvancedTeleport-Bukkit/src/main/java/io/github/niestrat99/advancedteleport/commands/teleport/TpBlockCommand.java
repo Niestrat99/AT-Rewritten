@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -32,9 +33,14 @@ public class TpBlockCommand implements AsyncATCommand {
         }
 
         Player player = (Player) sender;
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         if (args.length == 0) {
-            CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            if (atPlayer instanceof ATFloodgatePlayer) {
+                ((ATFloodgatePlayer) atPlayer).sendBlockForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            }
             return true;
         }
         // Don't block ourselves lmao
@@ -42,7 +48,6 @@ public class TpBlockCommand implements AsyncATCommand {
             CustomMessages.sendMessage(sender, "Error.blockSelf");
             return true;
         }
-        ATPlayer atPlayer = ATPlayer.getPlayer(player);
         // Must be async due to searching for offline player
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             //
