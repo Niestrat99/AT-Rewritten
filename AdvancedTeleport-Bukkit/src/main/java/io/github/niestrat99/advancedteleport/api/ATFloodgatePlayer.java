@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.CustomForm;
@@ -22,20 +23,10 @@ public class ATFloodgatePlayer extends ATPlayer {
     }
 
     public void sendTPAForm(boolean here) {
-        List<String> players = new ArrayList<>();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player == getPlayer()) continue;
-            if (!getPlayer().canSee(player)) continue;
-            ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer.hasBlocked(getPlayer()) || hasBlocked(player)) continue;
-
-            players.add(player.getName());
-        }
-
         if (here) {
-            sendDropdownForm("tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.", players);
+            sendDropdownForm("tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.", getVisiblePlayerNames());
         } else {
-            sendDropdownForm("tpa", "TPA Request", "Select a player to send a TPA request to.", players);
+            sendDropdownForm("tpa", "TPA Request", "Select a player to send a TPA request to.", getVisiblePlayerNames());
         }
     }
 
@@ -117,6 +108,31 @@ public class ATFloodgatePlayer extends ATPlayer {
         sendDropdownForm("movewarp", "Move Warp", "Select a warp to move.", Warp.getWarps().keySet());
     }
 
+    public void sendBlockForm() {
+        sendDropdownForm("tpblock", "Block Player", "Select a player to block.", getVisiblePlayerNames());
+    }
+
+    public void sendUnblockForm() {
+        sendDropdownForm("tpunblock", "Unblock Player", "Select a player to unblock.", getVisiblePlayerNames());
+    }
+
+    public void sendCancelForm() {
+        List<TPRequest> requests = TPRequest.getRequestsByRequester(getPlayer());
+        List<String> responders = new ArrayList<>();
+        for (TPRequest request : requests) {
+            responders.add(request.getResponder().getName());
+        }
+        sendDropdownForm("tpcancel", "Cancel TP Request", "Select a request to cancel.", responders);
+    }
+
+    public void sendTpoForm() {
+        sendDropdownForm("tpo", "Teleport", "Select a player to teleport to.", getVisiblePlayerNames());
+    }
+
+    public void sendTpoHereForm() {
+        sendDropdownForm("tpohere", "Teleport Here", "Select a player to teleport to your location.", getVisiblePlayerNames());
+    }
+
     private void sendInputForm(String command, String title, String prompt) {
         CustomForm form = CustomForm.builder().title(title).input(prompt).build();
 
@@ -157,6 +173,19 @@ public class ATFloodgatePlayer extends ATPlayer {
         });
 
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
+    }
+
+    private List<String> getVisiblePlayerNames() {
+        List<String> players = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player == getPlayer()) continue;
+            if (!getPlayer().canSee(player)) continue;
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer.hasBlocked(getPlayer()) || hasBlocked(player)) continue;
+
+            players.add(player.getName());
+        }
+        return players;
     }
 
     @Nullable

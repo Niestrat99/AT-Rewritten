@@ -5,11 +5,7 @@
     <parent>
         <artifactId>AdvancedTeleport</artifactId>
         <groupId>io.github.niestrat99</groupId>
-<<<<<<< HEAD
         <version>v5.6.4</version>
-=======
-        <version>v5.6.2</version>
->>>>>>> 42381dd (Improved API and more events (#78))
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
