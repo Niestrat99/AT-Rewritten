@@ -1,12 +1,10 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -14,11 +12,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class SetMainHomeCommand extends AbstractHomeCommand implements AsyncATCommand {
+public class SetMainHomeCommand extends AbstractHomeCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
+                             @NotNull String[] args) {
+        
+        if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
@@ -42,6 +42,7 @@ public class SetMainHomeCommand extends AbstractHomeCommand implements AsyncATCo
             }
             return true;
         }
+        // TODO deprecated code
         if (args.length > 1 && sender.hasPermission("at.admin.setmainhome")) {
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
             if (target != player) {
@@ -76,7 +77,11 @@ public class SetMainHomeCommand extends AbstractHomeCommand implements AsyncATCo
                                 sender, "Info.setAndMadeMainHome", "Error.setMainHomeFail", "{home}", homeName)));
             }
         }
-
         return true;
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.setmainhome";
     }
 }

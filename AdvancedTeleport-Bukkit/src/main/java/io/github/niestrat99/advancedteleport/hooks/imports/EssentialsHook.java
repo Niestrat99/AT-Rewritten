@@ -8,6 +8,7 @@ import com.earth2me.essentials.commands.WarpNotFoundException;
 import com.earth2me.essentials.spawn.EssentialsSpawn;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
@@ -22,13 +23,14 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.UUID;
 
 public class EssentialsHook extends ImportExportPlugin {
@@ -65,12 +67,12 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (user == null) continue;
                 if (user.getName() == null) continue;
                 for (String home : user.getHomes()) {
-                    ATPlayer player = ATPlayer.getPlayer(user.getName());
-                    if (player != null) {
+                    if (ATPlayer.isPlayerCached(user.getName())) {
+                        ATPlayer player = ATPlayer.getPlayer(user.getName());
                         if (!player.hasHome(home)) {
-                            player.addHome(home, user.getHome(home), null);
+                            player.addHome(home, user.getHome(home), (Player) null);
                         } else {
-                            player.moveHome(home, user.getHome(home), null);
+                            player.moveHome(home, user.getHome(home));
                         }
                     } else {
                         try (Connection connection = HomeSQLManager.get().implementConnection()) {
@@ -109,8 +111,8 @@ public class EssentialsHook extends ImportExportPlugin {
                         || user.getName() == null
                         || user.getLastLocation() == null
                         || user.getLastLocation().getWorld() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setPreviousLocation(user.getLastLocation());
                 } else {
                     PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation(), null);
@@ -132,8 +134,8 @@ public class EssentialsHook extends ImportExportPlugin {
 
         for (String warp : warps.getList()) {
             try {
-                if (Warp.getWarps().containsKey(warp)) {
-                    Warp.getWarps().get(warp).setLocation(warps.getWarp(warp), null);
+                if (AdvancedTeleportAPI.getWarps().containsKey(warp)) {
+                    AdvancedTeleportAPI.getWarps().get(warp).setLocation(warps.getWarp(warp));
                 } else {
                     WarpSQLManager.get().addWarp(new Warp(warps.getLastOwner(warp),
                             warp,
@@ -172,7 +174,13 @@ public class EssentialsHook extends ImportExportPlugin {
         for (String key : spawns.getKeys(false)) {
             ConfigurationSection spawnSection = spawns.getConfigurationSection(key);
             Location loc = getLocationFromSection(spawnSection);
-            Spawn.get().setSpawn(loc, key);
+            try {
+                Spawn.get().setSpawn(loc, key);
+            } catch (IOException e) {
+                CoreClass.getInstance().getLogger().severe("Failed to set spawn " + key + ": " + e.getMessage());
+                e.printStackTrace();
+                continue;
+            }
             debug("Set spawn for " + key);
             if (key.equals("default")) {
                 setMainSpawn = true;
@@ -206,10 +214,10 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player == null) {
+                if (!ATPlayer.isPlayerCached(user.getName())) {
                     PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled(), null);
                 } else {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setTeleportationEnabled(user.isTeleportEnabled(), null);
                 }
             } catch (Exception ex) {
@@ -234,8 +242,8 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     for (String home : player.getHomes().keySet()) {
                         user.setHome(home, player.getHome(home).getLocation());
                     }
@@ -277,8 +285,8 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     user.setLastLocation(player.getPreviousLocation());
                 } else {
                     try (Connection connection = HomeSQLManager.get().implementConnection()) {
@@ -311,7 +319,7 @@ public class EssentialsHook extends ImportExportPlugin {
         Warps warps = essentials.getWarps();
         if (warps == null) return;
 
-        for (Warp warp : Warp.getWarps().values()) {
+        for (Warp warp : AdvancedTeleportAPI.getWarps().values()) {
             try {
                 warps.setWarp(warp.getName(), warp.getLocation());
             } catch (Exception e) {
@@ -360,8 +368,8 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     user.setTeleportEnabled(player.isTeleportationEnabled());
                 } else {
                     try (Connection connection = HomeSQLManager.get().implementConnection()) {

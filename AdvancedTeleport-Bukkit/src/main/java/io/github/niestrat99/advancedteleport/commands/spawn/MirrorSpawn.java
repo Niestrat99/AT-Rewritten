@@ -1,28 +1,19 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Spawn;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class MirrorSpawn implements ATCommand {
+public class MirrorSpawn extends SpawnATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
-
-        if (!NewConfig.get().USE_SPAWN.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.admin.mirrorspawn")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         String fromWorld = "";
         String toWorld = "";
         if (args.length == 0) {
@@ -45,8 +36,16 @@ public class MirrorSpawn implements ATCommand {
             toWorld = args[1];
         }
 
-        CustomMessages.sendMessage(sender, Spawn.get().mirrorSpawn(fromWorld, toWorld), "{spawn}", toWorld, "{from}", fromWorld);
+        String finalToWorld = toWorld;
+        String finalFromWorld = fromWorld;
+        AdvancedTeleportAPI.mirrorSpawn(fromWorld, toWorld, sender).thenAcceptAsync(result ->
+                CustomMessages.sendMessage(sender, result ? "Info.mirroredSpawn" : "Error.noSpawn", "{spawn}",
+                finalToWorld, "{from}", finalFromWorld));
         return true;
+    }
 
+    @Override
+    public String getPermission() {
+        return "at.admin.mirrorspawn";
     }
 }

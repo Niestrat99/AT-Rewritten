@@ -7,13 +7,14 @@
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
     <packaging>pom</packaging>
-    <version>v5.5.8</version>
+    <version>v5.6.4</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--suppress UnresolvedMavenProperty -->
-        <module.version>5.5.8+DEV_${env.BUILD_NUMBER}</module.version>
+        <module.version>5.6.4+DEV_${env.BUILD_NUMBER}</module.version>
         <jenkins.timestamp>${maven.build.timestamp}</jenkins.timestamp>
+        <dir>${project.build.directory}</dir>
     </properties>
 
     <modules>
@@ -22,6 +23,14 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <outputDirectory>${dir}</outputDirectory>
+                </configuration>
+            </plugin>
             <plugin>
                 <!-- Maven wants this otherwise it screams at me -->
                 <groupId>org.apache.maven.plugins</groupId>
@@ -41,7 +50,9 @@
                     <artifactSet>
                         <includes>
                             <include>io.papermc:paperlib</include>
-                            <include>com.github.thatsmusic99:ConfigurationMaster</include>
+                            <include>com.github.thatsmusic99:ConfigurationMaster-API</include>
+                            <include>net.kyori:adventure-nbt</include>
+                            <include>net.kyori:examination-api</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -108,6 +119,16 @@
             <id>mojang-authlib</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
+
+        <!-- World Guard Repo -->
+        <repository>
+            <id>sk89-repo</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
+        <repository>
+            <id>squaremap-snapshots</id>
+            <url>https://repo.jpenilla.xyz/snapshots/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -124,6 +145,21 @@
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
             <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Adventure NBT Dependency -->
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-nbt</artifactId>
+            <version>4.11.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>examination-api</artifactId>
+            <version>1.3.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -162,8 +198,8 @@
 
         <dependency>
             <groupId>com.github.thatsmusic99</groupId>
-            <artifactId>ConfigurationMaster</artifactId>
-            <version>v1.0.3</version>
+            <artifactId>ConfigurationMaster-API</artifactId>
+            <version>v2.0.0-BETA-3</version>
             <scope>compile</scope>
         </dependency>
 
@@ -192,6 +228,38 @@
             <groupId>org.geysermc.floodgate</groupId>
             <artifactId>api</artifactId>
             <version>2.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Dependency Lands -->
+        <dependency>
+            <groupId>com.github.angeschossen</groupId>
+            <artifactId>LandsAPI</artifactId>
+            <version>6.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Dependency Grief Prevention -->
+        <dependency>
+            <groupId>com.github.TechFortress</groupId>
+            <artifactId>GriefPrevention</artifactId>
+            <version>16.18</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Dependency World Guard -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.0.7</version>
+            <scope>provided</scope>
+        </dependency>
+      
+        <!-- squaremap -->
+        <dependency>
+            <groupId>xyz.jpenilla</groupId>
+            <artifactId>squaremap-api</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

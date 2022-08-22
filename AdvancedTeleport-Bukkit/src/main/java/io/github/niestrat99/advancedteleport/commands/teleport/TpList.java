@@ -1,11 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
+import io.github.niestrat99.advancedteleport.api.TeleportRequest;
+import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
-import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,11 +14,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TpList implements AsyncATCommand {
+public class TpList extends TeleportATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] args) {
+        
+        if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
@@ -42,17 +44,17 @@ public class TpList implements AsyncATCommand {
         }
 
         if (args.length == 0) {
-            PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
+            PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequests(player), 8);
             CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
             for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
-                TPRequest request = requests.getContentsInPage(1).get(i);
+                TeleportRequest request = requests.getContentsInPage(1).get(i);
                 new FancyMessage()
                         .command("/tpayes " + request.getRequester().getName())
-                        .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
+                        .text(CustomMessages.getStringA("Info.multipleRequestsIndex")
                                 .replaceAll("\\{player}", request.getRequester().getName()))
                         .sendProposal(player, i);
             }
-            FancyMessage.send(player);
+                    FancyMessage.send(player);
             return true;
         }
         // Check if the argument can be parsed as an actual number.
@@ -74,7 +76,6 @@ public class TpList implements AsyncATCommand {
                                     .replaceAll("\\{player}", request.getRequester().getName()))
                             .sendProposal(player, i);
                 }
-                FancyMessage.send(player);
             } catch (IllegalArgumentException ex) {
                 CustomMessages.sendMessage(player, "Error.invalidPageNo");
             }
@@ -84,9 +85,20 @@ public class TpList implements AsyncATCommand {
         return true;
     }
 
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get();
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.list";
+    }
+
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                                      @NotNull String[] args) {
         return null;
     }
 }

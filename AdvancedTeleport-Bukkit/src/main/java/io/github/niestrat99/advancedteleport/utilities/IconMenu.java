@@ -231,8 +231,10 @@ public class IconMenu implements Listener, InventoryHolder {
                     Field profileField = skullMeta.getClass().getDeclaredField("profile");
                     profileField.setAccessible(true);
                     profileField.set(skullMeta, profile);
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    e.printStackTrace();
+                } catch (NoSuchFieldException e) {
+                    CoreClass.getInstance().getLogger().severe("Failed to access the profile field building an icon menu, apparently it doesn't exist?");
+                } catch (IllegalAccessException ex) {
+                    CoreClass.getInstance().getLogger().severe("Failed to access the profile field building an icon menu, apparently you don't have access to it. Holly, you idiot.");
                 }
                 item.setItemMeta(skullMeta);
             }

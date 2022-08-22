@@ -2,22 +2,19 @@ package io.github.niestrat99.advancedteleport;
 
 import com.wimbli.WorldBorder.WorldBorder;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.GUI;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
 import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
-import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -29,6 +26,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -49,8 +47,6 @@ public class CoreClass extends JavaPlugin {
 
     public static Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
     public static Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
-
-    private NewConfig config;
 
     public static CoreClass getInstance() {
         return Instance;
@@ -92,11 +88,18 @@ public class CoreClass extends JavaPlugin {
         getLogger().info("Advanced Teleport is now enabling...");
         setupEconomy();
         setupPermissions();
-        config = new NewConfig();
-        //    Config.setDefaults();
-        new CustomMessages(this).load();
-        new Spawn();
-        new GUI();
+        for (Class<? extends ATConfig> config : Arrays.asList(NewConfig.class, CustomMessages.class, Spawn.class, GUI.class)) {
+            try {
+                config.getDeclaredConstructor().newInstance();
+            } catch (NoSuchMethodException ex) {
+                getLogger().severe(config.getSimpleName() + " is not properly formed, it shouldn't take any constructor arguments. Please inform the developer.");
+            } catch (InvocationTargetException | InstantiationException e) {
+                getLogger().severe("Failed to load " + config.getSimpleName() + ": " + e.getCause().getMessage());
+            } catch (IllegalAccessException e) {
+                getLogger().severe("Failed to load " + config.getSimpleName() + ", why is the constructor not accessible? Please inform the developer.");
+            }
+        }
+
         CommandManager.registerCommands();
         {
             new BlocklistManager();
@@ -104,6 +107,7 @@ public class CoreClass extends JavaPlugin {
             new PlayerSQLManager();
             new WarpSQLManager();
             new DataFailManager();
+            new MetadataSQLManager();
         }
         registerEvents();
         CooldownManager.init();
@@ -113,7 +117,6 @@ public class CoreClass extends JavaPlugin {
         setupVersion();
         new Metrics(this, 5146);
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            NBTReader.init();
             RTPManager.init();
             if (NewConfig.get().CHECK_FOR_UPDATES.get()) {
                 updateInfo = UpdateChecker.getUpdate();
@@ -144,7 +147,7 @@ public class CoreClass extends JavaPlugin {
         try {
             RTPManager.saveLocations();
         } catch (IOException e) {
-            e.printStackTrace();
+            getLogger().warning("Failed to save RTP locations: " + e.getMessage());
         }
     }
 
@@ -233,10 +236,6 @@ public class CoreClass extends JavaPlugin {
         return perms;
     }
 
-    public NewConfig getConfiguration() {
-        return config;
-    }
-
     private void setupVersion() {
         String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].split("_")[1];
         this.version = Integer.parseInt(bukkitVersion);
@@ -248,5 +247,15 @@ public class CoreClass extends JavaPlugin {
 
     public Object[] getUpdateInfo() {
         return updateInfo;
+    }
+
+    public static void debug(String message) {
+        if (NewConfig.get().DEBUG.get()) {
+            CoreClass.getInstance().getLogger().info(message);
+        }
+    }
+
+    public static String getShortLocation(Location location) {
+        return location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " + location.getWorld();
     }
 }
