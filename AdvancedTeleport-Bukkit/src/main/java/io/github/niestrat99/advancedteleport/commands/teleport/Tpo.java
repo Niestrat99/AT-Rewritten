@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -18,17 +19,9 @@ public class Tpo extends TeleportATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-
-        if (!sender.hasPermission("at.admin.tpo")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
 

@@ -1,10 +1,10 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -21,14 +21,6 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-        if (!NewConfig.get().USE_HOMES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.setmainhome")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
 
@@ -50,12 +42,19 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
                 String homeName = args[1];
 
                 if (atTarget.hasHome(homeName)) {
-                    atTarget.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
-                            sender, "Info.setMainHomeOther", "Error.setMainHomeFail", "{home}", homeName, "{player}", args[0]));
+                    atTarget.setMainHome(homeName, sender).thenAcceptAsync(result ->
+                            CustomMessages.sendMessage(sender, result ? "Info.setMainHomeOther" : "Error.setMainHomeFail",
+                                    "{home}", homeName, "{player}", args[0]));
                 } else {
-                    atTarget.addHome(homeName, player.getLocation(), callback ->
-                            atTarget.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
-                                    sender, "Info.setAndMadeMainHomeOther", "Error.setMainHomeFail", "{home}", homeName, "{player}", args[0])));
+                    atTarget.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
+                        if (!result) {
+                            CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                            return;
+                        }
+                        atTarget.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
+                                CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHomeOther" : "Error.setMainHomeFail",
+                                "{home}", homeName, "{player}", args[0]));
+                    });
                 }
                 return true;
             }
@@ -64,17 +63,24 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
         if (atPlayer.hasHome(homeName)) {
             Home home = atPlayer.getHome(homeName);
             if (atPlayer.canAccessHome(home)) {
-                atPlayer.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
-                        sender, "Info.setMainHome", "Error.setMainHomeFail", "{home}", homeName));
+                atPlayer.setMainHome(homeName, sender).thenAcceptAsync(result ->
+                        CustomMessages.sendMessage(sender, result ? "Info.setMainHome" : "Error.setMainHomeFail",
+                                "{home}", homeName));
 
             } else {
                 CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
             }
         } else {
             if (atPlayer.canSetMoreHomes()) {
-                atPlayer.addHome(homeName, player.getLocation(), callback ->
-                        atPlayer.setMainHome(homeName, SQLManager.SQLCallback.getDefaultCallback(
-                                sender, "Info.setAndMadeMainHome", "Error.setMainHomeFail", "{home}", homeName)));
+                atPlayer.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
+                    if (!result) {
+                        CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                        return;
+                    }
+                    atPlayer.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
+                            CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHome" : "Error.setMainHomeFail",
+                            "{home}", homeName));
+                });
             }
         }
         return true;

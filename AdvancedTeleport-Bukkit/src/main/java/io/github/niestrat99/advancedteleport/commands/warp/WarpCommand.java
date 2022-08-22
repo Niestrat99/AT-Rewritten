@@ -25,11 +25,6 @@ public class WarpCommand extends AbstractWarpCommand {
             return true;
         }
 
-        if (!NewConfig.get().USE_WARPS.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-
         Player player = (Player) sender;
 
         if (args.length == 0) {
@@ -39,10 +34,6 @@ public class WarpCommand extends AbstractWarpCommand {
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");
             }
-            return true;
-        }
-        if (!sender.hasPermission("at.member.warp")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
 

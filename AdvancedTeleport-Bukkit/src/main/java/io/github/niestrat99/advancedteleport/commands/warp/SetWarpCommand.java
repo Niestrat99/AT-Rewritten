@@ -1,14 +1,10 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
-import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -26,11 +22,6 @@ public class SetWarpCommand extends AbstractWarpCommand {
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-
-        if (!sender.hasPermission("at.admin.setwarp")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
 

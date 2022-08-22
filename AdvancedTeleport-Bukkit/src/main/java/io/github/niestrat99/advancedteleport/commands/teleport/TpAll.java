@@ -24,45 +24,44 @@ public class TpAll extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
-            if (cooldown > 0) {
-                CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-                return true;
-            }
-            int players = 0;
-            int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
-            for (Player target : Bukkit.getOnlinePlayers()) {
-                if (target != player) {
-                    if (!ConditionChecker.canTeleport(player, target, "tpahere").isEmpty()) {
-                        continue;
-                    }
-                    players++;
-                    CustomMessages.sendMessage(target, "Info.tpaRequestHere", "{player}", sender.getName(),
-                            "{lifetime}", String.valueOf(requestLifetime));
-
-                    BukkitRunnable run = new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target, player));
-                        }
-                    };
-                    run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
-                    TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPAHERE);
-                    // Creates a new teleport request.
-                    TeleportRequest.addRequest(request);
-                    // Cooldown for tpall is always applied after request
-                    CooldownManager.addToCooldown("tpahere", player);
-                }
-            }
-            if (players > 0) {
-                CustomMessages.sendMessage(player, "Info.tpallRequestSent", "{amount}", String.valueOf(players));
-            } else {
-                CustomMessages.sendMessage(player, "Error.noRequestsSent");
-            }
-        } else {
+        if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        Player player = (Player) sender;
+        int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
+        if (cooldown > 0) {
+            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            return true;
+        }
+        int players = 0;
+        int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
+        for (Player target : Bukkit.getOnlinePlayers()) {
+            if (target == player) continue;
+            if (!ConditionChecker.canTeleport(player, target, "tpahere").isEmpty()) {
+                continue;
+            }
+            players++;
+            CustomMessages.sendMessage(target, "Info.tpaRequestHere", "{player}", sender.getName(),
+                    "{lifetime}", String.valueOf(requestLifetime));
+
+            BukkitRunnable run = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target, player));
+                }
+            };
+            run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
+            TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPAHERE);
+            // Creates a new teleport request.
+            TeleportRequest.addRequest(request);
+            // Cooldown for tpall is always applied after request
+            CooldownManager.addToCooldown("tpahere", player);
+        }
+        if (players > 0) {
+            CustomMessages.sendMessage(player, "Info.tpallRequestSent", "{amount}", String.valueOf(players));
+        } else {
+            CustomMessages.sendMessage(player, "Error.noRequestsSent");
         }
         return true;
     }

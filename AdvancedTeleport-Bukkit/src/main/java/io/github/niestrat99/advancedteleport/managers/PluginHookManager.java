@@ -13,7 +13,6 @@ import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
-import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import org.bukkit.World;
 
 import java.lang.reflect.InvocationTargetException;
@@ -42,9 +41,9 @@ public class PluginHookManager {
         loadPlugin(importPlugins, "essentials", EssentialsHook.class);
 
         // World border Plugins
-        loadBorderPlugin("worldborder", WorldBorderHook.class);
-        loadBorderPlugin("chunkyborder", ChunkyBorderHook.class);
-        loadBorderPlugin("vanilla", VanillaBorderHook.class);
+        loadPlugin(borderPlugins, "worldborder", WorldBorderHook.class);
+        loadPlugin(borderPlugins, "chunkyborder", ChunkyBorderHook.class);
+        loadPlugin(borderPlugins, "vanilla", VanillaBorderHook.class);
 
         // Claim Plugins
         loadPlugin(claimPlugins, "worldguard", WorldGuardClaimHook.class);

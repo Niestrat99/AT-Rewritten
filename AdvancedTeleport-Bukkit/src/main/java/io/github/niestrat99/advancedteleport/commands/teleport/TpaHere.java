@@ -1,13 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.TeleportRequest;
-import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
-import io.github.niestrat99.advancedteleport.api.events.players.TeleportRequestEvent;
-import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.api.TeleportRequest;
+import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
+import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
@@ -32,14 +30,6 @@ public class TpaHere extends TeleportATCommand {
        
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.here")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
         Player player = (Player) sender;
@@ -89,10 +79,11 @@ public class TpaHere extends TeleportATCommand {
                         if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
                             CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}",
                                     target.getName());
-                        
+
                             TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target,
                                     player));
                         }
+                    }
             };
             run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
             TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPAHERE); // Creates a new teleport request.

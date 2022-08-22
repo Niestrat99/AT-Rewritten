@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -20,14 +21,6 @@ public class TpBlockCommand extends TeleportATCommand {
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.block")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
 
@@ -47,31 +40,29 @@ public class TpBlockCommand extends TeleportATCommand {
             CustomMessages.sendMessage(sender, "Error.blockSelf");
             return true;
         }
-                
-        ATPlayer atPlayer = ATPlayer.getPlayer(player);
         // Must be async due to searching for offline player
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-        //
-        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+            //
+            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
 
-        if (atPlayer.hasBlocked(target)) {
-            CustomMessages.sendMessage(sender, "Error.alreadyBlocked");
-            return;
-        }
-
-        if (args.length > 1) {
-            StringBuilder reason = new StringBuilder();
-            for (int i = 1; i < args.length; i++) {
-                 reason.append(args[i]).append(" ");
+            if (atPlayer.hasBlocked(target)) {
+                CustomMessages.sendMessage(sender, "Error.alreadyBlocked");
+                return;
             }
-            atPlayer.blockUser(target, reason.toString().trim()).thenAcceptAsync(result ->
-                    CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
-                            "{player}", args[0]));
-        } else {
-             atPlayer.blockUser(target).thenAcceptAsync(result ->
-                     CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
-                             "{player}", args[0]));
-             }
+
+            if (args.length > 1) {
+                StringBuilder reason = new StringBuilder();
+                for (int i = 1; i < args.length; i++) {
+                    reason.append(args[i]).append(" ");
+                }
+                atPlayer.blockUser(target, reason.toString().trim()).thenAcceptAsync(result ->
+                        CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
+                                "{player}", args[0]));
+            } else {
+                atPlayer.blockUser(target).thenAcceptAsync(result ->
+                        CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
+                                "{player}", args[0]));
+            }
         });
         return true;
     }

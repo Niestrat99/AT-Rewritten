@@ -25,105 +25,119 @@ public class HomeCommand extends AbstractHomeCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            ATPlayer atPlayer = ATPlayer.getPlayer((Player) sender);
-            Player player = (Player) sender;
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
 
-            
-            if (args.length == 0) {
+        ATPlayer atPlayer = ATPlayer.getPlayer((Player) sender);
+        Player player = (Player) sender;
 
-                if (atPlayer.hasMainHome()) {
-                    teleport(player, atPlayer.getMainHome());
-                } else if (homes.size() == 1) {
-                    String name = homes.keySet().iterator().next();
-                    Home home = homes.get(name);
-                    if (atPlayer.canAccessHome(home)) {
-                        teleport(player, home);
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
-                    }
-                    
-                } else if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
-                    Home home = atPlayer.getBedSpawn();
-                    if (home == null) {
-                        if (homes.isEmpty()) {
-                            CustomMessages.sendMessage(sender, "Error.noHomes");
-                        } else {
-                            CustomMessages.sendMessage(sender, "Error.noHomeInput");
-                        }
-                        return true;
-                    }
+        HashMap<String, Home> homes = atPlayer.getHomes();
+        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
+            CustomMessages.sendMessage(player, "Error.onCountdown");
+            return true;
+        }
+        int cooldown = CooldownManager.secondsLeftOnCooldown("home", player);
+        if (cooldown > 0) {
+            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            return true;
+        }
+
+        if (args.length == 0) {
+
+            if (atPlayer.hasMainHome()) {
+                teleport(player, atPlayer.getMainHome());
+            } else if (homes.size() == 1) {
+                String name = homes.keySet().iterator().next();
+                Home home = homes.get(name);
+                if (atPlayer.canAccessHome(home)) {
                     teleport(player, home);
-                } else if (homes.isEmpty()) {
-                    CustomMessages.sendMessage(sender, "Error.noHomes");
-                } if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
-                    ((ATFloodgatePlayer) atPlayer).sendHomeForm();
                 } else {
-                    CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                    CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
                 }
-                return true;
+
+            } else if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
+                Home home = atPlayer.getBedSpawn();
+                if (home == null) {
+                    if (homes.isEmpty()) {
+                        CustomMessages.sendMessage(sender, "Error.noHomes");
+                    } else {
+                        CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                    }
+                    return true;
+                }
+                teleport(player, home);
+            } else if (homes.isEmpty()) {
+                CustomMessages.sendMessage(sender, "Error.noHomes");
+            } if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendHomeForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noHomeInput");
             }
-            if (args.length > 1 && sender.hasPermission("at.admin.home")) {
-                ATPlayer.getPlayerFuture(args[0]).thenAccept(target -> {
-                    HashMap<String, Home> homesOther = target.getHomes();
-                    Home home;
-                    switch (args[1].toLowerCase()) {
-                        case "bed":
-                            if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
-                                home = target.getBedSpawn();
-                                if (home == null) {
-                                    CustomMessages.sendMessage(player, "Error.noBedHomeOther", "{player}", args[0]);
-                                    return;
-                                }
-                            } else {
-                                if (homesOther.containsKey(args[1])) {
-                                    home = homesOther.get(args[1]);
-                                } else {
-                                    CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                                    return;
-                                }
+            return true;
+        }
+        if (args.length > 1 && sender.hasPermission("at.admin.home")) {
+            ATPlayer.getPlayerFuture(args[0]).thenAccept(target -> {
+                HashMap<String, Home> homesOther = target.getHomes();
+                Home home;
+                switch (args[1].toLowerCase()) {
+                    case "bed":
+                        if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
+                            home = target.getBedSpawn();
+                            if (home == null) {
+                                CustomMessages.sendMessage(player, "Error.noBedHomeOther", "{player}", args[0]);
+                                return;
                             }
-                            break;
-                        case "list":
-                            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
-                            return;
-                        default:
+                        } else {
                             if (homesOther.containsKey(args[1])) {
                                 home = homesOther.get(args[1]);
                             } else {
                                 CustomMessages.sendMessage(sender, "Error.noSuchHome");
                                 return;
                             }
-                    }
-                    teleport(player, home);
-                });
-            }
-
-            Home home;
-            if (atPlayer.getHomes().containsKey(args[0])) {
-                home = atPlayer.getHomes().get(args[0]);
-            } else if (args[0].equalsIgnoreCase("bed") && NewConfig.get().ADD_BED_TO_HOMES.get()) {
-                home = atPlayer.getBedSpawn();
-                if (home == null) {
-                    CustomMessages.sendMessage(player, "Error.noBedHome");
-                    return true;
+                        }
+                        break;
+                    case "list":
+                        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+                        return;
+                    default:
+                        if (homesOther.containsKey(args[1])) {
+                            home = homesOther.get(args[1]);
+                        } else {
+                            CustomMessages.sendMessage(sender, "Error.noSuchHome");
+                            return;
+                        }
                 }
-            } else if (args[0].equalsIgnoreCase("list")) {
-                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender,
-                        "advancedteleport:homes " + args[0]));
-                return true;
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                return true;
-            }
+                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
+                    PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                    CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
+                });
+            });
+        }
 
-            if (atPlayer.canAccessHome(home)) {
-                teleport(player, home);
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
+        Home home;
+        if (atPlayer.getHomes().containsKey(args[0])) {
+            home = atPlayer.getHomes().get(args[0]);
+        } else if (args[0].equalsIgnoreCase("bed") && NewConfig.get().ADD_BED_TO_HOMES.get()) {
+            home = atPlayer.getBedSpawn();
+            if (home == null) {
+                CustomMessages.sendMessage(player, "Error.noBedHome");
+                return true;
             }
+        } else if (args[0].equalsIgnoreCase("list")) {
+            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender,
+                    "advancedteleport:homes " + args[0]));
+            return true;
         } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            CustomMessages.sendMessage(sender, "Error.noSuchHome");
+            return true;
+        }
+
+        if (atPlayer.canAccessHome(home)) {
+            teleport(player, home);
+        } else {
+            CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
         }
         return true;
     }

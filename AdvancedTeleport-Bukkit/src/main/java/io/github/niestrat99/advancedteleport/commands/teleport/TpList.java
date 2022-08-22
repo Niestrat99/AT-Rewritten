@@ -26,19 +26,9 @@ public class TpList extends TeleportATCommand {
             return true;
         }
 
-        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-
-        if (!sender.hasPermission("at.member.list")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
-
         Player player = (Player) sender;
         // If there are actually any pending teleport requests.
-        if (TPRequest.getRequests(player).isEmpty()) {
+        if (TeleportRequest.getRequests(player).isEmpty()) {
             CustomMessages.sendMessage(player, "Error.noRequests");
             return true;
         }
@@ -50,7 +40,7 @@ public class TpList extends TeleportATCommand {
                 TeleportRequest request = requests.getContentsInPage(1).get(i);
                 new FancyMessage()
                         .command("/tpayes " + request.getRequester().getName())
-                        .text(CustomMessages.getStringA("Info.multipleRequestsIndex")
+                        .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
                                 .replaceAll("\\{player}", request.getRequester().getName()))
                         .sendProposal(player, i);
             }
@@ -65,11 +55,11 @@ public class TpList extends TeleportATCommand {
         if (args[0].matches("^[0-9]+$")) {
             // args[0] is officially an int.
             int page = Integer.parseInt(args[0]);
-            PagedLists<TPRequest> requests = new PagedLists<>(TPRequest.getRequests(player), 8);
+            PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequests(player), 8);
             CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
             try {
                 for (int i = 0; i < requests.getContentsInPage(page).size(); i++) {
-                    TPRequest request = requests.getContentsInPage(page).get(i);
+                    TeleportRequest request = requests.getContentsInPage(page).get(i);
                     new FancyMessage()
                             .command("/tpayes " + request.getRequester().getName())
                             .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")

@@ -12,18 +12,11 @@ import org.jetbrains.annotations.NotNull;
 public class SetSpawn extends SpawnATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-        if (!NewConfig.get().USE_SPAWN.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.admin.setspawn")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
 
