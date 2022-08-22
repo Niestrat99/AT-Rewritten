@@ -20,59 +20,57 @@ public class TpList extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            // If there are actually any pending teleport requests.
-            if (!TeleportRequest.getRequests(player).isEmpty()) {
-                if (args.length > 0) {
-                    // Check if the argument can be parsed as an actual number.
-                    // ^ means at the start of the string.
-                    // [0-9] means any number in the range of 0 to 9.
-                    // + means one or more of, allowing two or three digits.
-                    // $ means the end of the string.
-                    if (args[0].matches("^[0-9]+$")) {
-                        // args[0] is officially an int.
-                        int page = Integer.parseInt(args[0]);
-                        PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequests(player), 8);
-                        CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
-                        try {
-                            for (int i = 0; i < requests.getContentsInPage(page).size(); i++) {
-                                TeleportRequest request = requests.getContentsInPage(page).get(i);
-                                new FancyMessage()
-                                        .command("/tpayes " + request.getRequester().getName())
-                                        .text(CustomMessages.getStringA("Info.multipleRequestsIndex")
-                                                .replaceAll("\\{player}", request.getRequester().getName()))
-                                        .sendProposal(player, i);
-                            }
-                            FancyMessage.send(player);
-                        } catch (IllegalArgumentException ex) {
-                            CustomMessages.sendMessage(player, "Error.invalidPageNo");
-                        }
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
 
-                    } else {
-                        CustomMessages.sendMessage(player, "Error.invalidPageNo");
-                    }
-                } else {
-                    PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequests(player), 8);
-                    CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
-                    for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
-                        TeleportRequest request = requests.getContentsInPage(1).get(i);
-                        new FancyMessage()
-                                .command("/tpayes " + request.getRequester().getName())
-                                .text(CustomMessages.getStringA("Info.multipleRequestsIndex")
-                                        .replaceAll("\\{player}", request.getRequester().getName()))
-                                .sendProposal(player, i);
-                    }
-                    FancyMessage.send(player);
-                    return true;
+        Player player = (Player) sender;
+        // If there are actually any pending teleport requests.
+        if (TeleportRequest.getRequests(player).isEmpty()) {
+            CustomMessages.sendMessage(player, "Error.noRequests");
+            return true;
+        }
+
+        if (args.length == 0) {
+            PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequests(player), 8);
+            CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
+            for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
+                TeleportRequest request = requests.getContentsInPage(1).get(i);
+                new FancyMessage()
+                        .command("/tpayes " + request.getRequester().getName())
+                        .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
+                                .replaceAll("\\{player}", request.getRequester().getName()))
+                        .sendProposal(player, i);
+            }
+            FancyMessage.send(player);
+            return true;
+        }
+        // Check if the argument can be parsed as an actual number.
+        // ^ means at the start of the string.
+        // [0-9] means any number in the range of 0 to 9.
+        // + means one or more of, allowing two or three digits.
+        // $ means the end of the string.
+        if (args[0].matches("^[0-9]+$")) {
+            // args[0] is officially an int.
+            int page = Integer.parseInt(args[0]);
+            PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequests(player), 8);
+            CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
+            try {
+                for (int i = 0; i < requests.getContentsInPage(page).size(); i++) {
+                    TeleportRequest request = requests.getContentsInPage(page).get(i);
+                    new FancyMessage()
+                            .command("/tpayes " + request.getRequester().getName())
+                            .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
+                                    .replaceAll("\\{player}", request.getRequester().getName()))
+                            .sendProposal(player, i);
                 }
-            } else {
-                CustomMessages.sendMessage(player, "Error.noRequests");
-                return true;
+            } catch (IllegalArgumentException ex) {
+                CustomMessages.sendMessage(player, "Error.invalidPageNo");
             }
 
         } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            CustomMessages.sendMessage(player, "Error.invalidPageNo");
         }
         return true;
     }
