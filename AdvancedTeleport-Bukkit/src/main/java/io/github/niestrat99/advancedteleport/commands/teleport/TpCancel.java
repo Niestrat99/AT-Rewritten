@@ -60,7 +60,7 @@ public class TpCancel implements ATCommand {
                 return true;
             } else {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (atPlayer instanceof ATFloodgatePlayer) {
+                if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                     ((ATFloodgatePlayer) atPlayer).sendCancelForm();
                     return true;
                 }

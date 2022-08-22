@@ -32,7 +32,7 @@ public class TpoHere implements ATCommand {
         Player player = (Player) sender;
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer) {
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendTpoHereForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");

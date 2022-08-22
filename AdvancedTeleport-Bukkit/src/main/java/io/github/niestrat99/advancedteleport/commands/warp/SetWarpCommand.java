@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -34,7 +35,7 @@ public class SetWarpCommand extends AbstractWarpCommand implements ATCommand {
 
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer) {
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendSetWarpForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");

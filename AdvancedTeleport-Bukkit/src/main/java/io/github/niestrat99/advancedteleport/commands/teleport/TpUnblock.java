@@ -35,7 +35,7 @@ public class TpUnblock implements AsyncATCommand {
         Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (args.length == 0) {
-            if (atPlayer instanceof ATFloodgatePlayer) {
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendUnblockForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");

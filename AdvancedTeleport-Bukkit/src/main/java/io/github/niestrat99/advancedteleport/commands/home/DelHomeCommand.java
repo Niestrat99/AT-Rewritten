@@ -43,7 +43,7 @@ public class DelHomeCommand extends AbstractHomeCommand implements AsyncATComman
             delHome(player, args[0]);
         } else {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer) {
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendDeleteHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");

@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,7 +24,7 @@ public class DeleteWarpCommand extends AbstractWarpCommand implements AsyncATCom
             if (sender instanceof Player) {
                 Player player = (Player) sender;
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (atPlayer instanceof ATFloodgatePlayer) {
+                if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                     ((ATFloodgatePlayer) atPlayer).sendDeleteWarpForm();
                     return true;
                 }

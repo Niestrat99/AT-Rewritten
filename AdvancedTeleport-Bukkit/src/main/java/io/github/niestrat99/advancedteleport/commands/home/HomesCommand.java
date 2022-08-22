@@ -59,7 +59,7 @@ public class HomesCommand implements ATCommand {
     private void getHomes(CommandSender sender, OfflinePlayer target) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
-        if (atPlayer instanceof ATFloodgatePlayer) {
+        if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
             ((ATFloodgatePlayer) atPlayer).sendHomeForm();
             return;
         }

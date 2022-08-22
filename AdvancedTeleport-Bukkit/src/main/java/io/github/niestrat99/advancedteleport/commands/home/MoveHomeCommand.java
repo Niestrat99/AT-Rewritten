@@ -36,7 +36,7 @@ public class MoveHomeCommand extends AbstractHomeCommand implements AsyncATComma
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         if (args.length == 0) {
-            if (atPlayer instanceof ATFloodgatePlayer) {
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendMoveHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
