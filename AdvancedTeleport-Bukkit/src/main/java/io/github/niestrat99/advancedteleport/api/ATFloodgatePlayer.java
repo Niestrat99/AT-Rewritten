@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -24,18 +25,18 @@ public class ATFloodgatePlayer extends ATPlayer {
 
     public void sendTPAForm(boolean here) {
         if (here) {
-            sendDropdownForm("tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.", getVisiblePlayerNames());
+            sendDropdownForm("tpahere", getVisiblePlayerNames());
         } else {
-            sendDropdownForm("tpa", "TPA Request", "Select a player to send a TPA request to.", getVisiblePlayerNames());
+            sendDropdownForm("tpa", getVisiblePlayerNames());
         }
     }
 
     public void sendRequestFormTPA(Player sender) {
         SimpleForm form = SimpleForm.builder()
-                .title("TPA Request")
-                .content("The player " + sender.getDisplayName() + " wants to teleport to you!")
-                .button("Accept")
-                .button("Deny")
+                .title(CustomMessages.getStringRaw("Forms.tpa-received-title"))
+                .content(CustomMessages.getString("Forms.tpa-received-description", "{player}", sender.getDisplayName()))
+                .button(CustomMessages.getStringRaw("Forms.tpa-received-accept"))
+                .button(CustomMessages.getStringRaw("Forms.tpa-received-deny"))
                 .build();
 
         form.setResponseHandler(responseData -> {
@@ -53,10 +54,10 @@ public class ATFloodgatePlayer extends ATPlayer {
 
     public void sendRequestFormTPAHere(Player sender) {
         SimpleForm form = SimpleForm.builder()
-                .title("TPA Request")
-                .content("The player " + sender.getDisplayName() + " wants you to teleport to them!")
-                .button("Accept")
-                .button("Deny")
+                .title(CustomMessages.getStringRaw("Forms.tpahere-received-title"))
+                .content(CustomMessages.getString("Forms.tpahere-received-description", "{player}", sender.getDisplayName()))
+                .button(CustomMessages.getStringRaw("Forms.tpahere-received-accept"))
+                .button(CustomMessages.getStringRaw("Forms.tpahere-received-deny"))
                 .build();
 
         form.setResponseHandler(responseData -> {
@@ -73,47 +74,47 @@ public class ATFloodgatePlayer extends ATPlayer {
     }
 
     public void sendHomeForm() {
-        sendDropdownForm("home", "Homes", "Select a home to teleport to.", getHomes().keySet());
+        sendDropdownForm("home", getHomes().keySet());
     }
 
     public void sendSetHomeForm() {
-        sendInputForm("sethome", "Set Home", "Enter a home name.");
+        sendInputForm("sethome");
     }
 
     public void sendDeleteHomeForm() {
-        sendDropdownForm("delhome", "Delete Home", "Select the home to delete.", getHomes().keySet());
+        sendDropdownForm("delhome", getHomes().keySet());
     }
 
     public void sendSetMainHomeForm() {
-        sendInputForm("setmainhome", "Set Main Home", "Enter an existing home name or a new one.");
+        sendInputForm("setmainhome");
     }
 
     public void sendMoveHomeForm() {
-        sendDropdownForm("movehome", "Move Home", "Choose the home to be moved.", getHomes().keySet());
+        sendDropdownForm("movehome", getHomes().keySet());
     }
 
     public void sendWarpForm() {
-        sendDropdownForm("warp", "Warps", "Select a warp to teleport to.", Warp.getWarps().keySet());
+        sendDropdownForm("warp", Warp.getWarps().keySet());
     }
 
     public void sendDeleteWarpForm() {
-        sendDropdownForm("delwarp", "Delete Warp", "Select a warp to delete.", Warp.getWarps().keySet());
+        sendDropdownForm("delwarp", Warp.getWarps().keySet());
     }
 
     public void sendSetWarpForm() {
-        sendInputForm("setwarp", "Set Warp", "Enter a warp name.");
+        sendInputForm("setwarp");
     }
 
     public void sendMoveWarpForm() {
-        sendDropdownForm("movewarp", "Move Warp", "Select a warp to move.", Warp.getWarps().keySet());
+        sendDropdownForm("movewarp", Warp.getWarps().keySet());
     }
 
     public void sendBlockForm() {
-        sendDropdownForm("tpblock", "Block Player", "Select a player to block.", getVisiblePlayerNames());
+        sendDropdownForm("tpblock", getVisiblePlayerNames());
     }
 
     public void sendUnblockForm() {
-        sendDropdownForm("tpunblock", "Unblock Player", "Select a player to unblock.", getVisiblePlayerNames());
+        sendDropdownForm("tpunblock", getVisiblePlayerNames());
     }
 
     public void sendCancelForm() {
@@ -122,19 +123,22 @@ public class ATFloodgatePlayer extends ATPlayer {
         for (TPRequest request : requests) {
             responders.add(request.getResponder().getName());
         }
-        sendDropdownForm("tpcancel", "Cancel TP Request", "Select a request to cancel.", responders);
+        sendDropdownForm("tpcancel", responders);
     }
 
     public void sendTpoForm() {
-        sendDropdownForm("tpo", "Teleport", "Select a player to teleport to.", getVisiblePlayerNames());
+        sendDropdownForm("tpo", getVisiblePlayerNames());
     }
 
     public void sendTpoHereForm() {
-        sendDropdownForm("tpohere", "Teleport Here", "Select a player to teleport to your location.", getVisiblePlayerNames());
+        sendDropdownForm("tpohere", getVisiblePlayerNames());
     }
 
-    private void sendInputForm(String command, String title, String prompt) {
-        CustomForm form = CustomForm.builder().title(title).input(prompt).build();
+    private void sendInputForm(String command) {
+        CustomForm form = CustomForm.builder()
+                .title(CustomMessages.getStringRaw("Forms." + command + "-title"))
+                .input(CustomMessages.getStringRaw("Forms." + command + "-description"))
+                .build();
 
         form.setResponseHandler(responseData -> {
             CustomFormResponse response = form.parseResponse(responseData);
@@ -150,14 +154,17 @@ public class ATFloodgatePlayer extends ATPlayer {
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
 
-    private void sendDropdownForm(String command, String title, String prompt, Collection<String> inputs) {
+    private void sendDropdownForm(String command, Collection<String> inputs) {
         String[] items = new String[inputs.size()];
         int index = 0;
         for (String input : inputs) {
             items[index++] = input;
         }
 
-        CustomForm form = CustomForm.builder().title(title).dropdown(prompt, items).build();
+        CustomForm form = CustomForm.builder()
+                .title(CustomMessages.getStringRaw("Forms." + command + "-title"))
+                .dropdown(CustomMessages.getStringRaw("Forms." + command + "-description"), items)
+                .build();
 
         form.setResponseHandler(responseData -> {
             CustomFormResponse response = form.parseResponse(responseData);
