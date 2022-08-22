@@ -20,10 +20,6 @@ public class SetMainSpawn implements ATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
 
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawnConsole");
-            return true;
-        }
         if (!NewConfig.get().USE_SPAWN.get()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
