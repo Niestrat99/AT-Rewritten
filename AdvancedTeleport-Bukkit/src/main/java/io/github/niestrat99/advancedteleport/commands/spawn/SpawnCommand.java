@@ -29,14 +29,6 @@ public class SpawnCommand extends SpawnATCommand {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        if (!NewConfig.get().USE_SPAWN.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.spawn")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
 
         Player player = (Player) sender;
         int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
@@ -54,10 +46,8 @@ public class SpawnCommand extends SpawnATCommand {
             if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
                 location = args[0];
             }
-            spawn(player, location);
-        } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
+        spawn(player, location);
         return true;
     }
 

@@ -24,6 +24,7 @@ public class WarpCommand extends AbstractWarpCommand {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
+
         Player player = (Player) sender;
 
         if (args.length == 0) {

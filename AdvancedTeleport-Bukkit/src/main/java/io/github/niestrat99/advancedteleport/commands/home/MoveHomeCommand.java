@@ -22,6 +22,7 @@ public class MoveHomeCommand extends AbstractHomeCommand {
         }
         Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
+
         if (args.length == 0) {
             if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendMoveHomeForm();
@@ -42,7 +43,6 @@ public class MoveHomeCommand extends AbstractHomeCommand {
                             CustomMessages.sendMessage(sender, result ? "Info.movedHomeOther" : "Error.moveHomeFail",
                                     "{home}", args[1], "{player}", args[0]));
                 });
-
             }
         }
         Home home = atPlayer.getHome(args[0]);

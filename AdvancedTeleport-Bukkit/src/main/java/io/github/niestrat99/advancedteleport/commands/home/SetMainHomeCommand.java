@@ -41,25 +41,18 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
 
                 if (atTarget.hasHome(homeName)) {
                     atPlayer.setMainHome(homeName).thenAcceptAsync(result ->
-                            CustomMessages.sendMessage(sender, result ? "Info.setMainHomeOther" : "Error" +
-                                            ".setMainHomeFail",
-                                    "{home}", homeName, "{player}", args[0]));
-                } else {
-                    if (atPlayer.canSetMoreHomes()) {
-                        atTarget.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
-                            if (!result) {
-                                CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
-                                return;
-                            }
-                            atTarget.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
-                                    CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHomeOther" : "Error.setMainHomeFail",
-                                            "{home}", homeName, "{player}", args[0]));
-                        });
-                        return true;
-                    }
-                    atTarget.setMainHome(homeName, sender).thenAcceptAsync(result ->
                             CustomMessages.sendMessage(sender, result ? "Info.setMainHomeOther" : "Error.setMainHomeFail",
                                     "{home}", homeName, "{player}", args[0]));
+                } else {
+                    atTarget.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
+                        if (!result) {
+                            CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                            return;
+                        }
+                        atTarget.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
+                                CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHomeOther" : "Error.setMainHomeFail",
+                                        "{home}", homeName, "{player}", args[0]));
+                    });
                 }
                 return true;
             }

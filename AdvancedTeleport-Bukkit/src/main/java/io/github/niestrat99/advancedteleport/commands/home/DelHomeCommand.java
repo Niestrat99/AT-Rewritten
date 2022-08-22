@@ -30,10 +30,8 @@ public class DelHomeCommand extends AbstractHomeCommand {
                     delHome(target, player, args[1]);
                     return true;
                 }
-                delHome(player, args[0]);
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noHomeInput");
             }
+            delHome(player, args[0]);
         } else {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
             if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
