@@ -20,26 +20,26 @@ public class TpYes extends TeleportATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            TeleportRequest request = TeleportTests.teleportTests(player, args, "tpayes");
-            if (request != null) {
-                TeleportAcceptEvent event = new TeleportAcceptEvent(request.getResponder(), request.getRequester(), request.getType());
-                Bukkit.getPluginManager().callEvent(event);
-                if (event.isCancelled()) {
-                    // Could not accept request.
-                    return true;
-                }
-                // It's not null, we've already run the tests to make sure it isn't
-                AcceptRequest.acceptRequest(request);
-                // If the cooldown is to be applied after the request is accepted, apply it now
-                if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
-                    CooldownManager.addToCooldown(request.getType() == TeleportRequestType.TPAHERE ? "tpahere" :
-                            "tpa", request.getRequester());
-                }
-            }
-        } else {
+        if (!canProceed(sender)) return true;
+        if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        Player player = (Player) sender;
+        TeleportRequest request = TeleportTests.teleportTests(player, args, "tpayes");
+        if (request == null) return true;
+        TeleportAcceptEvent event = new TeleportAcceptEvent(request.getResponder(), request.getRequester(), request.getType());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            // Could not accept request.
+            return true;
+        }
+        // It's not null, we've already run the tests to make sure it isn't
+        AcceptRequest.acceptRequest(request);
+        // If the cooldown is to be applied after the request is accepted, apply it now
+        if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
+            CooldownManager.addToCooldown(request.getType() == TeleportRequestType.TPAHERE ? "tpahere" :
+                    "tpa", request.getRequester());
         }
         return true;
     }

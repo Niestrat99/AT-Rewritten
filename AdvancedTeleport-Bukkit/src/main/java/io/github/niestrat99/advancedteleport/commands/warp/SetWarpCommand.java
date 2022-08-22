@@ -1,14 +1,23 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+<<<<<<< HEAD
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+=======
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+>>>>>>> d6f3cc8 (Fix code errors and deprecation)
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 <<<<<<< HEAD
 =======
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+<<<<<<< HEAD
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 >>>>>>> 771f0be (Add config option to toggle forms)
+=======
+>>>>>>> d6f3cc8 (Fix code errors and deprecation)
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

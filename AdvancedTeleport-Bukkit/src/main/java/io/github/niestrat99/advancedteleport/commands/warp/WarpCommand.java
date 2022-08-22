@@ -36,10 +36,6 @@ public class WarpCommand extends AbstractWarpCommand {
             }
             return true;
         }
-        if (!sender.hasPermission("at.member.warp")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
 
         int cooldown = CooldownManager.secondsLeftOnCooldown("warp", player);
         if (cooldown > 0) {
