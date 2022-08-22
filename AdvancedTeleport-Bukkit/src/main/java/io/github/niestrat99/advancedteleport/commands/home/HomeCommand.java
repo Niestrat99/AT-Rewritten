@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
@@ -86,7 +87,6 @@ public class HomeCommand extends AbstractHomeCommand {
                     }
                 }
             } else {
-
                 if (atPlayer.hasMainHome()) {
                     teleport(player, atPlayer.getMainHome());
                 } else if (homes.size() == 1) {
@@ -109,6 +109,8 @@ public class HomeCommand extends AbstractHomeCommand {
                         return true;
                     }
                     teleport(player, home);
+                } else if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                    ((ATFloodgatePlayer) atPlayer).sendHomeForm();
                 } else if (homes.isEmpty()) {
                     CustomMessages.sendMessage(sender, "Error.noHomes");
                 } else {

@@ -42,7 +42,7 @@ public class Tpa extends TeleportATCommand {
             }
             if (args.length == 0) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (atPlayer instanceof ATFloodgatePlayer) {
+                if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                     ((ATFloodgatePlayer) atPlayer).sendTPAForm(false);
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noPlayerInput");
@@ -74,7 +74,7 @@ public class Tpa extends TeleportATCommand {
 
                 ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
-                if (targetPlayer instanceof ATFloodgatePlayer) {
+                if (targetPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                     ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPA(player);
                 } else {
                     CustomMessages.sendMessage(target, "Info.tpaRequestReceived",

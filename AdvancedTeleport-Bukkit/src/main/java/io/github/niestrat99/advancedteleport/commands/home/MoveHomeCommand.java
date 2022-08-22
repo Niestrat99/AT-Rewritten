@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -19,7 +20,7 @@ public class MoveHomeCommand extends AbstractHomeCommand {
             Player player = (Player) sender;
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
             if (args.length == 0) {
-                if (atPlayer instanceof ATFloodgatePlayer) {
+                if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                     ((ATFloodgatePlayer) atPlayer).sendMoveHomeForm();
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noHomeInput");
@@ -50,12 +51,7 @@ public class MoveHomeCommand extends AbstractHomeCommand {
                 atPlayer.moveHome(args[0], player.getLocation()).thenAcceptAsync(result ->
                         CustomMessages.sendMessage(sender, result ? "Info.movedHome" : "Error.moveHomeFail",
                                 "{home}", args[0]));
-
-
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noHomeInput");
             }
-
         } else {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }

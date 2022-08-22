@@ -95,8 +95,8 @@ public class TpCancel extends TeleportATCommand {
                             player.getName());
                     CustomMessages.sendMessage(player, "Info.tpCancel");
                     request.destroy();
-                    return true;
                 }
+                return true;
             } else {
                 CustomMessages.sendMessage(sender, "Error.noRequests");
                 return true;

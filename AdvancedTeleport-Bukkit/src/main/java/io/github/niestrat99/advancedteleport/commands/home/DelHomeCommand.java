@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.home;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -29,7 +30,7 @@ public class DelHomeCommand extends AbstractHomeCommand {
                 delHome(player, args[0]);
             } else {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (atPlayer instanceof ATFloodgatePlayer) {
+                if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                     ((ATFloodgatePlayer) atPlayer).sendDeleteHomeForm();
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noHomeInput");
