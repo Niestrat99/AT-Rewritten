@@ -102,9 +102,6 @@ public class CoreClass extends JavaPlugin {
             }
         }
 
-        new PluginHookManager();
-        MapAssetManager.init();
-        CommandManager.registerCommands();
         {
             new BlocklistManager();
             new HomeSQLManager();
@@ -112,6 +109,9 @@ public class CoreClass extends JavaPlugin {
             new WarpSQLManager();
             new DataFailManager();
         }
+        new PluginHookManager();
+        MapAssetManager.init();
+        CommandManager.registerCommands();
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
