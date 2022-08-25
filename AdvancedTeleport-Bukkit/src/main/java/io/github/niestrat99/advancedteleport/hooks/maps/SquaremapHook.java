@@ -54,13 +54,6 @@ public class SquaremapHook extends MapPlugin {
                 CoreClass.getInstance().getLogger().info("Added the spawns layer for " + world.getName() + ".");
             });
         }
-
-        Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), () -> {
-            for (Warp warp : AdvancedTeleportAPI.getWarps().values()) {
-                addWarp(warp);
-            }
-        }, 20);
-
     }
 
     @Override
