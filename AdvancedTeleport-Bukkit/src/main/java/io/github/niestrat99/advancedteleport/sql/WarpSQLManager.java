@@ -250,6 +250,7 @@ public class WarpSQLManager extends SQLManager {
                 statement.setString(1, worldName);
 
                 ResultSet set = statement.executeQuery();
+                // TODO - needs cache removal
                 while (set.next()) {
                     Warp.getWarps().remove(set.getString("warp"));
                 }
