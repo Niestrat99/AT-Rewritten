@@ -102,9 +102,8 @@ public class MetadataSQLManager extends SQLManager {
                 if (id == -1) return false;
                 return addMetadata(connection, String.valueOf(id), "WARP", key, value);
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                throw new RuntimeException(throwables);
             }
-            return false;
         }, CoreClass.async);
     }
 
@@ -114,9 +113,8 @@ public class MetadataSQLManager extends SQLManager {
                 if (id == -1) return false;
                 return addMetadata(connection, String.valueOf(id), "HOME", key, value);
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                throw new RuntimeException(throwables);
             }
-            return false;
         });
     }
 
@@ -126,9 +124,8 @@ public class MetadataSQLManager extends SQLManager {
                 if (spawnName == null) return false;
                 return addMetadata(connection, spawnName, "SPAWN", key, value);
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                throw new RuntimeException(throwables);
             }
-            return false;
         });
     }
 
@@ -138,9 +135,8 @@ public class MetadataSQLManager extends SQLManager {
                 if (id == -1) return null;
                 return getValue(connection, String.valueOf(id), "WARP", key);
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                throw new RuntimeException(throwables);
             }
-            return null;
         });
     }
 
@@ -150,9 +146,8 @@ public class MetadataSQLManager extends SQLManager {
                 if (id == -1) return null;
                 return getValue(connection, String.valueOf(id), "HOME", key);
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                throw new RuntimeException(throwables);
             }
-            return null;
         });
     }
 
@@ -162,9 +157,8 @@ public class MetadataSQLManager extends SQLManager {
                 if (spawnName == null) return null;
                 return getValue(connection, spawnName, "SPAWN", key);
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                throw new RuntimeException(throwables);
             }
-            return null;
         });
     }
 
@@ -174,9 +168,8 @@ public class MetadataSQLManager extends SQLManager {
                 if (id == -1) return false;
                 return deleteMetadata(connection, id, "WARP", key);
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                throw new RuntimeException(throwables);
             }
-            return false;
         }, CoreClass.async);
     }
 
@@ -186,9 +179,8 @@ public class MetadataSQLManager extends SQLManager {
                 if (id == -1) return false;
                 return deleteMetadata(connection, id, "HOME", key);
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                throw new RuntimeException(throwables);
             }
-            return false;
         });
     }
 }
