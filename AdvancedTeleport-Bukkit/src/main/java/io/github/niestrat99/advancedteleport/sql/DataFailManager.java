@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -122,8 +123,8 @@ public class DataFailManager {
                 break;
             case ADD_WARP:
                 Warp warp;
-                if (Warp.getWarps().get(fail.data[6]) != null) {
-                    warp = Warp.getWarps().get(fail.data[6]);
+                if (AdvancedTeleportAPI.getWarps().get(fail.data[6]) != null) {
+                    warp = AdvancedTeleportAPI.getWarps().get(fail.data[6]);
                 } else {
                     warp = new Warp(UUID.fromString(fail.data[7]), fail.data[6], locFromStrings(fail.data), Long.parseLong(fail.data[8]), Long.parseLong(fail.data[9]));
                 }

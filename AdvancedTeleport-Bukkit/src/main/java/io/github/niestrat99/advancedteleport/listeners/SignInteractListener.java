@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.listeners;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.commands.teleport.Tpr;
@@ -45,8 +45,8 @@ public class SignInteractListener implements Listener {
         signRegistry.put("warp", new ATSign("Warp", NewConfig.get().USE_WARPS.get()) {
             @Override
             public void onInteract(Sign sign, Player player) {
-                if (!Warp.getWarps().containsKey(sign.getLine(1))) return;
-                WarpCommand.warp(Warp.getWarps().get(sign.getLine(1)), player, true);
+                if (!AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1))) return;
+                WarpCommand.warp(AdvancedTeleportAPI.getWarps().get(sign.getLine(1)), player, true);
             }
 
             @Override
@@ -55,7 +55,7 @@ public class SignInteractListener implements Listener {
                     CustomMessages.sendMessage(player, "Error.noWarpInput");
                     return false;
                 } else {
-                    if (Warp.getWarps().containsKey(sign.getLine(1))){
+                    if (AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1))){
                         String warpName = sign.getLine(1);
                         sign.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Warp]");
                         sign.setLine(1, warpName);
