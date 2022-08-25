@@ -68,7 +68,7 @@ public class SpawnCommand implements ATCommand {
             spawn = player.getWorld().getSpawnLocation();
 
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
-        ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn", NewConfig.get().WARM_UPS.SPAWN.get());
+        ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn");
     }
 
     @Nullable

@@ -139,7 +139,7 @@ public class Tpr implements ATCommand {
             if (nextLoc != null) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
             } else {
                 CustomMessages.sendMessage(player, "Info.searching");
                 searchingPlayers.add(player.getUniqueId());
@@ -147,7 +147,7 @@ public class Tpr implements ATCommand {
                     searchingPlayers.remove(player.getUniqueId());
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
                     ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                    atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+                    atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
                 });
             }
         } else {
@@ -157,7 +157,7 @@ public class Tpr implements ATCommand {
                 searchingPlayers.remove(player.getUniqueId());
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace", NewConfig.get().WARM_UPS.TPR.get());
+                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
             }));
         }
 

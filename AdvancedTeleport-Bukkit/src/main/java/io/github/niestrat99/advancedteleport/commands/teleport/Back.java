@@ -115,7 +115,7 @@ public class Back implements ATCommand {
             CustomMessages.sendMessage(player, "Teleport.teleportingToLastLoc");
             player.teleport(loc);
         } else {
-            atPlayer.teleport(event, "back", "Teleport.teleportingToLastLoc", NewConfig.get().WARM_UPS.BACK.get());
+            atPlayer.teleport(event, "back", "Teleport.teleportingToLastLoc");
         }
         return true;
     }
