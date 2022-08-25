@@ -42,11 +42,11 @@ public class DynmapHook extends MapPlugin {
         if (api == null) throw new NoClassDefFoundError("You fool.");
         markerAPI = api.getMarkerAPI();
         // Create the warps
-        WARPS = markerAPI.createMarkerSet("advancedteleport_warps", "Warps", null, true);
+        WARPS = getSet("advancedteleport_warps", "Warps");
         // Create the homes
-        HOMES = markerAPI.createMarkerSet("advancedteleport_homes", "Homes", null, true);
+        HOMES = getSet("advancedteleport_homes", "Homes");
         // Create the spawns
-        SPAWNS = markerAPI.createMarkerSet("advancedteleport_spawns", "Spawns", null, true);
+        SPAWNS = getSet("advancedteleport_spawns", "Spawns");
     }
 
     @Override
@@ -115,5 +115,11 @@ public class DynmapHook extends MapPlugin {
     private void moveMarker(String name, String label, MarkerSet set, Location location) {
         removeMarker(name, set);
         addMarker(name, label, set, location);
+    }
+
+    private MarkerSet getSet(String id, String label) {
+        MarkerSet set = markerAPI.getMarkerSet(id);
+        if (set == null) set = markerAPI.createMarkerSet(id, label, null, false);
+        return set;
     }
 }
