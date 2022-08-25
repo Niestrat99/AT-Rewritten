@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
+import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
@@ -16,6 +17,7 @@ import org.dynmap.markers.MarkerSet;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class DynmapHook extends MapPlugin {
 
@@ -51,17 +53,17 @@ public class DynmapHook extends MapPlugin {
 
     @Override
     public void addWarp(Warp warp) {
-        addMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), WARPS, warp.getLocation());
+        addMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), WARPS, warp.getLocation(), null);
     }
 
     @Override
     public void addHome(Home home) {
-        addMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), HOMES, home.getLocation());
+        addMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), HOMES, home.getLocation(), home.getOwner());
     }
 
     @Override
     public void addSpawn(String name, Location location) {
-        addMarker("advancedteleport_spawn_" + name, "Spawn", SPAWNS, location);
+        addMarker("advancedteleport_spawn_" + name, "Spawn", SPAWNS, location, null);
     }
 
     @Override
@@ -81,27 +83,31 @@ public class DynmapHook extends MapPlugin {
 
     @Override
     public void moveWarp(Warp warp) {
-        moveMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), WARPS, warp.getLocation());
+        moveMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), WARPS, warp.getLocation(), null);
     }
 
     @Override
     public void moveHome(Home home) {
-        moveMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), HOMES, home.getLocation());
+        moveMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), HOMES, home.getLocation(), home.getOwner());
     }
 
     @Override
     public void moveSpawn(String name, Location location) {
-        moveMarker("advancedteleport_spawn_" + name, "Spawn", SPAWNS, Spawn.get().getSpawn(name));
+        moveMarker("advancedteleport_spawn_" + name, "Spawn", SPAWNS, Spawn.get().getSpawn(name), null);
     }
 
     @Override
     public void registerImage(String name, InputStream stream) {
-        MarkerIcon icon = markerAPI.createMarkerIcon(name, name, stream);
+        MarkerIcon icon = markerAPI.getMarkerIcon(name);
+        if (icon == null) {
+            icon = markerAPI.createMarkerIcon(name, name, stream);
+        }
         icons.put(name, icon);
     }
 
-    private void addMarker(String name, String label, MarkerSet set, Location location) {
-        set.createMarker(name, label, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), icons.get(name), false);
+    private void addMarker(String name, String label, MarkerSet set, Location location, UUID owner) {
+        MapAssetManager.getImageKey(name, name.split("_")[1], owner).thenAcceptAsync(key ->
+                set.createMarker(name, label, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), icons.get(key), false));
     }
 
     private void removeMarker(String name, MarkerSet set) {
@@ -112,9 +118,9 @@ public class DynmapHook extends MapPlugin {
         }
     }
 
-    private void moveMarker(String name, String label, MarkerSet set, Location location) {
+    private void moveMarker(String name, String label, MarkerSet set, Location location, UUID owner) {
         removeMarker(name, set);
-        addMarker(name, label, set, location);
+        addMarker(name, label, set, location, owner);
     }
 
     private MarkerSet getSet(String id, String label) {
