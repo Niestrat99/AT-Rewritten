@@ -15,7 +15,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -326,5 +328,43 @@ public class HomeSQLManager extends SQLManager {
 
     public static HomeSQLManager get() {
         return instance;
+    }
+
+    public CompletableFuture<List<Home>> getHomesBulk() {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                // GOTTA CATCH 'EM ALL
+                PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_homes");
+                ResultSet set = executeQuery(statement);
+                // Get the list of homes
+                List<Home> homes = new ArrayList<>();
+                while (set.next()) {
+                    // UUID of the owner
+                    UUID owner = UUID.fromString(set.getString("uuid_owner"));
+                    // Get the name of the home
+                    String name = set.getString("home");
+                    // Coordinates
+                    double x = set.getDouble("x");
+                    double y = set.getDouble("y");
+                    double z = set.getDouble("z");
+                    double yaw = set.getDouble("yaw");
+                    double pitch = set.getDouble("pitch");
+                    // The world name
+                    String worldStr = set.getString("world");
+                    // Timestamps
+                    long createdTimestamp = set.getLong("timestamp_created");
+                    long updatedTimestamp = set.getLong("timestamp_updated");
+                    // Make sure the world is there
+                    World world = Bukkit.getWorld(worldStr);
+                    if (world == null) continue;
+                    // Add the world
+                    homes.add(new Home(owner, name, new Location(world, x, y, z, (float) yaw, (float) pitch),
+                            createdTimestamp, updatedTimestamp));
+                }
+                return homes;
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }, CoreClass.async);
     }
 }

@@ -1,5 +1,8 @@
 package io.github.niestrat99.advancedteleport.managers;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
@@ -8,11 +11,17 @@ import io.github.niestrat99.advancedteleport.hooks.borders.VanillaBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.WorldBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import io.github.niestrat99.advancedteleport.hooks.maps.DynmapHook;
+import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
+import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import org.bukkit.World;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class PluginHookManager {
 
@@ -47,7 +56,12 @@ public class PluginHookManager {
         loadPlugin(mapPlugins, "dynmap", DynmapHook.class);
 
         for (MapPlugin plugin : mapPlugins.values()) {
-            if (plugin.canEnable()) plugin.enable();
+            if (plugin.canEnable()) {
+                plugin.enable();
+                addIcons(NewConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), plugin::addWarp);
+                addIcons(NewConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), plugin::addHome);
+                addIcons(NewConfig.get().MAP_SPAWNS.isEnabled(), CompletableFuture.completedFuture(Spawn.get().getSpawns()), (spawn) -> plugin.addSpawn(spawn, Spawn.get().getSpawn(spawn)));
+            }
         }
     }
 
@@ -96,5 +110,22 @@ public class PluginHookManager {
             };
         }
         return null;
+    }
+
+    public boolean isClaimed(Location location) {
+        for (ClaimPlugin plugin : claimPlugins.values()) {
+            if (!plugin.canUse(location.getWorld())) continue;
+            return plugin.isClaimed(location);
+        }
+        return false;
+    }
+
+    private <T> void addIcons(boolean requirement, CompletableFuture<List<T>> pois, Consumer<T> handler) {
+        if (!requirement) return;
+        pois.thenAcceptAsync(result -> {
+            for (T poi : result) {
+                handler.accept(poi);
+            }
+        }, CoreClass.sync);
     }
 }

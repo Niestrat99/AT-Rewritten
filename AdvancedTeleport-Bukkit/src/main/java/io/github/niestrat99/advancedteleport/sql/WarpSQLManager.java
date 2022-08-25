@@ -14,6 +14,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -292,5 +294,36 @@ public class WarpSQLManager extends SQLManager {
 
     public static WarpSQLManager get() {
         return instance;
+    }
+
+    public CompletableFuture<List<Warp>> getWarpsBulk() {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
+                ResultSet results = executeQuery(statement);
+                List<Warp> warps = new ArrayList<>();
+                // For each warp...
+                while (results.next()) {
+                    // Get the world.
+                    World world = Bukkit.getWorld(results.getString("world"));
+                    if (world == null) continue;
+                    // Create the warp object and it'll register itself.
+                    String creator = results.getString("uuid_creator");
+                    warps.add(new Warp(creator == null ? null : UUID.fromString(creator),
+                            results.getString("warp"),
+                            new Location(world,
+                                    results.getDouble("x"),
+                                    results.getDouble("y"),
+                                    results.getDouble("z"),
+                                    results.getFloat("yaw"),
+                                    results.getFloat("pitch")),
+                            results.getLong("timestamp_created"),
+                            results.getLong("timestamp_updated")));
+                }
+                return warps;
+            } catch (SQLException exception) {
+                throw new RuntimeException(exception);
+            }
+        });
     }
 }
