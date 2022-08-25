@@ -151,8 +151,7 @@ public class HomeCommand extends AbstractHomeCommand {
                     home.getName(),
                     ATTeleportEvent.TeleportType.HOME
             );
-            ATPlayer.getPlayer(player).teleport(event, "home", "Teleport.teleportingToHome",
-                    NewConfig.get().WARM_UPS.HOME.get());
+            ATPlayer.getPlayer(player).teleport(event, "home", "Teleport.teleportingToHome");
         });
     }
 
