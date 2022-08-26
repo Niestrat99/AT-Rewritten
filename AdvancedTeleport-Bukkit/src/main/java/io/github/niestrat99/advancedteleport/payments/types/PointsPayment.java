@@ -63,6 +63,11 @@ public class PointsPayment extends Payment {
     }
 
     @Override
+    public String getId() {
+        return "exp";
+    }
+
+    @Override
     public void setPlayerAmount(Player player) {
         int expPoints = getEXPBetweenLevels(player.getLevel());
         player.giveExp(-points);

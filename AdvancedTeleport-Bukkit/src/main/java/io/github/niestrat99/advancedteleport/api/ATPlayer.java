@@ -15,6 +15,7 @@ import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -289,30 +290,50 @@ public class ATPlayer {
     }
 
     public int getCooldown(@NotNull String command) {
-        return getMin("at.member.cooldown", command, NewConfig.get().COOLDOWNS.valueOf(command).get());
+        return getMin("at.member.cooldown", command, NewConfig.get().CUSTOM_COOLDOWNS.get(), NewConfig.get().COOLDOWNS.valueOf(command).get());
     }
 
     public int getWarmUp(@NotNull String command) {
-        return getMin("at.member.timer", command, NewConfig.get().WARM_UPS.valueOf(command).get());
+        return getMin("at.member.timer", command, NewConfig.get().CUSTOM_WARM_UPS.get(), NewConfig.get().WARM_UPS.valueOf(command).get());
     }
 
     public int getDistanceLimitation(@Nullable String command) {
         return determineValue("at.member.distance", command, command == null ? NewConfig.get().MAXIMUM_TELEPORT_DISTANCE.get()
-                : NewConfig.get().DISTANCE_LIMITS.valueOf(command).get(), Math::max);
+                : NewConfig.get().DISTANCE_LIMITS.valueOf(command).get(), NewConfig.get().CUSTOM_DISTANCE_LIMITS.get(), Math::max);
     }
 
-    private int getMin(String permission, String command, int defaultValue) {
-        return determineValue(permission, command, defaultValue, Math::min);
+    private int getMin(String permission, String command, ConfigurationSection customSection, int defaultValue) {
+        return determineValue(permission, command, defaultValue, customSection, Math::min);
     }
 
-    private int determineValue(String permission, String command, int defaultValue, BiFunction<Integer, Integer, Integer> consumer) {
-        List<String> cooldowns;
-        if (command == null) {
-            cooldowns = getDynamicPermission(permission);
-        } else {
-            cooldowns = getDynamicPermission(permission + "." + command);
-            if (cooldowns.isEmpty()) cooldowns = getDynamicPermission(permission);
+    private int determineValue(String permission, String command, int defaultValue, ConfigurationSection customSection, BiFunction<Integer, Integer, Integer> consumer) {
+        List<String> cooldowns = new ArrayList<>();
+        // If the player is null
+        if (getPlayer() == null) return defaultValue;
+        // Get the custom section keys
+        for (String key : customSection.getKeys(false)) {
+            String value = customSection.getString(key);
+            String worldName = getPlayer().getWorld().getName().toLowerCase(Locale.ENGLISH);
+            if (!getPlayer().hasPermission(permission + "." + key)
+                    && !getPlayer().hasPermission(permission + "." + command + "." + key)
+                    && !getPlayer().hasPermission(permission + "." + worldName + "." + key)
+                    && !getPlayer().hasPermission(permission + "." + command + "." + worldName + "." + key)) continue;
+            // Make sure there's only one value
+            cooldowns.clear();
+            cooldowns.add(value);
         }
+
+        if (cooldowns.isEmpty()) {
+            if (command == null) {
+                cooldowns = getDynamicPermission(permission);
+            } else {
+                cooldowns = getDynamicPermission(permission + "." + command);
+                if (cooldowns.isEmpty()) cooldowns = getDynamicPermission(permission);
+            }
+        } else {
+            return Integer.parseInt(cooldowns.get(0));
+        }
+
 
         int min = defaultValue;
         boolean changed = false;

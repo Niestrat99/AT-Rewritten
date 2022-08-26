@@ -65,6 +65,11 @@ public class ItemsPayment extends Payment {
     }
 
     @Override
+    public String getId() {
+        return "item";
+    }
+
+    @Override
     public void setPlayerAmount(Player player) {
         int remaining = amount;
         ItemMeta meta = new ItemStack(material).getItemMeta();
