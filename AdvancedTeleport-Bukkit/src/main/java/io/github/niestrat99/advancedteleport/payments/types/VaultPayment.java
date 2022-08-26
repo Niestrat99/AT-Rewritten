@@ -14,9 +14,11 @@ public class VaultPayment extends Payment {
 
     private double price;
     private Economy economy;
+    private String economyName;
 
     public VaultPayment(double price, String economyName) {
         this.price = price;
+        this.economyName = economyName;
         if (economyName == null) {
             RegisteredServiceProvider<Economy> provider = Bukkit.getServicesManager().getRegistration(Economy.class);
             if (provider == null) throw new IllegalStateException("There is no economy provider registered.");
@@ -61,6 +63,11 @@ public class VaultPayment extends Payment {
     @Override
     public String getMessagePath() {
         return "Info.paymentVault";
+    }
+
+    @Override
+    public String getId() {
+        return "vault:" + economyName;
     }
 
     @Override

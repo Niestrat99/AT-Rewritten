@@ -32,6 +32,11 @@ public class LevelsPayment extends Payment {
     }
 
     @Override
+    public String getId() {
+        return "levels";
+    }
+
+    @Override
     public void setPlayerAmount(Player player) {
     }
 

@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.api.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
@@ -31,6 +32,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
     public PerCommandOption<Integer> WARM_UPS;
+    public ConfigOption<ConfigurationSection> CUSTOM_WARM_UPS;
 
     public ConfigOption<Boolean> BLINDNESS_ON_WARMUP;
 
@@ -39,9 +41,11 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS;
     public ConfigOption<String> APPLY_COOLDOWN_AFTER;
     public PerCommandOption<Integer> COOLDOWNS;
+    public ConfigOption<ConfigurationSection> CUSTOM_COOLDOWNS;
 
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
+    public ConfigOption<ConfigurationSection> CUSTOM_COSTS;
 
     public ConfigOption<Boolean> USE_MYSQL;
     public ConfigOption<String> MYSQL_HOST;
@@ -58,6 +62,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS;
     public PerCommandOption<Integer> DISTANCE_LIMITS;
+    public ConfigOption<ConfigurationSection> CUSTOM_DISTANCE_LIMITS;
 
     public ConfigOption<Boolean> ENABLE_TELEPORT_LIMITATIONS;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS_LIMITS;
@@ -156,9 +161,10 @@ public class NewConfig extends ATConfig {
         addDefault("disabled-commands", new ArrayList<>(), "The commands that AT should not register upon starting up" +
                 ".\n" +
                 "In other words, this gives up the command for other plugins to use.\n" +
-                "NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, " +
-                "Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for " +
-                "anything to change.");
+                "NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for anything to change.\n" +
+                "To use this section, use the following format:\n" +
+                "disabled-commands:\n" +
+                "- back");
 
         addSection("Teleport Requesting");
         addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
@@ -191,6 +197,16 @@ public class NewConfig extends ATConfig {
         addDefault("per-command-warm-ups.spawn", "default", "Warm-up timer for /spawn");
         addDefault("per-command-warm-ups.home", "default", "Warm-up timer for /home");
         addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
+        makeSectionLenient("custom-warm-ups");
+        addComment("Use this section to create custom warm-ups per-group.\n" +
+                "Use the following format:\n" +
+                "custom-warm-ups:\n" +
+                "  vip-warm-up: 3\n" +
+                "Giving a group, such as VIP, the permission at.member.timer.vip-warm-up will have a warm-up of 3.\n" +
+                "The key (vip-warm-up) and group name (VIP) do not have to be different, this is just an example.\n" +
+                "You can also add at.member.timer.3, but this is more efficient if you find permissions lag." +
+                "To make it per-command, use at.member.timer.<command>.vip-warm-up. To make it per-world, use at.member.timer.<world>.vip-warm-up.\n" +
+                "To combine the two, you can use at.member.timer.<command>.<world>.vip-warm-up.");
 
         addDefault("blindness-on-warmup", false, "Gives the teleporting player a blindness effect whilst waiting to " +
                 "teleport.");
@@ -229,6 +245,16 @@ public class NewConfig extends ATConfig {
         addDefault("per-command-cooldowns.back", "default", "Cooldown for /back");
         // addDefault("per-command-cooldowns.sethome", "default", "Cooldown for /sethome");
         // addDefault("per-command-cooldowns.setwarp", "default", "Cooldown for /setwarp");
+        makeSectionLenient("custom-cooldowns");
+        addComment("custom-cooldowns", "Use this section to create custom cooldowns per-group.\n" +
+                "Use the following format:\n" +
+                "custom-cooldowns:\n" +
+                "  vip-cooldown: 3\n" +
+                "Giving a group, such as VIP, the permission at.member.cooldown.vip-cooldown will have a cooldown of 3.\n" +
+                "The key (vip-cooldown) and group name (VIP) do not have to be different, this is just an example.\n" +
+                "You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag." +
+                "To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldren.\n" +
+                "To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.");
 
         addDefault("cost-amount", 100.0, "Teleportation Costs", "The amount it costs to teleport somewhere." +
                 "\nIf you want to use Vault Economy, use 100.0 to charge $100." +
@@ -253,6 +279,13 @@ public class NewConfig extends ATConfig {
         addDefault("per-command-cost.back", "default", "Cost for /back");
         //addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
         //addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
+        makeSectionLenient("custom-cost");
+        addComment("custom-cost", "Use this section to create custom costs per-group.\n" +
+                "Use the following format:\n" +
+                "custom-cost:\n" +
+                "  vip-cost: Essentials:100\n" +
+                "Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.\n" +
+                "To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.");
 
         addSection("SQL Storage");
 
@@ -672,12 +705,14 @@ public class NewConfig extends ATConfig {
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
         WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
+        CUSTOM_WARM_UPS = new ConfigOption<>("custom-warm-ups");
 
         BLINDNESS_ON_WARMUP = new ConfigOption<>("blindness-on-warmup");
 
         COOLDOWN_TIMER_DURATION = new ConfigOption<>("cooldown-duration");
         ADD_COOLDOWN_DURATION_TO_WARM_UP = new ConfigOption<>("add-cooldown-duration-to-warm-up");
         APPLY_COOLDOWN_TO_ALL_COMMANDS = new ConfigOption<>("apply-cooldown-to-all-commands");
+        CUSTOM_COOLDOWNS = new ConfigOption<>("custom-cooldowns");
 
         APPLY_COOLDOWN_AFTER = new ConfigOption<>("apply-cooldown-after");
         switch (APPLY_COOLDOWN_AFTER.get().toLowerCase()) {
@@ -694,6 +729,7 @@ public class NewConfig extends ATConfig {
 
         COST_AMOUNT = new ConfigOption<>("cost-amount");
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
+        CUSTOM_COSTS = new ConfigOption<>("custom-costs");
 
         USE_MYSQL = new ConfigOption<>("use-mysql");
         MYSQL_HOST = new ConfigOption<>("mysql-host");
