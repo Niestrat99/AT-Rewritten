@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -32,6 +33,7 @@ public class ReloadCommand implements SubATCommand {
         RandomCoords.reload();
         CooldownManager.init();
         CommandManager.registerCommands();
+        PluginHookManager.get().refreshIcons();
         CustomMessages.sendMessage(sender, "Info.reloadedConfig");
         return true;
     }

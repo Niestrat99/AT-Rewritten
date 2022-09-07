@@ -66,9 +66,10 @@ public class PluginHookManager {
         for (MapPlugin plugin : mapPlugins.values()) {
             if (plugin.canEnable()) {
                 plugin.enable();
-                addIcons(NewConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), plugin::addWarp);
-                addIcons(NewConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), plugin::addHome);
-                addIcons(NewConfig.get().MAP_SPAWNS.isEnabled(), CompletableFuture.completedFuture(Spawn.get().getSpawns()), (spawn) -> plugin.addSpawn(spawn, Spawn.get().getSpawn(spawn)));
+                handleIcons(NewConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), plugin::addWarp, plugin::removeWarp);
+                handleIcons(NewConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), plugin::addHome, plugin::removeHome);
+                handleIcons(NewConfig.get().MAP_SPAWNS.isEnabled(), CompletableFuture.completedFuture(Spawn.get().getSpawns()), (spawn) -> plugin.addSpawn(spawn, Spawn.get().getSpawn(spawn)),
+                        plugin::removeSpawn);
             }
         }
     }
@@ -117,12 +118,21 @@ public class PluginHookManager {
         return false;
     }
 
-    private <T> void addIcons(boolean requirement, CompletableFuture<List<T>> pois, Consumer<T> handler) {
-        if (!requirement) return;
+    private <T> void handleIcons(boolean requirement, CompletableFuture<List<T>> pois, Consumer<T> addIcons, Consumer<T> removeIcons) {
         pois.thenAcceptAsync(result -> {
             for (T poi : result) {
-                handler.accept(poi);
+                if (removeIcons != null) removeIcons.accept(poi);
+                if (requirement) addIcons.accept(poi);
             }
         }, CoreClass.sync);
+    }
+
+    public void refreshIcons() {
+        for (MapPlugin plugin : mapPlugins.values()) {
+            handleIcons(NewConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), plugin::addWarp, plugin::removeWarp);
+            handleIcons(NewConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), plugin::addHome, plugin::removeHome);
+            handleIcons(NewConfig.get().MAP_SPAWNS.isEnabled(), CompletableFuture.completedFuture(Spawn.get().getSpawns()), (spawn) -> plugin.addSpawn(spawn, Spawn.get().getSpawn(spawn)),
+                    plugin::removeSpawn);
+        }
     }
 }

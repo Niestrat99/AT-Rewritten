@@ -106,8 +106,13 @@ public class DynmapHook extends MapPlugin {
     }
 
     private void addMarker(String name, String label, MarkerSet set, Location location, UUID owner) {
-        MapAssetManager.getImageKey(name, name.split("_")[1], owner).thenAcceptAsync(key ->
-                set.createMarker(name, label, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), icons.get(key), false));
+        MapAssetManager.getIconInfo(name, name.split("_")[1], owner).thenAcceptAsync(key -> {
+            MarkerIcon icon = icons.get(key.getImageKey());
+            if (icon == null) {
+                icon = markerAPI.getMarkerIcon("default");
+            }
+            set.createMarker(name, label, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), icon, false);
+        });
     }
 
     private void removeMarker(String name, MarkerSet set) {

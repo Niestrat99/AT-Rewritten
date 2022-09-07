@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -123,6 +124,54 @@ public class MetadataSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
                 if (spawnName == null) return false;
                 return addMetadata(connection, spawnName, "SPAWN", key, value);
+            } catch (SQLException throwables) {
+                throw new RuntimeException(throwables);
+            }
+        });
+    }
+
+    public CompletableFuture<HashMap<String, String>> getWarpMetadataBulk(String warpName, String... keys) {
+        return WarpSQLManager.get().getWarpId(warpName).thenApplyAsync(id -> {
+            try (Connection connection = implementConnection()) {
+                if (id == -1) return null;
+                HashMap<String, String> results = new HashMap<>();
+                // Get the results
+                for (String key : keys) {
+                    results.put(key, getValue(connection, String.valueOf(id), "WARP", key));
+                }
+                return results;
+            } catch (SQLException throwables) {
+                throw new RuntimeException(throwables);
+            }
+        });
+    }
+
+    public CompletableFuture<HashMap<String, String>> getHomeMetadataBulk(String homeName, UUID owner, String... keys) {
+        return HomeSQLManager.get().getHomeId(homeName, owner).thenApplyAsync(id -> {
+            try (Connection connection = implementConnection()) {
+                if (id == -1) return null;
+                HashMap<String, String> results = new HashMap<>();
+                // Get the results
+                for (String key : keys) {
+                    results.put(key, getValue(connection, String.valueOf(id), "HOME", key));
+                }
+                return results;
+            } catch (SQLException throwables) {
+                throw new RuntimeException(throwables);
+            }
+        });
+    }
+
+    public CompletableFuture<HashMap<String, String>> getSpawnMetadataBulk(String spawnName, String... keys) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                if (spawnName == null) return null;
+                HashMap<String, String> results = new HashMap<>();
+                // Get the results
+                for (String key : keys) {
+                    results.put(key, getValue(connection, spawnName, "SPAWN", key));
+                }
+                return results;
             } catch (SQLException throwables) {
                 throw new RuntimeException(throwables);
             }

@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.hooks.maps;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -14,6 +13,7 @@ import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import xyz.jpenilla.squaremap.api.*;
 import xyz.jpenilla.squaremap.api.marker.Icon;
+import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -128,12 +128,13 @@ public class SquaremapHook extends MapPlugin {
             // Get the point
             Point point = Point.of(location.getX(), location.getZ());
             // Get the image associated with the icon
-            MapAssetManager.getImageKey(name, type, owner).thenAcceptAsync(result -> {
-                result = "advancedteleport_" + result;
-                if (!provider.iconRegistry().hasEntry(Key.of(result))) {
+            MapAssetManager.getIconInfo(name, type, owner).thenAcceptAsync(result -> {
+                String imageKey = result.getImageKey();
+                if (!provider.iconRegistry().hasEntry(Key.of(imageKey))) {
                     CoreClass.getInstance().getLogger().severe("Key " + result + " is not registered.");
                 }
-                Icon icon = Icon.icon(point, Key.of(result), 40);
+                Icon icon = Icon.icon(point, Key.of(imageKey), result.getSize());
+                icon.markerOptions(MarkerOptions.builder().clickTooltip(result.getClickTooltip()).hoverTooltip(result.getHoverTooltip()).build());
                 layer.addMarker(key, icon);
                 CoreClass.getInstance().getLogger().info("Added the " + location + " for " + name + ".");
             }, task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task));
