@@ -140,6 +140,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
         addDefault("Error.blockFail", "&b↑ &8» &7Failed to save the block against &b{player}&7!");
         addDefault("Error.unblockFail", "&b↑ &8» &7Failed to save the block removal against &b{player}&7!");
+        addDefault("Error.setIconFail", "&b↑ &8» &7Failed to change the map icon!");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -224,6 +225,7 @@ public class CustomMessages extends ATConfig {
                 "Click/hover over this text for more information.]" +
                 "(&bCurrent Version &8» &7{version}|&bNew Version &8» &7{new-version}|&bTitle &8» &7{title}" +
                 "|https://www.spigotmc.org/resources/advancedteleport.64139/)");
+        addDefault("Info.setIconSuccess", "&b↑ &8» &7Set the map icon for the {type} &b{name} &7to &b{icon}&7!");
 
         addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
         addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");
