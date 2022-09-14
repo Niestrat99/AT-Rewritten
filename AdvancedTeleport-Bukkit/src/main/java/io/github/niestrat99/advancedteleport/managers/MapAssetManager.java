@@ -35,6 +35,26 @@ public class MapAssetManager {
         registerImage("warp_default", CoreClass.getInstance().getResource("warp-default.png"));
         registerImage("home_default", CoreClass.getInstance().getResource("home-default.png"));
         registerImage("spawn_default", CoreClass.getInstance().getResource("spawn-default.png"));
+
+        registerImages();
+    }
+
+    public static Collection<String> getImageNames() {
+        return images.keySet();
+    }
+
+    public static void registerImages() {
+        // Get the AT folder
+        File advTpFolder = CoreClass.getInstance().getDataFolder();
+        // Get the map assets folder
+        File mapAssetsFolder = new File(advTpFolder, "map-assets");
+        // If it doesn't exist, try creating it
+        if (!mapAssetsFolder.exists()) {
+            if (!mapAssetsFolder.mkdirs()) {
+                CoreClass.getInstance().getLogger().warning("Failed to create the map-assets folder.");
+                return;
+            }
+        }
         // Register extra images
         String[] fileNames = mapAssetsFolder.list();
         if (fileNames == null) return;
@@ -50,12 +70,7 @@ public class MapAssetManager {
             }
             String id = fileName.replace("-", "_").substring(0, fileName.lastIndexOf('.'));
             registerImage(id, stream);
-
         }
-    }
-
-    public static Collection<String> getImageNames() {
-        return images.keySet();
     }
 
     public static void registerImage(String name, InputStream stream) {
