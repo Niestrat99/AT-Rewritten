@@ -157,8 +157,8 @@
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
-            <version>1.7</version>
-            <scope>provided</scope>
+            <version>1.7.1</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- WorldBorder (v1.15+) Dependency -->
@@ -203,14 +203,14 @@
             <groupId>net.ess3</groupId>
             <artifactId>EssentialsX</artifactId>
             <version>2.18.2</version>
-            <scope>provided</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>net.ess3</groupId>
             <artifactId>EssentialsXSpawn</artifactId>
             <version>2.16.1</version>
-            <scope>provided</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- Dependency floodgate -->

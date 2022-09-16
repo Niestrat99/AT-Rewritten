@@ -5,7 +5,74 @@
  */
 
 plugins {
-    id("io.github.niestrat99.java-conventions")
+    id("java-library")
+    id("maven-publish")
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    }
+
+    maven {
+        url = uri("https://papermc.io/repo/repository/maven-public/")
+    }
+
+    maven {
+        url = uri("https://jitpack.io")
+    }
+
+    maven {
+        url = uri("https://ci.pluginwiki.us/plugin/repository/everything/")
+    }
+
+    maven {
+        url = uri("https://repo.essentialsx.net/releases/")
+    }
+
+    maven {
+        url = uri("https://repo.opencollab.dev/maven-snapshots/")
+    }
+
+    maven {
+        url = uri("https://libraries.minecraft.net/")
+    }
+
+    maven {
+        url = uri("https://repo.maven.apache.org/maven2/")
+    }
+}
+
+dependencies {
+    implementation("io.papermc:paperlib:1.0.4")
+    implementation("net.kyori:adventure-nbt:4.11.0")
+    implementation("net.kyori:examination-api:1.3.0")
+    implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-BETA-3")
+    implementation("org.jetbrains:annotations:13.0")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("net.ess3:EssentialsX:2.18.2")
+    compileOnly("net.ess3:EssentialsXSpawn:2.16.1")
+    compileOnly("org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT")
+    compileOnly("com.github.PryPurity:WorldBorder:v2.1.2")
+    compileOnly("com.github.pop4959:ChunkyBorder:52034550ef")
+    compileOnly("com.mojang:authlib:2.3.31")
+    compileOnly("org.geysermc.floodgate:api:2.1.0-SNAPSHOT")
+}
+
+group = "io.github.niestrat99"
+version = "v5.6.4"
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+publishing {
+    publications.create<MavenPublication>("maven") {
+        from(components["java"])
+    }
+}
+
+tasks.withType<JavaCompile>() {
+    options.encoding = "UTF-8"
 }
 
 description = "AdvancedTeleport-Bukkit"
