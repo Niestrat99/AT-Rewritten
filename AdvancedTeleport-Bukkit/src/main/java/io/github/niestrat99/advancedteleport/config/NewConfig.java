@@ -475,7 +475,7 @@ public class NewConfig extends ATConfig {
                     "\nFor Dynmap, this supports HTML formatting.");
             addDefault(type + ".click-tooltip", "{name}", "Squaremap only - the tooltip that will appear when someone clicks on the icon.");
             addDefault(type + ".icon-size", "32", "The scale of the icon on the map.\n" +
-                    "With Dynmap, only 8, 16 and 32 are supported. With Squaremap, 2147483647 is your limit. But don't try it.");
+                    "With Dynmap, it depends on the icon itself. With Squaremap, 2147483647 is your limit. But don't try it.");
             addDefault(type + ".layer-name", capitalised, "The layer display name that appears on the map.");
         }
         addDefault("add-spawns", true, "Whether to make spawnpoints visible for everyone on the map.");
