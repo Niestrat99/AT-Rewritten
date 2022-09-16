@@ -3,6 +3,8 @@
  *
  * This project uses @Incubating APIs which are subject to change.
  */
+import java.text.SimpleDateFormat
+import java.util.Date
 
 plugins {
     id("java-library")
@@ -62,7 +64,7 @@ dependencies {
 }
 
 group = "io.github.niestrat99"
-version = "v5.6.4"
+version = "5.6.4"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 publishing {
@@ -73,6 +75,20 @@ publishing {
 
 tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
+}
+
+tasks.withType<ProcessResources> {
+    val currentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date())
+    inputs.property("version", project.version)
+    inputs.property("timestamp", currentDate)
+
+    filesMatching("plugin.yml") {
+        expand(mutableMapOf("version" to project.version))
+    }
+
+    filesMatching("update.properties") {
+        expand(mutableMapOf("timestamp" to currentDate))
+    }
 }
 
 description = "AdvancedTeleport-Bukkit"
