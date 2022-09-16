@@ -53,17 +53,17 @@ public class DynmapHook extends MapPlugin {
 
     @Override
     public void addWarp(Warp warp) {
-        addMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), WARPS, warp.getLocation(), null);
+        addMarker(warp.getName(), "warp", WARPS, warp.getLocation(), null);
     }
 
     @Override
     public void addHome(Home home) {
-        addMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), HOMES, home.getLocation(), home.getOwner());
+        addMarker(home.getOwner() + "_" + home.getName(), "home", HOMES, home.getLocation(), home.getOwner());
     }
 
     @Override
     public void addSpawn(String name, Location location) {
-        addMarker("advancedteleport_spawn_" + name, "Spawn", SPAWNS, location, null);
+        addMarker(name, "spawn", SPAWNS, location, null);
     }
 
     @Override
@@ -83,17 +83,17 @@ public class DynmapHook extends MapPlugin {
 
     @Override
     public void moveWarp(Warp warp) {
-        moveMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), WARPS, warp.getLocation(), null);
+        moveMarker(warp.getName(), "warp", WARPS, warp.getLocation(), null);
     }
 
     @Override
     public void moveHome(Home home) {
-        moveMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), HOMES, home.getLocation(), home.getOwner());
+        moveMarker(home.getOwner() + "_" + home.getName(), "home", HOMES, home.getLocation(), home.getOwner());
     }
 
     @Override
     public void moveSpawn(String name, Location location) {
-        moveMarker("advancedteleport_spawn_" + name, "Spawn", SPAWNS, Spawn.get().getSpawn(name), null);
+        moveMarker(name, "spawn", SPAWNS, Spawn.get().getSpawn(name), null);
     }
 
     @Override
@@ -105,14 +105,20 @@ public class DynmapHook extends MapPlugin {
         icons.put(name, icon);
     }
 
-    private void addMarker(String name, String label, MarkerSet set, Location location, UUID owner) {
-        MapAssetManager.getIconInfo(name, name.split("_")[1], owner).thenAcceptAsync(key -> {
-            MarkerIcon icon = icons.get(key.getImageKey());
-            if (icon == null) {
-                icon = markerAPI.getMarkerIcon("default");
+    private void addMarker(String name, String type, MarkerSet set, Location location, UUID owner) {
+        MapAssetManager.getIconInfo(name, type, owner).handleAsync((result, e) -> {
+            if (e != null) {
+                e.printStackTrace();
             }
-            set.createMarker(name, label, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), icon, false);
-        });
+            return result;
+        }).thenAcceptAsync(key -> {
+            MarkerIcon icon = icons.get(key.getImageKey());
+            if (icon == null) icon = markerAPI.getMarkerIcon(key.getImageKey());
+            if (icon == null) icon = markerAPI.getMarkerIcon("default");
+
+            set.createMarker("advancedteleport_" + type + "_" + name, key.getHoverTooltip(), true, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), icon, false);
+            CoreClass.getInstance().getLogger().info("Marker: " + icon.getMarkerIconID() + ", " + key.getImageKey());
+        }, task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task));
     }
 
     private void removeMarker(String name, MarkerSet set) {
@@ -123,9 +129,9 @@ public class DynmapHook extends MapPlugin {
         }
     }
 
-    private void moveMarker(String name, String label, MarkerSet set, Location location, UUID owner) {
+    private void moveMarker(String name, String type, MarkerSet set, Location location, UUID owner) {
         removeMarker(name, set);
-        addMarker(name, label, set, location, owner);
+        addMarker(name, type, set, location, owner);
     }
 
     private MarkerSet getSet(String id, String label) {

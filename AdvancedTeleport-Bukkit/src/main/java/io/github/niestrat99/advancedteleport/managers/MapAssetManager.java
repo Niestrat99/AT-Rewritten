@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,17 +21,6 @@ public class MapAssetManager {
 
     public static void init() {
         images = new HashMap<>();
-        // Get the AT folder
-        File advTpFolder = CoreClass.getInstance().getDataFolder();
-        // Get the map assets folder
-        File mapAssetsFolder = new File(advTpFolder, "map-assets");
-        // If it doesn't exist, try creating it
-        if (!mapAssetsFolder.exists()) {
-            if (!mapAssetsFolder.mkdirs()) {
-                CoreClass.getInstance().getLogger().warning("Failed to create the map-assets folder.");
-                return;
-            }
-        }
         // Register default images
         registerImage("warp_default", CoreClass.getInstance().getResource("warp-default.png"));
         registerImage("home_default", CoreClass.getInstance().getResource("home-default.png"));
@@ -104,10 +94,10 @@ public class MapAssetManager {
         return completableFuture.thenApplyAsync(result -> {
             String imageKey = getIconInfo(result.get("map_icon"), type, name, options.getDefaultIcon());
             int size = getImageSize(result.get("map_size"), options.getIconSize());
-            boolean hidden = result.containsKey("map_hidden") ? Boolean.getBoolean(result.get("map_hidden")) : options.isShownByDefault();
-            String label = result.getOrDefault("map_label", name).replaceAll("\\{name}", name);
-            String clickTooltip = result.getOrDefault("map_click_tooltip", name).replaceAll("\\{name}", name);
-            String hoverTooltip = result.getOrDefault("map_hover_tooltip", name).replaceAll("\\{name}", name);
+            boolean hidden = Boolean.getBoolean(getOrDefault(result, "map_hidden", String.valueOf(options.isShownByDefault())));
+            String label = getOrDefault(result, "map_label", name).replaceAll("\\{name}", name);
+            String clickTooltip = getOrDefault(result, "map_click_tooltip", options.getClickTooltip()).replaceAll("\\{name}", name);
+            String hoverTooltip = getOrDefault(result, "map_hover_tooltip", options.getHoverTooltip()).replaceAll("\\{name}", name);
             return new IconInfo(imageKey, size, hidden, label, clickTooltip, hoverTooltip);
         });
     }
@@ -117,6 +107,12 @@ public class MapAssetManager {
         result = type + "_" + name;
         if (images.containsKey(result)) return result;
         return defaultOption;
+    }
+
+    private static <T> T getOrDefault(HashMap<String, T> map, String key, T defaultValue) {
+        T result = map.getOrDefault(key, defaultValue);
+        if (result == null) return defaultValue;
+        return result;
     }
 
     private static int getImageSize(String result, int defaultOption) {

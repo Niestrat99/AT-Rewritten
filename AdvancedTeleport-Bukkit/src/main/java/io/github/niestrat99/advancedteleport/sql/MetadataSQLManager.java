@@ -133,7 +133,7 @@ public class MetadataSQLManager extends SQLManager {
     public CompletableFuture<HashMap<String, String>> getWarpMetadataBulk(String warpName, String... keys) {
         return WarpSQLManager.get().getWarpId(warpName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
-                if (id == -1) return null;
+                if (id == -1) return new HashMap<>();
                 HashMap<String, String> results = new HashMap<>();
                 // Get the results
                 for (String key : keys) {
