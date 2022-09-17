@@ -365,7 +365,7 @@ public class ATPlayer {
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Boolean> addHome(String name, Location location) {
-        return addHome(name, location, (Player) null);
+        return addHome(name, location, getPlayer(), true);
     }
 
     /**
