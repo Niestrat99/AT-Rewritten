@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class PlayerSQLManager extends SQLManager {
 
@@ -103,7 +104,7 @@ public class PlayerSQLManager extends SQLManager {
     }
 
     public void updatePlayerData(OfflinePlayer player) {
-        isPlayerInDatabase(player, result -> {
+        isPlayerInDatabase(player).thenAcceptAsync(result -> {
             if (result) {
                 updatePlayerInformation(player, null);
             } else {
@@ -135,16 +136,16 @@ public class PlayerSQLManager extends SQLManager {
         }
     }
 
-    public void isPlayerInDatabase(OfflinePlayer player, SQLCallback<Boolean> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+    public CompletableFuture<Boolean> isPlayerInDatabase(OfflinePlayer player) {
+        return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = implementConnection()) {
                 PreparedStatement statement = prepareStatement(connection, "SELECT name FROM " + tablePrefix +
                         "_players WHERE uuid = ?");
                 statement.setString(1, player.getUniqueId().toString());
                 ResultSet results = executeQuery(statement);
-                callback.onSuccess(results.next());
+                return results.next();
             } catch (SQLException exception) {
-                exception.printStackTrace();
+                throw new RuntimeException(exception);
             }
         });
     }

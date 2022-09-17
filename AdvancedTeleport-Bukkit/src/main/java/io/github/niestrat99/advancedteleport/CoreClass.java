@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport;
 import com.wimbli.WorldBorder.WorldBorder;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
 import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
 import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
@@ -85,6 +86,7 @@ public class CoreClass extends JavaPlugin {
     @Override
     public void onEnable() {
         Instance = this;
+        checkVersion();
         getLogger().info("Advanced Teleport is now enabling...");
         setupEconomy();
         setupPermissions();
@@ -100,7 +102,6 @@ public class CoreClass extends JavaPlugin {
             }
         }
 
-        CommandManager.registerCommands();
         {
             new BlocklistManager();
             new HomeSQLManager();
@@ -109,10 +110,12 @@ public class CoreClass extends JavaPlugin {
             new DataFailManager();
             new MetadataSQLManager();
         }
+        new PluginHookManager();
+        MapAssetManager.init();
+        CommandManager.registerCommands();
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
-        new PluginHookManager();
 
         setupVersion();
         new Metrics(this, 5146);
@@ -131,6 +134,18 @@ public class CoreClass extends JavaPlugin {
             }
             TpLoc.a();
         });
+    }
+
+    private void checkVersion() {
+        String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+        int number = Integer.parseInt(bukkitVersion.split("_")[1]);
+        if (number < 16) {
+            getLogger().severe("!!! YOU ARE USING ADVANCEDTELEPORT ON AN UNSUPPORTED VERSION. !!!");
+            getLogger().severe("The plugin only receives mainstream support for 1.16.5 to 1.19.");
+            getLogger().severe("If you experience an issue with the plugin, please confirm whether it occurs on newer versions as well.");
+            getLogger().severe("If you experience issues that only occur on your version, then we are not responsible for addressing it.");
+            getLogger().severe("You have been warned.");
+        }
     }
 
     @Override
@@ -157,6 +172,7 @@ public class CoreClass extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
         getServer().getPluginManager().registerEvents(new WorldLoadListener(), this);
+        getServer().getPluginManager().registerEvents(new MapEventListeners(), this);
     }
 
     /**

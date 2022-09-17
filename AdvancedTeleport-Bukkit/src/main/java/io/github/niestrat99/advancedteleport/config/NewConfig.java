@@ -97,6 +97,10 @@ public class NewConfig extends ATConfig {
     public ConfigOption<List<String>> BACK_TELEPORT_CAUSES;
     public ConfigOption<Integer> BACK_SEARCH_RADIUS;
 
+    public MapOptions MAP_HOMES;
+    public MapOptions MAP_WARPS;
+    public MapOptions MAP_SPAWNS;
+
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
@@ -458,6 +462,30 @@ public class NewConfig extends ATConfig {
                 "of O(n^3) (e.g. run 27 times, 64, 125, 216 and so on).\n" +
                 "To disable, either set to 0 or -1.");
 
+        addSection("Map Plugin Integration");
+        addComment("At this time, AdvancedTeleport supports dynmap and squaremap.\n" +
+                "If you are using dynmap, the plugin has extra icons you can use as placeholders.");
+        // Map options
+        for (String type : Arrays.asList("homes", "warps", "spawns")) {
+            // home, warp, spawn
+            String singular = type.substring(0, type.length() - 1);
+            // Homes, Warps, Spawns
+            String capitalised = type.toUpperCase().charAt(0) + type.toLowerCase().substring(1);
+            addComment(type, "Covers map options for " + type + ".");
+            addDefault(type + ".enabled", !type.equals("homes"), "Whether the icons for " + type + " will be added at all.");
+            addDefault(type + ".default-icon", singular + "-default", "The default icon for " + type + " in the map.");
+            addDefault(type + ".shown-by-default", true, "Whether the player viewing the map has to explicitly enable the layer to view " + type + " on the map.");
+            addDefault(type + ".hover-tooltip", "{name}", "The tooltip that will appear when someone hovers over the icon in the map." +
+                    "\nFor Dynmap, this supports HTML formatting.");
+            addDefault(type + ".click-tooltip", "{name}", "Squaremap only - the tooltip that will appear when someone clicks on the icon.");
+            addDefault(type + ".icon-size", "32", "The scale of the icon on the map.\n" +
+                    "With Dynmap, only 8, 16 and 32 are supported. With Squaremap, 2147483647 is your limit. But don't try it.");
+            addDefault(type + ".layer-name", capitalised, "The layer display name that appears on the map.");
+        }
+        addDefault("add-spawns", true, "Whether to make spawnpoints visible for everyone on the map.");
+        addDefault("add-warps", true, "Whether to make warps visible for everyone on the map.");
+        addDefault("add-homes", false, "Whether to make all homes visible for everyone on the map.");
+        addDefault("default-icon-size", 40, "The default icon size for AT's icons on the map.");
 
         addDefault("teleport-to-spawn-on-first-join", true, "Spawn Management",
                 "Whether the player should be teleported to the spawnpoint when they join for the first time.");
@@ -718,6 +746,10 @@ public class NewConfig extends ATConfig {
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
 
+        MAP_HOMES = new MapOptions("homes");
+        MAP_SPAWNS = new MapOptions("spawns");
+        MAP_WARPS = new MapOptions("warps");
+
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
@@ -859,6 +891,60 @@ public class NewConfig extends ATConfig {
 
         public ConfigOption<T>[] values() {
             return (ConfigOption<T>[]) new ConfigOption[]{TPA, TPAHERE, TPR, WARP, SPAWN, HOME, BACK};
+        }
+    }
+
+    public static class MapOptions {
+        private final String section;
+        private final boolean enabled;
+        private final String defaultIcon;
+        private final boolean shownByDefault;
+        private final String hoverTooltip;
+        private final String clickTooltip;
+        private final int iconSize;
+        private final String layerName;
+
+        public MapOptions(String section) {
+            this.section = section;
+            this.enabled = get().getBoolean(section + ".enabled");
+            this.defaultIcon = get().getString(section + ".default-icon");
+            this.shownByDefault = get().getBoolean(section + ".shown-by-default");
+            this.hoverTooltip = get().getString(section + ".hover-tooltip");
+            this.clickTooltip = get().getString(section + ".click-tooltip");
+            this.iconSize = get().getInteger(section + ".icon-size");
+            this.layerName = get().getString(section + ".layer-name");
+        }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public boolean isShownByDefault() {
+            return shownByDefault;
+        }
+
+        public int getIconSize() {
+            return iconSize;
+        }
+
+        public String getClickTooltip() {
+            return clickTooltip;
+        }
+
+        public String getDefaultIcon() {
+            return defaultIcon;
+        }
+
+        public String getHoverTooltip() {
+            return hoverTooltip;
+        }
+
+        public String getLayerName() {
+            return layerName;
+        }
+
+        public String getSection() {
+            return section;
         }
     }
 }
