@@ -48,7 +48,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.papermc:paperlib:1.0.4")
+    implementation("io.papermc:paperlib:1.0.7")
     implementation("net.kyori:adventure-nbt:4.11.0")
     implementation("net.kyori:examination-api:1.3.0")
     implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-BETA-3")
@@ -56,7 +56,7 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("net.ess3:EssentialsX:2.18.2")
     compileOnly("net.ess3:EssentialsXSpawn:2.16.1")
-    compileOnly("org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT")
     compileOnly("com.github.PryPurity:WorldBorder:v2.1.2")
     compileOnly("com.github.pop4959:ChunkyBorder:52034550ef")
     compileOnly("com.mojang:authlib:2.3.31")
