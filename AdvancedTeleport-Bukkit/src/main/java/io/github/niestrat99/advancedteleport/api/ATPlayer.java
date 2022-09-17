@@ -351,10 +351,6 @@ public class ATPlayer {
         return new HashMap<>(homes);
     }
 
-    public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback) {
-        addHome(name, location, callback, true);
-    }
-
     /**
      * Adds a home to the player's home list.
      *
@@ -365,7 +361,7 @@ public class ATPlayer {
      */
     @Deprecated
     public void addHome(@NotNull String name, @NotNull Location location, SQLManager.SQLCallback<Boolean> callback) {
-        addHome(name, location, (Player) null);
+        addHome(name, location, getPlayer(), true);
         callback.onSuccess(true);
     }
 
@@ -377,7 +373,7 @@ public class ATPlayer {
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Boolean> addHome(String name, Location location) {
-        return addHome(name, location, (Player) null);
+        return addHome(name, location, getPlayer(), true);
     }
 
     /**
@@ -386,6 +382,19 @@ public class ATPlayer {
      * @param name the name of the home.
      * @param location the location of the home.
      * @param creator the player who created the home.
+     * @return a completable future of whether the action failed or succeeded.
+     */
+    public CompletableFuture<Boolean> addHome(String name, Location location, Player creator) {
+        return addHome(name, location, creator, true);
+    }
+
+    /**
+     * Adds a home to the player's home list.
+     *
+     * @param name the name of the home.
+     * @param location the location of the home.
+     * @param creator the player who created the home.
+     * @param async true if the home is to be added asynchronously, false if not.
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Boolean> addHome(String name, Location location, Player creator, boolean async) {
@@ -421,7 +430,7 @@ public class ATPlayer {
     }
 
     public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback, boolean async) {
-        homes.get(name).setLocation(newLocation);
+        homes.get(name).move(newLocation);
         HomeSQLManager.get().moveHome(newLocation, uuid, name, callback, async);
         moveHome(name, newLocation);
         callback.onSuccess(true);

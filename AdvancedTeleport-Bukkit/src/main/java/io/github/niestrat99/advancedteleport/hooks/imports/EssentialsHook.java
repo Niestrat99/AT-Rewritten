@@ -69,7 +69,7 @@ public class EssentialsHook extends ImportExportPlugin {
                     if (ATPlayer.isPlayerCached(user.getName())) {
                         ATPlayer player = ATPlayer.getPlayer(user.getName());
                         if (!player.hasHome(home)) {
-                            player.addHome(home, user.getHome(home));
+                            player.addHome(home, user.getHome(home), null, false);
                         } else {
                             player.moveHome(home, user.getHome(home));
                         }
