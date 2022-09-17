@@ -15,37 +15,40 @@ public class ToggleTP extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            if (args.length > 0) {
-                if (sender.hasPermission("at.admin.toggletp")) {
-                    Player target = Bukkit.getPlayer(args[0]);
-                    if (target != null) {
-                        ATPlayer atPlayer = ATPlayer.getPlayer(target);
-                        if (atPlayer.isTeleportationEnabled()) {
-                            atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(result -> {
-                                CustomMessages.sendMessage(sender, "Info.tpAdminOff");
-                                CustomMessages.sendMessage(target, "Info.tpOff");
-                            });
-                        } else {
-                            atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(result -> {
-                                CustomMessages.sendMessage(sender, "Info.tpAdminOn");
-                                CustomMessages.sendMessage(target, "Info.tpOn");
-                            });
-                        }
-                    } else {
-                        CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
-                    }
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        if (args.length > 0) {
+            if (sender.hasPermission("at.admin.toggletp")) {
+                Player target = Bukkit.getPlayer(args[0]);
+                if (target == null) {
+                    CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+                    return true;
                 }
-            } else {
-                Player player = (Player) sender;
-                ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                ATPlayer atPlayer = ATPlayer.getPlayer(target);
                 if (atPlayer.isTeleportationEnabled()) {
-                    atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
+                    atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(result -> {
+                        CustomMessages.sendMessage(sender, "Info.tpAdminOff");
+                        CustomMessages.sendMessage(target, "Info.tpOff");
+                    });
                 } else {
-                    atPlayer.setTeleportationEnabled(true, sender).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOn"));
+                    atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(result -> {
+                        CustomMessages.sendMessage(sender, "Info.tpAdminOn");
+                        CustomMessages.sendMessage(target, "Info.tpOn");
+                    });
                 }
+                return true;
             }
         }
+        Player player = (Player) sender;
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+        if (atPlayer.isTeleportationEnabled()) {
+            atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
+        } else {
+            atPlayer.setTeleportationEnabled(true, sender).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOn"));
+        }
+
         return true;
     }
 

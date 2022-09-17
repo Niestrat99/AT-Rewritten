@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -252,7 +253,7 @@ public class WarpSQLManager extends SQLManager {
                 ResultSet set = statement.executeQuery();
                 // TODO - needs cache removal
                 while (set.next()) {
-                    Warp.getWarps().remove(set.getString("warp"));
+                    AdvancedTeleportAPI.getWarps().remove(set.getString("warp"));
                 }
                 set.close();
 
@@ -276,7 +277,7 @@ public class WarpSQLManager extends SQLManager {
 
                 ResultSet set = statement.executeQuery();
                 while (set.next()) {
-                    Warp.getWarps().remove(set.getString("warp"));
+                    AdvancedTeleportAPI.getWarps().remove(set.getString("warp"));
                 }
                 set.close();
 

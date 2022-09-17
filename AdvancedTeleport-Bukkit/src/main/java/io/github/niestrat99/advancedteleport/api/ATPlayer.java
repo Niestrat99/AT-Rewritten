@@ -38,7 +38,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ATPlayer {
 
-    private UUID uuid;
+    protected UUID uuid;
     @NotNull
     private LinkedHashMap<String, Home> homes;
     @NotNull
@@ -361,7 +361,7 @@ public class ATPlayer {
      */
     @Deprecated
     public void addHome(@NotNull String name, @NotNull Location location, SQLManager.SQLCallback<Boolean> callback) {
-        addHome(name, location, getPlayer());
+        addHome(name, location, getPlayer(), true);
         if (callback != null) callback.onSuccess(true);
     }
 
@@ -373,7 +373,7 @@ public class ATPlayer {
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Boolean> addHome(String name, Location location) {
-        return addHome(name, location, (Player) null);
+        return addHome(name, location, getPlayer(), true);
     }
 
     /**
@@ -385,6 +385,19 @@ public class ATPlayer {
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Boolean> addHome(String name, Location location, Player creator) {
+        return addHome(name, location, creator, true);
+    }
+
+    /**
+     * Adds a home to the player's home list.
+     *
+     * @param name the name of the home.
+     * @param location the location of the home.
+     * @param creator the player who created the home.
+     * @param async true if the home is to be added asynchronously, false if not.
+     * @return a completable future of whether the action failed or succeeded.
+     */
+    public CompletableFuture<Boolean> addHome(String name, Location location, Player creator, boolean async) {
         if (hasHome(name)) {
             return moveHome(name, location);
         }
@@ -398,7 +411,7 @@ public class ATPlayer {
 
         return CompletableFuture.supplyAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            HomeSQLManager.get().addHome(location, uuid, name, callback);
+            HomeSQLManager.get().addHome(location, uuid, name, callback, async);
             return callback.data;
         });
     }
@@ -413,6 +426,12 @@ public class ATPlayer {
      */
     @Deprecated
     public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
+        moveHome(name, newLocation, callback, true);
+    }
+
+    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback, boolean async) {
+        homes.get(name).move(newLocation);
+        HomeSQLManager.get().moveHome(newLocation, uuid, name, callback, async);
         moveHome(name, newLocation);
         if (callback != null) callback.onSuccess(true);
     }
@@ -686,9 +705,9 @@ public class ATPlayer {
      */
     @NotNull
     public static ATPlayer getPlayer(@NotNull Player player) {
-        Objects.requireNonNull(player, "Player must not be null.");
-        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) :
-                new ATPlayer(player);
+        if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
+        if (FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) return new ATFloodgatePlayer(player);
+        return new ATPlayer(player);
     }
 
     /**

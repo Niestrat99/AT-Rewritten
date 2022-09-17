@@ -112,15 +112,15 @@ public class HelpCommand implements SubATCommand {
         }
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&b・．&7━━━━━━━━━━━ &8❰ §b§lAdvanced Teleport &7" + page + "/" + commandList.getTotalPages() + " &8❱ &7━━━━━━━━━━━&b．・") );
         for (String command : commandList.getContentsInPage(page)) {
-            String commandStr = CustomMessages.getStringA("Usages." + command);
+            String commandStr = CustomMessages.getStringRaw("Usages." + command);
             if (sender.hasPermission("at.admin." + command)
                     || sender.hasPermission("at.admin." + command + ".other")) {
-                String newUsage = CustomMessages.getStringA("Usages-Admin." + command);
+                String newUsage = CustomMessages.getStringRaw("Usages-Admin." + command);
                 if (newUsage != null && !newUsage.isEmpty()) {
                     commandStr = newUsage;
                 }
             }
-            String description = CustomMessages.getStringA("Descriptions." + command);
+            String description = CustomMessages.getStringRaw("Descriptions." + command);
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8» &b" + commandStr + " &8~ &7" + description));
         }
         return true;

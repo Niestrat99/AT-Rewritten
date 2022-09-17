@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -35,20 +35,21 @@ public class TeleportTrackingManager implements Listener {
         if (e.getPlayer().hasMetadata("NPC")) return;
         Player player = e.getPlayer();
         if (!player.hasPermission("at.admin.bypass.teleport-on-join")) {
-            if ((NewConfig.get().TELEPORT_TO_SPAWN_EVERY.get())
-                    || (!player.hasPlayedBefore() && NewConfig.get().TELEPORT_TO_SPAWN_FIRST.get())) {
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName());
-                        if (spawn != null) {
-                            PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
-                        } else {
-                            PaperLib.teleportAsync(player, player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                        }
-                    }
-                }.runTaskLater(CoreClass.getInstance(), 10);
+            Location loc = null;
+            if (!player.hasPlayedBefore() && NewConfig.get().TELEPORT_TO_SPAWN_FIRST.get()) {
+                loc = Spawn.get().getSpawn(NewConfig.get().FIRST_SPAWN_POINT.get(), player, true);
+            } else if (NewConfig.get().TELEPORT_TO_SPAWN_EVERY.get()) {
+                loc = Spawn.get().getSpawn(e.getPlayer().getWorld().getName(), player, false);
+                if (loc == null) loc = player.getWorld().getSpawnLocation();
             }
+            if (loc == null) return;
+            Location spawn = loc;
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    PaperLib.teleportAsync(player, spawn, PlayerTeleportEvent.TeleportCause.COMMAND);
+                }
+            }.runTaskLater(CoreClass.getInstance(), 10);
         }
     }
 
@@ -130,18 +131,14 @@ public class TeleportTrackingManager implements Listener {
 
         switch (spawnCommand) {
             case "spawn":
-                Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName());
+                Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName(), e.getPlayer(), false);
                 if (spawn != null) {
                     e.setRespawnLocation(spawn);
                     return true;
                 }
                 break;
             case "bed":
-                if (!e.isBedSpawn() && e.getPlayer().getBedSpawnLocation() != null) {
-                    e.setRespawnLocation(e.getPlayer().getBedSpawnLocation());
-                    return true;
-                }
-                break;
+                return e.getPlayer().getBedSpawnLocation() != null;
             case "anchor":
                 // Vanilla just handles that
                 break;
@@ -149,8 +146,8 @@ public class TeleportTrackingManager implements Listener {
                 if (spawnCommand.startsWith("warp:")) {
                     try {
                         String warp = spawnCommand.split(":")[1];
-                        if (Warp.getWarps().containsKey(warp)) {
-                            e.setRespawnLocation(Warp.getWarps().get(warp).getLocation());
+                        if (AdvancedTeleportAPI.getWarps().containsKey(warp)) {
+                            e.setRespawnLocation(AdvancedTeleportAPI.getWarps().get(warp).getLocation());
                             return true;
                         } else {
                             CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + atPlayer.getPreviousLocation().getWorld());

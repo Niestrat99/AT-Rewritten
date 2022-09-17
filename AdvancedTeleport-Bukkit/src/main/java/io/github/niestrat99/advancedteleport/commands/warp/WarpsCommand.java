@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUI;
@@ -46,7 +46,7 @@ public class WarpsCommand implements ATCommand {
                 }
             }
             int pages = maxPage - minPage + 1;
-            IconMenu menu = new IconMenu(CustomMessages.getStringA("Info.warps"), GUI.getWarpsMenuSlots(), pages, CoreClass.getInstance());
+            IconMenu menu = new IconMenu(CustomMessages.getStringRaw("Info.warps"), GUI.getWarpsMenuSlots(), pages, CoreClass.getInstance());
 
             for (String warpName : warps.getKeys(false)) {
                 ConfigSection warp = warps.getConfigSection(warpName);
@@ -103,11 +103,11 @@ public class WarpsCommand implements ATCommand {
             menu.open((Player) sender);
 
         } else {
-            if (Warp.getWarps().size() > 0) {
+            if (AdvancedTeleportAPI.getWarps().size() > 0) {
                 FancyMessage wList = new FancyMessage();
-                wList.text(CustomMessages.getStringA("Info.warps"));
+                wList.text(CustomMessages.getStringRaw("Info.warps"));
                 int count = 0;
-                for(String warp: Warp.getWarps().keySet()){
+                for(String warp: AdvancedTeleportAPI.getWarps().keySet()){
                     if (sender.hasPermission("at.member.warp.*") || sender.hasPermission("at.member.warp." + warp)) {
                         wList.then(warp)
                                 .command("/warp " + warp)
@@ -121,7 +121,7 @@ public class WarpsCommand implements ATCommand {
                     wList.sendProposal(sender, 0);
                     FancyMessage.send(sender);
                 } else {
-                    sender.sendMessage(CustomMessages.getStringA("Error.noWarps"));
+                    sender.sendMessage(CustomMessages.getStringRaw("Error.noWarps"));
                 }
 
             } else {
@@ -132,13 +132,13 @@ public class WarpsCommand implements ATCommand {
     }
 
     private static List<String> getTooltip(CommandSender sender, String warp) {
-        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringA("Tooltip.warps")));
+        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringRaw("Tooltip.warps")));
         if (sender.hasPermission("at.member.warps.location")) {
-            tooltip.addAll(Arrays.asList(CustomMessages.getStringA("Tooltip.location").split("\n")));
+            tooltip.addAll(Arrays.asList(CustomMessages.getStringRaw("Tooltip.location").split("\n")));
         }
         List<String> homeTooltip = new ArrayList<>(tooltip);
         for (int i = 0; i < homeTooltip.size(); i++) {
-            Location warpLoc = Warp.getWarps().get(warp).getLocation();
+            Location warpLoc = AdvancedTeleportAPI.getWarps().get(warp).getLocation();
 
             homeTooltip.set(i, homeTooltip.get(i).replaceAll("\\{warp}", warp)
                     .replaceAll("\\{x}", String.valueOf(warpLoc.getBlockX()))

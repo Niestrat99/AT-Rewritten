@@ -7,12 +7,12 @@
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
     <packaging>pom</packaging>
-    <version>v5.6.2</version>
+    <version>v5.6.4</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--suppress UnresolvedMavenProperty -->
-        <module.version>5.6.2+DEV_${env.BUILD_NUMBER}</module.version>
+        <module.version>5.6.4+DEV_${env.BUILD_NUMBER}</module.version>
         <jenkins.timestamp>${maven.build.timestamp}</jenkins.timestamp>
         <dir>${project.build.directory}</dir>
     </properties>
@@ -156,7 +156,7 @@
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-nbt</artifactId>
-            <version>4.10.1</version>
+            <version>4.11.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -171,8 +171,8 @@
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
-            <version>1.7</version>
-            <scope>provided</scope>
+            <version>1.7.1</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- WorldBorder (v1.15+) Dependency -->
@@ -217,14 +217,14 @@
             <groupId>net.ess3</groupId>
             <artifactId>EssentialsX</artifactId>
             <version>2.18.2</version>
-            <scope>provided</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>net.ess3</groupId>
             <artifactId>EssentialsXSpawn</artifactId>
             <version>2.16.1</version>
-            <scope>provided</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- Dependency floodgate -->

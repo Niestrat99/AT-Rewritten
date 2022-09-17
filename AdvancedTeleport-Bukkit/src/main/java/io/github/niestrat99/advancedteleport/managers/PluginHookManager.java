@@ -19,7 +19,6 @@ import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
-import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import org.bukkit.World;
 
 import java.lang.reflect.InvocationTargetException;

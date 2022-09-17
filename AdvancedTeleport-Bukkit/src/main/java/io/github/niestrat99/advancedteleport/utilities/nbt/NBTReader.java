@@ -8,8 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.UUID;
 
 public class NBTReader {
@@ -89,20 +88,22 @@ public class NBTReader {
         File dataFile = getPlayerFile(uuid);
 
         if (dataFile == null) return;
-        CompoundBinaryTag tag = BinaryTagIO.reader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
-        ListBinaryTag posTag = ListBinaryTag.empty();
+        CompoundBinaryTag rawTag = BinaryTagIO.reader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
+        CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder().put(rawTag);
+
+        ListBinaryTag.Builder<BinaryTag> posTag = ListBinaryTag.builder();
         posTag.add(DoubleBinaryTag.of(location.getX()));
         posTag.add(DoubleBinaryTag.of(location.getY()));
         posTag.add(DoubleBinaryTag.of(location.getZ()));
 
-        ListBinaryTag rotTag = ListBinaryTag.empty();
+        ListBinaryTag.Builder<BinaryTag> rotTag = ListBinaryTag.builder();
         rotTag.add(FloatBinaryTag.of(location.getYaw()));
         rotTag.add(FloatBinaryTag.of(location.getPitch()));
 
-        tag.put("Pos", posTag);
-        tag.put("Rotation", rotTag);
+        builder.put("Pos", posTag.build());
+        builder.put("Rotation", rotTag.build());
 
-        BinaryTagIO.writer().write(tag, dataFile.toPath());
+        BinaryTagIO.writer().write(builder.build(), dataFile.toPath(), BinaryTagIO.Compression.GZIP);
     }
 
     public interface NBTCallback<D> {

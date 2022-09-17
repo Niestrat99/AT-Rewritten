@@ -67,10 +67,10 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (user == null) continue;
                 if (user.getName() == null) continue;
                 for (String home : user.getHomes()) {
-                    ATPlayer player = ATPlayer.getPlayer(user.getName());
-                    if (player != null) {
+                    if (ATPlayer.isPlayerCached(user.getName())) {
+                        ATPlayer player = ATPlayer.getPlayer(user.getName());
                         if (!player.hasHome(home)) {
-                            player.addHome(home, user.getHome(home), (Player) null);
+                            player.addHome(home, user.getHome(home), (Player) null, false);
                         } else {
                             player.moveHome(home, user.getHome(home));
                         }
@@ -81,9 +81,9 @@ public class EssentialsHook extends ImportExportPlugin {
                             query.setString(2, home);
 
                             if (query.executeQuery().next()) {
-                                HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, null);
+                                HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, null, false);
                             } else {
-                                HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null);
+                                HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null, false);
                             }
                         }
                     }
@@ -111,8 +111,8 @@ public class EssentialsHook extends ImportExportPlugin {
                         || user.getName() == null
                         || user.getLastLocation() == null
                         || user.getLastLocation().getWorld() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setPreviousLocation(user.getLastLocation());
                 } else {
                     PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation(), null);
@@ -214,10 +214,10 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player == null) {
+                if (!ATPlayer.isPlayerCached(user.getName())) {
                     PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled(), null);
                 } else {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setTeleportationEnabled(user.isTeleportEnabled());
                 }
             } catch (Exception ex) {
@@ -242,8 +242,8 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     for (String home : player.getHomes().keySet()) {
                         user.setHome(home, player.getHome(home).getLocation());
                     }
@@ -252,7 +252,6 @@ public class EssentialsHook extends ImportExportPlugin {
                         PreparedStatement statement = connection.prepareStatement("SELECT home, x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid_owner = ?");
                         statement.setString(1, uuid.toString());
                         ResultSet set = statement.executeQuery();
-                        connection.close();
                         while (set.next()) {
                             String name = set.getString("home");
                             double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
@@ -285,20 +284,23 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     user.setLastLocation(player.getPreviousLocation());
                 } else {
                     try (Connection connection = HomeSQLManager.get().implementConnection()) {
-                        PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid = ?");
+                        PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
                         statement.setString(1, uuid.toString());
                         ResultSet set = statement.executeQuery();
-                        connection.close();
                         // should run once but this is just standard
                         while (set.next()) {
                             double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
                             float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
                             String world = set.getString("world");
+                            if (world == null) {
+                                CoreClass.getInstance().getLogger().warning("World for previous location of " + user.getName() + " is null. Cannot export it.");
+                                continue;
+                            }
                             user.setLastLocation(new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
                         }
                     }
@@ -368,8 +370,8 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                ATPlayer player = ATPlayer.getPlayer(user.getName());
-                if (player != null) {
+                if (ATPlayer.isPlayerCached(user.getName())) {
+                    ATPlayer player = ATPlayer.getPlayer(user.getName());
                     user.setTeleportEnabled(player.isTeleportationEnabled());
                 } else {
                     try (Connection connection = HomeSQLManager.get().implementConnection()) {

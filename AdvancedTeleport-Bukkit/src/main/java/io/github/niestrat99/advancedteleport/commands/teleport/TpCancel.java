@@ -3,7 +3,10 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportCancelEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import org.bukkit.Bukkit;
@@ -18,6 +21,10 @@ public class TpCancel extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
         if (sender instanceof Player) {
             Player player = (Player) sender;
             // Checks if any players have sent a request at all.
@@ -54,24 +61,27 @@ public class TpCancel extends TeleportATCommand {
                     } else {
                         // This utility helps in splitting lists into separate pages, like when you list your
                         // plots with PlotMe/PlotSquared.
-                        PagedLists<TeleportRequest> requests =
-                                new PagedLists<>(TeleportRequest.getRequestsByRequester(player), 8);
+                        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                        if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                            ((ATFloodgatePlayer) atPlayer).sendCancelForm();
+                            return true;
+                        }
+                        // This utility helps in splitting lists into separate pages, like when you list your plots with PlotMe/PlotSquared.
+                        PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequestsByRequester(player), 8);
                         CustomMessages.sendMessage(player, "Info.multipleRequestsCancel");
                         // Displays the first 8 requests
                         for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
                             TeleportRequest request = requests.getContentsInPage(1).get(i);
                             new FancyMessage()
                                     .command("/tpcancel " + request.getResponder().getName())
-                                    .text(CustomMessages.getStringA("Info.multipleRequestsIndex")
+                                    .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
                                             .replaceAll("\\{player}", request.getResponder().getName()))
                                     .sendProposal(player, i);
                         }
                         if (requests.getTotalPages() > 1) {
                             FancyMessage.send(player);
                             CustomMessages.sendMessage(player, "Info.multipleRequestsList");
-
                         }
-
                     }
                 } else {
                     TeleportRequest request = TeleportRequest.getRequestsByRequester(player).get(0);
