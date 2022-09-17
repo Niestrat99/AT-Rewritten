@@ -65,7 +65,7 @@ dependencies {
     implementation("net.kyori:examination-api:1.3.0")
     implementation("com.github.thatsmusic99:ConfigurationMaster-API:v2.0.0-BETA-3")
     implementation("org.jetbrains:annotations:13.0")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("net.milkbowl.vault:VaultAPI:1.7")
     compileOnly("net.ess3:EssentialsX:2.18.2")
     compileOnly("net.ess3:EssentialsXSpawn:2.16.1")
     compileOnly("org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT")
