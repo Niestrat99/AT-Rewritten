@@ -13,36 +13,48 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     maven {
+        name = "Spigot"
         url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     }
 
     maven {
+        name = "Paper and PaperLib"
         url = uri("https://papermc.io/repo/repository/maven-public/")
     }
 
     maven {
+        name = "Vault"
+        url = uri("https://repo.codemc.io/repository/maven-public/")
+    }
+
+    maven {
+        name = "WorldBorder and Chunky"
         url = uri("https://jitpack.io")
     }
 
     maven {
+        name = "ConfigurationMaster"
         url = uri("https://ci.pluginwiki.us/plugin/repository/everything/")
     }
 
     maven {
+        name = "Essentials"
         url = uri("https://repo.essentialsx.net/releases/")
     }
 
     maven {
+        name = "Geyser"
         url = uri("https://repo.opencollab.dev/maven-snapshots/")
     }
 
     maven {
+        name = "authlib maybe"
         url = uri("https://libraries.minecraft.net/")
     }
 
     maven {
+        name = "Adventure"
         url = uri("https://repo.maven.apache.org/maven2/")
     }
 }
