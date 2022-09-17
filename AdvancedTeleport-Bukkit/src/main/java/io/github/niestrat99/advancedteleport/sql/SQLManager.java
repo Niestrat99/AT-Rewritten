@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.sql.*;
@@ -58,6 +59,10 @@ public abstract class SQLManager {
             connection = loadSqlite();
         }
         return connection;
+    }
+
+    public static void runAsync(Runnable runnable) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), runnable);
     }
 
     public abstract void createTable();

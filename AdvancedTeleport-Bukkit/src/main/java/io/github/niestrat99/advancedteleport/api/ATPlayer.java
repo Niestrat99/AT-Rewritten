@@ -351,6 +351,10 @@ public class ATPlayer {
         return new HashMap<>(homes);
     }
 
+    public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback) {
+        addHome(name, location, callback, true);
+    }
+
     /**
      * Adds a home to the player's home list.
      *
@@ -384,7 +388,7 @@ public class ATPlayer {
      * @param creator the player who created the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> addHome(String name, Location location, Player creator) {
+    public CompletableFuture<Boolean> addHome(String name, Location location, Player creator, boolean async) {
         if (hasHome(name)) {
             return moveHome(name, location);
         }
@@ -398,7 +402,7 @@ public class ATPlayer {
 
         return CompletableFuture.supplyAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            HomeSQLManager.get().addHome(location, uuid, name, callback);
+            HomeSQLManager.get().addHome(location, uuid, name, callback, async);
             return callback.data;
         });
     }
@@ -413,6 +417,12 @@ public class ATPlayer {
      */
     @Deprecated
     public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
+        moveHome(name, newLocation, callback, true);
+    }
+
+    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback, boolean async) {
+        homes.get(name).setLocation(newLocation);
+        HomeSQLManager.get().moveHome(newLocation, uuid, name, callback, async);
         moveHome(name, newLocation);
         callback.onSuccess(true);
     }
