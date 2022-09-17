@@ -124,7 +124,6 @@ public class HomeSQLManager extends SQLManager {
             PreparedStatement statement = prepareStatement(connection,
                     "INSERT INTO " + tablePrefix + "_homes (uuid_owner, home, x, y, z, yaw, pitch, world, " +
                             "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
             statement.setString(1, owner.toString());
             statement.setString(2, name);
             statement.setDouble(3, location.getX());

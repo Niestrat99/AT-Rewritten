@@ -524,15 +524,7 @@ public class ATPlayer {
     }
 
     /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-     * Whether the player has a main home or not.
-=======
      * Whether the player has a main home.
->>>>>>> 42381dd (Improved API and more events (#78))
-=======
-     * Whether the player has a main home.
->>>>>>> 42381dd (Improved API and more events (#78))
      *
      * @return true if the player has a main home that exists, false if not.
      */
