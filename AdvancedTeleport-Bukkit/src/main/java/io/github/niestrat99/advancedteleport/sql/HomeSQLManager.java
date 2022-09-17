@@ -79,7 +79,7 @@ public class HomeSQLManager extends SQLManager {
                         homeRaw.getDouble("y"),
                         homeRaw.getDouble("z"),
                         (float) homeRaw.getDouble("yaw"),
-                        (float) homeRaw.getDouble("pitch")), UUID.fromString(player), home, null);
+                        (float) homeRaw.getDouble("pitch")), UUID.fromString(player), home, null, false);
             }
         }
 
@@ -117,7 +117,7 @@ public class HomeSQLManager extends SQLManager {
         }, CoreClass.async);
     }
 
-    private void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
+    private void addHomePrivate(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement = prepareStatement(connection,
                     "INSERT INTO " + tablePrefix + "_homes (uuid_owner, home, x, y, z, yaw, pitch, world, " +
