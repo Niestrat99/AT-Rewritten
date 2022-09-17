@@ -86,6 +86,19 @@ public class HomeSQLManager extends SQLManager {
         file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "homes-backup.yml"));
     }
 
+    public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
+        addHome(location, owner, name, callback, true);
+    }
+
+    public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback, boolean async) {
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> addHomePrivate(location, owner
+                    , name, callback));
+        } else {
+            addHomePrivate(location, owner, name, callback);
+        }
+    }
+    
     public CompletableFuture<Integer> getHomeId(String name, UUID owner) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = implementConnection()) {
@@ -104,25 +117,11 @@ public class HomeSQLManager extends SQLManager {
         }, CoreClass.async);
     }
 
-    public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
-        addHome(location, owner, name, callback, true);
-    }
-
-    public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback, boolean async) {
-        if (async) {
-            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> addHomePrivate(location, owner
-                    , name, callback));
-        } else {
-            addHomePrivate(location, owner, name, callback);
-        }
-    }
-
     private void addHomePrivate(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement = prepareStatement(connection,
                     "INSERT INTO " + tablePrefix + "_homes (uuid_owner, home, x, y, z, yaw, pitch, world, " +
                             "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
             statement.setString(1, owner.toString());
             statement.setString(2, name);
             statement.setDouble(3, location.getX());

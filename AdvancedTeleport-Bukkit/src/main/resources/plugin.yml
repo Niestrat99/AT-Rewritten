@@ -1,6 +1,6 @@
 main: io.github.niestrat99.advancedteleport.CoreClass
 name: AdvancedTeleport
-version: ${module.version}
+version: ${version}
 description: A rapidly growing teleportation plugin looking to break the boundaries of traditional teleport plugins.
 authors: [Niestrat99, Thatsmusic99]
 contributors: [SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan, LucasMucGH (Github), jonas-t-s (Github), DaRacci]
