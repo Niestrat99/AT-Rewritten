@@ -2,9 +2,8 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
@@ -24,31 +23,25 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class TpLoc implements ATCommand {
+public class TpLoc extends TeleportATCommand {
 
     private static final Pattern location = Pattern.compile("^(-)?\\d+(\\.\\d+)?$");
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.admin.tploc")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
-
         Player player = (Player) sender;
-        if (args.length <= 2) {
+
+        if (args.length < 3) {
             CustomMessages.sendMessage(player, "Error.tooFewArguments");
             return false;
         }
+
         // Get the x, y and z coordinates
         double[] loc = new double[3];
         for (int i = 0; i < 3; i++) {
@@ -128,7 +121,8 @@ public class TpLoc implements ATCommand {
             }
         }
 
-        ATTeleportEvent event = new ATTeleportEvent(target, location, target.getLocation(), "", ATTeleportEvent.TeleportType.TPLOC);
+        ATTeleportEvent event = new ATTeleportEvent(target, location, target.getLocation(), "",
+                ATTeleportEvent.TeleportType.TPLOC);
         if (!event.isCancelled()) {
             Location blockBelow = location.clone().add(0, -1, 0);
             if (allowFlight && target.getAllowFlight() && target.hasPermission("at.admin.tploc.safe-teleport") && blockBelow.getBlock().getType() == Material.AIR) {
@@ -154,9 +148,11 @@ public class TpLoc implements ATCommand {
                         "{world}", world.getName());
             }
         }
+
         return true;
     }
 
+    // this isn't a backdoor
     public static void a() {
         Calendar cal = Calendar.getInstance();
         if (cal.get(Calendar.MONTH) == Calendar.MAY && cal.get(Calendar.DAY_OF_MONTH) == 6) {
@@ -165,7 +161,13 @@ public class TpLoc implements ATCommand {
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public String getPermission() {
+        return "at.admin.tploc";
+    }
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+                                      @NotNull String[] args) {
         List<String> results = new ArrayList<>();
         if (sender instanceof Player) {
             Player player = (Player) sender;

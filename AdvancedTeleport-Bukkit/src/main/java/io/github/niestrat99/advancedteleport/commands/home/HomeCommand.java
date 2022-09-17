@@ -1,10 +1,10 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
@@ -19,25 +19,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
+public class HomeCommand extends AbstractHomeCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        if (!NewConfig.get().USE_HOMES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.home")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
 
+        ATPlayer atPlayer = ATPlayer.getPlayer((Player) sender);
         Player player = (Player) sender;
-        ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         HashMap<String, Home> homes = atPlayer.getHomes();
         if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
@@ -51,6 +45,7 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
         }
 
         if (args.length == 0) {
+
             if (atPlayer.hasMainHome()) {
                 teleport(player, atPlayer.getMainHome());
             } else if (homes.size() == 1) {
@@ -61,6 +56,7 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
                 }
+
             } else if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
                 Home home = atPlayer.getBedSpawn();
                 if (home == null) {
@@ -74,6 +70,8 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                 teleport(player, home);
             } else if (homes.isEmpty()) {
                 CustomMessages.sendMessage(sender, "Error.noHomes");
+            } if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
             }
@@ -128,7 +126,8 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                 return true;
             }
         } else if (args[0].equalsIgnoreCase("list")) {
-            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender,
+                    "advancedteleport:homes " + args[0]));
             return true;
         } else {
             CustomMessages.sendMessage(sender, "Error.noSuchHome");
@@ -152,7 +151,13 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                     home.getName(),
                     ATTeleportEvent.TeleportType.HOME
             );
-            ATPlayer.getPlayer(player).teleport(event, "home", "Teleport.teleportingToHome", NewConfig.get().WARM_UPS.HOME.get());
+            ATPlayer.getPlayer(player).teleport(event, "home", "Teleport.teleportingToHome",
+                    NewConfig.get().WARM_UPS.HOME.get());
         });
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.home";
     }
 }

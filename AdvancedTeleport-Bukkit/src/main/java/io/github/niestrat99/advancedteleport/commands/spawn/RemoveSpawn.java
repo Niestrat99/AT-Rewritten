@@ -1,9 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
+import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,20 +17,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RemoveSpawn implements ATCommand {
+public class RemoveSpawn extends SpawnATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
-
-        if (!NewConfig.get().USE_SPAWN.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.admin.removespawn")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         String removingSpawn = "";
         if (args.length == 0) {
             if (sender instanceof Player) {
@@ -46,13 +40,29 @@ public class RemoveSpawn implements ATCommand {
             CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "{spawn}", removingSpawn);
             return true;
         }
-        CustomMessages.sendMessage(sender, Spawn.get().removeSpawn(removingSpawn), "{spawn}", removingSpawn);
+
+        SpawnRemoveEvent event = new SpawnRemoveEvent(removingSpawn, sender);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            // Could not cancel event at this time
+            return true;
+        }
+
+        String finalRemovingSpawn = removingSpawn;
+        AdvancedTeleportAPI.removeSpawn(removingSpawn, sender).thenAcceptAsync(result ->
+                CustomMessages.sendMessage(sender, "Info.removedSpawn", "{spawn}", finalRemovingSpawn));
         return false;
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.admin.removespawn";
     }
 
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                                      @NotNull String[] args) {
         if (sender.hasPermission("at.admin.removespawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
             StringUtil.copyPartialMatches(args[0], Spawn.get().getSpawns(), spawns);

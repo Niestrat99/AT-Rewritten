@@ -1,11 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
+import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -13,28 +13,26 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class TpBlockCommand implements AsyncATCommand {
+public class TpBlockCommand extends TeleportATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, String s, String[] args) {
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.block")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
 
         Player player = (Player) sender;
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         if (args.length == 0) {
-            CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendBlockForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            }
             return true;
         }
         // Don't block ourselves lmao
@@ -42,7 +40,6 @@ public class TpBlockCommand implements AsyncATCommand {
             CustomMessages.sendMessage(sender, "Error.blockSelf");
             return true;
         }
-        ATPlayer atPlayer = ATPlayer.getPlayer(player);
         // Must be async due to searching for offline player
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             //
@@ -53,28 +50,25 @@ public class TpBlockCommand implements AsyncATCommand {
                 return;
             }
 
-            SQLManager.SQLCallback<Boolean> callback = new SQLManager.SQLCallback<Boolean>() {
-                @Override
-                public void onSuccess(Boolean data) {
-                    CustomMessages.sendMessage(sender, "Info.blockPlayer", "{player}", args[0]);
-                }
-
-                @Override
-                public void onFail() {
-                    sender.sendMessage("Failed to save block");
-                }
-            };
-
             if (args.length > 1) {
                 StringBuilder reason = new StringBuilder();
                 for (int i = 1; i < args.length; i++) {
                     reason.append(args[i]).append(" ");
                 }
-                atPlayer.blockUser(target, reason.toString().trim(), callback);
+                atPlayer.blockUser(target, reason.toString().trim()).thenAcceptAsync(result ->
+                        CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
+                                "{player}", args[0]));
             } else {
-                atPlayer.blockUser(target, callback);
+                atPlayer.blockUser(target).thenAcceptAsync(result ->
+                        CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
+                                "{player}", args[0]));
             }
         });
         return true;
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.block";
     }
 }
