@@ -79,7 +79,7 @@ public class HomeSQLManager extends SQLManager {
                         homeRaw.getDouble("y"),
                         homeRaw.getDouble("z"),
                         (float) homeRaw.getDouble("yaw"),
-                        (float) homeRaw.getDouble("pitch")), UUID.fromString(player), home, null);
+                        (float) homeRaw.getDouble("pitch")), UUID.fromString(player), home, null, false);
             }
         }
 
