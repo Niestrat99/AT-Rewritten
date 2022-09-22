@@ -13,6 +13,8 @@ plugins {
 }
 
 repositories {
+    mavenCentral()
+
     maven {
         name = "Spigot"
         url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
@@ -44,6 +46,11 @@ repositories {
     }
 
     maven {
+        name = "Worldguard"
+        url = uri("https://maven.enginehub.org/repo/")
+    }
+
+    maven {
         name = "Geyser"
         url = uri("https://repo.opencollab.dev/maven-snapshots/")
     }
@@ -56,6 +63,16 @@ repositories {
     maven {
         name = "Adventure"
         url = uri("https://repo.maven.apache.org/maven2/")
+    }
+
+    maven {
+        name = "Squaremap"
+        url = uri("https://repo.jpenilla.xyz/snapshots/")
+    }
+
+    maven {
+        name = "Dynmap"
+        url = uri("https://repo.mikeprimm.com/")
     }
 }
 
@@ -73,11 +90,18 @@ dependencies {
     compileOnly("com.github.pop4959:ChunkyBorder:52034550ef")
     compileOnly("com.mojang:authlib:2.3.31")
     compileOnly("org.geysermc.floodgate:api:2.1.0-SNAPSHOT")
+    compileOnly("com.github.angeschossen:LandsAPI:6.0.2")
+    compileOnly("com.github.TechFortress:GriefPrevention:16.18")
+    compileOnly("xyz.jpenilla:squaremap-api:1.1.3")
+    compileOnly("us.dynmap:dynmap-api:3.4")
+    compileOnly("us.dynmap:DynmapCoreAPI:3.4")
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.7")
+    // https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
+    compileOnly("com.googlecode.json-simple:json-simple:1.1.1")
 }
 
 group = "io.github.niestrat99"
 version = "5.6.4"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 publishing {
     publications.create<MavenPublication>("maven") {
@@ -101,6 +125,10 @@ tasks.withType<ProcessResources> {
     filesMatching("update.properties") {
         expand(mutableMapOf("timestamp" to currentDate))
     }
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(16))
 }
 
 description = "AdvancedTeleport-Bukkit"
