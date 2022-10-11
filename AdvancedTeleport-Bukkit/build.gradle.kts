@@ -80,8 +80,8 @@ dependencies {
     implementation(libs.kyori.nbt)
     implementation(libs.kyori.examination)
     implementation(libs.configuration)
-    implementation(libs.annotations)
 
+    compileOnly(libs.annotations)
     compileOnly(libs.vault)
     compileOnly(libs.essentials)
     compileOnly(libs.essentials.spawn)
@@ -120,17 +120,21 @@ tasks {
         }
     }
 
+    build {
+        dependsOn(shadowJar)
+    }
+
     shadowJar {
-        dependencyFilter.apply {
-            dependency(libs.paperlib.get())
-            dependency(libs.configuration.get())
-            dependency(libs.kyori.nbt.get())
-            dependency(libs.kyori.examination.get())
+        dependencies {
+            project.configurations.implementation.get().dependencies.forEach {
+                include(dependency(it))
+            }
         }
 
         val baseRelocation = "io.github.niestrat99.advancedteleport"
         relocate("io.paper", "$baseRelocation.paperlib")
-        relocate("io.github.thatsmusic99.configurationsmaster", "$baseRelocation.configurationmaster")
+        relocate("net.kyori", "$baseRelocation.kyori")
+        relocate("io.github.thatsmusic99.configurationmaster", "$baseRelocation.configurationmaster")
     }
 }
 
