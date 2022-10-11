@@ -1,0 +1,46 @@
+[versions]
+paperlib = "1.0.7"
+kyori-adventure = "4.11.0"
+kyori-examination = "1.3.0"
+configuration = "v2.0.0-BETA-3"
+annotations = "23.0"
+vault = "1.7"
+essentials = "2.18.2"
+essentials-spawn = "2.16.1"
+worldborder = "v2.1.2"
+chunkyborder = "52034550ef"
+authlib = "2.3.31"
+floodgate = "2.1.0-SNAPSHOT"
+lands = "6.0.2"
+griefprevention = "16.18"
+worldguard = "7.0.7"
+squaremap = "1.1.3"
+dynmap = "3.4"
+
+shadow = "7.1.2"
+paperweight = "1.3.8"
+pluginYML = "0.5.2"
+
+[libraries]
+paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
+kyori-nbt = { module = "net.kyori:adventure-nbt", version.ref = "kyori-adventure" }
+kyori-examination = { module = "net.kyori:examination-api", version.ref = "kyori-examination" }
+configuration = { module = "com.github.thatsmusic99:ConfigurationMaster-API", version.ref = "configuration" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+vault = { module = "net.milkbowl.vault:VaultAPI", version.ref = "vault" }
+essentials = { module = "net.ess3:EssentialsX", version.ref = "essentials" }
+essentials-spawn = { module = "net.ess3:EssentialsXSpawn", version.ref = "essentials-spawn" }
+worldborder = { module = "com.github.PryPurity:WorldBorder", version.ref = "worldborder" }
+chunkyborder = { module = "com.github.pop4959:ChunkyBorder", version.ref = "chunkyborder" }
+authlib = { module = "com.mojang:authlib", version.ref = "authlib" }
+floodgate = { module = "org.geysermc.floodgate:api", version.ref = "floodgate" }
+lands = { module = "com.github.angeschossen:LandsAPI", version.ref = "lands" }
+griefprevention = { module = "com.github.TechFortress:GriefPrevention", version.ref = "griefprevention" }
+worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
+squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
+dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
+
+[plugins]
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+userdev = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
+bukkitYML = { id = "net.minecrell.plugin-yml.bukkit", version.ref = "pluginYML" }
