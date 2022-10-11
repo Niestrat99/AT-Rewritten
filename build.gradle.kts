@@ -5,7 +5,11 @@ plugins {
 allprojects {
     apply(plugin = "java")
 
-    java.toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+    java {
+        withSourcesJar()
+
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
     }
 }
