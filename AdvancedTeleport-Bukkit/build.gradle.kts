@@ -141,6 +141,7 @@ bukkit {
     authors = listOf("Niestrat99, Thatsmusic99, SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan, LucasMucGH (Github), jonas-t-s (Github), DaRacci")
     softDepend = listOf("Vault, Ultimate_Economy, ConfigurationMaster, WorldBorder, ChunkyBorder, floodgate, Lands, WorldGuard, GriefProtection, dynmap, squaremap, PlayerParticles")
     loadBefore = listOf("Essentials, EssentialsSpawn")
+    load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     apiVersion = "1.16"
 
     commands {
