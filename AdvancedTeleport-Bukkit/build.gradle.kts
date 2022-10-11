@@ -12,6 +12,7 @@ plugins {
 }
 
 repositories {
+
     maven {
         name = "Spigot"
         url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
