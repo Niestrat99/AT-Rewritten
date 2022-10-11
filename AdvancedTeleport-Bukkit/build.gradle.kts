@@ -111,7 +111,7 @@ tasks {
     }
 
     withType<ProcessResources> {
-        val currentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:'Z'").format(Date())
+        val currentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date())
         inputs.property("version", project.version)
         inputs.property("timestamp", currentDate)
 
