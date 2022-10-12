@@ -15,17 +15,26 @@ public class MapEventListeners implements Listener {
     public void onWarpAdd(WarpPostCreateEvent event) {
         if (!NewConfig.get().MAP_WARPS.isEnabled()) return;
         Warp warp = event.getWarp();
-        PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> mapPlugin.addWarp(warp));
+        PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> {
+            if (!mapPlugin.canEnable()) return;
+            mapPlugin.addWarp(warp);
+        });
     }
 
     @EventHandler
     public void onWarpRemove(WarpDeleteEvent event) {
-        PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> mapPlugin.removeWarp(event.getWarp()));
+        PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> {
+            if (!mapPlugin.canEnable()) return;
+            mapPlugin.removeWarp(event.getWarp());
+        });
     }
 
     @EventHandler
     public void onWarpMove(WarpMoveEvent event) {
         if (!NewConfig.get().MAP_WARPS.isEnabled()) return;
-        PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> mapPlugin.moveWarp(event.getWarp()));
+        PluginHookManager.get().getMapPlugins().values().forEach(mapPlugin -> {
+            if (!mapPlugin.canEnable()) return;
+            mapPlugin.moveWarp(event.getWarp());
+        });
     }
 }
