@@ -67,14 +67,6 @@ public class ATPlayer {
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
-        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
-            FloodgateApi api = FloodgateApi.getInstance();
-            if (api == null) {
-                CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
-                return;
-            }
-            if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
-        }
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> {
@@ -711,7 +703,14 @@ public class ATPlayer {
     public static ATPlayer getPlayer(@NotNull Player player) {
         Objects.requireNonNull(player, "Player must not be null.");
         if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
-        if (FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) return new ATFloodgatePlayer(player);
+        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+            FloodgateApi api = FloodgateApi.getInstance();
+            if (api == null) {
+                CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
+                return new ATPlayer(player);
+            }
+            if (api.isFloodgateId(player.getUniqueId())) return new ATFloodgatePlayer(player);
+        }
         return new ATPlayer(player);
     }
 
