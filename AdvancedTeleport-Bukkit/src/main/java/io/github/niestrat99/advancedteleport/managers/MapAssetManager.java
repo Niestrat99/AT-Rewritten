@@ -60,6 +60,7 @@ public class MapAssetManager {
     public static void registerImage(String name, InputStream stream) {
         images.put(name, stream);
         for (MapPlugin plugin : PluginHookManager.get().getMapPlugins().values()) {
+            if (!plugin.canEnable()) continue;
             plugin.registerImage(name, stream);
         }
         CoreClass.getInstance().getLogger().info("Registered the image " + name + "!");
