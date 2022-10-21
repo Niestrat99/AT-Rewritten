@@ -706,7 +706,7 @@ public class ATPlayer {
     @NotNull
     public static ATPlayer getPlayer(@NotNull Player player) {
         if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
-        if (FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) return new ATFloodgatePlayer(player);
+        if (canUseFloodgate() &&  FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) return new ATFloodgatePlayer(player);
         return new ATPlayer(player);
     }
 
@@ -817,5 +817,9 @@ public class ATPlayer {
             PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
             return callback.data;
         });
+    }
+
+    private static boolean canUseFloodgate() {
+        return Bukkit.getPluginManager().getPlugin("floodgate") != null && Bukkit.getPluginManager().isPluginEnabled("floodgate");
     }
 }
