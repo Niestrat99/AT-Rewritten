@@ -2,10 +2,9 @@ package io.github.niestrat99.advancedteleport;
 
 import com.wimbli.WorldBorder.WorldBorder;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.GUI;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
+import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
 import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
@@ -16,6 +15,7 @@ import io.papermc.lib.PaperLib;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -46,8 +47,6 @@ public class CoreClass extends JavaPlugin {
 
     public static Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
     public static Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
-
-    private NewConfig config;
 
     public static CoreClass getInstance() {
         return Instance;
@@ -70,25 +69,35 @@ public class CoreClass extends JavaPlugin {
     @Override
     public void onEnable() {
         Instance = this;
+        checkVersion();
         getLogger().info("Advanced Teleport is now enabling...");
         setupPermissions();
-        config = new NewConfig();
-        //    Config.setDefaults();
-        new CustomMessages(this).load();
-        new Spawn();
-        new GUI();
-        CommandManager.registerCommands();
+        for (Class<? extends ATConfig> config : Arrays.asList(NewConfig.class, CustomMessages.class, Spawn.class, GUI.class)) {
+            try {
+                config.getDeclaredConstructor().newInstance();
+            } catch (NoSuchMethodException ex) {
+                getLogger().severe(config.getSimpleName() + " is not properly formed, it shouldn't take any constructor arguments. Please inform the developer.");
+            } catch (InvocationTargetException | InstantiationException e) {
+                getLogger().severe("Failed to load " + config.getSimpleName() + ": " + e.getCause().getMessage());
+            } catch (IllegalAccessException e) {
+                getLogger().severe("Failed to load " + config.getSimpleName() + ", why is the constructor not accessible? Please inform the developer.");
+            }
+        }
+
         {
             new BlocklistManager();
             new HomeSQLManager();
             new PlayerSQLManager();
             new WarpSQLManager();
             new DataFailManager();
+            new MetadataSQLManager();
         }
+        new PluginHookManager();
+        MapAssetManager.init();
+        CommandManager.registerCommands();
         registerEvents();
         CooldownManager.init();
         RandomTPAlgorithms.init();
-        new PluginHookManager();
 
         setupVersion();
         new Metrics(this, 5146);
@@ -109,6 +118,18 @@ public class CoreClass extends JavaPlugin {
         });
     }
 
+    private void checkVersion() {
+        String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+        int number = Integer.parseInt(bukkitVersion.split("_")[1]);
+        if (number < 16) {
+            getLogger().severe("!!! YOU ARE USING ADVANCEDTELEPORT ON AN UNSUPPORTED VERSION. !!!");
+            getLogger().severe("The plugin only receives mainstream support for 1.16.5 to 1.19.");
+            getLogger().severe("If you experience an issue with the plugin, please confirm whether it occurs on newer versions as well.");
+            getLogger().severe("If you experience issues that only occur on your version, then we are not responsible for addressing it.");
+            getLogger().severe("You have been warned.");
+        }
+    }
+
     @Override
     public void onDisable() {
         DataFailManager.get().onDisable();
@@ -123,7 +144,7 @@ public class CoreClass extends JavaPlugin {
         try {
             RTPManager.saveLocations();
         } catch (IOException e) {
-            e.printStackTrace();
+            getLogger().warning("Failed to save RTP locations: " + e.getMessage());
         }
     }
 
@@ -133,6 +154,7 @@ public class CoreClass extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
         getServer().getPluginManager().registerEvents(new WorldLoadListener(), this);
+        getServer().getPluginManager().registerEvents(new MapEventListeners(), this);
     }
 
     /**
@@ -212,10 +234,6 @@ public class CoreClass extends JavaPlugin {
         return perms;
     }
 
-    public NewConfig getConfiguration() {
-        return config;
-    }
-
     private void setupVersion() {
         String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].split("_")[1];
         this.version = Integer.parseInt(bukkitVersion);
@@ -227,5 +245,15 @@ public class CoreClass extends JavaPlugin {
 
     public Object[] getUpdateInfo() {
         return updateInfo;
+    }
+
+    public static void debug(String message) {
+        if (NewConfig.get().DEBUG.get()) {
+            CoreClass.getInstance().getLogger().info(message);
+        }
+    }
+
+    public static String getShortLocation(Location location) {
+        return location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " + location.getWorld();
     }
 }

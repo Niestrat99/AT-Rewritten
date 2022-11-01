@@ -22,9 +22,7 @@ Advanced Teleport is a rapidly growing plugin that is not only increasing sharpl
 - A per-world respawning mechanism.
 
 ## Installation/Cloning
-As of currently, Advanced Teleport uses Maven to manage its dependencies.
+As of currently, Advanced Teleport uses Gradle to manage its dependencies.
 
-The Maven command used to build the plugin is `mvn clean install`
-
-AT requires 1.16.2 BuildTools to be run on the provided system.
+The Gradle command used to build the plugin is `gradle shadowJar` and is done under the AdvancedTeleport-Bukkit module.
 

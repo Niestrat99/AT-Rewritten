@@ -2,36 +2,35 @@ package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
-import io.github.thatsmusic99.configurationmaster.CMFile;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.IOException;
 import java.util.*;
 
-public class CustomMessages extends CMFile {
+public class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
 
-    public CustomMessages(Plugin plugin) {
-        super(plugin, "custom-messages");
-        setDescription(null);
+    public CustomMessages() throws IOException {
+        super("custom-messages.yml");
         config = this;
         titleManager = new HashMap<>();
     }
 
     public void loadDefaults() {
-        addLenientSection("Teleport");
+        makeSectionLenient("Teleport");
         addDefault("Teleport.eventBeforeTP" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7, please do not move!");
 
-        addComment("Teleport.eventBeforeTP_title");
-        addExample("Teleport.eventBeforeTP_title.length" , 80 /*, "How many seconds (in ticks) the header should last. This is not including fading." */);
-        addExample("Teleport.eventBeforeTP_title.fade-in" , 0 /*, "How many seconds (in ticks) the header should take to fade in." */);
-        addExample("Teleport.eventBeforeTP_title.fade-out" , 10 /*, "How many seconds (in ticks) the header should take to fade out." */);
+        addComment("Teleport.eventBeforeTP_title", "This is an example use for titles and subtitles in the plugin." +
+                "\nThis feature is supported only if you're on version 1.8.8 or newer.");
+        addExample("Teleport.eventBeforeTP_title.length" , 80 , "How many seconds (in ticks) the header should last. This is not including fading.");
+        addExample("Teleport.eventBeforeTP_title.fade-in" , 0 , "How many seconds (in ticks) the header should take to fade in.");
+        addExample("Teleport.eventBeforeTP_title.fade-out" , 10 , "How many seconds (in ticks) the header should take to fade out.");
         addExample("Teleport.eventBeforeTP_title.0", "&7&lTeleporting...");
         addExample("Teleport.eventBeforeTP_title.20", "&b> &7&lTeleporting... &b<");
         addExample("Teleport.eventBeforeTP_title.40", "&b>> &7&lTeleporting... &b<<");
@@ -58,7 +57,7 @@ public class CustomMessages extends CMFile {
         addDefault("Teleport.teleportedToOfflinePlayer", "&b↑ &8» &7Teleported to offline player &b{player}&7!");
         addDefault("Teleport.teleportedOfflinePlayerHere", "&b↑ &8» &7Teleported offline player &b{player} &7to your location!");
 
-        addLenientSection("Error");
+        makeSectionLenient("Error");
         addDefault("Error.noPermission", "&b↑ &8» &7You do not have permission to use this command!");
         addDefault("Error.noPermissionSign", "&b↑ &8» &7You do not have permission to make this sign!");
         addDefault("Error.featureDisabled", "&b↑ &8» &7This feature has been disabled!");
@@ -136,6 +135,11 @@ public class CustomMessages extends CMFile {
         addDefault("Error.cantExport", "&b↑ &8» &7Can't export plugin data from &b{plugin} &7(make sure it's enabled and by the correct authors)!");
         addDefault("Error.notEnoughItems", "&b↑ &8» &7You do not have enough items to teleport there!\n" +
                 "&b↑ &8» &7You need at least &b{amount} {type}(s)!");
+        addDefault("Error.mirrorSpawnFail", "&b↑ &8» &7Failed to mirror &b{from}&7's spawnpoint to &b{spawn}&7!");
+        addDefault("Error.removeSpawnFail", "&b↑ &8» &7Failed to remove the spawnpoint &b{spawn}&7!");
+        addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
+        addDefault("Error.blockFail", "&b↑ &8» &7Failed to save the block against &b{player}&7!");
+        addDefault("Error.unblockFail", "&b↑ &8» &7Failed to save the block removal against &b{player}&7!");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -324,9 +328,31 @@ public class CustomMessages extends CMFile {
         addDefault("Usages-Admin.setmainhome", "/setmainhome <Home>|<Player> <Home>");
         addDefault("Usages-Admin.spawn", "/spawn <ID>");
 
+        addFormsDefault("tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");
+        addFormsDefault("tpa", "TPA Request", "Select a player to send a TPA request to.");
+        addFormsDefault("tpa-received", "TPA Request", "The player {player} wants to teleport to you!");
+        addDefault("Forms.tpa-received-accept", "Accept");
+        addDefault("Forms.tpa-received-deny", "Deny");
+        addFormsDefault("tpahere-received", "TPAHere Request", "The player {player} wants you to teleport to them!");
+        addDefault("Forms.tpahere-received-accept", "Accept");
+        addDefault("Forms.tpahere-received-deny", "Deny");
+        addFormsDefault("home", "Homes", "Select a home to teleport to.");
+        addFormsDefault("sethome", "Set Home", "Enter a home name.");
+        addFormsDefault("delhome", "Delete Home", "Select the home to delete.");
+        addFormsDefault("setmainhome", "Set Main Home", "Enter an existing home name or a new one.");
+        addFormsDefault("movehome", "Move Home", "Choose the home to be moved.");
+        addFormsDefault("warp", "Warps", "Select a warp to teleport to.");
+        addFormsDefault("delwarp", "Delete Warp", "Select a warp to delete.");
+        addFormsDefault("setwarp", "Set Warp", "Enter a warp name.");
+        addFormsDefault("movewarp", "Move Warp", "Select a warp to move.");
+        addFormsDefault("tpblock", "Block Player", "Select a player to block.");
+        addFormsDefault("tpunblock", "Unblock Player", "Select a player to unblock.");
+        addFormsDefault("tpcancel", "Cancel TP Request", "Select a request to cancel.");
+        addFormsDefault("tpo", "Teleport", "Select a player to teleport to.");
+        addFormsDefault("tpohere", "Teleport Here", "Select a player to teleport to your location.");
     }
 
-    public static String getStringA(String path) {
+    public static String getStringRaw(String path) {
         return translateString(config.getString(path));
     }
 
@@ -353,21 +379,21 @@ public class CustomMessages extends CMFile {
     }
 
     public static void sendMessage(CommandSender sender, String path, String... placeholders) {
-        if (config.getConfig() == null) return;
-        if (supportsTitles() && sender instanceof Player) {
+        if (config == null) return;
+        if (false && supportsTitles() && sender instanceof Player) {
             Player player = (Player) sender;
 
-            ConfigurationSection titles = config.getConfig().getConfigurationSection(path + "_title");
-            ConfigurationSection subtitles = config.getConfig().getConfigurationSection(path + "_subtitle");
+            ConfigSection titles = config.getConfigSection(path + "_title");
+            ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
             if (titles != null || subtitles != null) {
 
                 // Fade in, stay, out
                 int[] titleInfo = new int[]{0, 0, 0};
 
                 if (titles != null) {
-                    titleInfo[0] = titles.getInt("fade-in");
-                    titleInfo[1] = titles.getInt("length");
-                    titleInfo[2] = titles.getInt("fade-out");
+                    titleInfo[0] = titles.getInteger("fade-in");
+                    titleInfo[1] = titles.getInteger("length");
+                    titleInfo[2] = titles.getInteger("fade-out");
                 }
 
                 BukkitRunnable runnable = new BukkitRunnable() {
@@ -404,13 +430,13 @@ public class CustomMessages extends CMFile {
                 runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
         }
-        if (config.getConfig().get(path) instanceof List) {
-            List<String> messages = config.getConfig().getStringList(path);
+        if (config.get(path) instanceof List) {
+            List<String> messages = config.getStringList(path);
             for (int i = 0; i < messages.size(); i++) {
                 getFancyMessage(translateString(messages.get(i), placeholders)).sendProposal(sender, i);
             }
         } else {
-            String[] messages = translateString(config.getConfig().getString(path), placeholders).split("\n");
+            String[] messages = translateString(config.getString(path), placeholders).split("\n");
             for (int i = 0; i < messages.length; i++) {
                 getFancyMessage(messages[i]).sendProposal(sender, i);
             }
@@ -514,5 +540,11 @@ public class CustomMessages extends CMFile {
         builder.text(str.substring(lastMarkdownPointer));
 
         return builder;
+    }
+
+    private void addFormsDefault(String command, String title, String description) {
+        addDefault("Forms." + command + "-title", title);
+        addDefault("Forms." + command + "-description", description);
+
     }
 }

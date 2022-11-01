@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -22,8 +23,8 @@ public abstract class AbstractHomeCommand implements ATCommand {
             Player player = (Player) sender;
             if (player.hasPermission("at.admin." + cmd.getName())) {
                 if (!args[0].isEmpty() && args.length == 2) {
+                    if (!ATPlayer.isPlayerCached(args[0])) return new ArrayList<>();
                     ATPlayer target = ATPlayer.getPlayer(args[0]);
-                    if (target == null) return new ArrayList<>();
                     StringUtil.copyPartialMatches(args[1], target.getHomes().keySet(), results);
                     return results;
                 }
@@ -40,5 +41,10 @@ public abstract class AbstractHomeCommand implements ATCommand {
             }
         }
         return results;
+    }
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_HOMES.get();
     }
 }

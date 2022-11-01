@@ -1,36 +1,30 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.thatsmusic99.configurationmaster.CMFile;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Spawn extends CMFile {
+public class Spawn extends ATConfig {
 
     private static Spawn instance;
     private Location mainSpawn;
 
-    public Spawn() {
-        super(CoreClass.getInstance(), "spawn");
+    public Spawn() throws IOException {
+        super("spawn.yml");
         instance = this;
-        load();
-    }
-
-    @Override
-    public void loadTitle() {
-
     }
 
     @Override
     public void loadDefaults() {
         addDefault("main-spawn", "");
-        addLenientSection("spawns");
+        makeSectionLenient("spawns");
     }
 
     @Override
@@ -49,7 +43,7 @@ public class Spawn extends CMFile {
     @Override
     public void postSave() {
         String mainSpawn = getString("main-spawn", "");
-        ConfigurationSection spawns = getConfig().getConfigurationSection("spawns");
+        ConfigSection spawns = getConfigSection("spawns");
         if (spawns == null) return;
         if (!spawns.contains(mainSpawn) || mainSpawn.isEmpty()) return;
         this.mainSpawn = new Location(Bukkit.getWorld(getString("spawns." + mainSpawn + ".world")),
@@ -60,7 +54,7 @@ public class Spawn extends CMFile {
                 getFloat("spawns." + mainSpawn + ".pitch"));
     }
 
-    public void setSpawn(Location location, String name) {
+    public void setSpawn(Location location, String name) throws IOException {
         set("spawns." + name + ".x", location.getX());
         set("spawns." + name + ".y", location.getY());
         set("spawns." + name + ".z", location.getZ());
@@ -68,75 +62,88 @@ public class Spawn extends CMFile {
         set("spawns." + name + ".yaw", location.getYaw());
         set("spawns." + name + ".pitch", location.getPitch());
         set("spawns." + name + ".mirror", null);
-        save(true);
+        save();
         if (mainSpawn == null) {
             setMainSpawn(name, location);
         }
     }
 
     public String mirrorSpawn(String from, String to) {
-        ConfigurationSection section = getConfig().getConfigurationSection("spawns");
+        ConfigSection section = getConfigSection("spawns");
         String mirror = to;
-        if (!(section != null && section.contains(to))) return "Error.noSuchSpawn";
-        ConfigurationSection toSection = section.getConfigurationSection(to);
+        if (section == null || !section.contains(to)) return "Error.noSuchSpawn";
+        ConfigSection toSection = section.getConfigSection(to);
         while (true) {
             if (toSection == null) return "Error.noSuchSpawn";
-            if (toSection.getString("mirror") != null && !toSection.getString("mirror").isEmpty()) {
-                // honest to god intellij shut up
-                mirror = toSection.getString("mirror");
-                toSection = section.getConfigurationSection(mirror);
+            String alternateMirror = toSection.getString("mirror");
+            if (alternateMirror != null && !alternateMirror.isEmpty() && !alternateMirror.equals(mirror)) {
+                mirror = alternateMirror;
+                toSection = section.getConfigSection(alternateMirror);
             } else if (toSection.contains("x")
                     && toSection.contains("y")
                     && toSection.contains("z")
                     && toSection.contains("yaw")
                     && toSection.contains("pitch")) {
-                set("spawns." + from, null);
                 set("spawns." + from + ".mirror", mirror);
-                save(true);
+                set("spawns." + from + ".requires-permission", false);
+                try {
+                    save();
+                } catch (IOException e) {
+                    CoreClass.getInstance().getLogger().severe("Failed to mirror spawn from " + from + " to " + to + ": " + e.getMessage());
+                    return "Error.mirrorSpawnFail";
+                }
                 return "Info.mirroredSpawn";
             }
         }
     }
 
-    public Location getSpawn(Player player) {
-        String worldName = player.getWorld().getName();
-        // Would do less looping
-        for (String spawn : getSpawns()) {
-            // Weird annoying bug >:(
-            if (player.hasPermission("at.member.spawn." + spawn)
-                    && player.isPermissionSet("at.member.spawn." + spawn)) {
-                worldName = spawn;
-            }
-        }
-        return getSpawn(worldName);
+    public Location getSpawn(String name) {
+        return getSpawn(name, null, false);
     }
 
-    public Location getSpawn(String name) {
-        if (getConfig().get("spawns." + name) == null) return getProperMainSpawn();
-        ConfigurationSection spawns = getConfig().getConfigurationSection("spawns");
-        ConfigurationSection toSection = spawns.getConfigurationSection(name);
+    public Location getSpawn(String name, Player player, boolean bypassPermission) {
+        // if (get("spawns." + name) == null) return getProperMainSpawn();
+        ConfigSection spawns = getConfigSection("spawns");
+        ConfigSection toSection = spawns.getConfigSection(name);
         while (true) {
             if (toSection != null) {
-                if (toSection.getString("mirror") != null && !toSection.getString("mirror").isEmpty()) {
-                    name = toSection.getString("mirror");
-                    toSection = spawns.getConfigurationSection(name);
-                } else if (toSection.contains("x")
+                String priorName = toSection.getString("mirror");
+                boolean requiresPermission = toSection.getBoolean("requires-permission", true);
+                // Just to note, "requires permission" indicates that the player can teleport to the spawn itself. Not the mirrored one.
+                boolean hasCoords = toSection.contains("x")
                         && toSection.contains("y")
                         && toSection.contains("z")
                         && toSection.contains("yaw")
                         && toSection.contains("pitch")
-                        && toSection.contains("world")) {
-                    return new Location(Bukkit.getWorld(toSection.getString("world")),
-                            toSection.getDouble("x"),
-                            toSection.getDouble("y"),
-                            toSection.getDouble("z"),
-                            (float) toSection.getDouble("yaw"),
-                            (float) toSection.getDouble("pitch"));
+                        && toSection.contains("world");
+                boolean hasMirror = priorName != null && !priorName.isEmpty() && !priorName.equals(name);
+                if (hasCoords) {
+                    if (hasMirror && (requiresPermission
+                            && !player.hasPermission("at.member.spawn." + name)
+                            && !bypassPermission)) {
+                        name = priorName;
+                        toSection = spawns.getConfigSection(name);
+                    } else {
+                        return new Location(Bukkit.getWorld(toSection.getString("world")),
+                                toSection.getDouble("x"),
+                                toSection.getDouble("y"),
+                                toSection.getDouble("z"),
+                                (float) toSection.getDouble("yaw"),
+                                (float) toSection.getDouble("pitch"));
+                    }
                 } else {
-                    break;
+                    if (hasMirror) {
+                        name = priorName;
+                        toSection = spawns.getConfigSection(name);
+                    } else {
+                        break;
+                    }
                 }
             } else {
-                break;
+                String mainSpawn = getString("main-spawn");
+                if (mainSpawn == null || mainSpawn.equals(name)) break;
+                toSection = spawns.getConfigSection(mainSpawn);
+                name = mainSpawn;
             }
         }
         return mainSpawn;
@@ -145,7 +152,12 @@ public class Spawn extends CMFile {
     public String setMainSpawn(String id, Location location) {
         mainSpawn = location;
         set("main-spawn", id);
-        save(true);
+        try {
+            save();
+        } catch (IOException e) {
+            CoreClass.getInstance().getLogger().severe("Failed to set main spawnpoint " + id + ": " + e.getMessage());
+            return "Error.setMainSpawnFail";
+        }
         return "Info.setMainSpawn";
     }
 
@@ -155,7 +167,12 @@ public class Spawn extends CMFile {
 
     public String removeSpawn(String id) {
         set("spawns." + id, null);
-        save(true);
+        try {
+            save();
+        } catch (IOException e) {
+            CoreClass.getInstance().getLogger().severe("Failed to remove spawnpoint " + id + ": " + e.getMessage());
+            return "Error.removeSpawnFail";
+        }
         return "Info.removedSpawn";
     }
 
@@ -178,7 +195,7 @@ public class Spawn extends CMFile {
     }
 
     public List<String> getSpawns() {
-        ConfigurationSection section = getConfig().getConfigurationSection("spawns");
+        ConfigSection section = getConfigSection("spawns");
         if (section == null) return new ArrayList<>();
         return new ArrayList<>(section.getKeys(false));
     }

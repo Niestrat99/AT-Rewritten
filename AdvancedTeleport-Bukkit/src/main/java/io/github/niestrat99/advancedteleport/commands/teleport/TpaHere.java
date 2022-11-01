@@ -1,14 +1,17 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.TeleportRequest;
+import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
+import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-import io.github.niestrat99.advancedteleport.utilities.TPRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,20 +21,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class TpaHere implements ATCommand {
+public class TpaHere extends TeleportATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
+       
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-        if (!NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.here")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
         Player player = (Player) sender;
@@ -46,7 +44,12 @@ public class TpaHere implements ATCommand {
             return true;
         }
         if (args.length == 0) {
-            CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendTPAForm(true);
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+            }
             return true;
         }
         Player target = Bukkit.getPlayer(args[0]);
@@ -61,31 +64,42 @@ public class TpaHere implements ATCommand {
                     "{player}", target.getName(), "{lifetime}", String.valueOf(requestLifetime));
 
             CoreClass.playSound("tpahere", "sent", player);
+            ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
-            CustomMessages.sendMessage(target, "Info.tpaRequestHere",
-                    "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
-
-            CoreClass.playSound("tpahere", "received", target);
+            if (targetPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPAHere(player);
+            } else {
+                CustomMessages.sendMessage(target, "Info.tpaRequestHere",
+                        "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
+            }
 
             BukkitRunnable run = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                        CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}", target.getName());
+                    @Override
+                    public void run() {
+                        if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                            CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}",
+                                    target.getName());
+
+                            TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target,
+                                    player));
+                        }
                     }
-                    TPRequest.removeRequest(TPRequest.getRequestByReqAndResponder(target, player));
-                }
             };
-            run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20); // 60 seconds
-            TPRequest request = new TPRequest(player, target, run, TPRequest.TeleportType.TPAHERE); // Creates a new teleport request.
-            TPRequest.addRequest(request);
-            // If the cooldown is to be applied after request or accept (they are the same in the case of /spawn), apply it now
+            run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
+            TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPAHERE); // Creates a new teleport request.
+            TeleportRequest.addRequest(request);
+            // If the cooldown is to be applied after request or accept (they are the same in the case of
+            // /spawn), apply it now
             if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
                 CooldownManager.addToCooldown("tpahere", player);
             }
             return true;
         }
-
         return true;
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.here";
     }
 }

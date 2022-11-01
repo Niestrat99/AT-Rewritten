@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
@@ -14,6 +15,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,40 +25,47 @@ import java.util.List;
 public class HomesCommand implements ATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-
-        if (args.length == 0 && !(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
+                             @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
+        if (args.length > 0) {
+            if (sender.hasPermission("at.admin.homes")) {
+                ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
+                    if (player.getHomes() == null || player.getHomes().size() == 0) {
+                        CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
+                        return;
+                    }
+                    getHomes(sender, player.getOfflinePlayer());
+                });
+                return true;
+            }
         }
-
-        if (!NewConfig.get().USE_HOMES.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.homes")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
-        if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
-
-            ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
-                if (player.getHomes() == null || player.getHomes().size() == 0) {
-                    CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
-                    return;
-                }
-                getHomes(sender, player.getOfflinePlayer());
-            });
-            return true;
-        } else if (sender instanceof Player) {
+        if (sender instanceof Player) {
             getHomes(sender, (Player) sender);
+        } else {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
-
         return true;
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.homes";
+    }
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_HOMES.get();
     }
 
     private void getHomes(CommandSender sender, OfflinePlayer target) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
+
+        if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+            ((ATFloodgatePlayer) atPlayer).sendHomeForm();
+            return;
+        }
+
         FancyMessage hList = new FancyMessage();
 
         String infoPath = "Info.homes";
@@ -97,9 +106,9 @@ public class HomesCommand implements ATCommand {
     }
 
     private List<String> getTooltip(CommandSender sender, Home home) {
-        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringA("Tooltip.homes")));
+        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringRaw("Tooltip.homes")));
         if (sender.hasPermission("at.member.homes.location")) {
-            tooltip.addAll(Arrays.asList(CustomMessages.getStringA("Tooltip.location").split("\n")));
+            tooltip.addAll(Arrays.asList(CustomMessages.getStringRaw("Tooltip.location").split("\n")));
         }
         List<String> homeTooltip = new ArrayList<>(tooltip);
         for (int i = 0; i < homeTooltip.size(); i++) {
