@@ -98,8 +98,8 @@ public class Back extends TeleportATCommand {
         }
         // The total count of operations in a worstcase is 128
 
-        if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back") && !player.hasPermission("at.admin" +
-                ".bypass.distance-limit")) {
+        if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back", ATPlayer.getPlayer(player))
+                && !player.hasPermission("at.admin.bypass.distance-limit")) {
             CustomMessages.sendMessage(player, "Error.tooFarAway");
             return true;
         }

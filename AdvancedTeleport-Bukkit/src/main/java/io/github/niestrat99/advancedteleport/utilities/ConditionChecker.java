@@ -56,7 +56,7 @@ public class ConditionChecker {
         if (NewConfig.get().ENABLE_DISTANCE_LIMITATIONS.get()
                 && !teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")
                 && fromLoc.getWorld() == toLoc.getWorld()
-                && !DistanceLimiter.canTeleport(toLoc, fromLoc, command)) {
+                && !DistanceLimiter.canTeleport(toLoc, fromLoc, command, ATPlayer.getPlayer(teleportingPlayer))) {
             return "Error.tooFarAway";
         }
 
