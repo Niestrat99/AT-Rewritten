@@ -64,19 +64,12 @@ public class WarpCommand extends AbstractWarpCommand {
             CustomMessages.sendMessage(player, "Error.noPermissionWarp", "{warp}", warp.getName());
             return;
         }
-<<<<<<< HEAD
-        ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(),
-                ATTeleportEvent.TeleportType.WARP);
-        ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp",
-                NewConfig.get().WARM_UPS.WARP.get());
+        ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);
+        ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp");
     }
 
     @Override
     public String getPermission() {
         return "at.member.warp";
-=======
-        ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);
-        ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp");
->>>>>>> e1f86bf (Add dynamic warm-ups and cooldowns)
     }
 }

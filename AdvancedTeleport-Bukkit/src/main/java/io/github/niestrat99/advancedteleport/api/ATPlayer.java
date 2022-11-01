@@ -21,8 +21,8 @@ import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -116,9 +116,6 @@ public class ATPlayer {
         teleport(event, command, teleportMsg);
     }
 
-    /**
-     * Internal use only.
-     */
     public void teleport(ATTeleportEvent event, String command, String teleportMsg) {
         Player player = event.getPlayer();
         int warmUp = getWarmUp(command);
