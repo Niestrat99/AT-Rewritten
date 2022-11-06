@@ -1,8 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -38,9 +38,8 @@ public class MoveWarpCommand extends AbstractWarpCommand {
             warp.setLocation(warpLoc, sender).thenAcceptAsync(result ->
                     CustomMessages.sendMessage(sender, "Info.movedWarp", "{warp}", args[0]));
         } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
-
         return true;
     }
 

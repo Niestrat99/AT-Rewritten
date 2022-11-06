@@ -29,6 +29,7 @@ public class HomeCommand extends AbstractHomeCommand {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
+
         ATPlayer atPlayer = ATPlayer.getPlayer((Player) sender);
         Player player = (Player) sender;
 
@@ -44,7 +45,6 @@ public class HomeCommand extends AbstractHomeCommand {
         }
 
         if (args.length == 0) {
-
             if (atPlayer.hasMainHome()) {
                 teleport(player, atPlayer.getMainHome());
             } else if (homes.size() == 1) {
@@ -55,7 +55,6 @@ public class HomeCommand extends AbstractHomeCommand {
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
                 }
-
             } else if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
                 Home home = atPlayer.getBedSpawn();
                 if (home == null) {
@@ -69,8 +68,6 @@ public class HomeCommand extends AbstractHomeCommand {
                 teleport(player, home);
             } else if (homes.isEmpty()) {
                 CustomMessages.sendMessage(sender, "Error.noHomes");
-            } if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
-                ((ATFloodgatePlayer) atPlayer).sendHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
             }

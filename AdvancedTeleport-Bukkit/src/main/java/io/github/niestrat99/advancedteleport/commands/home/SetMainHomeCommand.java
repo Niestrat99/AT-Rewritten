@@ -17,6 +17,7 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
                              @NotNull String[] args) {
+
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
@@ -33,6 +34,7 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
             }
             return true;
         }
+        // TODO deprecated code
         if (args.length > 1 && sender.hasPermission("at.admin.setmainhome")) {
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
             if (target != player) {
@@ -40,9 +42,8 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
                 String homeName = args[1];
 
                 if (atTarget.hasHome(homeName)) {
-                    atPlayer.setMainHome(homeName).thenAcceptAsync(result ->
-                            CustomMessages.sendMessage(sender, result ? "Info.setMainHomeOther" : "Error" +
-                                            ".setMainHomeFail",
+                    atTarget.setMainHome(homeName, sender).thenAcceptAsync(result ->
+                            CustomMessages.sendMessage(sender, result ? "Info.setMainHomeOther" : "Error.setMainHomeFail",
                                     "{home}", homeName, "{player}", args[0]));
                 } else {
                     if (atPlayer.canSetMoreHomes()) {
@@ -63,7 +64,6 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
                 }
                 return true;
             }
-
         }
 
         String homeName = args[0];
@@ -86,10 +86,8 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
                     }
                     atPlayer.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
                             CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHome" : "Error.setMainHomeFail",
-                                    "{home}", homeName));
+                            "{home}", homeName));
                 });
-            } else {
-                CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
             }
         }
         return true;

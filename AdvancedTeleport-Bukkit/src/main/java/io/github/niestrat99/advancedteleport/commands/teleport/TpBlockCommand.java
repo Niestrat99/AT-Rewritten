@@ -19,7 +19,6 @@ public class TpBlockCommand extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;

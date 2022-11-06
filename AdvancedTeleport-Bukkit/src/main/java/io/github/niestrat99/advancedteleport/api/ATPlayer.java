@@ -67,6 +67,14 @@ public class ATPlayer {
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
+        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+            FloodgateApi api = FloodgateApi.getInstance();
+            if (api == null) {
+                CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
+                return;
+            }
+            if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
+        }
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> {
@@ -524,11 +532,7 @@ public class ATPlayer {
     }
 
     /**
-<<<<<<< HEAD
-     * Whether the player has a main home or not.
-=======
      * Whether the player has a main home.
->>>>>>> 42381dd (Improved API and more events (#78))
      *
      * @return true if the player has a main home that exists, false if not.
      */

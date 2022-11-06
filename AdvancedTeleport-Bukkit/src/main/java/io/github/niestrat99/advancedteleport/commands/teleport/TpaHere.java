@@ -27,6 +27,7 @@ public class TpaHere extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
+
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
@@ -70,6 +71,7 @@ public class TpaHere extends TeleportATCommand {
                 CustomMessages.sendMessage(target, "Info.tpaRequestHere",
                         "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
             }
+
             BukkitRunnable run = new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -92,6 +94,7 @@ public class TpaHere extends TeleportATCommand {
             }
             return true;
         }
+
         return true;
     }
 

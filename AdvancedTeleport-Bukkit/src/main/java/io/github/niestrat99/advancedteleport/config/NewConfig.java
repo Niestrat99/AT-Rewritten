@@ -64,13 +64,17 @@ public class NewConfig extends ATConfig {
     public ConfigOption<ConfigSection> WORLD_RULES;
     public PerCommandOption<String> COMMAND_RULES;
 
-    public ConfigOption<Integer> MAXIMUM_X;
-    public ConfigOption<Integer> MAXIMUM_Z;
-    public ConfigOption<Integer> MINIMUM_X;
-    public ConfigOption<Integer> MINIMUM_Z;
+
+    public ConfigOption<ConfigSection> X;
+    public ConfigOption<ConfigSection> Z;
+    @Deprecated public ConfigOption<Integer> MAXIMUM_X;
+    @Deprecated public ConfigOption<Integer> MAXIMUM_Z;
+    @Deprecated public ConfigOption<Integer> MINIMUM_X;
+    @Deprecated public ConfigOption<Integer> MINIMUM_Z;
     public ConfigOption<Boolean> RAPID_RESPONSE;
     public ConfigOption<Boolean> USE_VANILLA_BORDER;
     public ConfigOption<Boolean> USE_PLUGIN_BORDERS;
+    public ConfigOption<Boolean> PROTECT_CLAIM_LOCATIONS;
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> IGNORE_WORLD_GENS;
     public ConfigOption<List<String>> AVOID_BLOCKS;
@@ -340,11 +344,31 @@ public class NewConfig extends ATConfig {
         addDefault("command-rules.home", "");
         addDefault("command-rules.back", "");
 
-        addDefault("maximum-x", 5000, "RandomTP", "The maximum X coordinate to go up to when selecting a random " +
-                "location.");
-        addDefault("maximum-z", 5000, "The maximum Z coordinate to go up to when selecting a random location.");
-        addDefault("minimum-x", -5000, "The minimum X coordinate to go down to when selecting a random location.");
-        addDefault("minimum-z", -5000, "The minimum Z coordinate to go down to when selecting a random location.");
+        addSection("RandomTP");
+        makeSectionLenient("x");
+        addDefault("x.default", "5000;-5000");
+        addExample("x.world_the_end", "10000;-10000");
+        addComment("x",
+                "Defines the range of X coordinates that players can teleport to.\n" +
+                        "Using a value for example 5000 would automatically set the minimum to -5000.\n" +
+                        "These are able to be defined for each world by name.\n" +
+                        "Split the values with a semicolon (;).\n" +
+                        "If a world is defined here but not in the z section, the x values will be reused for the z coords.\n"
+        );
+        addComment("z",
+                "Defines the range of z coordinates that players can teleport to.\n" +
+                        "Using a value for example 5000 would automatically set the minimum to -5000.\n" +
+                        "These are able to be defined for each world by name.\n" +
+                        "Split the values with a semicolon (;).\n" +
+                        "If a world is defined here but not in the x section, the z values will be reused for the x coords.\n"
+        );
+        makeSectionLenient("z");
+        addDefault("z.default", "5000;-5000");
+        addExample("z.world_the_end", "10000;-10000");
+        addDefault("maximum-x", 5000, "Deprecated\n # The maximum X coordinate to go up to when selecting a random location.");
+        addDefault("maximum-z", 5000, "Deprecated\n # The maximum Z coordinate to go up to when selecting a random location.");
+        addDefault("minimum-x", -5000, "Deprecated\n # The minimum X coordinate to go down to when selecting a random location.");
+        addDefault("minimum-z", -5000, "Deprecated\n # The minimum Z coordinate to go down to when selecting a random location.");
         addDefault("use-rapid-response", true, "Use the new rapid response system for RTP.\n" +
                 "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, " +
                 "meaning they are ready for use and can instantly TP a player.\n" +
@@ -357,6 +381,10 @@ public class NewConfig extends ATConfig {
         addDefault("use-plugin-borders", true, "Whether the plugin should use plugin world borders for managing /tpr " +
                 "boundaries.\n" +
                 "Currently supported plugins are WorldBorder and ChunkyBorder.");
+        addDefault("protect-claim-locations", true,
+                "If enabled checks if the player is in either an unclaimed area or that they have build permission in the area.\n" +
+                        "Supported plugins are Lands, WorldGuard, and GriefPrevention."
+        );
         addDefault("prepared-locations-limit", 3, "How many locations can be prepared per world when using AT's Rapid" +
                 " Response system.\n" +
                 "These are immediately prepared upon startup and when a world is loaded.");
@@ -686,6 +714,8 @@ public class NewConfig extends ATConfig {
         WORLD_RULES = new ConfigOption<>("world-rules");
         COMMAND_RULES = new PerCommandOption<>("command-rules", "");
 
+        X = new ConfigOption<>("x");
+        Z = new ConfigOption<>("z");
         MAXIMUM_X = new ConfigOption<>("maximum-x");
         MAXIMUM_Z = new ConfigOption<>("maximum-z");
         MINIMUM_X = new ConfigOption<>("minimum-x");
@@ -693,6 +723,7 @@ public class NewConfig extends ATConfig {
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
         USE_VANILLA_BORDER = new ConfigOption<>("use-vanilla-border");
         USE_PLUGIN_BORDERS = new ConfigOption<>("use-plugin-borders");
+        PROTECT_CLAIM_LOCATIONS = new ConfigOption<>("protect-claim-locations");
         PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
         IGNORE_WORLD_GENS = new ConfigOption<>("ignore-world-generators");
         AVOID_BLOCKS = new ConfigOption<>("avoid-blocks");

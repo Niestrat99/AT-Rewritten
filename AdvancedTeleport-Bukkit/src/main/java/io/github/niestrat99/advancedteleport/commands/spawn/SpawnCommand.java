@@ -29,14 +29,6 @@ public class SpawnCommand extends SpawnATCommand {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        if (!NewConfig.get().USE_SPAWN.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.spawn")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
 
         Player player = (Player) sender;
         int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
@@ -70,6 +62,11 @@ public class SpawnCommand extends SpawnATCommand {
 
         ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn",
                 NewConfig.get().WARM_UPS.SPAWN.get());
+    }
+
+    @Override
+    public String getPermission() {
+        return "at.member.spawn";
     }
 
     @Override

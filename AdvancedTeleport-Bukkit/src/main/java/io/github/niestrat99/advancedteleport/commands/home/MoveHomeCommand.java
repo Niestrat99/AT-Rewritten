@@ -5,6 +5,8 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,6 +17,7 @@ public class MoveHomeCommand extends AbstractHomeCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
+
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
@@ -44,7 +47,7 @@ public class MoveHomeCommand extends AbstractHomeCommand {
                             CustomMessages.sendMessage(sender, result ? "Info.movedHomeOther" : "Error.moveHomeFail",
                                     "{home}", args[1], "{player}", args[0]));
                 });
-
+                return true;
             }
         }
         Home home = atPlayer.getHome(args[0]);

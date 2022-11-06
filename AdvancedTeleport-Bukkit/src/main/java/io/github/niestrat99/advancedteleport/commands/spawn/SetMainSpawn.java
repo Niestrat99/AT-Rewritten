@@ -41,12 +41,13 @@ public class SetMainSpawn extends SpawnATCommand {
         if (!Spawn.get().doesSpawnExist(id)) {
             if (sender.hasPermission("at.admin.setspawn")
                     && (world || sender.hasPermission("at.admin.setspawn.other"))) {
-
                 AdvancedTeleportAPI.setSpawn(id, sender, loc).join();
             } else {
                 CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
                 return true;
             }
+        } else {
+            loc = Spawn.get().getSpawn(id);
         }
         AdvancedTeleportAPI.setMainSpawn(id, sender).thenAcceptAsync(result ->
                 CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id));

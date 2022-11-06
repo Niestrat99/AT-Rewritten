@@ -46,12 +46,11 @@ public class WarpCommand extends AbstractWarpCommand {
             if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
                 CustomMessages.sendMessage(player, "Error.onCountdown");
                 return true;
-            } else {
-                Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
-                warp(warp, player);
             }
+            Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
+            warp(warp, player);
         } else {
-            CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
         return true;
     }
