@@ -1,7 +1,5 @@
 package io.github.niestrat99.advancedteleport.config;
 
-import org.bukkit.plugin.Plugin;
-
 import java.io.IOException;
 
 public class NBTRepresentations extends ATConfig {
