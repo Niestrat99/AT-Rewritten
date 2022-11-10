@@ -46,7 +46,7 @@ public class SignInteractListener implements Listener {
             @Override
             public void onInteract(Sign sign, Player player) {
                 if (!Warp.getWarps().containsKey(sign.getLine(1))) return;
-                WarpCommand.warp(Warp.getWarps().get(sign.getLine(1)), player);
+                WarpCommand.warp(Warp.getWarps().get(sign.getLine(1)), player, true);
             }
 
             @Override

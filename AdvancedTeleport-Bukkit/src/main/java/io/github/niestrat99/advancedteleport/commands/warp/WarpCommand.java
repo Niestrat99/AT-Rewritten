@@ -46,17 +46,19 @@ public class WarpCommand extends AbstractWarpCommand {
                 return true;
             }
             Warp warp = Warp.getWarps().get(args[0]);
-            warp(warp, player);
+            warp(warp, player, false);
         } else {
             CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
         return true;
     }
 
-    public static void warp(Warp warp, Player player) {
-        boolean found = player.hasPermission("at.member.warp.*");
-        if (player.isPermissionSet("at.member.warp." + warp.getName().toLowerCase())) {
-            found = player.hasPermission("at.member.warp." + warp.getName().toLowerCase());
+    public static void warp(Warp warp, Player player, boolean useSign) {
+        String warpPrefix = "at.member.warp." + (useSign ? "sign." : "");
+
+        boolean found = player.hasPermission( warpPrefix + "*");
+        if (player.isPermissionSet(warpPrefix + warp.getName().toLowerCase())) {
+            found = player.hasPermission(warpPrefix + warp.getName().toLowerCase());
         }
         if (!found) {
             CustomMessages.sendMessage(player, "Error.noPermissionWarp", "{warp}", warp.getName());
