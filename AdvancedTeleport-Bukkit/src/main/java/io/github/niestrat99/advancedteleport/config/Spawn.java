@@ -164,16 +164,14 @@ public class Spawn extends ATConfig {
         return mainSpawn;
     }
 
-    public String setMainSpawn(String id, Location location) {
+    public void setMainSpawn(String id, Location location) {
         mainSpawn = location;
         set("main-spawn", id);
         try {
             save();
         } catch (IOException e) {
-            CoreClass.getInstance().getLogger().severe("Failed to set main spawnpoint " + id + ": " + e.getMessage());
-            return "Error.setMainSpawnFail";
+            throw new RuntimeException("Failed to set main spawnpoint " + id + ": " + e.getMessage());
         }
-        return "Info.setMainSpawn";
     }
 
     public String getMainSpawn() {
