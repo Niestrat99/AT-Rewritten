@@ -493,16 +493,15 @@ public class ATPlayer {
      * @param sender the command sender that triggered the event.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> removeHome(String name, CommandSender sender) {
+    public CompletableFuture<Void> removeHome(String name, CommandSender sender) {
         HomeDeleteEvent event = new HomeDeleteEvent(homes.get(name), sender);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
 
         homes.remove(event.getHome().getName());
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             HomeSQLManager.get().removeHome(uuid, event.getHome().getName(), callback);
-            return callback.data;
         });
     }
 

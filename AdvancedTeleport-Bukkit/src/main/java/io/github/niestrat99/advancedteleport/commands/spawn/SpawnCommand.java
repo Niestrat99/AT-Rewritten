@@ -69,11 +69,6 @@ public class SpawnCommand extends SpawnATCommand {
         return "at.member.spawn";
     }
 
-    @Override
-    public String getPermission() {
-        return "at.member.spawn";
-    }
-
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,

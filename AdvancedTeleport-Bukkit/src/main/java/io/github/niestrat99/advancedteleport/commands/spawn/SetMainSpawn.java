@@ -46,11 +46,25 @@ public class SetMainSpawn extends SpawnATCommand {
                 CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
                 return true;
             }
+
+            // Set the main spawn
+            setMainSpawn(id, sender);
         } else {
             loc = Spawn.get().getSpawn(id);
+
+            // Attempt to set the spawn before setting the main spawn
+            AdvancedTeleportAPI.setSpawn(id, sender, loc).handleAsync((v, e) -> {
+                if (e != null) {
+                    CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "{spawn}", id);
+                    e.printStackTrace();
+                    return v;
+                }
+
+                // Set the main spawn itself
+                setMainSpawn(id, sender);
+                return v;
+            });
         }
-        AdvancedTeleportAPI.setMainSpawn(id, sender).thenAcceptAsync(result ->
-                CustomMessages.sendMessage(sender, Spawn.get().setMainSpawn(id, loc), "{spawn}", id));
         return true;
     }
 
@@ -69,5 +83,18 @@ public class SetMainSpawn extends SpawnATCommand {
             return spawns;
         }
         return null;
+    }
+
+    private void setMainSpawn(String id, CommandSender sender) {
+        AdvancedTeleportAPI.setMainSpawn(id, sender).handleAsync((v, e) -> {
+            if (e != null) {
+                CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "{spawn}", id);
+                e.printStackTrace();
+                return v;
+            }
+
+            CustomMessages.sendMessage(sender, "Info.setMainSpawn","{spawn}", id);
+            return v;
+        });
     }
 }

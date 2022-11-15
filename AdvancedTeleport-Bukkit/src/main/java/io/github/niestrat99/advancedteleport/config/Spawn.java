@@ -111,14 +111,11 @@ public class Spawn extends ATConfig {
     }
 
     public Location getSpawn(String name) {
-<<<<<<< HEAD
         return getSpawn(name, null, false);
     }
 
     public Location getSpawn(String name, Player player, boolean bypassPermission) {
         // if (get("spawns." + name) == null) return getProperMainSpawn();
-=======
->>>>>>> 9a7be5e (Update map branch (#80))
         if (get("spawns." + name) == null) return getProperMainSpawn();
         ConfigSection spawns = getConfigSection("spawns");
         ConfigSection toSection = spawns.getConfigSection(name);
@@ -167,16 +164,14 @@ public class Spawn extends ATConfig {
         return mainSpawn;
     }
 
-    public String setMainSpawn(String id, Location location) {
+    public void setMainSpawn(String id, Location location) {
         mainSpawn = location;
         set("main-spawn", id);
         try {
             save();
         } catch (IOException e) {
-            CoreClass.getInstance().getLogger().severe("Failed to set main spawnpoint " + id + ": " + e.getMessage());
-            return "Error.setMainSpawnFail";
+            throw new RuntimeException("Failed to set main spawnpoint " + id + ": " + e.getMessage());
         }
-        return "Info.setMainSpawn";
     }
 
     public String getMainSpawn() {
