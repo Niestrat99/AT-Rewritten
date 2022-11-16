@@ -452,7 +452,7 @@ public class NewConfig extends ATConfig {
                 "respawn-listener-priority in EssX's config.yml file to lowest.");
 
         makeSectionLenient("death-management");
-        addDefault("death-management.default", "spawn");
+        addDefault("death-management.default", "bed;spawn");
         addExample("death-management.world", "{default}");
         addExample("death-management.special-world", "warp:Special");
         addExample("death-management.another-world", "bed");
