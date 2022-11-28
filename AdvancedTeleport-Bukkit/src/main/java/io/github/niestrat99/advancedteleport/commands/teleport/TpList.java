@@ -19,7 +19,7 @@ public class TpList extends TeleportATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
-        
+
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
@@ -44,7 +44,7 @@ public class TpList extends TeleportATCommand {
                                 .replaceAll("\\{player}", request.getRequester().getName()))
                         .sendProposal(player, i);
             }
-                    FancyMessage.send(player);
+            FancyMessage.send(player);
             return true;
         }
         // Check if the argument can be parsed as an actual number.

@@ -50,7 +50,7 @@ public class WarpCommand extends AbstractWarpCommand {
             Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
             warp(warp, player);
         } else {
-            CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
         return true;
     }

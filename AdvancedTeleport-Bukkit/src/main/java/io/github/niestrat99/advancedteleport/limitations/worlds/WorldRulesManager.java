@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopOutOfRu
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopWithinRule;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;

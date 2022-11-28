@@ -69,6 +69,14 @@ public class ATPlayer {
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
+        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+            FloodgateApi api = FloodgateApi.getInstance();
+            if (api == null) {
+                CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
+                return;
+            }
+            if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
+        }
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> {
@@ -489,16 +497,15 @@ public class ATPlayer {
      * @param sender the command sender that triggered the event.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> removeHome(String name, CommandSender sender) {
+    public CompletableFuture<Void> removeHome(String name, CommandSender sender) {
         HomeDeleteEvent event = new HomeDeleteEvent(homes.get(name), sender);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
 
         homes.remove(event.getHome().getName());
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             HomeSQLManager.get().removeHome(uuid, event.getHome().getName(), callback);
-            return callback.data;
         });
     }
 
@@ -795,6 +802,7 @@ public class ATPlayer {
      */
     @NotNull
     public static ATPlayer getPlayer(@NotNull Player player) {
+        Objects.requireNonNull(player, "Player must not be null.");
         if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
         if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
             FloodgateApi api = FloodgateApi.getInstance();

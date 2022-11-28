@@ -25,7 +25,6 @@ public class TpCancel extends TeleportATCommand {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        if (sender instanceof Player) {
             Player player = (Player) sender;
             // Checks if any players have sent a request at all.
             if (!TeleportRequest.getRequestsByRequester(player).isEmpty()) {
@@ -104,9 +103,6 @@ public class TpCancel extends TeleportATCommand {
                 CustomMessages.sendMessage(sender, "Error.noRequests");
                 return true;
             }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-        }
         return true;
     }
 

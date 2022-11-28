@@ -27,7 +27,7 @@ public class TpaHere extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-       
+
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
@@ -62,7 +62,6 @@ public class TpaHere extends TeleportATCommand {
             int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
             CustomMessages.sendMessage(sender, "Info.requestSent",
                     "{player}", target.getName(), "{lifetime}", String.valueOf(requestLifetime));
-
             CoreClass.playSound("tpahere", "sent", player);
             ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
@@ -95,6 +94,7 @@ public class TpaHere extends TeleportATCommand {
             }
             return true;
         }
+
         return true;
     }
 

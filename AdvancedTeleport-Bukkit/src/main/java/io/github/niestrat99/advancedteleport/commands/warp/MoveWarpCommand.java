@@ -22,10 +22,6 @@ public class MoveWarpCommand extends AbstractWarpCommand {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        if (!sender.hasPermission("at.admin.movewarp")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
-            return true;
-        }
         Player player = (Player) sender;
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
@@ -44,7 +40,6 @@ public class MoveWarpCommand extends AbstractWarpCommand {
         } else {
             CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
-
         return true;
     }
 

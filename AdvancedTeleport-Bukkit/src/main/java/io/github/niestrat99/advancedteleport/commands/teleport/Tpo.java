@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.papermc.lib.PaperLib;
@@ -42,6 +41,9 @@ public class Tpo extends TeleportATCommand {
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
             CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
+        } else {
+            CustomMessages.sendMessage(sender, "Teleport.teleporting", "{player}", target.getName());
+            PaperLib.teleportAsync(player, target.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
         }
         return true;
     }

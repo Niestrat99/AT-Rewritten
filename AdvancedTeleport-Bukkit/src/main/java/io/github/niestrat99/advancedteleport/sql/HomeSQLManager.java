@@ -62,20 +62,30 @@ public class HomeSQLManager extends SQLManager {
         // Get the file itself.
         File file = new File(CoreClass.getInstance().getDataFolder(), "homes.yml");
         if (!file.exists()) return;
+
         // Load the config file.
         YamlConfiguration homes = YamlConfiguration.loadConfiguration(file);
+
         // For each player found...
         for (String player : homes.getKeys(false)) {
+
             // Get the config section representing their homes.
             ConfigurationSection homeSection = homes.getConfigurationSection(player);
             if (homeSection == null) continue;
+
             // For each home that appears...
             for (String home : homeSection.getKeys(false)) {
+
+                // Get the raw config section
                 ConfigurationSection homeRaw = homes.getConfigurationSection(player + "." + home);
                 if (homeRaw == null) continue;
+
+                // Get the world the home is in - but if it doesn't exist, ignore it
                 String world = homeRaw.getString("world");
                 if (world == null) continue;
                 if (Bukkit.getWorld(world) == null) continue;
+
+                // Add the home to the database
                 addHome(new Location(Bukkit.getWorld(world),
                         homeRaw.getDouble("x"),
                         homeRaw.getDouble("y"),
@@ -85,6 +95,7 @@ public class HomeSQLManager extends SQLManager {
             }
         }
 
+        // Create a backup file
         file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "homes-backup.yml"));
     }
 
@@ -160,24 +171,31 @@ public class HomeSQLManager extends SQLManager {
     }
 
     public void removeHome(UUID owner, String name, SQLCallback<Boolean> callback) {
+        // Create the connection
         try (Connection connection = implementConnection()) {
+
+            // Set up the SQL statement to remove the home
             PreparedStatement statement = prepareStatement(connection,
                     "DELETE FROM " + tablePrefix + "_homes WHERE uuid_owner = ? AND home = ?");
 
             statement.setString(1, owner.toString());
             statement.setString(2, name);
             executeUpdate(statement);
-            if (callback != null) {
-                callback.onSuccess(true);
-            }
+
+            // If everything went successfully, return true
+            if (callback != null) callback.onSuccess(true);
+
         } catch (SQLException exception) {
+            // If something went wrong through, add the failure to the data fail manager
             DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_HOME,
                     owner.toString(),
                     name);
-            exception.printStackTrace();
-            if (callback != null) {
-                callback.onFail();
-            }
+
+            // If there's a callback, indicate there was a fault
+            if (callback != null) callback.onFail();
+
+            // Throw an extra exception
+            throw new RuntimeException(exception);
         }
     }
 

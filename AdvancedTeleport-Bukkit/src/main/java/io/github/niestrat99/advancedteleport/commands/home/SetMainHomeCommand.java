@@ -17,7 +17,7 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
                              @NotNull String[] args) {
-        
+
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
@@ -46,19 +46,26 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
                             CustomMessages.sendMessage(sender, result ? "Info.setMainHomeOther" : "Error.setMainHomeFail",
                                     "{home}", homeName, "{player}", args[0]));
                 } else {
-                    atTarget.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
-                        if (!result) {
-                            CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
-                            return;
-                        }
-                        atTarget.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
-                                CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHomeOther" : "Error.setMainHomeFail",
-                                "{home}", homeName, "{player}", args[0]));
-                    });
+                    if (atPlayer.canSetMoreHomes()) {
+                        atTarget.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
+                            if (!result) {
+                                CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                                return;
+                            }
+                            atTarget.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
+                                    CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHomeOther" : "Error.setMainHomeFail",
+                                            "{home}", homeName, "{player}", args[0]));
+                        });
+                        return true;
+                    }
+                    atTarget.setMainHome(homeName, sender).thenAcceptAsync(result ->
+                            CustomMessages.sendMessage(sender, result ? "Info.setMainHomeOther" : "Error.setMainHomeFail",
+                                    "{home}", homeName, "{player}", args[0]));
                 }
                 return true;
             }
         }
+
         String homeName = args[0];
         if (atPlayer.hasHome(homeName)) {
             Home home = atPlayer.getHome(homeName);

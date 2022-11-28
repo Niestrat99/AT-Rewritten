@@ -100,6 +100,7 @@ public class CommandManager {
                 if (command.isRegistered()) {
                     removed = true;
                     command.unregister(map);
+
                 }
             }
         }

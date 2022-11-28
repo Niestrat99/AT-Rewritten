@@ -22,7 +22,7 @@ import java.util.List;
 public class SpawnCommand extends SpawnATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, 
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
@@ -56,6 +56,7 @@ public class SpawnCommand extends SpawnATCommand {
         if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
         }
+        
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn");
     }

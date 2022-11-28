@@ -98,10 +98,13 @@ public class TeleportTrackingManager implements Listener {
             ConfigSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
             String spawnCommand = deathManagement.getString(atPlayer.getPreviousLocation().getWorld().getName());
             if (spawnCommand == null) return;
+            if (spawnCommand.equals("{default}")) {
+                spawnCommand = deathManagement.getString("default");
+                if (spawnCommand == null) return;
+            }
             for (String command : spawnCommand.split(";")) {
                 if (handleSpawn(e, command)) break;
             }
-
         }
     }
 

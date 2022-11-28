@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.papermc.lib.PaperLib;
@@ -42,7 +41,7 @@ public class TpoHere extends TeleportATCommand {
         if (target == null) {
             CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
             return true;
-        } 
+        }
         CustomMessages.sendMessage(sender, "Teleport.teleportingPlayerToSelf", "{player}",
                 target.getName());
         CustomMessages.sendMessage(target, "Teleport.teleportingSelfToPlayer", "{player}",
