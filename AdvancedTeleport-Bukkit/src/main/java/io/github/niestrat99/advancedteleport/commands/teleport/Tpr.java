@@ -116,20 +116,16 @@ public class Tpr implements ATCommand {
             Location nextLoc = RTPManager.getLocationUrgently(world);
             if (nextLoc != null) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "",
-                        ATTeleportEvent.TeleportType.TPR);
-                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace",
-                        NewConfig.get().WARM_UPS.TPR.get());
+                ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
             } else {
                 CustomMessages.sendMessage(player, "Info.searching");
                 searchingPlayers.add(player.getUniqueId());
                 RTPManager.getNextAvailableLocation(world).thenAccept(location -> {
                     searchingPlayers.remove(player.getUniqueId());
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "",
-                            ATTeleportEvent.TeleportType.TPR);
-                    atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace",
-                            NewConfig.get().WARM_UPS.TPR.get());
+                    ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                    atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
                 });
             }
         } else {
@@ -139,10 +135,8 @@ public class Tpr implements ATCommand {
                     location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
                 searchingPlayers.remove(player.getUniqueId());
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "",
-                        ATTeleportEvent.TeleportType.TPR);
-                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace",
-                        NewConfig.get().WARM_UPS.TPR.get());
+                ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
             }));
         }
 
