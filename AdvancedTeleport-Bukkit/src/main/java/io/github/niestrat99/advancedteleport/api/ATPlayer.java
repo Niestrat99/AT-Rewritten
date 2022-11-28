@@ -21,6 +21,7 @@ import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 
 /**
  * A wrapper class used to represent a player. An ATPlayer stores information such as their homes, the players they
@@ -109,29 +111,31 @@ public class ATPlayer {
         return Bukkit.getOfflinePlayer(uuid);
     }
 
-    /**
-     * Internal use only.
-     */
-    public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp) {
+    @Deprecated
+    public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp)  {
+        teleport(event, command, teleportMsg);
+    }
+
+    public void teleport(ATTeleportEvent event, String command, String teleportMsg) {
         Player player = event.getPlayer();
-        if (event.isCancelled()) return;
-        if (!PaymentManager.getInstance().canPay(command, player)) return;
-        // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr),
-        // apply it now
-        String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
+        int warmUp = getWarmUp(command);
+        if (!event.isCancelled()) {
+            if (PaymentManager.getInstance().canPay(command, player)) {
+                // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
+                String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
 
-        if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
-            CooldownManager.addToCooldown(command, player);
-        }
+                if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+                    CooldownManager.addToCooldown(command, player);
+                }
 
-        if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-            MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp,
-                    "{home}", event.getLocName(), "{warp}", event.getLocName());
-        } else {
-            PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-            CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
-                    event.getLocName());
-            PaymentManager.getInstance().withdraw(command, player);
+                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+                    MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp, "{home}", event.getLocName(), "{warp}", event.getLocName());
+                } else {
+                    PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                    CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}", event.getLocName());
+                    PaymentManager.getInstance().withdraw(command, player);
+                }
+            }
         }
     }
 
@@ -645,6 +649,100 @@ public class ATPlayer {
             }
         }
         return maxHomes;
+    }
+
+    public int getCooldown(@NotNull String command) {
+        return getMin("at.member.cooldown", command, NewConfig.get().CUSTOM_COOLDOWNS.get(), NewConfig.get().COOLDOWNS.valueOf(command).get());
+    }
+
+    public int getWarmUp(@NotNull String command) {
+        return getMin("at.member.timer", command, NewConfig.get().CUSTOM_WARM_UPS.get(), NewConfig.get().WARM_UPS.valueOf(command).get());
+    }
+
+    public int getDistanceLimitation(@Nullable String command) {
+        return determineValue("at.member.distance", command, command == null ? NewConfig.get().MAXIMUM_TELEPORT_DISTANCE.get()
+                : NewConfig.get().DISTANCE_LIMITS.valueOf(command).get(), NewConfig.get().CUSTOM_DISTANCE_LIMITS.get(), Math::max);
+    }
+
+    private int getMin(String permission, String command, ConfigurationSection customSection, int defaultValue) {
+        return determineValue(permission, command, defaultValue, customSection, Math::min);
+    }
+
+    private int determineValue(String permission, String command, int defaultValue, ConfigurationSection customSection, BiFunction<Integer, Integer, Integer> consumer) {
+        List<String> cooldowns = new ArrayList<>();
+        // If the player is null
+        if (getPlayer() == null) return defaultValue;
+        // Get the custom section keys
+        for (String key : customSection.getKeys(false)) {
+            String value = customSection.getString(key);
+            String worldName = getPlayer().getWorld().getName().toLowerCase(Locale.ENGLISH);
+            if (!getPlayer().hasPermission(permission + "." + key)
+                    && !getPlayer().hasPermission(permission + "." + command + "." + key)
+                    && !getPlayer().hasPermission(permission + "." + worldName + "." + key)
+                    && !getPlayer().hasPermission(permission + "." + command + "." + worldName + "." + key)) continue;
+            // Make sure there's only one value
+            cooldowns.clear();
+            cooldowns.add(value);
+        }
+
+        if (cooldowns.isEmpty()) {
+            if (command == null) {
+                cooldowns = getDynamicPermission(permission);
+            } else {
+                cooldowns = getDynamicPermission(permission + "." + command);
+                if (cooldowns.isEmpty()) cooldowns = getDynamicPermission(permission);
+            }
+        } else {
+            return Integer.parseInt(cooldowns.get(0));
+        }
+
+
+        int min = defaultValue;
+        boolean changed = false;
+        for (String cooldown : cooldowns) {
+            if (!cooldown.matches("^[0-9]+$")) continue;
+            if (!changed) {
+                min = Integer.parseInt(cooldown);
+                changed = true;
+                continue;
+            }
+            min = consumer.apply(min, Integer.parseInt(cooldown));
+        }
+        return min;
+    }
+
+    private List<String> getDynamicPermission(String prefix) {
+        prefix = prefix.endsWith(".") ? prefix : prefix + ".";
+        // If the player is offline, return nothing
+        if (getPlayer() == null) return new ArrayList<>();
+        // Whether the limit is being overridden by a per-world homes limit
+        boolean worldSpecific = false;
+        // Track values - String is the value after the permissions
+        List<String> results = new ArrayList<>();
+        // Go through each permission
+        for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
+            // If the permission is granted, and it's the one we want
+            if (permission.getValue() && permission.getPermission().startsWith(prefix)) {
+                // Get the permission and all data following the base permission
+                String perm = permission.getPermission();
+                String endNode = perm.substring(prefix.length());
+                // If there's a world included
+                // If not, make sure there's no world limit overriding
+                if (endNode.lastIndexOf(".") != -1) {
+                    String[] data = endNode.split("\\.");
+                    // Make sure it's in the same world
+                    if (data[0].equals(getPlayer().getWorld().getName())) {
+                        if (!worldSpecific) results.clear();
+                        worldSpecific = true;
+                        results.add(data[1]);
+                    }
+                } else if (worldSpecific) {
+                    continue;
+                }
+                results.add(endNode);
+            }
+        }
+        return results;
     }
 
     /**

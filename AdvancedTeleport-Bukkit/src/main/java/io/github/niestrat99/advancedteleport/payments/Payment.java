@@ -8,6 +8,7 @@ public abstract class Payment {
     public abstract void setPaymentAmount(double amount);
     public abstract double getPlayerAmount(Player player);
     public abstract String getMessagePath();
+    public abstract String getId();
 
     public abstract void setPlayerAmount(Player player);
 

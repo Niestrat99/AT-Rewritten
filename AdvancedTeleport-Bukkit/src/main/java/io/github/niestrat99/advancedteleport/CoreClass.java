@@ -5,12 +5,12 @@ import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
 import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
+import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
 import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import io.papermc.lib.PaperLib;
-import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -38,7 +38,6 @@ public class CoreClass extends JavaPlugin {
         return ChatColor.translateAlternateColorCodes('&', title);
     }
 
-    private static Economy vault;
     public static WorldBorder worldBorder;
     private static CoreClass Instance;
     private static Permission perms = null;
@@ -52,24 +51,8 @@ public class CoreClass extends JavaPlugin {
         return Instance;
     }
 
-    public static Economy getVault() {
-        return vault;
-    }
-
     public static WorldBorder getWorldBorder() {
         return worldBorder;
-    }
-
-    private boolean setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
-        vault = rsp.getProvider();
-        return vault != null;
     }
 
     private boolean setupPermissions() {
@@ -87,7 +70,6 @@ public class CoreClass extends JavaPlugin {
         Instance = this;
         checkVersion();
         getLogger().info("Advanced Teleport is now enabling...");
-        setupEconomy();
         setupPermissions();
         for (Class<? extends ATConfig> config : Arrays.asList(NewConfig.class, CustomMessages.class, Spawn.class, GUI.class)) {
             try {

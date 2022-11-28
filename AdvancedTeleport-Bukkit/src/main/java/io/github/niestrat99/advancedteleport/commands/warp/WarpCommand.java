@@ -67,10 +67,8 @@ public class WarpCommand extends AbstractWarpCommand {
             CustomMessages.sendMessage(player, "Error.noPermissionWarp", "{warp}", warp.getName());
             return;
         }
-        ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(),
-                ATTeleportEvent.TeleportType.WARP);
-        ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp",
-                NewConfig.get().WARM_UPS.WARP.get());
+        ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);
+        ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp");
     }
 
     @Override
