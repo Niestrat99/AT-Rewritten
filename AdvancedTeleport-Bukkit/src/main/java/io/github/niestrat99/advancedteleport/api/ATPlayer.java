@@ -22,6 +22,7 @@ import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 
 /**
  * A wrapper class used to represent a player. An ATPlayer stores information such as their homes, the players they
@@ -39,7 +41,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ATPlayer {
 
-    private UUID uuid;
+    protected UUID uuid;
     @NotNull
     private LinkedHashMap<String, Home> homes;
     @NotNull
@@ -68,7 +70,7 @@ public class ATPlayer {
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
-        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
             FloodgateApi api = FloodgateApi.getInstance();
             if (api == null) {
                 CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
@@ -118,21 +120,25 @@ public class ATPlayer {
         return Bukkit.getOfflinePlayer(uuid);
     }
 
-    /**
-     * Internal use only.
-     */
-    public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp) {
+    @Deprecated
+    public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp)  {
+        teleport(event, command, teleportMsg);
+    }
+
+    public void teleport(ATTeleportEvent event, String command, String teleportMsg) {
         Player player = event.getPlayer();
+        int warmUp = getWarmUp(command);
         if (event.isCancelled()) return;
         if (!PaymentManager.getInstance().canPay(command, player)) return;
-        // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr),
-        // apply it now
+                
+        // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
         String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
 
         if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
             CooldownManager.addToCooldown(command, player);
         }
-
+        
+        // If there's a movement timer, apply it - otherwise, teleport them immediately
         if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
             MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp,
                     "{home}", event.getLocName(), "{warp}", event.getLocName());
@@ -363,8 +369,8 @@ public class ATPlayer {
      */
     @Deprecated
     public void addHome(@NotNull String name, @NotNull Location location, SQLManager.SQLCallback<Boolean> callback) {
-        addHome(name, location, getPlayer());
-        callback.onSuccess(true);
+        addHome(name, location, getPlayer(), true);
+        if (callback != null) callback.onSuccess(true);
     }
 
     /**
@@ -375,7 +381,7 @@ public class ATPlayer {
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Boolean> addHome(String name, Location location) {
-        return addHome(name, location, (Player) null);
+        return addHome(name, location, getPlayer(), true);
     }
 
     /**
@@ -387,6 +393,19 @@ public class ATPlayer {
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Boolean> addHome(String name, Location location, Player creator) {
+        return addHome(name, location, creator, true);
+    }
+
+    /**
+     * Adds a home to the player's home list.
+     *
+     * @param name the name of the home.
+     * @param location the location of the home.
+     * @param creator the player who created the home.
+     * @param async true if the home is to be added asynchronously, false if not.
+     * @return a completable future of whether the action failed or succeeded.
+     */
+    public CompletableFuture<Boolean> addHome(String name, Location location, Player creator, boolean async) {
         if (hasHome(name)) {
             return moveHome(name, location);
         }
@@ -400,7 +419,7 @@ public class ATPlayer {
 
         return CompletableFuture.supplyAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            HomeSQLManager.get().addHome(location, uuid, name, callback);
+            HomeSQLManager.get().addHome(location, uuid, name, callback, async);
             return callback.data;
         });
     }
@@ -415,8 +434,14 @@ public class ATPlayer {
      */
     @Deprecated
     public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
+        moveHome(name, newLocation, callback, true);
+    }
+
+    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback, boolean async) {
+        homes.get(name).move(newLocation);
+        HomeSQLManager.get().moveHome(newLocation, uuid, name, callback, async);
         moveHome(name, newLocation);
-        callback.onSuccess(true);
+        if (callback != null) callback.onSuccess(true);
     }
 
     /**
@@ -476,16 +501,15 @@ public class ATPlayer {
      * @param sender the command sender that triggered the event.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> removeHome(String name, CommandSender sender) {
+    public CompletableFuture<Void> removeHome(String name, CommandSender sender) {
         HomeDeleteEvent event = new HomeDeleteEvent(homes.get(name), sender);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
 
         homes.remove(event.getHome().getName());
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             HomeSQLManager.get().removeHome(uuid, event.getHome().getName(), callback);
-            return callback.data;
         });
     }
 
@@ -639,6 +663,100 @@ public class ATPlayer {
         return maxHomes;
     }
 
+    public int getCooldown(@NotNull String command) {
+        return getMin("at.member.cooldown", command, NewConfig.get().CUSTOM_COOLDOWNS.get(), NewConfig.get().COOLDOWNS.valueOf(command).get());
+    }
+
+    public int getWarmUp(@NotNull String command) {
+        return getMin("at.member.timer", command, NewConfig.get().CUSTOM_WARM_UPS.get(), NewConfig.get().WARM_UPS.valueOf(command).get());
+    }
+
+    public int getDistanceLimitation(@Nullable String command) {
+        return determineValue("at.member.distance", command, command == null ? NewConfig.get().MAXIMUM_TELEPORT_DISTANCE.get()
+                : NewConfig.get().DISTANCE_LIMITS.valueOf(command).get(), NewConfig.get().CUSTOM_DISTANCE_LIMITS.get(), Math::max);
+    }
+
+    private int getMin(String permission, String command, ConfigurationSection customSection, int defaultValue) {
+        return determineValue(permission, command, defaultValue, customSection, Math::min);
+    }
+
+    private int determineValue(String permission, String command, int defaultValue, ConfigurationSection customSection, BiFunction<Integer, Integer, Integer> consumer) {
+        List<String> cooldowns = new ArrayList<>();
+        // If the player is null
+        if (getPlayer() == null) return defaultValue;
+        // Get the custom section keys
+        for (String key : customSection.getKeys(false)) {
+            String value = customSection.getString(key);
+            String worldName = getPlayer().getWorld().getName().toLowerCase(Locale.ENGLISH);
+            if (!getPlayer().hasPermission(permission + "." + key)
+                    && !getPlayer().hasPermission(permission + "." + command + "." + key)
+                    && !getPlayer().hasPermission(permission + "." + worldName + "." + key)
+                    && !getPlayer().hasPermission(permission + "." + command + "." + worldName + "." + key)) continue;
+            // Make sure there's only one value
+            cooldowns.clear();
+            cooldowns.add(value);
+        }
+
+        if (cooldowns.isEmpty()) {
+            if (command == null) {
+                cooldowns = getDynamicPermission(permission);
+            } else {
+                cooldowns = getDynamicPermission(permission + "." + command);
+                if (cooldowns.isEmpty()) cooldowns = getDynamicPermission(permission);
+            }
+        } else {
+            return Integer.parseInt(cooldowns.get(0));
+        }
+
+
+        int min = defaultValue;
+        boolean changed = false;
+        for (String cooldown : cooldowns) {
+            if (!cooldown.matches("^[0-9]+$")) continue;
+            if (!changed) {
+                min = Integer.parseInt(cooldown);
+                changed = true;
+                continue;
+            }
+            min = consumer.apply(min, Integer.parseInt(cooldown));
+        }
+        return min;
+    }
+
+    private List<String> getDynamicPermission(String prefix) {
+        prefix = prefix.endsWith(".") ? prefix : prefix + ".";
+        // If the player is offline, return nothing
+        if (getPlayer() == null) return new ArrayList<>();
+        // Whether the limit is being overridden by a per-world homes limit
+        boolean worldSpecific = false;
+        // Track values - String is the value after the permissions
+        List<String> results = new ArrayList<>();
+        // Go through each permission
+        for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
+            // If the permission is granted, and it's the one we want
+            if (permission.getValue() && permission.getPermission().startsWith(prefix)) {
+                // Get the permission and all data following the base permission
+                String perm = permission.getPermission();
+                String endNode = perm.substring(prefix.length());
+                // If there's a world included
+                // If not, make sure there's no world limit overriding
+                if (endNode.lastIndexOf(".") != -1) {
+                    String[] data = endNode.split("\\.");
+                    // Make sure it's in the same world
+                    if (data[0].equals(getPlayer().getWorld().getName())) {
+                        if (!worldSpecific) results.clear();
+                        worldSpecific = true;
+                        results.add(data[1]);
+                    }
+                } else if (worldSpecific) {
+                    continue;
+                }
+                results.add(endNode);
+            }
+        }
+        return results;
+    }
+
     /**
      * Whether the player can access a specified home or not. A player may lose home access if
      * `deny-homes-if-over-limit`
@@ -689,8 +807,16 @@ public class ATPlayer {
     @NotNull
     public static ATPlayer getPlayer(@NotNull Player player) {
         Objects.requireNonNull(player, "Player must not be null.");
-        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) :
-                new ATPlayer(player);
+        if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
+        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+            FloodgateApi api = FloodgateApi.getInstance();
+            if (api == null) {
+                CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
+                return new ATPlayer(player);
+            }
+            if (api.isFloodgateId(player.getUniqueId())) return new ATFloodgatePlayer(player);
+        }
+        return new ATPlayer(player);
     }
 
     /**

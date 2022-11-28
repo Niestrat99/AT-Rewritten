@@ -1,8 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,25 +18,28 @@ public class MoveWarpCommand extends AbstractWarpCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            Location warpLoc = player.getLocation();
-            if (args.length > 0) {
-                Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
-                if (warp != null) {
-                    warp.setLocation(warpLoc, sender).thenAcceptAsync(result ->
-                            CustomMessages.sendMessage(sender, "Info.movedWarp", "{warp}", args[0]));
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.noSuchWarp");
-                }
-
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        Player player = (Player) sender;
+        if (args.length == 0) {
+            ATPlayer atPlayer = ATPlayer.getPlayer(player);
+            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendMoveWarpForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");
             }
-        } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
         }
-
+        Location warpLoc = player.getLocation();
+        Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
+        if (warp != null) {
+            warp.setLocation(warpLoc, sender).thenAcceptAsync(result ->
+                    CustomMessages.sendMessage(sender, "Info.movedWarp", "{warp}", args[0]));
+        } else {
+            CustomMessages.sendMessage(sender, "Error.noSuchWarp");
+        }
         return true;
     }
 

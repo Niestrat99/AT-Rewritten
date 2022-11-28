@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.api.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
@@ -31,6 +32,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
     public PerCommandOption<Integer> WARM_UPS;
+    public ConfigOption<ConfigurationSection> CUSTOM_WARM_UPS;
 
     public ConfigOption<Boolean> BLINDNESS_ON_WARMUP;
 
@@ -39,9 +41,11 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS;
     public ConfigOption<String> APPLY_COOLDOWN_AFTER;
     public PerCommandOption<Integer> COOLDOWNS;
+    public ConfigOption<ConfigurationSection> CUSTOM_COOLDOWNS;
 
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
+    public ConfigOption<ConfigurationSection> CUSTOM_COSTS;
 
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
@@ -62,6 +66,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS;
     public PerCommandOption<Integer> DISTANCE_LIMITS;
+    public ConfigOption<ConfigurationSection> CUSTOM_DISTANCE_LIMITS;
 
     public ConfigOption<Boolean> ENABLE_TELEPORT_LIMITATIONS;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS_LIMITS;
@@ -101,6 +106,10 @@ public class NewConfig extends ATConfig {
     public ConfigOption<List<String>> BACK_TELEPORT_CAUSES;
     public ConfigOption<Integer> BACK_SEARCH_RADIUS;
 
+    public MapOptions MAP_HOMES;
+    public MapOptions MAP_WARPS;
+    public MapOptions MAP_SPAWNS;
+
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
@@ -113,6 +122,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> CHECK_FOR_UPDATES;
     public ConfigOption<Boolean> NOTIFY_ADMINS;
     public ConfigOption<Boolean> DEBUG;
+    public ConfigOption<Boolean> USE_FLOODGATE_FORMS;
 
     private static NewConfig instance;
     private static List<String> defaults;
@@ -155,9 +165,10 @@ public class NewConfig extends ATConfig {
         addDefault("disabled-commands", new ArrayList<>(), "The commands that AT should not register upon starting up" +
                 ".\n" +
                 "In other words, this gives up the command for other plugins to use.\n" +
-                "NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, " +
-                "Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for " +
-                "anything to change.");
+                "NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for anything to change.\n" +
+                "To use this section, use the following format:\n" +
+                "disabled-commands:\n" +
+                "- back");
 
         addSection("Teleport Requesting");
         addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
@@ -190,6 +201,16 @@ public class NewConfig extends ATConfig {
         addDefault("per-command-warm-ups.spawn", "default", "Warm-up timer for /spawn");
         addDefault("per-command-warm-ups.home", "default", "Warm-up timer for /home");
         addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
+        makeSectionLenient("custom-warm-ups");
+        addComment("Use this section to create custom warm-ups per-group.\n" +
+                "Use the following format:\n" +
+                "custom-warm-ups:\n" +
+                "  vip-warm-up: 3\n" +
+                "Giving a group, such as VIP, the permission at.member.timer.vip-warm-up will have a warm-up of 3.\n" +
+                "The key (vip-warm-up) and group name (VIP) do not have to be different, this is just an example.\n" +
+                "You can also add at.member.timer.3, but this is more efficient if you find permissions lag." +
+                "To make it per-command, use at.member.timer.<command>.vip-warm-up. To make it per-world, use at.member.timer.<world>.vip-warm-up.\n" +
+                "To combine the two, you can use at.member.timer.<command>.<world>.vip-warm-up.");
 
         addDefault("blindness-on-warmup", false, "Gives the teleporting player a blindness effect whilst waiting to " +
                 "teleport.");
@@ -228,9 +249,21 @@ public class NewConfig extends ATConfig {
         addDefault("per-command-cooldowns.back", "default", "Cooldown for /back");
         // addDefault("per-command-cooldowns.sethome", "default", "Cooldown for /sethome");
         // addDefault("per-command-cooldowns.setwarp", "default", "Cooldown for /setwarp");
+        makeSectionLenient("custom-cooldowns");
+        addComment("custom-cooldowns", "Use this section to create custom cooldowns per-group.\n" +
+                "Use the following format:\n" +
+                "custom-cooldowns:\n" +
+                "  vip-cooldown: 3\n" +
+                "Giving a group, such as VIP, the permission at.member.cooldown.vip-cooldown will have a cooldown of 3.\n" +
+                "The key (vip-cooldown) and group name (VIP) do not have to be different, this is just an example.\n" +
+                "You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag." +
+                "To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldren.\n" +
+                "To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.");
 
         addDefault("cost-amount", 100.0, "Teleportation Costs", "The amount it costs to teleport somewhere." +
                 "\nIf you want to use Vault Economy, use 100.0 to charge $100." +
+                "\nIf you have multiple plugins hooking into Vault, enter the plugin name in front separated by a colon, e.g. Essentials:100.50" +
+                "\nDo note some plugins require Vault support to be toggled on manually." +
                 "\nIf you want to use Minecraft EXP points, use 10EXP for 10 EXP Points." +
                 "\nIf you want to use Minecraft EXP levels, use 5LVL for 5 levels." +
                 "\nIf you want to use items, use the format MATERIAL:AMOUNT or MATERIAL:AMOUNT:BYTE." +
@@ -250,6 +283,13 @@ public class NewConfig extends ATConfig {
         addDefault("per-command-cost.back", "default", "Cost for /back");
         //addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
         //addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
+        makeSectionLenient("custom-cost");
+        addComment("custom-cost", "Use this section to create custom costs per-group.\n" +
+                "Use the following format:\n" +
+                "custom-cost:\n" +
+                "  vip-cost: Essentials:100\n" +
+                "Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.\n" +
+                "To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.");
 
         addDefault("use-particles", true, "Particles", "Whether particles should be used in the plugin.\n" +
                 "Some standalone implementation is used, but otherwise, PlayerParticles is used.");
@@ -484,6 +524,30 @@ public class NewConfig extends ATConfig {
                 "of O(n^3) (e.g. run 27 times, 64, 125, 216 and so on).\n" +
                 "To disable, either set to 0 or -1.");
 
+        addSection("Map Plugin Integration");
+        addComment("At this time, AdvancedTeleport supports dynmap and squaremap.\n" +
+                "If you are using dynmap, the plugin has extra icons you can use as placeholders.");
+        // Map options
+        for (String type : Arrays.asList("homes", "warps", "spawns")) {
+            // home, warp, spawn
+            String singular = type.substring(0, type.length() - 1);
+            // Homes, Warps, Spawns
+            String capitalised = type.toUpperCase().charAt(0) + type.toLowerCase().substring(1);
+            addComment(type, "Covers map options for " + type + ".");
+            addDefault(type + ".enabled", !type.equals("homes"), "Whether the icons for " + type + " will be added at all.");
+            addDefault(type + ".default-icon", singular + "-default", "The default icon for " + type + " in the map.");
+            addDefault(type + ".shown-by-default", true, "Whether the player viewing the map has to explicitly enable the layer to view " + type + " on the map.");
+            addDefault(type + ".hover-tooltip", "{name}", "The tooltip that will appear when someone hovers over the icon in the map." +
+                    "\nFor Dynmap, this supports HTML formatting.");
+            addDefault(type + ".click-tooltip", "{name}", "Squaremap only - the tooltip that will appear when someone clicks on the icon.");
+            addDefault(type + ".icon-size", "32", "The scale of the icon on the map.\n" +
+                    "With Dynmap, only 8, 16 and 32 are supported. With Squaremap, 2147483647 is your limit. But don't try it.");
+            addDefault(type + ".layer-name", capitalised, "The layer display name that appears on the map.");
+        }
+        addDefault("add-spawns", true, "Whether to make spawnpoints visible for everyone on the map.");
+        addDefault("add-warps", true, "Whether to make warps visible for everyone on the map.");
+        addDefault("add-homes", false, "Whether to make all homes visible for everyone on the map.");
+        addDefault("default-icon-size", 40, "The default icon size for AT's icons on the map.");
 
         addDefault("teleport-to-spawn-on-first-join", true, "Spawn Management",
                 "Whether the player should be teleported to the spawnpoint when they join for the first time.");
@@ -531,6 +595,9 @@ public class NewConfig extends ATConfig {
         addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
                 "Anyone with the permission at.admin.notify will receive this notification.");
         addDefault("debug", false, "Used for debugging purposes.");
+        addDefault("use-floodgate-forms", true, "Whether to use Cumulus forms for Bedrock players.\n" +
+                "These work by having a Bedrock player type in the command itself (such as /warp, /tpa, /setwarp), then fill in the rest of the commands through a form.\n" +
+                "This only works when Geyser and Floodgate are used on the server. This improves accessibility for mobile or console players.");
 
     }
 
@@ -665,12 +732,14 @@ public class NewConfig extends ATConfig {
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
         WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
+        CUSTOM_WARM_UPS = new ConfigOption<>("custom-warm-ups");
 
         BLINDNESS_ON_WARMUP = new ConfigOption<>("blindness-on-warmup");
 
         COOLDOWN_TIMER_DURATION = new ConfigOption<>("cooldown-duration");
         ADD_COOLDOWN_DURATION_TO_WARM_UP = new ConfigOption<>("add-cooldown-duration-to-warm-up");
         APPLY_COOLDOWN_TO_ALL_COMMANDS = new ConfigOption<>("apply-cooldown-to-all-commands");
+        CUSTOM_COOLDOWNS = new ConfigOption<>("custom-cooldowns");
 
         APPLY_COOLDOWN_AFTER = new ConfigOption<>("apply-cooldown-after");
         switch (APPLY_COOLDOWN_AFTER.get().toLowerCase()) {
@@ -687,6 +756,7 @@ public class NewConfig extends ATConfig {
 
         COST_AMOUNT = new ConfigOption<>("cost-amount");
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
+        CUSTOM_COSTS = new ConfigOption<>("custom-costs");
 
         USE_PARTICLES = new ConfigOption<>("use-particles");
         WAITING_PARTICLES = new PerCommandOption<>("waiting-particles", "default-waiting-particles");
@@ -745,6 +815,10 @@ public class NewConfig extends ATConfig {
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
 
+        MAP_HOMES = new MapOptions("homes");
+        MAP_SPAWNS = new MapOptions("spawns");
+        MAP_WARPS = new MapOptions("warps");
+
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
@@ -757,6 +831,7 @@ public class NewConfig extends ATConfig {
         CHECK_FOR_UPDATES = new ConfigOption<>("check-for-updates");
         NOTIFY_ADMINS = new ConfigOption<>("notify-admins-on-update");
         DEBUG = new ConfigOption<>("debug");
+        USE_FLOODGATE_FORMS = new ConfigOption<>("use-floodgate-forms");
 
         new PaymentManager();
         LimitationsManager.init();
@@ -884,6 +959,60 @@ public class NewConfig extends ATConfig {
 
         public ConfigOption<T>[] values() {
             return (ConfigOption<T>[]) new ConfigOption[]{TPA, TPAHERE, TPR, WARP, SPAWN, HOME, BACK};
+        }
+    }
+
+    public static class MapOptions {
+        private final String section;
+        private final boolean enabled;
+        private final String defaultIcon;
+        private final boolean shownByDefault;
+        private final String hoverTooltip;
+        private final String clickTooltip;
+        private final int iconSize;
+        private final String layerName;
+
+        public MapOptions(String section) {
+            this.section = section;
+            this.enabled = get().getBoolean(section + ".enabled");
+            this.defaultIcon = get().getString(section + ".default-icon");
+            this.shownByDefault = get().getBoolean(section + ".shown-by-default");
+            this.hoverTooltip = get().getString(section + ".hover-tooltip");
+            this.clickTooltip = get().getString(section + ".click-tooltip");
+            this.iconSize = get().getInteger(section + ".icon-size");
+            this.layerName = get().getString(section + ".layer-name");
+        }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public boolean isShownByDefault() {
+            return shownByDefault;
+        }
+
+        public int getIconSize() {
+            return iconSize;
+        }
+
+        public String getClickTooltip() {
+            return clickTooltip;
+        }
+
+        public String getDefaultIcon() {
+            return defaultIcon;
+        }
+
+        public String getHoverTooltip() {
+            return hoverTooltip;
+        }
+
+        public String getLayerName() {
+            return layerName;
+        }
+
+        public String getSection() {
+            return section;
         }
     }
 }

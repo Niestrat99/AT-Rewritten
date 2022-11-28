@@ -97,12 +97,26 @@ public class Spawn extends ATConfig {
         }
     }
 
+    public Location getSpawn(Player player) {
+        String worldName = player.getWorld().getName();
+        // Would do less looping
+        for (String spawn : getSpawns()) {
+            // Weird annoying bug >:(
+            if (player.hasPermission("at.member.spawn." + spawn)
+                    && player.isPermissionSet("at.member.spawn." + spawn)) {
+                worldName = spawn;
+            }
+        }
+        return getSpawn(worldName);
+    }
+
     public Location getSpawn(String name) {
         return getSpawn(name, null, false);
     }
 
     public Location getSpawn(String name, Player player, boolean bypassPermission) {
         // if (get("spawns." + name) == null) return getProperMainSpawn();
+        if (get("spawns." + name) == null) return getProperMainSpawn();
         ConfigSection spawns = getConfigSection("spawns");
         ConfigSection toSection = spawns.getConfigSection(name);
         while (true) {
@@ -116,6 +130,7 @@ public class Spawn extends ATConfig {
                         && toSection.contains("yaw")
                         && toSection.contains("pitch")
                         && toSection.contains("world");
+
                 boolean hasMirror = priorName != null && !priorName.isEmpty() && !priorName.equals(name);
                 if (hasCoords) {
                     if (hasMirror && (requiresPermission
@@ -149,16 +164,14 @@ public class Spawn extends ATConfig {
         return mainSpawn;
     }
 
-    public String setMainSpawn(String id, Location location) {
+    public void setMainSpawn(String id, Location location) {
         mainSpawn = location;
         set("main-spawn", id);
         try {
             save();
         } catch (IOException e) {
-            CoreClass.getInstance().getLogger().severe("Failed to set main spawnpoint " + id + ": " + e.getMessage());
-            return "Error.setMainSpawnFail";
+            throw new RuntimeException("Failed to set main spawnpoint " + id + ": " + e.getMessage());
         }
-        return "Info.setMainSpawn";
     }
 
     public String getMainSpawn() {

@@ -78,7 +78,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Error.notEnoughEXPPoints", "&b↑ &8» &7You do not have enough EXP Points to teleport there!" +
                 "\n&b↑ &8» &7You need at least &b{points} &7EXP points!");
         addDefault("Error.notEnoughMoney", "&b↑ &8» &7You do not have enough money to teleport there!" +
-                "\n&b↑ &8» &7You need at least &b${amount}&7!");
+                "\n&b↑ &8» &7You need at least &b{amount}&7!");
         addDefault("Error.requestExpired", "&b↑ &8» &7Your teleport request to &b{player} &7has expired!");
         addDefault("Error.noPlayerInput", "&b↑ &8» &7You must include a player name!");
         addDefault("Error.blockSelf", "&b↑ &8» &7You can't block yourself!");
@@ -196,7 +196,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Info.homesOther", "&b&l{player}'s homes &8» &r");
         addDefault("Info.requestAccepted", "&b↑ &8» &7You've accepted the teleport request!");
         addDefault("Info.requestAcceptedResponder", "&b↑ &8» &b{player} &7has accepted the teleport request!");
-        addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b${amount} &7and now have &b${balance}&7!");
+        addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b{amount} &7and now have &b{balance}&7!");
         addDefault("Info.paymentEXP", "&b↑ &8» &7You have paid &b{amount} EXP Levels &7and now have &b{levels} &7levels!");
         addDefault("Info.paymentPoints", "&b↑ &8» &7You have paid &b{amount} EXP Points &7and now have &b{points} &7points!");
         addDefault("Info.createdWarpSign", "&b↑ &8» &7Successfully created the warp sign!");
@@ -333,9 +333,31 @@ public class CustomMessages extends ATConfig {
         addDefault("Usages-Admin.setmainhome", "/setmainhome <Home>|<Player> <Home>");
         addDefault("Usages-Admin.spawn", "/spawn <ID>");
 
+        addFormsDefault("tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");
+        addFormsDefault("tpa", "TPA Request", "Select a player to send a TPA request to.");
+        addFormsDefault("tpa-received", "TPA Request", "The player {player} wants to teleport to you!");
+        addDefault("Forms.tpa-received-accept", "Accept");
+        addDefault("Forms.tpa-received-deny", "Deny");
+        addFormsDefault("tpahere-received", "TPAHere Request", "The player {player} wants you to teleport to them!");
+        addDefault("Forms.tpahere-received-accept", "Accept");
+        addDefault("Forms.tpahere-received-deny", "Deny");
+        addFormsDefault("home", "Homes", "Select a home to teleport to.");
+        addFormsDefault("sethome", "Set Home", "Enter a home name.");
+        addFormsDefault("delhome", "Delete Home", "Select the home to delete.");
+        addFormsDefault("setmainhome", "Set Main Home", "Enter an existing home name or a new one.");
+        addFormsDefault("movehome", "Move Home", "Choose the home to be moved.");
+        addFormsDefault("warp", "Warps", "Select a warp to teleport to.");
+        addFormsDefault("delwarp", "Delete Warp", "Select a warp to delete.");
+        addFormsDefault("setwarp", "Set Warp", "Enter a warp name.");
+        addFormsDefault("movewarp", "Move Warp", "Select a warp to move.");
+        addFormsDefault("tpblock", "Block Player", "Select a player to block.");
+        addFormsDefault("tpunblock", "Unblock Player", "Select a player to unblock.");
+        addFormsDefault("tpcancel", "Cancel TP Request", "Select a request to cancel.");
+        addFormsDefault("tpo", "Teleport", "Select a player to teleport to.");
+        addFormsDefault("tpohere", "Teleport Here", "Select a player to teleport to your location.");
     }
 
-    public static String getStringA(String path) {
+    public static String getStringRaw(String path) {
         return translateString(config.getString(path));
     }
 
@@ -523,5 +545,11 @@ public class CustomMessages extends ATConfig {
         builder.text(str.substring(lastMarkdownPointer));
 
         return builder;
+    }
+
+    private void addFormsDefault(String command, String title, String description) {
+        addDefault("Forms." + command + "-title", title);
+        addDefault("Forms." + command + "-description", description);
+
     }
 }

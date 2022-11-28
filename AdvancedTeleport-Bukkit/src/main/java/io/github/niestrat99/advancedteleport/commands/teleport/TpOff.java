@@ -1,10 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -23,8 +21,8 @@ public class TpOff extends TeleportATCommand {
         Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (atPlayer.isTeleportationEnabled()) {
-            atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
-
+            atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(callback ->
+                    CustomMessages.sendMessage(sender, "Info.tpOff"));
         } else {
             CustomMessages.sendMessage(sender, "Error.alreadyOff");
         }

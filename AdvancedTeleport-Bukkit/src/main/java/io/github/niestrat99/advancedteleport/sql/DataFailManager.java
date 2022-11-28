@@ -1,9 +1,11 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 
 import java.io.*;
@@ -95,7 +97,14 @@ public class DataFailManager {
                         fail.data[6], callback);
                 break;
             case ADD_PLAYER:
-                PlayerSQLManager.get().addPlayer(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])), callback);
+                // TODO - apply this where necessary for other checks that require a UUID check.
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0]));
+                if (offlinePlayer.getName() == null) {
+                    CoreClass.getInstance().getLogger().warning("Null name for " + fail.data[0] + ". Won't proceed with this.");
+                    pendingFails.remove(fail);
+                    return;
+                }
+                PlayerSQLManager.get().addPlayer(offlinePlayer, callback);
                 break;
             case UPDATE_PLAYER:
                 PlayerSQLManager.get().updatePlayerInformation(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])), callback);
@@ -114,8 +123,8 @@ public class DataFailManager {
                 break;
             case ADD_WARP:
                 Warp warp;
-                if (Warp.getWarps().get(fail.data[6]) != null) {
-                    warp = Warp.getWarps().get(fail.data[6]);
+                if (AdvancedTeleportAPI.getWarps().get(fail.data[6]) != null) {
+                    warp = AdvancedTeleportAPI.getWarps().get(fail.data[6]);
                 } else {
                     warp = new Warp(UUID.fromString(fail.data[7]), fail.data[6], locFromStrings(fail.data), Long.parseLong(fail.data[8]), Long.parseLong(fail.data[9]));
                 }

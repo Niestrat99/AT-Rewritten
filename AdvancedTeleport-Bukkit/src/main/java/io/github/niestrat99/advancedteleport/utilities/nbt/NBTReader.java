@@ -8,7 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 public class NBTReader {
@@ -48,7 +49,7 @@ public class NBTReader {
         File dataFile = getPlayerFile(uuid);
 
         if (dataFile == null) return null;
-        CompoundBinaryTag tag = BinaryTagIO.reader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
+        CompoundBinaryTag tag = BinaryTagIO.unlimitedReader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
         ListBinaryTag posTag = tag.getList("Pos");
         ListBinaryTag rotTag = tag.getList("Rotation");
         long worldUUIDMost = tag.getLong("WorldUUIDMost");
@@ -88,7 +89,7 @@ public class NBTReader {
         File dataFile = getPlayerFile(uuid);
 
         if (dataFile == null) return;
-        CompoundBinaryTag rawTag = BinaryTagIO.reader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
+        CompoundBinaryTag rawTag = BinaryTagIO.unlimitedReader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
         CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder().put(rawTag);
 
         ListBinaryTag.Builder<BinaryTag> posTag = ListBinaryTag.builder();

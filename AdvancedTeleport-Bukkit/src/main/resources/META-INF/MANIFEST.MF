@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Main-Class: 
+Class-Path: paperlib-1.0.4.jar examination-string-1.3.0.jar Configuratio
+ nMaster-API-v2.0.0-BETA-3.jar adventure-nbt-4.10.1.jar examination-api-
+ 1.3.0.jar annotations-13.0.jar
+

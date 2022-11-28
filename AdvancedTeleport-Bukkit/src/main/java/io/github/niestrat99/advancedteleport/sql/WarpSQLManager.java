@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,6 +14,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -76,7 +79,9 @@ public class WarpSQLManager extends SQLManager {
                     warpSection.getDouble("z"),
                     (float) warpSection.getDouble("yaw"),
                     (float) warpSection.getDouble("pitch"));
-            addWarp(new Warp(null, warp, location, -1, -1), null);
+            Warp warpObj = new Warp(null, warp, location, -1, -1);
+            addWarp(warpObj, null);
+            Warp.registerWarp(warpObj);
         }
 
         file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "warps-backup.yml"));
@@ -191,7 +196,7 @@ public class WarpSQLManager extends SQLManager {
                 if (world == null) continue;
                 // Create the warp object and it'll register itself.
                 String creator = results.getString("uuid_creator");
-                new Warp(creator == null ? null : UUID.fromString(creator),
+                Warp.registerWarp(new Warp(creator == null ? null : UUID.fromString(creator),
                         results.getString("warp"),
                         new Location(world,
                                 results.getDouble("x"),
@@ -200,7 +205,7 @@ public class WarpSQLManager extends SQLManager {
                                 results.getFloat("yaw"),
                                 results.getFloat("pitch")),
                         results.getLong("timestamp_created"),
-                        results.getLong("timestamp_updated"));
+                        results.getLong("timestamp_updated")));
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -224,6 +229,21 @@ public class WarpSQLManager extends SQLManager {
         }, CoreClass.async);
     }
 
+    public int getWarpIdSync(String name) {
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection,
+                    "SELECT id FROM " + tablePrefix + "_warps WHERE warp = ?;");
+            statement.setString(1, name);
+            ResultSet set = executeQuery(statement);
+            if (set.next()) {
+                return set.getInt("id");
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return -1;
+    }
+
     public void purgeWarps(String worldName, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
@@ -232,7 +252,7 @@ public class WarpSQLManager extends SQLManager {
 
                 ResultSet set = statement.executeQuery();
                 while (set.next()) {
-                    Warp.getWarps().remove(set.getString("warp"));
+                    AdvancedTeleportAPI.getWarps().remove(set.getString("warp"));
                 }
                 set.close();
 
@@ -256,7 +276,7 @@ public class WarpSQLManager extends SQLManager {
 
                 ResultSet set = statement.executeQuery();
                 while (set.next()) {
-                    Warp.getWarps().remove(set.getString("warp"));
+                    AdvancedTeleportAPI.getWarps().remove(set.getString("warp"));
                 }
                 set.close();
 
@@ -274,5 +294,36 @@ public class WarpSQLManager extends SQLManager {
 
     public static WarpSQLManager get() {
         return instance;
+    }
+
+    public CompletableFuture<List<Warp>> getWarpsBulk() {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
+                ResultSet results = executeQuery(statement);
+                List<Warp> warps = new ArrayList<>();
+                // For each warp...
+                while (results.next()) {
+                    // Get the world.
+                    World world = Bukkit.getWorld(results.getString("world"));
+                    if (world == null) continue;
+                    // Create the warp object and it'll register itself.
+                    String creator = results.getString("uuid_creator");
+                    warps.add(new Warp(creator == null ? null : UUID.fromString(creator),
+                            results.getString("warp"),
+                            new Location(world,
+                                    results.getDouble("x"),
+                                    results.getDouble("y"),
+                                    results.getDouble("z"),
+                                    results.getFloat("yaw"),
+                                    results.getFloat("pitch")),
+                            results.getLong("timestamp_created"),
+                            results.getLong("timestamp_updated")));
+                }
+                return warps;
+            } catch (SQLException exception) {
+                throw new RuntimeException(exception);
+            }
+        });
     }
 }

@@ -23,7 +23,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -70,7 +69,7 @@ public class EssentialsHook extends ImportExportPlugin {
                     if (ATPlayer.isPlayerCached(user.getName())) {
                         ATPlayer player = ATPlayer.getPlayer(user.getName());
                         if (!player.hasHome(home)) {
-                            player.addHome(home, user.getHome(home), (Player) null);
+                            player.addHome(home, user.getHome(home), null, false);
                         } else {
                             player.moveHome(home, user.getHome(home));
                         }
@@ -81,9 +80,9 @@ public class EssentialsHook extends ImportExportPlugin {
                             query.setString(2, home);
 
                             if (query.executeQuery().next()) {
-                                HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, null);
+                                HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, null, false);
                             } else {
-                                HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null);
+                                HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null, false);
                             }
                         }
                     }
@@ -290,7 +289,7 @@ public class EssentialsHook extends ImportExportPlugin {
                     user.setLastLocation(player.getPreviousLocation());
                 } else {
                     try (Connection connection = HomeSQLManager.get().implementConnection()) {
-                        PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid = ?");
+                        PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
                         statement.setString(1, uuid.toString());
                         ResultSet set = statement.executeQuery();
                         connection.close();
@@ -299,6 +298,10 @@ public class EssentialsHook extends ImportExportPlugin {
                             double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
                             float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
                             String world = set.getString("world");
+                            if (world == null) {
+                                CoreClass.getInstance().getLogger().warning("World for previous location of " + user.getName() + " is null. Cannot export it.");
+                                continue;
+                            }
                             user.setLastLocation(new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
                         }
                     }

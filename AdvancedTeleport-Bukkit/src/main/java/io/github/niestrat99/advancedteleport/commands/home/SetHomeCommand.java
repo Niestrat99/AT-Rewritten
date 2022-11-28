@@ -1,7 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
@@ -16,41 +17,44 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class SetHomeCommand implements AsyncATCommand {
+public class SetHomeCommand implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (args.length > 0) {
-                OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                if (sender.hasPermission("at.admin.sethome") && player != target) {
-                    // We'll just assume that the admin command overrides the homes limit.
-                    if (args.length > 1) {
-                        setHome(player, target.getUniqueId(), args[1], args[0]);
-                        return true;
-                    }
-                }
-
-                if (atPlayer.canSetMoreHomes()) {
-                    setHome(player, args[0]);
-
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
-                }
-            } else {
-                int limit = atPlayer.getHomesLimit();
-                if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
-                    setHome(player, "home");
-                } else {
-                    CustomMessages.sendMessage(sender, "Error.noHomeInput");
+        // If the sender isn't a player
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+        Player player = (Player) sender;
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+        if (args.length > 0) {
+            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+            if (sender.hasPermission("at.admin.sethome") && player != target) {
+                // We'll just assume that the admin command overrides the homes limit.
+                if (args.length > 1) {
+                    setHome(player, target.getUniqueId(), args[1], args[0]);
+                    return true;
                 }
             }
+
+            if (atPlayer.canSetMoreHomes()) {
+                setHome(player, args[0]);
+
+            } else {
+                CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
+            }
         } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            int limit = atPlayer.getHomesLimit();
+            if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
+                setHome(player, "home");
+            } else if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+                ((ATFloodgatePlayer) atPlayer).sendSetHomeForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            }
         }
         return true;
     }

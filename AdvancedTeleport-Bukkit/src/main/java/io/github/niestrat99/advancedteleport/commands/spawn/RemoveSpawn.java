@@ -13,7 +13,6 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +21,7 @@ public class RemoveSpawn extends SpawnATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
                              @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         String removingSpawn = "";
         if (args.length == 0) {
             if (sender instanceof Player) {

@@ -15,7 +15,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -60,32 +62,56 @@ public class HomeSQLManager extends SQLManager {
         // Get the file itself.
         File file = new File(CoreClass.getInstance().getDataFolder(), "homes.yml");
         if (!file.exists()) return;
+
         // Load the config file.
         YamlConfiguration homes = YamlConfiguration.loadConfiguration(file);
+
         // For each player found...
         for (String player : homes.getKeys(false)) {
+
             // Get the config section representing their homes.
             ConfigurationSection homeSection = homes.getConfigurationSection(player);
             if (homeSection == null) continue;
+
             // For each home that appears...
             for (String home : homeSection.getKeys(false)) {
+
+                // Get the raw config section
                 ConfigurationSection homeRaw = homes.getConfigurationSection(player + "." + home);
                 if (homeRaw == null) continue;
+
+                // Get the world the home is in - but if it doesn't exist, ignore it
                 String world = homeRaw.getString("world");
                 if (world == null) continue;
                 if (Bukkit.getWorld(world) == null) continue;
+
+                // Add the home to the database
                 addHome(new Location(Bukkit.getWorld(world),
                         homeRaw.getDouble("x"),
                         homeRaw.getDouble("y"),
                         homeRaw.getDouble("z"),
                         (float) homeRaw.getDouble("yaw"),
-                        (float) homeRaw.getDouble("pitch")), UUID.fromString(player), home, null);
+                        (float) homeRaw.getDouble("pitch")), UUID.fromString(player), home, null, false);
             }
         }
 
+        // Create a backup file
         file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "homes-backup.yml"));
     }
 
+    public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
+        addHome(location, owner, name, callback, true);
+    }
+
+    public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback, boolean async) {
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> addHomePrivate(location, owner
+                    , name, callback));
+        } else {
+            addHomePrivate(location, owner, name, callback);
+        }
+    }
+    
     public CompletableFuture<Integer> getHomeId(String name, UUID owner) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = implementConnection()) {
@@ -104,12 +130,11 @@ public class HomeSQLManager extends SQLManager {
         }, CoreClass.async);
     }
 
-    public void addHome(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
+    private void addHomePrivate(Location location, UUID owner, String name, SQLCallback<Boolean> callback) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement = prepareStatement(connection,
                     "INSERT INTO " + tablePrefix + "_homes (uuid_owner, home, x, y, z, yaw, pitch, world, " +
                             "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
             statement.setString(1, owner.toString());
             statement.setString(2, name);
             statement.setDouble(3, location.getX());
@@ -146,28 +171,48 @@ public class HomeSQLManager extends SQLManager {
     }
 
     public void removeHome(UUID owner, String name, SQLCallback<Boolean> callback) {
+        // Create the connection
         try (Connection connection = implementConnection()) {
+
+            // Set up the SQL statement to remove the home
             PreparedStatement statement = prepareStatement(connection,
                     "DELETE FROM " + tablePrefix + "_homes WHERE uuid_owner = ? AND home = ?");
 
             statement.setString(1, owner.toString());
             statement.setString(2, name);
             executeUpdate(statement);
-            if (callback != null) {
-                callback.onSuccess(true);
-            }
+
+            // If everything went successfully, return true
+            if (callback != null) callback.onSuccess(true);
+
         } catch (SQLException exception) {
+            // If something went wrong through, add the failure to the data fail manager
             DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_HOME,
                     owner.toString(),
                     name);
-            exception.printStackTrace();
-            if (callback != null) {
-                callback.onFail();
-            }
+
+            // If there's a callback, indicate there was a fault
+            if (callback != null) callback.onFail();
+
+            // Throw an extra exception
+            throw new RuntimeException(exception);
         }
     }
 
     public void moveHome(Location newLocation, UUID owner, String name, SQLCallback<Boolean> callback) {
+        moveHome(newLocation, owner, name, callback, true);
+    }
+
+    public void moveHome(Location newLocation, UUID owner, String name, SQLCallback<Boolean> callback, boolean async) {
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> moveHomePrivate(newLocation,
+                    owner, name, callback));
+        } else {
+            moveHomePrivate(newLocation, owner, name, callback);
+        }
+    }
+
+    public void moveHomePrivate(Location newLocation, UUID owner, String name, SQLCallback<Boolean> callback) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement = prepareStatement(connection,
                     "UPDATE " + tablePrefix + "_homes SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, " +
@@ -242,7 +287,8 @@ public class HomeSQLManager extends SQLManager {
     public void purgeHomes(String worldName, SQLCallback<Void> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "SELECT uuid_owner, home FROM " + tablePrefix + "_homes WHERE world = ?");
+                PreparedStatement statement = prepareStatement(connection,
+                        "SELECT uuid_owner, home FROM " + tablePrefix + "_homes WHERE world = ?");
                 statement.setString(1, worldName);
 
                 ResultSet set = statement.executeQuery();
@@ -273,7 +319,8 @@ public class HomeSQLManager extends SQLManager {
                 OfflinePlayer player = Bukkit.getOfflinePlayer(owner);
                 if (player.getName() != null && ATPlayer.isPlayerCached(player.getName())) {
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    PreparedStatement statement = prepareStatement(connection, "SELECT home FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
+                    PreparedStatement statement = prepareStatement(connection, "SELECT home FROM " + tablePrefix +
+                            "_homes WHERE uuid_owner = ?");
                     statement.setString(1, owner.toString());
 
                     ResultSet set = statement.executeQuery();
@@ -284,7 +331,8 @@ public class HomeSQLManager extends SQLManager {
                     set.close();
                 }
 
-                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
+                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes " +
+                        "WHERE uuid_owner = ?");
                 statement.setString(1, owner.toString());
 
                 executeUpdate(statement);
@@ -298,5 +346,43 @@ public class HomeSQLManager extends SQLManager {
 
     public static HomeSQLManager get() {
         return instance;
+    }
+
+    public CompletableFuture<List<Home>> getHomesBulk() {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+                // GOTTA CATCH 'EM ALL
+                PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_homes");
+                ResultSet set = executeQuery(statement);
+                // Get the list of homes
+                List<Home> homes = new ArrayList<>();
+                while (set.next()) {
+                    // UUID of the owner
+                    UUID owner = UUID.fromString(set.getString("uuid_owner"));
+                    // Get the name of the home
+                    String name = set.getString("home");
+                    // Coordinates
+                    double x = set.getDouble("x");
+                    double y = set.getDouble("y");
+                    double z = set.getDouble("z");
+                    double yaw = set.getDouble("yaw");
+                    double pitch = set.getDouble("pitch");
+                    // The world name
+                    String worldStr = set.getString("world");
+                    // Timestamps
+                    long createdTimestamp = set.getLong("timestamp_created");
+                    long updatedTimestamp = set.getLong("timestamp_updated");
+                    // Make sure the world is there
+                    World world = Bukkit.getWorld(worldStr);
+                    if (world == null) continue;
+                    // Add the world
+                    homes.add(new Home(owner, name, new Location(world, x, y, z, (float) yaw, (float) pitch),
+                            createdTimestamp, updatedTimestamp));
+                }
+                return homes;
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }, CoreClass.async);
     }
 }

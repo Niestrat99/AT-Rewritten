@@ -22,18 +22,11 @@ import java.util.List;
 public class SpawnCommand extends SpawnATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, 
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
+        if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-        if (!NewConfig.get().USE_SPAWN.get()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return true;
-        }
-        if (!sender.hasPermission("at.member.spawn")) {
-            CustomMessages.sendMessage(sender, "Error.noPermission");
             return true;
         }
 
@@ -53,10 +46,8 @@ public class SpawnCommand extends SpawnATCommand {
             if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
                 location = args[0];
             }
-            spawn(player, location);
-        } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
         }
+        spawn(player, location);
         return true;
     }
 
@@ -65,8 +56,9 @@ public class SpawnCommand extends SpawnATCommand {
         if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
         }
+        
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
-        ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn", NewConfig.get().WARM_UPS.SPAWN.get());
+        ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn");
     }
 
     @Override

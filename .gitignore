@@ -3,3 +3,6 @@
 \target
 *.jar
 *.iml
+\.gradle
+\build
+AdvancedTeleport-Bukkit\.gradle

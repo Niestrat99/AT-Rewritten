@@ -6,9 +6,13 @@ import io.github.niestrat99.advancedteleport.payments.types.ItemsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.LevelsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PaymentManager {
 
@@ -38,26 +42,12 @@ public class PaymentManager {
         String[] rawPayments = valueStr.split(";");
         for (String rawPayment : rawPayments) {
             try {
-                if (rawPayment.length() - 3 <= 0) {
-                    if (CoreClass.getVault() != null) {
-                        addPayment("vault", new VaultPayment(Double.parseDouble(rawPayment)), payments);
-                    }
-                    continue;
-                }
-                String points = rawPayment.substring(0, rawPayment.length() - 3);
-                if (rawPayment.endsWith("LVL")) {
-                    addPayment("levels", new LevelsPayment(Integer.parseInt(points)), payments);
-                } else if (rawPayment.endsWith("EXP")) {
-                    addPayment("exp", new PointsPayment(Integer.parseInt(points)), payments);
-                } else {
-                    if (CoreClass.getVault() != null && rawPayment.matches("^[0-9]+(\\.[0-9]+)?")) {
-                        addPayment("vault", new VaultPayment(Double.parseDouble(rawPayment)), payments);
-                    } else {
-                        addPayment("item", ItemsPayment.getFromString(rawPayment), payments);
-                    }
-                }
+                Payment payment = parsePayment(rawPayment);
+                if (payment == null) continue;
+                addPayment(payment.getId(), payment, payments);
             } catch (Exception e) {
                 CoreClass.getInstance().getLogger().warning("Failed to parse payment " + rawPayment + " for command " + command + "!");
+                CoreClass.getInstance().getLogger().warning("Error message: " + e.getMessage());
             }
         }
         teleportCosts.put(command, payments);
@@ -97,7 +87,7 @@ public class PaymentManager {
     // Method used to check if a player can pay for using a command
     public boolean canPay(String command, Player player) {
         if (player.hasPermission("at.admin.bypass.payment")) return true;
-        for (Payment payment : teleportCosts.get(command).values()) {
+        for (Payment payment : getPayments(command, player).values()) {
             if (!payment.canPay(player)) {
                 return false;
             }
@@ -108,8 +98,55 @@ public class PaymentManager {
     // Method used to manage payments
     public void withdraw(String command, Player player) {
         if (!player.hasPermission("at.admin.bypass.payment")) {
-            for (Payment payment : teleportCosts.get(command).values()) {
+            for (Payment payment : getPayments(command, player).values()) {
                 payment.withdraw(player);
+            }
+        }
+    }
+
+    private HashMap<String, Payment> getPayments(String command, Player player) {
+        ConfigurationSection customCosts = NewConfig.get().CUSTOM_COSTS.get();
+        HashMap<String, Payment> payments = new HashMap<>();
+        for (String key : customCosts.getKeys(false)) {
+            String worldName = player.getWorld().getName().toLowerCase(Locale.ROOT);
+            if (!player.hasPermission("at.member.cost." + key)
+                    && !player.hasPermission("at.member.cost." + command + "." + key)
+                    && !player.hasPermission("at.member.cost." + worldName + "." + key)
+                    && !player.hasPermission("at.member.cost." + command + "." + worldName + "." + key)) continue;
+            String rawPayment = customCosts.getString(key);
+            if (rawPayment == null) continue;
+            Payment payment = parsePayment(rawPayment);
+            if (payment == null) continue;
+            payments.put(payment.getId(), payment);
+        }
+        if (payments.isEmpty()) payments = teleportCosts.get(command);
+        return payments;
+    }
+
+    private Payment parsePayment(String rawPayment) {
+        if (rawPayment.length() - 3 <= 0) {
+            Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
+            if (matcher.matches()) {
+                String plugin = matcher.group(1);
+                double payment = Double.parseDouble(matcher.group(2));
+                return new VaultPayment(payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
+            }
+            return null;
+        }
+        String points = rawPayment.substring(0, rawPayment.length() - 3);
+        if (rawPayment.endsWith("LVL")) {
+            return new LevelsPayment(Integer.parseInt(points));
+        } else if (rawPayment.endsWith("EXP")) {
+            return new PointsPayment(Integer.parseInt(points));
+        } else {
+            Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
+            if (matcher.matches()) {
+                String plugin = matcher.group(1);
+                double payment = Double.parseDouble(matcher.group(2));
+                return new VaultPayment(payment,
+                        plugin == null ? null : plugin.substring(0, plugin.length() - 1));
+            } else {
+                return ItemsPayment.getFromString(rawPayment);
             }
         }
     }
