@@ -47,6 +47,10 @@ public class NewConfig extends ATConfig {
     public PerCommandOption<Object> COSTS;
     public ConfigOption<ConfigurationSection> CUSTOM_COSTS;
 
+    public ConfigOption<Boolean> USE_PARTICLES;
+    public PerCommandOption<String> TELEPORT_PARTICLES;
+    public PerCommandOption<String> WAITING_PARTICLES;
+
     public ConfigOption<Boolean> USE_MYSQL;
     public ConfigOption<String> MYSQL_HOST;
     public ConfigOption<Integer> MYSQL_PORT;
@@ -282,6 +286,29 @@ public class NewConfig extends ATConfig {
                 "  vip-cost: Essentials:100\n" +
                 "Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.\n" +
                 "To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.");
+
+        addDefault("use-particles", true, "Particles", "Whether particles should be used in the plugin.\n" +
+                "Some standalone implementation is used, but otherwise, PlayerParticles is used.");
+        addDefault("default-waiting-particles", "", "The default waiting particles during the warm-up period.");
+        addComment("waiting-particles", "Command-specific waiting particles.");
+        addDefault("waiting-particles.tpa", "default");
+        addDefault("waiting-particles.tpahere", "default");
+        addDefault("waiting-particles.tpr", "default");
+        addDefault("waiting-particles.warp", "default");
+        addDefault("waiting-particles.spawn", "default");
+        addDefault("waiting-particles.home", "default");
+        addDefault("waiting-particles.back", "default");
+
+        addDefault("default-teleporting-particles", "spark", "The default particles used as soon as the player teleports. \n" +
+                "At this time, only spark is supported. However, other recommendations are welcome with that.");
+        addComment("teleporting-particles", "Command-specific teleporting particles.");
+        addDefault("teleporting-particles.tpa", "default");
+        addDefault("teleporting-particles.tpahere", "default");
+        addDefault("teleporting-particles.tpr", "default");
+        addDefault("teleporting-particles.warp", "default");
+        addDefault("teleporting-particles.spawn", "default");
+        addDefault("teleporting-particles.home", "default");
+        addDefault("teleporting-particles.back", "default");
 
         addSection("SQL Storage");
 
@@ -698,6 +725,10 @@ public class NewConfig extends ATConfig {
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
         CUSTOM_COSTS = new ConfigOption<>("custom-costs");
 
+        USE_PARTICLES = new ConfigOption<>("use-particles");
+        WAITING_PARTICLES = new PerCommandOption<>("waiting-particles", "default-waiting-particles");
+        TELEPORT_PARTICLES = new PerCommandOption<>("teleporting-particles", "default-teleporting-particles");
+
         USE_MYSQL = new ConfigOption<>("use-mysql");
         MYSQL_HOST = new ConfigOption<>("mysql-host");
         MYSQL_PORT = new ConfigOption<>("mysql-port");
@@ -847,7 +878,6 @@ public class NewConfig extends ATConfig {
             } else {
                 return (T) instance.get(path);
             }
-
         }
     }
 

@@ -130,6 +130,10 @@
             <url>https://repo.jpenilla.xyz/snapshots/</url>
         </repository>
         <repository>
+            <id>pp-repo</id>
+            <url>https://repo.rosewooddev.io/repository/public/</url>
+        </repository>
+        <repository>
             <id>dynmap-repo</id>
             <url>http://repo.mikeprimm.com/</url>
         </repository>
@@ -235,6 +239,14 @@
             <version>1.1.3</version>
             <scope>provided</scope>
         </dependency>
+        
+        <!-- PlayerParticles -->
+        <dependency>
+            <groupId>dev.esophose</groupId>
+            <artifactId>playerparticles</artifactId>
+            <version>8.2</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- dynmap -->
         <dependency>
@@ -242,13 +254,6 @@
             <artifactId>dynmap-api</artifactId>
             <version>3.4-beta-3</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.puregero</groupId>
-            <artifactId>multilib</artifactId>
-            <version>1.1.8</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

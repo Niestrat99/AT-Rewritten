@@ -12,6 +12,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
+import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
@@ -119,26 +120,29 @@ public class ATPlayer {
     public void teleport(ATTeleportEvent event, String command, String teleportMsg) {
         Player player = event.getPlayer();
         int warmUp = getWarmUp(command);
-        if (!event.isCancelled()) {
-            if (PaymentManager.getInstance().canPay(command, player)) {
-                // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
-                String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
+        if (event.isCancelled()) return;
+        if (!PaymentManager.getInstance().canPay(command, player)) return;
+                
+        // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
+        String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
 
-                if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
-                    CooldownManager.addToCooldown(command, player);
-                }
-
-                if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-                    MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp, "{home}", event.getLocName(), "{warp}", event.getLocName());
-                } else {
-                    PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}", event.getLocName());
-                    PaymentManager.getInstance().withdraw(command, player);
-                }
-            }
+        if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
+            CooldownManager.addToCooldown(command, player);
+        }
+        
+        // If there's a movement timer, apply it - otherwise, teleport them immediately
+        if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+            MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp,
+                    "{home}", event.getLocName(), "{warp}", event.getLocName());
+        } else {
+            ParticleManager.onTeleport(player, command);
+            PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+            CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
+                    event.getLocName());
+            PaymentManager.getInstance().withdraw(command, player);
         }
     }
-
+    
     /**
      * Returns whether teleportation is enabled for the player. This allows the player to receive teleportation requests
      * if set to true.

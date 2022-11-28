@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
+import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 import io.github.niestrat99.advancedteleport.hooks.borders.ChunkyBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.VanillaBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.WorldBorderHook;
@@ -16,6 +17,7 @@ import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
+import io.github.niestrat99.advancedteleport.hooks.particles.PlayerParticlesHook;
 import org.bukkit.World;
 
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +30,8 @@ public class PluginHookManager {
 
     private HashMap<String, ImportExportPlugin> importPlugins;
     private HashMap<String, BorderPlugin> borderPlugins;
+    private HashMap<String, ParticlesPlugin> particlesPlugins;
+    private HashMap<String, ClaimPlugin> claimPlugins;
     private HashMap<String, MapPlugin> mapPlugins;
     private static PluginHookManager instance;
 
@@ -39,6 +43,7 @@ public class PluginHookManager {
     public void init() {
         importPlugins = new HashMap<>();
         borderPlugins = new HashMap<>();
+        particlesPlugins = new HashMap<>();
         mapPlugins = new HashMap<>();
         claimPlugins = new HashMap<>();
 
@@ -48,6 +53,9 @@ public class PluginHookManager {
         loadPlugin(borderPlugins, "worldborder", WorldBorderHook.class);
         loadPlugin(borderPlugins, "chunkyborder", ChunkyBorderHook.class);
         loadPlugin(borderPlugins, "vanilla", VanillaBorderHook.class);
+
+        // Particle plugins
+        loadPlugin(particlesPlugins, "playerparticles", PlayerParticlesHook.class);
 
         // Claim Plugins
         loadPlugin(claimPlugins, "worldguard", WorldGuardClaimHook.class);
@@ -74,6 +82,10 @@ public class PluginHookManager {
 
     public HashMap<String, ImportExportPlugin> getImportPlugins() {
         return importPlugins;
+    }
+
+    public HashMap<String, ParticlesPlugin> getParticlesPlugins() {
+        return particlesPlugins;
     }
 
     public ImportExportPlugin getImportPlugin(String name) {

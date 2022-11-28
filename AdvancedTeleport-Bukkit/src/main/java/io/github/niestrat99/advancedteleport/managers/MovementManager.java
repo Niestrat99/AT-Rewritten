@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class MovementManager implements Listener {
 
-    private static HashMap<UUID, BukkitRunnable> movement = new HashMap<>();
+    private static HashMap<UUID, ImprovedRunnable> movement = new HashMap<>();
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
@@ -37,14 +37,15 @@ public class MovementManager implements Listener {
         }
         UUID uuid = event.getPlayer().getUniqueId();
         if ((cancelOnRotate || cancelOnMove) && movement.containsKey(uuid)) {
-            BukkitRunnable timer = movement.get(uuid);
+            ImprovedRunnable timer = movement.get(uuid);
             timer.cancel();
             CustomMessages.sendMessage(event.getPlayer(), "Teleport.eventMovement");
+            ParticleManager.removeParticles(event.getPlayer(), timer.command);
             movement.remove(uuid);
         }
     }
 
-    public static HashMap<UUID, BukkitRunnable> getMovement() {
+    public static HashMap<UUID, ImprovedRunnable> getMovement() {
         return movement;
     }
 
@@ -58,10 +59,12 @@ public class MovementManager implements Listener {
         if (NewConfig.get().BLINDNESS_ON_WARMUP.get()) {
             teleportingPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, warmUp * 20 + 20, 0, false, false));
         }
-        BukkitRunnable movementtimer = new BukkitRunnable() {
+        ParticleManager.applyParticles(teleportingPlayer, command);
+        ImprovedRunnable movementtimer = new ImprovedRunnable(command) {
             @Override
             public void run() {
                 if (!PaymentManager.getInstance().canPay(command, payingPlayer)) return;
+                ParticleManager.onTeleport(teleportingPlayer, command);
                 PaperLib.teleportAsync(teleportingPlayer, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                 movement.remove(uuid);
                 CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
@@ -80,5 +83,18 @@ public class MovementManager implements Listener {
             CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTPMovementAllowed", "{countdown}", String.valueOf(warmUp));
         }
 
+    }
+
+    public abstract static class ImprovedRunnable extends BukkitRunnable {
+
+        private final String command;
+
+        ImprovedRunnable(String command) {
+            this.command = command;
+        }
+
+        public String getCommand() {
+            return command;
+        }
     }
 }
