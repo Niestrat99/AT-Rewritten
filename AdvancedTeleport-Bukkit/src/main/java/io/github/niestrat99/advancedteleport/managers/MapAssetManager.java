@@ -91,6 +91,8 @@ public class MapAssetManager {
         });
     }
 
+
+
     public static class IconInfo {
         private final String imageKey;
         private final int size;
