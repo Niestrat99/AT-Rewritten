@@ -26,11 +26,16 @@ public class Back extends TeleportATCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
+        // Make sure the sender has permission and the associated feature is enabled
         if (!canProceed(sender)) return true;
+
+        // If the player isn't a sender, stop there
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
+
+        // Initialise player variables
         Player player = (Player) sender;
         if (args.length > 0 && sender.hasPermission("at.admin.back")) {
             player = Bukkit.getPlayer(args[0]);
@@ -41,16 +46,24 @@ public class Back extends TeleportATCommand {
         }
 
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
+
+        // Check the player's cooldown
         int cooldown = CooldownManager.secondsLeftOnCooldown("back", player);
         if (cooldown > 0) {
             CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
             return true;
         }
+
+        // Get the player's previous location
         Location loc = atPlayer.getPreviousLocation();
+
+        // If it's null, we have nowhere to go
         if (loc == null) {
             CustomMessages.sendMessage(sender, "Error.noLocation");
             return true;
         }
+
+
         double originalY = loc.getY();
         double originalX = loc.getX();
         double originalZ = loc.getZ();
