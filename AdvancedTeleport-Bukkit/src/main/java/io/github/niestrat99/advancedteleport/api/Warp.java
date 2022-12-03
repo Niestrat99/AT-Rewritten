@@ -113,7 +113,7 @@ public class Warp implements NamedLocation {
      * @param location the new location of the warp.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setLocation(@NotNull Location location) {
+    public CompletableFuture<Void> setLocation(@NotNull Location location) {
         return setLocation(location, (CommandSender) null);
     }
 
@@ -124,19 +124,18 @@ public class Warp implements NamedLocation {
      * @param sender the command sender who triggered the action.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
+    public CompletableFuture<Void> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
         WarpMoveEvent event = new WarpMoveEvent(this, location, sender);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
 
         this.location = location;
         this.updatedTime = System.currentTimeMillis();
 
         this.updatedTimeFormatted = format.format(new Date(updatedTime));
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             WarpSQLManager.get().moveWarp(location, name, callback);
-            return callback.data;
         });
     }
 
@@ -211,16 +210,15 @@ public class Warp implements NamedLocation {
      * @param sender the command sender that called for the action. Can be null.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> delete(@Nullable CommandSender sender) {
+    public CompletableFuture<Void> delete(@Nullable CommandSender sender) {
         WarpDeleteEvent event = new WarpDeleteEvent(this, sender);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
 
         warps.remove(name);
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             WarpSQLManager.get().removeWarp(name, callback);
-            return callback.data;
         });
     }
 
@@ -229,7 +227,7 @@ public class Warp implements NamedLocation {
      *
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> delete() {
+    public CompletableFuture<Void> delete() {
         return delete((CommandSender) null);
     }
 }

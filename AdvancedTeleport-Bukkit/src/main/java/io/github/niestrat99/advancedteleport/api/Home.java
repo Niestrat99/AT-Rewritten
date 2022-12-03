@@ -101,16 +101,15 @@ public class Home implements NamedLocation {
      * @param location The new location that the home will be set to.
      * @return true if the move succeeded, false if it failed.
      */
-    public CompletableFuture<Boolean> move(@NotNull Location location) {
+    public CompletableFuture<Void> move(@NotNull Location location) {
         this.location = location;
 
         this.updatedTime = System.currentTimeMillis();
         this.updatedTimeFormatted = format.format(new Date(updatedTime));
 
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             HomeSQLManager.get().moveHome(location, owner, name, callback);
-            return callback.data;
         });
 
     }
