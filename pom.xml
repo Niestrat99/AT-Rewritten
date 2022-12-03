@@ -7,12 +7,12 @@
     <groupId>io.github.niestrat99</groupId>
     <artifactId>AdvancedTeleport</artifactId>
     <packaging>pom</packaging>
-    <version>v5.6.4</version>
+    <version>v5.6.5</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--suppress UnresolvedMavenProperty -->
-        <module.version>5.6.4+DEV_${env.BUILD_NUMBER}</module.version>
+        <module.version>5.6.5+DEV_${env.BUILD_NUMBER}</module.version>
         <jenkins.timestamp>${maven.build.timestamp}</jenkins.timestamp>
         <dir>${project.build.directory}</dir>
     </properties>
