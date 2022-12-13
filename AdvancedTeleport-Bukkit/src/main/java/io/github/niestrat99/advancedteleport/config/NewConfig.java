@@ -457,7 +457,7 @@ public class NewConfig extends ATConfig {
         addExample("death-management.special-world", "warp:Special");
         addExample("death-management.another-world", "bed");
 
-        addDefault("default-permissions", new ArrayList<>(Arrays.asList("at.member.*", "at.member.warp.*")),
+        addDefault("default-permissions", new ArrayList<>(Arrays.asList("at.member.*", "at.member.warp.*", "at.member.warp.sign.*")),
                 "Permissions",
                 "The default permissions given to users without OP.\n" +
                         "By default, Advanced Teleport allows users without OP to use all member features.\n" +
