@@ -8,71 +8,59 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.modrinth.minotaur")
-    alias(libs.plugins.shadow)
-    alias(libs.plugins.userdev)
-    alias(libs.plugins.bukkitYML)
+    alias(libMinix.plugins.shadow)
+    alias(libMinix.plugins.minecraft.paperweight)
+    alias(libMinix.plugins.minecraft.pluginYML)
 }
 
 repositories {
 
-    maven {
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") {
         name = "Spigot"
-        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     }
 
-    maven {
+    maven("https://papermc.io/repo/repository/maven-public/") {
         name = "Paper and PaperLib"
-        url = uri("https://papermc.io/repo/repository/maven-public/")
     }
 
-    maven {
+    maven("https://repo.codemc.io/repository/maven-public/") {
         name = "Vault"
-        url = uri("https://repo.codemc.io/repository/maven-public/")
     }
 
-    maven {
+    maven("https://jitpack.io") {
         name = "WorldBorder and Chunky"
-        url = uri("https://jitpack.io")
     }
 
-    maven {
+    maven("https://ci.pluginwiki.us/plugin/repository/everything/") {
         name = "ConfigurationMaster"
-        url = uri("https://ci.pluginwiki.us/plugin/repository/everything/")
     }
 
-    maven {
+    maven("https://repo.essentialsx.net/releases/") {
         name = "Essentials"
-        url = uri("https://repo.essentialsx.net/releases/")
     }
 
-    maven {
+    maven("https://repo.opencollab.dev/maven-snapshots/") {
         name = "Geyser"
-        url = uri("https://repo.opencollab.dev/maven-snapshots/")
     }
 
-    maven {
+    maven("https://libraries.minecraft.net/") {
         name = "authlib maybe"
-        url = uri("https://libraries.minecraft.net/")
     }
 
-    maven {
+    maven("https://repo.maven.apache.org/maven2/") {
         name = "Adventure"
-        url = uri("https://repo.maven.apache.org/maven2/")
     }
 
-    maven {
+    maven("https://maven.enginehub.org/repo/") {
         name = "Sk89q"
-        url = uri("https://maven.enginehub.org/repo/")
     }
 
-    maven {
+    maven("https://repo.jpenilla.xyz/snapshots/") {
         name = "Squaremap"
-        url = uri("https://repo.jpenilla.xyz/snapshots/")
     }
 
-    maven {
+    maven("https://repo.mikeprimm.com/") {
         name = "Dynmap"
-        url = uri("https://repo.mikeprimm.com/")
     }
 
     maven("https://repo.rosewooddev.io/repository/public/") {
@@ -96,7 +84,7 @@ dependencies {
     compileOnly(libs.worldborder)
     compileOnly(libs.chunkyborder)
     compileOnly(libs.floodgate)
-    compileOnly(libs.lands)
+    compileOnly(libMinix.minecraft.api.landsAPI)
     compileOnly(libs.griefprevention)
     compileOnly(libs.playerparticles)
     compileOnly(libs.worldguard)
