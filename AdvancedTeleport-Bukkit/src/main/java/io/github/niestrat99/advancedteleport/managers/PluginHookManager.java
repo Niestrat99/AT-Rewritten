@@ -114,10 +114,13 @@ public class PluginHookManager {
         for (BorderPlugin plugin : borderPlugins.values()) {
             if (!plugin.canUse(world)) continue;
             return new double[]{
-                    RandomCoords.getRandomCoords(plugin.getMinX(world), plugin.getMaxX(world)),
-                    RandomCoords.getRandomCoords(plugin.getMinZ(world), plugin.getMaxZ(world))
+                plugin.getMinX(world),
+                plugin.getMaxX(world),
+                plugin.getMinZ(world),
+                plugin.getMaxZ(world)
             };
         }
+
         return null;
     }
 
