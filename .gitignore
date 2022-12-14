@@ -1,10 +1,11 @@
-\.idea
+.idea
 *.class
-\target
+target
 *.jar
 *.iml
-\.gradle
-\build
+.gradle
+build
 AdvancedTeleport-Bukkit\.gradle
 AdvancedTeleport-Bukkit\build
 AdvancedTeleport-Bukkit\src\main\resources\META-INF
+libs
