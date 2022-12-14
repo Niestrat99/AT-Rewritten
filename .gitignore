@@ -1,8 +1,7 @@
-\.idea
-*.class
-\target
-*.jar
-*.iml
-\.gradle
-\build
-AdvancedTeleport-Bukkit\.gradle
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+/.idea/
+/lib
