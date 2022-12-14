@@ -14,3 +14,7 @@ allprojects {
         }
     }
 }
+
+subprojects {
+    buildDir = rootProject.buildDir.resolve(this.name.toLowerCase())
+}
