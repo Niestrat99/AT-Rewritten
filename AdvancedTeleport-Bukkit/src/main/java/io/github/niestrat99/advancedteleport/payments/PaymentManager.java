@@ -105,8 +105,8 @@ public class PaymentManager {
     }
 
     private HashMap<String, Payment> getPayments(String command, Player player) {
-        ConfigurationSection customCosts = NewConfig.get().CUSTOM_COSTS.get();
-        HashMap<String, Payment> payments = new HashMap<>();
+        final var customCosts = NewConfig.get().CUSTOM_COSTS.get();
+        var payments = new HashMap<String, Payment>();
         for (String key : customCosts.getKeys(false)) {
             String worldName = player.getWorld().getName().toLowerCase(Locale.ROOT);
             if (!player.hasPermission("at.member.cost." + key)
