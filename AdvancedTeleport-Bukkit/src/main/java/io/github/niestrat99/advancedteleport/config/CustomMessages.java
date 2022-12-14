@@ -356,7 +356,7 @@ public class CustomMessages extends ATConfig {
 
     public static void sendMessage(CommandSender sender, String path, String... placeholders) {
         if (config == null) return;
-        if (false && supportsTitles() && sender instanceof Player) {
+        if (supportsTitles() && sender instanceof Player) {
             Player player = (Player) sender;
 
             ConfigSection titles = config.getConfigSection(path + "_title");
