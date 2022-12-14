@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import org.jetbrains.annotations.Nullable;
 
 public class RTPManager {
 
@@ -58,7 +59,7 @@ public class RTPManager {
         }
     }
 
-    public static CompletableFuture<Location> addLocation(World world, boolean urgent, int tries) {
+    public static CompletableFuture<@Nullable Location> addLocation(final World world, final boolean urgent, int tries) {
         if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
         tries++;
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
@@ -68,6 +69,11 @@ public class RTPManager {
             }
         }
         Location location = RandomCoords.generateCoords(world);
+
+        if (location == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+
         int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};
         int finalTries = tries;
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
