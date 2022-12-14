@@ -16,6 +16,7 @@ griefprevention = "16.18"
 worldguard = "7.0.7"
 squaremap = "1.1.3"
 dynmap = "3.4"
+playerParticles = "8.3"
 
 shadow = "7.1.2"
 paperweight = "1.3.8"
@@ -39,6 +40,7 @@ griefprevention = { module = "com.github.TechFortress:GriefPrevention", version.
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
 dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
+playerParticles = { module = "dev.esophose:playerparticles", version.ref = "playerParticles" }
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
