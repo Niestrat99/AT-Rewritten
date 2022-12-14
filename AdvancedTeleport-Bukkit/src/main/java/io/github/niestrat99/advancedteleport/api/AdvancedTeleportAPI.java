@@ -38,10 +38,11 @@ public class AdvancedTeleportAPI {
                 event.getName(), event.getLocation(), System.currentTimeMillis(), System.currentTimeMillis());
 
         // Get registering
-        return CompletableFuture.runAsync(() -> {
+        return CompletableFuture.supplyAsync(() -> {
             FlattenedCallback<Boolean> callback = new FlattenedCallback<>();
             Warp.registerWarp(warp);
             WarpSQLManager.get().addWarp(warp, callback);
+            return callback.data;
         }, CoreClass.async).thenAcceptAsync(data -> {
             WarpPostCreateEvent postEvent = new WarpPostCreateEvent(warp);
             Bukkit.getPluginManager().callEvent(postEvent);
