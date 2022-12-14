@@ -17,7 +17,7 @@ playerparticles = "8.2"
 worldguard = "7.0.7"
 squaremap = "1.1.3"
 dynmap = "3.4"
-#
+playerParticles = "8.3"
 
 shadow = "7.1.2"
 paperweight = "1.3.8"
@@ -42,7 +42,12 @@ playerparticles = { module = "dev.esophose:playerparticles", version.ref = "play
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
 dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
+<<<<<<< HEAD
 #
+=======
+playerParticles = { module = "dev.esophose:playerparticles", version.ref = "playerParticles" }
+
+>>>>>>> cf2e0b1e (fix(deps): actually add player particles dependency)
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 userdev = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }

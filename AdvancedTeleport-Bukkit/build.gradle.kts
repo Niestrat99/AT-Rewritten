@@ -75,9 +75,9 @@ repositories {
         url = uri("https://repo.mikeprimm.com/")
     }
 
-    maven {
+    maven("https://repo.rosewooddev.io/repository/public/") {
         name = "PlayerParticles"
-        url = uri("https://repo.rosewooddev.io/repository/public/")
+        content { includeGroup("dev.esophose") }
     }
 }
 
@@ -106,6 +106,7 @@ dependencies {
             name = "dynmap-api"
         }
     }
+    compileOnly(libs.playerParticles)
 }
 
 publishing {
