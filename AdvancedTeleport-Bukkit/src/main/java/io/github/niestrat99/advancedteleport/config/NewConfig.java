@@ -32,7 +32,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
     public PerCommandOption<Integer> WARM_UPS;
-    public ConfigOption<CMConfigSection> CUSTOM_WARM_UPS;
+    public ConfigOption<ConfigSection> CUSTOM_WARM_UPS;
 
     public ConfigOption<Boolean> BLINDNESS_ON_WARMUP;
 
@@ -41,11 +41,11 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS;
     public ConfigOption<String> APPLY_COOLDOWN_AFTER;
     public PerCommandOption<Integer> COOLDOWNS;
-    public ConfigOption<CMConfigSection> CUSTOM_COOLDOWNS;
+    public ConfigOption<ConfigSection> CUSTOM_COOLDOWNS;
 
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
-    public ConfigOption<CMConfigSection> CUSTOM_COSTS;
+    public ConfigOption<ConfigSection> CUSTOM_COSTS;
 
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
@@ -66,7 +66,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS;
     public PerCommandOption<Integer> DISTANCE_LIMITS;
-    public ConfigOption<CMConfigSection> CUSTOM_DISTANCE_LIMITS;
+    public ConfigOption<ConfigSection> CUSTOM_DISTANCE_LIMITS;
 
     public ConfigOption<Boolean> ENABLE_TELEPORT_LIMITATIONS;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS_LIMITS;

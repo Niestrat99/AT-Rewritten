@@ -15,7 +15,7 @@ import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
-import io.github.thatsmusic99.configurationmaster.impl.CMConfigSection;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -717,12 +717,12 @@ public class ATPlayer {
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
-    private int getMin(String permission, String command, CMConfigSection customSection, int defaultValue) {
+    private int getMin(String permission, String command, ConfigSection customSection, int defaultValue) {
         return determineValue(permission, command, defaultValue, customSection, Math::min);
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
-    private int determineValue(String permission, String command, int defaultValue, CMConfigSection customSection, BiFunction<Integer, Integer, Integer> consumer) {
+    private int determineValue(String permission, String command, int defaultValue, ConfigSection customSection, BiFunction<Integer, Integer, Integer> consumer) {
         List<String> cooldowns = new ArrayList<>();
 
         // If the player is null, return the default value
