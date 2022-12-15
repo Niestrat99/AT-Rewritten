@@ -30,7 +30,6 @@ worldborder = { module = "com.github.PryPurity:WorldBorder", version.ref = "worl
 chunkyborder = { module = "com.github.pop4959:ChunkyBorder", version.ref = "chunkyborder" }
 authlib = { module = "com.mojang:authlib", version.ref = "authlib" }
 floodgate = { module = "org.geysermc.floodgate:api", version.ref = "floodgate" }
-lands = { module = "com.github.angeschossen:LandsAPI", version.ref = "lands" }
 griefprevention = { module = "com.github.TechFortress:GriefPrevention", version.ref = "griefprevention" }
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }

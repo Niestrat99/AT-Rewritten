@@ -1,6 +1,8 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.data.ATException;
+import io.github.niestrat99.advancedteleport.api.data.CancelledEventException;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.HomeCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.HomeDeleteEvent;
@@ -99,6 +101,10 @@ public class ATPlayer {
         players.put(name.toLowerCase(), this);
     }
 
+    @NotNull public UUID uuid() {
+        return uuid;
+    }
+
     /**
      * Gets the Bukkit player object representing this ATPlayer.
      *
@@ -179,7 +185,7 @@ public class ATPlayer {
      * @param teleportationEnabled true to enable teleportation, false to disable it.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setTeleportationEnabled(boolean teleportationEnabled) {
+    public @NotNull CompletableFuture<Void> setTeleportationEnabled(boolean teleportationEnabled) {
         return setTeleportationEnabled(teleportationEnabled, (CommandSender) null);
     }
 
@@ -190,17 +196,16 @@ public class ATPlayer {
      * @param sender the command sender that triggered the action.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setTeleportationEnabled(boolean teleportationEnabled, CommandSender sender) {
+    public @NotNull CompletableFuture<Void> setTeleportationEnabled(boolean teleportationEnabled, CommandSender sender) {
         ToggleTeleportationEvent event = new ToggleTeleportationEvent(sender, getOfflinePlayer(), teleportationEnabled,
                 isTeleportationEnabled ^ teleportationEnabled);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return ATException.failedFuture(event);
 
         this.isTeleportationEnabled = teleportationEnabled;
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             PlayerSQLManager.get().setTeleportationOn(uuid, teleportationEnabled, callback);
-            return callback.data;
         });
     }
 
@@ -281,7 +286,7 @@ public class ATPlayer {
      * @param otherPlayer the player being blocked.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> blockUser(@NotNull OfflinePlayer otherPlayer) {
+    public @NotNull CompletableFuture<Void> blockUser(@NotNull OfflinePlayer otherPlayer) {
         return blockUser(otherPlayer.getUniqueId(), null);
     }
 
@@ -293,7 +298,7 @@ public class ATPlayer {
      * @param reason the reason the player has been blocked. Can be null.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason) {
+    public @NotNull CompletableFuture<Void> blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason) {
         return blockUser(otherPlayer.getUniqueId(), reason);
     }
 
@@ -305,14 +310,13 @@ public class ATPlayer {
      * @param reason the reason the player has been blocked. Can be null.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> blockUser(@NotNull UUID otherUUID, @Nullable String reason) {
+    public @NotNull CompletableFuture<Void> blockUser(@NotNull UUID otherUUID, @Nullable String reason) {
         // Add the user to the list of blocked users.
         blockedUsers.put(otherUUID, new BlockInfo(uuid, otherUUID, reason, System.currentTimeMillis()));
         // Add the entry to the SQL database.
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason, callback);
-            return callback.data;
         }, CoreClass.async);
     }
 
@@ -335,13 +339,12 @@ public class ATPlayer {
      * @param otherUUID the UUID of the player to be unblocked.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> unblockUser(@NotNull UUID otherUUID) {
+    public @NotNull CompletableFuture<Void> unblockUser(@NotNull UUID otherUUID) {
         blockedUsers.remove(otherUUID);
 
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString(), callback);
-            return callback.data;
         });
     }
 
@@ -379,7 +382,7 @@ public class ATPlayer {
      * @param location the location of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> addHome(String name, Location location) {
+    public @NotNull CompletableFuture<Void> addHome(String name, Location location) {
         return addHome(name, location, getPlayer(), true);
     }
 
@@ -391,7 +394,7 @@ public class ATPlayer {
      * @param creator the player who created the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> addHome(String name, Location location, Player creator) {
+    public @NotNull CompletableFuture<Void> addHome(String name, Location location, Player creator) {
         return addHome(name, location, creator, true);
     }
 
@@ -404,22 +407,21 @@ public class ATPlayer {
      * @param async true if the home is to be added asynchronously, false if not.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> addHome(String name, Location location, Player creator, boolean async) {
+    public @NotNull CompletableFuture<Void> addHome(String name, Location location, Player creator, boolean async) {
         if (hasHome(name)) {
             return moveHome(name, location);
         }
 
         HomeCreateEvent event = new HomeCreateEvent(getOfflinePlayer(), name, location, creator);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return ATException.failedFuture(event);
 
         homes.put(name, new Home(event.getPlayer().getUniqueId(), event.getName(), event.getLocation(),
                 System.currentTimeMillis(), System.currentTimeMillis()));
 
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             HomeSQLManager.get().addHome(location, uuid, name, callback, async);
-            return callback.data;
         });
     }
 
@@ -450,7 +452,7 @@ public class ATPlayer {
      * @param newLocation the new location of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> moveHome(String name, Location newLocation) {
+    public @NotNull CompletableFuture<Void> moveHome(String name, Location newLocation) {
         return moveHome(name, newLocation, (CommandSender) null);
     }
 
@@ -461,11 +463,11 @@ public class ATPlayer {
      * @param newLocation the new location of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> moveHome(String name, Location newLocation, CommandSender sender) {
-        if (!homes.containsKey(name)) return CompletableFuture.completedFuture(false);
+    @NotNull public CompletableFuture<Void> moveHome(String name, Location newLocation, CommandSender sender) {
+        if (!homes.containsKey(name)) return ATException.failedFuture(sender, "Missing home: " + name);
         HomeMoveEvent event = new HomeMoveEvent(homes.get(name), newLocation, sender);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return ATException.failedFuture(event);
 
         return event.getHome().move(event.getLocation());
     }
@@ -489,7 +491,7 @@ public class ATPlayer {
      * @param name the name of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> removeHome(String name) {
+    public @NotNull CompletableFuture<Void> removeHome(String name) {
         return removeHome(name, (CommandSender) null);
     }
 
@@ -500,16 +502,15 @@ public class ATPlayer {
      * @param sender the command sender that triggered the event.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> removeHome(String name, CommandSender sender) {
+    public @NotNull CompletableFuture<Void> removeHome(String name, CommandSender sender) {
         HomeDeleteEvent event = new HomeDeleteEvent(homes.get(name), sender);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return ATException.failedFuture(event);
 
         homes.remove(event.getHome().getName());
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             HomeSQLManager.get().removeHome(uuid, event.getHome().getName(), callback);
-            return callback.data;
         });
     }
 
@@ -562,7 +563,7 @@ public class ATPlayer {
      * @param name the name of the home to be used.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setMainHome(String name) {
+    public @NotNull CompletableFuture<Void> setMainHome(String name) {
         return setMainHome(name, (CommandSender) null);
     }
 
@@ -573,11 +574,11 @@ public class ATPlayer {
      * @param sender the command sender that triggered the event.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setMainHome(String name, CommandSender sender) {
-        if (!homes.containsKey(name)) return CompletableFuture.completedFuture(false);
+    public @NotNull CompletableFuture<Void> setMainHome(String name, CommandSender sender) {
+        if (!homes.containsKey(name)) return ATException.failedFuture(sender, "Missing home: " + name);
         SwitchMainHomeEvent event = new SwitchMainHomeEvent(homes.get(mainHome), homes.get(name), sender);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return ATException.failedFuture(event);
 
         this.mainHome = name;
         LinkedHashMap<String, Home> tempHomes = new LinkedHashMap<>();
@@ -588,10 +589,9 @@ public class ATPlayer {
         }
         homes = tempHomes;
 
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             PlayerSQLManager.get().setMainHome(uuid, name, callback);
-            return callback.data;
         });
     }
 

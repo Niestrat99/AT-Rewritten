@@ -51,10 +51,14 @@ public class DelHomeCommand extends AbstractHomeCommand {
             return;
         }
 
-        atPlayer.removeHome(name, sender).thenAccept(result ->
-                CustomMessages.sendMessage(sender, result ? (sender.getUniqueId() == player.getUniqueId() ?
-                                "Info.deletedHome" : "Info.deletedHomeOther") : "Error.deleteHomeFail",
-                        "{home}", name, "{player}", player.getName()));
+        atPlayer.removeHome(name, sender).whenComplete((ignored, err) -> CustomMessages.failableContextualPath(
+            sender,
+            player,
+            "Info.homeDeleted",
+            "Error.deleteHomeFailed",
+            () -> err == null,
+            "{home}", name, "{player}", player.getName()
+        ));
     }
 
     private void delHome(Player player, String name) {

@@ -33,20 +33,25 @@ public class MoveHomeCommand extends AbstractHomeCommand {
             }
             return true;
         }
-        if (sender.hasPermission("at.admin.movehome")) {
+
+        if (sender.hasPermission("at.admin.movehome") && args.length > 1) {
             // We'll just assume that the admin command overrides the homes limit.
-            if (args.length > 1) {
-                ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
-                    if (!atTarget.getHomes().containsKey(args[1])) {
-                        CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                        return;
-                    }
-                    atTarget.moveHome(args[0], player.getLocation(), sender).thenAcceptAsync(result ->
-                            CustomMessages.sendMessage(sender, result ? "Info.movedHomeOther" : "Error.moveHomeFail",
-                                    "{home}", args[1], "{player}", args[0]));
-                });
-                return true;
-            }
+            ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
+                if (!atTarget.getHomes().containsKey(args[1])) {
+                    CustomMessages.sendMessage(sender, "Error.noSuchHome");
+                    return;
+                }
+
+                atTarget.moveHome(args[0], player.getLocation(), sender).whenCompleteAsync((ignored, err) -> CustomMessages.failableContextualPath(
+                    sender,
+                    atTarget,
+                    "Info.movedHome",
+                    "Error.moveHomeFail",
+                    () -> err != null,
+                    "{home}", args[1], "{player}", args[0]
+                ));
+            });
+            return true;
         }
         Home home = atPlayer.getHome(args[0]);
 
@@ -55,9 +60,15 @@ public class MoveHomeCommand extends AbstractHomeCommand {
             return true;
         }
 
-        atPlayer.moveHome(args[0], player.getLocation(), sender).thenAcceptAsync(result ->
-                CustomMessages.sendMessage(sender, result ? "Info.movedHome" : "Error.moveHomeFail",
-                        "{home}", args[0]));
+        atPlayer.moveHome(args[0], player.getLocation(), sender).whenCompleteAsync((ignored, err) -> CustomMessages.failableContextualPath(
+            sender,
+            atPlayer,
+            "Info.movedHome",
+            "Error.moveHomeFail",
+            () -> err != null,
+            "{home}", args[0]
+        ));
+
         return true;
     }
 

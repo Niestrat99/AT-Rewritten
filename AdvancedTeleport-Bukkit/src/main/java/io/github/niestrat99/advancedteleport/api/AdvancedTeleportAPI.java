@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnMirrorEvent;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
@@ -31,7 +32,7 @@ public class AdvancedTeleportAPI {
         // Create an event.
         WarpCreateEvent event = new WarpCreateEvent(name, creator, location);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
+        if (event.isCancelled()) return ATException.failedFuture(event);
 
         // Create the warp object.
         Warp warp = new Warp(event.getSender() instanceof Player ? ((Player) event.getSender()).getUniqueId() : null,

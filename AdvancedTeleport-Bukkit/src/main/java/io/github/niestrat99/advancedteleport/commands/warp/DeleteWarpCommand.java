@@ -31,12 +31,15 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
         }
 
          if (AdvancedTeleportAPI.getWarps().containsKey(args[0])) {
-             AdvancedTeleportAPI.getWarps().get(args[0]).delete(sender).thenAcceptAsync(result ->
-                     CustomMessages.sendMessage(sender, result ? "Info.deletedWarp" : "Error.deleteWarpFail",
-                             "{warp}", args[0]));
-        } else {
-            CustomMessages.sendMessage(sender, "Error.noWarpInput");
-        }
+             AdvancedTeleportAPI.getWarps().get(args[0]).delete(sender).whenCompleteAsync((ignored, exception) -> CustomMessages.failable(
+                 sender,
+                 "Error.deleteWarpFail",
+                 "Info.deletedWarp,",
+                 () -> exception != null,
+                "{warp}", args[0]
+             ));
+        } else CustomMessages.sendMessage(sender, "Error.noWarpInput");
+
         return true;
     }
 

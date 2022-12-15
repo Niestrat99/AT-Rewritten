@@ -76,9 +76,14 @@ public class SetHomeCommand implements ATCommand {
             return;
         }
 
-        atPlayer.addHome(homeName, sender.getLocation(), sender).thenAccept(result -> CustomMessages.sendMessage(sender, result ?
-                        (sender.getUniqueId() == player ? "Info.setHome" : "Info.setHomeOther") : "Error.setHomeFail",
-                "{home}", homeName, "{player}", playerName));
+        atPlayer.addHome(homeName, sender.getLocation(), sender).whenComplete((ignored, err) -> CustomMessages.failableContextualPath(
+            sender,
+            player,
+            "Info.homeSet",
+            "Error.setHomeFail",
+            () -> err == null,
+            "{home}", homeName, "{player}", playerName
+        ));
 
     }
 

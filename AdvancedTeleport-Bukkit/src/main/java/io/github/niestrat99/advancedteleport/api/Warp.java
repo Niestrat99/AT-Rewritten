@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
@@ -211,16 +212,15 @@ public class Warp implements NamedLocation {
      * @param sender the command sender that called for the action. Can be null.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> delete(@Nullable CommandSender sender) {
+    public @NotNull CompletableFuture<Void> delete(@Nullable CommandSender sender) {
         WarpDeleteEvent event = new WarpDeleteEvent(this, sender);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+        if (event.isCancelled()) return ATException.failedFuture(event);
 
         warps.remove(name);
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             WarpSQLManager.get().removeWarp(name, callback);
-            return callback.data;
         });
     }
 
@@ -229,7 +229,7 @@ public class Warp implements NamedLocation {
      *
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> delete() {
+    public CompletableFuture<Void> delete() {
         return delete((CommandSender) null);
     }
 }
