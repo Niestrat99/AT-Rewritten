@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.*;
 
-public class ParticlesCommand implements SubATCommand {
+public class ParticlesCommand extends SubATCommand {
 
     private final HashSet<String> types =  new HashSet<>(Arrays.asList("home", "tpa", "tpahere", "tpr", "warp", "spawn", "back"));
 

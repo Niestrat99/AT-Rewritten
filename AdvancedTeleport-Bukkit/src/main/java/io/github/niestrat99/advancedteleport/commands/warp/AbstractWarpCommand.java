@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractWarpCommand implements ATCommand {
+public abstract class AbstractWarpCommand extends ATCommand {
 
     @Nullable
     @Override

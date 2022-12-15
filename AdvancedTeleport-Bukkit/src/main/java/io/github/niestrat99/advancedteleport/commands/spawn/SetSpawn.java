@@ -36,7 +36,7 @@ public class SetSpawn extends SpawnATCommand implements PlayerCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.setspawn";
     }
 }

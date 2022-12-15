@@ -54,7 +54,7 @@ public class MoveWarpCommand extends AbstractWarpCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.movewarp";
     }
 }

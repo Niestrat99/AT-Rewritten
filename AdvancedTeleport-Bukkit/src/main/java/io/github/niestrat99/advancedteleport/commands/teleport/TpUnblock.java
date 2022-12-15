@@ -42,19 +42,19 @@ public class TpUnblock extends TeleportATCommand implements PlayerCommand {
                 return;
             }
 
-            atPlayer.unblockUser(target.getUniqueId()).handle((x, e) -> {
-                if (e != null) e.printStackTrace();
-
-                CustomMessages.sendMessage(sender, e == null ? "Info.unblockPlayer" : "Error.unblockFail",
-                        "{player}", args[0]);
-                return x;
-            });
+            atPlayer.unblockUser(target.getUniqueId()).whenCompleteAsync((ignored, err) -> CustomMessages.failable(
+                sender,
+                "Info.unblockPlayer",
+                "Error.unblockFail",
+                () -> err != null,
+                "{player}", target.getName()
+            ), CoreClass.async);
         });
         return true;
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.unblock";
     }
 }

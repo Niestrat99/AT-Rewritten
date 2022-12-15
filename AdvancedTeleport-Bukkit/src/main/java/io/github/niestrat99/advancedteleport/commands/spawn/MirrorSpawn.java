@@ -45,7 +45,7 @@ public class MirrorSpawn extends SpawnATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.mirrorspawn";
     }
 }

@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class MoveHomeCommand extends AbstractHomeCommand implements PlayerCommand {
+public final class MoveHomeCommand extends AbstractHomeCommand implements PlayerCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
@@ -69,7 +69,7 @@ public class MoveHomeCommand extends AbstractHomeCommand implements PlayerComman
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.movehome";
     }
 }

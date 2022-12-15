@@ -96,7 +96,7 @@ public class Tpa extends TeleportATCommand implements TimedATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.tpa";
     }
 

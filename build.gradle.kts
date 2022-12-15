@@ -9,9 +9,7 @@ allprojects {
     java {
         withSourcesJar()
 
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
-        }
+        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 

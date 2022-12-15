@@ -52,28 +52,30 @@ public class TpBlockCommand extends TeleportATCommand implements PlayerCommand {
                 for (int i = 1; i < args.length; i++) {
                     reason.append(args[i]).append(" ");
                 }
-                atPlayer.blockUser(target, reason.toString().trim()).handle((x, e) -> {
-                    if (e != null) e.printStackTrace();
 
-                    CustomMessages.sendMessage(sender, e == null ? "Info.blockPlayer" : "Error.blockFail",
-                            "{player}", args[0]);
-                    return x;
-                });
+                atPlayer.blockUser(target, reason.toString().trim()).whenCompleteAsync((ignored, err) -> CustomMessages.failable(
+                    sender,
+                    "Info.block",
+                    "Error.blockFail",
+                    () -> err != null,
+                    "{player}", target.getName()
+                ));
             } else {
-                atPlayer.blockUser(target).handle((x, e) -> {
-                    if (e != null) e.printStackTrace();
-
-                    CustomMessages.sendMessage(sender, e == null ? "Info.blockPlayer" : "Error.blockFail",
-                            "{player}", args[0]);
-                    return x;
-                });
+                atPlayer.blockUser(target).whenCompleteAsync((ignored, err) -> CustomMessages.failable(
+                    sender,
+                    "Info.blockPlayer",
+                    "Error.blockFail",
+                    () -> err != null,
+                    "{player}", target.getName()
+                ));
             }
         });
+
         return true;
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.block";
     }
 }

@@ -20,13 +20,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class SetIconCommand implements SubATCommand {
+public class SetIconCommand extends SubATCommand {
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (args.length < 3) {
             return true;
         }
+
         CompletableFuture<Boolean> completableFuture;
         switch (args[0].toLowerCase()) {
             case "warp":
@@ -52,8 +57,12 @@ public class SetIconCommand implements SubATCommand {
 
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
+    public List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         List<String> results = new ArrayList<>();
         if (args.length == 1) {
             StringUtil.copyPartialMatches(args[0], Arrays.asList("warp", "home", "spawn"), results);
@@ -61,20 +70,17 @@ public class SetIconCommand implements SubATCommand {
             switch (args[0].toLowerCase()) {
                 case "warp" -> StringUtil.copyPartialMatches(args[1], AdvancedTeleportAPI.getWarps().keySet(), results);
                 case "home" -> {
-                    List<String> players = new ArrayList<>();
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        if (!(sender instanceof Player) || ((Player) sender).canSee(player)) {
-                            players.add(player.getName());
-                        }
-                    }
+                    final var players = Bukkit.getOnlinePlayers().stream()
+                        .filter(player -> !(sender instanceof Player) || ((Player) sender).canSee(player))
+                        .map(Player::getName)
+                        .toList();
                     StringUtil.copyPartialMatches(args[1], players, results);
                 }
                 case "spawn" -> StringUtil.copyPartialMatches(args[1], Spawn.get().getSpawns(), results);
             }
         } else if (args.length == 3) {
             switch (args[0].toLowerCase()) {
-                case "warp", "spawn" ->
-                        StringUtil.copyPartialMatches(args[2], MapAssetManager.getImageNames(), results);
+                case "warp", "spawn" -> StringUtil.copyPartialMatches(args[2], MapAssetManager.getImageNames(), results);
                 case "home" -> {
                     ATPlayer player = ATPlayer.getPlayer(args[1]);
                     if (player != null) {

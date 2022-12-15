@@ -13,12 +13,29 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class DelHomeCommand extends AbstractHomeCommand implements PlayerCommand {
+public final class DelHomeCommand extends AbstractHomeCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String label,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
+
+        final var player = (Player) sender;
+
+        if (args.length > 0) {
+            if (sender.hasPermission(getPermission()) && args.length > 1) {
+                final var target = Bukkit.getOfflinePlayer(args[0]);
+                delHome(target, player, args[1]);
+                return true;
+            }
+
+            delHome(player, args[0]);
+            return true;
+        }
 
         final var atPlayer = ATPlayer.getPlayer(player);
         if (PluginHookManager.get().floodgateEnabled() && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
@@ -51,7 +68,7 @@ public class DelHomeCommand extends AbstractHomeCommand implements PlayerCommand
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.delhome";
     }
 }

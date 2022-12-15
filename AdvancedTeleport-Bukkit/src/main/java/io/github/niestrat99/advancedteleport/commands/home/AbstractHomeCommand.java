@@ -1,8 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import java.util.Collections;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,38 +16,46 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractHomeCommand implements ATCommand {
+public abstract class AbstractHomeCommand extends ATCommand {
 
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        List<String> results = new ArrayList<>();
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            if (player.hasPermission("at.admin." + cmd.getName())) {
-                if (!args[0].isEmpty() && args.length == 2) {
-                    if (!ATPlayer.isPlayerCached(args[0])) return new ArrayList<>();
-                    ATPlayer target = ATPlayer.getPlayer(args[0]);
-                    StringUtil.copyPartialMatches(args[1], target.getHomes().keySet(), results);
-                    return results;
-                }
-            }
-            if (args.length == 1) {
-                ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                List<String> homes = new ArrayList<>();
-                for (String home : atPlayer.getHomes().keySet()) {
-                    if (atPlayer.canAccessHome(atPlayer.getHome(home)) || cmd.getName().equalsIgnoreCase("delhome")) {
-                        homes.add(home);
-                    }
-                }
-                StringUtil.copyPartialMatches(args[0], homes, results);
-            }
+        if (!(sender instanceof Player player)) return Collections.emptyList();
+
+        if (player.hasPermission(getPermission()) && !args[0].isEmpty() && args.length == 2) {
+            if (!ATPlayer.isPlayerCached(args[0])) return Collections.emptyList();
+            final var atTarget = ATPlayer.getPlayer(args[0]);
+            return StringUtil.copyPartialMatches(args[1], atTarget.getHomes().keySet(), new ArrayList<>());
         }
-        return results;
+
+        if (args.length == 1) {
+            final var atSender = ATPlayer.getPlayer(player);
+            final var accessibleHomes = atSender.getHomes().values().stream()
+                .filter(home -> cmd.getName().equals("delHome") || atSender.canAccessHome(home))
+                .map(Home::getName)
+                .toList();
+
+            return StringUtil.copyPartialMatches(args[0], accessibleHomes, new ArrayList<>());
+        }
+
+        return Collections.emptyList();
     }
 
     @Override
     public boolean getRequiredFeature() {
         return NewConfig.get().USE_HOMES.get();
+    }
+
+    @Override
+    public boolean canProceed(@NotNull final CommandSender sender) {
+        if (!super.canProceed(sender)) return false;
+
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return false;
+        }
+
+        return true;
     }
 }

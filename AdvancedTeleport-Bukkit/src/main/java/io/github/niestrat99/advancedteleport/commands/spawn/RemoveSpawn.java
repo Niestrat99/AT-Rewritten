@@ -54,7 +54,7 @@ public class RemoveSpawn extends SpawnATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.removespawn";
     }
 
