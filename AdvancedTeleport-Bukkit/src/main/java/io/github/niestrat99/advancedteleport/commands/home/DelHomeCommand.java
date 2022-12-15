@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -19,24 +20,11 @@ public class DelHomeCommand extends AbstractHomeCommand implements PlayerCommand
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
 
-        Player player = (Player) sender;
-        if (args.length > 0) {
-            if (sender.hasPermission("at.admin.delhome")) {
-                if (args.length > 1) {
-                    OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-                    delHome(target, player, args[1]);
-                    return true;
-                }
-            }
-            delHome(player, args[0]);
-        } else {
-            ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
-                ((ATFloodgatePlayer) atPlayer).sendDeleteHomeForm();
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noHomeInput");
-            }
-        }
+        final var atPlayer = ATPlayer.getPlayer(player);
+        if (PluginHookManager.get().floodgateEnabled() && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+            atFloodgatePlayer.sendDeleteHomeForm();
+        } else CustomMessages.sendMessage(sender, "Error.noHomeInput");
+
         return true;
     }
 

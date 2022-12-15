@@ -12,6 +12,7 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
@@ -66,7 +67,7 @@ public class ATPlayer {
         this.uuid = uuid;
         if (name == null) return;
 
-        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+        if (PluginHookManager.get().floodgateEnabled()) {
             org.geysermc.floodgate.api.FloodgateApi api = org.geysermc.floodgate.api.FloodgateApi.getInstance();
             if (api == null) {
                 CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
@@ -876,7 +877,7 @@ public class ATPlayer {
         if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
 
         // If floodgate is on the server, see if they're a Bedrock player - if so, initiate them as a Floodgate player
-        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+        if (PluginHookManager.get().floodgateEnabled()) {
             org.geysermc.floodgate.api.FloodgateApi api = org.geysermc.floodgate.api.FloodgateApi.getInstance();
             if (api == null) {
                 CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");

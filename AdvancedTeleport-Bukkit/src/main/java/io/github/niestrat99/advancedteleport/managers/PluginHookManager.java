@@ -18,6 +18,7 @@ import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import io.github.niestrat99.advancedteleport.hooks.maps.DynmapHook;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.hooks.particles.PlayerParticlesHook;
@@ -129,6 +130,10 @@ public class PluginHookManager {
             return plugin.isClaimed(location);
         }
         return false;
+    }
+
+    public boolean floodgateEnabled() {
+        return Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate");
     }
 
     private <T> void addIcons(boolean requirement, CompletableFuture<List<T>> pois, Consumer<T> handler) {
