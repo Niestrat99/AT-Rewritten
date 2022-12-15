@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class SetHomeCommand implements ATCommand {
+public final class SetHomeCommand extends AbstractHomeCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
@@ -94,7 +94,7 @@ public class SetHomeCommand implements ATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.sethome";
     }
 

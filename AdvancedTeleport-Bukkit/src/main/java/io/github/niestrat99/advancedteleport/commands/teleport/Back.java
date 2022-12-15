@@ -128,7 +128,7 @@ public class Back extends TeleportATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.back";
     }
 

@@ -38,7 +38,7 @@ public class SetSpawn extends SpawnATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.setspawn";
     }
 }

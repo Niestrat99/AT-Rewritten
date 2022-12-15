@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Tpr implements ATCommand {
+public class Tpr extends ATCommand {
 
     private static final List<UUID> searchingPlayers = new ArrayList<>();
 
@@ -149,7 +149,7 @@ public class Tpr implements ATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.tpr";
     }
 }

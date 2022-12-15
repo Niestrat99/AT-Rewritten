@@ -62,7 +62,7 @@ public class SpawnCommand extends SpawnATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.spawn";
     }
 

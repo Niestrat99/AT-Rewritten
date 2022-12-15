@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ImportCommand implements SubATCommand {
+public class ImportCommand extends SubATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
@@ -35,24 +35,12 @@ public class ImportCommand implements SubATCommand {
                 CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
                 Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
                     switch (args[1].toLowerCase()) {
-                        case "homes":
-                            plugin.importHomes();
-                            break;
-                        case "warps":
-                            plugin.importWarps();
-                            break;
-                        case "lastlocs":
-                            plugin.importLastLocations();
-                            break;
-                        case "spawns":
-                            plugin.importSpawn();
-                            break;
-                        case "players":
-                            plugin.importPlayerInformation();
-                            break;
-                        default:
-                            plugin.importAll();
-                            break;
+                        case "homes" -> plugin.importHomes();
+                        case "warps" -> plugin.importWarps();
+                        case "lastlocs" -> plugin.importLastLocations();
+                        case "spawns" -> plugin.importSpawn();
+                        case "players" -> plugin.importPlayerInformation();
+                        default -> plugin.importAll();
                     }
                     CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
                 });

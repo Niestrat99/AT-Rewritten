@@ -107,7 +107,7 @@ public class TpCancel extends TeleportATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.cancel";
     }
 }

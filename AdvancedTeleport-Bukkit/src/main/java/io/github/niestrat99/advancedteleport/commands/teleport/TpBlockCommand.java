@@ -19,10 +19,6 @@ public class TpBlockCommand extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
 
         Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
@@ -55,20 +51,30 @@ public class TpBlockCommand extends TeleportATCommand {
                 for (int i = 1; i < args.length; i++) {
                     reason.append(args[i]).append(" ");
                 }
-                atPlayer.blockUser(target, reason.toString().trim()).thenAcceptAsync(result ->
-                        CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
-                                "{player}", args[0]));
+
+                atPlayer.blockUser(target, reason.toString().trim()).whenCompleteAsync((ignored, err) -> CustomMessages.failable(
+                    sender,
+                    "Info.block",
+                    "Error.blockFail",
+                    () -> err != null,
+                    "{player}", target.getName()
+                ));
             } else {
-                atPlayer.blockUser(target).thenAcceptAsync(result ->
-                        CustomMessages.sendMessage(sender, result ? "Info.blockPlayer" : "Error.blockFail",
-                                "{player}", args[0]));
+                atPlayer.blockUser(target).whenCompleteAsync((ignored, err) -> CustomMessages.failable(
+                    sender,
+                    "Info.blockPlayer",
+                    "Error.blockFail",
+                    () -> err != null,
+                    "{player}", target.getName()
+                ));
             }
         });
+
         return true;
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.block";
     }
 }

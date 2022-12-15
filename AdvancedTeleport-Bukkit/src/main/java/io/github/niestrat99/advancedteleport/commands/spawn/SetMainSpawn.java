@@ -69,7 +69,7 @@ public class SetMainSpawn extends SpawnATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.setmainspawn";
     }
 

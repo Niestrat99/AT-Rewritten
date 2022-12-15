@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class InfoCommand implements SubATCommand {
+public class InfoCommand extends SubATCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

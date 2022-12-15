@@ -161,7 +161,7 @@ public class TpLoc extends TeleportATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.tploc";
     }
 

@@ -19,10 +19,6 @@ public class TpUnblock extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
 
         Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
@@ -45,9 +41,13 @@ public class TpUnblock extends TeleportATCommand {
                 return;
             }
 
-            atPlayer.unblockUser(target.getUniqueId()).thenAcceptAsync(result ->
-                    CustomMessages.sendMessage(sender, result ? "Info.unblockPlayer" : "Error.unblockFail",
-                            "{player}", args[0]), CoreClass.async);
+            atPlayer.unblockUser(target.getUniqueId()).whenCompleteAsync((ignored, err) -> CustomMessages.failable(
+                sender,
+                "Info.unblockPlayer",
+                "Error.unblockFail",
+                () -> err != null,
+                "{player}", target.getName()
+            ), CoreClass.async);
 
         });
 
@@ -55,7 +55,7 @@ public class TpUnblock extends TeleportATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.unblock";
     }
 }

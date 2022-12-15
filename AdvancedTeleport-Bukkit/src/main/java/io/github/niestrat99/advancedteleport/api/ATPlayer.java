@@ -584,10 +584,10 @@ public class ATPlayer {
         this.mainHome = name;
         LinkedHashMap<String, Home> tempHomes = new LinkedHashMap<>();
         tempHomes.put(name, homes.get(name));
-        for (String home : homes.keySet()) {
-            if (home.equals(name)) continue;
-            tempHomes.put(home, homes.get(home));
-        }
+        homes.keySet().stream()
+            .filter(home -> !home.equals(name))
+            .forEach(home -> tempHomes.put(home, homes.get(home)));
+
         homes = tempHomes;
 
         return CompletableFuture.runAsync(() -> {

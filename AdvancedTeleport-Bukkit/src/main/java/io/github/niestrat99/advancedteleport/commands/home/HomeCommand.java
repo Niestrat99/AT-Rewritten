@@ -18,30 +18,32 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class HomeCommand extends AbstractHomeCommand {
+public final class HomeCommand extends AbstractHomeCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String label,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
 
-        ATPlayer atPlayer = ATPlayer.getPlayer((Player) sender);
-        Player player = (Player) sender;
+        final var atPlayer = ATPlayer.getPlayer((Player) sender);
+        final var player = (Player) sender;
 
-        HashMap<String, Home> homes = atPlayer.getHomes();
         if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
             CustomMessages.sendMessage(player, "Error.onCountdown");
             return true;
         }
-        int cooldown = CooldownManager.secondsLeftOnCooldown("home", player);
+
+        final var cooldown = CooldownManager.secondsLeftOnCooldown("home", player);
         if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            CustomMessages.sendMessage(player, "Error.onCooldown", "{time}", String.valueOf(cooldown));
             return true;
         }
+
+        final var homes = atPlayer.getHomes();
 
         if (args.length == 0) {
             if (atPlayer.hasMainHome()) {
@@ -151,7 +153,7 @@ public class HomeCommand extends AbstractHomeCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.home";
     }
 }

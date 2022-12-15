@@ -44,7 +44,7 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.delwarp";
     }
 }
