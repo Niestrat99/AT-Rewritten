@@ -15,6 +15,7 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
@@ -71,7 +72,7 @@ public class ATPlayer {
         if (uuid == null || name == null) return;
 
         this.uuid = uuid;
-        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+        if (PluginHookManager.get().floodgateEnabled()) {
             org.geysermc.floodgate.api.FloodgateApi api = org.geysermc.floodgate.api.FloodgateApi.getInstance();
             if (api == null) {
                 CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
@@ -808,7 +809,7 @@ public class ATPlayer {
     public static ATPlayer getPlayer(@NotNull Player player) {
         Objects.requireNonNull(player, "Player must not be null.");
         if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
-        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
+        if (PluginHookManager.get().floodgateEnabled()) {
             org.geysermc.floodgate.api.FloodgateApi api = org.geysermc.floodgate.api.FloodgateApi.getInstance();
             if (api == null) {
                 CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
