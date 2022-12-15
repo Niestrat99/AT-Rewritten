@@ -73,17 +73,14 @@ public class SetHomeCommand implements PlayerCommand {
         }
 
         // Attempt to add the home.
-        atPlayer.addHome(homeName, sender.getLocation(), sender).handle((x, e) -> {
-            if (e != null) {
-                CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName, "{player}", playerName);
-                e.printStackTrace();
-                return x;
-            }
-
-            CustomMessages.sendMessage(sender, (sender.getUniqueId() == player ? "Info.setHome" : "Info.setHomeOther"),
-                    "{home}", homeName, "{player}", playerName);
-            return x;
-        });
+        atPlayer.addHome(homeName, sender.getLocation(), sender).whenComplete((ignored, err) -> CustomMessages.failableContextualPath(
+                sender,
+                player,
+                "Info.homeSet",
+                "Error.setHomeFail",
+                () -> err == null,
+                "{home}", homeName, "{player}", playerName
+        ));
     }
 
     @Override

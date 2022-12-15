@@ -40,13 +40,13 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
 
         // If the warp exists, delete it.
          if (warp != null) {
-             warp.delete(sender).handle((x, e) -> {
-                 if (e != null) e.printStackTrace();
-
-                 CustomMessages.sendMessage(sender, (e == null) ? "Info.deletedWarp" : "Error.deleteWarpFail",
-                         "{warp}", args[0]);
-                 return x;
-         });
+             warp.delete(sender).whenCompleteAsync((ignored, exception) -> CustomMessages.failable(
+                     sender,
+                     "Error.deleteWarpFail", // TODO - see if this gets fixed in a later commit
+                     "Info.deletedWarp,",
+                     () -> exception != null,
+                     "{warp}", args[0]
+             ));
         } else {
             CustomMessages.sendMessage(sender, "Error.noWarpInput");
         }
