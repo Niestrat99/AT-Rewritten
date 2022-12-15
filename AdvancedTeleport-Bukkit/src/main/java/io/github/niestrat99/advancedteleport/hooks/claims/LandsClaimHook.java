@@ -26,6 +26,7 @@ public class LandsClaimHook extends ClaimPlugin {
 
     @Override
     public boolean isClaimed(Location location) {
-        return lands.isClaimed(location);
+        final var chunk = location.getChunk();
+        return lands.isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
     }
 }
