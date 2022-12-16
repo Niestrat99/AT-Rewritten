@@ -5,7 +5,6 @@ import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.api.Title;
-import io.github.thatsmusic99.configurationmaster.impl.CMConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -76,10 +75,6 @@ public class NewConfig extends ATConfig {
 
     public ConfigOption<ConfigSection> X;
     public ConfigOption<ConfigSection> Z;
-    @Deprecated public ConfigOption<Integer> MAXIMUM_X;
-    @Deprecated public ConfigOption<Integer> MAXIMUM_Z;
-    @Deprecated public ConfigOption<Integer> MINIMUM_X;
-    @Deprecated public ConfigOption<Integer> MINIMUM_Z;
     public ConfigOption<Boolean> RAPID_RESPONSE;
     public ConfigOption<Boolean> USE_VANILLA_BORDER;
     public ConfigOption<Boolean> USE_PLUGIN_BORDERS;
@@ -780,10 +775,6 @@ public class NewConfig extends ATConfig {
 
         X = new ConfigOption<>("x");
         Z = new ConfigOption<>("z");
-        MAXIMUM_X = new ConfigOption<>("maximum-x");
-        MAXIMUM_Z = new ConfigOption<>("maximum-z");
-        MINIMUM_X = new ConfigOption<>("minimum-x");
-        MINIMUM_Z = new ConfigOption<>("minimum-z");
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
         USE_VANILLA_BORDER = new ConfigOption<>("use-vanilla-border");
         USE_PLUGIN_BORDERS = new ConfigOption<>("use-plugin-borders");

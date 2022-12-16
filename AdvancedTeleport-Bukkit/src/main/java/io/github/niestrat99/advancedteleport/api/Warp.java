@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.api;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -88,18 +87,6 @@ public class Warp implements NamedLocation {
         return creator;
     }
 
-    /**
-     * Sets the location of the warp.
-     *
-     * @param location the new location of the warp.
-     * @param callback what to do after the warp has been moved.
-     * @deprecated Replaced with {@link Warp#setLocation(Location, CommandSender)}
-     */
-    @Deprecated
-    public void setLocation(Location location, SQLManager.SQLCallback<Boolean> callback) {
-        setLocation(location);
-        callback.onSuccess(true);
-    }
 
     /**
      * Sets the location of the warp.
@@ -172,31 +159,8 @@ public class Warp implements NamedLocation {
         return updatedTimeFormatted;
     }
 
-    /**
-     * Returns all registered warps.
-     *
-     * @return a hashmap where the key is the warp names, and the value is the warp objects themselves.
-     * @deprecated use {@link AdvancedTeleportAPI#getWarps()} instead, this will eventually become internal use only.
-     */
-    @Deprecated
-    public static HashMap<String, Warp> getWarps() {
-        return new HashMap<>(warps);
-    }
-
     public static void registerWarp(Warp warp) {
         warps.put(warp.name, warp);
-    }
-
-    /**
-     * Deletes a specified warp.
-     *
-     * @param callback what to do after the warp has been moved.
-     * @deprecated use {@link Warp#delete(CommandSender)} or {@link Warp#delete()} instead.
-     */
-    @Deprecated
-    public void delete(SQLManager.SQLCallback<Boolean> callback) {
-        delete((CommandSender) null);
-        callback.onSuccess(true);
     }
 
     /**

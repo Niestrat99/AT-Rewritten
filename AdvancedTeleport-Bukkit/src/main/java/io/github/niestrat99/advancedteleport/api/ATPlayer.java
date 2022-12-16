@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
-import io.github.niestrat99.advancedteleport.api.data.CancelledEventException;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.*;
 import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocationChangeEvent;
@@ -167,19 +166,6 @@ public class ATPlayer {
      * Toggles teleportation for the player, setting it to a specific status.
      *
      * @param teleportationEnabled true to enable teleportation, false to disable it.
-     * @param callback what to do after teleportation has been changed.
-     * @deprecated use {@link #setTeleportationEnabled(boolean)} instead.
-     */
-    @Deprecated
-    public void setTeleportationEnabled(boolean teleportationEnabled, SQLManager.SQLCallback<Boolean> callback) {
-        setTeleportationEnabled(teleportationEnabled);
-        callback.onSuccess(true);
-    }
-
-    /**
-     * Toggles teleportation for the player, setting it to a specific status.
-     *
-     * @param teleportationEnabled true to enable teleportation, false to disable it.
      * @return a completable future of whether the action failed or succeeded.
      */
     public @NotNull CompletableFuture<Void> setTeleportationEnabled(boolean teleportationEnabled) {
@@ -236,50 +222,6 @@ public class ATPlayer {
      * Makes this ATPlayer block another player, stopping the other player from sending teleportation requests to them.
      *
      * @param otherPlayer the player being blocked.
-     * @param callback what to do after the player has been blocked.
-     * @deprecated use {@link #blockUser(OfflinePlayer)} instead.
-     */
-    @Deprecated
-    public void blockUser(@NotNull OfflinePlayer otherPlayer, SQLManager.SQLCallback<Boolean> callback) {
-        blockUser(otherPlayer, (String) null);
-        callback.onSuccess(true);
-    }
-
-    /**
-     * Makes this ATPlayer block another player with a specified reason, stopping the other player from sending
-     * teleportation requests to them.
-     *
-     * @param otherPlayer the player being blocked.
-     * @param reason the reason the player has been blocked. Can be null.
-     * @param callback what to do after the player has been blocked.
-     * @deprecated use {@link #blockUser(OfflinePlayer, String)} instead.
-     */
-    @Deprecated
-    public void blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason,
-                          SQLManager.SQLCallback<Boolean> callback) {
-        blockUser(otherPlayer.getUniqueId(), reason);
-        callback.onSuccess(true);
-    }
-
-    /**
-     * Makes this ATPLayer block another player with the specified UUID with a given reason, stopping the other player
-     * from sending teleportation requests to them.
-     *
-     * @param otherUUID the player's UUID to be blocked.
-     * @param reason the reason the player has been blocked. Can be null.
-     * @param callback what to do after the player has been blocked.
-     * @deprecated use {@link #blockUser(UUID, String)} instead.
-     */
-    @Deprecated
-    public void blockUser(@NotNull UUID otherUUID, @Nullable String reason, SQLManager.SQLCallback<Boolean> callback) {
-        blockUser(otherUUID, reason);
-        callback.onSuccess(true);
-    }
-
-    /**
-     * Makes this ATPlayer block another player, stopping the other player from sending teleportation requests to them.
-     *
-     * @param otherPlayer the player being blocked.
      * @return a completable future of whether the action failed or succeeded.
      */
     public @NotNull CompletableFuture<Void> blockUser(@NotNull OfflinePlayer otherPlayer) {
@@ -321,19 +263,6 @@ public class ATPlayer {
      * Makes this player unblock a player with the specified UUID.
      *
      * @param otherUUID the UUID of the player to be unblocked.
-     * @param callback what to do after the player has been unblocked.
-     * @deprecated use {@link #unblockUser(UUID)} instead.
-     */
-    @Deprecated
-    public void unblockUser(@NotNull UUID otherUUID, SQLManager.SQLCallback<Boolean> callback) {
-        unblockUser(otherUUID);
-        callback.onSuccess(true);
-    }
-
-    /**
-     * Makes this player unblock a player with the specified UUID.
-     *
-     * @param otherUUID the UUID of the player to be unblocked.
      * @return a completable future of whether the action failed or succeeded.
      */
     public @NotNull CompletableFuture<Void> unblockUser(@NotNull UUID otherUUID) {
@@ -357,20 +286,6 @@ public class ATPlayer {
     @Unmodifiable
     public HashMap<String, Home> getHomes() {
         return new HashMap<>(homes);
-    }
-
-    /**
-     * Adds a home to the player's home list.
-     *
-     * @param name the name of the home.
-     * @param location the location of the home.
-     * @param callback what to do after the home has been added.
-     * @deprecated use {@link #addHome(String, Location)} instead.
-     */
-    @Deprecated
-    public void addHome(@NotNull String name, @NotNull Location location, SQLManager.SQLCallback<Boolean> callback) {
-        addHome(name, location, getPlayer(), true);
-        if (callback != null) callback.onSuccess(true);
     }
 
     /**
@@ -501,19 +416,6 @@ public class ATPlayer {
      * Removes a specified home.
      *
      * @param name the name of the home.
-     * @param callback what to do after the home has been added.
-     * @deprecated use {@link #removeHome(String)} instead.
-     */
-    @Deprecated
-    public void removeHome(String name, SQLManager.SQLCallback<Boolean> callback) {
-        removeHome(name);
-        callback.onSuccess(true);
-    }
-
-    /**
-     * Removes a specified home.
-     *
-     * @param name the name of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
     public @NotNull CompletableFuture<Void> removeHome(String name) {
@@ -626,19 +528,6 @@ public class ATPlayer {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             PlayerSQLManager.get().setMainHome(uuid, name, callback);
         });
-    }
-
-    /**
-     * Sets the main home of the player.
-     *
-     * @param name the name of the home to be used.
-     * @param callback what to do after the home has been added.
-     * @deprecated use {@link #setMainHome(String)} instead.
-     */
-    @Deprecated
-    public void setMainHome(String name, SQLManager.SQLCallback<Boolean> callback) {
-        setMainHome(name);
-        callback.onSuccess(true);
     }
 
     /**
@@ -973,18 +862,6 @@ public class ATPlayer {
         return previousLoc;
     }
 
-    /**
-     * Sets the player's previous location.
-     *
-     * @param previousLoc the new previous location to use.
-     * @param callback what to do after the home has been added.
-     * @deprecated use {@link #setPreviousLocation(Location)} instead.
-     */
-    @Deprecated
-    public void setPreviousLocation(@Nullable Location previousLoc, SQLManager.SQLCallback<Boolean> callback) {
-        setPreviousLocation(previousLoc);
-        callback.onSuccess(true);
-    }
 
     /**
      * Sets the player's previous location.

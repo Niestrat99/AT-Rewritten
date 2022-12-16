@@ -80,17 +80,6 @@ public class Home implements NamedLocation {
     }
 
     /**
-     * Sets the location of the house. This also updates the last updated timestamp.
-     *
-     * @param location The new location that the home will be set to.
-     * @deprecated use {@link Home#move(Location)} instead.
-     */
-    @Deprecated
-    public void setLocation(@NotNull Location location) {
-        move(location);
-    }
-
-    /**
      * Sets the location of the house to a different location. This also updates the last updated timestamp.
      *
      * @param location The new location that the home will be set to.
