@@ -47,4 +47,9 @@ public sealed class ATException extends Exception permits CancelledEventExceptio
     ) {
         return new ATException(message).future();
     }
+
+    @Contract(pure = true)
+    public static <T> @NotNull CompletableFuture<T> failedFuture(@NotNull final String message) {
+        return new ATException(message).future();
+    }
 }

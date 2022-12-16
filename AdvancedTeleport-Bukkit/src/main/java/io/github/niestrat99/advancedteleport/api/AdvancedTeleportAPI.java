@@ -40,7 +40,7 @@ public class AdvancedTeleportAPI {
     public static CompletableFuture<Void> setWarp(@NotNull String name, @Nullable CommandSender creator, @NotNull Location location) {
         // Null checks
         Objects.requireNonNull(location, "The warp location must not be null.");
-        if (!location.isWorldLoaded()) throw new IllegalArgumentException("The world the warp is being set in must be loaded.");
+        if (!location.isWorldLoaded()) return ATException.failedFuture("The world the warp is being set in must be loaded.");
 
         // Create an event.
         WarpCreateEvent event = new WarpCreateEvent(name, creator, location);
@@ -111,7 +111,7 @@ public class AdvancedTeleportAPI {
 
         // Null checks
         Objects.requireNonNull(location, "The spawn location must not be null.");
-        if (!location.isWorldLoaded()) throw new IllegalArgumentException("The world the spawn is being set in must be loaded.");
+        if (!location.isWorldLoaded()) return ATException.failedFuture("The world the spawn is being set in must be loaded.");
 
         // Create an event.
         SpawnCreateEvent event = new SpawnCreateEvent(name, sender, location);
