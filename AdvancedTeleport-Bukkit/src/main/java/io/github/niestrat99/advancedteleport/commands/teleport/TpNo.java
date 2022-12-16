@@ -21,7 +21,7 @@ public class TpNo extends TeleportATCommand implements PlayerCommand {
         Player player = (Player) sender;
         TeleportRequest request = TeleportTests.teleportTests(player, args, "tpano");
         if (request == null) return true;
-        TeleportDenyEvent event = new TeleportDenyEvent(request.getResponder(), request.getRequester(), request.getType());
+        TeleportDenyEvent event = new TeleportDenyEvent(request.responder(), request.requester(), request.type());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             // Could not deny request
@@ -31,7 +31,7 @@ public class TpNo extends TeleportATCommand implements PlayerCommand {
         if (args.length > 0) {
             target = Bukkit.getPlayer(args[0]);
         } else {
-            target = request.getRequester();
+            target = request.requester();
         }
         CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", "{player}", player.getName());
         CustomMessages.sendMessage(player, "Info.requestDeclined");

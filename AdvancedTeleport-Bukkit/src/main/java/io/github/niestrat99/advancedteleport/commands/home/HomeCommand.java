@@ -65,7 +65,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
 
         if (args.length > 1 && sender.hasPermission("at.admin.home")) {
             ATPlayer.getPlayerFuture(args[0]).thenAccept(target -> {
-                HashMap<String, Home> homesOther = target.getHomes();
+                final var homesOther = target.getHomes();
                 Home home;
                 switch (args[1].toLowerCase()) {
                     case "bed":

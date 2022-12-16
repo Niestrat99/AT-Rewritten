@@ -24,7 +24,7 @@ public class TpYes extends TeleportATCommand implements PlayerCommand {
         Player player = (Player) sender;
         TeleportRequest request = TeleportTests.teleportTests(player, args, "tpayes");
         if (request == null) return true;
-        TeleportAcceptEvent event = new TeleportAcceptEvent(request.getResponder(), request.getRequester(), request.getType());
+        TeleportAcceptEvent event = new TeleportAcceptEvent(request.responder(), request.requester(), request.type());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             // Could not accept request.
@@ -34,8 +34,8 @@ public class TpYes extends TeleportATCommand implements PlayerCommand {
         AcceptRequest.acceptRequest(request);
         // If the cooldown is to be applied after the request is accepted, apply it now
         if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
-            CooldownManager.addToCooldown(request.getType() == TeleportRequestType.TPAHERE ? "tpahere" :
-                    "tpa", request.getRequester());
+            CooldownManager.addToCooldown(request.type() == TeleportRequestType.TPAHERE ? "tpahere" :
+                    "tpa", request.requester());
         }
         return true;
     }

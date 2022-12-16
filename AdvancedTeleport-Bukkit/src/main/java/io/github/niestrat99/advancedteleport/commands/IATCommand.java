@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,6 +19,7 @@ public interface IATCommand extends TabExecutor {
      * @param sender the command sender running the command.
      * @return true if the sender can run the command, false if not.
      */
+    @Contract(pure = true)
     default boolean canProceed(@NotNull CommandSender sender) {
         // Make sure the required feature is enabled
         if (!getRequiredFeature()) {
@@ -29,7 +31,9 @@ public interface IATCommand extends TabExecutor {
         return sender.hasPermission(getPermission());
     }
 
+    @Contract(pure = true)
     boolean getRequiredFeature();
 
+    @Contract(pure = true)
     @NotNull String getPermission();
 }

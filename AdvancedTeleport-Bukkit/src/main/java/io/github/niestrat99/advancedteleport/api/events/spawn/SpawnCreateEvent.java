@@ -4,29 +4,30 @@ import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 /**
  * The event fired when a new spawnpoint is created.
  */
-public class SpawnCreateEvent extends TrackableATEvent {
+public final class SpawnCreateEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
     private @NotNull String name;
     private @NotNull Location location;
 
-    public SpawnCreateEvent(@NotNull String name, @Nullable CommandSender sender, @NotNull Location location) {
+    @Contract(pure = true)
+    public SpawnCreateEvent(
+        @NotNull final String name,
+        @Nullable final CommandSender sender,
+        @NotNull final Location location
+    ) throws IllegalArgumentException, IllegalStateException {
         super(sender);
 
         // Name checks
-        Objects.requireNonNull(name, "The spawn name must not be null.");
         if (name.isEmpty()) throw new IllegalArgumentException("The spawn name must not be empty.");
-
         // Location checks
-        Objects.requireNonNull(location, "The location must not be null.");
         if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
 
         this.name = name;
@@ -38,8 +39,8 @@ public class SpawnCreateEvent extends TrackableATEvent {
      *
      * @return the provided name.
      */
-    @NotNull
-    public String getName() {
+    @Contract(pure = true)
+    public @NotNull String getName() {
         return name;
     }
 
@@ -48,8 +49,8 @@ public class SpawnCreateEvent extends TrackableATEvent {
      *
      * @return the provided location.
      */
-    @NotNull
-    public Location getLocation() {
+    @Contract(pure = true)
+    public @NotNull Location getLocation() {
         return location;
     }
 
@@ -60,8 +61,8 @@ public class SpawnCreateEvent extends TrackableATEvent {
      * @throws NullPointerException if the spawn name is null.
      * @throws IllegalArgumentException if the spawn name is empty.
      */
-    public void setName(@NotNull String name) {
-        Objects.requireNonNull(name, "The spawn name must not be null.");
+    @Contract(pure = true)
+    public void setName(@NotNull final String name) throws IllegalArgumentException{
         if (name.isEmpty()) throw new IllegalArgumentException("The spawn name must not be empty.");
 
         this.name = name;
@@ -74,20 +75,20 @@ public class SpawnCreateEvent extends TrackableATEvent {
      * @throws NullPointerException if the location is null.
      * @throws IllegalStateException if the location's world is unloaded.
      */
-    public void setLocation(@NotNull Location location) {
-        // Location checks
-        Objects.requireNonNull(location, "The location must not be null.");
+    @Contract(pure = true)
+    public void setLocation(@NotNull final Location location) throws IllegalStateException {
         if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
         this.location = location;
     }
 
-    @NotNull
     @Override
-    public HandlerList getHandlers() {
+    @Contract(pure = true)
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Contract(pure = true)
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 }

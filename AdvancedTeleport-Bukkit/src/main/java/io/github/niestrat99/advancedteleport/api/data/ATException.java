@@ -7,25 +7,29 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public sealed class ATException extends Exception permits CancelledEventException {
+public class ATException extends Exception {
     @Nullable private final transient CommandSender sender;
 
+    @Contract(pure = true)
     protected ATException(
         @Nullable final CommandSender sender,
         @Nullable final String message
     ) {
-        super(message);
+        super("Context [%s] | Message [%s]".formatted(sender == null ? "null" : sender.getName(), message));
         this.sender = sender;
     }
 
+    @Contract(pure = true)
     protected ATException(@Nullable final String message) {
         this(null, message);
     }
 
+    @Contract(pure = true)
     protected ATException(@Nullable final CommandSender sender) {
         this(sender, null);
     }
 
+    @Contract(pure = true)
     public @Nullable CommandSender sender() {
         return sender;
     }
@@ -45,7 +49,7 @@ public sealed class ATException extends Exception permits CancelledEventExceptio
         @Nullable final CommandSender sender,
         @NotNull final String message
     ) {
-        return new ATException(message).future();
+        return new ATException(sender, message).future();
     }
 
     @Contract(pure = true)
