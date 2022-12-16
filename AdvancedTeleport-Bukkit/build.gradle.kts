@@ -92,7 +92,6 @@ dependencies {
         }
     }
     compileOnly(libs.playerParticles)
-    compileOnly(libMinix.arrow.core)
 }
 
 publishing {
