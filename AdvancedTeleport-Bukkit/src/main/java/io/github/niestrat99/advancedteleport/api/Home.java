@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -12,26 +13,16 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents a player's private teleportation point, known as a home.
  */
-public class Home implements NamedLocation {
+public final class Home implements NamedLocation {
 
-    // The UUID of the home owner.
-    @NotNull
-    private final UUID owner;
-    // The name of the home.
-    @NotNull
-    private final String name;
-    // The location of the home.
-    @NotNull
-    private Location location;
-    // When the home was made.
+    @NotNull private final UUID owner;
+    @NotNull private final String name;
+    @NotNull private Location location;
     private final long createdTime;
-    // When the home was last updated.
     private long updatedTime;
-    @NotNull
-    private final String createdTimeFormatted;
-    @NotNull
-    private String updatedTimeFormatted;
-    private final SimpleDateFormat format;
+    @NotNull private final String createdTimeFormatted;
+    @NotNull private String updatedTimeFormatted;
+    @NotNull private final SimpleDateFormat format;
 
     /**
      * Creates a home object. Please note this does not add a home to the saved data; instead, use {@link ATPlayer#addHome(String, Location, org.bukkit.entity.Player)}.
@@ -42,7 +33,14 @@ public class Home implements NamedLocation {
      * @param createdTime When the house was created in milliseconds.
      * @param updatedTime When the house was last updated in milliseconds.
      */
-    public Home(@NotNull UUID owner, @NotNull String name, @NotNull Location location, long createdTime, long updatedTime) {
+    @Contract(pure = true)
+    public Home(
+        @NotNull final UUID owner,
+        @NotNull final String name,
+        @NotNull final Location location,
+        final long createdTime,
+        final long updatedTime
+    ) {
         this.name = name;
         this.owner = owner;
         this.location = location;
@@ -59,8 +57,8 @@ public class Home implements NamedLocation {
      *
      * @return the location of the house.
      */
-    @NotNull
-    public Location getLocation() {
+    @Contract(pure = true)
+    public @NotNull Location getLocation() {
         return location;
     }
 
@@ -69,8 +67,8 @@ public class Home implements NamedLocation {
      *
      * @return the name of the house.
      */
-    @NotNull
-    public String getName() {
+    @Contract(pure = true)
+    public @NotNull String getName() {
         return name;
     }
 
@@ -79,8 +77,8 @@ public class Home implements NamedLocation {
      *
      * @return the home's owner UUID.
      */
-    @NotNull
-    public UUID getOwner() {
+    @Contract(pure = true)
+    public @NotNull UUID getOwner() {
         return owner;
     }
 
@@ -90,14 +88,14 @@ public class Home implements NamedLocation {
      * @param location The new location that the home will be set to.
      * @return true if the move succeeded, false if it failed.
      */
-    public @NotNull CompletableFuture<Void> move(@NotNull Location location) {
+    public @NotNull CompletableFuture<Void> move(@NotNull final Location location) {
         this.location = location;
 
         this.updatedTime = System.currentTimeMillis();
         this.updatedTimeFormatted = format.format(new Date(updatedTime));
 
         return CompletableFuture.runAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+            final var callback = new AdvancedTeleportAPI.FlattenedCallback<Boolean>();
             HomeSQLManager.get().moveHome(location, owner, name, callback);
         });
 
@@ -108,6 +106,7 @@ public class Home implements NamedLocation {
      *
      * @return the last updated time.
      */
+    @Contract(pure = true)
     public long getUpdatedTime() {
         return updatedTime;
     }
@@ -117,6 +116,7 @@ public class Home implements NamedLocation {
      *
      * @return the time the house was created in milliseconds.
      */
+    @Contract(pure = true)
     public long getCreatedTime() {
         return createdTime;
     }
@@ -126,8 +126,8 @@ public class Home implements NamedLocation {
      *
      * @return the formatted timestamp of when the home was created.
      */
-    @NotNull
-    public String getCreatedTimeFormatted() {
+    @Contract(pure = true)
+    public @NotNull String getCreatedTimeFormatted() {
         return createdTimeFormatted;
     }
 
@@ -136,8 +136,8 @@ public class Home implements NamedLocation {
      *
      * @return the formatted timestamp of when the home was last update.
      */
-    @NotNull
-    public String getUpdatedTimeFormatted() {
+    @Contract(pure = true)
+    public @NotNull String getUpdatedTimeFormatted() {
         return updatedTimeFormatted;
     }
 }

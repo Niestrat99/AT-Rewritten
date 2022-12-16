@@ -8,7 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class CancelledEventException extends ATException {
-    private CancelledEventException(@Nullable final CommandSender sender, @Nullable final String message) {
+    @Contract(pure = true)
+    private CancelledEventException(
+        @Nullable final CommandSender sender,
+        @Nullable final String message
+    ) {
         super(sender, message);
     }
 

@@ -3,19 +3,23 @@ package io.github.niestrat99.advancedteleport.api.events.spawn;
 import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * The event fired when a spawnpoint is removed.
  */
-public class SpawnRemoveEvent extends TrackableATEvent {
+public final class SpawnRemoveEvent extends TrackableATEvent {
 
-    @NotNull
-    private final String name;
+    @NotNull private final String name;
     private static final HandlerList handlers = new HandlerList();
 
-    public SpawnRemoveEvent(@NotNull String name, @Nullable CommandSender sender) {
+    @Contract(pure = true)
+    public SpawnRemoveEvent(
+        @NotNull final String name,
+        @Nullable final CommandSender sender
+    ) {
         super(sender);
         this.name = name;
     }
@@ -25,18 +29,19 @@ public class SpawnRemoveEvent extends TrackableATEvent {
      *
      * @return the name of the spawn being deleted.
      */
-    @NotNull
-    public String getSpawnName() {
+    @Contract(pure = true)
+    public @NotNull String getSpawnName() {
         return name;
     }
 
-    @NotNull
     @Override
-    public HandlerList getHandlers() {
+    @Contract(pure = true)
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Contract(pure = true)
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 }

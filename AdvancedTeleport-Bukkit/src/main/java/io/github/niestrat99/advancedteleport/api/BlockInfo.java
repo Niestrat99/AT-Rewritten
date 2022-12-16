@@ -6,19 +6,27 @@ import org.bukkit.OfflinePlayer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents
  */
-public class BlockInfo {
+public final class BlockInfo {
 
-    private final UUID receiverUUID;
-    private final UUID blockedUUID;
-    private String reason;
+    @NotNull private final UUID receiverUUID;
+    @NotNull private final UUID blockedUUID;
+    @NotNull private String reason;
     private final long time;
-    private final String formattedTime;
+    @NotNull private final String formattedTime;
 
-    public BlockInfo(UUID receiver, UUID blocked, String reason, long time) {
+    @Contract(pure = true)
+    public BlockInfo(
+        @NotNull final UUID receiver,
+        @NotNull final UUID blocked,
+        @NotNull final String reason,
+        final long time
+    ) {
         receiverUUID = receiver;
         blockedUUID = blocked;
         this.reason = reason;
@@ -29,35 +37,43 @@ public class BlockInfo {
         formattedTime = format.format(date);
     }
 
-    public OfflinePlayer getReceivingPlayer() {
+    @Contract(pure = true)
+    public @NotNull OfflinePlayer getReceivingPlayer() {
         return Bukkit.getOfflinePlayer(receiverUUID);
     }
 
-    public OfflinePlayer getBlockedPlayer() {
+    @Contract(pure = true)
+    public @NotNull OfflinePlayer getBlockedPlayer() {
         return Bukkit.getOfflinePlayer(blockedUUID);
     }
 
-    public UUID getReceiverUUID() {
+    @Contract(pure = true)
+    public @NotNull UUID getReceiverUUID() {
         return receiverUUID;
     }
 
+    @Contract(pure = true)
     public long getTime() {
         return time;
     }
 
-    public UUID getBlockedUUID() {
+    @Contract(pure = true)
+    public @NotNull UUID getBlockedUUID() {
         return blockedUUID;
     }
 
-    public String getReason() {
+    @Contract(pure = true)
+    public @NotNull String getReason() {
         return reason;
     }
 
-    public void setReason(String reason) {
+    @Contract(pure = true)
+    public void setReason(@NotNull String reason) {
         this.reason = reason;
     }
 
-    public String getFormattedTime() {
+    @Contract(pure = true)
+    public @NotNull String getFormattedTime() {
         return formattedTime;
     }
 }

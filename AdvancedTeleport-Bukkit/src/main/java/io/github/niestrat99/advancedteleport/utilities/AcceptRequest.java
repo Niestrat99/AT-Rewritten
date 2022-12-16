@@ -16,16 +16,16 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 public class AcceptRequest {
 
     public static void acceptRequest(TeleportRequest request) {
-        Player player = request.getResponder();
+        Player player = request.responder();
 
-        CustomMessages.sendMessage(request.getRequester(), "Info.requestAcceptedResponder", "{player}", player.getName());
+        CustomMessages.sendMessage(request.requester(), "Info.requestAcceptedResponder", "{player}", player.getName());
         CustomMessages.sendMessage(player, "Info.requestAccepted");
         // Check again
-        if (PaymentManager.getInstance().canPay(request.getType().name().toLowerCase().replaceAll("_", ""), request.getRequester())) {
-            if (request.getType() == TeleportRequestType.TPAHERE) {
-                teleport(request.getRequester(), player, "tpahere");
+        if (PaymentManager.getInstance().canPay(request.type().name().toLowerCase().replaceAll("_", ""), request.requester())) {
+            if (request.type() == TeleportRequestType.TPAHERE) {
+                teleport(request.requester(), player, "tpahere");
             } else {
-                teleport(player, request.getRequester(), "tpa");
+                teleport(player, request.requester(), "tpa");
             }
         }
         request.destroy();

@@ -4,21 +4,27 @@ import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * The event fired when a player's teleportation status has been changed.
  */
-public class ToggleTeleportationEvent extends TrackableATEvent {
+public final class ToggleTeleportationEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private final OfflinePlayer player;
+    private final @NotNull OfflinePlayer player;
     private boolean enabled;
     private boolean statusChanging;
 
-    public ToggleTeleportationEvent(@Nullable CommandSender sender, @NotNull OfflinePlayer player, boolean enabled, boolean statusChanging) {
+    @Contract(pure = true)
+    public ToggleTeleportationEvent(
+        @Nullable final CommandSender sender,
+        @NotNull final OfflinePlayer player,
+        final boolean enabled,
+        final boolean statusChanging
+    ) {
         super(sender);
         this.player = player;
         this.enabled = enabled;
@@ -30,8 +36,8 @@ public class ToggleTeleportationEvent extends TrackableATEvent {
      *
      * @return the player that is having their teleportation status changed.
      */
-    @NotNull
-    public OfflinePlayer getPlayer() {
+    @Contract(pure = true)
+    public @NotNull OfflinePlayer getPlayer() {
         return player;
     }
 
@@ -40,6 +46,7 @@ public class ToggleTeleportationEvent extends TrackableATEvent {
      *
      * @return true if the player's teleportation is going to be enabled, false if it is being disabled.
      */
+    @Contract(pure = true)
     public boolean isEnabled() {
         return enabled;
     }
@@ -49,6 +56,7 @@ public class ToggleTeleportationEvent extends TrackableATEvent {
      *
      * @param enabled true to enable the player teleportation, false to disable it.
      */
+    @Contract(pure = true)
     public void setEnabled(boolean enabled) {
         if (this.enabled != enabled) statusChanging = !statusChanging;
         this.enabled = enabled;
@@ -59,17 +67,19 @@ public class ToggleTeleportationEvent extends TrackableATEvent {
      *
      * @return true if the status is changing (i.e. true to false, false to true) or false if it is not.
      */
+    @Contract(pure = true)
     public boolean isStatusChanging() {
         return statusChanging;
     }
 
-    @NotNull
     @Override
-    public HandlerList getHandlers() {
+    @Contract(pure = true)
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Contract(pure = true)
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 }

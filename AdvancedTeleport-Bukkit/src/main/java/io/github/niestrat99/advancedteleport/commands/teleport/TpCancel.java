@@ -43,15 +43,15 @@ public class TpCancel extends TeleportATCommand {
                             CustomMessages.sendMessage(sender, "Error.noRequestsFromPlayer", "{player}",
                                     args[0]);
                         } else {
-                            TeleportCancelEvent event = new TeleportCancelEvent(request.getRequester(),
-                                    request.getRequester(), request.getType());
+                            TeleportCancelEvent event = new TeleportCancelEvent(request.requester(),
+                                    request.requester(), request.type());
                             Bukkit.getPluginManager().callEvent(event);
                             if (event.isCancelled()) {
                                 // Could not be cancelled
                                 return true;
                             }
                             CustomMessages.sendMessage(sender, "Info.tpCancel");
-                            CustomMessages.sendMessage(request.getResponder(), "Info.tpCancelResponder",
+                            CustomMessages.sendMessage(request.responder(), "Info.tpCancelResponder",
                                     "{player}", player.getName());
                             request.destroy();
                         }
@@ -72,9 +72,9 @@ public class TpCancel extends TeleportATCommand {
                         for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
                             TeleportRequest request = requests.getContentsInPage(1).get(i);
                             new FancyMessage()
-                                    .command("/tpcancel " + request.getResponder().getName())
+                                    .command("/tpcancel " + request.responder().getName())
                                     .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
-                                            .replaceAll("\\{player}", request.getResponder().getName()))
+                                            .replaceAll("\\{player}", request.responder().getName()))
                                     .sendProposal(player, i);
                         }
                         if (requests.getTotalPages() > 1) {
@@ -85,15 +85,15 @@ public class TpCancel extends TeleportATCommand {
                 } else {
                     TeleportRequest request = TeleportRequest.getRequestsByRequester(player).get(0);
 
-                    TeleportCancelEvent event = new TeleportCancelEvent(request.getRequester(),
-                            request.getRequester(), request.getType());
+                    TeleportCancelEvent event = new TeleportCancelEvent(request.requester(),
+                            request.requester(), request.type());
                     Bukkit.getPluginManager().callEvent(event);
                     if (event.isCancelled()) {
                         // Could not be cancelled
                         return true;
                     }
 
-                    CustomMessages.sendMessage(request.getResponder(), "Info.tpCancelResponder", "{player}",
+                    CustomMessages.sendMessage(request.responder(), "Info.tpCancelResponder", "{player}",
                             player.getName());
                     CustomMessages.sendMessage(player, "Info.tpCancel");
                     request.destroy();

@@ -47,8 +47,8 @@ public class TeleportTests {
                     for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
                         TeleportRequest request = requests.getContentsInPage(1).get(i);
                         new FancyMessage()
-                                .command("/" + type + " " + request.getRequester().getName())
-                                .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex").replaceAll("\\{player}", request.getRequester().getName()))
+                                .command("/" + type + " " + request.requester().getName())
+                                .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex").replaceAll("\\{player}", request.requester().getName()))
                                 .sendProposal(player, i);
                     }
                     if (requests.getTotalPages() > 1) {

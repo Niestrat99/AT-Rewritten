@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +25,8 @@ public abstract class ATCommand implements TabExecutor {
      * @param sender the command sender running the command.
      * @return true if the sender can run the command, false if not.
      */
-    protected boolean canProceed(@NotNull CommandSender sender) {
+    @Contract(pure = true)
+    protected boolean canProceed(@NotNull final CommandSender sender) {
         // Make sure the required feature is enabled
         if (!getRequiredFeature()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
@@ -35,8 +37,10 @@ public abstract class ATCommand implements TabExecutor {
         return sender.hasPermission(getPermission());
     }
 
+    @Contract(pure = true)
     public abstract boolean getRequiredFeature();
 
+    @Contract(pure = true)
     protected abstract @NotNull String getPermission();
 
     public Void handleCommandFeedback(Throwable ex, CommandSender sender, String success, String failure, String... placeholders) {

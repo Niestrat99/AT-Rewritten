@@ -39,9 +39,9 @@ public class TpList extends TeleportATCommand {
             for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
                 TeleportRequest request = requests.getContentsInPage(1).get(i);
                 new FancyMessage()
-                        .command("/tpayes " + request.getRequester().getName())
+                        .command("/tpayes " + request.requester().getName())
                         .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
-                                .replaceAll("\\{player}", request.getRequester().getName()))
+                                .replaceAll("\\{player}", request.requester().getName()))
                         .sendProposal(player, i);
             }
             FancyMessage.send(player);
@@ -61,9 +61,9 @@ public class TpList extends TeleportATCommand {
                 for (int i = 0; i < requests.getContentsInPage(page).size(); i++) {
                     TeleportRequest request = requests.getContentsInPage(page).get(i);
                     new FancyMessage()
-                            .command("/tpayes " + request.getRequester().getName())
+                            .command("/tpayes " + request.requester().getName())
                             .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
-                                    .replaceAll("\\{player}", request.getRequester().getName()))
+                                    .replaceAll("\\{player}", request.requester().getName()))
                             .sendProposal(player, i);
                 }
             } catch (IllegalArgumentException ex) {

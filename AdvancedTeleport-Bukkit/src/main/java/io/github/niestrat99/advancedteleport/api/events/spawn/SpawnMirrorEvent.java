@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.api.events.spawn;
 import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,19 +12,20 @@ import java.util.Objects;
 /**
  * The event fired when a spawnpoint is mirrored to another world.
  */
-public class SpawnMirrorEvent extends TrackableATEvent {
+public final class SpawnMirrorEvent extends TrackableATEvent {
 
     private String fromWorld;
-    @NotNull
-    private String toWorld;
+    private @NotNull String toWorld;
     private static final HandlerList handlers = new HandlerList();
 
-    public SpawnMirrorEvent(@NotNull String fromWorld, @NotNull String toWorld, @Nullable CommandSender sender) {
+    @Contract(pure = true)
+    public SpawnMirrorEvent(
+        @NotNull final String fromWorld,
+        @NotNull final String toWorld,
+        @Nullable final CommandSender sender
+    ) throws IllegalArgumentException {
         super(sender);
-        // Name checks
-        Objects.requireNonNull(fromWorld, "The from-world name must not be null.");
         if (fromWorld.isEmpty()) throw new IllegalArgumentException("The from-world name must not be empty.");
-        Objects.requireNonNull(toWorld, "The to-world name must not be null.");
         if (toWorld.isEmpty()) throw new IllegalArgumentException("The to-world name must not be empty.");
 
         this.fromWorld = fromWorld;
@@ -35,8 +37,8 @@ public class SpawnMirrorEvent extends TrackableATEvent {
      *
      * @return the provided world the spawn is being mirrored from.
      */
-    @NotNull
-    public String getFromWorld() {
+    @Contract(pure = true)
+    public @NotNull String getFromWorld() {
         return fromWorld;
     }
 
@@ -45,8 +47,8 @@ public class SpawnMirrorEvent extends TrackableATEvent {
      *
      * @return the provided world the spawn is being mirrored to.
      */
-    @NotNull
-    public String getToWorld() {
+    @Contract(pure = true)
+    public @NotNull String getToWorld() {
         return toWorld;
     }
 
@@ -57,8 +59,8 @@ public class SpawnMirrorEvent extends TrackableATEvent {
      * @throws NullPointerException     if the spawn name is null.
      * @throws IllegalArgumentException if the spawn name is empty.
      */
-    public void setFromWorld(@NotNull String fromWorld) {
-        Objects.requireNonNull(fromWorld, "The world name must not be null.");
+    @Contract(pure = true)
+    public void setFromWorld(@NotNull final String fromWorld) throws IllegalArgumentException {
         if (fromWorld.isEmpty()) throw new IllegalArgumentException("The world name must not be empty.");
 
         this.fromWorld = fromWorld;
@@ -71,20 +73,22 @@ public class SpawnMirrorEvent extends TrackableATEvent {
      * @throws NullPointerException     if the spawn name is null.
      * @throws IllegalArgumentException if the spawn name is empty.
      */
-    public void setToWorld(@NotNull String toWorld) {
+    @Contract(pure = true)
+    public void setToWorld(@NotNull final String toWorld) throws IllegalArgumentException {
         Objects.requireNonNull(toWorld, "The world name must not be null.");
         if (toWorld.isEmpty()) throw new IllegalArgumentException("The world name must not be empty.");
 
         this.toWorld = toWorld;
     }
 
-    @NotNull
     @Override
-    public HandlerList getHandlers() {
+    @Contract(pure = true)
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Contract(pure = true)
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 }

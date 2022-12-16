@@ -196,4 +196,8 @@ public class Warp implements NamedLocation {
     public CompletableFuture<Void> delete() {
         return delete((CommandSender) null);
     }
+
+    static HashMap<String, Warp> warps() {
+        return warps;
+    }
 }
