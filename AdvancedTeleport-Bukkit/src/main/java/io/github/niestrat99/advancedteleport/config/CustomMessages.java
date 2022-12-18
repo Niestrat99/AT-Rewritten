@@ -69,7 +69,7 @@ public final class CustomMessages extends ATConfig {
 
     @Override
     public void loadDefaults() {
-        makeSectionLenient("Teleport");
+        makeSectionLenient("Common");
         addDefault(
             "Common.prefixes",
             List.of("<aqua>↑</aqua> <dark_gray>»</dark_gray>"),
@@ -78,6 +78,8 @@ public final class CustomMessages extends ATConfig {
             with each element after that being usable as <prefix:index> with index being the items index in the list.
             """.trim()
         );
+
+        makeSectionLenient("Teleport");
         addDefault("Teleport.eventBeforeTP" , "<prefix> <gray>Teleporting in <aqua><countdown> seconds</aqua>, please do not move!");
 
         addComment("Teleport.eventBeforeTP_title", "This is an example use for titles and subtitles in the plugin." +
