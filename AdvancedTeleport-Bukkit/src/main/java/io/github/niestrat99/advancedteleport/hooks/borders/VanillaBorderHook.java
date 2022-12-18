@@ -10,10 +10,7 @@ public class VanillaBorderHook extends BorderPlugin {
 
     @Override
     public boolean canUse(World world) {
-
-        // imagine being on 1.7 - default/resetting border size is 59999968 according to https://minecraft.fandom.com/wiki/World_border#Commands
         return NewConfig.get().USE_VANILLA_BORDER.get()
-                && CoreClass.getInstance().getVersion() > 7
                 && world.getWorldBorder().getSize() != 59999968
                 && world.getWorldBorder().getSize() != (float) 5.9999968E7;
     }
