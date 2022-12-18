@@ -8,8 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,9 @@ public final class HelpCommand extends SubATCommand {
     public boolean onCommand(
         @NotNull final CommandSender sender,
         @NotNull final Command cmd,
-        @NotNull final String s, @NotNull String[] args) {
+        @NotNull final String s,
+        @NotNull final String[] args
+) {
         List<String> commands = new ArrayList<>();
         List<String> subcommands = new ArrayList<>();
         List<String> possibleCommands = new ArrayList<>();
@@ -81,7 +83,7 @@ public final class HelpCommand extends SubATCommand {
                     commands.add("spawn");
                 }
                 default -> {
-                    if (args[0].matches("^[0-9]+$")) {
+                    if (args[0].matches("^\\d+$")) {
                         page = Integer.parseInt(args[0]);
                     }
                     commands.addAll(CommandManager.registeredCommands.keySet());
@@ -89,7 +91,7 @@ public final class HelpCommand extends SubATCommand {
                 }
             }
 
-            if (args.length > 1 && args[1].matches("^[0-9]+$")) {
+            if (args.length > 1 && args[1].matches("^\\d+$")) {
                 page = Integer.parseInt(args[1]);
             }
         } else {
@@ -130,13 +132,16 @@ public final class HelpCommand extends SubATCommand {
         return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        List<String> results = new ArrayList<>();
-        if (args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], Arrays.asList("core", "homes", "spawns", "teleporting", "warps"), results);
-        }
-        return results;
+    @Contract(pure = true)
+    public @NotNull List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
+        if (args.length != 1) return List.of();
+
+        return StringUtil.copyPartialMatches(args[0], Arrays.asList("core", "homes", "spawns", "teleporting", "warps"), new ArrayList<>());
     }
 }

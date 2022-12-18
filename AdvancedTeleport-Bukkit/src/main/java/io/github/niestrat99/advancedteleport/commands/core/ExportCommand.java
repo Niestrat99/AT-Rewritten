@@ -23,7 +23,7 @@ public final class ExportCommand extends SubATCommand {
         @NotNull final Command command,
         @NotNull final String s,
         @NotNull final String[] args
-    ) {
+) {
         if (args.length == 0) {
             return false;
         }

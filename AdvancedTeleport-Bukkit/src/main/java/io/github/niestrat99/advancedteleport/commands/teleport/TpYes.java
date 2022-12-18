@@ -15,17 +15,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class TpYes extends TeleportATCommand {
+public final class TpYes extends TeleportATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        Player player = (Player) sender;
         TeleportRequest request = TeleportTests.teleportTests(player, args, "tpayes");
         if (request == null) return true;
         TeleportAcceptEvent event = new TeleportAcceptEvent(request.responder(), request.requester(), request.type());

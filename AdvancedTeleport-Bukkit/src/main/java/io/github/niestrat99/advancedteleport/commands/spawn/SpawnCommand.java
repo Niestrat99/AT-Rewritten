@@ -4,7 +4,6 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
@@ -19,18 +18,21 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpawnCommand extends SpawnATCommand {
+public final class SpawnCommand extends SpawnATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
 
-        Player player = (Player) sender;
         int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
         if (cooldown > 0) {
             CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
@@ -66,10 +68,13 @@ public class SpawnCommand extends SpawnATCommand {
         return "at.member.spawn";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (sender.hasPermission("at.admin.spawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
             StringUtil.copyPartialMatches(args[0], Spawn.get().getSpawns(), spawns);

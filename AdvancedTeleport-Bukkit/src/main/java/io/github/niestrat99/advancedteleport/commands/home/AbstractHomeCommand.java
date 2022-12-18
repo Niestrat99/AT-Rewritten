@@ -18,9 +18,13 @@ import java.util.List;
 
 public abstract class AbstractHomeCommand extends ATCommand {
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command cmd,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!(sender instanceof Player player)) return Collections.emptyList();
 
         if (player.hasPermission(getPermission()) && !args[0].isEmpty() && args.length == 2) {

@@ -17,53 +17,64 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ImportCommand extends SubATCommand {
+public final class ImportCommand extends SubATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (args.length > 0) {
-            final var pluginHook = getImportExportPlugin(sender, args);
-            if (pluginHook == null) return true;
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+) {
+        if (args.length == 0) return true;
 
-            if (args.length > 1) {
-                CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                    switch (args[1].toLowerCase()) {
-                        case "homes" -> pluginHook.importHomes();
-                        case "warps" -> pluginHook.importWarps();
-                        case "lastlocs" -> pluginHook.importLastLocations();
-                        case "spawns" -> pluginHook.importSpawn();
-                        case "players" -> pluginHook.importPlayerInformation();
-                        default -> pluginHook.importAll();
-                    }
-                    CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
-                });
+        final var pluginHook = getImportExportPlugin(sender, args);
+        if (pluginHook == null) return true;
 
-            } else {
-                CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                    pluginHook.importAll();
-                    CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
-                });
-            }
+        if (args.length > 1) {
+            CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
+            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                switch (args[1].toLowerCase()) {
+                    case "homes" -> pluginHook.importHomes();
+                    case "warps" -> pluginHook.importWarps();
+                    case "lastlocs" -> pluginHook.importLastLocations();
+                    case "spawns" -> pluginHook.importSpawn();
+                    case "players" -> pluginHook.importPlayerInformation();
+                    default -> pluginHook.importAll();
+                }
+                CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
+            });
 
+            return true;
         }
+
+        CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            pluginHook.importAll();
+            CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
+        });
+
         return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        List<String> results = new ArrayList<>();
+    public @NotNull List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         List<String> possibilities = new ArrayList<>();
+
         if (args.length == 1) {
             possibilities.addAll(PluginHookManager.get().getPluginHooks(ImportExportPlugin.class).map(PluginHook::pluginName).toList());
         }
+
         if (args.length == 2) {
             possibilities.addAll(Arrays.asList("all", "homes", "lastlocs", "warps", "spawns", "players"));
         }
-        StringUtil.copyPartialMatches(args[args.length - 1], possibilities, results);
-        return results;
+
+        return StringUtil.copyPartialMatches(args[args.length - 1], possibilities, new ArrayList<>());
     }
 
     static @Nullable ImportExportPlugin getImportExportPlugin(

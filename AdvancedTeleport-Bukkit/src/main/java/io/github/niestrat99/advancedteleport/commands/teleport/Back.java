@@ -19,24 +19,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Back extends TeleportATCommand {
+public final class Back extends TeleportATCommand {
 
     private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR"));
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         // Make sure the sender has permission and the associated feature is enabled
         if (!canProceed(sender)) return true;
 
         // If the player isn't a sender, stop there
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
 
         // Initialise player variables
-        Player player = (Player) sender;
         if (args.length > 0 && sender.hasPermission("at.admin.back")) {
             player = Bukkit.getPlayer(args[0]);
             if (player == null) {
@@ -132,10 +135,13 @@ public class Back extends TeleportATCommand {
         return "at.member.back";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return null;
     }
 }

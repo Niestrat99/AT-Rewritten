@@ -10,33 +10,39 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
 
-public class ParticlesCommand extends SubATCommand {
+public final class ParticlesCommand extends SubATCommand {
 
     private final HashSet<String> types =  new HashSet<>(Arrays.asList("home", "tpa", "tpahere", "tpr", "warp", "spawn", "back"));
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+) {
         if (!NewConfig.get().USE_PARTICLES.get()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
+
         if (PluginHookManager.get().getPluginHooks(ParticlesPlugin.class).findAny().isEmpty()) {
             CustomMessages.sendMessage(sender, "Error.noParticlePlugins");
             return true;
         }
-        if (!(sender instanceof Player)) {
+
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        Player player = (Player) sender;
-        String data = ParticleManager.getData(player);
+
+        var data = ParticleManager.getData(player);
 
         if (args.length == 0) {
             if (data == null) data = "";
@@ -51,23 +57,27 @@ public class ParticlesCommand extends SubATCommand {
             NewConfig.get().set("waiting-particles." + type, data);
             CustomMessages.sendMessage(sender, "Info.specificParticlesUpdated", "{type}", type);
         }
+
         try {
             NewConfig.get().save();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
-        List<String> results = new ArrayList<>();
-        if (args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], types, results);
-        }
-        return results;
+    @Contract(pure = true)
+    public @NotNull List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
+        if (args.length != 1) return Collections.emptyList();
+
+        return StringUtil.copyPartialMatches(args[0], types, new ArrayList<>());
     }
 
 }

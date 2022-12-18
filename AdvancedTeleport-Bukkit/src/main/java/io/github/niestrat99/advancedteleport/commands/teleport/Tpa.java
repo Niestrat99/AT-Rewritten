@@ -22,16 +22,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class Tpa extends TeleportATCommand {
+public final class Tpa extends TeleportATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        Player player = (Player) sender;
 
         UUID playerUuid = player.getUniqueId();
         int cooldown = CooldownManager.secondsLeftOnCooldown("tpa", player);

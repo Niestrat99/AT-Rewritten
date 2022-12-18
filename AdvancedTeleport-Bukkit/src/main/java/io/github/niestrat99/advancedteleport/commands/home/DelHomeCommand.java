@@ -18,7 +18,7 @@ public final class DelHomeCommand extends AbstractHomeCommand {
     public boolean onCommand(
         @NotNull final CommandSender sender,
         @NotNull final Command command,
-        @NotNull final String label,
+        @NotNull final String s,
         @NotNull final String[] args
     ) {
         if (!canProceed(sender)) return true;
@@ -62,7 +62,10 @@ public final class DelHomeCommand extends AbstractHomeCommand {
         ));
     }
 
-    private void delHome(Player player, String name) {
+    private void delHome(
+        @NotNull final Player player,
+        @NotNull final String name
+    ) {
         delHome(player, player, name);
     }
 

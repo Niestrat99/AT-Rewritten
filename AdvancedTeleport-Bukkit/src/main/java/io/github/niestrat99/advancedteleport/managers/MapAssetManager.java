@@ -25,11 +25,9 @@ public class MapAssetManager {
         // Get the map assets folder
         File mapAssetsFolder = new File(advTpFolder, "map-assets");
         // If it doesn't exist, try creating it
-        if (!mapAssetsFolder.exists()) {
-            if (!mapAssetsFolder.mkdirs()) {
-                CoreClass.getInstance().getLogger().warning("Failed to create the map-assets folder.");
-                return;
-            }
+        if (!mapAssetsFolder.exists() && !mapAssetsFolder.mkdirs()) {
+            CoreClass.getInstance().getLogger().warning("Failed to create the map-assets folder.");
+            return;
         }
         // Register default images
         registerImage("warp_default", CoreClass.getInstance().getResource("warp-default.png"));

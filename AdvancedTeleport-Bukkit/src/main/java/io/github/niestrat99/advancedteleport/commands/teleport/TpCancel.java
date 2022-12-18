@@ -15,18 +15,21 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class TpCancel extends TeleportATCommand {
+public final class TpCancel extends TeleportATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-            Player player = (Player) sender;
-            // Checks if any players have sent a request at all.
+        // Checks if any players have sent a request at all.
             if (!TeleportRequest.getRequestsByRequester(player).isEmpty()) {
                 // Checks if there's more than one request.
                 if (TeleportRequest.getRequestsByRequester(player).size() > 1) {

@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
@@ -20,15 +19,18 @@ import java.util.UUID;
 public final class SetHomeCommand extends AbstractHomeCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
         // If the sender isn't a player
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (args.length > 0) {
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
@@ -98,10 +100,13 @@ public final class SetHomeCommand extends AbstractHomeCommand {
         return "at.member.sethome";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command,
-                                      @NotNull String s, @NotNull String[] strings) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return new ArrayList<>();
     }
 }

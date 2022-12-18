@@ -13,16 +13,19 @@ import org.jetbrains.annotations.NotNull;
 public final class MoveHomeCommand extends AbstractHomeCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
 
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
 
-        Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         if (args.length == 0) {

@@ -23,19 +23,22 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class TpLoc extends TeleportATCommand {
+public final class TpLoc extends TeleportATCommand {
 
     private static final Pattern location = Pattern.compile("^(-)?\\d+(\\.\\d+)?$");
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
-        Player player = (Player) sender;
 
         if (args.length < 3) {
             CustomMessages.sendMessage(player, "Error.tooFewArguments");
@@ -169,8 +172,7 @@ public class TpLoc extends TeleportATCommand {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
                                       @NotNull String[] args) {
         List<String> results = new ArrayList<>();
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
+        if (sender instanceof Player player) {
             Location location = player.getLocation();
             switch (args.length) {
                 case 1:

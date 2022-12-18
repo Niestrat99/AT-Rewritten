@@ -14,19 +14,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TpList extends TeleportATCommand {
+public final class TpList extends TeleportATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
-
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
 
-        Player player = (Player) sender;
         // If there are actually any pending teleport requests.
         if (TeleportRequest.getRequests(player).isEmpty()) {
             CustomMessages.sendMessage(player, "Error.noRequests");
@@ -85,10 +87,13 @@ public class TpList extends TeleportATCommand {
         return "at.member.list";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return null;
     }
 }

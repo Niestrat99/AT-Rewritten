@@ -15,7 +15,12 @@ import java.util.List;
 public class CoreCommand extends ATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command cmd,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         SubATCommand help = CommandManager.subcommands.get("help");
         if (!sender.hasPermission("at.member.core")) {
             CustomMessages.sendMessage(sender, "Error.noPermission");
@@ -49,9 +54,13 @@ public class CoreCommand extends ATCommand {
         return "at.member.core";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command cmd,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (args.length > 1) {
             String command = args[0].toLowerCase();
             if (!CommandManager.subcommands.containsKey(command)) {
