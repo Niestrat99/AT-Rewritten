@@ -67,7 +67,8 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
                 "Info.deletedHome",
                 "Error.deleteHomeFail",
                 err,
-                "{home}", name, "{player}", player.getName()
+                "home", name,
+                "player", player.getName()
         ));
     }
 

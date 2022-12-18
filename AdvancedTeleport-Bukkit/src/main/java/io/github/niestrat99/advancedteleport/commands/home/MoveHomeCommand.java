@@ -50,7 +50,8 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                     "Info.movedHome",
                     "Error.moveHomeFail",
                     err,
-                    "{home}", args[1], "{player}", args[0]
+                    "home", args[1],
+                    "player", args[0]
                 ));
             });
             return true;
@@ -68,7 +69,7 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                 "Info.movedHome",
                 "Error.moveHomeFail",
                 err,
-                "{home}", args[0]
+                "home", args[0]
         ));
 
         return true;

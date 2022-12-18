@@ -172,11 +172,10 @@ public class ATPlayer {
                 }
 
                 // Let the player know they have been teleported and withdraw any money.
-                CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
+                CustomMessages.sendMessage(player, teleportMsg, "home", event.getLocName(), "warp",
                         event.getLocName());
                 PaymentManager.getInstance().withdraw(command, player);
             });
-
         }
     }
     

@@ -43,13 +43,13 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
         Player target = Bukkit.getPlayer(args[0]);
         String result = ConditionChecker.canTeleport(player, target, "tpahere");
         if (result != null) {
-            CustomMessages.sendMessage(player, result, "{player}", args[0], "{world}", target == null ? "<No Such World>" : target.getWorld().getName());
+            CustomMessages.sendMessage(player, result, "player", args[0], "world", target == null ? "<No Such World>" : target.getWorld().getName());
             return true;
         }
         if (PaymentManager.getInstance().canPay("tpahere", player)) {
             int requestLifetime = MainConfig.get().REQUEST_LIFETIME.get();
             CustomMessages.sendMessage(sender, "Info.requestSent",
-                    "{player}", target.getName(), "{lifetime}", String.valueOf(requestLifetime));
+                    "player", target.getName(), "lifetime", String.valueOf(requestLifetime));
             CoreClass.playSound("tpahere", "sent", player);
             ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
@@ -57,7 +57,7 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
                 ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPAHere(player);
             } else {
                 CustomMessages.sendMessage(target, "Info.tpaRequestHere",
-                        "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
+                        "{player}", sender.getName(), "lifetime", String.valueOf(requestLifetime));
             }
             CoreClass.playSound("tpahere", "received", target);
 
@@ -65,7 +65,7 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
                 @Override
                 public void run() {
                     if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                        CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}",
+                        CustomMessages.sendMessage(sender, "Error.requestExpired", "player",
                                 target.getName());
 
                         TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target,

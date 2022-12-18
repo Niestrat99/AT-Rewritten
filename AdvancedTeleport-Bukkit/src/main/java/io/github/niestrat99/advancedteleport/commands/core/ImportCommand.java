@@ -31,27 +31,23 @@ public final class ImportCommand extends SubATCommand {
         final var pluginHook = getImportExportPlugin(sender, args);
         if (pluginHook == null) return true;
 
-        if (args.length > 1) {
-            CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
-            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                switch (args[1].toLowerCase()) {
-                    case "homes" -> pluginHook.importHomes();
-                    case "warps" -> pluginHook.importWarps();
-                    case "lastlocs" -> pluginHook.importLastLocations();
-                    case "spawns" -> pluginHook.importSpawn();
-                    case "players" -> pluginHook.importPlayerInformation();
-                    default -> pluginHook.importAll();
-                }
-                CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
-            });
-
-            return true;
-        }
-
-        CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
+        final var arg = args.length == 1 ? "all" : args[1].toLowerCase();
+        CustomMessages.sendMessage(sender, "Info.importStarted", "plugin", args[0]);
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            pluginHook.importAll();
-            CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
+            switch (arg) {
+                case "homes" -> pluginHook.importHomes();
+                case "warps" -> pluginHook.importWarps();
+                case "lastlocs" -> pluginHook.importLastLocations();
+                case "spawns" -> pluginHook.importSpawn();
+                case "players" -> pluginHook.importPlayerInformation();
+                case "all" -> pluginHook.importAll();
+                default -> {
+                    // TODO: Error message
+                    CustomMessages.sendMessage(sender, "Error.cantImport", "plugin", args[0]);
+                    return
+                }
+            }
+            CustomMessages.sendMessage(sender, "Info.importFinished", "plugin", args[0]);
         });
 
         return true;
@@ -90,7 +86,7 @@ public final class ImportCommand extends SubATCommand {
         }
 
         if (!plugin.canImport()) {
-            CustomMessages.sendMessage(sender, "Error.cantImport", "{plugin}", args[0]);
+            CustomMessages.sendMessage(sender, "Error.cantImport", "plugin", args[0]);
             return null;
         }
 

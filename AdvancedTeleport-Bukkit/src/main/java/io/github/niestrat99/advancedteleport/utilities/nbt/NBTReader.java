@@ -22,12 +22,12 @@ public class NBTReader {
             try {
                 Location location = getLocation(player);
                 if (location == null) {
-                    callback.onFail(CustomMessages.get("Error.noOfflineLocation", "{player}", name));
+                    callback.onFail(CustomMessages.get("Error.noOfflineLocation", "player", name));
                     return;
                 }
                 callback.onSuccess(location);
             } catch (IOException e) {
-                callback.onFail(CustomMessages.get("Error.failedOfflineTeleport", "{player}", name));
+                callback.onFail(CustomMessages.get("Error.failedOfflineTeleport", "player", name));
                 e.printStackTrace();
             }
         });
@@ -41,7 +41,7 @@ public class NBTReader {
                 callback.onSuccess(true);
             } catch (IOException e) {
                 e.printStackTrace();
-                callback.onFail(CustomMessages.get("Error.failedOfflineTeleportHere", "{player}", name));
+                callback.onFail(CustomMessages.get("Error.failedOfflineTeleportHere", "player", name));
             }
         });
     }
@@ -113,6 +113,6 @@ public class NBTReader {
 
         void onSuccess(D data);
 
-        default void onFail(String message) {}
+        default void onFail(@NotNull final Component message) {}
     }
 }

@@ -48,7 +48,8 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                             "Info.setMainHome",
                             "Error.setMainHomeFail",
                             err,
-                            "{home}", homeName, "{player}", target.getName()
+                            "home", homeName,
+                            "{player}", target.getName()
                     ));
 
                     return;
@@ -65,7 +66,8 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                         "Info.setMainHome",
                         "Error.setMainHomeFail",
                         err,
-                        "{home}", homeName, "{player}", args[0]
+                        "home", homeName,
+                        "player", args[0] // TODO: Displyname
                 ));
             });
             return true;
@@ -86,7 +88,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                     err,
                     "{home}", homeName
                 ));
-            } else CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
+            } else CustomMessages.sendMessage(sender, "Error.noAccessHome", "home", home.getName());
         }
 
         return true;
@@ -100,7 +102,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
     ) {
         atTarget.addHome(homeName, player.getLocation(), player).whenCompleteAsync((ignored, err) -> {
             if (err != null) {
-                CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                CustomMessages.sendMessage(sender, "Error.setHomeFail", "home", homeName);
                 if (!(err instanceof ATException)) err.printStackTrace();
                 return;
             }
@@ -111,7 +113,8 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                 "Info.setAndMadeMainHome",
                 "Error.setMainHomeFail",
                 err2,
-                "{home}", homeName, "{player}", atTarget.getPlayer().getName()
+                "home", homeName,
+                    "player", atTarget.getPlayer().displayName()
             ));
         });
     }

@@ -47,10 +47,10 @@ public final class SetWarpCommand extends AbstractWarpCommand implements PlayerC
                     "Info.setWarp",
                     "Error.setWarpFail",
                     err,
-                    "{warp}", result.getName()
+                    "warp", result.getName()
             ));
         } else {
-            CustomMessages.sendMessage(sender, "Error.warpAlreadySet", "{warp}", args[0]);
+            CustomMessages.sendMessage(sender, "Error.warpAlreadySet", "warp", args[0]);
         }
         return true;
     }

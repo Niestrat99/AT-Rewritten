@@ -42,7 +42,7 @@ public class PointsPayment extends Payment {
         int requiredPoints = points;
         if (levels != null) {
             if (levels.getPaymentAmount() > player.getLevel()) {
-                CustomMessages.sendMessage(player, "Error.notEnoughEXP", "{levels}", String.valueOf(levels.getPaymentAmount()));
+                CustomMessages.sendMessage(player, "Error.notEnoughEXP", "levels", String.valueOf(levels.getPaymentAmount()));
                 return false;
             }
             int expPoints = getEXPBetweenLevels(player.getLevel());
@@ -51,7 +51,7 @@ public class PointsPayment extends Payment {
         if (player.getTotalExperience() >= requiredPoints) {
             return true;
         } else {
-            CustomMessages.sendMessage(player, "Error.notEnoughEXPPoints", "{points}", String.valueOf(requiredPoints));
+            CustomMessages.sendMessage(player, "Error.notEnoughEXPPoints", "points", String.valueOf(requiredPoints));
 
             return false;
         }

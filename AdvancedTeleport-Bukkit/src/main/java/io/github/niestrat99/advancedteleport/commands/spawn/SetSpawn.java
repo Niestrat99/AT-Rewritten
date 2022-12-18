@@ -45,8 +45,7 @@ public final class SetSpawn extends SpawnATCommand implements PlayerCommand {
                         finalMessage,
                         "Error.setSpawnFail",
                         err,
-                        "{spawn}", finalName));
-
+                        "spawn", finalName));
         return true;
     }
 

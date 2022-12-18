@@ -58,7 +58,7 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
             found = player.hasPermission(warpPrefix + warp.getName().toLowerCase());
         }
         if (!found) {
-            CustomMessages.sendMessage(player, "Error.noPermissionWarp", "{warp}", warp.getName());
+            CustomMessages.sendMessage(player, "Error.noPermissionWarp", "warp", warp.getName());
             return;
         }
         ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);

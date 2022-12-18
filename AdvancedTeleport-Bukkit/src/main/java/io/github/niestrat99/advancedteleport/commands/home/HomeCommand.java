@@ -21,7 +21,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
     public boolean onCommand(
         @NotNull final CommandSender sender,
         @NotNull final Command command,
-        @NotNull final String s,
+        @NotNull final String label,
         @NotNull final String[] args
     ) {
         if (!canProceed(sender)) return true;
@@ -87,7 +87,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                 if (atPlayer.canAccessHome(home)) {
                     teleport(player, home);
                 } else {
-                    CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
+                    CustomMessages.sendMessage(sender, "Error.noAccessHome", "home", home.getName());
                 }
                 return true;
             }

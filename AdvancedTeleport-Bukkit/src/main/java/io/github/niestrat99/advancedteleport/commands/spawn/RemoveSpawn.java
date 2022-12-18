@@ -48,7 +48,7 @@ public final class RemoveSpawn extends SpawnATCommand {
         // If the spawn does not exist, stop there
         Spawn spawn = AdvancedTeleportAPI.getSpawn(removingSpawn);
         if (spawn == null) {
-            CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "{spawn}", removingSpawn);
+            CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "spawn", removingSpawn);
             return true;
         }
 
@@ -57,7 +57,7 @@ public final class RemoveSpawn extends SpawnATCommand {
                         "Info.removedSpawn",
                         "Error.removeSpawnFail",
                         err,
-                        "{spawn}", spawn.getName()));
+                        "spawn", spawn.getName()));
         return true;
     }
 
