@@ -10,7 +10,11 @@ import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
 import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
+import io.github.slimjar.app.builder.InjectingApplicationBuilder;
+import io.github.slimjar.logging.ProcessLogger;
 import io.papermc.lib.PaperLib;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -63,6 +67,17 @@ public class CoreClass extends JavaPlugin {
         if (rsp == null) return false;
         perms = rsp.getProvider();
         return perms != null;
+    }
+
+    @Override
+    public void onLoad() {
+        try {
+            loadLibraries();
+        } catch (final Exception err) {
+            getLogger().severe("Failed to load libraries!");
+            err.printStackTrace();
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
     }
 
     @Override
@@ -254,5 +269,21 @@ public class CoreClass extends JavaPlugin {
 
     public static String getShortLocation(Location location) {
         return location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " + location.getWorld();
+    }
+
+    private void loadLibraries() throws ReflectiveOperationException, IOException, URISyntaxException, NoSuchAlgorithmException, InterruptedException {
+        InjectingApplicationBuilder.createAppending("AT", getClassLoader())
+            .downloadDirectoryPath(getDataFolder().toPath().resolve(".libs"))
+            .logger(new ProcessLogger() {
+                @Override
+                public void log(String s, Object... objects) {
+                    getLogger().info(String.format(s, objects));
+                }
+
+                @Override
+                public void debug(String message, Object... args) {
+                    getLogger().info(String.format(message, args));
+                }
+            }).build();
     }
 }

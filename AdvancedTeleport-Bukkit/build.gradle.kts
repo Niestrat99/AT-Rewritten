@@ -6,9 +6,19 @@ import java.util.Date
 plugins {
     id("java-library")
     id("maven-publish")
+    alias(libMinix.plugins.kotlin.jvm)
     alias(libMinix.plugins.shadow)
     alias(libMinix.plugins.minecraft.paperweight)
     alias(libMinix.plugins.minecraft.pluginYML)
+    alias(libMinix.plugins.minecraft.runPaper)
+    alias(libMinix.plugins.slimjar)
+}
+
+slimJar {
+    val baseRelocation = "io.github.niestrat99.advancedteleport.libs"
+
+    relocate("io.papermc.lib", "$baseRelocation.paperlib")
+    relocate("io.github.thatsmusic99.configurationmaster", "$baseRelocation.configurationmaster")
 }
 
 repositories {
@@ -65,15 +75,27 @@ repositories {
         name = "PlayerParticles"
         content { includeGroup("dev.esophose") }
     }
+
+    maven("https://repo.racci.dev/releases") {
+        name = "RacciRepo"
+        mavenContent { releasesOnly() }
+    }
 }
 
 dependencies {
     paperDevBundle("1.19.2-R0.1-SNAPSHOT")
 
-    implementation(libs.paperlib)
-    implementation(libs.kyori.nbt)
-    implementation(libs.kyori.examination)
-    implementation(libs.configuration)
+    implementation(libMinix.slimjar)
+
+    slim(libMinix.adventure.api)
+    slim(libMinix.adventure.minimessage)
+    slim(libMinix.adventure.platform.bukkit)
+    slim(libMinix.bundles.kotlin)
+
+    slim(libs.paperlib)
+    slim(libs.kyori.nbt)
+    slim(libs.kyori.examination)
+    slim(libs.configuration)
 
     compileOnly(libs.annotations)
     compileOnly(libs.vault)
@@ -105,6 +127,12 @@ tasks {
         options.encoding = "UTF-8"
     }
 
+    runServer {
+        val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
+        runDirectory.set(rootDir.resolve(".run"))
+        pluginJars(devServer.resolve("plugins").resolve("Vault.jar"))
+    }
+
     withType<ProcessResources> {
         val currentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date())
         inputs.property("version", project.version)
@@ -124,12 +152,8 @@ tasks {
             project.configurations.implementation.get().dependencies.forEach {
                 include(dependency(it))
             }
+            relocate("io.github.slimjar", "io.github.niestrat99.advancedteleport.libs.slimjar")
         }
-
-        val baseRelocation = "io.github.niestrat99.advancedteleport"
-        relocate("io.paper", "$baseRelocation.paperlib")
-        relocate("net.kyori", "$baseRelocation.kyori")
-        relocate("io.github.thatsmusic99.configurationmaster", "$baseRelocation.configurationmaster")
     }
 }
 
