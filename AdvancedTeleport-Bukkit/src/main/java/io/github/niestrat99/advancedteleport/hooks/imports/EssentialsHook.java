@@ -38,9 +38,8 @@ public class EssentialsHook extends ImportExportPlugin {
 
     @Override
     public boolean canImport() {
-        this.essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-        // Makes sure the plugin exists and because there's so many Ess clones out there, ensure it's the right one
-        return essentials != null && essentials.getDescription().getMain().equals("com.earth2me.essentials.Essentials");
+        this.essentials = (Essentials) plugin().orElse(null);
+        return essentials != null;
     }
 
     private User getUser(UUID uuid) {
