@@ -1,10 +1,9 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
-import org.apache.commons.lang.Validate;
-
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a wrapper around an array class of an arbitrary reference type,
@@ -46,7 +45,7 @@ public final class ArrayWrapper<E> {
 	 * @param array The new wrapped array.
 	 */
     private void setArray(E[] array) {
-		Validate.notNull(array, "The array must not be null.");
+		Objects.requireNonNull(array, "The array must not be null.");
 		_array = array;
 	}
 
