@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -42,8 +43,8 @@ public final class TpOffline extends TeleportATCommand implements PlayerCommand 
             }
 
             @Override
-            public void onFail(String message) {
-                sender.sendMessage(message);
+            public void onFail(@NotNull final Component message) {
+                CustomMessages.asAudience(sender).sendMessage(message);
             }
         });
         return true;

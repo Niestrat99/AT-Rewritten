@@ -7,17 +7,18 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import io.github.niestrat99.advancedteleport.extensions.ExPermission;
+import java.util.function.Supplier;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
 
 public final class HomesCommand extends AbstractHomeCommand {
 
@@ -66,60 +67,32 @@ public final class HomesCommand extends AbstractHomeCommand {
              return;
          }
 
-        FancyMessage hList = new FancyMessage();
+        final var body = Component.join(
+            JoinConfiguration.commas(true),
+            atPlayer.getHomes().values().stream()
+                .map(home -> new Object[] {home, atPlayer.canAccessHome(home) || ExPermission.hasPermissionOrStar(sender, "at.admin.homes")}) // How the fuck do you associate a value like a pair in java?
+                .map(pair -> {
+                    final var home = (Home) pair[0];
+                    final var canAccess = (boolean) pair[1];
+                    final var baseComponent = Component.text(home.getName())
+                        .hoverEvent(CustomMessages.locationBasedTooltip(sender, home.getLocation(), "homes"));
 
-        String infoPath = "Info.homes";
-        String extraArg = "";
-        String noHomes = "Error.noHomes";
-        if (sender != target) {
-            infoPath = "Info.homesOther";
-            extraArg = target.getName() + " ";
-            noHomes = "Error.noHomesOtherPlayer";
-        }
+                    if (!canAccess) {
+                        if (!MainConfig.get().HIDE_HOMES_IF_DENIED.get()) return Component.empty(); // TODO: Make sure this doesn't cause an extra comma.
+                        return baseComponent.color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC);
+                    }
 
-        hList.text(CustomMessages.getString(infoPath, "{player}", target.getName()));
-        if (homes.size() > 0) {
-            for (Home home : homes) {
-                if (atPlayer.canAccessHome(home) || sender.hasPermission("at.admin.homes")) {
-                    hList.then(home.getName())
-                            .command("/home " + extraArg + home.getName())
-                            .tooltip(getTooltip(sender, home))
-                            .then(", ");
-                } else if (!MainConfig.get().HIDE_HOMES_IF_DENIED.get()) {
-                    hList.then(home.getName())
-                            .tooltip(getTooltip(sender, home))
-                            .color(ChatColor.GRAY)
-                            .style(ChatColor.ITALIC)
-                            .then(", ");
-                }
+                    return baseComponent.clickEvent(ClickEvent.runCommand("/home " + (sender == target ? "" : target.getName() + " ") + home.getName()));
+                }).toList()
+        );
 
-            }
-            hList.text(""); //Removes trailing comma
-        } else {
-            hList.text(CustomMessages.getString(noHomes, "{player}", target.getName()));
-        }
-
-        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
-            hList.sendProposal(sender, 0);
-            FancyMessage.send(sender);
-        });
-    }
-
-    private List<String> getTooltip(CommandSender sender, Home home) {
-        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringRaw("Tooltip.homes")));
-        if (sender.hasPermission("at.member.homes.location")) {
-            tooltip.addAll(Arrays.asList(CustomMessages.getStringRaw("Tooltip.location").split("\n")));
-        }
-        List<String> homeTooltip = new ArrayList<>(tooltip);
-        for (int i = 0; i < homeTooltip.size(); i++) {
-            Location homeLoc = home.getLocation();
-
-            homeTooltip.set(i, homeTooltip.get(i).replace("{home}", home.getName())
-                    .replaceAll("\\{x}", String.valueOf(homeLoc.getX()))
-                    .replaceAll("\\{y}", String.valueOf(homeLoc.getY()))
-                    .replaceAll("\\{z}", String.valueOf(homeLoc.getZ()))
-                    .replaceAll("\\{world}", homeLoc.getWorld().getName()));
-        }
-        return homeTooltip;
+        if (!body.children().isEmpty()) {
+            CustomMessages.sendMessage(sender, "Info.warps");
+            CustomMessages.asAudience(sender).sendMessage(body);
+        } else CustomMessages.sendMessage(
+            sender,
+            CustomMessages.contextualPath(sender, target, "Error.noHomes"),
+            "player", (Supplier<String>) target::getName // TODO: DisplayName
+        );
     }
 }
