@@ -55,6 +55,7 @@ class PartialComponent private constructor(private var raw: String) {
 
     companion object {
 
+        @JvmStatic
         fun of(raw: String): PartialComponent {
             return PartialComponent(raw)
         }

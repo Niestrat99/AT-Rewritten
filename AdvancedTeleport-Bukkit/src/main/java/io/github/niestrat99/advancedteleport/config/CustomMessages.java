@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
@@ -34,11 +36,13 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+// TODO: Load all components on initialization and reload and formatRaw at that point.
 public final class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
 
+    // TODO: Clear on reload
     @NotNull private static HashMap<String, PartialComponent> messageCache = new HashMap<>();
 
     @Nullable private static BukkitAudiences audience;
@@ -182,7 +186,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.blockFail", "<prefix> <gray>Failed to save the block against <aqua>player</aqua>!");
         addDefault("Error.unblockFail", "<prefix> <gray>Failed to save the block removal against <aqua>player</aqua>!");
         addDefault("Error.noParticlePlugins", "<prefix> <gray>There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
-        addDefault("Error.setWarpFail", "&b↑ &8» &7Failed to set the warp {warp}!");
+        addDefault("Error.setWarpFail", "<prefix> <gray>Failed to set the warp <warp>!");
 
         addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "<prefix> <gray>Successfully enabled teleport requests!");
@@ -207,7 +211,6 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>The player <aqua><player></aqua> wants to teleport you to them!
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime> seconds</aqua> to respond to it!
-        addDefault("Error.setWarpFail", "&b↑ &8» &7Failed to set the warp {warp}!");
 
                               <click:run_command:/tpayes <player>><hover:show_text:'<green>Click here to accept the request.><green>&l[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.>&c&l[DENY]</hover></click>
         &7""".stripIndent());
@@ -417,7 +420,9 @@ public final class CustomMessages extends ATConfig {
         @NotNull final String path,
         @Nullable final Object... placeholders
     ) throws IllegalArgumentException {
-        final var partial = messageCache.get(path);
+        if (config == null) return Component.text("Error: Config not loaded");
+
+        final var partial = getPartialComponent(path);
         if (partial == null) {
             return Component.text("Invalid path: " + path);
         }
@@ -672,5 +677,19 @@ public final class CustomMessages extends ATConfig {
         } catch (final Exception ignored) {}
 
         return false;
+    }
+
+    @Contract(pure = true)
+    private static @Nullable PartialComponent getPartialComponent(@NotNull final String path) {
+        return messageCache.computeIfAbsent(path, p -> {
+            if (!config.contains(p)) return null;
+
+            final var rawString = config.getString(p);
+            final var component = PartialComponent.of(Objects.requireNonNull(rawString));
+
+            component.formatRaw(Map.of("prefix", Objects.requireNonNull(config.getString("Common.prefix"))));
+
+            return component;
+        });
     }
 }
