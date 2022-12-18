@@ -9,3 +9,4 @@ AdvancedTeleport-Bukkit\.gradle
 AdvancedTeleport-Bukkit\build
 AdvancedTeleport-Bukkit\src\main\resources\META-INF
 libs
+.run

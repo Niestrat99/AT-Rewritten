@@ -20,6 +20,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +33,8 @@ import java.util.concurrent.CompletableFuture;
 public final class AdvancedTeleportAPI {
     private AdvancedTeleportAPI() {}
 
-    static <T extends CancellableATEvent> @NotNull CompletableFuture<Void> validateEvent(
+    @ApiStatus.Internal
+    public static <T extends CancellableATEvent> @NotNull CompletableFuture<Void> validateEvent(
         @NotNull final T event,
         @NotNull final Function<T, CompletableFuture<Void>> validatedEvent
     ) {
