@@ -445,7 +445,7 @@ public final class CustomMessages extends ATConfig {
         @NotNull final String path,
         @Nullable final Object... placeholders
     ) throws IllegalArgumentException {
-        if (config == null) return Component.text("Error: Config not loaded");
+        if (config == null) throw new IllegalStateException("Config not initialized");
 
         final var partial = messageCache.get(path);
         if (partial == null) {
