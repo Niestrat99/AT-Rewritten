@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.config;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.data.PartialComponent;
@@ -12,8 +14,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
@@ -42,8 +42,8 @@ public final class CustomMessages extends ATConfig {
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
 
-    // TODO: Clear on reload
-    @NotNull private static HashMap<String, PartialComponent> messageCache = new HashMap<>();
+    @NotNull private static ImmutableMap<String, PartialComponent> messageCache = ImmutableMap.of();
+    @NotNull private static ImmutableSortedSet<String> prefixes = ImmutableSortedSet.of();
 
     @Nullable private static BukkitAudiences audience;
 
@@ -51,13 +51,20 @@ public final class CustomMessages extends ATConfig {
         super("custom-messages.yml");
         config = this;
         titleManager = new HashMap<>();
-        messageCache = new HashMap<>();
+        populate();
 
         if (!PaperLib.isPaper()) {
             audience = BukkitAudiences.create(CoreClass.getInstance());
         }
     }
 
+    @Override
+    public void reload() throws IOException {
+        super.reload();
+        populate();
+    }
+
+    @Override
     public void loadDefaults() {
         makeSectionLenient("Teleport");
         addDefault(
@@ -422,6 +429,7 @@ public final class CustomMessages extends ATConfig {
      *
      * @param path The path to the message
      * @param placeholders An array of placeholders, which are composed of a String (key) followed by a Supplier<String|Component> (value)
+     * @throws IllegalArgumentException If the given path doesn't exist or if the placeholders aren't in pairs.
      */
     public static @NotNull Component get(
         @NotNull final String path,
@@ -429,9 +437,9 @@ public final class CustomMessages extends ATConfig {
     ) throws IllegalArgumentException {
         if (config == null) return Component.text("Error: Config not loaded");
 
-        final var partial = getPartialComponent(path);
+        final var partial = messageCache.get(path);
         if (partial == null) {
-            return Component.text("Invalid path: " + path);
+            throw new IllegalArgumentException("Message for path: " + path + " not found");
         }
 
         if (placeholders == null || placeholders.length == 0) {
@@ -687,16 +695,16 @@ public final class CustomMessages extends ATConfig {
     }
 
     @Contract(pure = true)
-    private static @Nullable PartialComponent getPartialComponent(@NotNull final String path) {
-        return messageCache.computeIfAbsent(path, p -> {
-            if (!config.contains(p)) return null;
-
-            final var rawString = config.getString(p);
-            final var component = PartialComponent.of(Objects.requireNonNull(rawString));
-
-            component.formatRaw(Map.of("prefix", Objects.requireNonNull(config.getString("Common.prefix"))));
-
-            return component;
+    private void populate() {
+        prefixes = ImmutableSortedSet.copyOf(this.getStringList("Common.prefixes"));
+        final var cacheBuilder = ImmutableMap.<String, PartialComponent>builder();
+        defaults.keySet().forEach(key -> {
+            final var rawValue = this.getString(key, (String) this.defaults.get(key));
+            final var component = PartialComponent.of(rawValue);
+            component.formatRaw(prefixes);
+            cacheBuilder.put(key, component);
         });
+
+        messageCache = cacheBuilder.build();
     }
 }
