@@ -187,7 +187,7 @@ bukkit {
     name = "AdvancedTeleport"
     version = project.version.toString().substring(if (project.version.toString().startsWith("v")) 1 else 0) // Remove the v in front
     description = "A plugin that allows you to teleport to players, locations, and more!"
-    authors = listOf("Niestrat99, Thatsmusic99, SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan, LucasMucGH (Github), jonas-t-s (Github), DaRacci")
+    authors = listOf("Niestrat99", "Thatsmusic99", "SuspiciousLookingOwl (Github)", "animeavi (Github)", "MrEngMan", "LucasMucGH (Github)", "jonas-t-s (Github)", "DaRacci")
 
     apiVersion = "1.16"
     main = "io.github.niestrat99.advancedteleport.CoreClass"
