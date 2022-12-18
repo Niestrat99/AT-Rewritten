@@ -8,7 +8,6 @@ plugins {
     id("maven-publish")
     alias(libMinix.plugins.kotlin.jvm)
     alias(libMinix.plugins.shadow)
-    alias(libMinix.plugins.minecraft.paperweight)
     alias(libMinix.plugins.minecraft.pluginYML)
     alias(libMinix.plugins.minecraft.runPaper)
     alias(libMinix.plugins.slimjar)
@@ -83,7 +82,7 @@ repositories {
 }
 
 dependencies {
-    paperDevBundle("1.19.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
 
     implementation(libMinix.slimjar)
 
@@ -97,6 +96,7 @@ dependencies {
     slim(libs.kyori.examination)
     slim(libs.configuration)
 
+    compileOnly(libMinix.minecraft.authLib)
     compileOnly(libs.annotations)
     compileOnly(libs.vault)
     compileOnly(libs.essentials)
