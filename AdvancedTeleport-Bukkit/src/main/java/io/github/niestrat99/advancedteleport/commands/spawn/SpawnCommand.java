@@ -20,8 +20,12 @@ import java.util.List;
 public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
@@ -53,10 +57,13 @@ public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
         return "at.member.spawn";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (sender.hasPermission("at.admin.spawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
             StringUtil.copyPartialMatches(args[0], Spawn.get().getSpawns(), spawns);
@@ -66,7 +73,7 @@ public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
     }
 
     @Override
-    public String getSection() {
+    public @NotNull String getSection() {
         return "spawn";
     }
 }

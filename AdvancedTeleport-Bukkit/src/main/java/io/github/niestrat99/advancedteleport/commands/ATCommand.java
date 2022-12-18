@@ -50,9 +50,13 @@ public abstract class ATCommand implements IATCommand {
         return null;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         final var checkVisibility = sender instanceof Player;
         final var players = Bukkit.getOnlinePlayers().stream() // TODO - see how performance intensive this is (love streams)
             .filter(player -> !checkVisibility || ((Player) sender).canSee(player))

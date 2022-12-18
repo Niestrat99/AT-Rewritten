@@ -94,8 +94,8 @@ public class Warp implements NamedLocation {
      * @param location the new location of the warp.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setLocation(@NotNull Location location) {
-        return setLocation(location, (CommandSender) null);
+    public CompletableFuture<Boolean> setLocation(@NotNull final Location location) {
+        return setLocation(location, null);
     }
 
     /**

@@ -14,11 +14,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class WarpCommand extends AbstractWarpCommand implements TimedATCommand {
+public final class WarpCommand extends AbstractWarpCommand implements TimedATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args
+    ) {
 
         // If the feature isn't enabled/no permission, stop there
         if (!canProceed(sender)) return true;
@@ -68,7 +72,7 @@ public class WarpCommand extends AbstractWarpCommand implements TimedATCommand {
     }
 
     @Override
-    public String getSection() {
+    public @NotNull String getSection() {
         return "warp";
     }
 }

@@ -19,11 +19,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TpAll extends TeleportATCommand implements PlayerCommand {
+public final class TpAll extends TeleportATCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
@@ -69,10 +73,13 @@ public class TpAll extends TeleportATCommand implements PlayerCommand {
         return "at.admin.all";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return null;
     }
 }

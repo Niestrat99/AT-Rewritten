@@ -11,19 +11,24 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class TpHereOffline extends TeleportATCommand implements PlayerCommand {
+public final class TpHereOffline extends TeleportATCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
+
+        Player player = (Player) sender;
 
         if (args.length == 0) {
             CustomMessages.sendMessage(sender, "Error.noPlayerInput");
             return true;
         }
         Player target = Bukkit.getPlayer(args[0]);
-        Player player = (Player) sender;
         if (target == null) {
             NBTReader.setLocation(args[0], player.getLocation(), new NBTReader.NBTCallback<>() {
                 @Override

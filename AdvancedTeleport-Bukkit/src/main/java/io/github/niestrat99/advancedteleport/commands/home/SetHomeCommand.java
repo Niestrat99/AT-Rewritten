@@ -20,8 +20,12 @@ import java.util.UUID;
 public final class SetHomeCommand extends AbstractHomeCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
@@ -93,10 +97,13 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
         return "at.member.sethome";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command,
-                                      @NotNull String s, @NotNull String[] strings) {
+    public @NotNull List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return new ArrayList<>();
     }
 }

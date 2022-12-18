@@ -25,13 +25,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Tpr extends ATCommand implements TimedATCommand {
+public final class Tpr extends ATCommand implements TimedATCommand {
 
     private static final List<UUID> searchingPlayers = new ArrayList<>();
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
         Player player;
         if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {

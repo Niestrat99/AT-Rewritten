@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -21,8 +22,10 @@ public final class HelpCommand extends SubATCommand {
     public boolean onCommand(
         @NotNull final CommandSender sender,
         @NotNull final Command cmd,
-        @NotNull final String s, @NotNull String[] args
+        @NotNull final String s,
+        @NotNull String[] args
     ) {
+
         // Form the list of commands and subcommands to gather.
         List<String> commands = new ArrayList<>();
         List<String> subcommands = new ArrayList<>();
@@ -96,7 +99,7 @@ public final class HelpCommand extends SubATCommand {
 
                 // Anything that just isn't what we expect, such as a number
                 default -> {
-                    if (args[0].matches("^[0-9]+$")) {
+                    if (args[0].matches("^\\d+$")) {
                         page = Integer.parseInt(args[0]);
                     }
                     commands.addAll(CommandManager.registeredCommands.keySet());
@@ -105,7 +108,7 @@ public final class HelpCommand extends SubATCommand {
             }
 
             // If there's a section specified and the second argument is a number, treat it as a page.
-            if (args.length > 1 && args[1].matches("^[0-9]+$")) {
+            if (args.length > 1 && args[1].matches("^\\d+$")) {
                 page = Integer.parseInt(args[1]);
             }
         } else {
@@ -164,11 +167,15 @@ public final class HelpCommand extends SubATCommand {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        List<String> results = new ArrayList<>();
-        if (args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], Arrays.asList("core", "homes", "spawns", "teleporting", "warps"), results);
-        }
-        return results;
+    @Contract(pure = true)
+    public @NotNull List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
+        if (args.length != 1) return List.of();
+
+        return StringUtil.copyPartialMatches(args[0], Arrays.asList("core", "homes", "spawns", "teleporting", "warps"), new ArrayList<>());
     }
 }

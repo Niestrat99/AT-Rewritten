@@ -6,25 +6,31 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import java.util.Collections;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PurgeCommand extends SubATCommand {
+public final class PurgeCommand extends SubATCommand {
 
     // This command is going to purge warps and homes - the homes can be purged for the certain player or if the homes/warps are in a certain world.
     // example: /at purge <warps|homes> <world|player> <World name|Player name>
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
 
         // Check for if the arguments are lower than 3 - if that's the case the command will stop
         if (args.length < 3) {
@@ -44,13 +50,15 @@ public class PurgeCommand extends SubATCommand {
             return false;
         }
         if (args[1].equalsIgnoreCase("world")) {
-            if (Bukkit.getWorld(args[2]) == null) {
+
+            World world = Bukkit.getWorld(args[2]);
+            if (world == null) {
                 CustomMessages.sendMessage(sender, "Error.noSuchWorld");
                 return false;
             }
 
             switch (args[0].toLowerCase()) {
-                case "homes" -> HomeSQLManager.get().purgeHomes(Bukkit.getWorld(args[2]).getName(), new SQLManager.SQLCallback<>() {
+                case "homes" -> HomeSQLManager.get().purgeHomes(world.getName(), new SQLManager.SQLCallback<>() {
                     @Override
                     public void onSuccess(Void data) {
                         CustomMessages.sendMessage(sender, "Info.purgeHomesWorld", "{world}", args[2]);
@@ -61,7 +69,7 @@ public class PurgeCommand extends SubATCommand {
                         CustomMessages.sendMessage(sender, "Error.purgeHomesFail");
                     }
                 });
-                case "warps" -> WarpSQLManager.get().purgeWarps(Bukkit.getWorld(args[2]).getName(), new SQLManager.SQLCallback<>() {
+                case "warps" -> WarpSQLManager.get().purgeWarps(world.getName(), new SQLManager.SQLCallback<>() {
                     @Override
                     public void onSuccess(Void data) {
                         CustomMessages.sendMessage(sender, "Info.purgeWarpsWorld", "{world}", args[2]);
@@ -81,30 +89,28 @@ public class PurgeCommand extends SubATCommand {
                     return;
                 }
                 switch (args[0].toLowerCase()) {
-                    case "homes" ->
-                            HomeSQLManager.get().purgeHomes(player.getUniqueId(), new SQLManager.SQLCallback<>() {
-                                @Override
-                                public void onSuccess(Void data) {
-                                    CustomMessages.sendMessage(sender, "Info.purgeHomesCreator", "{player}", args[2]);
-                                }
+                    case "homes" -> HomeSQLManager.get().purgeHomes(player.getUniqueId(), new SQLManager.SQLCallback<>() {
+                        @Override
+                        public void onSuccess(Void data) {
+                            CustomMessages.sendMessage(sender, "Info.purgeHomesCreator", "{player}", args[2]);
+                        }
 
-                                @Override
-                                public void onFail() {
-                                    CustomMessages.sendMessage(sender, "Error.purgeHomesFail");
-                                }
-                            });
-                    case "warps" ->
-                            WarpSQLManager.get().purgeWarps(player.getUniqueId(), new SQLManager.SQLCallback<>() {
-                                @Override
-                                public void onSuccess(Void data) {
-                                    CustomMessages.sendMessage(sender, "Info.purgeWarpsCreator", "{player}", args[2]);
-                                }
+                        @Override
+                        public void onFail() {
+                            CustomMessages.sendMessage(sender, "Error.purgeHomesFail");
+                        }
+                    });
+                    case "warps" -> WarpSQLManager.get().purgeWarps(player.getUniqueId(), new SQLManager.SQLCallback<>() {
+                        @Override
+                        public void onSuccess(Void data) {
+                            CustomMessages.sendMessage(sender, "Info.purgeWarpsCreator", "{player}", args[2]);
+                        }
 
-                                @Override
-                                public void onFail() {
-                                    CustomMessages.sendMessage(sender, "Error.purgeWarpsFail");
-                                }
-                            });
+                        @Override
+                        public void onFail() {
+                            CustomMessages.sendMessage(sender, "Error.purgeWarpsFail");
+                        }
+                    });
                 }
             });
         }
@@ -112,30 +118,33 @@ public class PurgeCommand extends SubATCommand {
         return false;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        List<String> results = new ArrayList<>();
+    public @NotNull List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
+        // WHAT THE FUCK IS A YIELD EXPRESSION????
+        return switch (args.length) {
+            case 1 -> StringUtil.copyPartialMatches(args[0], Arrays.asList("homes", "warps"), new ArrayList<>());
+            case 2 -> StringUtil.copyPartialMatches(args[1], Arrays.asList("player", "world"), new ArrayList<>());
+            case 3 -> {
+                if (args[1].equalsIgnoreCase("player")) {
+                    List<String> players = new ArrayList<>();
+                    Bukkit.getOnlinePlayers().forEach(player -> players.add(player.getName()));
+                    yield StringUtil.copyPartialMatches(args[2], players, new ArrayList<>());
+                }
 
-        if (args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], Arrays.asList("homes", "warps"), results);
+                if (args[1].equalsIgnoreCase("world")) {
+                    List<String> worlds = new ArrayList<>();
+                    Bukkit.getWorlds().forEach(world -> worlds.add(world.getName()));
+                    yield StringUtil.copyPartialMatches(args[2], worlds, new ArrayList<>());
+                }
 
-        } else if (args.length == 2) {
-            StringUtil.copyPartialMatches(args[1], Arrays.asList("player", "world"), results);
-
-        } else if (args.length == 3) {
-            if (args[1].equalsIgnoreCase("player")) {
-                List<String> players = new ArrayList<>();
-                Bukkit.getOnlinePlayers().forEach(player -> players.add(player.getName()));
-                StringUtil.copyPartialMatches(args[2], players, results);
-
-            } else if (args[1].equalsIgnoreCase("world")) {
-                List<String> worlds = new ArrayList<>();
-                Bukkit.getWorlds().forEach(world -> worlds.add(world.getName()));
-                StringUtil.copyPartialMatches(args[2], worlds, results);
+                yield Collections.emptyList();
             }
-        }
-
-        return results;
+            default -> Collections.emptyList();
+        };
     }
 }

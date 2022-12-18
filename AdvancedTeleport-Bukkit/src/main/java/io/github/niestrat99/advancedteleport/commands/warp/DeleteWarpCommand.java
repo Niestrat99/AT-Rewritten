@@ -11,11 +11,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class DeleteWarpCommand extends AbstractWarpCommand {
+public final class DeleteWarpCommand extends AbstractWarpCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args
+    ) {
 
         // If the command can't proceed due to being disabled, stop there
         if (!canProceed(sender)) return true;

@@ -12,20 +12,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class MoveWarpCommand extends AbstractWarpCommand {
+public final class MoveWarpCommand extends AbstractWarpCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args
+    ) {
 
         // If the command can't proceed due to being disabled, stop there
         if (!canProceed(sender)) return true;
 
-        // If the sender isn't a player, they can't move a warp.
-        if (!(sender instanceof Player player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
+        Player player = (Player) sender;
 
         // If there's been no arguments specified, see if it's a floodgate player and otherwise continue
         if (args.length == 0) {

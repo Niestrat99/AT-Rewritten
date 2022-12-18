@@ -12,11 +12,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class TpNo extends TeleportATCommand implements PlayerCommand {
+public final class TpNo extends TeleportATCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
         Player player = (Player) sender;
         TeleportRequest request = TeleportTests.teleportTests(player, args, "tpano");

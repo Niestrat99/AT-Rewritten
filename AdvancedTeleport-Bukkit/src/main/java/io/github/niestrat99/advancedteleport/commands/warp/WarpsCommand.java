@@ -22,10 +22,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class WarpsCommand extends ATCommand {
+public final class WarpsCommand extends ATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
         sendWarps(sender);
         return true;
