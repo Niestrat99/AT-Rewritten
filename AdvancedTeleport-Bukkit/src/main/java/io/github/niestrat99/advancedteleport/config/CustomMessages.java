@@ -451,9 +451,7 @@ public final class CustomMessages extends ATConfig {
         if (config == null) throw new IllegalStateException("Config not initialized");
 
         final var partial = messageCache.get(path);
-        if (partial == null) {
-            throw new IllegalArgumentException("Message for path: " + path + " not found");
-        }
+        if (partial == null) return Component.empty();
 
         if (placeholders == null || placeholders.length == 0) {
             return partial.getValue();
