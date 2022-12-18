@@ -5,10 +5,24 @@ import io.github.niestrat99.advancedteleport.api.Warp;
 import org.bukkit.Location;
 
 import java.io.InputStream;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class MapPlugin {
+public abstract class MapPlugin<P extends Plugin, R> extends PluginHook<P, R> {
 
-    public abstract boolean canEnable();
+    @Contract(pure = true)
+    protected MapPlugin(
+        @Nullable final String pluginName,
+        @Nullable final Class<R> providerClazz
+    ) {
+        super(pluginName, providerClazz);
+    }
+
+    @Contract(pure = true)
+    protected MapPlugin(@Nullable final String pluginName) {
+        super(pluginName, null);
+    }
 
     public abstract void enable();
 

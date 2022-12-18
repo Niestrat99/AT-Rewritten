@@ -10,17 +10,19 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class HelpCommand extends SubATCommand {
+public final class HelpCommand extends SubATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
-
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command cmd,
+        @NotNull final String s, @NotNull String[] args
+    ) {
         // Form the list of commands and subcommands to gather.
         List<String> commands = new ArrayList<>();
         List<String> subcommands = new ArrayList<>();
@@ -161,9 +163,8 @@ public class HelpCommand extends SubATCommand {
         return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public @NotNull List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         List<String> results = new ArrayList<>();
         if (args.length == 1) {
             StringUtil.copyPartialMatches(args[0], Arrays.asList("core", "homes", "spawns", "teleporting", "warps"), results);

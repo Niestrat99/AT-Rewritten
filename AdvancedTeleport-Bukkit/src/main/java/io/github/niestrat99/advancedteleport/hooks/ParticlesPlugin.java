@@ -1,19 +1,38 @@
 package io.github.niestrat99.advancedteleport.hooks;
 
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a particles plugin.
  */
-public abstract class ParticlesPlugin {
+public abstract class ParticlesPlugin<P extends Plugin, R> extends PluginHook<P, R> {
+
+    @Contract(pure = true)
+    protected ParticlesPlugin(
+        @Nullable final String pluginName,
+        @Nullable final Class<R> providerClazz
+    ) {
+        super(pluginName, providerClazz);
+    }
+
+    @Contract(pure = true)
+    protected ParticlesPlugin(@Nullable String pluginName) {
+        super(pluginName, null);
+    }
 
     /**
      * Whether the plugin is enabled and can be used.
      *
      * @return true if the plugin is usable, false if not.
      */
-    public abstract boolean canUse();
+    @Contract(pure = true)
+    public boolean canUse() {
+        return NewConfig.get().USE_PARTICLES.get() && this.pluginUsable();
+    }
 
     /**
      * Attempts to apply the particles for a specific command.

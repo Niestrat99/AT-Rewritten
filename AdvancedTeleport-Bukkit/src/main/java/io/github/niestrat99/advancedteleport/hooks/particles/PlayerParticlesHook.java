@@ -12,58 +12,55 @@ import dev.esophose.playerparticles.particles.data.Vibration;
 import dev.esophose.playerparticles.styles.ParticleStyle;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
-import org.bukkit.Bukkit;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
 
-public class PlayerParticlesHook extends ParticlesPlugin {
+public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, Void> {
 
     // For configuration parsing, we'll use just id for presets, or particle,
     private PlayerParticlesAPI api;
+
+    public PlayerParticlesHook() {
+        super("PlayerParticles");
+    }
 
     @Override
     public boolean canUse() {
 
         // If particles are enabled and the plugin is enabled
-        if (!NewConfig.get().USE_PARTICLES.get()) return false;
-        if (!Bukkit.getPluginManager().isPluginEnabled("PlayerParticles")) return false;
+        if (!super.canUse()) return false;
 
         // Get the plugin itself and ensure the API is the one we want.
-        Plugin rawPlugin = Bukkit.getPluginManager().getPlugin("PlayerParticles");
-        if (!(rawPlugin instanceof PlayerParticles)) return false;
-        this.api = PlayerParticlesAPI.getInstance();
-
-        // we good
-        return true;
+        return plugin().map(plugin -> {
+            this.api = PlayerParticlesAPI.getInstance();
+            return true;
+        }).orElse(false);
     }
 
     @Override
-    public void applyParticles(Player player, String command) {
-
-        // Get the raw particle string
-        String rawParticle = NewConfig.get().WAITING_PARTICLES.valueOf(command).get();
-        if (rawParticle.isEmpty()) return;
-
-        // Split and parse the particle string
-        String[] rawPairs = rawParticle.split(";");
-        for (String rawPair : rawPairs) {
-
-            // Individual pieces
-            ParticlePair pair = getPairFromData(player, rawPair);
-            if (pair == null) continue;
-            api.addActivePlayerParticle(player, pair);
-        }
+    public void applyParticles(
+            @NotNull final Player player,
+            @NotNull final String command
+    ) {
+        getPairStream(player, command)
+                .forEach(pair -> api.addActivePlayerParticle(player, pair));
     }
 
     @Override
-    public void removeParticles(Player player, String command) {
+    public void removeParticles(
+            @NotNull final Player player,
+            @NotNull final String command
+    ) {
 
         // Get the existing particles in place, but if it doesn't already exist? Meh
         String rawParticle = NewConfig.get().WAITING_PARTICLES.valueOf(command).get();
@@ -94,7 +91,7 @@ public class PlayerParticlesHook extends ParticlesPlugin {
 
     @Override
     @Nullable
-    public String getParticle(Player player) {
+    public String getParticle(@NotNull final Player player) {
 
         // Get the player particles
         Collection<ParticlePair> particlePairs = api.getActivePlayerParticles(player);
@@ -116,7 +113,7 @@ public class PlayerParticlesHook extends ParticlesPlugin {
         return String.join(";", particleRawList);
     }
 
-    private String getRawDataFromPair(ParticlePair pair) {
+    private String getRawDataFromPair(@NotNull final ParticlePair pair) {
         if (pair.getEffect() == ParticleEffect.BLOCK || pair.getEffect() == ParticleEffect.FALLING_DUST) {
             return pair.getBlockMaterial().name();
         }
@@ -145,7 +142,10 @@ public class PlayerParticlesHook extends ParticlesPlugin {
         }
     }
 
-    private ParticlePair getPairFromData(Player player, String data) {
+    private @Nullable ParticlePair getPairFromData(
+        @NotNull final Player player,
+        @NotNull final String data
+    ) {
         String[] parts = data.split(",");
 
         // Get the effect
@@ -187,18 +187,32 @@ public class PlayerParticlesHook extends ParticlesPlugin {
                 itemMaterial, blockMaterial, ordinaryColor, noteColor, colorTransition, vibration);
     }
 
-    private <T> T get(boolean condition, Supplier<T> supplier) {
+    private <T> @Nullable T get(
+        final boolean condition,
+        @NotNull Supplier<T> supplier
+    ) {
         if (condition) supplier.get();
         return null;
     }
 
-    private <T> T getNote(String data, ParticleEffect effect, T rainbow, T random, Supplier<T> base) {
+    private <T> T getNote(
+        @NotNull final String data,
+        @NotNull final ParticleEffect effect,
+        @NotNull final T rainbow,
+        @NotNull final T random,
+        @NotNull final Supplier<T> base
+    ) {
         return get(effect.hasProperty(ParticleEffect.ParticleProperty.COLORABLE)
                 && effect != ParticleEffect.NOTE, () -> data.equals("rainbow") ? rainbow
                 : (data.equals("random") ? random : base.get()));
     }
 
-    private <T> String parseColour(T colour, T rainbow, T random, String base) {
+    private <T> @NotNull String parseColour(
+        @NotNull final T colour,
+        @NotNull final T rainbow,
+        @NotNull final T random,
+        @NotNull final String base
+    ) {
         if (colour == rainbow) {
             return "rainbow";
         } else if (colour == random) {
@@ -206,5 +220,17 @@ public class PlayerParticlesHook extends ParticlesPlugin {
         } else {
             return base;
         }
+    }
+
+    private @NotNull Stream<ParticlePair> getPairStream(
+        @NotNull final Player player,
+        @NotNull final String command
+    ) {
+        final var rawParticle = NewConfig.get().WAITING_PARTICLES.valueOf(command).get();
+        if (rawParticle.isEmpty()) return Stream.empty();
+
+        return Arrays.stream(rawParticle.split(";"))
+            .map(rawPair -> getPairFromData(player, rawPair))
+            .filter(Objects::nonNull);
     }
 }
