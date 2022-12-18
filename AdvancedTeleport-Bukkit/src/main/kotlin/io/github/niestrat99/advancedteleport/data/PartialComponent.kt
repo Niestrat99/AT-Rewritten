@@ -7,6 +7,7 @@ import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.serialize.SerializationException
 import org.spongepowered.configurate.serialize.TypeSerializer
 import java.lang.reflect.Type
+import java.util.SortedSet
 
 /**
  * A partial component is a wrapper around the MiniMessage format,
@@ -35,10 +36,21 @@ class PartialComponent private constructor(private var raw: String) {
         value
     } else MiniMessage.miniMessage().lazyPlaceholder(_value, *placeholders)
 
-    fun formatRaw(placeholders: Map<String, String>) {
-        var tmp = raw
+    fun formatRaw(placeholders: SortedSet<String>) {
+        fun prefix(index: Int): String = buildString {
+            append("<prefix:")
+            append(index)
+            append('>')
+        }
 
-        for ((placeholder, prefix) in placeholders.entries) {
+        var tmp = raw
+        val actualPlaceholders = placeholders.withIndex().map { (index, entry) ->
+            if (index == 0) { // Assume this is the master prefix for <prefix>
+                return@map "<prefix>" to entry
+            } else prefix(index) to entry
+        }
+
+        for ((placeholder, prefix) in actualPlaceholders) {
             val index = tmp.indexOf(placeholder).takeIf { it != -1 } ?: continue
             tmp = tmp.replaceRange(index, index + placeholder.length, prefix)
 
