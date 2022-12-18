@@ -49,7 +49,8 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                     "Info.movedHome",
                     "Error.moveHomeFail",
                     () -> err != null,
-                    "{home}", args[1], "{player}", args[0]
+                    "home", args[1],
+                    "player", args[0]
                 ));
             });
             return true;
@@ -62,12 +63,12 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
         }
 
         atPlayer.moveHome(args[0], player.getLocation(), sender).whenCompleteAsync((ignored, err) -> CustomMessages.failableContextualPath(
-                sender,
-                atPlayer,
-                "Info.movedHome",
-                "Error.moveHomeFail",
-                () -> err != null,
-                "{home}", args[0]
+            sender,
+            atPlayer,
+            "Info.movedHome",
+            "Error.moveHomeFail",
+            () -> err != null,
+            "home", args[0]
         ));
 
         return true;

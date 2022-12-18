@@ -49,8 +49,8 @@ public class ItemsPayment extends Payment {
             } else {
                 name = material.name();
             }
-            CustomMessages.sendMessage(player, "Error.notEnoughItems", "{amount}", String.valueOf(amount),
-                    "{type}", name);
+            CustomMessages.sendMessage(player, "Error.notEnoughItems", "amount", String.valueOf(amount),
+                    "type", name);
         }
         return result;
     }

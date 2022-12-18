@@ -19,7 +19,7 @@ public class AcceptRequest {
     public static void acceptRequest(TeleportRequest request) {
         Player player = request.responder();
 
-        CustomMessages.sendMessage(request.requester(), "Info.requestAcceptedResponder", "{player}", player.getName());
+        CustomMessages.sendMessage(request.requester(), "Info.requestAcceptedResponder", "player", player.getName());
         CustomMessages.sendMessage(player, "Info.requestAccepted");
         // Check again
         if (PaymentManager.getInstance().canPay(request.type().name().toLowerCase().replaceAll("_", ""), request.requester())) {

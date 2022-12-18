@@ -20,7 +20,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
         @NotNull final Command command,
         @NotNull final String s,
         @NotNull final String[] args
-) {
+    ) {
         if (!canProceed(sender)) return true;
 
         final var player = (Player) sender;
@@ -44,12 +44,13 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
 
                 if (atTarget.hasHome(homeName)) {
                     atTarget.setMainHome(homeName, sender).whenCompleteAsync((ignored, err) -> CustomMessages.failableContextualPath(
-                            sender,
-                            target,
-                            "Info.setMainHome",
-                            "Error.setMainHomeFail",
-                            () -> err != null,
-                            "{home}", homeName, "{player}", target.getName()
+                        sender,
+                        target,
+                        "Info.setMainHome",
+                        "Error.setMainHomeFail",
+                        () -> err != null,
+                        "home", homeName,
+                        "player", target.getName() // TODO: DisplyName
                     ));
 
                     return true;
@@ -66,7 +67,8 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                     "Info.setMainHome",
                     "Error.setMainHomeFail",
                     () -> err != null,
-                    "{home}", homeName, "{player}", args[0]
+                    "home", homeName,
+                    "player", args[0] // TODO: Displyname
                 ));
 
                 return true;
@@ -88,7 +90,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                     () -> err != null,
                     "{home}", homeName
                 ));
-            } else CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
+            } else CustomMessages.sendMessage(sender, "Error.noAccessHome", "home", home.getName());
         }
 
         return true;
@@ -102,7 +104,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
     ) {
         atTarget.addHome(homeName, player.getLocation(), player).whenCompleteAsync((ignored, err) -> {
             if (err != null) {
-                CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                CustomMessages.sendMessage(sender, "Error.setHomeFail", "home", homeName);
                 return;
             }
 
@@ -112,7 +114,8 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                 "Info.setAndMadeMainHome",
                 "Error.setMainHomeFail",
                 () -> err2 != null,
-                "{home}", homeName, "{player}", atTarget.getPlayer().getName()
+                "home", homeName,
+                "player", atTarget.getPlayer().displayName()
             ));
         });
     }

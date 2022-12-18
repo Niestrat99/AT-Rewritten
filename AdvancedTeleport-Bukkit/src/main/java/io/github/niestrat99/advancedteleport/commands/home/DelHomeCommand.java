@@ -54,12 +54,13 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
         }
 
         atPlayer.removeHome(name, sender).whenComplete((ignored, err) -> CustomMessages.failableContextualPath(
-                sender,
-                player,
-                "Info.homeDeleted",
-                "Error.deleteHomeFailed",
-                () -> err == null,
-                "{home}", name, "{player}", player.getName()
+            sender,
+            player,
+            "Info.homeDeleted",
+            "Error.deleteHomeFailed",
+            () -> err == null,
+            "home",name,
+            "player", player.getName() // TOOD: Displayname
         ));
     }
 

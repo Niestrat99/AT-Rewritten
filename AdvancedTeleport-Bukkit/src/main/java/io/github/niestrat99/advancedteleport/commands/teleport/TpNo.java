@@ -37,7 +37,7 @@ public final class TpNo extends TeleportATCommand implements PlayerCommand {
         } else {
             target = request.requester();
         }
-        CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", "{player}", player.getName());
+        CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", "player", player.getName());
         CustomMessages.sendMessage(player, "Info.requestDeclined");
         request.destroy();
         return true;

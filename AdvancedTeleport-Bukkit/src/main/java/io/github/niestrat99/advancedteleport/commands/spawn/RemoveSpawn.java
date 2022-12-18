@@ -40,7 +40,7 @@ public final class RemoveSpawn extends SpawnATCommand {
             removingSpawn = args[0];
         }
         if (!Spawn.get().doesSpawnExist(removingSpawn)) {
-            CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "{spawn}", removingSpawn);
+            CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "spawn", removingSpawn);
             return true;
         }
 
@@ -53,7 +53,7 @@ public final class RemoveSpawn extends SpawnATCommand {
 
         String finalRemovingSpawn = removingSpawn;
         AdvancedTeleportAPI.removeSpawn(removingSpawn, sender).thenAcceptAsync(result ->
-                CustomMessages.sendMessage(sender, "Info.removedSpawn", "{spawn}", finalRemovingSpawn));
+                CustomMessages.sendMessage(sender, "Info.removedSpawn", "spawn", finalRemovingSpawn));
         return false;
     }
 

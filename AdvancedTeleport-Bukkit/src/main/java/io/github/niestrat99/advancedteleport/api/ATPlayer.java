@@ -162,8 +162,7 @@ public class ATPlayer {
         } else {
             ParticleManager.onTeleport(player, command);
             PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-            CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
-                    event.getLocName());
+            CustomMessages.sendMessage(player, teleportMsg, "home", event.getLocName(), "warp", event.getLocName());
             PaymentManager.getInstance().withdraw(command, player);
         }
     }
