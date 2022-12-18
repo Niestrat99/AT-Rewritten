@@ -56,218 +56,235 @@ public final class CustomMessages extends ATConfig {
 
     public void loadDefaults() {
         makeSectionLenient("Teleport");
-        addDefault("Teleport.eventBeforeTP" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7, please do not move!");
+        addDefault("Common.prefix", "<aqua>↑</aqua> <dark_gray>»</dark_gray>");
+        addDefault("Teleport.eventBeforeTP" , "<prefix> <gray>Teleporting in <aqua><countdown> seconds</aqua>, please do not move!");
 
         addComment("Teleport.eventBeforeTP_title", "This is an example use for titles and subtitles in the plugin." +
                 "\nThis feature is supported only if you're on version 1.8.8 or newer.");
         addExample("Teleport.eventBeforeTP_title.length" , 80 , "How many seconds (in ticks) the header should last. This is not including fading.");
         addExample("Teleport.eventBeforeTP_title.fade-in" , 0 , "How many seconds (in ticks) the header should take to fade in.");
         addExample("Teleport.eventBeforeTP_title.fade-out" , 10 , "How many seconds (in ticks) the header should take to fade out.");
-        addExample("Teleport.eventBeforeTP_title.0", "&7&lTeleporting...");
-        addExample("Teleport.eventBeforeTP_title.20", "&b> &7&lTeleporting... &b<");
-        addExample("Teleport.eventBeforeTP_title.40", "&b>> &7&lTeleporting... &b<<");
+        addExample("Teleport.eventBeforeTP_title.0", "<gray><bold>Teleporting...");
+        addExample("Teleport.eventBeforeTP_title.20", "<aqua>></aqua>&lTeleporting... &b<");
+        addExample("Teleport.eventBeforeTP_title.40", "<aqua>>></aqua>&lTeleporting... &b<<");
         addExample("Teleport.eventBeforeTP_title.60", "&b>>> &e&lTeleported! &b<<<");
         addExample("Teleport.eventBeforeTP_subtitle.0", "&bPlease do not move!");
         addExample("Teleport.eventBeforeTP_subtitle.60", "");
 
-        addDefault("Teleport.eventBeforeTPMovementAllowed" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7!");
-        addDefault("Teleport.eventTeleport" , "&b↑ &8» &7Teleporting...");
-        addDefault("Teleport.eventMovement" , "&b↑ &8» &7Teleport has been cancelled due to movement.");
+        addDefault("Teleport.eventBeforeTPMovementAllowed", "<prefix> <gray>Teleporting in <aqua><countdown></aqua> seconds!");
+        addDefault("Teleport.eventTeleport", "<prefix> <gray>Teleporting...");
+        addDefault("Teleport.eventMovement", "<prefix> <gray>Teleport has been cancelled due to movement.");
         addDefault("Teleport.eventMovement_title.length", 60);
         addDefault("Teleport.eventMovement_title.fade-in", 0);
         addDefault("Teleport.eventMovement_title.fade-out", 10);
         addDefault("Teleport.eventMovement_title.0", "&e&l! &c&lCancelled &e&l!");
-        addDefault("Teleport.teleportingToSpawn", "&b↑ &8» &7Teleporting you to spawn!");
-        addDefault("Teleport.teleporting", "&b↑ &8» &7Teleporting to &b{player}&7!");
-        addDefault("Teleport.teleportingToHome", "&b↑ &8» &7Teleporting to &b{home}&7!");
-        addDefault("Teleport.teleportingToHomeOther", "&b↑ &8» &7Teleporting to &b{player}&7's home, &b{home}&7!");
-        addDefault("Teleport.teleportingToWarp", "&b↑ &8» &7Teleporting you to &b{warp}&7!");
-        addDefault("Teleport.teleportingPlayerToSelf", "&b↑ &8» &7Teleporting &b{player} &7to you!");
-        addDefault("Teleport.teleportingSelfToPlayer", "&b↑ &8» &7Teleporting you to &b{player}&7!");
-        addDefault("Teleport.teleportingToRandomPlace", "&b↑ &8» &7Teleporting you to a random place!");
-        addDefault("Teleport.teleportingToLastLoc", "&b↑ &8» &7Teleporting to your last location!");
-        addDefault("Teleport.teleportedToOfflinePlayer", "&b↑ &8» &7Teleported to offline player &b{player}&7!");
-        addDefault("Teleport.teleportedOfflinePlayerHere", "&b↑ &8» &7Teleported offline player &b{player} &7to your location!");
+        addDefault("Teleport.teleportingToSpawn", "<prefix> <gray>Teleporting you to spawn!");
+        addDefault("Teleport.teleporting", "<prefix> <gray>Teleporting to <aqua>player</aqua>!");
+        addDefault("Teleport.teleportingToHome", "<prefix> <gray>Teleporting to <aqua>home</aqua>!");
+        addDefault("Teleport.teleportingToHomeOther", "<prefix> <gray>Teleporting to <aqua>player</aqua>'s home, <aqua>home</aqua>!");
+        addDefault("Teleport.teleportingToWarp", "<prefix> <gray>Teleporting you to <aqua>warp</aqua>!");
+        addDefault("Teleport.teleportingPlayerToSelf", "<prefix> <gray>Teleporting <aqua><player></aqua> to you!");
+        addDefault("Teleport.teleportingSelfToPlayer", "<prefix> <gray>Teleporting you to <aqua>player</aqua>!");
+        addDefault("Teleport.teleportingToRandomPlace", "<prefix> <gray>Teleporting you to a random place!");
+        addDefault("Teleport.teleportingToLastLoc", "<prefix> <gray>Teleporting to your last location!");
+        addDefault("Teleport.teleportedToOfflinePlayer", "<prefix> <gray>Teleported to offline player <aqua>player</aqua>!");
+        addDefault("Teleport.teleportedOfflinePlayerHere", "<prefix> <gray>Teleported offline player <aqua><player></aqua> to your location!");
 
         makeSectionLenient("Error");
-        addDefault("Error.noPermission", "&b↑ &8» &7You do not have permission to use this command!");
-        addDefault("Error.noPermissionSign", "&b↑ &8» &7You do not have permission to make this sign!");
-        addDefault("Error.featureDisabled", "&b↑ &8» &7This feature has been disabled!");
-        addDefault("Error.noRequests", "&b↑ &8» &7You do not have any pending requests!");
-    //    Config.addDefault("Error.requestSendFail", "&cCould not send request to &e{player}!"); - NOT USED!!!
-        addDefault("Error.tpOff", "&b↑ &8» &b{player} &7has their teleportation disabled!");
-        addDefault("Error.tpBlock", "&b↑ &8» &b{player} &7has blocked you from sending requests to them!");
-        addDefault("Error.alreadyOn", "&b↑ &8» &7Your teleport requests are already enabled!");
-        addDefault("Error.alreadyOff", "&b↑ &8» &7Your teleport requests are already disabled!");
-        addDefault("Error.alreadyBlocked", "&b↑ &8» &7This player is already blocked!");
-        addDefault("Error.neverBlocked", "&b↑ &8» &7This player was never blocked!");
-        addDefault("Error.onCooldown", "&b↑ &8» &7Please wait another &b{time} &7seconds to use this command!");
-        addDefault("Error.requestSentToSelf", "&b↑ &8» &7You can't send a request to yourself!");
-        addDefault("Error.noSuchPlayer", "&b↑ &8» &7The player is either currently offline or doesn't exist!");
-        addDefault("Error.alreadySentRequest", "&b↑ &8» &7You've already sent a request to &7{player}&b!");
-        addDefault("Error.notEnoughEXP", "&b↑ &8» &7You do not have enough EXP Levels to teleport there!" +
-                "\n&b↑ &8» &7You need at least &b{levels} &7EXP levels!");
-        addDefault("Error.notEnoughEXPPoints", "&b↑ &8» &7You do not have enough EXP Points to teleport there!" +
-                "\n&b↑ &8» &7You need at least &b{points} &7EXP points!");
-        addDefault("Error.notEnoughMoney", "&b↑ &8» &7You do not have enough money to teleport there!" +
-                "\n&b↑ &8» &7You need at least &b{amount}&7!");
-        addDefault("Error.requestExpired", "&b↑ &8» &7Your teleport request to &b{player} &7has expired!");
-        addDefault("Error.noPlayerInput", "&b↑ &8» &7You must include a player name!");
-        addDefault("Error.blockSelf", "&b↑ &8» &7You can't block yourself!");
-        addDefault("Error.noRequestsFromPlayer", "&b↑ &8» &7You don't have any pending requests from &b{player}&7!");
-        addDefault("Error.noRequests", "&b↑ &8» &7You don't have any pending requests!");
-        addDefault("Error.invalidPageNo", "&b↑ &8» &7You've inserted an invalid page number!");
-        addDefault("Error.noHomeInput", "&b↑ &8» &7You have to include a home name!");
-        addDefault("Error.noSuchHome", "&b↑ &8» &7This home doesn't exist!");
-        addDefault("Error.noBedHome", "&b↑ &8» &7You don't have any bed spawn set!");
-        addDefault("Error.noBedHomeOther", "&b↑ &8» &b{player} &7doesn't have a bed spawn set!");
-        addDefault("Error.reachedHomeLimit", "&b↑ &8» &7You can't set any more homes!");
-        addDefault("Error.homeAlreadySet", "&b↑ &8» &7You already have a home called &b{home}&7!");
-        addDefault("Error.noWarpInput", "&b↑ &8» &7You have to include the warp's name!");
-        addDefault("Error.noSuchWarp", "&b↑ &8» &7That warp doesn't exist!");
-        addDefault("Error.warpAlreadySet", "&b↑ &8» &7There is already a warp called &b{warp}&7!");
-        addDefault("Error.noSuchWorld", "&b↑ &8» &7That world doesn't exist!");
-        addDefault("Error.noLocation", "&b↑ &8» &7You don't have any location to teleport back to!");
-        addDefault("Error.notAPlayer", "&b↑ &8» &7You must be a player to run this command!");
-        addDefault("Error.noHomes", "&b↑ &8» &7You haven't got any homes!");
-        addDefault("Error.noHomesOtherPlayer", "&b↑ &8» &b{player} &7hasn't got any homes!");
-        addDefault("Error.tooFarAway", "&b↑ &8» &7The teleport destination is too far away so you can not teleport there!");
-        addDefault("Error.noRequestsSent", "&b↑ &8» &7Couldn't send a request to anyone :(");
-        addDefault("Error.onCountdown","&b↑ &8» &7You can't use this command whilst waiting to teleport!");
-        addDefault("Error.noPermissionWarp", "&b↑ &8» &7You can't warp to &b{warp}&7!");
-        addDefault("Error.cantTPToWorld", "&b↑ &8» &7You can't randomly teleport in that world!");
+        addDefault("Error.noPermission", "<prefix> <gray>You do not have permission to use this command!");
+        addDefault("Error.noPermissionSign", "<prefix> <gray>You do not have permission to make this sign!");
+        addDefault("Error.featureDisabled", "<prefix> <gray>This feature has been disabled!");
+        addDefault("Error.noRequests", "<prefix> <gray>You do not have any pending requests!");
+    //    Config.addDefault("Error.requestSendFail", "&cCould not send request to &e<player>!"); - NOT USED!!!
+        addDefault("Error.tpOff", "<prefix> <aqua><player> <gray>has their teleportation disabled!");
+        addDefault("Error.tpBlock", "<prefix> <aqua><player> <gray>has blocked you from sending requests to them!");
+        addDefault("Error.alreadyOn", "<prefix> <gray>Your teleport requests are already enabled!");
+        addDefault("Error.alreadyOff", "<prefix> <gray>Your teleport requests are already disabled!");
+        addDefault("Error.alreadyBlocked", "<prefix> <gray>This player is already blocked!");
+        addDefault("Error.neverBlocked", "<prefix> <gray>This player was never blocked!");
+        addDefault("Error.onCooldown", "<prefix> <gray>Please wait another <aqua><time></aqua> seconds to use this command!");
+        addDefault("Error.requestSentToSelf", "<prefix> <gray>You can't send a request to yourself!");
+        addDefault("Error.noSuchPlayer", "<prefix> <gray>The player is either currently offline or doesn't exist!");
+        addDefault("Error.alreadySentRequest", "<prefix> <gray>You've already sent a request to <aqua><player></aqua>!");
+        addDefault("Error.notEnoughEXP", """
+            <prefix> <gray>You do not have enough EXP Levels to teleport there!
+            <prefix> <gray>You need at least <aqua><levels></aqua>EXP levels!
+        """.trim());
+        addDefault("Error.notEnoughEXPPoints", """
+            <prefix> <gray>You do not have enough EXP Points to teleport there!
+            <prefix> <gray>You need at least <aqua><points></aqua>EXP points!
+        """.trim());
+        addDefault("Error.notEnoughMoney", """
+            <prefix> <gray>You do not have enough money to teleport there!
+            <prefix> <gray>You need at least <aqua>amount</aqua>!
+        """.trim());
+        addDefault("Error.requestExpired", "<prefix> <gray>Your teleport request to <aqua><player></aqua> has expired!");
+        addDefault("Error.noPlayerInput", "<prefix> <gray>You must include a player name!");
+        addDefault("Error.blockSelf", "<prefix> <gray>You can't block yourself!");
+        addDefault("Error.noRequestsFromPlayer", "<prefix> <gray>You don't have any pending requests from <aqua>player</aqua>!");
+        addDefault("Error.noRequests", "<prefix> <gray>You don't have any pending requests!");
+        addDefault("Error.invalidPageNo", "<prefix> <gray>You've inserted an invalid page number!");
+        addDefault("Error.noHomeInput", "<prefix> <gray>You have to include a home name!");
+        addDefault("Error.noSuchHome", "<prefix> <gray>This home doesn't exist!");
+        addDefault("Error.noBedHome", "<prefix> <gray>You don't have any bed spawn set!");
+        addDefault("Error.noBedHomeOther", "<prefix> <aqua><player></aqua> <gray>doesn't have a bed spawn set!");
+        addDefault("Error.reachedHomeLimit", "<prefix> <gray>You can't set any more homes!");
+        addDefault("Error.homeAlreadySet", "<prefix> <gray>You already have a home called <aqua>home</aqua>!");
+        addDefault("Error.noWarpInput", "<prefix> <gray>You have to include the warp's name!");
+        addDefault("Error.noSuchWarp", "<prefix> <gray>That warp doesn't exist!");
+        addDefault("Error.warpAlreadySet", "<prefix> <gray>There is already a warp called <aqua>warp</aqua>!");
+        addDefault("Error.noSuchWorld", "<prefix> <gray>That world doesn't exist!");
+        addDefault("Error.noLocation", "<prefix> <gray>You don't have any location to teleport back to!");
+        addDefault("Error.notAPlayer", "<prefix> <gray>You must be a player to run this command!");
+        addDefault("Error.noHomes", "<prefix> <gray>You haven't got any homes!");
+        addDefault("Error.noHomesOther", "<prefix> <aqua><player></aqua> <gray>hasn't got any homes!"); // TODO: Note this changed from noHomesOtherPlayer
+        addDefault("Error.tooFarAway", "<prefix> <gray>The teleport destination is too far away so you can not teleport there!");
+        addDefault("Error.noRequestsSent", "<prefix> <gray>Couldn't send a request to anyone :(");
+        addDefault("Error.onCountdown","<prefix> <gray>You can't use this command whilst waiting to teleport!");
+        addDefault("Error.noPermissionWarp", "<prefix> <gray>You can't warp to <aqua>warp</aqua>!");
+        addDefault("Error.cantTPToWorld", "<prefix> <gray>You can't randomly teleport in that world!");
        // config.addDefault("Error.invalidName", "&cHomes and warps may only have letters and numbers in the names!");
-        addDefault("Error.cantTPToWorldLim", "&b↑ &8» &7You can't teleport to &b{world}&7!");
-        addDefault("Error.tooFewArguments", "&b↑ &8» &7Too few arguments!");
-        addDefault("Error.invalidArgs", "&b↑ &8» &7Invalid arguments!");
-        addDefault("Error.cantTPToPlayer", "&b↑ &8» &7You can't request a teleportation to &b{player}&7!");
-        addDefault("Error.noWarps", "&b↑ &8» &7There are no warps as of currently!");
-        addDefault("Error.noAccessHome", "&b↑ &8» &7You cannot access &b{home}&7 as of currently!");
-        addDefault("Error.moveHomeFail", "&b↑ &8» &7The home has been moved but the data has not been stored successfully. The plugin will try to fix this itself.");
-        addDefault("Error.setMainHomeFail", "&b↑ &8» &7The main home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
-        addDefault("Error.deleteHomeFail", "&b↑ &8» &7The home has been deleted but the data has not been stored successfully. The plugin will try to fix this itself.");
-        addDefault("Error.setHomeFail", "&b↑ &8» &7The home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
-        addDefault("Error.deleteWarpFail", "&b↑ &8» &7The warp has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
-        addDefault("Error.purgeWarpsFail", "&b↑ &8» &7Could not purge warps. Please check the console for more information.");
-        addDefault("Error.purgeHomesFail", "&b↑ &8» &7Could not purge homes. Please check the console for more information.");
-        addDefault("Error.homesNotLoaded", "&b↑ &8» &7Homes for this player haven't loaded yet, please wait a little bit (even just a second) before trying this again!");
-        addDefault("Error.noOfflineLocation", "&b↑ &8» &7No offline location was found for &b{player}&7!");
-        addDefault("Error.failedOfflineTeleport", "&b↑ &8» &7Failed to teleport to offline player &b{player}&7!");
-        addDefault("Error.failedOfflineTeleportHere", "&b↑ &8» &7Failed to teleport offline player &b{player} &7 to your location!");
-        addDefault("Error.alreadySearching", "&b↑ &8» &7Already searching for a location to teleport to!");
-        addDefault("Error.mirrorSpawnNoArguments", "&b↑ &8» &7No worlds/spawn points have been specified!");
-        addDefault("Error.mirrorSpawnLackOfArguments", "&b↑ &8» &7You must be a player to only specify one world - please specify a world and a spawnpoint to mirror players to!");
-        addDefault("Error.noSuchSpawn", "&b↑ &8» &7There is no such spawn called &b{spawn}&7!");
-        addDefault("Error.cannotSetMainSpawn", "&b↑ &8» &7You can only make existing spawnpoints into the main spawnpoint rather than create new ones!");
-        addDefault("Error.cannotSetMainSpawnConsole", "&b↑ &8» &7You can only make existing spawnpoints into the main spawnpoint rather than create new ones since you are not a player!");
-        addDefault("Error.nonAlphanumericSpawn", "&b↑ &8» &7Spawnpoints need to be alphanumeric!");
-        addDefault("Error.removeSpawnNoArgs", "&b↑ &8» &7You have to specify a spawnpoint to remove!");
-        addDefault("Error.noSuchPlugin", "&b↑ &8» &7This plugin is not supported for importing/exporting yet!");
-        addDefault("Error.cantImport", "&b↑ &8» &7Can't import plugin data from &b{plugin} &7(make sure it's enabled and by the correct authors)!");
-        addDefault("Error.cantExport", "&b↑ &8» &7Can't export plugin data from &b{plugin} &7(make sure it's enabled and by the correct authors)!");
-        addDefault("Error.notEnoughItems", "&b↑ &8» &7You do not have enough items to teleport there!\n" +
-                "&b↑ &8» &7You need at least &b{amount} {type}(s)!");
-        addDefault("Error.mirrorSpawnFail", "&b↑ &8» &7Failed to mirror &b{from}&7's spawnpoint to &b{spawn}&7!");
-        addDefault("Error.removeSpawnFail", "&b↑ &8» &7Failed to remove the spawnpoint &b{spawn}&7!");
-        addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
-        addDefault("Error.blockFail", "&b↑ &8» &7Failed to save the block against &b{player}&7!");
-        addDefault("Error.unblockFail", "&b↑ &8» &7Failed to save the block removal against &b{player}&7!");
-        addDefault("Error.noParticlePlugins", "&b↑ &8» &7There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
+        addDefault("Error.cantTPToWorldLim", "<prefix> <gray>You can't teleport to <aqua>world</aqua>!");
+        addDefault("Error.tooFewArguments", "<prefix> <gray>Too few arguments!");
+        addDefault("Error.invalidArgs", "<prefix> <gray>Invalid arguments!");
+        addDefault("Error.cantTPToPlayer", "<prefix> <gray>You can't request a teleportation to <aqua>player</aqua>!");
+        addDefault("Error.noWarps", "<prefix> <gray>There are no warps as of currently!");
+        addDefault("Error.noAccessHome", "<prefix> <gray>You cannot access <aqua>home</aqua> as of currently!");
+        addDefault("Error.moveHomeFail", "<prefix> <gray>The home has been moved but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.setMainHomeFail", "<prefix> <gray>The main home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.deleteHomeFail", "<prefix> <gray>The home has been deleted but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.setHomeFail", "<prefix> <gray>The home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.deleteWarpFail", "<prefix> <gray>The warp has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
+        addDefault("Error.purgeWarpsFail", "<prefix> <gray>Could not purge warps. Please check the console for more information.");
+        addDefault("Error.purgeHomesFail", "<prefix> <gray>Could not purge homes. Please check the console for more information.");
+        addDefault("Error.homesNotLoaded", "<prefix> <gray>Homes for this player haven't loaded yet, please wait a little bit (even just a second) before trying this again!");
+        addDefault("Error.noOfflineLocation", "<prefix> <gray>No offline location was found for <aqua>player</aqua>!");
+        addDefault("Error.failedOfflineTeleport", "<prefix> <gray>Failed to teleport to offline player <aqua>player</aqua>!");
+        addDefault("Error.failedOfflineTeleportHere", "<prefix> <gray>Failed to teleport offline player <aqua><player></aqua> to your location!");
+        addDefault("Error.alreadySearching", "<prefix> <gray>Already searching for a location to teleport to!");
+        addDefault("Error.mirrorSpawnNoArguments", "<prefix> <gray>No worlds/spawn points have been specified!");
+        addDefault("Error.mirrorSpawnLackOfArguments", "<prefix> <gray>You must be a player to only specify one world - please specify a world and a spawnpoint to mirror players to!");
+        addDefault("Error.noSuchSpawn", "<prefix> <gray>There is no such spawn called <aqua>spawn</aqua>!");
+        addDefault("Error.cannotSetMainSpawn", "<prefix> <gray>You can only make existing spawnpoints into the main spawnpoint rather than create new ones!");
+        addDefault("Error.cannotSetMainSpawnConsole", "<prefix> <gray>You can only make existing spawnpoints into the main spawnpoint rather than create new ones since you are not a player!");
+        addDefault("Error.nonAlphanumericSpawn", "<prefix> <gray>Spawnpoints need to be alphanumeric!");
+        addDefault("Error.removeSpawnNoArgs", "<prefix> <gray>You have to specify a spawnpoint to remove!");
+        addDefault("Error.noSuchPlugin", "<prefix> <gray>This plugin is not supported for importing/exporting yet!");
+        addDefault("Error.cantImport", "<prefix> <gray>Can't import plugin data from <aqua><plugin></aqua> (make sure it's enabled and by the correct authors)!");
+        addDefault("Error.cantExport", "<prefix> <gray>Can't export plugin data from <aqua><plugin></aqua> (make sure it's enabled and by the correct authors)!");
+        addDefault("Error.notEnoughItems", """
+            <prefix> <gray>You do not have enough items to teleport there!
+            <prefix> <gray>You need at least &b<amount> <type>(s)!
+        """.trim());
+        addDefault("Error.mirrorSpawnFail", "<prefix> <gray>Failed to mirror <aqua>from</aqua>'s spawnpoint to <aqua>spawn</aqua>!");
+        addDefault("Error.removeSpawnFail", "<prefix> <gray>Failed to remove the spawnpoint <aqua>spawn</aqua>!");
+        addDefault("Error.setMainSpawnFail", "<prefix> <gray>Failed to set the main spawnpoint <aqua>spawn</aqua>!");
+        addDefault("Error.blockFail", "<prefix> <gray>Failed to save the block against <aqua>player</aqua>!");
+        addDefault("Error.unblockFail", "<prefix> <gray>Failed to save the block removal against <aqua>player</aqua>!");
+        addDefault("Error.noParticlePlugins", "<prefix> <gray>There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
         addDefault("Error.setWarpFail", "&b↑ &8» &7Failed to set the warp {warp}!");
 
-        addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
-        addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
-        addDefault("Info.tpAdminOff", "&b↑ &8» &7Successfully disabled teleport requests for &b{player}&7!");
-        addDefault("Info.tpAdminOn", "&b↑ &8» &7Successfully enabled teleport requests for &b{player}&7!");
-        addDefault("Info.requestSent", "&b↑ &8» &7Successfully sent request to &b{player}&7!" +
-                "\n&b↑ &8» &7They've got &b{lifetime} &7to respond!" +
-                "\n&7To cancel the request use &b/tpcancel &7to cancel it." +
-                "\n" +
-                "\n                                [&7&l[CANCEL]](/tpcancel {player})" +
-                "\n&7");
-        addDefault("Info.tpaRequestReceived", "&b↑ &8» &7The player &b{player} &7wants to teleport to you!" +
-                "\n&b↑ &8» &7If you want to accept it, use &b/tpayes&7, but if not, use &b/tpano&7." +
-                "\n&b↑ &8» &7You've got &b{lifetime} &7to respond to it!" +
-                "\n" +
-                "\n                   [&a&l[ACCEPT]](/tpayes {player}|&aClick here to accept the request.)              [&c&l[DENY]](/tpano {player}|&cClick here to deny the request.)" +
-                "\n&7");
-        addDefault("Info.tpaRequestHere", "&b↑ &8» &7The player &b{player} &7wants to teleport you to them!" +
-                "\n&b↑ &8» &7If you want to accept it, use &b/tpayes&7, but if not, use &b/tpano&7." +
-                "\n&b↑ &8» &7You've got &b{lifetime} seconds &7to respond to it!" +
-                "\n" +
-                "\n                   [&a&l[ACCEPT]](/tpayes {player}|&aClick here to accept the request.)              [&c&l[DENY]](/tpano {player}|&cClick here to deny the request.)" +
-                "\n&7");
-        addDefault("Info.blockPlayer", "&b↑ &8» &b{player} &7has been blocked.");
-        addDefault("Info.tpCancel", "&b↑ &8» &7You have cancelled your teleport request.");
-        addDefault("Info.tpCancelResponder", "&b↑ &8» &b{player} &7has cancelled their teleport request.");
-        addDefault("Info.multipleRequestsCancel", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to cancel:");
-        addDefault("Info.multipleRequestsIndex", "&b> {player}");
-        addDefault("Info.multipleRequestsList", "&b↑ &8» &7Do /tpalist <Page Number> To check other requests.");
-        addDefault("Info.multipleRequestAccept", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to accept:");
-        addDefault("Info.multipleRequestDeny", "&b↑ &8» &7You have multiple teleport requests pending! Click one of the following to deny:");
-        addDefault("Info.requestDeclined", "&b↑ &8» &7You've declined the teleport request!");
-        addDefault("Info.requestDeclinedResponder", "&b↑ &8» &b{player} &7has declined your teleport request!");
-        addDefault("Info.requestDisplaced", "&b↑ &8» &7Your request has been cancelled because &b{player} &7got another request!");
+        addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
+        addDefault("Info.tpOn", "<prefix> <gray>Successfully enabled teleport requests!");
+        addDefault("Info.tpAdminOff", "<prefix> <gray>Successfully disabled teleport requests for <aqua>player</aqua>!");
+        addDefault("Info.tpAdminOn", "<prefix> <gray>Successfully enabled teleport requests for <aqua>player</aqua>!");
+        // TODO: Possible "Common" components for the hover and click events?
+        addDefault("Info.requestSent", """
+            <prefix> <gray>Successfully sent request to <aqua>player</aqua>!
+            <prefix> <gray>They've got <aqua><lifetime></aqua> to respond!
+            <prefix> <gray>To cancel the request use <aqua>/tpcancel</aqua> to cancel it.
 
-        addDefault("Info.deletedHome", "&b↑ &8» &7Successfully deleted the home &b{home}&7!");
-        addDefault("Info.deletedHomeOther", "&b↑ &8» &7Successfully deleted the home &b{home} &7for &b{player}&7!");
-        addDefault("Info.setHome", "&b↑ &8» &7Successfully set the home &b{home}&7!");
-        addDefault("Info.setHomeOther", "&b↑ &8» &7Successfully set the home &b{home} &7for &b{player}&7!");
-        addDefault("Info.setSpawn", "&b↑ &8» &7Successfully set the spawnpoint!");
-        addDefault("Info.setWarp", "&b↑ &8» &7Successfully set the warp &b{warp}&7!");
-        addDefault("Info.deletedWarp", "&b↑ &8» &7Successfully deleted the warp &b{warp}&7!");
-        addDefault("Info.purgeWarpsWorld", "&b↑ &8» &7Successfully purged warps in &b{world}&7!");
-        addDefault("Info.purgeWarpsCreator", "&b↑ &8» &7Successfully purged warps created by &b{player}&7!");
-        addDefault("Info.purgeHomesWorld", "&b↑ &8» &7Successfully purged homes in &b{world}&7!");
-        addDefault("Info.purgeHomesCreator", "&b↑ &8» &7Successfully purged homes created for &b{player}&7!");
-        addDefault("Info.searching", "&b↑ &8» &7Searching for a location...");
-        addDefault("Info.unblockPlayer", "&b↑ &8» &7Successfully unblocked &b{player}&7!");
-        addDefault("Info.reloadingConfig", "&b↑ &8» &7Reloading &bAdvancedTeleport&7's config...");
-        addDefault("Info.reloadedConfig", "&b↑ &8» &7Finished reloading the config!");
-        addDefault("Info.warps", "&b&lWarps &8» &r");
-        addDefault("Info.homes", "&b&lHomes &8» &r");
-        addDefault("Info.homesOther", "&b&l{player}'s homes &8» &r");
-        addDefault("Info.requestAccepted", "&b↑ &8» &7You've accepted the teleport request!");
-        addDefault("Info.requestAcceptedResponder", "&b↑ &8» &b{player} &7has accepted the teleport request!");
-        addDefault("Info.paymentVault", "&b↑ &8» &7You have paid &b{amount} &7and now have &b{balance}&7!");
-        addDefault("Info.paymentEXP", "&b↑ &8» &7You have paid &b{amount} EXP Levels &7and now have &b{levels} &7levels!");
-        addDefault("Info.paymentPoints", "&b↑ &8» &7You have paid &b{amount} EXP Points &7and now have &b{points} &7points!");
-        addDefault("Info.createdWarpSign", "&b↑ &8» &7Successfully created the warp sign!");
-        addDefault("Info.createdRTPSign", "&b↑ &8» &7Successfully created the RandomTP sign!");
-        addDefault("Info.createdSpawnSign", "&b↑ &8» &7Successfully created the spawn sign!");
-        addDefault("Info.tpallRequestSent", "&b↑ &8» &7Successfully sent a teleport request to &b{amount} &7player(s)!");
-        addDefault("Info.teleportedToLoc", "&b↑ &8» &7Successfully teleported you to &b{x}&7, &b{y}&7, &b{z}&7! (Yaw: &b{yaw}&7, Pitch: &b{pitch}&7, World: &b{world}&7)");
-        addDefault("Info.teleportedToLocOther", "&b↑ &8» &7Successfully teleported &b{player} &7to &b{x}&7, &b{y}&7, &b{z}&7! (Yaw: &b{yaw}&7, Pitch: &b{pitch}&7, World: &b{world}&7)");
-        addDefault("Info.movedWarp", "&b↑ &8» &7Moved &b{warp} &7to your current location!");
-        addDefault("Info.movedHome", "&b↑ &8» &7Moved home &b{home} &7to your current location!");
-        addDefault("Info.movedHomeOther", "&b↑ &8» &7Moved &b{player}'s &7home &b{home} &7to your location!");
-        addDefault("Info.setMainHome", "&b↑ &8» &7Made &b{home} &7your main home!");
-        addDefault("Info.setAndMadeMainHome", "&b↑ &8» &7Set &b{home} &7at your current location and made it your main home!");
-        addDefault("Info.setMainHomeOther", "&b↑ &8» &7Made &b{home} {player}'s &7main home!");
-        addDefault("Info.setAndMadeMainHomeOther", "&b↑ &8» &7Set &b{home} &7for &b{player} &7at your current location and made it their main home!");
-        addDefault("Info.mirroredSpawn", "&b↑ &8» &7Mirrored &b{from}&7's spawnpoint to &b{spawn}&7!");
-        addDefault("Info.setMainSpawn", "&b↑ &8» &7Set the main spawnpoint to &b{spawn}&7! All players will teleport there if there are no overriding spawns/permissions.");
-        addDefault("Info.removedSpawn", "&b↑ &8» &7Removed the spawnpoint &b{spawn}&7!");
-        addDefault("Info.setSpawnSpecial", "&b↑ &8» &7Set spawnpoint &b{spawn}&7!");
-        addDefault("Info.importStarted", "&b↑ &8» &7Starting import from &b{plugin}&7...");
-        addDefault("Info.importFinished", "&b↑ &8» &7Finished import from &b{plugin}&7!");
-        addDefault("Info.exportStarted", "&b↑ &8» &7Starting export to &b{plugin}&7...");
-        addDefault("Info.exportFinished", "&b↑ &8» &7Finished export to &b{plugin}&7!");
-        addDefault("Info.paymentItems", "&b↑ &8» &7You have paid &b{amount} {type}(s) &7for that teleport!");
-        addDefault("Info.updateInfo", "&b↑ &8» [&7AdvancedTeleport has an update available! " +
-                "Click/hover over this text for more information.]" +
-                "(&bCurrent Version &8» &7{version}|&bNew Version &8» &7{new-version}|&bTitle &8» &7{title}" +
-                "|https://www.spigotmc.org/resources/advancedteleport.64139/)");
-        addDefault("Info.defaultParticlesUpdated", "&b↑ &8» &7The default waiting particles have been set to your current particle setup!");
-        addDefault("Info.specificParticlesUpdated", "&b↑ &8» &7The waiting particles settings for &b{type} &7have been set to your current particle setup!");
+                                <click:run_command:tpcancel <player>><hover:show_text:'<red>Click here to cancel the request.'><gray><bold>[CANCEL]</hover></click>
+        """.stripIndent());
+        addDefault("Info.tpaRequestReceived", """
+            <prefix> <gray>The player <aqua><player></aqua> wants to teleport to you!
+            <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
+            <prefix> <gray>You've got <aqua><lifetime></aqua> to respond to it!
 
-        addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
-        addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");
-        addDefault("Tooltip.location", "" +
-                "\n&bX &8» &7{x}" +
-                "\n&bY &8» &7{y}" +
-                "\n&bZ &8» &7{z}" +
-                "\n&bWorld &8» &7{world}");
+                                <click:run_command:tpayes <player>><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.>&c&l[DENY]</hover></click>
+        &7""".stripIndent());
+        addDefault("Info.tpaRequestHere", """
+            <prefix> <gray>The player <aqua><player></aqua> wants to teleport you to them!
+            <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
+            <prefix> <gray>You've got <aqua><lifetime> seconds</aqua> to respond to it!
+        addDefault("Error.setWarpFail", "&b↑ &8» &7Failed to set the warp {warp}!");
+
+                              <click:run_command:/tpayes <player>><hover:show_text:'<green>Click here to accept the request.><green>&l[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.>&c&l[DENY]</hover></click>
+        &7""".stripIndent());
+        addDefault("Info.blockPlayer", "<prefix> <aqua><player> <gray>has been blocked.");
+        addDefault("Info.tpCancel", "<prefix> <gray>You have cancelled your teleport request.");
+        addDefault("Info.tpCancelResponder", "<prefix> <aqua><player> <gray>has cancelled their teleport request.");
+        addDefault("Info.multipleRequestsCancel", "<prefix> <gray>You have multiple teleport requests pending! Click one of the following to cancel:");
+        addDefault("Info.multipleRequestsIndex", "<prefix> <click:run_command:<command> <player>><player></click>");
+        addDefault("Info.multipleRequestsList", "<prefix> <gray>Do /tpalist <Page Number> To check other requests.");
+        addDefault("Info.multipleRequestAccept", "<prefix> <gray>You have multiple teleport requests pending! Click one of the following to accept:");
+        addDefault("Info.multipleRequestDeny", "<prefix> <gray>You have multiple teleport requests pending! Click one of the following to deny:");
+        addDefault("Info.requestDeclined", "<prefix> <gray>You've declined the teleport request!");
+        addDefault("Info.requestDeclinedResponder", "<prefix> <aqua><player></aqua> has declined your teleport request!");
+        addDefault("Info.requestDisplaced", "<prefix> <gray>Your request has been cancelled because <aqua><player></aqua> got another request!");
+
+        addDefault("Info.deletedHome", "<prefix> <gray>Successfully deleted the home <aqua><home></aqua>!");
+        addDefault("Info.deletedHomeOther", "<prefix> <gray>Successfully deleted the home <aqua><home></aqua> for <aqua><player></aqua>!");
+        addDefault("Info.setHome", "<prefix> <gray>Successfully set the home <aqua><home></aqua>!");
+        addDefault("Info.setHomeOther", "<prefix> <gray>Successfully set the home <aqua><home></aqua> for <aqua>player</aqua>!");
+        addDefault("Info.setSpawn", "<prefix> <gray>Successfully set the spawnpoint!");
+        addDefault("Info.setWarp", "<prefix> <gray>Successfully set the warp <aqua>warp</aqua>!");
+        addDefault("Info.deletedWarp", "<prefix> <gray>Successfully deleted the warp <aqua>warp</aqua>!");
+        addDefault("Info.purgeWarpsWorld", "<prefix> <gray>Successfully purged warps in <aqua>world</aqua>!");
+        addDefault("Info.purgeWarpsCreator", "<prefix> <gray>Successfully purged warps created by <aqua>player</aqua>!");
+        addDefault("Info.purgeHomesWorld", "<prefix> <gray>Successfully purged homes in <aqua>world</aqua>!");
+        addDefault("Info.purgeHomesCreator", "<prefix> <gray>Successfully purged homes created for <aqua>player</aqua>!");
+        addDefault("Info.searching", "<prefix> <gray>Searching for a location...");
+        addDefault("Info.unblockPlayer", "<prefix> <gray>Successfully unblocked <aqua>player</aqua>!");
+        addDefault("Info.reloadingConfig", "<prefix> <gray>Reloading <aqua>AdvancedTeleport</aqua>'s config...");
+        addDefault("Info.reloadedConfig", "<prefix> <gray>Finished reloading the config!");
+        addDefault("Info.warps", "<aqua><bold>Warps <dark_gray>» <reset>");
+        addDefault("Info.homes", "<aqua><bold>Homes <dark_gray>» <reset>");
+        addDefault("Info.homesOther", "<aqua><bold><player>'s homes <dark_gray>» <reset>");
+        addDefault("Info.requestAccepted", "<prefix> <gray>You've accepted the teleport request!");
+        addDefault("Info.requestAcceptedResponder", "<prefix> <aqua><player></aqua> has accepted the teleport request!");
+        addDefault("Info.paymentVault", "<prefix> <gray>You have paid <aqua><amount></aqua> and now have <aqua>balance</aqua>!");
+        addDefault("Info.paymentEXP", "<prefix> <gray>You have paid <aqua><amount> EXP Levels</aqua>and now have <aqua><levels></aqua>levels!");
+        addDefault("Info.paymentPoints", "<prefix> <gray>You have paid <aqua><amount> EXP Points</aqua>and now have <aqua><points></aqua>points!");
+        addDefault("Info.createdWarpSign", "<prefix> <gray>Successfully created the warp sign!");
+        addDefault("Info.createdRTPSign", "<prefix> <gray>Successfully created the RandomTP sign!");
+        addDefault("Info.createdSpawnSign", "<prefix> <gray>Successfully created the spawn sign!");
+        addDefault("Info.tpallRequestSent", "<prefix> <gray>Successfully sent a teleport request to <aqua><amount></aqua>player(s)!");
+        addDefault("Info.teleportedToLoc", "<prefix> <gray>Successfully teleported you to <aqua>x</aqua>, <aqua>y</aqua>, <aqua>z</aqua>! (Yaw: <aqua>yaw</aqua>, Pitch: <aqua>pitch</aqua>, World: <aqua>world</aqua>)");
+        addDefault("Info.teleportedToLocOther", "<prefix> <gray>Successfully teleported <aqua><player></aqua>to <aqua>x</aqua>, <aqua>y</aqua>, <aqua>z</aqua>! (Yaw: <aqua>yaw</aqua>, Pitch: <aqua>pitch</aqua>, World: <aqua>world</aqua>)");
+        addDefault("Info.movedWarp", "<prefix> <gray>Moved <aqua><warp></aqua>to your current location!");
+        addDefault("Info.movedHome", "<prefix> <gray>Moved home <aqua><home></aqua>to your current location!");
+        addDefault("Info.movedHomeOther", "<prefix> <gray>Moved <aqua><player>'s </aqua> home <aqua><home></aqua>to your location!");
+        addDefault("Info.setMainHome", "<prefix> <gray>Made <aqua><home></aqua>your main home!");
+        addDefault("Info.setAndMadeMainHome", "<prefix> <gray>Set <aqua><home></aqua>at your current location and made it your main home!");
+        addDefault("Info.setMainHomeOther", "<prefix> <gray>Made <aqua><home> <player></aqua>'s main home!");
+        addDefault("Info.setAndMadeMainHomeOther", "<prefix> <gray>Set <aqua><home></aqua>for <aqua><player></aqua>at your current location and made it their main home!");
+        addDefault("Info.mirroredSpawn", "<prefix> <gray>Mirrored <aqua>from</aqua>'s spawnpoint to <aqua>spawn</aqua>!");
+        addDefault("Info.setMainSpawn", "<prefix> <gray>Set the main spawnpoint to <aqua>spawn</aqua>! All players will teleport there if there are no overriding spawns/permissions.");
+        addDefault("Info.removedSpawn", "<prefix> <gray>Removed the spawnpoint <aqua>spawn</aqua>!");
+        addDefault("Info.setSpawnSpecial", "<prefix> <gray>Set spawnpoint <aqua>spawn</aqua>!");
+        addDefault("Info.importStarted", "<prefix> <gray>Starting import from <aqua>plugin</aqua>...");
+        addDefault("Info.importFinished", "<prefix> <gray>Finished import from <aqua>plugin</aqua>!");
+        addDefault("Info.exportStarted", "<prefix> <gray>Starting export to <aqua>plugin</aqua>...");
+        addDefault("Info.exportFinished", "<prefix> <gray>Finished export to <aqua>plugin</aqua>!");
+        addDefault("Info.paymentItems", "<prefix> <gray>You have paid <aqua><amount> <type>(s)</aqua> for that teleport!");
+        addDefault("Info.updateInfo", """
+            <prefix> [&7AdvancedTeleport has an update available!
+            Click/hover over this text for more information.]
+            (&bCurrent Version » &7<version>|&bNew Version <dark_gray> &7{new-version}|&bTitle <dark_gray> &7<title>
+            |https://www.spigotmc.org/resources/advancedteleport.64139/)
+        """.trim());
+        addDefault("Info.defaultParticlesUpdated", "<prefix> <gray>The default waiting particles have been set to your current particle setup!");
+        addDefault("Info.specificParticlesUpdated", "<prefix> <gray>The waiting particles settings for <aqua><type></aqua>have been set to your current particle setup!");
+
+        addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: &b<home>");
+        addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: &b<warp>");
+        addDefault("Tooltip.location", """
+
+            <aqua>X <dark_gray>» <gray><x>
+            <aqua>Y <dark_gray>» <gray><y>
+            <aqua>Z <dark_gray>» <gray><z>
+            <aqua>World <dark_gray>» <gray><world>""");
 
         addDefault("Descriptions.Subcommands.help", "Sends the help menu, providing a full list of commands.");
         addDefault("Descriptions.Subcommands.info", "Sends information regarding the plugin.");
@@ -368,10 +385,10 @@ public final class CustomMessages extends ATConfig {
 
         addFormsDefault("tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");
         addFormsDefault("tpa", "TPA Request", "Select a player to send a TPA request to.");
-        addFormsDefault("tpa-received", "TPA Request", "The player {player} wants to teleport to you!");
+        addFormsDefault("tpa-received", "TPA Request", "The player <player> wants to teleport to you!");
         addDefault("Forms.tpa-received-accept", "Accept");
         addDefault("Forms.tpa-received-deny", "Deny");
-        addFormsDefault("tpahere-received", "TPAHere Request", "The player {player} wants you to teleport to them!");
+        addFormsDefault("tpahere-received", "TPAHere Request", "The player <player> wants you to teleport to them!");
         addDefault("Forms.tpahere-received-accept", "Accept");
         addDefault("Forms.tpahere-received-deny", "Deny");
         addFormsDefault("home", "Homes", "Select a home to teleport to.");
