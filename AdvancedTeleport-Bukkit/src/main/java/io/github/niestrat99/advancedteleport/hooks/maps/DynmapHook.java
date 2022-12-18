@@ -5,7 +5,6 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
@@ -16,95 +15,111 @@ import org.dynmap.markers.MarkerSet;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
-public class DynmapHook extends MapPlugin {
+public final class DynmapHook extends MapPlugin<Plugin, Void> {
 
-    private DynmapAPI api;
     private MarkerAPI markerAPI;
 
-    private MarkerSet WARPS;
-    private MarkerSet HOMES;
-    private MarkerSet SPAWNS;
+    private MarkerSet warpsMarker;
+    private MarkerSet homesMarker;
+    private MarkerSet spawnsMarker;
 
     private HashMap<String, MarkerIcon> icons;
 
-    @Override
-    public boolean canEnable() {
-        Plugin dynmap = Bukkit.getPluginManager().getPlugin("dynmap");
-        return dynmap != null && dynmap.isEnabled();
+    public DynmapHook() {
+        super("dynmap");
     }
 
     @Override
+    @Contract(pure = true)
     public void enable() {
         CoreClass.getInstance().getLogger().info("Found Dynmap, hooking...");
         icons = new HashMap<>();
-        api = (DynmapAPI) Bukkit.getPluginManager().getPlugin("dynmap");
-        if (api == null) throw new NoClassDefFoundError("You fool.");
-        markerAPI = api.getMarkerAPI();
-        // Create the warps
-        WARPS = getSet("advancedteleport_warps", "Warps");
-        // Create the homes
-        HOMES = getSet("advancedteleport_homes", "Homes");
-        // Create the spawns
-        SPAWNS = getSet("advancedteleport_spawns", "Spawns");
+        this.plugin()
+            .map(DynmapAPI.class::cast)
+            .ifPresent(api -> {
+                markerAPI = api.getMarkerAPI();
+                warpsMarker = getSet("advancedteleport_warps", "Warps");
+                homesMarker = getSet("advancedteleport_homes", "Homes");
+                spawnsMarker = getSet("advancedteleport_spawns", "Spawns");
+            });
     }
 
     @Override
-    public void addWarp(Warp warp) {
-        addMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), WARPS, warp.getLocation());
+    public void addWarp(@NotNull final Warp warp) {
+        addMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), warpsMarker, warp.getLocation());
     }
 
     @Override
-    public void addHome(Home home) {
-        addMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), HOMES, home.getLocation());
+    public void addHome(@NotNull final Home home) {
+        addMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), homesMarker, home.getLocation());
     }
 
     @Override
-    public void addSpawn(String name, Location location) {
-        addMarker("advancedteleport_spawn_" + name, "Spawn", SPAWNS, location);
+    public void addSpawn(
+        @NotNull final String name,
+        @NotNull final Location location
+    ) {
+        addMarker("advancedteleport_spawn_" + name, "Spawn", spawnsMarker, location);
     }
 
     @Override
-    public void removeWarp(Warp warp) {
-        removeMarker("advancedteleport_warp_" + warp.getName(), WARPS);
+    public void removeWarp(@NotNull final Warp warp) {
+        removeMarker("advancedteleport_warp_" + warp.getName(), warpsMarker);
     }
 
     @Override
-    public void removeHome(Home home) {
-        removeMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), HOMES);
+    public void removeHome(@NotNull final Home home) {
+        removeMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), homesMarker);
     }
 
     @Override
-    public void removeSpawn(String name) {
-        removeMarker("advancedteleport_spawn_" + name, SPAWNS);
+    public void removeSpawn(@NotNull final String name) {
+        removeMarker("advancedteleport_spawn_" + name, spawnsMarker);
     }
 
     @Override
-    public void moveWarp(Warp warp) {
-        moveMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), WARPS, warp.getLocation());
+    public void moveWarp(@NotNull final Warp warp) {
+        moveMarker("advancedteleport_warp_" + warp.getName(), warp.getName(), warpsMarker, warp.getLocation());
     }
 
     @Override
-    public void moveHome(Home home) {
-        moveMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), HOMES, home.getLocation());
+    public void moveHome(@NotNull final Home home) {
+        moveMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), "Home: " + home.getName(), homesMarker, home.getLocation());
     }
 
     @Override
-    public void moveSpawn(String name, Location location) {
-        moveMarker("advancedteleport_spawn_" + name, "Spawn", SPAWNS, Spawn.get().getSpawn(name));
+    public void moveSpawn(
+        @NotNull final String name,
+        @NotNull final Location location
+    ) {
+        moveMarker("advancedteleport_spawn_" + name, "Spawn", spawnsMarker, Spawn.get().getSpawn(name));
     }
 
     @Override
-    public void registerImage(String name, InputStream stream) {
+    public void registerImage(
+        @NotNull final String name,
+        @NotNull final InputStream stream
+    ) {
         MarkerIcon icon = markerAPI.createMarkerIcon(name, name, stream);
         icons.put(name, icon);
     }
 
-    private void addMarker(String name, String label, MarkerSet set, Location location) {
+    private void addMarker(
+        @NotNull final String name,
+        @NotNull final String label,
+        @NotNull final MarkerSet set,
+        @NotNull final Location location
+    ) {
         set.createMarker(name, label, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), icons.get(name), false);
     }
 
-    private void removeMarker(String name, MarkerSet set) {
+    private void removeMarker(
+        @NotNull final String name,
+        @NotNull final MarkerSet set
+    ) {
         for (Marker marker : set.getMarkers()) {
             if (marker.getMarkerID().equals(name)) {
                 marker.deleteMarker();
@@ -112,12 +127,20 @@ public class DynmapHook extends MapPlugin {
         }
     }
 
-    private void moveMarker(String name, String label, MarkerSet set, Location location) {
+    private void moveMarker(
+        @NotNull final String name,
+        @NotNull final String label,
+        @NotNull final MarkerSet set,
+        @NotNull final Location location
+    ) {
         removeMarker(name, set);
         addMarker(name, label, set, location);
     }
 
-    private MarkerSet getSet(String id, String label) {
+    private @NotNull MarkerSet getSet(
+        @NotNull final String id,
+        @NotNull final String label
+    ) {
         MarkerSet set = markerAPI.getMarkerSet(id);
         if (set == null) set = markerAPI.createMarkerSet(id, label, null, false);
         return set;

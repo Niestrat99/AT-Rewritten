@@ -15,10 +15,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class HelpCommand extends SubATCommand {
+public final class HelpCommand extends SubATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command cmd,
+        @NotNull final String s, @NotNull String[] args) {
         List<String> commands = new ArrayList<>();
         List<String> subcommands = new ArrayList<>();
         List<String> possibleCommands = new ArrayList<>();

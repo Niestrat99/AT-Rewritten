@@ -31,18 +31,28 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.UUID;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class EssentialsHook extends ImportExportPlugin {
+public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
 
     private Essentials essentials;
 
-    @Override
-    public boolean canImport() {
-        this.essentials = (Essentials) plugin().orElse(null);
-        return essentials != null;
+    public EssentialsHook() {
+        super("Essentials");
     }
 
-    private User getUser(UUID uuid) {
+    @Override
+    @Contract(pure = true)
+    public boolean canImport() {
+        return this.plugin().map(essentials -> {
+            this.essentials = essentials;
+            return true;
+        }).orElse(false);
+    }
+
+    private @Nullable User getUser(@NotNull final UUID uuid) {
         try {
             UserMap userMap = essentials.getUserMap();
             if (userMap == null) return null;
@@ -154,8 +164,7 @@ public class EssentialsHook extends ImportExportPlugin {
         EssentialsSpawn spawnPlugin = (EssentialsSpawn) Bukkit.getPluginManager().getPlugin("EssentialsSpawn");
         if (spawnPlugin == null || !spawnPlugin.isEnabled()) return;
 
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File spawnFileEss = new File(essentials.getDataFolder(), "spawn.yml");
+        final var spawnFileEss = this.plugin().map(essentials -> new File(essentials.getDataFolder(), "spawn.yml")).get();
         if (!spawnFileEss.exists() || !spawnFileEss.isFile()) {
             debug("Spawn file doesn't exist/wasn't found, skipping...");
             return;

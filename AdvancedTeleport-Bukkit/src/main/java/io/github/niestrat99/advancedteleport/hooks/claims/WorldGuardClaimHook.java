@@ -9,27 +9,34 @@ import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class WorldGuardClaimHook extends ClaimPlugin {
+public final class WorldGuardClaimHook extends ClaimPlugin<Plugin, WorldGuard> {
 
     private RegionContainer container;
 
-    @Override
-    public boolean canUse(World world) {
-        if (!NewConfig.get().PROTECT_CLAIM_LOCATIONS.get() ||
-            !Bukkit.getPluginManager().isPluginEnabled("WorldGuard")
-        ) return false;
-
-        RegisteredServiceProvider<WorldGuard> provider = Bukkit.getServer().getServicesManager().getRegistration(WorldGuard.class);
-        if (provider == null) return false;
-        container = provider.getProvider().getPlatform().getRegionContainer();
-        return container.get(BukkitAdapter.adapt(world)) != null;
+    public WorldGuardClaimHook() {
+        super("WorldGuard", WorldGuard.class);
     }
 
     @Override
-    public boolean isClaimed(Location location) {
-        if (location.getWorld() == null) return false;
+    @Contract(pure = true)
+    public boolean canUse(@NotNull final World world) {
+        if (!super.canUse(world)) return false;
+
+        return this.provider().map(provider -> {
+            container = provider.getPlatform().getRegionContainer();
+            return container.get(BukkitAdapter.adapt(world)) != null;
+        }).orElse(false);
+    }
+
+    @Override
+    @Contract(pure = true)
+    public boolean isClaimed(@NotNull final Location location) {
         RegionQuery query = container.createQuery();
         return query.getApplicableRegions(BukkitAdapter.adapt(location)).size() > 0;
     }

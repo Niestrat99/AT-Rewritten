@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.core;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import org.bukkit.command.Command;
@@ -26,7 +27,7 @@ public class ParticlesCommand extends SubATCommand {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
-        if (PluginHookManager.get().getParticlesPlugins().size() == 0) {
+        if (PluginHookManager.get().getPluginHooks(ParticlesPlugin.class).findAny().isEmpty()) {
             CustomMessages.sendMessage(sender, "Error.noParticlePlugins");
             return true;
         }

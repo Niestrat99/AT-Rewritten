@@ -7,25 +7,35 @@ import me.angeschossen.lands.api.integration.LandsIntegration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class LandsClaimHook extends ClaimPlugin {
+public final class LandsClaimHook extends ClaimPlugin<Plugin, Void> { // Stupid lands doesn't have a provider class
 
     private LandsIntegration lands;
 
+    @Contract(pure = true)
+    public LandsClaimHook() {
+        super("Lands");
+    }
+
     @Override
-    public boolean canUse(World world) {
-        if (!NewConfig.get().PROTECT_CLAIM_LOCATIONS.get() ||
-            !Bukkit.getPluginManager().isPluginEnabled("Lands")
-        ) return false;
+    @Contract(pure = true)
+    public boolean canUse(@NotNull final World world) {
+        if (!super.canUse(world)) return false;
 
         if (lands == null) {
             lands = new LandsIntegration(CoreClass.getInstance());
         }
-        return lands.getLandWorld(world) != null; // Returns true if the lands is active in the world.
+
+        return lands.getLandWorld(world) != null;
     }
 
     @Override
-    public boolean isClaimed(Location location) {
+    @Contract(pure = true)
+    public boolean isClaimed(@NotNull final Location location) {
         final var chunk = location.getChunk();
         return lands.isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
     }
