@@ -89,11 +89,15 @@ dependencies {
 
     implementation(libMinix.slimjar)
 
+    slim(libMinix.bundles.kotlin)
     slim(libMinix.adventure.api)
     slim(libMinix.adventure.minimessage)
     slim(libMinix.adventure.platform.bukkit)
-    slim(libMinix.bundles.kotlin)
     slim(libMinix.minecraft.bstats.bukkit)
+    slim(libs.paperlib)
+    slim(libs.kyori.nbt)
+    slim(libs.kyori.examination)
+    slim(libs.configuration)
 
     slim(libs.paperlib)
     slim(libs.kyori.nbt)
