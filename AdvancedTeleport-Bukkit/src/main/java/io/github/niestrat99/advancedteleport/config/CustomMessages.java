@@ -512,8 +512,8 @@ public final class CustomMessages extends ATConfig {
 
                         asAudience(player).showTitle(
                             Title.title(
-                                title == null ? previousTitle : (previousTitle = get(title, placeholders)),
-                                subtitle == null ? previousSubtitle : (previousSubtitle = get(subtitle, placeholders)),
+                                title == null ? (previousTitle == null ? Component.empty() : previousTitle) : (previousTitle = get(title, placeholders)),
+                                subtitle == null ? (previousSubtitle == null ? Component.empty() : previousSubtitle) : (previousSubtitle = get(subtitle, placeholders)),
                                 Title.Times.times(
                                     Duration.ofMillis(titleInfo[0] * 50L),
                                     Duration.ofMillis((titleInfo[1] - current) * 50L),
