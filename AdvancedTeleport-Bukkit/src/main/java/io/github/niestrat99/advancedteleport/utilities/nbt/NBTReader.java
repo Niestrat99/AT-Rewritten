@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.utilities.nbt;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import net.kyori.adventure.nbt.*;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -11,6 +12,7 @@ import org.bukkit.World;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
 public class NBTReader {
 
@@ -20,12 +22,12 @@ public class NBTReader {
             try {
                 Location location = getLocation(player);
                 if (location == null) {
-                    callback.onFail(CustomMessages.getString("Error.noOfflineLocation", "{player}", name));
+                    callback.onFail(CustomMessages.get("Error.noOfflineLocation", "{player}", name));
                     return;
                 }
                 callback.onSuccess(location);
             } catch (IOException e) {
-                callback.onFail(CustomMessages.getString("Error.failedOfflineTeleport", "{player}", name));
+                callback.onFail(CustomMessages.get("Error.failedOfflineTeleport", "{player}", name));
                 e.printStackTrace();
             }
         });
@@ -39,7 +41,7 @@ public class NBTReader {
                 callback.onSuccess(true);
             } catch (IOException e) {
                 e.printStackTrace();
-                callback.onFail(CustomMessages.getString("Error.failedOfflineTeleportHere", "{player}", name));
+                callback.onFail(CustomMessages.get("Error.failedOfflineTeleportHere", "{player}", name));
             }
         });
     }

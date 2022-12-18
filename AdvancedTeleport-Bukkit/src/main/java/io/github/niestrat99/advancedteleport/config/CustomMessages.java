@@ -2,29 +2,56 @@ package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
+import io.github.niestrat99.advancedteleport.data.PartialComponent;
+import io.github.niestrat99.advancedteleport.extensions.ExPermission;
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
+import io.papermc.lib.PaperLib;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.BooleanSupplier;
-import org.bukkit.ChatColor;
+import java.util.function.Function;
+import kotlin.Pair;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.event.HoverEventSource;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.title.Title;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.io.IOException;
-import java.util.*;
+import org.geysermc.floodgate.api.FloodgateApi;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
 
+    @NotNull private static HashMap<String, PartialComponent> messageCache = new HashMap<>();
+
+    @Nullable private static BukkitAudiences audience;
+
     public CustomMessages() throws IOException {
         super("custom-messages.yml");
         config = this;
         titleManager = new HashMap<>();
+        messageCache = new HashMap<>();
+
+        if (!PaperLib.isPaper()) {
+            audience = BukkitAudiences.create(CoreClass.getInstance());
+        }
     }
 
     public void loadDefaults() {
@@ -363,37 +390,65 @@ public final class CustomMessages extends ATConfig {
         addFormsDefault("tpohere", "Teleport Here", "Select a player to teleport to your location.");
     }
 
-    public static String getStringRaw(String path) {
-        return translateString(config.getString(path));
-    }
-
-    public static String getString(String path, String... placeholders) {
-        return translateString(config.getString(path), placeholders);
-    }
-
-    public static String translateString(String str, String... placeholders) {
-        if (str == null) return "";
-        str = str.replaceAll("''", "'");
-        str = str.replaceAll("^'", "");
-        str = str.replaceAll("'$", "");
-        str = ChatColor.translateAlternateColorCodes('&', str);
-
-        for (int i = 0; i < placeholders.length; i += 2) {
-            try {
-                str = str.replace(placeholders[i], placeholders[i + 1]);
-            } catch (ArrayIndexOutOfBoundsException ignored) {
-
-            }
+    /**
+     * <a href="https://github.com/DaRacci/Minix/blob/72bdcd377a66808c6cf79ac647fbd3b886fd909f/Minix-API/src/main/kotlin/dev/racci/minix/api/data/LangConfig.kt#L29">Based on</a>
+     *
+     * @param path The path to the message
+     * @param placeholders An array of placeholders, which are composed of a String (key) followed by a Supplier<String|Component> (value)
+     */
+    public static @NotNull Component get(
+        @NotNull final String path,
+        @Nullable final Object... placeholders
+    ) throws IllegalArgumentException {
+        final var partial = messageCache.get(path);
+        if (partial == null) {
+            return Component.text("Invalid path: " + path);
         }
 
-        return str;
+        if (placeholders == null || placeholders.length == 0) {
+            return partial.getValue();
+        }
+
+        if (placeholders.length % 2 != 0) {
+            throw new IllegalArgumentException("Placeholders must be in pairs");
+        }
+
+        final Pair<String, Object>[] array = new Pair[placeholders.length / 2];
+        for (int i = 0; i < placeholders.length / 2; i++) {
+            final var key = placeholders[i * 2];
+            final var value = placeholders[i * 2 + 1];
+
+            if (key == null) throw new IllegalArgumentException("Placeholder key cannot be null");
+            if (value == null) throw new IllegalArgumentException("Placeholder value cannot be null");
+
+            array[i] = new Pair<>(key.toString(), value);
+        }
+
+        return partial.get(array);
     }
 
-    public static void sendMessage(CommandSender sender, String path, String... placeholders) {
-        if (config == null) return;
-        if (supportsTitles() && sender instanceof Player) {
-            Player player = (Player) sender;
+    // Can't be named “get” because it conflicts with the non-static method.
+    public static @NotNull Component getComponent(@NotNull final String path) {
+        return get(path, (Object[]) null);
+    }
 
+    public static @NotNull String asString(
+        @NotNull final String path,
+        @Nullable final Object... placeholders
+    ) { return PlainTextComponentSerializer.plainText().serialize(get(path, placeholders)); }
+
+    public static @NotNull String asString(@NotNull final String path) {
+        return asString(path, (Object[]) null);
+    }
+
+    public static void sendMessage(
+        @NotNull final CommandSender sender,
+        @NotNull final String path,
+        @Nullable final Object... placeholders
+    ) {
+        if (config == null) return;
+
+        if (supportsTitles() && sender instanceof Player player) {
             ConfigSection titles = config.getConfigSection(path + "_title");
             ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
             if (titles != null || subtitles != null) {
@@ -410,8 +465,8 @@ public final class CustomMessages extends ATConfig {
                 BukkitRunnable runnable = new BukkitRunnable() {
 
                     private int current = 0;
-                    private String previousTitle = null;
-                    private String previousSubtitle = null;
+                    @Nullable private Component previousTitle = null;
+                    @Nullable private Component previousSubtitle = null;
 
                     @Override
                     public void run() {
@@ -419,20 +474,29 @@ public final class CustomMessages extends ATConfig {
                             cancel();
                             return;
                         }
+
                         String title = null;
                         String subtitle = null;
+
                         if (titles != null) {
                             title = titles.getString(String.valueOf(current));
                         }
+
                         if (subtitles != null) {
                             subtitle = subtitles.getString(String.valueOf(current));
                         }
 
-                        player.sendTitle(title == null ? previousTitle : (previousTitle = translateString(title, placeholders)),
-                                subtitle == null ? previousSubtitle : (previousSubtitle = translateString(subtitle, placeholders)),
-                                titleInfo[0],
-                                titleInfo[1] - current,
-                                titleInfo[2]);
+                        asAudience(player).showTitle(
+                            Title.title(
+                                title == null ? previousTitle : (previousTitle = get(title, placeholders)),
+                                subtitle == null ? previousSubtitle : (previousSubtitle = get(subtitle, placeholders)),
+                                Title.Times.times(
+                                    Duration.ofMillis(titleInfo[0] * 50L),
+                                    Duration.ofMillis((titleInfo[1] - current) * 50L),
+                                    Duration.ofMillis(titleInfo[2] * 50L)
+                                )
+                            )
+                        );
 
                         current++;
                     }
@@ -441,18 +505,13 @@ public final class CustomMessages extends ATConfig {
                 runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
         }
+
+        final var component = Component.text();
         if (config.get(path) instanceof List) {
-            List<String> messages = config.getStringList(path);
-            for (int i = 0; i < messages.size(); i++) {
-                getFancyMessage(translateString(messages.get(i), placeholders)).sendProposal(sender, i);
-            }
-        } else {
-            String[] messages = translateString(config.getString(path), placeholders).split("\n");
-            for (int i = 0; i < messages.length; i++) {
-                getFancyMessage(messages[i]).sendProposal(sender, i);
-            }
-        }
-        FancyMessage.send(sender);
+            config.getStringList(path).forEach(line -> component.append(get(line, placeholders)));
+        } else component.append(get(path, placeholders));
+
+        asAudience(sender).sendMessage(component);
     }
 
     @Contract(pure = true)
@@ -463,13 +522,20 @@ public final class CustomMessages extends ATConfig {
     ) { return sender instanceof OfflinePlayer player && player.getUniqueId() == target ? path : (path + "Other"); }
 
     @Contract(pure = true)
+    public static @NotNull String contextualPath(
+        @NotNull final CommandSender sender,
+        @NotNull final OfflinePlayer target,
+        @NotNull final String path
+    ) { return contextualPath(sender, target.getUniqueId(), path); }
+
+    @Contract(pure = true)
     public static void failableContextualPath(
         @NotNull final CommandSender sender,
         @NotNull final UUID target,
         @NotNull final String path,
         @NotNull final String errorPath,
         @NotNull final BooleanSupplier isError,
-        final String... placeholders
+        final Object... placeholders
     ) {
         final var truePath = isError.getAsBoolean() ? errorPath : contextualPath(sender, target, path);
         sendMessage(sender, truePath, placeholders);
@@ -482,7 +548,7 @@ public final class CustomMessages extends ATConfig {
         @NotNull final String path,
         @NotNull final String errorPath,
         @NotNull final BooleanSupplier isError,
-        final String... placeholders
+        final Object... placeholders
     ) { failableContextualPath(sender, target.getUniqueId(), path, errorPath, isError, placeholders); }
 
     @Contract(pure = true)
@@ -492,7 +558,7 @@ public final class CustomMessages extends ATConfig {
         @NotNull final String path,
         @NotNull final String errorPath,
         @NotNull final BooleanSupplier isError,
-        final String... placeholders
+        final Object... placeholders
     ) { failableContextualPath(sender, target.uuid(), path, errorPath, isError, placeholders); }
 
     @Contract(pure = true)
@@ -501,11 +567,59 @@ public final class CustomMessages extends ATConfig {
         @NotNull final String path,
         @NotNull final String errorPath,
         @NotNull final BooleanSupplier isError,
-        final String... placeholders
+        final Object... placeholders
     ) {
         final var truePath = isError.getAsBoolean() ? errorPath : path;
         sendMessage(sender, truePath, placeholders);
     }
+
+    @ApiStatus.Internal // TODO: maybe cache this?
+    @Contract(pure = true)
+    public static @NotNull Audience asAudience(@NotNull final CommandSender sender) {
+        if (!PaperLib.isPaper()) {
+            if (sender instanceof Player player) {
+                return audience.player(player);
+            } else return audience.sender(sender);
+        }
+
+        return sender; // Paper already implements Audience
+    }
+
+    @ApiStatus.Internal // TODO: I think this works, need to double check
+    @Contract(pure = true)
+    public static @NotNull HoverEventSource<Component> locationBasedTooltip(
+        @NotNull final CommandSender sender,
+        @NotNull final Location location,
+        @NotNull final String path
+    ) {
+        final var tooltipBuilder = Component.text().append(CustomMessages.getComponent("Tooltip." + path));
+
+        if (ExPermission.hasPermissionOrStar(sender, "at.member." + path + ".location")) {
+            tooltipBuilder.append(CustomMessages.get(
+                "Tooltip.location",
+                "x", location.getBlock(),
+                "y", location.getBlockY(),
+                "z", location.getBlockZ(),
+                "world", location.getWorld().getName()
+            ));
+        }
+
+        return tooltipBuilder.build().asHoverEvent();
+    }
+
+    @ApiStatus.Internal
+    @Contract(pure = true)
+    public static <T> @NotNull Component getPagesComponent(
+        final int page,
+        @NotNull final PagedLists<T> pages,
+        @NotNull final Function<T, Component> componentSupplier
+    ) {
+        return Component.join(
+            JoinConfiguration.newlines(),
+            pages.getContentsInPage(page).stream().map(componentSupplier).toList() // TODO: Ensure order is correct
+        );
+    }
+
 
     private static boolean supportsTitles() {
         try {
@@ -516,98 +630,30 @@ public final class CustomMessages extends ATConfig {
         }
     }
 
-    // Doing it like this because Regex is not co-operating
-    private static FancyMessage getFancyMessage(String str) {
-        int startTextPointer = -1;
-        int endTextPointer = -1;
-
-        int startCommandPointer = -1;
-        int endCommandPointer;
-
-        int lastMarkdownPointer = 0;
-
-        FancyMessage builder = new FancyMessage();
-        boolean buildingComponent = false;
-
-        for (int i = 0; i < str.length(); i++) {
-            if (!buildingComponent && str.charAt(i) == '[' && (i == 0 || !(str.charAt(i - 1) == '\\'))) {
-                startTextPointer = i + 1;
-                buildingComponent = true;
-            } else if (buildingComponent && str.charAt(i) == ']' && !(str.charAt(i - 1) == '\\')) {
-                endTextPointer = i;
-            } else if (buildingComponent && str.charAt(i) == '(') {
-                if (str.charAt(i - 1) == ']') {
-                    startCommandPointer = i + 1;
-                } else if (startCommandPointer == -1) {
-                    buildingComponent = false;
-                    startTextPointer = -1;
-                    endTextPointer = -1;
-                }
-            } else if (buildingComponent && str.charAt(i) == ')' && !(str.charAt(i - 1) == '\\')) {
-                if (startCommandPointer != -1) {
-                    endCommandPointer = i;
-                    // Get all the
-                    builder.text(str.substring(lastMarkdownPointer, startTextPointer - 1));
-
-                    String command = "";
-                    String link = "";
-                    List<String> tooltip = new ArrayList<>();
-
-                    String fullCommand = str.substring(startCommandPointer, endCommandPointer);
-
-                    int dividerIndex = fullCommand.indexOf('|');
-                    if (dividerIndex != -1 && fullCommand.charAt(dividerIndex - 1) != '\\') {
-                        String[] parts = fullCommand.split("\\|");
-                        for (String part : parts) {
-                            if (part.startsWith("/") && command.isEmpty()) {
-                                command = part;
-                            } else if (part.startsWith("http")) {
-                                link = part;
-                            } else if (!part.isEmpty()) {
-                                tooltip.add(part);
-                            }
-                        }
-                    } else {
-                        if (fullCommand.startsWith("/")) {
-                            command = fullCommand;
-                        } else if (fullCommand.startsWith("http")) {
-                            link = fullCommand;
-                        } else if (!fullCommand.isEmpty()) {
-                            tooltip.add(fullCommand);
-                        }
-                    }
-
-                    builder.then(str.substring(startTextPointer, endTextPointer)).tooltip(tooltip);
-
-                    if (!command.isEmpty()) {
-                        builder.command(command);
-                    }
-                    if (!link.isEmpty()) {
-                        builder.link(link);
-                    }
-
-                    builder.then();
-
-                    lastMarkdownPointer = endCommandPointer + 1;
-
-                    startTextPointer = -1;
-                    endTextPointer = -1;
-                    startCommandPointer = -1;
-
-                    buildingComponent = false;
-
-                }
-            }
-        }
-
-        builder.text(str.substring(lastMarkdownPointer));
-
-        return builder;
-    }
-
     private void addFormsDefault(String command, String title, String description) {
         addDefault("Forms." + command + "-title", title);
         addDefault("Forms." + command + "-description", description);
+    }
 
+    /**
+     * This function tests if sender is a floodgateplayer
+     * @param sender the CommandSender
+     * @return true if sender is a floodgateplayer
+     */
+    @Contract(pure = true)
+    private static boolean isFloodgate(@NotNull final CommandSender sender){
+        /*
+         * if floodgate is installed, we test if it is a floodgate player. This solves the problem of different prefixes.
+         * We note, that this is more relyable than the previous method and solves any problem, beside the fact that the
+         * sysadmin has to install floodgate on the backendservers in a bungeecord network. But this should be considered the easiest way.
+         */
+        if (!PluginHookManager.get().floodgateEnabled()) return false;
+
+        try {
+            FloodgateApi instance = FloodgateApi.getInstance();
+            if (instance.isFloodgateId(((Player) sender).getUniqueId())) return true;
+        } catch (final Exception ignored) {}
+
+        return false;
     }
 }

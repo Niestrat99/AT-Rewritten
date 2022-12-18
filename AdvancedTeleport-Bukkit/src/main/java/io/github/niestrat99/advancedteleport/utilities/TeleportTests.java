@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
+import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -48,19 +48,19 @@ public class TeleportTests {
             } else {
                 CustomMessages.sendMessage(player, "Info.multipleRequestDeny");
             }
-            for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
-                TeleportRequest request = requests.getContentsInPage(1).get(i);
-                new FancyMessage()
-                        .command("/" + type + " " + request.requester().getName())
-                        .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex").replaceAll("\\{player}", request.requester().getName()))
-                        .sendProposal(player, i);
-            }
+
+            final var body = CustomMessages.getPagesComponent(1, requests, request -> CustomMessages.get(
+                "Info.multipleRequestsIndex",
+                "command", type,
+                "player", (Supplier<String>) () -> request.requester().getName() // TODO: Try use player DisplayName
+            ));
+
             if (requests.getTotalPages() > 1) {
                 CustomMessages.sendMessage(player, "Info.multipleRequestsList");
-                FancyMessage.send(player);
+                CustomMessages.asAudience(player).sendMessage(body);
             }
         }
+
         return null;
     }
-
 }

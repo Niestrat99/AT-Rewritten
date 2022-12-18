@@ -4,7 +4,10 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -143,26 +146,38 @@ public final class HelpCommand extends SubATCommand {
             return true;
         }
 
-        // Send the main title
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&b・．&7━━━━━━━━━━━ &8❰ §b§lAdvanced Teleport &7" + page + "/" + commandList.getTotalPages() + " &8❱ &7━━━━━━━━━━━&b．・") );
+        final var audience = CustomMessages.asAudience(sender);
+        final var helpHeader = MiniMessage.miniMessage().deserialize(
+            "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・", // TODO: Allow customizing this in lang?
+            TagResolver.builder()
+                .tag("current_page", Tag.preProcessParsed(String.valueOf(page)))
+                .tag("total_pages", Tag.preProcessParsed(String.valueOf(commandList.getTotalPages())))
+                .build()
+        );
 
-        // Go through each command and format it
-        for (String command : commandList.getContentsInPage(page)) {
-            String commandStr = CustomMessages.getStringRaw("Usages." + command);
+        audience.sendMessage(helpHeader);
 
-            // If the user is an admin, add some extra usage details.
-            if (sender.hasPermission("at.admin." + command)
-                    || sender.hasPermission("at.admin." + command + ".other")) {
-                String newUsage = CustomMessages.getStringRaw("Usages-Admin." + command);
-                if (newUsage != null && !newUsage.isEmpty()) {
-                    commandStr = newUsage;
-                }
+        for (final String command : commandList.getContentsInPage(page)) {
+            var commandUsage = CustomMessages.getComponent("Usages." + command);
+
+            if (sender.hasPermission("at.admin." + command) || sender.hasPermission("at.admin." + command + ".other")) {
+                final var adminComponent = CustomMessages.getComponent("Usages-Admin." + command);
+                if (adminComponent != Component.empty()) commandUsage = adminComponent;
             }
 
-            // Set the description, and send the message.
-            String description = CustomMessages.getStringRaw("Descriptions." + command);
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8» &b" + commandStr + " &8~ &7" + description));
+            final var description = CustomMessages.getComponent("Descriptions." + command);
+            // TODO: Make configurable and use suppliers instead of computing above.
+            final var finalMessage = MiniMessage.miniMessage().deserialize(
+                "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>",
+                TagResolver.builder()
+                    .tag("usage", Tag.selfClosingInserting(commandUsage))
+                    .tag("description", Tag.selfClosingInserting(description))
+                    .build()
+            );
+
+            audience.sendMessage(finalMessage);
         }
+
         return true;
     }
 
