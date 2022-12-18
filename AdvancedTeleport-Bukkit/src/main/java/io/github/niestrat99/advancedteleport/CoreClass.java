@@ -181,7 +181,7 @@ public class CoreClass extends JavaPlugin {
      * If there's a better way of handling this please either open an issue or DM @ Error#7365 because this method honestly sucks ass
      * That or probably only make it so that it warns once per plugin.
      */
-    private void hackTheMainFrame() throws NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    private void hackTheMainFrame() throws NoSuchFieldException, IllegalAccessException {
         if (PaperLib.isPaper()) {
             BukkitScheduler scheduler = Bukkit.getScheduler();
             // Get the async scheduler
