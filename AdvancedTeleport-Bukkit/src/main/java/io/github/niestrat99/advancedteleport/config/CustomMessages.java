@@ -9,9 +9,12 @@ import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
+import io.github.thatsmusic99.configurationmaster.impl.CMConfigSection;
 import io.papermc.lib.PaperLib;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -699,10 +702,25 @@ public final class CustomMessages extends ATConfig {
     @Contract(pure = true)
     private void populate() {
         prefixes = ImmutableSortedSet.copyOf(this.getStringList("Common.prefixes"));
+
         final var cacheBuilder = ImmutableMap.<String, PartialComponent>builder();
-        defaults.keySet().forEach(key -> {
-            final var rawValue = this.getString(key, (String) this.defaults.get(key));
-            final var component = PartialComponent.of(rawValue);
+        final var keys = new ArrayList<String>();
+
+        // Is there a better way to do this?
+        // This seems too complicated.
+        final var queue = new ArrayDeque<>(getKeys(false));
+        while (queue.peek() != null) {
+            final var rootKey = queue.pop();
+            if (getConfigSection(rootKey) instanceof CMConfigSection configSection) {
+                configSection.getKeys(false).stream()
+                    .map(key -> rootKey + "." + key)
+                    .forEach(queue::addFirst);
+            } else keys.add(rootKey);
+        }
+
+        keys.forEach(key -> {
+            final var rawValue = this.get(key, this.defaults.get(key));
+            final var component = PartialComponent.of(rawValue.toString());
             component.formatRaw(prefixes);
             cacheBuilder.put(key, component);
         });
