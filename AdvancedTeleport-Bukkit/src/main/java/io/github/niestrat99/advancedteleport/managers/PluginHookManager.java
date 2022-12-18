@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.managers;
 
+import com.google.common.collect.ImmutableMap;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
@@ -85,20 +86,20 @@ public class PluginHookManager {
         return instance;
     }
 
-    public HashMap<String, ImportExportPlugin> getImportPlugins() {
-        return importPlugins;
+    public ImmutableMap<String, ImportExportPlugin> getImportPlugins() {
+        return ImmutableMap.copyOf(importPlugins);
     }
 
-    public HashMap<String, ParticlesPlugin> getParticlesPlugins() {
-        return particlesPlugins;
+    public ImmutableMap<String, ParticlesPlugin> getParticlesPlugins() {
+        return ImmutableMap.copyOf(particlesPlugins);
     }
 
     public ImportExportPlugin getImportPlugin(String name) {
         return importPlugins.get(name);
     }
 
-    public HashMap<String, MapPlugin> getMapPlugins() {
-        return mapPlugins;
+    public ImmutableMap<String, MapPlugin> getMapPlugins() {
+        return ImmutableMap.copyOf(mapPlugins);
     }
 
     private <T> void loadPlugin(HashMap<String, T> map, String name, Class<? extends T> clazz) {
