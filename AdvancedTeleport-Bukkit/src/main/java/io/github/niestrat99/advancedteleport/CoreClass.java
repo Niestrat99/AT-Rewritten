@@ -133,7 +133,7 @@ public final class CoreClass extends JavaPlugin {
 
         try {
             hackTheMainFrame();
-        } catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             getLogger().warning("Failed to shut down async tasks.");
             e.printStackTrace();
         }
