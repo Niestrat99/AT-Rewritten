@@ -24,11 +24,6 @@ public record TeleportRequest(
 
     private static final List<TeleportRequest> requestList = new ArrayList<>();
 
-    public enum TeleportType {
-        TPAHERE,
-        TPA
-    }
-
     @Contract(pure = true)
     public static @NotNull List<TeleportRequest> getRequests(@NotNull final Player responder) {
         return requestList.stream()
