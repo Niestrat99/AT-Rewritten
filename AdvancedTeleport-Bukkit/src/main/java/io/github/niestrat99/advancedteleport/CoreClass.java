@@ -13,6 +13,7 @@ import io.github.slimjar.logging.ProcessLogger;
 import io.papermc.lib.PaperLib;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -26,12 +27,8 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
@@ -168,31 +165,28 @@ public final class CoreClass extends JavaPlugin {
      * That or probably only make it so that it warns once per plugin.
      */
     private void hackTheMainFrame() throws NoSuchFieldException, IllegalAccessException {
-        if (PaperLib.isPaper()) {
-            BukkitScheduler scheduler = Bukkit.getScheduler();
-            // Get the async scheduler
-            Field asyncField = Bukkit.getScheduler().getClass().getDeclaredField("asyncScheduler");
-            asyncField.setAccessible(true);
-            BukkitScheduler asyncScheduler = (BukkitScheduler) asyncField.get(Bukkit.getScheduler());
+        if (!PaperLib.isPaper()) return;
 
-            Field runnersField = scheduler.getClass().getDeclaredField("runners");
-            runnersField.setAccessible(true);
-            ConcurrentHashMap<Integer, ? extends BukkitTask> runners = (ConcurrentHashMap<Integer, ? extends BukkitTask>) runnersField.get(asyncScheduler);
-            List<Integer> toBeRemoved = new ArrayList<>();
+        final var scheduler = Bukkit.getScheduler();
 
-            for (int taskId : runners.keySet()) {
-                if (runners.get(taskId).getOwner() == this) {
-                    runners.get(taskId).cancel();
-                    toBeRemoved.add(taskId);
-                }
-            }
+        // Get the async scheduler
+        final var asyncField = scheduler.getClass().getDeclaredField("asyncScheduler");
+        asyncField.setAccessible(true);
+        final var asyncScheduler = (BukkitScheduler) asyncField.get(scheduler);
 
-            for (int task : toBeRemoved) {
-                runners.remove(task);
-            }
+        final var runnersField = scheduler.getClass().getDeclaredField("runners");
+        runnersField.setAccessible(true);
+        final var runners = (ConcurrentHashMap<Integer, ? extends BukkitTask>) runnersField.get(asyncScheduler);
 
-            runnersField.set(scheduler, runners);
-        }
+        runners.keySet().stream()
+            .map(runners::get)
+            .filter(runner -> runner.getOwner() == this)
+            .forEach(runner -> {
+                runner.cancel();
+                runners.remove(runner.getTaskId());
+            });
+
+        runnersField.set(scheduler, runners);
     }
 
     private static void setupPermissions() {
