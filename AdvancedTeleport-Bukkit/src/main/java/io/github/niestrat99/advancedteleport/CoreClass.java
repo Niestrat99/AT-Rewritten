@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
-public class CoreClass extends JavaPlugin {
+public final class CoreClass extends JavaPlugin {
 
     public static String pltitle(String title) {
         title = "&3[&bAdvancedTeleport&3] " + title;
@@ -47,8 +47,8 @@ public class CoreClass extends JavaPlugin {
     private int version;
     private Object[] updateInfo = null;
 
-    public static Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
-    public static Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
+    public static final Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
+    public static final Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
 
     public static CoreClass getInstance() {
         return Instance;
