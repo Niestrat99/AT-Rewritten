@@ -81,10 +81,9 @@ public final class AdvancedTeleportAPI {
         @Nullable final CommandSender sender,
         @NotNull final Location location
     ) {
-        Objects.requireNonNull(location, "The spawn location must not be null.");
-        if (!location.isWorldLoaded()) return ATException.failedFuture("The world the spawn is being set in must be loaded.");
+        if (!location.isWorldLoaded()) return ATException.failedFuture(location.getWorld(), "The world the spawn is being set in must be loaded.");
 
-        return validateEvent(new SpawnCreateEvent(name, sender, location), event ->  CompletableFuture.runAsync(() -> {
+        return validateEvent(new SpawnCreateEvent(name, sender, location), event -> CompletableFuture.runAsync(() -> {
                 AdvancedTeleportAPI.setSpawn(event.getName(), sender, event.getLocation());
         }, CoreClass.async));
     }
