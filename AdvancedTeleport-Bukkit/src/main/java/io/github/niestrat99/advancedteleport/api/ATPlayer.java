@@ -578,7 +578,7 @@ public class ATPlayer {
                 if (endNode.lastIndexOf(".") != -1) {
                     String[] data = endNode.split("\\.");
                     // Make sure it's in the same world
-                    if (data[0].equals(getPlayer().getWorld().getName()) && data[1].matches("^[0-9]+$")) {
+                    if (data[0].equals(getPlayer().getWorld().getName()) && data[1].matches("^\\d+$")) {
                         int homes = Integer.parseInt(data[1]);
                         // If there isn't already a world limit overriding this one, make it do so.
                         // Otherwise, make sure this limit actually changes something
@@ -593,7 +593,7 @@ public class ATPlayer {
                     continue;
                 }
                 if (endNode.equalsIgnoreCase("unlimited")) return -1;
-                if (!endNode.matches("^[0-9]+$")) continue;
+                if (!endNode.matches("^\\d+$")) continue;
                 int homes = Integer.parseInt(endNode);
                 if (maxHomes < homes) {
                     maxHomes = homes;
@@ -669,7 +669,7 @@ public class ATPlayer {
         int min = defaultValue;
         boolean changed = false;
         for (String cooldown : cooldowns) {
-            if (!cooldown.matches("^[0-9]+$")) continue;
+            if (!cooldown.matches("^\\d+$")) continue;
             if (!changed) {
                 min = Integer.parseInt(cooldown);
                 changed = true;

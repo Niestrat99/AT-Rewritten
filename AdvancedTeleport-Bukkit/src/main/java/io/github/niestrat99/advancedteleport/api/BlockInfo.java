@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.UUID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents
@@ -16,7 +17,7 @@ public final class BlockInfo {
 
     @NotNull private final UUID receiverUUID;
     @NotNull private final UUID blockedUUID;
-    @NotNull private String reason;
+    @Nullable private String reason;
     private final long time;
     @NotNull private final String formattedTime;
 
@@ -24,7 +25,7 @@ public final class BlockInfo {
     public BlockInfo(
         @NotNull final UUID receiver,
         @NotNull final UUID blocked,
-        @NotNull final String reason,
+        @Nullable final String reason,
         final long time
     ) {
         receiverUUID = receiver;
@@ -63,12 +64,12 @@ public final class BlockInfo {
     }
 
     @Contract(pure = true)
-    public @NotNull String getReason() {
+    public @Nullable String getReason() {
         return reason;
     }
 
     @Contract(pure = true)
-    public void setReason(@NotNull String reason) {
+    public void setReason(@Nullable String reason) {
         this.reason = reason;
     }
 
