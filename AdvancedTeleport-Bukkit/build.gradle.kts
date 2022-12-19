@@ -18,6 +18,7 @@ plugins {
 slimJar {
     val baseRelocation = "io.github.niestrat99.advancedteleport.libs"
 
+    relocate("org.bstats", "$baseRelocation.bstats")
     relocate("io.papermc.lib", "$baseRelocation.paperlib")
     relocate("io.github.thatsmusic99.configurationmaster", "$baseRelocation.configurationmaster")
 }
@@ -92,6 +93,7 @@ dependencies {
     slim(libMinix.adventure.minimessage)
     slim(libMinix.adventure.platform.bukkit)
     slim(libMinix.bundles.kotlin)
+    slim(libMinix.minecraft.bstats.bukkit)
 
     slim(libs.paperlib)
     slim(libs.kyori.nbt)
