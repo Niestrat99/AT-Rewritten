@@ -1,21 +1,14 @@
 package io.github.niestrat99.advancedteleport.api.data;
 
-import org.bukkit.command.CommandSender;
+import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class UnloadedWorldException extends ATException {
-    private UnloadedWorldException(
-        @Nullable final CommandSender sender,
+    public UnloadedWorldException(
+        @NotNull final World world,
         @Nullable final String message
     ) {
-        super(sender, message);
-    }
-
-    private UnloadedWorldException(@Nullable final String message) {
-        super(message);
-    }
-
-    private UnloadedWorldException(@Nullable final CommandSender sender) {
-        super(sender);
+        super("World [%s] | Message [%s]".formatted(world.getName(), message));
     }
 }

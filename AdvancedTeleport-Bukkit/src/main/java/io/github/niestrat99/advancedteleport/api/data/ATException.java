@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.data;
 
 import java.util.concurrent.CompletableFuture;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.Contract;
@@ -39,12 +40,12 @@ public class ATException extends Exception {
         return CompletableFuture.failedFuture(this);
     }
 
-    @Contract(pure = true)
+    @Contract(value = "_ -> new", pure = true)
     public static <T> @NotNull CompletableFuture<T> failedFuture(Cancellable event) {
         return CancelledEventException.of(event).future();
     }
 
-    @Contract(pure = true)
+    @Contract(value = "_, _ -> new", pure = true)
     public static <T> @NotNull CompletableFuture<T> failedFuture(
         @Nullable final CommandSender sender,
         @NotNull final String message
@@ -52,8 +53,16 @@ public class ATException extends Exception {
         return new ATException(sender, message).future();
     }
 
-    @Contract(pure = true)
+    @Contract(value = "_ -> new", pure = true)
     public static <T> @NotNull CompletableFuture<T> failedFuture(@NotNull final String message) {
         return new ATException(message).future();
+    }
+
+    @Contract(value = "_, _ -> new", pure = true)
+    public static <T> @NotNull CompletableFuture<T> failedFuture(
+        @NotNull final World world,
+        @NotNull final String message
+    ) {
+        return new UnloadedWorldException(world, message).future();
     }
 }

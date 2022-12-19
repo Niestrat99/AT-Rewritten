@@ -130,13 +130,17 @@ public final class AdvancedTeleportAPI {
      * @param location the location of the warp.
      * @return a completable future action of the saved spawnpoint.
      */
-    public static CompletableFuture<Void> setSpawn(@NotNull String name, @Nullable CommandSender sender, @NotNull Location location) {
+    public static @NotNull CompletableFuture<Void> setSpawn(
+            @NotNull final String name,
+            @Nullable final CommandSender sender,
+            @NotNull final Location location
+    ) {
 
         // Null checks
         Objects.requireNonNull(location, "The spawn location must not be null.");
-        if (!location.isWorldLoaded()) return ATException.failedFuture("The world the spawn is being set in must be loaded.");
+        if (!location.isWorldLoaded()) return ATException.failedFuture(location.getWorld(), "The world the spawn is being set in must be loaded.");
 
-        return validateEvent(new SpawnCreateEvent(name, sender, location), event ->  CompletableFuture.runAsync(() -> {
+        return validateEvent(new SpawnCreateEvent(name, sender, location), event -> CompletableFuture.runAsync(() -> {
                 AdvancedTeleportAPI.setSpawn(event.getName(), sender, event.getLocation());
         }, CoreClass.async));
     }
