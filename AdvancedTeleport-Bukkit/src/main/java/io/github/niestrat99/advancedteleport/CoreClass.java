@@ -1,6 +1,5 @@
 package io.github.niestrat99.advancedteleport;
 
-import com.wimbli.WorldBorder.WorldBorder;
 import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
 import io.github.niestrat99.advancedteleport.config.*;
 import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
@@ -43,7 +42,6 @@ public class CoreClass extends JavaPlugin {
         return ChatColor.translateAlternateColorCodes('&', title);
     }
 
-    public static WorldBorder worldBorder;
     private static CoreClass Instance;
     private static Permission perms = null;
     private int version;
@@ -54,20 +52,6 @@ public class CoreClass extends JavaPlugin {
 
     public static CoreClass getInstance() {
         return Instance;
-    }
-
-    public static WorldBorder getWorldBorder() {
-        return worldBorder;
-    }
-
-    private boolean setupPermissions() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-        if (rsp == null) return false;
-        perms = rsp.getProvider();
-        return perms != null;
     }
 
     @Override
@@ -211,6 +195,14 @@ public class CoreClass extends JavaPlugin {
             runnersField.set(scheduler, runners);
         }
     }
+
+    private static void setupPermissions() {
+        if (Bukkit.getPluginManager().getPlugin("Vault") == null) return;
+        Optional.ofNullable(Bukkit.getServicesManager().getRegistration(Permission.class))
+            .map(RegisteredServiceProvider::getProvider)
+            .ifPresent(permission -> perms = permission);
+    }
+
 
     public static void playSound(String type, String subType, Player target) {
         String sound = null;
