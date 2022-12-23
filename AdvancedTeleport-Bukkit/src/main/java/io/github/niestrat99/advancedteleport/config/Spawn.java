@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Spawn extends ATConfig {
+public final class Spawn extends ATConfig {
 
     private static Spawn instance;
     private Location mainSpawn;

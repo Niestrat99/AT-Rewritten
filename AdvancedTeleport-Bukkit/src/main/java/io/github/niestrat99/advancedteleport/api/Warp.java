@@ -7,13 +7,14 @@ import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -38,15 +39,19 @@ public class Warp implements NamedLocation {
     /**
      * Creates a warp object, but does not formally register it. To register a warp, use {@link AdvancedTeleportAPI#setWarp(String, CommandSender, Location)}.
      *
-     * @param creator the creator of the warp. Can be null.
-     * @param name the name of the warp.
-     * @param location the location of the warp.
-     * @param createdTime the time in milliseconds when the warp was created.
-     * @param updatedTime the time in milliseconds when the warp was updated.
+     * @param creator The creator of the warp. Can be null.
+     * @param name The name of the warp.
+     * @param location The location of the warp.
+     * @param createdTime The time in milliseconds when the warp was created.
+     * @param updatedTime The time in milliseconds when the warp was updated.
      */
-    public Warp(@Nullable UUID creator, @NotNull String name, @NotNull Location location, long createdTime, long updatedTime) {
-        Objects.requireNonNull(name, "The warp name must not be null.");
-        Objects.requireNonNull(location, "The warp location must not be null.");
+    public Warp(
+        @Nullable final UUID creator,
+        @NotNull final String name,
+        @NotNull final Location location,
+        final long createdTime,
+        final long updatedTime
+    ) {
         if (name.isEmpty()) throw new IllegalArgumentException("The warp name must not be empty.");
 
         this.name = name;
@@ -65,6 +70,7 @@ public class Warp implements NamedLocation {
      *
      * @return the name of the warp.
      */
+    @Contract(pure = true)
     public @NotNull String getName() {
         return name;
     }
@@ -74,6 +80,7 @@ public class Warp implements NamedLocation {
      *
      * @return the location of the warp.
      */
+    @Contract(pure = true)
     public @NotNull Location getLocation() {
         return location;
     }
@@ -83,6 +90,7 @@ public class Warp implements NamedLocation {
      *
      * @return the UUID of the warp's creator.
      */
+    @Contract(pure = true)
     public @Nullable UUID getCreator() {
         return creator;
     }
@@ -128,6 +136,7 @@ public class Warp implements NamedLocation {
      *
      * @return the time in milliseconds the warp was created.
      */
+    @Contract(pure = true)
     public long getCreatedTime() {
         return createdTime;
     }
@@ -137,6 +146,7 @@ public class Warp implements NamedLocation {
      *
      * @return the time in milliseconds the warp was last updated.
      */
+    @Contract(pure = true)
     public long getUpdatedTime() {
         return updatedTime;
     }
@@ -144,8 +154,9 @@ public class Warp implements NamedLocation {
     /**
      * Returns the formatted time the warp was created at.
      *
-     * @return the time the warp was created at in the format dd MMM yyyy HH:mm:ss
+     * @return The time the warp was created at in the format dd MMM yyyy HH:mm:ss.
      */
+    @Contract(pure = true)
     public @NotNull String getCreatedTimeFormatted() {
         return createdTimeFormatted;
     }
@@ -153,13 +164,15 @@ public class Warp implements NamedLocation {
     /**
      * Returns the formatted time the warp was last updated at.
      *
-     * @return the time the warp was last updated at in the format dd MMM yyyy HH:mm:ss
+     * @return The time the warp was last updated at in the format dd MMM yyyy HH:mm:ss.
      */
+    @Contract(pure = true)
     public @NotNull String getUpdatedTimeFormatted() {
         return updatedTimeFormatted;
     }
 
-    public static void registerWarp(Warp warp) {
+    @Contract(pure = true)
+    public static void registerWarp(@NotNull final Warp warp) {
         warps.put(warp.name, warp);
     }
 
@@ -189,13 +202,16 @@ public class Warp implements NamedLocation {
     /**
      * Deletes a specified warp.
      *
-     * @return a completable future of whether the action failed or succeeded.
+     * @return A completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> delete() {
-        return delete((CommandSender) null);
+    @Contract(pure = true)
+    public @NotNull CompletableFuture<Void> delete() {
+        return delete(null);
     }
 
-    static HashMap<String, Warp> warps() {
+    @ApiStatus.Internal
+    @Contract(pure = true)
+    static @NotNull HashMap<String, Warp> warps() {
         return warps;
     }
 }

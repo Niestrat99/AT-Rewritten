@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class CommandRuleManager {
+public final class CommandRuleManager {
 
-    private HashMap<String, List<CommandRule>> rules;
+    private final HashMap<String, List<CommandRule>> rules;
 
     public CommandRuleManager() {
         rules = new HashMap<>();
@@ -22,7 +24,10 @@ public class CommandRuleManager {
         }
     }
 
-    private void addCommand(String command, String rulesRaw) {
+    private void addCommand(
+        @NotNull final String command,
+        @NotNull final String rulesRaw
+    ) {
         String[] rules = rulesRaw.split(";");
         List<CommandRule> ruleList = new ArrayList<>();
         for (String rule : rules) {
@@ -35,10 +40,14 @@ public class CommandRuleManager {
         this.rules.put(command, ruleList);
     }
 
-    public int canTeleport(Player player, Location toLoc, String command) {
-        List<CommandRule> rules = this.rules.get(command);
-        if (rules == null) return 0;
-        for (CommandRule rule : rules) {
+    public int canTeleport(
+        @NotNull final Player player,
+        @NotNull final Location toLoc,
+        @NotNull final String command
+    ) {
+        final var commandRules = this.rules.get(command);
+        if (commandRules == null) return 0;
+        for (CommandRule rule : commandRules) {
             if (rule instanceof IgnoreRule) {
                 if (!rule.canTeleport(player, toLoc)) return -1;
             } else if (rule instanceof OverrideRule) {

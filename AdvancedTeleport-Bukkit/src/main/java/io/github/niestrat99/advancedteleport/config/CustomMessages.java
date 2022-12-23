@@ -16,7 +16,7 @@ import java.util.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public class CustomMessages extends ATConfig {
+public final class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
