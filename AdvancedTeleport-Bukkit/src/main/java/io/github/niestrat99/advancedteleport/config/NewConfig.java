@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class NewConfig extends ATConfig {
+public final class NewConfig extends ATConfig {
 
     public ConfigOption<Boolean> USE_BASIC_TELEPORT_FEATURES;
     public ConfigOption<Boolean> USE_WARPS;

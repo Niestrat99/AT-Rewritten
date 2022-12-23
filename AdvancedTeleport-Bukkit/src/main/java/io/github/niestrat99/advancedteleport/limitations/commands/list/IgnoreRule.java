@@ -3,15 +3,19 @@ package io.github.niestrat99.advancedteleport.limitations.commands.list;
 import io.github.niestrat99.advancedteleport.limitations.commands.CommandRule;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-public class IgnoreRule extends CommandRule {
+public final class IgnoreRule extends CommandRule {
 
-    public IgnoreRule(String commandRule) {
+    public IgnoreRule(@NotNull final String commandRule) {
         super(commandRule);
     }
 
     @Override
-    public boolean canTeleport(Player player, Location toLoc) {
+    public boolean canTeleport(
+        @NotNull final Player player,
+        @NotNull final Location toLoc
+    ) {
         if (player.getLocation().getWorld() == null) return false;
         if (toLoc.getWorld() == null) return false;
         String fromWorld = player.getLocation().getWorld().getName();

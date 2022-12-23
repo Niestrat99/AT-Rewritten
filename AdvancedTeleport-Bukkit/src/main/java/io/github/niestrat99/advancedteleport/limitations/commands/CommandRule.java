@@ -6,13 +6,14 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class CommandRule {
 
     protected List<String> worlds;
     protected boolean inclusive;
 
-    public CommandRule(String commandRule) {
+    protected CommandRule(@NotNull String commandRule) {
         worlds = new ArrayList<>();
         if (commandRule.contains(":")) {
             inclusive = true;
@@ -23,6 +24,9 @@ public abstract class CommandRule {
         worlds.addAll(Arrays.asList(commandRule.split(",")));
     }
 
-    public abstract boolean canTeleport(Player player, Location toLoc);
+    public abstract boolean canTeleport(
+        @NotNull final Player player,
+        @NotNull final Location toLoc
+    );
 
 }
