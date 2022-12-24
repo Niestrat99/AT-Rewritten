@@ -1,0 +1,13 @@
+
+tag_prefix = "v"
+ignore_merge_commits = true
+
+[commit_types]
+dev = { changelog_title = "Development/Build Changes"}
+
+[changelog]
+path = "CHANGELOG.md"
+template = "remote"
+remote = "github.com"
+repository = "AT-Rewritten"
+owner = "Thatsmusic99"

@@ -6,6 +6,7 @@ import java.util.Date
 plugins {
     id("java-library")
     id("maven-publish")
+    id("com.modrinth.minotaur")
     alias(libs.plugins.shadow)
     alias(libs.plugins.userdev)
     alias(libs.plugins.bukkitYML)
@@ -137,6 +138,16 @@ tasks {
         relocate("net.kyori", "$baseRelocation.kyori")
         relocate("io.github.thatsmusic99.configurationmaster", "$baseRelocation.configurationmaster")
     }
+}
+
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set("BQFzmxKU")
+    versionNumber.set(project.version.toString())
+    versionType.set("alpha") // TODO - automatic version typing
+    uploadFile.set(tasks.shadowJar.get())
+    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3"))
+    loaders.addAll("paper", "spigot", "purpur")
 }
 
 bukkit {
