@@ -160,8 +160,8 @@ bukkit {
     main = "io.github.niestrat99.advancedteleport.CoreClass"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
 
-    softDepend = listOf("Vault, Ultimate_Economy, ConfigurationMaster, WorldBorder, ChunkyBorder, floodgate, Lands, WorldGuard, GriefProtection, dynmap, squaremap, PlayerParticles")
-    loadBefore = listOf("Essentials, EssentialsSpawn")
+    softDepend = listOf("Vault", "Ultimate_Economy", "ConfigurationMaster", "WorldBorder", "ChunkyBorder", "floodgate", "Lands", "WorldGuard", "GriefProtection", "dynmap", "squaremap", "PlayerParticles")
+    loadBefore = listOf("Essentials", "EssentialsSpawn")
 
     commands {
         register("at") {
