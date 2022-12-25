@@ -143,6 +143,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.mirrorSpawnFail", "&b↑ &8» &7Failed to mirror &b{from}&7's spawnpoint to &b{spawn}&7!");
         addDefault("Error.removeSpawnFail", "&b↑ &8» &7Failed to remove the spawnpoint &b{spawn}&7!");
         addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
+        addDefault("Error.rtpManagerNotUsed", "&b↑ &8» &7The feature required for this command is not enabled!");
         addDefault("Error.setSpawnFail", "&b↑ &8» &7Failed to set the spawnpoint &b{spawn}&7!");
         addDefault("Error.blockFail", "&b↑ &8» &7Failed to save the block against &b{player}&7!");
         addDefault("Error.unblockFail", "&b↑ &8» &7Failed to save the block removal against &b{player}&7!");
@@ -233,6 +234,8 @@ public final class CustomMessages extends ATConfig {
                 "Click/hover over this text for more information.]" +
                 "(&bCurrent Version &8» &7{version}|&bNew Version &8» &7{new-version}|&bTitle &8» &7{title}" +
                 "|https://www.spigotmc.org/resources/advancedteleport.64139/)");
+        addDefault("Info.clearEverything", "&b↑ &8» &7The RTP cache has been fully cleared!");
+        addDefault("Info.clearWorld", "&b↑ &8» &7The RTP cache has cleared for {world}!");
         addDefault("Info.defaultParticlesUpdated", "&b↑ &8» &7The default waiting particles have been set to your current particle setup!");
         addDefault("Info.specificParticlesUpdated", "&b↑ &8» &7The waiting particles settings for &b{type} &7have been set to your current particle setup!");
 
@@ -249,6 +252,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Descriptions.Subcommands.import", "Imports data from another plugin so that it can be used within AT.");
         addDefault("Descriptions.Subcommands.export", "Exports data within AT to another plugin.");
         addDefault("Descriptions.Subcommands.reload", "Reloads the plugin's configuration.");
+        addDefault("Descriptions.Subcommands.clearcache", "Clears the RTP cache.");
         addDefault("Descriptions.at", "The core command for AT.");
         addDefault("Descriptions.tpa", "Sends a request to teleport to the player.");
         addDefault("Descriptions.tpahere", "Sends a request to the player to teleport to you.");
@@ -294,6 +298,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Usages.Subcommands.export", "/at export <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
         addDefault("Usages.Subcommands.purge", "/at purge <Homes|Warps> <Player|World> <Player Name|World Name>");
         addDefault("Usages.Subcommands.reload", "/at reload");
+        addDefault("Usages.Subcommands.clearcache", "/at clearcache [World]");
         addDefault("Usages.Subcommands.particles", "/at particles [Tpa|Tpahere|Home|Tpr|Warp|Spawn|Back]");
         addDefault("Usages.at", "/at <Command>");
         addDefault("Usages.tpa", "/tpa <Player>");
