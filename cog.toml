@@ -1,3 +1,7 @@
+post_bump_hooks = [
+    "bash -c \"scripts/post-bump.sh {{version}}\""
+]
+
 
 tag_prefix = "v"
 ignore_merge_commits = true
