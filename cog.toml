@@ -1,5 +1,6 @@
 post_bump_hooks = [
-    "bash -c \"scripts/post-bump.sh {{version}}\""
+    "bash -c \"scripts/post-bump.sh {{version}}\"",
+    "./gradlew modrinth"
 ]
 
 
