@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v6.0.0-alpha.5](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.3..v6.0.0-alpha.5) - 2022-12-26
+#### Build system
+- Update version to v - ([60e86eb](https://github.com/Thatsmusic99/AT-Rewritten/commit/60e86ebcd10fa8e4cc7f970fae16bc335841a513)) - Thatsmusic99
+#### Development/Build Changes
+- update dev script AGAIN - ([8b06102](https://github.com/Thatsmusic99/AT-Rewritten/commit/8b061024c5b9be22806c501ebf79ca0603647518)) - Thatsmusic99
+
+- - -
+
 ## [v6.0.0-alpha.3](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.2..v6.0.0-alpha.3) - 2022-12-26
 #### Development/Build Changes
 - Update post-bump script again - ([05f04e0](https://github.com/Thatsmusic99/AT-Rewritten/commit/05f04e065e1a36f433847535ba999f5ee1adaecc)) - Thatsmusic99
