@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v6.0.0-alpha.3](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.2..v6.0.0-alpha.3) - 2022-12-26
+#### Development/Build Changes
+- Update post-bump script again - ([05f04e0](https://github.com/Thatsmusic99/AT-Rewritten/commit/05f04e065e1a36f433847535ba999f5ee1adaecc)) - Thatsmusic99
+- Update post-bump script - ([a9388c2](https://github.com/Thatsmusic99/AT-Rewritten/commit/a9388c2eb32704a8a1f9c1df3d05f5f2a0b24d78)) - Thatsmusic99
+#### Miscellaneous Chores
+- **(version)** v6.0.0-alpha.2 - ([08db975](https://github.com/Thatsmusic99/AT-Rewritten/commit/08db9750cea51d0c4cfc12fa8cc71819ea78d922)) - Thatsmusic99
+- **(version)** v6.0.0-alpha.2 - ([63f2ed5](https://github.com/Thatsmusic99/AT-Rewritten/commit/63f2ed5e2ca8338dc4a63b9f3347de57a1d7ed50)) - Thatsmusic99
+
+- - -
+
 ## [v6.0.0-alpha.2](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.2..v6.0.0-alpha.2) - 2022-12-26
 #### Development/Build Changes
 - Update post-bump script again - ([05f04e0](https://github.com/Thatsmusic99/AT-Rewritten/commit/05f04e065e1a36f433847535ba999f5ee1adaecc)) - Thatsmusic99
