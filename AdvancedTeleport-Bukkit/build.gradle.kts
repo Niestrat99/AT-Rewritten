@@ -1,6 +1,7 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.regex.Pattern
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
@@ -156,7 +157,7 @@ modrinth {
     token.set(System.getenv("MODRINTH_TOKEN"))
     projectId.set("BQFzmxKU")
     versionNumber.set(project.version.toString())
-    versionType.set("alpha") // TODO - automatic version typing
+    versionType.set(getReleaseType())
     uploadFile.set(tasks.shadowJar.get())
     gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3"))
     loaders.addAll("paper", "spigot", "purpur")
@@ -493,4 +494,12 @@ fun getCogChangelog(): String {
     val process = Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString())
     process.waitFor()
     return process.inputStream.bufferedReader().readText()
+}
+
+fun getReleaseType(): String {
+
+    val pattern = Pattern.compile("""v?[\d\\.]-(\w+)\\.?\d?""")
+    val matcher = pattern.matcher(project.version.toString())
+    if (!matcher.matches()) return "release"
+    return matcher.group(1)
 }
