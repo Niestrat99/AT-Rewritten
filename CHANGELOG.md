@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v6.0.0-alpha.9](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.8..v6.0.0-alpha.9) - 2022-12-26
+#### Features
+- add Modrinth changelog - ([a00d013](https://github.com/Thatsmusic99/AT-Rewritten/commit/a00d01379b110c9ed8810f3a97b290ba0e1af1a3)) - Thatsmusic99
+
+- - -
+
 ## [v6.0.0-alpha.8](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.7..v6.0.0-alpha.8) - 2022-12-26
 #### Bug Fixes
 - correct shenanigans and avoid two commits - ([7b4206b](https://github.com/Thatsmusic99/AT-Rewritten/commit/7b4206b78f6c26a31519215c90fa9800f34b1d02)) - Thatsmusic99
