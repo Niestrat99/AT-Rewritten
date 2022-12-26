@@ -160,9 +160,7 @@ modrinth {
     uploadFile.set(tasks.shadowJar.get())
     gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3"))
     loaders.addAll("paper", "spigot", "purpur")
-    if (project.hasProperty("changelog")) {
-        changelog.set(getCogChangelog())
-    }
+    changelog.set(getCogChangelog())
 }
 
 bukkit {
