@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v6.0.0-alpha.8](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.7..v6.0.0-alpha.8) - 2022-12-26
+#### Bug Fixes
+- correct shenanigans and avoid two commits - ([7b4206b](https://github.com/Thatsmusic99/AT-Rewritten/commit/7b4206b78f6c26a31519215c90fa9800f34b1d02)) - Thatsmusic99
+- compilation errors - ([764ab1a](https://github.com/Thatsmusic99/AT-Rewritten/commit/764ab1a18d878783eed7650a315e3434c30bd791)) - Thatsmusic99
+- resolve half-finished dependency management - ([18776a6](https://github.com/Thatsmusic99/AT-Rewritten/commit/18776a600704e3083d197f30fda3d4054d608530)) - Thatsmusic99
+#### Build system
+- Update version to vv6.0.0-alpha.8 - ([dccf53e](https://github.com/Thatsmusic99/AT-Rewritten/commit/dccf53ee9d527c0edf4aa4cc80320e0ca1ef62f9)) - Thatsmusic99
+- Update version to v6.0.0-alpha.7 - ([eee05d0](https://github.com/Thatsmusic99/AT-Rewritten/commit/eee05d04f279afce35c48650bdc61261d1a93a5f)) - Thatsmusic99
+#### Features
+- whoops pre submit script lol - ([f8e06b1](https://github.com/Thatsmusic99/AT-Rewritten/commit/f8e06b185420f6268fe8960f9d28b4429c310aa4)) - Thatsmusic99
+#### Miscellaneous Chores
+- remove unneeded files - ([b98bcc9](https://github.com/Thatsmusic99/AT-Rewritten/commit/b98bcc9ec5763b356cac03be339c85f85b0faa06)) - Thatsmusic99
+
+- - -
+
 ## [v6.0.0-alpha.7](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.6..v6.0.0-alpha.7) - 2022-12-26
 #### Build system
 - Update version to v6.0.0-alpha.6 - ([d502610](https://github.com/Thatsmusic99/AT-Rewritten/commit/d50261076ea3c49009f69b166a0cb3f3f73ff826)) - Thatsmusic99
