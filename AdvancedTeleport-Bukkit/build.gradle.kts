@@ -73,6 +73,11 @@ repositories {
         name = "Dynmap"
         url = uri("https://repo.mikeprimm.com/")
     }
+
+    maven {
+        name = "PlayerParticles"
+        url = uri("https://repo.rosewooddev.io/repository/public/")
+    }
 }
 
 dependencies {
@@ -92,6 +97,7 @@ dependencies {
     compileOnly(libs.floodgate)
     compileOnly(libs.lands)
     compileOnly(libs.griefprevention)
+    compileOnly(libs.playerparticles)
     compileOnly(libs.worldguard)
     compileOnly(libs.squaremap)
     compileOnly(libs.dynmap) {
