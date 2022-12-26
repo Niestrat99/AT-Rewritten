@@ -41,9 +41,14 @@ public class MoveHomeCommand extends AbstractHomeCommand {
                         CustomMessages.sendMessage(sender, "Error.noSuchHome");
                         return;
                     }
-                    atTarget.moveHome(args[0], player.getLocation(), sender).thenAcceptAsync(result ->
-                            CustomMessages.sendMessage(sender, result ? "Info.movedHomeOther" : "Error.moveHomeFail",
-                                    "{home}", args[1], "{player}", args[0]));
+                    atTarget.moveHome(args[0], player.getLocation(), sender).handle((x, e) -> {
+
+                        if (e != null) e.printStackTrace();
+
+                        CustomMessages.sendMessage(sender, e == null ? "Info.movedHomeOther" : "Error.moveHomeFail",
+                                "{home}", args[1], "{player}", args[0]);
+                        return x;
+                    });
                 });
                 return true;
             }
@@ -55,9 +60,14 @@ public class MoveHomeCommand extends AbstractHomeCommand {
             return true;
         }
 
-        atPlayer.moveHome(args[0], player.getLocation(), sender).thenAcceptAsync(result ->
-                CustomMessages.sendMessage(sender, result ? "Info.movedHome" : "Error.moveHomeFail",
-                        "{home}", args[0]));
+        atPlayer.moveHome(args[0], player.getLocation(), sender).handle((x, e) -> {
+
+            if (e != null) e.printStackTrace();
+
+            CustomMessages.sendMessage(sender, e == null ? "Info.movedHome" : "Error.moveHomeFail",
+                    "{home}", args[0]);
+            return x;
+        });
         return true;
     }
 

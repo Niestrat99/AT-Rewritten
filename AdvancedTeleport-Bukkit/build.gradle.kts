@@ -1,11 +1,13 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.regex.Pattern
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     id("java-library")
     id("maven-publish")
+    id("com.modrinth.minotaur")
     alias(libs.plugins.shadow)
     alias(libs.plugins.userdev)
     alias(libs.plugins.bukkitYML)
@@ -72,6 +74,11 @@ repositories {
         name = "Dynmap"
         url = uri("https://repo.mikeprimm.com/")
     }
+
+    maven {
+        name = "PlayerParticles"
+        url = uri("https://repo.rosewooddev.io/repository/public/")
+    }
 }
 
 dependencies {
@@ -91,6 +98,7 @@ dependencies {
     compileOnly(libs.floodgate)
     compileOnly(libs.lands)
     compileOnly(libs.griefprevention)
+    compileOnly(libs.playerparticles)
     compileOnly(libs.worldguard)
     compileOnly(libs.squaremap)
     compileOnly(libs.dynmap) {
@@ -103,6 +111,12 @@ dependencies {
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])
+    }
+}
+
+task("tryChangelog") {
+    doFirst {
+        println(getCogChangelog())
     }
 }
 
@@ -139,6 +153,17 @@ tasks {
     }
 }
 
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set("BQFzmxKU")
+    versionNumber.set(project.version.toString())
+    versionType.set(getReleaseType())
+    uploadFile.set(tasks.shadowJar.get())
+    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3"))
+    loaders.addAll("paper", "spigot", "purpur")
+    changelog.set(getCogChangelog())
+}
+
 bukkit {
     name = "AdvancedTeleport"
     version = project.version.toString().substring(if (project.version.toString().startsWith("v")) 1 else 0) // Remove the v in front
@@ -149,8 +174,8 @@ bukkit {
     main = "io.github.niestrat99.advancedteleport.CoreClass"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
 
-    softDepend = listOf("Vault, Ultimate_Economy, ConfigurationMaster, WorldBorder, ChunkyBorder, floodgate, Lands, WorldGuard, GriefProtection, dynmap, squaremap, PlayerParticles")
-    loadBefore = listOf("Essentials, EssentialsSpawn")
+    softDepend = listOf("Vault", "Ultimate_Economy", "ConfigurationMaster", "WorldBorder", "ChunkyBorder", "floodgate", "Lands", "WorldGuard", "GriefProtection", "dynmap", "squaremap", "PlayerParticles")
+    loadBefore = listOf("Essentials", "EssentialsSpawn")
 
     commands {
         register("at") {
@@ -461,4 +486,20 @@ bukkit {
             )
         }
     }
+}
+
+fun getCogChangelog(): String {
+
+    println("Fetching changelog at v" + project.version.toString())
+    val process = Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString())
+    process.waitFor()
+    return process.inputStream.bufferedReader().readText()
+}
+
+fun getReleaseType(): String {
+
+    val pattern = Pattern.compile("""v?[\d\\.]-(\w+)\\.?\d?""")
+    val matcher = pattern.matcher(project.version.toString())
+    if (!matcher.matches()) return "release"
+    return matcher.group(1)
 }

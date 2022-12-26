@@ -1,5 +1,6 @@
 plugins {
     java
+    id("com.modrinth.minotaur") version "2.+"
 }
 
 allprojects {

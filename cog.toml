@@ -1,0 +1,21 @@
+pre_bump_hooks = [
+    "bash -c \"scripts/pre-bump.sh {{version}}\""
+]
+
+post_bump_hooks = [
+    "bash -c \"scripts/post-bump.sh {{version}}\"",
+    "./gradlew AdvancedTeleport-Bukkit:modrinth"
+]
+
+tag_prefix = "v"
+ignore_merge_commits = true
+
+[commit_types]
+dev = { changelog_title = "Development/Build Changes"}
+
+[changelog]
+path = "CHANGELOG.md"
+template = "remote"
+remote = "github.com"
+repository = "AT-Rewritten"
+owner = "Thatsmusic99"
