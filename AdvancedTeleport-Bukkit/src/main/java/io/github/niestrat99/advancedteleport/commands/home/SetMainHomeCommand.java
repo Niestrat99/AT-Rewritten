@@ -44,15 +44,21 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
                             CustomMessages.sendMessage(sender, result ? "Info.setMainHomeOther" : "Error.setMainHomeFail",
                                     "{home}", homeName, "{player}", args[0]));
                 } else {
-                    atTarget.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
-                        if (!result) {
-                            CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
-                            return;
-                        }
-                        atTarget.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
-                                CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHomeOther" : "Error.setMainHomeFail",
-                                        "{home}", homeName, "{player}", args[0]));
-                    });
+                    if (atPlayer.canSetMoreHomes()) {
+                        atTarget.addHome(homeName, player.getLocation(), player).handle((x, e) -> {
+                            if (e != null) {
+                                CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                                e.printStackTrace();
+                                return x;
+                            }
+
+                            atTarget.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
+                                    CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHomeOther" : "Error.setMainHomeFail",
+                                            "{home}", homeName, "{player}", args[0]));
+                            return x;
+                        });
+                        return true;
+                    }
                 }
                 return true;
             }
@@ -71,14 +77,16 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
                 CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
             }
         } else if (atPlayer.canSetMoreHomes()) {
-            atPlayer.addHome(homeName, player.getLocation(), player).thenAcceptAsync(result -> {
-                if (!result) {
+            atPlayer.addHome(homeName, player.getLocation(), player).handle((x, e) -> {
+                if (e != null) {
                     CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
-                    return;
+                    e.printStackTrace();
+                    return x;
                 }
                 atPlayer.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
                         CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHome" : "Error.setMainHomeFail",
                                 "{home}", homeName));
+                return x;
             });
         } else {
             CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
