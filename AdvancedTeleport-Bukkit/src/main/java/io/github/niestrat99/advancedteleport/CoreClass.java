@@ -89,6 +89,7 @@ public class CoreClass extends JavaPlugin {
             new PlayerSQLManager();
             new WarpSQLManager();
             new DataFailManager();
+            new MetadataSQLManager();
         }
         new PluginHookManager();
         MapAssetManager.init();

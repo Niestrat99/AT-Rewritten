@@ -23,6 +23,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -69,7 +70,7 @@ public class EssentialsHook extends ImportExportPlugin {
                     if (ATPlayer.isPlayerCached(user.getName())) {
                         ATPlayer player = ATPlayer.getPlayer(user.getName());
                         if (!player.hasHome(home)) {
-                            player.addHome(home, user.getHome(home), (Player) null, false);
+                            player.addHome(home, user.getHome(home), null, false);
                         } else {
                             player.moveHome(home, user.getHome(home));
                         }
@@ -251,6 +252,7 @@ public class EssentialsHook extends ImportExportPlugin {
                         PreparedStatement statement = connection.prepareStatement("SELECT home, x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid_owner = ?");
                         statement.setString(1, uuid.toString());
                         ResultSet set = statement.executeQuery();
+                        connection.close();
                         while (set.next()) {
                             String name = set.getString("home");
                             double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
@@ -291,6 +293,7 @@ public class EssentialsHook extends ImportExportPlugin {
                         PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
                         statement.setString(1, uuid.toString());
                         ResultSet set = statement.executeQuery();
+                        connection.close();
                         // should run once but this is just standard
                         while (set.next()) {
                             double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};

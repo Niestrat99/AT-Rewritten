@@ -28,6 +28,7 @@ public class HomeCommand extends AbstractHomeCommand {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
             return true;
         }
+
         ATPlayer atPlayer = ATPlayer.getPlayer((Player) sender);
         Player player = (Player) sender;
 

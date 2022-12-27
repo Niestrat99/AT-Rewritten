@@ -71,6 +71,7 @@ public class TpaHere extends TeleportATCommand {
                         "{player}", sender.getName(), "{lifetime}", String.valueOf(requestLifetime));
             }
             CoreClass.playSound("tpahere", "received", target);
+
             BukkitRunnable run = new BukkitRunnable() {
                 @Override
                 public void run() {

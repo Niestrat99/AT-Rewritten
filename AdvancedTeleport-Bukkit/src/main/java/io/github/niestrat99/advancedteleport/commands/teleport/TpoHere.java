@@ -40,13 +40,13 @@ public class TpoHere extends TeleportATCommand {
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
             CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
-        } else {
-            CustomMessages.sendMessage(sender, "Teleport.teleportingPlayerToSelf", "{player}",
-                    target.getName());
-            CustomMessages.sendMessage(target, "Teleport.teleportingSelfToPlayer", "{player}",
-                    sender.getName());
-            PaperLib.teleportAsync(target, player.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+            return true;
         }
+        CustomMessages.sendMessage(sender, "Teleport.teleportingPlayerToSelf", "{player}",
+                target.getName());
+        CustomMessages.sendMessage(target, "Teleport.teleportingSelfToPlayer", "{player}",
+                sender.getName());
+        PaperLib.teleportAsync(target, player.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
         return true;
     }
 

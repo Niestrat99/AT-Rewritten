@@ -42,6 +42,7 @@ public class SetHomeCommand implements ATCommand {
 
             if (atPlayer.canSetMoreHomes() || (NewConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
                 setHome(player, args[0]);
+
             } else {
                 CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
             }
