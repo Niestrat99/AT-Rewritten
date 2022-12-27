@@ -114,12 +114,6 @@ publishing {
     }
 }
 
-task("tryChangelog") {
-    doFirst {
-        println(getCogChangelog())
-    }
-}
-
 tasks {
     withType<JavaCompile> {
         options.encoding = "UTF-8"
@@ -161,7 +155,7 @@ modrinth {
     uploadFile.set(tasks.shadowJar.get())
     gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3"))
     loaders.addAll("paper", "spigot", "purpur")
-    changelog.set(getCogChangelog())
+    // changelog.set(getCogChangelog())
 }
 
 bukkit {
@@ -488,13 +482,13 @@ bukkit {
     }
 }
 
-fun getCogChangelog(): String {
+/* fun getCogChangelog(): String {
 
     println("Fetching changelog at v" + project.version.toString())
     val process = Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString())
     process.waitFor()
     return process.inputStream.bufferedReader().readText()
-}
+} */
 
 fun getReleaseType(): String {
 
