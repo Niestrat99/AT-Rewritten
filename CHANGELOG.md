@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v6.0.0-alpha.1](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.9..v6.0.0-alpha.1) - 2022-12-27
+#### Bug Fixes
+- wrong directory being ignored - ([76d8243](https://github.com/Thatsmusic99/AT-Rewritten/commit/76d8243641790d5821be0d9f1b32399617f58b97)) - Thatsmusic99
+- re-added some lost content - ([acd6084](https://github.com/Thatsmusic99/AT-Rewritten/commit/acd60849bd553144b29e6720c1c1577389739bb4)) - Thatsmusic99
+#### Development/Build Changes
+- Cocogitto and Minotaur Integration (#100) - ([ccf3560](https://github.com/Thatsmusic99/AT-Rewritten/commit/ccf35605e19ba644ea64c461be74383a24746e6f)) - TM (Holly)
+- Cocogitto and Minotaur Integration (#100) - ([12f5b56](https://github.com/Thatsmusic99/AT-Rewritten/commit/12f5b56a031759818e9a0477b08b5972f76e8129)) - TM (Holly)
+#### Miscellaneous Chores
+- remove and ignore META-INF - ([6ac60d4](https://github.com/Thatsmusic99/AT-Rewritten/commit/6ac60d4964694fad72deab690b56f00f3ec59c58)) - Thatsmusic99
+- un-conflict - ([9cc54bc](https://github.com/Thatsmusic99/AT-Rewritten/commit/9cc54bc765c8c2e7362ae58e5ff367369de0a03e)) - Thatsmusic99
+
+- - -
+
 ## [v6.0.0-alpha.9](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.8..v6.0.0-alpha.9) - 2022-12-26
 #### Features
 - add Modrinth changelog - ([a00d013](https://github.com/Thatsmusic99/AT-Rewritten/commit/a00d01379b110c9ed8810f3a97b290ba0e1af1a3)) - Thatsmusic99
