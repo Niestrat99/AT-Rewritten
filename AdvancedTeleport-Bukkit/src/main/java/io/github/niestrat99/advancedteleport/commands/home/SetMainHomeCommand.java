@@ -87,6 +87,8 @@ public class SetMainHomeCommand extends AbstractHomeCommand {
                     e.printStackTrace();
                     return x;
                 }
+
+                // TODO - no message response when called
                 atPlayer.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
                         CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHome" : "Error.setMainHomeFail",
                                 "{home}", homeName));
