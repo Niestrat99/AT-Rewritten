@@ -4,15 +4,18 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
+import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 import io.github.niestrat99.advancedteleport.hooks.borders.ChunkyBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.VanillaBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.WorldBorderHook;
+import io.github.niestrat99.advancedteleport.hooks.claims.GriefPreventionClaimHook;
+import io.github.niestrat99.advancedteleport.hooks.claims.LandsClaimHook;
+import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import io.github.niestrat99.advancedteleport.hooks.maps.DynmapHook;
-import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Location;
@@ -47,6 +50,7 @@ public class PluginHookManager {
         mapPlugins = new HashMap<>();
         claimPlugins = new HashMap<>();
 
+        // Import plugins
         loadPlugin(importPlugins, "essentials", EssentialsHook.class);
 
         // World border Plugins
@@ -108,10 +112,7 @@ public class PluginHookManager {
     public double[] getRandomCoords(World world) {
         for (BorderPlugin plugin : borderPlugins.values()) {
             if (!plugin.canUse(world)) continue;
-            return new double[]{
-                    RandomCoords.getRandomCoords(plugin.getMinX(world), plugin.getMaxX(world)),
-                    RandomCoords.getRandomCoords(plugin.getMinZ(world), plugin.getMaxZ(world))
-            };
+            return new double[]{plugin.getMinX(world), plugin.getMaxX(world), plugin.getMinZ(world), plugin.getMaxZ(world)};
         }
         return null;
     }
