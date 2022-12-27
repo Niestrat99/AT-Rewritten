@@ -6,7 +6,7 @@ import io.github.niestrat99.advancedteleport.payments.types.ItemsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.LevelsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
-import org.bukkit.configuration.ConfigurationSection;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -105,7 +105,7 @@ public class PaymentManager {
     }
 
     private HashMap<String, Payment> getPayments(String command, Player player) {
-        ConfigurationSection customCosts = NewConfig.get().CUSTOM_COSTS.get();
+        ConfigSection customCosts = NewConfig.get().CUSTOM_COSTS.get();
         HashMap<String, Payment> payments = new HashMap<>();
         for (String key : customCosts.getKeys(false)) {
             String worldName = player.getWorld().getName().toLowerCase(Locale.ROOT);
