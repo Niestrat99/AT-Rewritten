@@ -29,20 +29,31 @@ public class PlayerParticlesHook extends ParticlesPlugin {
 
     @Override
     public boolean canUse() {
+
+        // If particles are enabled and the plugin is enabled
         if (!NewConfig.get().USE_PARTICLES.get()) return false;
         if (!Bukkit.getPluginManager().isPluginEnabled("PlayerParticles")) return false;
+
+        // Get the plugin itself and ensure the API is the one we want.
         Plugin rawPlugin = Bukkit.getPluginManager().getPlugin("PlayerParticles");
         if (!(rawPlugin instanceof PlayerParticles)) return false;
         this.api = PlayerParticlesAPI.getInstance();
+
+        // we good
         return true;
     }
 
     @Override
     public void applyParticles(Player player, String command) {
+
+        // Get the raw particle string
         String rawParticle = NewConfig.get().WAITING_PARTICLES.valueOf(command).get();
         if (rawParticle.isEmpty()) return;
+
+        // Split and parse the particle string
         String[] rawPairs = rawParticle.split(";");
         for (String rawPair : rawPairs) {
+
             // Individual pieces
             ParticlePair pair = getPairFromData(player, rawPair);
             if (pair == null) continue;
@@ -52,13 +63,21 @@ public class PlayerParticlesHook extends ParticlesPlugin {
 
     @Override
     public void removeParticles(Player player, String command) {
+
+        // Get the existing particles in place, but if it doesn't already exist? Meh
         String rawParticle = NewConfig.get().WAITING_PARTICLES.valueOf(command).get();
         if (rawParticle.isEmpty()) return;
+
+        // Get the raw pairs of particles and parse them
         String[] rawPairs = rawParticle.split(";");
         for (String rawPair : rawPairs) {
+
             // Individual pieces
             String[] parts = rawPair.split(",");
             int id = -1;
+
+            // Go through each of the active particles active on the player
+            // If any comes from AT, remove it
             for (ParticlePair newPair : api.getActivePlayerParticles(player)) {
                 if (newPair == null) continue;
                 if (!newPair.getEffect().getInternalName().equals(parts[0])) continue;
@@ -74,16 +93,23 @@ public class PlayerParticlesHook extends ParticlesPlugin {
 
     @Override
     public String getParticle(Player player) {
+
         // Get the player particles
         Collection<ParticlePair> particlePairs = api.getActivePlayerParticles(player);
+
         // Create the list of strings to build this up
         List<String> particleRawList = new ArrayList<>();
+
         // For each particle...
         for (ParticlePair pair : particlePairs) {
             ParticleEffect effect = pair.getEffect();
             ParticleStyle style = pair.getStyle();
             particleRawList.add(effect.getInternalName() + "," + style.getInternalName() + "," + getRawDataFromPair(pair));
         }
+
+        // If it's empty, return null
+        if (particleRawList.isEmpty()) return null;
+
         // Get all particles joined together with a semi-colon
         return String.join(";", particleRawList);
     }
@@ -119,14 +145,18 @@ public class PlayerParticlesHook extends ParticlesPlugin {
 
     private ParticlePair getPairFromData(Player player, String data) {
         String[] parts = data.split(",");
+
         // Get the effect
         ParticleEffect effect = ParticleEffect.fromInternalName(parts[0]);
         if (effect == null) return null;
+
         // Get the style
         ParticleStyle style = ParticleStyle.fromInternalName(parts[1]);
         if (style == null) return null;
+
         // If it's an RGB thing
         String[] rgb = parts[2].split(" ");
+
         // Get the data items
         Material itemMaterial = get(effect == ParticleEffect.ITEM, () -> Material.getMaterial(data));
         Material blockMaterial = get(effect == ParticleEffect.BLOCK

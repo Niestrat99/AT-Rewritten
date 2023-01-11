@@ -28,6 +28,11 @@ public class HomePostCreateEvent extends Event {
         return handlers;
     }
 
+    /**
+     * Gives the home object in question.
+     *
+     * @return the home that has been created.
+     */
     @NotNull
     public Home getHome() {
         return home;

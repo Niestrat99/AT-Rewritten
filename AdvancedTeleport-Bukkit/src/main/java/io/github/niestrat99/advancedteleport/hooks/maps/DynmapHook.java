@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 public class DynmapHook extends MapPlugin {
 
-    private DynmapAPI api;
     private MarkerAPI markerAPI;
 
     private MarkerSet WARPS;
@@ -38,10 +37,11 @@ public class DynmapHook extends MapPlugin {
     public void enable() {
         CoreClass.getInstance().getLogger().info("Found Dynmap, hooking...");
         icons = new HashMap<>();
-        api = (DynmapAPI) Bukkit.getPluginManager().getPlugin("dynmap");
+        DynmapAPI api = (DynmapAPI) Bukkit.getPluginManager().getPlugin("dynmap");
         if (api == null) throw new NoClassDefFoundError("You fool.");
         markerAPI = api.getMarkerAPI();
-        // Create the warps
+
+        // Create each individual markerset
         WARPS = getSet("advancedteleport_warps", "Warps");
         // Create the homes
         HOMES = getSet("advancedteleport_homes", "Homes");

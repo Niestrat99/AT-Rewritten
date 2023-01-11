@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
@@ -118,20 +119,24 @@ public class Warp implements NamedLocation {
     }
 
     /**
-     * Sets the location of the warp.
+     * Sets the location of the warp. This will fire WarpMoveEvent.
      *
      * @param location the new location of the warp.
      * @param sender the command sender who triggered the action.
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Void> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
+
+        // Create the warp move event.
         WarpMoveEvent event = new WarpMoveEvent(this, location, sender);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return CompletableFuture.completedFuture(null);
 
+        // Set the variables.
         this.location = location;
         this.updatedTime = System.currentTimeMillis();
 
+        // The warp was updated, so update the timestamp and update it in the database.
         this.updatedTimeFormatted = format.format(new Date(updatedTime));
         return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
@@ -211,15 +216,20 @@ public class Warp implements NamedLocation {
      * @return a completable future of whether the action failed or succeeded.
      */
     public CompletableFuture<Void> delete(@Nullable CommandSender sender) {
+
+        // Creates the event.
         WarpDeleteEvent event = new WarpDeleteEvent(this, sender);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return CompletableFuture.completedFuture(null);
 
+        // Removes the warp in cache.
         warps.remove(name);
+
+        // Remove the warp in the database.
         return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             WarpSQLManager.get().removeWarp(name, callback);
-        });
+        }, CoreClass.async);
     }
 
     /**

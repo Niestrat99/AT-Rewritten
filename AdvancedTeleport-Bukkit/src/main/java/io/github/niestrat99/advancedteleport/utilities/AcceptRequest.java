@@ -44,6 +44,7 @@ public class AcceptRequest {
         PaperLib.teleportAsync(fromPlayer, toLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
         CustomMessages.sendMessage(fromPlayer, "Teleport.eventTeleport");
         PaymentManager.getInstance().withdraw(type, payingPlayer);
+
         // If the cooldown is to be applied after only after a teleport takes place, apply it now
         if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
             CooldownManager.addToCooldown(type, payingPlayer);

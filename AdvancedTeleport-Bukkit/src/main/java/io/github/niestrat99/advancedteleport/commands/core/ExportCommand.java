@@ -20,51 +20,52 @@ public class ExportCommand implements SubATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (args.length > 0) {
-            String pluginStr = args[0].toLowerCase();
-            ImportExportPlugin plugin = PluginHookManager.get().getImportPlugin(pluginStr);
-            if (plugin == null) {
-                CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
-                return true;
-            }
-            if (plugin.canImport()) {
-                if (args.length > 1) {
-                    CustomMessages.sendMessage(sender, "Info.exportStarted", "{plugin}", args[0]);
-                    Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                        switch (args[1].toLowerCase()) {
-                            case "homes":
-                                plugin.exportHomes();
-                                break;
-                            case "warps":
-                                plugin.exportWarps();
-                                break;
-                            case "lastlocs":
-                                plugin.exportLastLocations();
-                                break;
-                            case "spawns":
-                                plugin.exportSpawn();
-                                break;
-                            case "players":
-                                plugin.exportPlayerInformation();
-                                break;
-                            default:
-                                plugin.exportAll();
-                                break;
-                        }
-                        CustomMessages.sendMessage(sender, "Info.exportFinished", "{plugin}", args[0]);
-                    });
 
-                } else {
-                    CustomMessages.sendMessage(sender, "Info.exportStarted", "{plugin}", args[0]);
-                    Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                        plugin.exportAll();
-                        CustomMessages.sendMessage(sender, "Info.exportFinished", "{plugin}", args[0]);
-                    });
-                }
-            } else {
-                CustomMessages.sendMessage(sender, "Error.cantExport", "{plugin}", args[0]);
-            }
+        // If there's no arguments contained, stop there
+        if (args.length == 0) {
+            // TODO - send message
+            return true;
         }
+
+        // Attempt to get the plugin
+        String pluginName = args[0].toLowerCase();
+        ImportExportPlugin plugin = PluginHookManager.get().getImportPlugin(pluginName);
+        if (plugin == null) {
+            CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
+            return true;
+        }
+
+        // If the plugin is unable to import/export data, let the player know
+        if (!plugin.canImport()) {
+            CustomMessages.sendMessage(sender, "Error.cantExport", "{plugin}", args[0]);
+            return true;
+        }
+
+        // If only the plugin is specified, just export everything
+        if (args.length == 1) {
+            CustomMessages.sendMessage(sender, "Info.exportStarted", "{plugin}", args[0]);
+
+            // Export it asynchronously
+            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                plugin.exportAll();
+                CustomMessages.sendMessage(sender, "Info.exportFinished", "{plugin}", args[0]);
+            });
+            return true;
+        }
+
+        // Start the export with the specified section.
+        CustomMessages.sendMessage(sender, "Info.exportStarted", "{plugin}", args[0]);
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            switch (args[1].toLowerCase()) {
+                case "homes" -> plugin.exportHomes();
+                case "warps" -> plugin.exportWarps();
+                case "lastlocs" -> plugin.exportLastLocations();
+                case "spawns" -> plugin.exportSpawn();
+                case "players" -> plugin.exportPlayerInformation();
+                default -> plugin.exportAll();
+            }
+            CustomMessages.sendMessage(sender, "Info.exportFinished", "{plugin}", args[0]);
+        });
         return false;
     }
 

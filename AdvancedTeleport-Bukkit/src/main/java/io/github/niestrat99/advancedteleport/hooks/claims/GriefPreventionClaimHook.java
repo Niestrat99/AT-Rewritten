@@ -13,12 +13,16 @@ public class GriefPreventionClaimHook extends ClaimPlugin {
 
     @Override
     public boolean canUse(World world) {
-        if (!NewConfig.get().PROTECT_CLAIM_LOCATIONS.get() ||
-            !Bukkit.getPluginManager().isPluginEnabled("GriefPrevention")
-        ) return false;
 
+        // Ensures claim avoidance is enabled
+        if (!NewConfig.get().PROTECT_CLAIM_LOCATIONS.get() ||
+            !Bukkit.getPluginManager().isPluginEnabled("GriefPrevention")) return false;
+
+        // Checks the service provider
         RegisteredServiceProvider<GriefPrevention> provider = Bukkit.getServer().getServicesManager().getRegistration(GriefPrevention.class);
         if (provider == null) return false;
+
+        // Ensures there's a world border set in the world
         griefPrevention = provider.getProvider();
         return griefPrevention.claimsEnabledForWorld(world);
     }

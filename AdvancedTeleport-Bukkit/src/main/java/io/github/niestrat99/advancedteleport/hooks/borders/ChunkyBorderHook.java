@@ -15,12 +15,17 @@ public class ChunkyBorderHook extends BorderPlugin {
 
     @Override
     public boolean canUse(World world) {
+
+        // If the feature and plugin is disabled, stop there
         if (!NewConfig.get().USE_PLUGIN_BORDERS.get()) return false;
         if (!Bukkit.getPluginManager().isPluginEnabled("ChunkyBorder")) return false;
+
+        // If the provider is not available, stop there
         RegisteredServiceProvider<ChunkyBorder> provider = Bukkit.getServer().getServicesManager().getRegistration(ChunkyBorder.class);
         if (provider == null) return false;
+
+        // See if there is a world border set
         chunkyBorder = provider.getProvider();
-        // Check if it's enabled - player may not have Chunky installed
         return chunkyBorder.getBorders().containsKey(world.getName());
     }
 

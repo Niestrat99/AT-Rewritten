@@ -20,6 +20,7 @@ public class SpawnMirrorEvent extends TrackableATEvent {
 
     public SpawnMirrorEvent(@NotNull String fromWorld, @NotNull String toWorld, @Nullable CommandSender sender) {
         super(sender);
+
         // Name checks
         Objects.requireNonNull(fromWorld, "The from-world name must not be null.");
         if (fromWorld.isEmpty()) throw new IllegalArgumentException("The from-world name must not be empty.");

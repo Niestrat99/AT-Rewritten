@@ -16,6 +16,7 @@ public class StopIntoRule extends WorldRule {
         if (worlds.isEmpty()) {
             return toLoc.getWorld().getName().equals(fromWorld);
         }
+
         // If inclusive (1) and contains world (0), allow
         // If not inclusive (0) and contains world (0), deny
         // If not inclusive (0) and doesn't contain world (1), allow

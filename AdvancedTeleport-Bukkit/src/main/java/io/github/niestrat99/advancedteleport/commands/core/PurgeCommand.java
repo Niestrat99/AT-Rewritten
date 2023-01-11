@@ -25,6 +25,7 @@ public class PurgeCommand implements SubATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+
         // Check for if the arguments are lower than 3 - if that's the case the command will stop
         if (args.length < 3) {
             CustomMessages.sendMessage(sender, "Error.tooFewArguments");

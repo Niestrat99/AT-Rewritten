@@ -147,6 +147,7 @@ tasks {
     }
 }
 
+// Lead development use only.
 modrinth {
     token.set(System.getenv("MODRINTH_TOKEN"))
     projectId.set("BQFzmxKU")
@@ -482,14 +483,16 @@ bukkit {
     }
 }
 
-/* fun getCogChangelog(): String {
+// Lead development use only.
+fun getCogChangelog(): String {
 
     println("Fetching changelog at v" + project.version.toString())
     val process = Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString())
     process.waitFor()
     return process.inputStream.bufferedReader().readText()
-} */
+}
 
+// Lead development use only.
 fun getReleaseType(): String {
 
     val pattern = Pattern.compile("""v?[\d\\.]-(\w+)\\.?\d?""")

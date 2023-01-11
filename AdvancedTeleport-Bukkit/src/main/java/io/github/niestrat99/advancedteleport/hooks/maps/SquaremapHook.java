@@ -39,14 +39,17 @@ public class SquaremapHook extends MapPlugin {
 
         for (World world : Bukkit.getWorlds()) {
             provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
+
                 // Warps
                 Key key = Key.of("advancedteleport_warps");
                 mapWorld.layerRegistry().register(key, createLayerProvider(NewConfig.get().MAP_WARPS));
                 CoreClass.getInstance().getLogger().info("Added the warp layer for " + world.getName() + ".");
+
                 // Homes
                 Key homesKey = Key.of("advancedteleport_homes");
                 mapWorld.layerRegistry().register(homesKey, createLayerProvider(NewConfig.get().MAP_HOMES));
                 CoreClass.getInstance().getLogger().info("Added the homes layer for " + world.getName() + ".");
+
                 // Spawns
                 Key spawnsKey = Key.of("advancedteleport_spawns");
                 mapWorld.layerRegistry().register(spawnsKey, createLayerProvider(NewConfig.get().MAP_SPAWNS));

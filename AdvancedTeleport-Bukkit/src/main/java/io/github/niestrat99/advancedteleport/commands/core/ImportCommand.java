@@ -20,42 +20,36 @@ public class ImportCommand implements SubATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (args.length > 0) {
-            String pluginStr = args[0].toLowerCase();
-            ImportExportPlugin plugin = PluginHookManager.get().getImportPlugin(pluginStr);
-            if (plugin == null) {
-                CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
-                return true;
-            }
-            if (!plugin.canImport()) {
-                CustomMessages.sendMessage(sender, "Error.cantImport", "{plugin}", args[0]);
-                return true;
-            }
-            if (args.length > 1) {
-                CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                    switch (args[1].toLowerCase()) {
-                        case "homes":
-                            plugin.importHomes();
-                            break;
-                        case "warps":
-                            plugin.importWarps();
-                            break;
-                        case "lastlocs":
-                            plugin.importLastLocations();
-                            break;
-                        case "spawns":
-                            plugin.importSpawn();
-                            break;
-                        case "players":
-                            plugin.importPlayerInformation();
-                            break;
-                        default:
-                            plugin.importAll();
-                            break;
-                    }
-                    CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
-                });
+
+        // If there's no arguments contained, stop there
+        if (args.length == 0) {
+            // TODO - send message
+            return true;
+        }
+
+        // Attempt to get the plugin
+        String pluginName = args[0].toLowerCase();
+        ImportExportPlugin plugin = PluginHookManager.get().getImportPlugin(pluginName);
+        if (plugin == null) {
+            CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
+            return true;
+        }
+
+        // If the plugin is unable to import/export data, let the player know
+        if (!plugin.canImport()) {
+            CustomMessages.sendMessage(sender, "Error.cantImport", "{plugin}", args[0]);
+            return true;
+        }
+
+        // If only the plugin was specified, import everything
+        if (args.length == 1) {
+            CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
+
+            // Import it asynchronously
+            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+                plugin.importAll();
+                CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
+            });
 
             } else {
                 CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
@@ -65,7 +59,6 @@ public class ImportCommand implements SubATCommand {
                 });
             }
 
-        }
         return true;
     }
 
