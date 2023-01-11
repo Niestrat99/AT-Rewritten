@@ -403,13 +403,19 @@ public class ATPlayer {
         if (event.isCancelled()) return CompletableFuture.completedFuture(null);
 
         // Cache the home
-        homes.put(name, new Home(event.getPlayer().getUniqueId(), event.getName(), event.getLocation(),
-                System.currentTimeMillis(), System.currentTimeMillis()));
+        Home home = new Home(event.getPlayer().getUniqueId(), event.getName(), event.getLocation(),
+                System.currentTimeMillis(), System.currentTimeMillis());
+        homes.put(name, home);
 
         // Store it in the database
         return CompletableFuture.runAsync(() -> {
             AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
             HomeSQLManager.get().addHome(location, uuid, name, callback, async);
+            if (!callback.data) return;
+
+            // Create the post-create home event
+            HomePostCreateEvent otherEvent = new HomePostCreateEvent(home);
+            Bukkit.getPluginManager().callEvent(otherEvent);
         });
     }
 
