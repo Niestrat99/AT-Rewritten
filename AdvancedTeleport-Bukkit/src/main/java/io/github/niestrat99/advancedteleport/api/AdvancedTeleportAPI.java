@@ -76,6 +76,15 @@ public class AdvancedTeleportAPI {
         return getWarps().get(name);
     }
 
+    public static boolean isWarpSet(@NotNull String name) {
+
+        // Null check
+        Objects.requireNonNull(name, "The warp name must not be null.");
+
+        // Return the result
+        return getWarps().containsKey(name);
+    }
+
     /**
      * Returns a hashmap of warps. The keys are the names of the warps, and the corresponding value is the warp objects.
      * Cannot be directly modified.

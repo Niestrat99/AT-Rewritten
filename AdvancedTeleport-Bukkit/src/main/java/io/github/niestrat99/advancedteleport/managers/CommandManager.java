@@ -21,9 +21,9 @@ import java.util.*;
 
 public class CommandManager {
 
+    private static final LinkedHashMap<String, PluginCommand> atCommands = new LinkedHashMap<>();
     public static LinkedHashMap<String, SubATCommand> subcommands = new LinkedHashMap<>();
     public static LinkedHashMap<String, PluginCommand> registeredCommands = new LinkedHashMap<>();
-    private static LinkedHashMap<String, PluginCommand> atCommands = new LinkedHashMap<>();
 
     public static void registerCommands() {
         register("at", new CoreCommand());

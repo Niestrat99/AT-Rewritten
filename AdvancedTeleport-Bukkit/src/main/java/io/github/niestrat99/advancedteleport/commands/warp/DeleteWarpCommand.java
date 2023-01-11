@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.warp;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.command.Command;
@@ -30,8 +31,10 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
             return true;
         }
 
-         if (AdvancedTeleportAPI.getWarps().containsKey(args[0])) {
-             AdvancedTeleportAPI.getWarps().get(args[0]).delete(sender).handle((x, e) -> {
+        Warp warp = AdvancedTeleportAPI.getWarp(args[0]);
+
+         if (warp != null) {
+             warp.delete(sender).handle((x, e) -> {
                  if (e != null) e.printStackTrace();
 
                  CustomMessages.sendMessage(sender, (e == null) ? "Info.deletedWarp" : "Error.deleteWarpFail",
