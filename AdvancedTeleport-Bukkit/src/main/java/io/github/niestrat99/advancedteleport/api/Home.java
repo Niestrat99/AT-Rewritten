@@ -15,23 +15,18 @@ import java.util.concurrent.CompletableFuture;
 public class Home implements NamedLocation {
 
     // The UUID of the home owner.
-    @NotNull
-    private final UUID owner;
+    private final @NotNull UUID owner;
     // The name of the home.
-    @NotNull
-    private final String name;
-    // The location of the home.
-    @NotNull
-    private Location location;
+    private final @NotNull String name;
+    private final @NotNull String createdTimeFormatted;
+    private final @NotNull SimpleDateFormat format;
     // When the home was made.
     private final long createdTime;
     // When the home was last updated.
     private long updatedTime;
-    @NotNull
-    private final String createdTimeFormatted;
-    @NotNull
-    private String updatedTimeFormatted;
-    private final SimpleDateFormat format;
+    private @NotNull String updatedTimeFormatted;
+    // The location of the home.
+    private @NotNull Location location;
 
     /**
      * Creates a home object. Please note this does not add a home to the saved data; instead, use {@link ATPlayer#addHome(String, Location, org.bukkit.entity.Player)}.

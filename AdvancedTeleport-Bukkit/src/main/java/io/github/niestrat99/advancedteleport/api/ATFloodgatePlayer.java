@@ -9,6 +9,7 @@ import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.CustomFormResponse;
 import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.floodgate.api.FloodgateApi;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -18,7 +19,7 @@ import java.util.*;
  */
 public class ATFloodgatePlayer extends ATPlayer {
 
-    private final UUID floodgateUuid;
+    private final @NotNull UUID floodgateUuid;
 
     protected ATFloodgatePlayer(Player player) {
         super(player);
@@ -43,7 +44,7 @@ public class ATFloodgatePlayer extends ATPlayer {
      *
      * @param sender the player that requested the teleportation.
      */
-    public void sendRequestFormTPA(Player sender) {
+    public void sendRequestFormTPA(@NotNull Player sender) {
 
         // Set up the form
         SimpleForm form = SimpleForm.builder()
@@ -75,7 +76,7 @@ public class ATFloodgatePlayer extends ATPlayer {
      *
      * @param sender the player that requested the teleportation.
      */
-    public void sendRequestFormTPAHere(Player sender) {
+    public void sendRequestFormTPAHere(@NotNull Player sender) {
 
         // Set up the form
         SimpleForm form = SimpleForm.builder()
@@ -208,7 +209,7 @@ public class ATFloodgatePlayer extends ATPlayer {
         sendDropdownForm("tpohere", getVisiblePlayerNames());
     }
 
-    private void sendInputForm(String command) {
+    private void sendInputForm(@NotNull String command) {
 
         // Builds the form
         CustomForm form = CustomForm.builder()
@@ -234,7 +235,7 @@ public class ATFloodgatePlayer extends ATPlayer {
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
 
-    private void sendDropdownForm(String command, Collection<String> inputs) {
+    private void sendDropdownForm(@NotNull String command, @NotNull Collection<String> inputs) {
 
         // Builds the items to be put in the dropdown
         String[] items = new String[inputs.size()];
@@ -269,6 +270,7 @@ public class ATFloodgatePlayer extends ATPlayer {
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
 
+    @NotNull
     private List<String> getVisiblePlayerNames() {
         List<String> players = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {

@@ -15,13 +15,10 @@ import java.util.Objects;
  */
 public class HomeCreateEvent extends TrackableATEvent {
 
-    @NotNull
-    private OfflinePlayer player;
-    @NotNull
-    private String name;
-    @NotNull
-    private Location location;
     private static final HandlerList handlers = new HandlerList();
+    private @NotNull OfflinePlayer player;
+    private @NotNull String name;
+    private @NotNull Location location;
 
     public HomeCreateEvent(@NotNull OfflinePlayer player, @NotNull String name, @NotNull Location location, @Nullable Player creator) {
         super(creator);

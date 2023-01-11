@@ -13,8 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class ToggleTeleportationEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private final OfflinePlayer player;
+    private final @NotNull OfflinePlayer player;
     private boolean enabled;
     private boolean statusChanging;
 

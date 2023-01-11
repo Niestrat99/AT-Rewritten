@@ -16,10 +16,8 @@ import java.util.Objects;
 public class WarpMoveEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private final Warp warp;
-    @NotNull
-    private Location location;
+    private final @NotNull Warp warp;
+    private @NotNull Location location;
 
     public WarpMoveEvent(@NotNull Warp warp, @NotNull Location location, @Nullable CommandSender sender) {
         super(sender);

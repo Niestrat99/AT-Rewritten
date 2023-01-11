@@ -13,8 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class HomeDeleteEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private final Home home;
+    private final @NotNull Home home;
 
     public HomeDeleteEvent(@NotNull Home home, @Nullable CommandSender sender) {
         super(sender);

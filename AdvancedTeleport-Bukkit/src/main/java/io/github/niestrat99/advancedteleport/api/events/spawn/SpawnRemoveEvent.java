@@ -11,9 +11,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class SpawnRemoveEvent extends TrackableATEvent {
 
-    @NotNull
-    private final String name;
     private static final HandlerList handlers = new HandlerList();
+    private final @NotNull String name;
 
     public SpawnRemoveEvent(@NotNull String name, @Nullable CommandSender sender) {
         super(sender);

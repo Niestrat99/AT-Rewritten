@@ -12,9 +12,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class WarpDeleteEvent extends TrackableATEvent {
 
-    @NotNull
-    private final Warp warp;
     private static final HandlerList handlers = new HandlerList();
+    private final @NotNull Warp warp;
 
     public WarpDeleteEvent(@NotNull Warp warp, @Nullable CommandSender sender) {
         super(sender);

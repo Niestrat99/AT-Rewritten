@@ -9,8 +9,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class TrackableATEvent extends CancellableATEvent {
 
-    @Nullable
-    private CommandSender sender;
+    private @Nullable CommandSender sender;
 
     public TrackableATEvent(@Nullable CommandSender sender) {
         this.sender = sender;

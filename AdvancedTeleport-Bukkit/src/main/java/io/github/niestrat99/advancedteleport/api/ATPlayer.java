@@ -41,16 +41,12 @@ import java.util.function.BiFunction;
  */
 public class ATPlayer {
 
-    protected UUID uuid;
-    @NotNull
-    private LinkedHashMap<String, Home> homes;
-    @NotNull
-    private HashMap<UUID, BlockInfo> blockedUsers;
+    protected @NotNull UUID uuid;
+    private @NotNull LinkedHashMap<String, Home> homes;
+    private @NotNull HashMap<UUID, BlockInfo> blockedUsers;
     private boolean isTeleportationEnabled;
-    @Nullable
-    private String mainHome;
-    @Nullable
-    private Location previousLoc;
+    private @Nullable String mainHome;
+    private @Nullable Location previousLoc;
 
     private static final HashMap<String, ATPlayer> players = new HashMap<>();
 
