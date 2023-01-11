@@ -15,12 +15,9 @@ import java.util.Objects;
 public class PreviousLocationChangeEvent extends CancellableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private OfflinePlayer player;
-    @Nullable
-    private Location newLocation;
-    @Nullable
-    private final Location oldLocation;
+    private final @Nullable Location oldLocation;
+    private @Nullable Location newLocation;
+    private @NotNull OfflinePlayer player;
 
     public PreviousLocationChangeEvent(@NotNull OfflinePlayer player, @Nullable Location newLocation, @Nullable Location oldLocation) {
         Objects.requireNonNull(player, "The player must not be null.");

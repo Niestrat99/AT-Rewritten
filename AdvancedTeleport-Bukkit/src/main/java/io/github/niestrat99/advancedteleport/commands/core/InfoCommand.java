@@ -13,7 +13,8 @@ import java.util.List;
 public class InfoCommand implements SubATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+                             @NotNull String[] args) {
         sender.sendMessage(ChatColor.GOLD + "--[" + ChatColor.AQUA + "AdvancedTeleport" + ChatColor.GOLD + "]--");
         sender.sendMessage(ChatColor.GOLD + "- Developed by " + ChatColor.AQUA + "Niestrat99" + ChatColor.GOLD + " and " + ChatColor.AQUA + "Thatsmusic99");
         sender.sendMessage(ChatColor.GOLD + "- Version: " + ChatColor.AQUA + CoreClass.getInstance().getDescription().getVersion());

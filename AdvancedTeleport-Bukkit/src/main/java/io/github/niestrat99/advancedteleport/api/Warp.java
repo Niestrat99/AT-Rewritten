@@ -23,21 +23,17 @@ import java.util.concurrent.CompletableFuture;
  */
 public class Warp implements NamedLocation {
 
-    @Nullable
-    private final UUID creator;
-    @NotNull
-    private final String name;
-    @NotNull
-    private Location location;
+
+    private final @Nullable UUID creator;
+
+    private final @NotNull String name;
+
+    private @NotNull Location location;
     private final long createdTime;
     private long updatedTime;
-    @NotNull
-    private final String createdTimeFormatted;
-    @NotNull
-    private String updatedTimeFormatted;
-    @NotNull
-    private final SimpleDateFormat format;
-
+    private final @NotNull String createdTimeFormatted;
+    private @NotNull String updatedTimeFormatted;
+    private final @NotNull SimpleDateFormat format;
     private static final HashMap<String, Warp> warps = new HashMap<>();
 
     /**

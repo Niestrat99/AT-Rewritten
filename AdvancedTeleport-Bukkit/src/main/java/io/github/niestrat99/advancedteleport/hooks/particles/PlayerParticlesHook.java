@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,6 +93,7 @@ public class PlayerParticlesHook extends ParticlesPlugin {
     }
 
     @Override
+    @Nullable
     public String getParticle(Player player) {
 
         // Get the player particles

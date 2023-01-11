@@ -15,10 +15,8 @@ import java.util.Objects;
 public class SwitchMainHomeEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    @Nullable
-    private final Home oldMainHome;
-    @NotNull
-    private Home newMainHome;
+    private final @Nullable Home oldMainHome;
+    private @NotNull Home newMainHome;
 
     public SwitchMainHomeEvent(@Nullable Home oldMainHome, @NotNull Home newMainHome, @Nullable CommandSender sender) {
         super(sender);

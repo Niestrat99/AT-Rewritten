@@ -14,10 +14,8 @@ import java.util.Objects;
 public class SwitchMainSpawnEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    @Nullable
-    private final String oldMainSpawn;
-    @NotNull
-    private String newMainSpawn;
+    private final @Nullable String oldMainSpawn;
+    private @NotNull String newMainSpawn;
 
     public SwitchMainSpawnEvent(@Nullable String oldMainSpawn, @NotNull String newMainSpawn, @Nullable CommandSender sender) {
         super(sender);

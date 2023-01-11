@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +12,12 @@ import java.util.List;
 public class TeleportRequest {
 
     private static final List<TeleportRequest> requestList = new ArrayList<>();
-    private final Player requester; // The player sending the request.
-    private final Player responder; // The player receiving it.
+    private final @NotNull Player requester; // The player sending the request.
+    private final @NotNull Player responder; // The player receiving it.
     private final BukkitRunnable timer;
     private final TeleportRequestType type;
 
-    public TeleportRequest(Player requester, Player responder, BukkitRunnable timer, TeleportRequestType type) {
+    public TeleportRequest(@NotNull Player requester, @NotNull Player responder, BukkitRunnable timer, TeleportRequestType type) {
         this.requester = requester;
         this.responder = responder;
         this.timer = timer;
@@ -37,11 +38,6 @@ public class TeleportRequest {
 
     public TeleportRequestType getType() {
         return type;
-    }
-
-    public enum TeleportType {
-        TPAHERE,
-        TPA
     }
 
     public static List<TeleportRequest> getRequests(Player responder) {

@@ -11,8 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class HomePostCreateEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private final Home home;
+    private final @NotNull Home home;
 
     public HomePostCreateEvent(@NotNull Home home) {
         this.home = home;

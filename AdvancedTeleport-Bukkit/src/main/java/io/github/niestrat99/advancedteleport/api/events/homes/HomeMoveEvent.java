@@ -16,10 +16,8 @@ import java.util.Objects;
 public class HomeMoveEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private final Home home;
-    @NotNull
-    private Location location;
+    private final @NotNull Home home;
+    private @NotNull Location location;
 
     public HomeMoveEvent(@NotNull Home home, @NotNull Location location, @Nullable CommandSender sender) {
         super(sender);

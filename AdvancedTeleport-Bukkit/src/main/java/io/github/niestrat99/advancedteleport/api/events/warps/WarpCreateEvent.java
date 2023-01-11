@@ -14,11 +14,9 @@ import java.util.Objects;
  */
 public class WarpCreateEvent extends TrackableATEvent {
 
-    @NotNull
-    private String name;
-    @NotNull
-    private Location location;
     private static final HandlerList handlers = new HandlerList();
+    private @NotNull String name;
+    private @NotNull Location location;
 
     public WarpCreateEvent(@NotNull String name, @Nullable CommandSender sender, @NotNull Location location) {
         super(sender);

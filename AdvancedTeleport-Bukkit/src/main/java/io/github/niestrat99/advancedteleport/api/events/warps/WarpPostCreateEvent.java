@@ -8,8 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public class WarpPostCreateEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private final Warp warp;
+    private final @NotNull Warp warp;
 
     public WarpPostCreateEvent(@NotNull Warp warp) {
         this.warp = warp;

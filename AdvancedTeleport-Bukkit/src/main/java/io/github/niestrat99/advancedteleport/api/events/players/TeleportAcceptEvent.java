@@ -12,12 +12,10 @@ import org.jetbrains.annotations.NotNull;
 public class TeleportAcceptEvent extends CancellableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private final Player receivingPlayer;
-    @NotNull
-    private final Player sendingPlayer;
-    @NotNull
-    private final TeleportRequestType requestType;
+
+    private final @NotNull Player receivingPlayer;
+    private final @NotNull Player sendingPlayer;
+    private final @NotNull TeleportRequestType requestType;
 
     public TeleportAcceptEvent(@NotNull Player receivingPlayer, @NotNull Player sendingPlayer, @NotNull TeleportRequestType requestType) {
         this.receivingPlayer = receivingPlayer;

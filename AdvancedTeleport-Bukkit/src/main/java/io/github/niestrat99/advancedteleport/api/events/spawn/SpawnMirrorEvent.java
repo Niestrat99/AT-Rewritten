@@ -13,10 +13,9 @@ import java.util.Objects;
  */
 public class SpawnMirrorEvent extends TrackableATEvent {
 
-    private String fromWorld;
-    @NotNull
-    private String toWorld;
     private static final HandlerList handlers = new HandlerList();
+    private @NotNull String fromWorld;
+    private @NotNull String toWorld;
 
     public SpawnMirrorEvent(@NotNull String fromWorld, @NotNull String toWorld, @Nullable CommandSender sender) {
         super(sender);
