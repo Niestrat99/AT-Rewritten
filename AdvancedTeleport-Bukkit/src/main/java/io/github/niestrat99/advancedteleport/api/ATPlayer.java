@@ -2,10 +2,7 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.api.events.homes.HomeCreateEvent;
-import io.github.niestrat99.advancedteleport.api.events.homes.HomeDeleteEvent;
-import io.github.niestrat99.advancedteleport.api.events.homes.HomeMoveEvent;
-import io.github.niestrat99.advancedteleport.api.events.homes.SwitchMainHomeEvent;
+import io.github.niestrat99.advancedteleport.api.events.homes.*;
 import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocationChangeEvent;
 import io.github.niestrat99.advancedteleport.api.events.players.ToggleTeleportationEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
@@ -60,12 +57,12 @@ public class ATPlayer {
     /**
      * Internal use only.
      */
-    public ATPlayer(@Nullable UUID uuid, @Nullable String name) {
+    // TODO - handle Citizens NPCs correctly, UUIDs may be null
+    public ATPlayer(@NotNull UUID uuid, @Nullable String name) {
         this.homes = new LinkedHashMap<>();
         this.blockedUsers = new HashMap<>();
-        if (uuid == null || name == null) return;
-
         this.uuid = uuid;
+        if (name == null) return;
 
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> {
