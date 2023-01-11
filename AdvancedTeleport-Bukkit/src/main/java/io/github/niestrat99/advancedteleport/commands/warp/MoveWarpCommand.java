@@ -33,7 +33,7 @@ public class MoveWarpCommand extends AbstractWarpCommand {
             return true;
         }
         Location warpLoc = player.getLocation();
-        Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
+        Warp warp = AdvancedTeleportAPI.getWarp(args[0]);
         if (warp != null) {
             warp.setLocation(warpLoc, sender).thenAcceptAsync(result ->
                     CustomMessages.sendMessage(sender, "Info.movedWarp", "{warp}", args[0]));

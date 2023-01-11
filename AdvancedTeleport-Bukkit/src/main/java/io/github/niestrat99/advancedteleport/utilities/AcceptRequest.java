@@ -9,6 +9,7 @@ import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -34,6 +35,7 @@ public class AcceptRequest {
     private static void teleport(Player toPlayer, Player fromPlayer, String type) {
         final Location toLocation = toPlayer.getLocation();
         ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toLocation, fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
+        Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
         int warmUp = NewConfig.get().WARM_UPS.valueOf(type).get();
         Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
