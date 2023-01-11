@@ -117,6 +117,7 @@ public class Tpr implements ATCommand {
             if (nextLoc != null) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                Bukkit.getPluginManager().callEvent(event);
                 atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
             } else {
                 CustomMessages.sendMessage(player, "Info.searching");
@@ -125,6 +126,7 @@ public class Tpr implements ATCommand {
                     searchingPlayers.remove(player.getUniqueId());
                     ATPlayer atPlayer = ATPlayer.getPlayer(player);
                     ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                    Bukkit.getPluginManager().callEvent(event);
                     atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
                 });
             }
@@ -136,6 +138,7 @@ public class Tpr implements ATCommand {
                 searchingPlayers.remove(player.getUniqueId());
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+                Bukkit.getPluginManager().callEvent(event);
                 atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
             }));
         }

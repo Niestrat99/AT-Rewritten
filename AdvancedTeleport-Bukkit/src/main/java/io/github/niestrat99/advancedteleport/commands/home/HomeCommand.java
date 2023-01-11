@@ -117,6 +117,7 @@ public class HomeCommand extends AbstractHomeCommand {
                     home.getName(),
                     ATTeleportEvent.TeleportType.HOME
             );
+            Bukkit.getPluginManager().callEvent(event);
             ATPlayer.getPlayer(player).teleport(event, "home", "Teleport.teleportingToHome");
         });
     }

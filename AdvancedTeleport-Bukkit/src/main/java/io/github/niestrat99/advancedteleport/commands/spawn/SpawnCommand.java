@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -58,6 +59,7 @@ public class SpawnCommand extends SpawnATCommand {
         }
         
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
+        Bukkit.getPluginManager().callEvent(event);
         ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn");
     }
 
