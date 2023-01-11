@@ -24,7 +24,6 @@ public class ATTeleportEvent extends CancellableATEvent {
         this.fromLoc = fromLoc;
         this.locName = locName;
         this.type = type;
-        Bukkit.getPluginManager().callEvent(this); // Calls the event as it is initiated
     }
 
     @Override

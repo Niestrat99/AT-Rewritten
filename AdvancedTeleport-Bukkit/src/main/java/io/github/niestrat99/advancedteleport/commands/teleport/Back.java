@@ -118,7 +118,8 @@ public class Back extends TeleportATCommand {
         }
 
         ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
-        if (sender != player) {
+        Bukkit.getPluginManager().callEvent(event);
+        if (sender != player && !event.isCancelled()) {
             CustomMessages.sendMessage(player, "Teleport.teleportingToLastLoc");
             player.teleport(loc);
         } else {

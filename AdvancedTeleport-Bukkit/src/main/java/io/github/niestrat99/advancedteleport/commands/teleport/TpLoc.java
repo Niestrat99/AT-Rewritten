@@ -123,6 +123,7 @@ public class TpLoc extends TeleportATCommand {
 
         ATTeleportEvent event = new ATTeleportEvent(target, location, target.getLocation(), "",
                 ATTeleportEvent.TeleportType.TPLOC);
+        Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
             Location blockBelow = location.clone().add(0, -1, 0);
             if (allowFlight && target.getAllowFlight() && target.hasPermission("at.admin.tploc.safe-teleport") && blockBelow.getBlock().getType() == Material.AIR) {
