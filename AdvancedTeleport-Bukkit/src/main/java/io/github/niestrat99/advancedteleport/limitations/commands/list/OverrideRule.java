@@ -4,6 +4,9 @@ import io.github.niestrat99.advancedteleport.limitations.commands.CommandRule;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+/**
+ * Represents a rule that leads to a teleportation being forced depending on the world context.
+ */
 public class OverrideRule extends CommandRule {
 
     public OverrideRule(String commandRule) {
@@ -12,18 +15,19 @@ public class OverrideRule extends CommandRule {
 
     @Override
     public boolean canTeleport(Player player, Location toLoc) {
+
+        // Get the world the player is currently in as well as the destination world.
         String fromWorld = player.getLocation().getWorld().getName();
+        String toWorld = toLoc.getWorld().getName();
+
+        // If the world is the same, don't try to override it
+        if (toWorld.equals(fromWorld)) return false;
+
         // If inclusive (1) and contains world (0), allow
         // If not inclusive (0) and contains world (0), deny
         // If not inclusive (0) and doesn't contain world (1), allow
         // If inclusive (1) and doesn't contain world (1), deny
-        String toWorld = toLoc.getWorld().getName();
-        if (toWorld.equals(fromWorld)) {
-            return false;
-        }
-        if (inclusive ^ !worlds.contains(fromWorld)) {
-            return true;
-        }
+        if (inclusive ^ !worlds.contains(fromWorld)) return true;
         return inclusive ^ !worlds.contains(">" + toWorld);
     }
 }

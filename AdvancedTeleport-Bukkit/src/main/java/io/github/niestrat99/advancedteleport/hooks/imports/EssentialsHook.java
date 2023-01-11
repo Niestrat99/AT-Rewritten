@@ -23,7 +23,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -40,6 +39,7 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public boolean canImport() {
         this.essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+
         // Makes sure the plugin exists and because there's so many Ess clones out there, ensure it's the right one
         return essentials != null && essentials.getDescription().getMain().equals("com.earth2me.essentials.Essentials");
     }
@@ -57,10 +57,13 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public void importHomes() {
         debug("Importing homes...");
+
+        // If the plugin or usermap isn't set up properly, stop there
         if (essentials == null) return;
         UserMap userMap = essentials.getUserMap();
         if (userMap == null) return;
 
+        // For each registered UUID...
         for (UUID uuid : userMap.getAllUniqueUsers()) {
             try {
                 User user = getUser(uuid);

@@ -14,14 +14,18 @@ public class LandsClaimHook extends ClaimPlugin {
 
     @Override
     public boolean canUse(World world) {
-        if (!NewConfig.get().PROTECT_CLAIM_LOCATIONS.get() ||
-            !Bukkit.getPluginManager().isPluginEnabled("Lands")
-        ) return false;
 
+        // Ensures claim avoidance is enabled
+        if (!NewConfig.get().PROTECT_CLAIM_LOCATIONS.get() ||
+            !Bukkit.getPluginManager().isPluginEnabled("Lands")) return false;
+
+        // Get the lands integration
         if (lands == null) {
             lands = new LandsIntegration(CoreClass.getInstance());
         }
-        return lands.getLandWorld(world) != null; // Returns true if the lands is active in the world.
+
+        // Returns true if the lands is active in the world.
+        return lands.getLandWorld(world) != null;
     }
 
     @Override

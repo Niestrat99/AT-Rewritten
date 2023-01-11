@@ -22,9 +22,11 @@ public class SpawnCreateEvent extends TrackableATEvent {
 
     public SpawnCreateEvent(@NotNull String name, @Nullable CommandSender sender, @NotNull Location location) {
         super(sender);
+
         // Name checks
         Objects.requireNonNull(name, "The spawn name must not be null.");
         if (name.isEmpty()) throw new IllegalArgumentException("The spawn name must not be empty.");
+
         // Location checks
         Objects.requireNonNull(location, "The location must not be null.");
         if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
