@@ -55,14 +55,21 @@ public class MovementManager implements Listener {
 
     public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, Player payingPlayer, String... placeholders) {
         UUID uuid = teleportingPlayer.getUniqueId();
+
         // When this config is enabled the teleporting player will receive a blindness effect until it gets teleported.
         if (NewConfig.get().BLINDNESS_ON_WARMUP.get()) {
             teleportingPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, warmUp * 20 + 20, 0, false, false));
         }
+
+        // Apply the plugin particles.
         ParticleManager.applyParticles(teleportingPlayer, command);
+
+        // Starts the movement checker.
         ImprovedRunnable movementtimer = new ImprovedRunnable(command) {
             @Override
             public void run() {
+
+                // If the player can't pay for the
                 if (!PaymentManager.getInstance().canPay(command, payingPlayer)) return;
                 ParticleManager.onTeleport(teleportingPlayer, command);
                 PaperLib.teleportAsync(teleportingPlayer, location, PlayerTeleportEvent.TeleportCause.COMMAND);

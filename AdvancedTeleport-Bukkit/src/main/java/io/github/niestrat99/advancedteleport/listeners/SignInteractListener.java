@@ -39,8 +39,7 @@ public class SignInteractListener implements Listener {
         Player player = event.getPlayer();
         Block clickedBlock = event.getClickedBlock();
         BlockState blockState = clickedBlock.getState();
-        if (!(blockState instanceof Sign)) return;
-        Sign sign = (Sign) blockState;
+        if (!(blockState instanceof Sign sign)) return;
         String command = ChatColor.stripColor(sign.getLine(0));
         if (command.length() > 2) {
             command = command.substring(1, command.length() - 1).toLowerCase();
@@ -58,8 +57,7 @@ public class SignInteractListener implements Listener {
         BlockState state = placeBlock.getState();
         Player player = event.getPlayer();
         // Make sure it's a sign
-        if (!(state instanceof Sign)) return;
-        Sign sign = (Sign) state;
+        if (!(state instanceof Sign sign)) return;
         String command = ChatColor.stripColor(event.getLine(0));
         if (command.length() > 2) {
             command = command.substring(1, command.length() - 1).toLowerCase();
