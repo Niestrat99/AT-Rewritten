@@ -10,15 +10,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemsPayment extends Payment {
 
-    private Material material;
+    private final Material material;
     private int amount;
-    private byte data;
 
     // DIAMOND#{Count:10,tag:{display:{Name:"&b&lSetwarp Token"}}}
-    public ItemsPayment(Material material, byte data, int amount) {
+    public ItemsPayment(Material material, int amount) {
         this.material = material;
         this.amount = amount;
-        this.data = data;
     }
 
     @Override
@@ -35,9 +33,7 @@ public class ItemsPayment extends Payment {
     public double getPlayerAmount(Player player) {
         int count = 0;
         for (ItemStack item : player.getInventory().all(material).values()) {
-            if (item.getDurability() == data) {
-                count += item.getAmount();
-            }
+            count += item.getAmount();
         }
         return count;
     }
@@ -111,27 +107,15 @@ public class ItemsPayment extends Payment {
             case 1:
                 Material material = Material.getMaterial(parts[0].toUpperCase());
                 if (material == null) return null;
-                return new ItemsPayment(material, (byte) 0, 1);
-            case 2:
+                return new ItemsPayment(material, 1);
+            default:
                 material = Material.getMaterial(parts[0].toUpperCase());
                 if (material == null) return null;
                 int amount = 1;
                 if (parts[1].matches("^[0-9]+$")) {
                     amount = Integer.parseInt(parts[1]);
                 }
-                return new ItemsPayment(material, (byte) 0, amount);
-            default:
-                material = Material.getMaterial(parts[0].toUpperCase());
-                if (material == null) return null;
-                amount = 1;
-                if (parts[1].matches("^[0-9]+$")) {
-                    amount = Integer.parseInt(parts[1]);
-                }
-                byte data = 0;
-                if (parts[2].matches("^[0-9]+$")) {
-                    data = Byte.parseByte(parts[2]);
-                }
-                return new ItemsPayment(material, data, amount);
+                return new ItemsPayment(material, amount);
         }
     }
 
