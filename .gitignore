@@ -11,4 +11,3 @@ build
 # Ignore bogus files
 *.iml
 *.class
-*.class
