@@ -45,6 +45,7 @@ public class Back extends TeleportATCommand {
             }
         }
 
+        // Get the ATPlayer object
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         // Check the player's cooldown
@@ -63,7 +64,7 @@ public class Back extends TeleportATCommand {
             return true;
         }
 
-
+        // Get the original previous location
         double originalY = loc.getY();
         double originalX = loc.getX();
         double originalZ = loc.getZ();
@@ -94,13 +95,20 @@ public class Back extends TeleportATCommand {
                 }
             }
         }
+
+        // If there's more than one location to go through, remove them one by one - the shortest distance should be kept.
         while (possiblelocs.size() > 1) {
             if (loc.distance(possiblelocs.get(1)) > loc.distance(possiblelocs.get(0))) possiblelocs.remove(1);
             else possiblelocs.remove(0);
         }
+
+        // If there's only one location to retrieve, get that location
         if (possiblelocs.size() == 1) loc = possiblelocs.get(0);
+
+        // Check for bad blocks
         int lavablocks = 0;
         while (!airMaterials.contains(loc.getBlock().getType().name()) && possiblelocs.isEmpty()) {
+
             // If we go beyond max height, stop and reset the Y value
             if (loc.getBlock().getType().name().equalsIgnoreCase("Lava")) ++lavablocks;
             if (loc.getY() > loc.getWorld().getMaxHeight() || lavablocks > 5) {
@@ -111,15 +119,20 @@ public class Back extends TeleportATCommand {
         }
         // The total count of operations in a worstcase is 128
 
+        // If the distance limiter is in effect and it's too far, stop there
         if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back", ATPlayer.getPlayer(player))
                 && !player.hasPermission("at.admin.bypass.distance-limit")) {
             CustomMessages.sendMessage(player, "Error.tooFarAway");
             return true;
         }
 
+        // Call the event
         ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
         Bukkit.getPluginManager().callEvent(event);
-        if (sender != player && !event.isCancelled()) {
+        if (event.isCancelled()) return true;
+
+        // Teleport the target player
+        if (sender != player) {
             CustomMessages.sendMessage(player, "Teleport.teleportingToLastLoc");
             player.teleport(loc);
         } else {

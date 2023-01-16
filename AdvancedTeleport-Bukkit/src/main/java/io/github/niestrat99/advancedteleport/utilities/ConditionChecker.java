@@ -23,24 +23,32 @@ public class ConditionChecker {
      * @return if the string is empty, the player can teleport, otherwise, state why
      */
     public static String canTeleport(Player player, Player target, String command) {
+
         // If the target is null, don't teleport
         if (target == null) return "Error.noSuchPlayer";
+
         // If the target can't be seen, don't teleport
         if (!player.canSee(target)) return "Error.noSuchPlayer";
+
         // Are you serious rn
         if (target == player) return "Error.requestSentToSelf";
+
         // If the player can't be seen, check permissions
         if (!player.hasPermission("at.admin.request-in-vanish") && !target.canSee(player))
             return "Error.cantTPToPlayer";
+
         // Check if the distance/worlds are a limit
         // if someone removes this for uk and germany that would be great
         String teleportLims = canTeleport(player.getLocation(), target.getLocation(), command, player);
         if (!teleportLims.isEmpty()) return teleportLims;
         ATPlayer atTarget = ATPlayer.getPlayer(target);
+
         // If the target has teleportation disabled
         if (!atTarget.isTeleportationEnabled()) return "Error.tpOff";
+
         // Check if the player is blocked
         if (atTarget.hasBlocked(player)) return "Error.tpBlock";
+
         // If a request has already been sent
         if (command.equalsIgnoreCase("tpa") || command.equalsIgnoreCase("tpahere")) {
             if (TeleportRequest.getRequestByReqAndResponder(target, player) != null) return "Error.alreadySentRequest";
@@ -52,6 +60,7 @@ public class ConditionChecker {
         CoreClass.debug("Requested to see if " + teleportingPlayer.getName() + " can teleport from "
                 + CoreClass.getShortLocation(fromLoc) + " to " + CoreClass.getShortLocation(toLoc) + " using command "
                 + command);
+
         // Check if the player is too far away
         if (NewConfig.get().ENABLE_DISTANCE_LIMITATIONS.get()
                 && !teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")

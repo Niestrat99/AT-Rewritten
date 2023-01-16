@@ -17,8 +17,12 @@ public abstract class AbstractWarpCommand implements ATCommand {
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+
+        // Set up the resulting tab completion options
         List<String> results = new ArrayList<>();
         List<String> warps = new ArrayList<>();
+
+        // Go through each warp and see if they have permission to it
         for (String warp : AdvancedTeleportAPI.getWarps().keySet()) {
             if (sender.hasPermission("at.member.warp." + warp.toLowerCase())) {
                 warps.add(warp);
@@ -27,6 +31,8 @@ public abstract class AbstractWarpCommand implements ATCommand {
                 warps.add(warp);
             }
         }
+
+        // Copy partial matches over and return the results
         StringUtil.copyPartialMatches(args[0], warps, results);
         return results;
     }

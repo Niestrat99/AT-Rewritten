@@ -20,6 +20,8 @@ public class WarpCommand extends AbstractWarpCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
+
+        // If the feature isn't enabled/no permission, stop there
         if (!canProceed(sender)) return true;
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
@@ -28,6 +30,7 @@ public class WarpCommand extends AbstractWarpCommand {
 
         Player player = (Player) sender;
 
+        // If there's no arguments specified, see if the player is a Bedrock player and use a form
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
             if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {

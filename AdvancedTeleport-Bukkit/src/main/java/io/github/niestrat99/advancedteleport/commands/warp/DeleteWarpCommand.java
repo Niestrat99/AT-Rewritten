@@ -16,8 +16,11 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
                              @NotNull String[] args) {
+
+        // If the command can't proceed due to being disabled, stop there
         if (!canProceed(sender)) return true;
 
+        // If no arguments have been chosen, see if the sender is a floodgate player
         if (args.length == 0) {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
@@ -27,12 +30,16 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
                     return true;
                 }
             }
+
+            // Otherwise, tell the player to enter a warp.
             CustomMessages.sendMessage(sender, "Error.noWarpInput");
             return true;
         }
 
+        // Get the warp to be deleted.
         Warp warp = AdvancedTeleportAPI.getWarp(args[0]);
 
+        // If the warp exists, delete it.
          if (warp != null) {
              warp.delete(sender).handle((x, e) -> {
                  if (e != null) e.printStackTrace();
