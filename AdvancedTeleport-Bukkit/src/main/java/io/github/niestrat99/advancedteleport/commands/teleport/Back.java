@@ -3,9 +3,9 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
+import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Back extends TeleportATCommand {
+public class Back extends TeleportATCommand implements TimedATCommand {
 
     private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR"));
 
@@ -28,12 +28,6 @@ public class Back extends TeleportATCommand {
                              @NotNull String[] args) {
         // Make sure the sender has permission and the associated feature is enabled
         if (!canProceed(sender)) return true;
-
-        // If the player isn't a sender, stop there
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
 
         // Initialise player variables
         Player player = (Player) sender;
@@ -47,13 +41,6 @@ public class Back extends TeleportATCommand {
 
         // Get the ATPlayer object
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-
-        // Check the player's cooldown
-        int cooldown = CooldownManager.secondsLeftOnCooldown("back", player);
-        if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-            return true;
-        }
 
         // Get the player's previous location
         Location loc = atPlayer.getPreviousLocation();
@@ -150,6 +137,11 @@ public class Back extends TeleportATCommand {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                                       @NotNull String[] args) {
-        return null;
+        return new ArrayList<>();
+    }
+
+    @Override
+    public String getSection() {
+        return "back";
     }
 }

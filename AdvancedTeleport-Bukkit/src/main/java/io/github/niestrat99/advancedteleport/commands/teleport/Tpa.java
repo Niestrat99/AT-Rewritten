@@ -7,10 +7,10 @@ import io.github.niestrat99.advancedteleport.api.events.players.TeleportRequestE
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import org.bukkit.Bukkit;
@@ -22,27 +22,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class Tpa extends TeleportATCommand {
+public class Tpa extends TeleportATCommand implements TimedATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
+
         Player player = (Player) sender;
 
-        UUID playerUuid = player.getUniqueId();
-        int cooldown = CooldownManager.secondsLeftOnCooldown("tpa", player);
-        if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-            return true;
-        }
-        if (MovementManager.getMovement().containsKey(playerUuid)) {
-            CustomMessages.sendMessage(player, "Error.onCountdown");
-            return true;
-        }
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
             if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
@@ -111,5 +98,10 @@ public class Tpa extends TeleportATCommand {
     @Override
     public String getPermission() {
         return "at.member.tpa";
+    }
+
+    @Override
+    public String getSection() {
+        return "tpa";
     }
 }

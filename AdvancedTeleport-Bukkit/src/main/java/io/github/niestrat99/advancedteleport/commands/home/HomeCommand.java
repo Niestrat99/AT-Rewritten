@@ -4,10 +4,9 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -18,30 +17,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class HomeCommand extends AbstractHomeCommand {
+public class HomeCommand extends AbstractHomeCommand implements TimedATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
 
-        ATPlayer atPlayer = ATPlayer.getPlayer((Player) sender);
         Player player = (Player) sender;
-
-        HashMap<String, Home> homes = atPlayer.getHomes();
-        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-            CustomMessages.sendMessage(player, "Error.onCountdown");
-            return true;
-        }
-        int cooldown = CooldownManager.secondsLeftOnCooldown("home", player);
-        if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-            return true;
-        }
+        ATPlayer atPlayer = ATPlayer.getPlayer((Player) sender);
 
         if (args.length > 1 && sender.hasPermission("at.admin.home")) {
             ATPlayer.getPlayerFuture(args[0]).thenAccept(target -> {
@@ -125,5 +109,10 @@ public class HomeCommand extends AbstractHomeCommand {
     @Override
     public String getPermission() {
         return "at.member.home";
+    }
+
+    @Override
+    public String getSection() {
+        return "home";
     }
 }
