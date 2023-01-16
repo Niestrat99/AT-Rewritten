@@ -6,10 +6,10 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
+import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import org.bukkit.Bukkit;
@@ -19,29 +19,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
-public class TpaHere extends TeleportATCommand {
+public class TpaHere extends TeleportATCommand implements TimedATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
         Player player = (Player) sender;
-        UUID playerUuid = player.getUniqueId();
-        int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
-        if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-            return true;
-        }
-        if (MovementManager.getMovement().containsKey(playerUuid)) {
-            CustomMessages.sendMessage(player, "Error.onCountdown");
-            return true;
-        }
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
             if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
@@ -99,5 +83,10 @@ public class TpaHere extends TeleportATCommand {
     @Override
     public String getPermission() {
         return "at.member.here";
+    }
+
+    @Override
+    public String getSection() {
+        return "tpahere";
     }
 }

@@ -5,17 +5,16 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class WarpCommand extends AbstractWarpCommand {
+public class WarpCommand extends AbstractWarpCommand implements TimedATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
@@ -23,10 +22,6 @@ public class WarpCommand extends AbstractWarpCommand {
 
         // If the feature isn't enabled/no permission, stop there
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
 
         Player player = (Player) sender;
 
@@ -41,19 +36,10 @@ public class WarpCommand extends AbstractWarpCommand {
             return true;
         }
 
-        int cooldown = CooldownManager.secondsLeftOnCooldown("warp", player);
-        if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-            return true;
-        }
-        if (AdvancedTeleportAPI.getWarps().containsKey(args[0])) {
-            if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-                CustomMessages.sendMessage(player, "Error.onCountdown");
-                return true;
-            } else {
-                Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
-                warp(warp, player, false);
-            }
+        // If the warp exists and the player isn't already teleporting, may as well warp them
+        Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
+        if (warp != null) {
+            warp(warp, player, false);
         } else {
             CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
@@ -79,5 +65,10 @@ public class WarpCommand extends AbstractWarpCommand {
     @Override
     public String getPermission() {
         return "at.member.warp";
+    }
+
+    @Override
+    public String getSection() {
+        return "warp";
     }
 }

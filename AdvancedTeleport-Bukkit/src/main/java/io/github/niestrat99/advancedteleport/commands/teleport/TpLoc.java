@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
@@ -23,7 +24,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class TpLoc extends TeleportATCommand {
+public class TpLoc extends TeleportATCommand implements PlayerCommand {
 
     private static final Pattern location = Pattern.compile("^(-)?\\d+(\\.\\d+)?$");
 
@@ -31,10 +32,6 @@ public class TpLoc extends TeleportATCommand {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
         Player player = (Player) sender;
 
         if (args.length < 3) {

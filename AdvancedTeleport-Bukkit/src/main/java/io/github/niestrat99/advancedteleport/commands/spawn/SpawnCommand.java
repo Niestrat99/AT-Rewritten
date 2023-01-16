@@ -3,10 +3,8 @@ package io.github.niestrat99.advancedteleport.commands.spawn;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.Spawn;
-import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -19,27 +17,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpawnCommand extends SpawnATCommand {
+public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
                              @NotNull String[] args) {
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
 
         Player player = (Player) sender;
-        int cooldown = CooldownManager.secondsLeftOnCooldown("spawn", player);
-        if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-            return true;
-        }
-        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-            CustomMessages.sendMessage(sender, "Error.onCountdown");
-            return true;
-        }
         String location = player.getWorld().getName();
         if (args.length > 0 &&
                 (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
@@ -78,5 +63,10 @@ public class SpawnCommand extends SpawnATCommand {
             return spawns;
         }
         return null;
+    }
+
+    @Override
+    public String getSection() {
+        return "spawn";
     }
 }

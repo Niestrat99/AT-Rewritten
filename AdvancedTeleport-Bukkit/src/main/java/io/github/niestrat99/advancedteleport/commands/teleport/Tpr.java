@@ -3,11 +3,10 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
@@ -25,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Tpr implements ATCommand {
+public class Tpr implements TimedATCommand {
 
     private static final List<UUID> searchingPlayers = new ArrayList<>();
 
@@ -47,10 +46,6 @@ public class Tpr implements ATCommand {
             return true;
         }
 
-        if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-            CustomMessages.sendMessage(sender, "Error.onCountdown");
-            return true;
-        }
         World world = player.getWorld();
         if (args.length > 0 && sender.hasPermission("at.member.tpr.other")) {
             World otherWorld = Bukkit.getWorld(args[0]);
@@ -75,24 +70,22 @@ public class Tpr implements ATCommand {
             CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
             return true;
         }
-        if (NewConfig.get().WHITELIST_WORLD.get()) {
+        if (NewConfig.get().WHITELIST_WORLD.get() && !sender.hasPermission("at.admin.rtp.bypass-world")) {
             List<String> allowedWorlds = NewConfig.get().ALLOWED_WORLDS.get();
             if (!allowedWorlds.contains(world.getName())) {
-                if (!sender.hasPermission("at.admin.rtp.bypass-world")) {
-                    if (allowedWorlds.isEmpty() || !NewConfig.get().REDIRECT_TO_WORLD.get()) {
+                if (allowedWorlds.isEmpty() || !NewConfig.get().REDIRECT_TO_WORLD.get()) {
+                    CustomMessages.sendMessage(sender, "Error.cantTPToWorld");
+                    return true;
+                } else {
+                    for (String worldName : allowedWorlds) {
+                        world = Bukkit.getWorld(worldName);
+                        String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0,
+                                0, 0), new Location(world, 0, 0, 0), "tpr", player);
+                        if (world != null && conditionResult.isEmpty()) break;
+                    }
+                    if (world == null) {
                         CustomMessages.sendMessage(sender, "Error.cantTPToWorld");
                         return true;
-                    } else {
-                        for (String worldName : allowedWorlds) {
-                            world = Bukkit.getWorld(worldName);
-                            String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0,
-                                    0, 0), new Location(world, 0, 0, 0), "tpr", player);
-                            if (world != null && conditionResult.isEmpty()) break;
-                        }
-                        if (world == null) {
-                            CustomMessages.sendMessage(sender, "Error.cantTPToWorld");
-                            return true;
-                        }
                     }
                 }
             }
@@ -154,5 +147,21 @@ public class Tpr implements ATCommand {
     @Override
     public String getPermission() {
         return "at.member.tpr";
+    }
+
+    @Override
+    public String getSection() {
+        return "tpr";
+    }
+
+    @Override
+    public boolean canProceed(@NotNull CommandSender sender) {
+
+        // Get the
+        boolean priorResult = TimedATCommand.super.canProceed(sender);
+
+        if (!priorResult && !(sender instanceof Player) && !sender.hasPermission("at.admin.tpr.other")) return false;
+
+        return priorResult;
     }
 }
