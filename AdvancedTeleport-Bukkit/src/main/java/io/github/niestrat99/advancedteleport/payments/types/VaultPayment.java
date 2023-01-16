@@ -7,14 +7,15 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
 public class VaultPayment extends Payment {
 
+    private final @Nullable String economyName;
     private double price;
     private Economy economy;
-    private String economyName;
 
     public VaultPayment(double price, @Nullable String economyName) throws IllegalStateException {
 

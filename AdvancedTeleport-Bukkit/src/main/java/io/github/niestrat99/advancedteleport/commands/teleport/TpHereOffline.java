@@ -25,12 +25,12 @@ public class TpHereOffline extends TeleportATCommand implements PlayerCommand {
         Player target = Bukkit.getPlayer(args[0]);
         Player player = (Player) sender;
         if (target == null) {
-            NBTReader.setLocation(args[0], player.getLocation(), new NBTReader.NBTCallback<Boolean>() {
+            NBTReader.setLocation(args[0], player.getLocation(), new NBTReader.NBTCallback<>() {
                 @Override
                 public void onSuccess(Boolean data) {
                     Bukkit.getScheduler().runTask(CoreClass.getInstance(), () ->
                             CustomMessages.sendMessage(sender, "Teleport.teleportedOfflinePlayerHere", "{player}"
-                            , args[0]));
+                                    , args[0]));
                 }
 
                 @Override

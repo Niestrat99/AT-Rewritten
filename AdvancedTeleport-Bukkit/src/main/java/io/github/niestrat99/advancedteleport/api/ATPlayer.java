@@ -541,8 +541,7 @@ public class ATPlayer {
      *
      * @return if the player has a bed spawn set, return the home object, else return null.
      */
-    @Nullable
-    public Home getBedSpawn() {
+    public @Nullable Home getBedSpawn() {
         if (getOfflinePlayer().getBedSpawnLocation() != null) {
             return new Home(uuid, "bed", getOfflinePlayer().getBedSpawnLocation(), -1, -1);
         }
@@ -828,7 +827,7 @@ public class ATPlayer {
      * @param name The name of the home.
      * @return true if the player has a home named as specified, false if they do not.
      */
-    public boolean hasHome(String name) {
+    public boolean hasHome(@NotNull String name) {
         return homes.containsKey(name);
     }
 

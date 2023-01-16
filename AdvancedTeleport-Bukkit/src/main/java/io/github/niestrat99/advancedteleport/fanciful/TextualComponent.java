@@ -120,7 +120,7 @@ public abstract class TextualComponent implements Cloneable {
 
 		@SuppressWarnings("serial")
 		public Map<String, Object> serialize() {
-			return new HashMap<String, Object>() {{
+			return new HashMap<>() {{
 				put("key", getKey());
 				put("value", getValue());
 			}};
@@ -187,7 +187,7 @@ public abstract class TextualComponent implements Cloneable {
 
 		@SuppressWarnings("serial")
 		public Map<String, Object> serialize() {
-			return new HashMap<String, Object>() {{
+			return new HashMap<>() {{
 				put("key", getKey());
 				for (Entry<String, String> valEntry : getValue().entrySet()) {
 					put("value." + valEntry.getKey(), valEntry.getValue());

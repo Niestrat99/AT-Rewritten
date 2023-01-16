@@ -108,35 +108,28 @@ public class Tpr implements TimedATCommand {
         if (NewConfig.get().RAPID_RESPONSE.get() && PaperLib.isPaper()) {
             Location nextLoc = RTPManager.getLocationUrgently(world);
             if (nextLoc != null) {
-                ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                ATTeleportEvent event = new ATTeleportEvent(player, nextLoc, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                Bukkit.getPluginManager().callEvent(event);
-                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
+                processLocation(player, nextLoc);
             } else {
                 CustomMessages.sendMessage(player, "Info.searching");
                 searchingPlayers.add(player.getUniqueId());
-                RTPManager.getNextAvailableLocation(world).thenAccept(location -> {
-                    searchingPlayers.remove(player.getUniqueId());
-                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                    Bukkit.getPluginManager().callEvent(event);
-                    atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
-                });
+                RTPManager.getNextAvailableLocation(world).thenAccept(location -> processLocation(player, location));
             }
         } else {
             CustomMessages.sendMessage(player, "Info.searching");
             searchingPlayers.add(player.getUniqueId());
             RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world,
-                    location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
-                searchingPlayers.remove(player.getUniqueId());
-                ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
-                Bukkit.getPluginManager().callEvent(event);
-                atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
-            }));
+                    location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> processLocation(player, location)));
         }
 
         return true;
+    }
+
+    private static void processLocation(Player player, Location location) {
+        searchingPlayers.remove(player.getUniqueId());
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+        ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+        Bukkit.getPluginManager().callEvent(event);
+        atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
     }
 
     @Override

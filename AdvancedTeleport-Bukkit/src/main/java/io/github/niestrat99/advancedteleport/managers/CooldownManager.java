@@ -13,13 +13,13 @@ import java.util.*;
 
 public class CooldownManager {
 
-    private static HashMap<String, List<ATRunnable>> cooldown = new HashMap<>();
+    private static final HashMap<String, List<ATRunnable>> cooldown = new HashMap<>();
 
     public static class ATRunnable extends BukkitRunnable {
-        private UUID uuid;
+        private final UUID uuid;
+        private final long startingTime;
+        private final String command;
         private long ms;
-        private long startingTime;
-        private String command;
 
         public ATRunnable(UUID uuid, long waitingTime, String command) {
             this.uuid = uuid;

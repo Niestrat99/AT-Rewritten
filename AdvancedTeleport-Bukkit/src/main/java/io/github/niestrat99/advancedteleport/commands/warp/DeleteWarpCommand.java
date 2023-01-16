@@ -22,8 +22,7 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
 
         // If no arguments have been chosen, see if the sender is a floodgate player
         if (args.length == 0) {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
+            if (sender instanceof Player player) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
                     ((ATFloodgatePlayer) atPlayer).sendDeleteWarpForm();
