@@ -5,6 +5,7 @@
 build
 /.idea/
 /lib
+/libs
 .run
 
 # Ignore bogus files
