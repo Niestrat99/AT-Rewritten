@@ -85,7 +85,7 @@ public class Back extends TeleportATCommand implements TimedATCommand {
 
         // If there's more than one location to go through, remove them one by one - the shortest distance should be kept.
         while (possiblelocs.size() > 1) {
-            if (loc.distance(possiblelocs.get(1)) > loc.distance(possiblelocs.get(0))) possiblelocs.remove(1);
+            if (loc.distanceSquared(possiblelocs.get(1)) > loc.distanceSquared(possiblelocs.get(0))) possiblelocs.remove(1);
             else possiblelocs.remove(0);
         }
 

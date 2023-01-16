@@ -28,7 +28,7 @@ public class TpOffline extends TeleportATCommand implements PlayerCommand {
             Bukkit.getServer().dispatchCommand(sender, "tpo " + args[0]);
             return true;
         }
-        NBTReader.getLocation(args[0], new NBTReader.NBTCallback<Location>() {
+        NBTReader.getLocation(args[0], new NBTReader.NBTCallback<>() {
             @Override
             public void onSuccess(Location data) {
                 Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {

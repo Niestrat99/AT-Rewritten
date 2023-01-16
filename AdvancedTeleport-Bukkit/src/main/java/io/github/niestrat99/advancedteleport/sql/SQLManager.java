@@ -97,7 +97,7 @@ public abstract class SQLManager {
         default void onFail() {}
 
         static SQLCallback<Boolean> getDefaultCallback(CommandSender sender, String success, String fail, String... placeholders) {
-            return new SQLCallback<Boolean>() {
+            return new SQLCallback<>() {
                 @Override
                 public void onSuccess(Boolean data) {
                     CustomMessages.sendMessage(sender, success, placeholders);
