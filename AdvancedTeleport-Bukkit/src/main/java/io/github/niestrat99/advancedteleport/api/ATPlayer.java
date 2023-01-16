@@ -67,10 +67,11 @@ public class ATPlayer {
         BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
         HomeSQLManager.get().getHomes(uuid.toString(), list -> {
             this.homes = list;
+
             // Do this after to be safe
             PlayerSQLManager.get().getMainHome(name, result -> {
                 if (result != null && !result.isEmpty()) {
-                    setMainHome(result);
+                    setMainHome(result); // TODO: error thrown here
                 }
             });
             // Add the bed spawn home
@@ -429,6 +430,15 @@ public class ATPlayer {
         moveHome(name, newLocation, callback, true);
     }
 
+    /**
+     * Moves a specified home to a new location.
+     *
+     * @param name the name of the home.
+     * @param newLocation the new location of the home.
+     * @param callback what to do after the home has been moved.
+     * @param async true if the action should be done asynchronously, false if not.
+     * @deprecated use {@link #moveHome(String, Location)} instead.
+     */
     public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback, boolean async) {
         homes.get(name).move(newLocation);
         HomeSQLManager.get().moveHome(newLocation, uuid, name, callback, async);

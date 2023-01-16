@@ -23,6 +23,8 @@ public class PaymentManager {
     public PaymentManager() {
         instance = this;
         teleportCosts = new HashMap<>();
+
+        // Registers the payments for each command.
         addCommand("tpa", NewConfig.get().COSTS.TPA.get());
         addCommand("tpahere", NewConfig.get().COSTS.TPAHERE.get());
         addCommand("tpr", NewConfig.get().COSTS.TPR.get());
@@ -33,6 +35,8 @@ public class PaymentManager {
     }
 
     private void addCommand(String command, Object value) {
+
+        // Generate a hashmap for each payment
         HashMap<String, Payment> payments = new HashMap<>();
         String valueStr = String.valueOf(value);
         if (valueStr.isEmpty()) {

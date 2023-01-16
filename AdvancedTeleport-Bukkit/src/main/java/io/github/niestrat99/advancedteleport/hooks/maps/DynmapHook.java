@@ -43,9 +43,7 @@ public class DynmapHook extends MapPlugin {
 
         // Create each individual markerset
         WARPS = getSet("advancedteleport_warps", "Warps");
-        // Create the homes
         HOMES = getSet("advancedteleport_homes", "Homes");
-        // Create the spawns
         SPAWNS = getSet("advancedteleport_spawns", "Spawns");
     }
 

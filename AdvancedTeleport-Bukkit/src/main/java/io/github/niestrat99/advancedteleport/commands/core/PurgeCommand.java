@@ -37,6 +37,8 @@ public class PurgeCommand implements SubATCommand {
             CustomMessages.sendMessage(sender, "Error.invalidArgs");
             return false;
         }
+
+        // If they've not specified whether it's a world or player being purged, stop them
         if (!args[1].equalsIgnoreCase("world") && !args[1].equalsIgnoreCase("player")) {
             CustomMessages.sendMessage(sender, "Error.invalidArgs");
             return false;

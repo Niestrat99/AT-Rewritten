@@ -16,23 +16,32 @@ public class VaultPayment extends Payment {
     private Economy economy;
     private String economyName;
 
-    public VaultPayment(double price, String economyName) {
+    public VaultPayment(double price, @Nullable String economyName) throws IllegalStateException {
+
+        // Sets the internal fields.
         this.price = price;
         this.economyName = economyName;
+
+        // If there's no economy name specified, just use Vault outright and see what it picks.
         if (economyName == null) {
             RegisteredServiceProvider<Economy> provider = Bukkit.getServicesManager().getRegistration(Economy.class);
             if (provider == null) throw new IllegalStateException("There is no economy provider registered.");
             economy = provider.getProvider();
             return;
         }
+
+        // Get all the registered economy services.
         Collection<RegisteredServiceProvider<Economy>> economies = Bukkit.getServicesManager().getRegistrations(Economy.class);
         for (RegisteredServiceProvider<Economy> provider : economies) {
+
+            // See if the one specified is the one declared in economyName.
             CoreClass.getInstance().getLogger().info("Checking " + provider.getPlugin().getName() + " against " + economyName);
             if (!provider.getPlugin().getName().equals(economyName)) continue;
             economy = provider.getProvider();
             break;
         }
 
+        // If no economy has been picked, we got a problem
         if (economy == null) throw new IllegalStateException("There is no economy provider for " + economyName + " registered.");
     }
 
