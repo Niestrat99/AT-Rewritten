@@ -44,15 +44,9 @@ public class TpLoc extends TeleportATCommand implements PlayerCommand {
         for (int i = 0; i < 3; i++) {
             if (args[i].equalsIgnoreCase("~")) {
                 switch (i) {
-                    case 0:
-                        loc[i] = player.getLocation().getX();
-                        break;
-                    case 1:
-                        loc[i] = player.getLocation().getY();
-                        break;
-                    case 2:
-                        loc[i] = player.getLocation().getZ();
-                        break;
+                    case 0 -> loc[i] = player.getLocation().getX();
+                    case 1 -> loc[i] = player.getLocation().getY();
+                    case 2 -> loc[i] = player.getLocation().getZ();
                 }
             } else if (location.matcher(args[i]).matches()) {
                 loc[i] = Double.parseDouble(args[i]);

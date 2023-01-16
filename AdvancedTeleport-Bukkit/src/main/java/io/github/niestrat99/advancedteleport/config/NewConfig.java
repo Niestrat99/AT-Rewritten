@@ -933,23 +933,16 @@ public class NewConfig extends ATConfig {
         }
 
         public ConfigOption<T> valueOf(String command) {
-            switch (command) {
-                case "tpa":
-                    return TPA;
-                case "tpahere":
-                    return TPAHERE;
-                case "tpr":
-                    return TPR;
-                case "warp":
-                    return WARP;
-                case "spawn":
-                    return SPAWN;
-                case "home":
-                    return HOME;
-                case "back":
-                    return BACK;
-            }
-            return null;
+            return switch (command) {
+                case "tpa" -> TPA;
+                case "tpahere" -> TPAHERE;
+                case "tpr" -> TPR;
+                case "warp" -> WARP;
+                case "spawn" -> SPAWN;
+                case "home" -> HOME;
+                case "back" -> BACK;
+                default -> null;
+            };
         }
 
         public ConfigOption<T>[] values() {

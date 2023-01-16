@@ -50,32 +50,30 @@ public class PurgeCommand implements SubATCommand {
             }
 
             switch (args[0].toLowerCase()) {
-                case "homes":
-                    HomeSQLManager.get().purgeHomes(Bukkit.getWorld(args[2]).getName(), new SQLManager.SQLCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void data) {
-                            CustomMessages.sendMessage(sender, "Info.purgeHomesWorld", "{world}", args[2]);
-                        }
+                case "homes" ->
+                        HomeSQLManager.get().purgeHomes(Bukkit.getWorld(args[2]).getName(), new SQLManager.SQLCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void data) {
+                                CustomMessages.sendMessage(sender, "Info.purgeHomesWorld", "{world}", args[2]);
+                            }
 
-                        @Override
-                        public void onFail() {
-                            CustomMessages.sendMessage(sender, "Error.purgeHomesFail");
-                        }
-                    });
-                    break;
-                case "warps":
-                    WarpSQLManager.get().purgeWarps(Bukkit.getWorld(args[2]).getName(), new SQLManager.SQLCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void data) {
-                            CustomMessages.sendMessage(sender, "Info.purgeWarpsWorld", "{world}", args[2]);
-                        }
+                            @Override
+                            public void onFail() {
+                                CustomMessages.sendMessage(sender, "Error.purgeHomesFail");
+                            }
+                        });
+                case "warps" ->
+                        WarpSQLManager.get().purgeWarps(Bukkit.getWorld(args[2]).getName(), new SQLManager.SQLCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void data) {
+                                CustomMessages.sendMessage(sender, "Info.purgeWarpsWorld", "{world}", args[2]);
+                            }
 
-                        @Override
-                        public void onFail() {
-                            CustomMessages.sendMessage(sender, "Error.purgeWarpsFail");
-                        }
-                    });
-                    break;
+                            @Override
+                            public void onFail() {
+                                CustomMessages.sendMessage(sender, "Error.purgeWarpsFail");
+                            }
+                        });
             }
 
         } else if (args[1].equalsIgnoreCase("player")) {
@@ -86,32 +84,30 @@ public class PurgeCommand implements SubATCommand {
                     return;
                 }
                 switch (args[0].toLowerCase()) {
-                    case "homes":
-                        HomeSQLManager.get().purgeHomes(player.getUniqueId(), new SQLManager.SQLCallback<Void>() {
-                            @Override
-                            public void onSuccess(Void data) {
-                                CustomMessages.sendMessage(sender, "Info.purgeHomesCreator", "{player}", args[2]);
-                            }
+                    case "homes" ->
+                            HomeSQLManager.get().purgeHomes(player.getUniqueId(), new SQLManager.SQLCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void data) {
+                                    CustomMessages.sendMessage(sender, "Info.purgeHomesCreator", "{player}", args[2]);
+                                }
 
-                            @Override
-                            public void onFail() {
-                                CustomMessages.sendMessage(sender, "Error.purgeHomesFail");
-                            }
-                        });
-                        break;
-                    case "warps":
-                        WarpSQLManager.get().purgeWarps(player.getUniqueId(), new SQLManager.SQLCallback<Void>() {
-                            @Override
-                            public void onSuccess(Void data) {
-                                CustomMessages.sendMessage(sender, "Info.purgeWarpsCreator", "{player}", args[2]);
-                            }
+                                @Override
+                                public void onFail() {
+                                    CustomMessages.sendMessage(sender, "Error.purgeHomesFail");
+                                }
+                            });
+                    case "warps" ->
+                            WarpSQLManager.get().purgeWarps(player.getUniqueId(), new SQLManager.SQLCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void data) {
+                                    CustomMessages.sendMessage(sender, "Info.purgeWarpsCreator", "{player}", args[2]);
+                                }
 
-                            @Override
-                            public void onFail() {
-                                CustomMessages.sendMessage(sender, "Error.purgeWarpsFail");
-                            }
-                        });
-                        break;
+                                @Override
+                                public void onFail() {
+                                    CustomMessages.sendMessage(sender, "Error.purgeWarpsFail");
+                                }
+                            });
                 }
             });
         }
