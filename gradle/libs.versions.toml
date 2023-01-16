@@ -38,8 +38,3 @@ playerparticles = { module = "dev.esophose:playerparticles", version.ref = "play
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
 dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
-
-[plugins]
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
-userdev = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
-bukkitYML = { id = "net.minecrell.plugin-yml.bukkit", version.ref = "pluginYML" }
