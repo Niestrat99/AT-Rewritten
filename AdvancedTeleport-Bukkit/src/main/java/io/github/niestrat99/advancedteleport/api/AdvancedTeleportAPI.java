@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -91,6 +92,7 @@ public class AdvancedTeleportAPI {
      *
      * @return a cloned hashmap of warps.
      */
+    @Unmodifiable
     public static HashMap<String, Warp> getWarps() {
         return new HashMap<>(Warp.getWarps());
     }
@@ -104,6 +106,7 @@ public class AdvancedTeleportAPI {
      * @return a completable future action of the saved spawnpoint.
      */
     public static CompletableFuture<Void> setSpawn(@NotNull String name, @Nullable CommandSender sender, @NotNull Location location) {
+
         // Null checks
         Objects.requireNonNull(location, "The spawn location must not be null.");
         if (!location.isWorldLoaded()) throw new IllegalArgumentException("The world the spawn is being set in must be loaded.");

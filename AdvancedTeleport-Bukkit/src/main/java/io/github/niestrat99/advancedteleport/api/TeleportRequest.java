@@ -28,11 +28,11 @@ public class TeleportRequest {
         return timer;
     }
 
-    public Player getRequester() {
+    public @NotNull Player getRequester() {
         return requester;
     }
 
-    public Player getResponder() {
+    public @NotNull Player getResponder() {
         return responder;
     }
 

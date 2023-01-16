@@ -8,6 +8,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -256,16 +258,17 @@ public class PlayerSQLManager extends SQLManager {
         });
     }
 
-    public void setPreviousLocation(String name, Location location, SQLCallback<Boolean> callback) {
+    public void setPreviousLocation(@NotNull String name, @Nullable Location location, @Nullable SQLCallback<Boolean> callback) {
+
         try (Connection connection = implementConnection()) {
             PreparedStatement statement = prepareStatement(connection, "UPDATE " + tablePrefix + "_players SET x " +
                     "= ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ? WHERE name = ?");
-            statement.setDouble(1, location.getX());
-            statement.setDouble(2, location.getY());
-            statement.setDouble(3, location.getZ());
-            statement.setFloat(4, location.getYaw());
-            statement.setFloat(5, location.getPitch());
-            statement.setString(6, location.getWorld().getName());
+            statement.setObject(1, location == null ? null : location.getX());
+            statement.setObject(2, location == null ? null : location.getY());
+            statement.setObject(3, location == null ? null : location.getZ());
+            statement.setObject(4, location == null ? null : location.getYaw());
+            statement.setObject(5, location == null ? null : location.getPitch());
+            statement.setObject(6, location == null ? null : location.getWorld().getName());
             statement.setString(7, name.toLowerCase());
 
             executeUpdate(statement);
