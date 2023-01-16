@@ -66,8 +66,7 @@ public class Warp implements NamedLocation {
      *
      * @return the name of the warp.
      */
-    @NotNull
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
@@ -76,8 +75,7 @@ public class Warp implements NamedLocation {
      *
      * @return the location of the warp.
      */
-    @NotNull
-    public Location getLocation() {
+    public @NotNull Location getLocation() {
         return location;
     }
 
@@ -86,8 +84,7 @@ public class Warp implements NamedLocation {
      *
      * @return the UUID of the warp's creator.
      */
-    @Nullable
-    public UUID getCreator() {
+    public @Nullable UUID getCreator() {
         return creator;
     }
 
@@ -163,8 +160,7 @@ public class Warp implements NamedLocation {
      *
      * @return the time the warp was created at in the format dd MMM yyyy HH:mm:ss
      */
-    @NotNull
-    public String getCreatedTimeFormatted() {
+    public @NotNull String getCreatedTimeFormatted() {
         return createdTimeFormatted;
     }
 
@@ -173,8 +169,7 @@ public class Warp implements NamedLocation {
      *
      * @return the time the warp was last updated at in the format dd MMM yyyy HH:mm:ss
      */
-    @NotNull
-    public String getUpdatedTimeFormatted() {
+    public @NotNull String getUpdatedTimeFormatted() {
         return updatedTimeFormatted;
     }
 

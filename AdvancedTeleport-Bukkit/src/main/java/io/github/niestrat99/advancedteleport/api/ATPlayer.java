@@ -25,8 +25,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.geysermc.floodgate.api.FloodgateApi;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -50,7 +49,7 @@ public class ATPlayer {
     /**
      * Internal use only.
      */
-    public ATPlayer(Player player) {
+    public ATPlayer(@NotNull Player player) {
         this(player.getUniqueId(), player.getName());
     }
 
@@ -91,8 +90,7 @@ public class ATPlayer {
      *
      * @return the Bukkit player representing this ATPlayer. This is null if the player is not online.
      */
-    @Nullable
-    public Player getPlayer() {
+    public @Nullable Player getPlayer() {
         return Bukkit.getPlayer(uuid);
     }
 
@@ -101,16 +99,17 @@ public class ATPlayer {
      *
      * @return the offline Bukkit player representing this ATPlayer.
      */
-    @NotNull
-    public OfflinePlayer getOfflinePlayer() {
+    public @NotNull OfflinePlayer getOfflinePlayer() {
         return Bukkit.getOfflinePlayer(uuid);
     }
 
     @Deprecated
+    @ApiStatus.Internal
     public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp)  {
         teleport(event, command, teleportMsg);
     }
 
+    @ApiStatus.Internal
     public void teleport(ATTeleportEvent event, String command, String teleportMsg) {
         Player player = event.getPlayer();
         int warmUp = getWarmUp(command);
@@ -212,8 +211,7 @@ public class ATPlayer {
      * @param otherPlayer The other player.
      * @return A BlockInfo object if this player has blocked the other player, but null if they haven't.
      */
-    @Nullable
-    public BlockInfo getBlockInfo(OfflinePlayer otherPlayer) {
+    public @Nullable BlockInfo getBlockInfo(OfflinePlayer otherPlayer) {
         return blockedUsers.get(otherPlayer.getUniqueId());
     }
 
@@ -340,6 +338,7 @@ public class ATPlayer {
      *
      * @return a hashmap of homes.
      */
+    @Unmodifiable
     public HashMap<String, Home> getHomes() {
         return new HashMap<>(homes);
     }
@@ -685,23 +684,28 @@ public class ATPlayer {
         return maxHomes;
     }
 
+    @Range(from = 0, to = Integer.MAX_VALUE)
     public int getCooldown(@NotNull String command) {
         return getMin("at.member.cooldown", command, NewConfig.get().CUSTOM_COOLDOWNS.get(), NewConfig.get().COOLDOWNS.valueOf(command).get());
     }
 
+    @Range(from = 0, to = Integer.MAX_VALUE)
     public int getWarmUp(@NotNull String command) {
         return getMin("at.member.timer", command, NewConfig.get().CUSTOM_WARM_UPS.get(), NewConfig.get().WARM_UPS.valueOf(command).get());
     }
 
+    @Range(from = 0, to = Integer.MAX_VALUE)
     public int getDistanceLimitation(@Nullable String command) {
         return determineValue("at.member.distance", command, command == null ? NewConfig.get().MAXIMUM_TELEPORT_DISTANCE.get()
                 : NewConfig.get().DISTANCE_LIMITS.valueOf(command).get(), NewConfig.get().CUSTOM_DISTANCE_LIMITS.get(), Math::max);
     }
 
+    @Range(from = 0, to = Integer.MAX_VALUE)
     private int getMin(String permission, String command, ConfigurationSection customSection, int defaultValue) {
         return determineValue(permission, command, defaultValue, customSection, Math::min);
     }
 
+    @Range(from = 0, to = Integer.MAX_VALUE)
     private int determineValue(String permission, String command, int defaultValue, ConfigurationSection customSection, BiFunction<Integer, Integer, Integer> consumer) {
         List<String> cooldowns = new ArrayList<>();
 
@@ -799,7 +803,7 @@ public class ATPlayer {
      * @param home The home having access checked.
      * @return true if the player can access the home, false if they cannot.
      */
-    public boolean canAccessHome(Home home) {
+    public boolean canAccessHome(@NotNull Home home) {
 
         // If the homes limit is -1, it's unlimited
         if (getHomesLimit() == -1) return true;
@@ -846,8 +850,7 @@ public class ATPlayer {
      * @return an ATPlayer object representing the player.
      * @throws NullPointerException if the player is null.
      */
-    @NotNull
-    public static ATPlayer getPlayer(@NotNull Player player) {
+    public static @NotNull ATPlayer getPlayer(@NotNull Player player) {
 
         // Null checks
         Objects.requireNonNull(player, "Player must not be null.");
@@ -874,8 +877,7 @@ public class ATPlayer {
      * @return an ATPlayer object representing the player.
      * @throws NullPointerException if the player or their name is null.
      */
-    @NotNull
-    public static ATPlayer getPlayer(@NotNull OfflinePlayer player) {
+    public static @NotNull ATPlayer getPlayer(@NotNull OfflinePlayer player) {
         Objects.requireNonNull(player, "Player must not be null.");
         String name = player.getName();
         Objects.requireNonNull(name, "Player name must not be null.");
@@ -889,9 +891,8 @@ public class ATPlayer {
      * @param name the player name to get an ATPlayer instance of.
      * @return an ATPlayer object representing the player, but null if they haven't immediately loaded.
      */
-    @Nullable
     @SuppressWarnings("deprecation") // for Bukkit#getOfflinePlayer
-    public static ATPlayer getPlayer(@NotNull String name) {
+    public static @Nullable ATPlayer getPlayer(@NotNull String name) {
 
         // If the player is cached, just return it
         if (players.containsKey(name.toLowerCase())) {
@@ -912,9 +913,9 @@ public class ATPlayer {
      * @param name the player name to get an ATPlayer instance of.
      * @return an ATPlayer object representing the player within a CompletableFuture.
      */
-    @NotNull
+
     @SuppressWarnings("deprecation") // for Bukkit#getOfflinePlayer
-    public static CompletableFuture<ATPlayer> getPlayerFuture(String name) {
+    public static @NotNull CompletableFuture<ATPlayer> getPlayerFuture(@NotNull String name) {
 
         // If the player is cached, just return it
         if (players.containsKey(name.toLowerCase())) {
@@ -931,6 +932,7 @@ public class ATPlayer {
     /**
      * Internal use only
      */
+    @ApiStatus.Internal
     public static void removePlayer(Player player) {
         players.remove(player.getName());
     }
@@ -938,6 +940,7 @@ public class ATPlayer {
     /**
      * Internal use only
      */
+    @ApiStatus.Internal
     public static boolean isPlayerCached(String name) {
         return players.containsKey(name.toLowerCase());
     }
@@ -948,7 +951,7 @@ public class ATPlayer {
      * @return the location the player was last at before teleporting. Can be null if they literally never teleported
      * before.
      */
-    public Location getPreviousLocation() {
+    public @Nullable Location getPreviousLocation() {
         return previousLoc;
     }
 
