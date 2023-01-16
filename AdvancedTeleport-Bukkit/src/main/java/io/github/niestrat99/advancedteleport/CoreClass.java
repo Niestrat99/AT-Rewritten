@@ -200,23 +200,16 @@ public class CoreClass extends JavaPlugin {
         switch (type) {
             case "tpa":
                 switch (subType) {
-                    case "sent":
-                        sound = NewConfig.get().TPA_REQUEST_SENT.get();
-                        break;
-                    case "received":
-                        sound = NewConfig.get().TPA_REQUEST_RECEIVED.get();
-                        break;
+                    case "sent" -> sound = NewConfig.get().TPA_REQUEST_SENT.get();
+                    case "received" -> sound = NewConfig.get().TPA_REQUEST_RECEIVED.get();
                 }
                 break;
             case "tpahere":
-                switch (subType) {
-                    case "sent":
-                        sound = NewConfig.get().TPAHERE_REQUEST_SENT.get();
-                        break;
-                    case "received":
-                        sound = NewConfig.get().TPAHERE_REQUEST_RECEIVED.get();
-                        break;
-                }
+                sound = switch (subType) {
+                    case "sent" -> NewConfig.get().TPAHERE_REQUEST_SENT.get();
+                    case "received" -> NewConfig.get().TPAHERE_REQUEST_RECEIVED.get();
+                    default -> sound;
+                };
                 break;
         }
         if (sound == null) return;

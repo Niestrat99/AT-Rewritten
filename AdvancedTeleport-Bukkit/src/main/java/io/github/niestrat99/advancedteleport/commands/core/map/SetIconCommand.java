@@ -59,10 +59,8 @@ public class SetIconCommand implements SubATCommand {
             StringUtil.copyPartialMatches(args[0], Arrays.asList("warp", "home", "spawn"), results);
         } else if (args.length == 2) {
             switch (args[0].toLowerCase()) {
-                case "warp":
-                    StringUtil.copyPartialMatches(args[1], AdvancedTeleportAPI.getWarps().keySet(), results);
-                    break;
-                case "home":
+                case "warp" -> StringUtil.copyPartialMatches(args[1], AdvancedTeleportAPI.getWarps().keySet(), results);
+                case "home" -> {
                     List<String> players = new ArrayList<>();
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (!(sender instanceof Player) || ((Player) sender).canSee(player)) {
@@ -70,23 +68,19 @@ public class SetIconCommand implements SubATCommand {
                         }
                     }
                     StringUtil.copyPartialMatches(args[1], players, results);
-                    break;
-                case "spawn":
-                    StringUtil.copyPartialMatches(args[1], Spawn.get().getSpawns(), results);
-                    break;
+                }
+                case "spawn" -> StringUtil.copyPartialMatches(args[1], Spawn.get().getSpawns(), results);
             }
         } else if (args.length == 3) {
             switch (args[0].toLowerCase()) {
-                case "warp":
-                case "spawn":
-                    StringUtil.copyPartialMatches(args[2], MapAssetManager.getImageNames(), results);
-                    break;
-                case "home":
+                case "warp", "spawn" ->
+                        StringUtil.copyPartialMatches(args[2], MapAssetManager.getImageNames(), results);
+                case "home" -> {
                     ATPlayer player = ATPlayer.getPlayer(args[1]);
                     if (player != null) {
                         StringUtil.copyPartialMatches(args[2], player.getHomes().keySet(), results);
                     }
-                    break;
+                }
             }
         } else if (args.length == 4) {
             if (args[3].equalsIgnoreCase("home")) {
