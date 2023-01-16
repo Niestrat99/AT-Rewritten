@@ -18,7 +18,8 @@ public abstract class CommandRule {
     protected boolean inclusive;
 
     protected CommandRule(@NotNull String commandRule) {
-            // Create the worlds list.
+
+        // Create the worlds list.
         worlds = new ArrayList<>();
 
         // If we're including worlds, mark it as inclusive; if not, just remove the first symbol.

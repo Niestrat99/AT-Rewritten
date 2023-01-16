@@ -26,7 +26,7 @@ public abstract class ATCommand implements IATCommand {
      * @return true if the sender can run the command, false if not.
      */
     @Contract(pure = true)
-    public boolean canProceed(@NotNull final CommandSender sender) {
+    protected boolean canProceed(@NotNull final CommandSender sender) {
         // Make sure the required feature is enabled
         if (!getRequiredFeature()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");

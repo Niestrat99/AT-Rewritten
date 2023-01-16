@@ -64,25 +64,27 @@ public final class AdvancedTeleportAPI {
         @NotNull final Location location
     ) {
         // Null checks
+    static @NotNull Optional<Player> maybePlayer(@Nullable final CommandSender sender) {
+        if (sender instanceof Player player) {
+            return Optional.of(player);
+        } else return Optional.empty();
+    }
+
+    public static @NotNull CompletableFuture<Void> setWarp(
+        @NotNull final String name,
+        @Nullable final CommandSender creator,
+        @NotNull final Location location
+    ) {
         Objects.requireNonNull(location, "The warp location must not be null.");
         if (!location.isWorldLoaded()) return ATException.failedFuture("The world the warp is being set in must be loaded.");
 
         return validateEvent(new WarpCreateEvent(name, creator, location), event -> {
             final var warp = new Warp(
-                maybePlayer(event.getSender()).map(Player::getUniqueId).orElse(null),
-                event.getName(),
-                event.getLocation(),
-                System.currentTimeMillis(), System.currentTimeMillis()
+                    maybePlayer(event.getSender()).map(Player::getUniqueId).orElse(null),
+                    event.getName(),
+                    event.getLocation(),
+                    System.currentTimeMillis(), System.currentTimeMillis()
             );
-
-            return CompletableFuture.runAsync(() -> {
-                FlattenedCallback<Boolean> callback = new FlattenedCallback<>();
-                Warp.registerWarp(warp);
-                WarpSQLManager.get().addWarp(warp, callback);
-            }, CoreClass.async).thenAcceptAsync(data -> {
-                WarpPostCreateEvent postEvent = new WarpPostCreateEvent(warp);
-                Bukkit.getPluginManager().callEvent(postEvent);
-            }, CoreClass.sync);
         });
     }
 
@@ -100,6 +102,19 @@ public final class AdvancedTeleportAPI {
 
         // Returns the warp
         return getWarps().get(name);
+    }
+
+    public static @NotNull CompletableFuture<Void> setSpawn(
+        @NotNull final String name,
+        @Nullable final CommandSender sender,
+        @NotNull final Location location
+    ) {
+        if (!location.isWorldLoaded())
+            return ATException.failedFuture(location.getWorld(), "The world the spawn is being set in must be loaded.");
+
+        return validateEvent(new SpawnCreateEvent(name, sender, location), event -> CompletableFuture.runAsync(() -> {
+            AdvancedTeleportAPI.setSpawn(event.getName(), sender, event.getLocation());
+        }, CoreClass.async));
     }
 
     public static boolean isWarpSet(@NotNull String name) {

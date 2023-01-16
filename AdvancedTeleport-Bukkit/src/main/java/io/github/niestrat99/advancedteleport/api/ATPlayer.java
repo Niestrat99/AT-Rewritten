@@ -52,7 +52,7 @@ public class ATPlayer {
     private @Nullable String mainHome;
     private @Nullable Location previousLoc;
 
-    @NotNull private static final HashMap<String, ATPlayer> players = new HashMap<>();
+    private static final @NotNull HashMap<String, ATPlayer> players = new HashMap<>();
 
     /**
      * Internal use only.
@@ -392,18 +392,6 @@ public class ATPlayer {
         });
     }
 
-    /**
-     * Moves a specified home to a new location.
-     *
-     * @param name the name of the home.
-     * @param newLocation the new location of the home.
-     * @param callback what to do after the home has been moved.
-     * @deprecated use {@link #moveHome(String, Location)} instead.
-     */
-    @Deprecated
-    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
-        moveHome(name, newLocation, callback, true);
-    }
 
     /**
      * Moves a specified home to a new location.
@@ -773,6 +761,7 @@ public class ATPlayer {
      * @return true if the player can access the home, false if they cannot.
      */
     public boolean canAccessHome(@NotNull final Home home) {
+
         // If the homes limit is -1, it's unlimited
         if (getHomesLimit() == -1) return true;
 
@@ -855,7 +844,8 @@ public class ATPlayer {
      * @return an ATPlayer object representing the player, but null if they haven't immediately loaded.
      */
     public static @Nullable ATPlayer getPlayer(@NotNull final String name) {
-            // If the player is cached, just return it
+
+        // If the player is cached, just return it
         if (players.containsKey(name.toLowerCase())) {
             return players.get(name.toLowerCase());
         }

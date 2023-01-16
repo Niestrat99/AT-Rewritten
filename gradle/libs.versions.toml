@@ -11,6 +11,7 @@ worldborder = "v2.1.2"
 chunkyborder = "52034550ef"
 authlib = "2.3.31"
 floodgate = "2.1.0-SNAPSHOT"
+lands = "6.0.2"
 griefprevention = "16.18"
 playerparticles = "8.2"
 worldguard = "7.0.7"
@@ -31,12 +32,12 @@ worldborder = { module = "com.github.PryPurity:WorldBorder", version.ref = "worl
 chunkyborder = { module = "com.github.pop4959:ChunkyBorder", version.ref = "chunkyborder" }
 authlib = { module = "com.mojang:authlib", version.ref = "authlib" }
 floodgate = { module = "org.geysermc.floodgate:api", version.ref = "floodgate" }
+lands = { module = "com.github.angeschossen:LandsAPI", version.ref = "lands" }
 griefprevention = { module = "com.github.TechFortress:GriefPrevention", version.ref = "griefprevention" }
 playerparticles = { module = "dev.esophose:playerparticles", version.ref = "playerparticles" }
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
 dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
-playerParticles = { module = "dev.esophose:playerparticles", version.ref = "playerParticles" }
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }

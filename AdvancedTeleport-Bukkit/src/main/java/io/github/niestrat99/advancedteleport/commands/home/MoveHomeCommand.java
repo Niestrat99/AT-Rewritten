@@ -69,6 +69,7 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                 () -> err != null,
                 "{home}", args[0]
         ));
+
         return true;
     }
 

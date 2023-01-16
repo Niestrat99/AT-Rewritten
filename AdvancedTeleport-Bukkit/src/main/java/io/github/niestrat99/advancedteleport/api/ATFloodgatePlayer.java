@@ -24,7 +24,6 @@ public final class ATFloodgatePlayer extends ATPlayer {
 
     private final @NotNull UUID floodgateUuid;
 
-
     @Contract(pure = true)
     protected ATFloodgatePlayer(@NotNull final Player player) throws IllegalStateException {
         super(player);
@@ -207,7 +206,8 @@ public final class ATFloodgatePlayer extends ATPlayer {
     }
 
     private void sendInputForm(@NotNull String command) {
-            // Builds the form
+            
+        // Builds the form
         CustomForm form = CustomForm.builder()
             .title(CustomMessages.getStringRaw("Forms." + command + "-title"))
             .input(CustomMessages.getStringRaw("Forms." + command + "-description"))

@@ -4,7 +4,6 @@ import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.ApiStatus;
@@ -25,9 +24,7 @@ public class Warp implements NamedLocation {
 
 
     private final @Nullable UUID creator;
-
     private final @NotNull String name;
-
     private @NotNull Location location;
     private final long createdTime;
     private long updatedTime;

@@ -196,7 +196,6 @@ public final class CoreClass extends JavaPlugin {
             .ifPresent(permission -> perms = permission);
     }
 
-
     public static void playSound(String type, String subType, Player target) {
         String sound = null;
         switch (type) {

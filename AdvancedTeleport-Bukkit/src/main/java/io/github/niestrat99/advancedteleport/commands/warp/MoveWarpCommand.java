@@ -47,7 +47,7 @@ public final class MoveWarpCommand extends AbstractWarpCommand {
             warp.setLocation(warpLoc, sender).thenAcceptAsync(result ->
                     CustomMessages.sendMessage(sender, "Info.movedWarp", "{warp}", args[0]));
         } else {
-            CustomMessages.sendMessage(sender, "Error.noWarpInput"); // TODO - no warp exists?
+            CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
 
         return true;

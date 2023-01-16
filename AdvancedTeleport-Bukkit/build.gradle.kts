@@ -118,7 +118,6 @@ dependencies {
             name = "dynmap-api"
         }
     }
-    compileOnly(libs.playerParticles)
 }
 
 publishing {

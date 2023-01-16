@@ -137,11 +137,11 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
         return "at.member.back";
     }
 
-
     @Override
     public @NotNull String getSection() {
         return "back";
     }
+
     @Override
     public @Nullable List<String> onTabComplete(
         @NotNull final CommandSender sender,
