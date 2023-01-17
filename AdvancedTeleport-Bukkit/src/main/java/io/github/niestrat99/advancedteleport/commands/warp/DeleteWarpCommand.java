@@ -46,8 +46,8 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
          if (warp != null) {
              warp.delete(sender).whenCompleteAsync((ignored, exception) -> CustomMessages.failable(
                      sender,
-                     "Error.deleteWarpFail", // TODO - see if this gets fixed in a later commit
-                     "Info.deletedWarp,",
+                     "Info.deletedWarp",
+                     "Error.deleteWarpFail",
                      () -> exception != null,
                      "{warp}", args[0]
              ));
