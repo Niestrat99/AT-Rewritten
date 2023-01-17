@@ -19,9 +19,9 @@ dependencyResolutionManagement {
     repositories.maven("https://repo.racci.dev/releases") { mavenContent { releasesOnly() } }
 
     versionCatalogs.create("libMinix") {
-        val minixVersion: String by settings
+        val build: String by settings
         val kotlinVersion: String by settings
-        val conventions = kotlinVersion.plus("-").plus(minixVersion.substringAfterLast('.'))
+        val conventions = "$kotlinVersion-$build"
         from("dev.racci:catalog:$conventions")
     }
 }
