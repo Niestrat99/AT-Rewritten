@@ -509,6 +509,7 @@ fun getCogChangelog(): String {
     println("Fetching changelog at v" + project.version.toString())
     val process = Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString())
     process.waitFor()
+    if (process.exitValue() != 0) return ""
     return process.inputStream.bufferedReader().readText()
 }
 

@@ -54,7 +54,7 @@ public final class Spawn extends ATConfig {
                 getFloat("spawns." + mainSpawn + ".pitch"));
     }
 
-    public void setSpawn(Location location, String name) throws IOException {
+    public void setSpawn(Location location, String name) {
         set("spawns." + name + ".x", location.getX());
         set("spawns." + name + ".y", location.getY());
         set("spawns." + name + ".z", location.getZ());
@@ -62,7 +62,11 @@ public final class Spawn extends ATConfig {
         set("spawns." + name + ".yaw", location.getYaw());
         set("spawns." + name + ".pitch", location.getPitch());
         set("spawns." + name + ".mirror", null);
-        save();
+        try {
+            save();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to set the spawn " + name + ": " + e.getMessage(), e);
+        }
         if (mainSpawn == null) {
             setMainSpawn(name, location);
         }
@@ -170,7 +174,7 @@ public final class Spawn extends ATConfig {
         try {
             save();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to set main spawnpoint " + id + ": " + e.getMessage());
+            throw new RuntimeException("Failed to set main spawnpoint " + id + ": " + e.getMessage(), e);
         }
     }
 

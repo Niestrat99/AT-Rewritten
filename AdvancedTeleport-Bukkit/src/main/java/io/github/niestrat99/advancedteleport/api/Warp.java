@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.api;
 
-import io.github.niestrat99.advancedteleport.api.data.ATException;
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
@@ -99,7 +99,7 @@ public class Warp implements NamedLocation {
      * @param location the new location of the warp.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setLocation(@NotNull final Location location) {
+    public CompletableFuture<Void> setLocation(@NotNull final Location location) {
         return setLocation(location, null);
     }
 
@@ -110,21 +110,21 @@ public class Warp implements NamedLocation {
      * @param sender the command sender who triggered the action.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
-        WarpMoveEvent event = new WarpMoveEvent(this, location, sender);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+    public CompletableFuture<Void> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
 
-        // Set the variables.
-        this.location = location;
-        this.updatedTime = System.currentTimeMillis();
+        // Make sure the event runs without any issues.
+        return AdvancedTeleportAPI.validateEvent(new WarpMoveEvent(this, location, sender), event -> {
 
-        // The warp was updated, so update the timestamp and update it in the database.
-        this.updatedTimeFormatted = format.format(new Date(updatedTime));
-        return CompletableFuture.supplyAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            WarpSQLManager.get().moveWarp(location, name, callback);
-            return callback.data;
+            // Set the variables.
+            this.location = event.getLocation();
+            this.updatedTime = System.currentTimeMillis();
+
+            // The warp was updated, so update the timestamp and update it in the database.
+            this.updatedTimeFormatted = format.format(new Date(updatedTime));
+
+            return CompletableFuture.runAsync(() -> {
+                WarpSQLManager.get().moveWarp(location, name, null);
+            }, CoreClass.async);
         });
     }
 
@@ -181,18 +181,17 @@ public class Warp implements NamedLocation {
      */
     public @NotNull CompletableFuture<Void> delete(@Nullable CommandSender sender) {
 
-        // Creates the event.
-        WarpDeleteEvent event = new WarpDeleteEvent(this, sender);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return ATException.failedFuture(event);
+        // Validate the event.
+        return AdvancedTeleportAPI.validateEvent(new WarpDeleteEvent(this, sender), event -> {
 
-        // Removes the warp in cache.
-        warps.remove(name);
+            // Removes the warp in cache.
+            warps.remove(name);
 
-        // Remove the warp in the database.
-        return CompletableFuture.runAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            WarpSQLManager.get().removeWarp(name, callback);
+            // Remove the warp in the database.
+            return CompletableFuture.runAsync(() -> {
+                AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
+                WarpSQLManager.get().removeWarp(name, callback);
+            });
         });
     }
 

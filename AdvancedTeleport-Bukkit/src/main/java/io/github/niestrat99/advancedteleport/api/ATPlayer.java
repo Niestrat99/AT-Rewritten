@@ -402,6 +402,7 @@ public class ATPlayer {
      * @param async true if the action should be done asynchronously, false if not.
      * @deprecated use {@link #moveHome(String, Location)} instead.
      */
+    @Deprecated
     public void moveHome(
         @NotNull final String name,
         @NotNull final Location newLocation,
