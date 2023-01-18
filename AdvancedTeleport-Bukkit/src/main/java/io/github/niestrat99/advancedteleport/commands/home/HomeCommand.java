@@ -69,6 +69,11 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
         // If there's no arguments specified...
         if (args.length == 0) {
 
+            if (MainConfig.get().SHOW_HOMES_WITH_NO_INPUT.get() &&
+                    !(atPlayer.hasMainHome() && MainConfig.get().PRIORITISE_MAIN_HOME.get())) {
+                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes"));
+            }
+
             // Try getting the main home - if it exists, teleport there
             Home home = atPlayer.getMainHome();
             if (home != null) {
@@ -125,6 +130,11 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
         if (args[0].equalsIgnoreCase("list")) {
             Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender,
                     "advancedteleport:homes " + args[0]));
+            return true;
+        }
+
+        if (MainConfig.get().SHOW_HOMES_WITH_NO_INPUT.get()) {
+            player.performCommand("advancedteleport:homes");
             return true;
         }
 
