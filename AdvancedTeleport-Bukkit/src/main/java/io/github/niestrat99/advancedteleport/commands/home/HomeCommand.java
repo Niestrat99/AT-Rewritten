@@ -51,7 +51,11 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
         }
 
         if (args.length == 0) {
-            if (atPlayer.hasMainHome()) {
+
+            if (NewConfig.get().SHOW_HOMES_WITH_NO_INPUT.get() &&
+                    !(atPlayer.hasMainHome() && NewConfig.get().PRIORITISE_MAIN_HOME.get())) {
+                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes"));
+            } else if (atPlayer.hasMainHome()) {
                 teleport(player, atPlayer.getMainHome());
             } else if (homes.size() == 1) {
                 String name = homes.keySet().iterator().next();
@@ -129,6 +133,9 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
             }
         } else if (args[0].equalsIgnoreCase("list")) {
             Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+            return true;
+        } else if (NewConfig.get().SHOW_HOMES_WITH_NO_INPUT.get()) {
+            player.performCommand("advancedteleport:homes");
             return true;
         } else {
             CustomMessages.sendMessage(sender, "Error.noSuchHome");
