@@ -92,6 +92,8 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> DENY_HOMES_IF_OVER_LIMIT;
     public ConfigOption<Boolean> HIDE_HOMES_IF_DENIED;
     public ConfigOption<Boolean> OVERWRITE_SETHOME;
+    public ConfigOption<Boolean> SHOW_HOMES_WITH_NO_INPUT;
+    public ConfigOption<Boolean> PRIORITISE_MAIN_HOME;
 
     public ConfigOption<String> TPA_REQUEST_RECEIVED;
     public ConfigOption<String> TPA_REQUEST_SENT;
@@ -491,6 +493,9 @@ public final class MainConfig extends ATConfig {
                 "If this is false, they will be greyed out in the /homes list.");
         addDefault("overwrite-sethome", false, "When enabled, setting homes with a name that already exists in your " +
                 "list gets overwritten.");
+        addDefault("show-homes-with-no-input", false, "Shows a list of homes the player has when doing /home and nothing else.\n" +
+                "This overwrites /home when attempting to teleport to their main home, but if you're more used to what Essentials does, set this to true.");
+        addDefault("prioritise-main-home", true, "If the player has a main home set, then the option above is ignored. I gotta be flexible.");
 
         addDefault("tpa-request-received", "none", "Notifications/Sounds",
                 """
@@ -794,6 +799,8 @@ public final class MainConfig extends ATConfig {
         DENY_HOMES_IF_OVER_LIMIT = new ConfigOption<>("deny-homes-if-over-limit");
         HIDE_HOMES_IF_DENIED = new ConfigOption<>("hide-homes-if-denied");
         OVERWRITE_SETHOME = new ConfigOption<>("overwrite-sethome");
+        SHOW_HOMES_WITH_NO_INPUT = new ConfigOption<>("show-homes-with-no-input");
+        PRIORITISE_MAIN_HOME = new ConfigOption<>("prioritise-main-home");
 
         TPA_REQUEST_RECEIVED = new ConfigOption<>("tpa-request-received");
         TPA_REQUEST_SENT = new ConfigOption<>("tpa-request-sent");
