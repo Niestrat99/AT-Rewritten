@@ -66,6 +66,7 @@ public class CommandManager {
         register("removespawn", new RemoveSpawn());
         register("setmainspawn", new SetMainSpawn());
 
+        subcommands.put("clearcache", new ClearCacheCommand());
         subcommands.put("import", new ImportCommand());
         subcommands.put("help", new HelpCommand());
         subcommands.put("reload", new ReloadCommand());

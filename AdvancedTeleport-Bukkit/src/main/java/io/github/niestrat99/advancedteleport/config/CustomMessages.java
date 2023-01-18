@@ -138,6 +138,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Error.mirrorSpawnFail", "&b↑ &8» &7Failed to mirror &b{from}&7's spawnpoint to &b{spawn}&7!");
         addDefault("Error.removeSpawnFail", "&b↑ &8» &7Failed to remove the spawnpoint &b{spawn}&7!");
         addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
+        addDefault("Error.rtpManagerNotUsed", "&b↑ &8» &7The feature required for this command is not enabled!");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -222,6 +223,8 @@ public class CustomMessages extends ATConfig {
                 "Click/hover over this text for more information.]" +
                 "(&bCurrent Version &8» &7{version}|&bNew Version &8» &7{new-version}|&bTitle &8» &7{title}" +
                 "|https://www.spigotmc.org/resources/advancedteleport.64139/)");
+        addDefault("Info.clearEverything", "&b↑ &8» &7The RTP cache has been fully cleared!");
+        addDefault("Info.clearWorld", "&b↑ &8» &7The RTP cache has cleared for {world}!");
 
         addDefault("Tooltip.homes", "&b↑ &8» &7Teleports you to your home: &b{home}");
         addDefault("Tooltip.warps", "&b↑ &8» &7Teleports you to warp: &b{warp}");
@@ -236,6 +239,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Descriptions.Subcommands.import", "Imports data from another plugin so that it can be used within AT.");
         addDefault("Descriptions.Subcommands.export", "Exports data within AT to another plugin.");
         addDefault("Descriptions.Subcommands.reload", "Reloads the plugin's configuration.");
+        addDefault("Descriptions.Subcommands.clearcache", "Clears the RTP cache.");
         addDefault("Descriptions.at", "The core command for AT.");
         addDefault("Descriptions.tpa", "Sends a request to teleport to the player.");
         addDefault("Descriptions.tpahere", "Sends a request to the player to teleport to you.");
@@ -280,6 +284,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Usages.Subcommands.export", "/at export <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
         addDefault("Usages.Subcommands.purge", "/at purge <Homes|Warps> <Player|World> <Player Name|World Name>");
         addDefault("Usages.Subcommands.reload", "/at reload");
+        addDefault("Usages.Subcommands.clearcache", "/at clearcache [World]");
         addDefault("Usages.at", "/at <Command>");
         addDefault("Usages.tpa", "/tpa <Player>");
         addDefault("Usages.tpahere", "/tpahere <Player>");
