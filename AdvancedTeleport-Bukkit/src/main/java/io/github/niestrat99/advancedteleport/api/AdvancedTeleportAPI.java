@@ -195,9 +195,8 @@ public final class AdvancedTeleportAPI {
             @NotNull final String toSpawnID,
             @Nullable final CommandSender sender
     ) {
-        return validateEvent(new SpawnMirrorEvent(fromWorld, toSpawnID, sender), event -> CompletableFuture.runAsync(() -> {
-            Spawn.get().mirrorSpawn(event.getFromWorld(), event.getToWorld());
-        }, CoreClass.async));
+        return validateEvent(new SpawnMirrorEvent(fromWorld, toSpawnID, sender), event ->
+                CompletableFuture.runAsync(() -> Spawn.get().mirrorSpawn(event.getFromWorld(), event.getToWorld()), CoreClass.async));
     }
 
     static class FlattenedCallback<D> implements SQLManager.SQLCallback<D> {

@@ -185,13 +185,7 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         for (String key : spawns.getKeys(false)) {
             ConfigurationSection spawnSection = spawns.getConfigurationSection(key);
             Location loc = getLocationFromSection(spawnSection);
-            try {
-                Spawn.get().setSpawn(loc, key);
-            } catch (IOException e) {
-                CoreClass.getInstance().getLogger().severe("Failed to set spawn " + key + ": " + e.getMessage());
-                e.printStackTrace();
-                continue;
-            }
+            Spawn.get().setSpawn(loc, key);
             debug("Set spawn for " + key);
             if (key.equals("default")) {
                 setMainSpawn = true;

@@ -78,6 +78,7 @@ public final class SetIconCommand extends SubATCommand {
                         .toList(),
                     new ArrayList<>()
                 );
+                default -> new ArrayList<>();
             };
         }
 
@@ -89,6 +90,7 @@ public final class SetIconCommand extends SubATCommand {
                     .map(homes -> StringUtil.copyPartialMatches(args[2], homes, new ArrayList<>()))
                     .map(List.class::cast) // Cast so we can return the empty list.
                     .orElse(List.of());
+                default -> new ArrayList<>();
                 };
             }
 
