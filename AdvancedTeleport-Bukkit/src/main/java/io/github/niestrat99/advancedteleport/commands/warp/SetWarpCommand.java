@@ -41,8 +41,14 @@ public final class SetWarpCommand extends AbstractWarpCommand implements PlayerC
         Location warp = player.getLocation();
 
         if (!AdvancedTeleportAPI.isWarpSet(args[0])) {
-            AdvancedTeleportAPI.setWarp(args[0], player, warp).thenAcceptAsync(result ->
-                    CustomMessages.sendMessage(sender, "Info.setWarp", "{warp}", args[0]));
+            AdvancedTeleportAPI.setWarp(args[0], player, warp).whenComplete((result, err) -> CustomMessages.failableContextualPath(
+                    sender,
+                    player.getUniqueId(),
+                    "Info.setWarp",
+                    "Error.setWarpFail",
+                    () -> err == null,
+                    "{warp}", result.getName()
+            ));
         } else {
             CustomMessages.sendMessage(sender, "Error.warpAlreadySet", "{warp}", args[0]);
         }

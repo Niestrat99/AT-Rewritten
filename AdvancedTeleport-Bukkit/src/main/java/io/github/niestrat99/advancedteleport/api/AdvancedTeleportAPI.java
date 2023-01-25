@@ -34,9 +34,9 @@ public final class AdvancedTeleportAPI {
     private AdvancedTeleportAPI() {}
 
     @ApiStatus.Internal
-    public static <T extends CancellableATEvent> @NotNull CompletableFuture<Void> validateEvent(
+    public static <T extends CancellableATEvent, R> @NotNull CompletableFuture<R> validateEvent(
         @NotNull final T event,
-        @NotNull final Function<T, CompletableFuture<Void>> validatedEvent
+        @NotNull final Function<T, CompletableFuture<R>> validatedEvent
     ) {
         if (event.callEvent()) {
             return validatedEvent.apply(event);
@@ -58,7 +58,7 @@ public final class AdvancedTeleportAPI {
      * @return a completable future action of the saved warp.
      * @throws IllegalArgumentException if the world of the warp is not loaded.
      */
-    public static @NotNull CompletableFuture<Void> setWarp(
+    public static @NotNull CompletableFuture<Warp> setWarp(
         @NotNull final String name,
         @Nullable final CommandSender creator,
         @NotNull final Location location
@@ -69,13 +69,24 @@ public final class AdvancedTeleportAPI {
         if (!location.isWorldLoaded()) return ATException.failedFuture("The world the warp is being set in must be loaded.");
 
         return validateEvent(new WarpCreateEvent(name, creator, location), event -> {
-            final var warp = new Warp(
+
+            // Create the warp object
+            final Warp warp = new Warp(
                     maybePlayer(event.getSender()).map(Player::getUniqueId).orElse(null),
                     event.getName(),
                     event.getLocation(),
                     System.currentTimeMillis(), System.currentTimeMillis()
             );
-            return null;
+
+            // Add the warp
+            return CompletableFuture.runAsync(() -> WarpSQLManager.get().addWarp(warp, null)).thenApply(ignored -> {
+
+                // Call the event
+                final WarpPostCreateEvent postCreateEvent = new WarpPostCreateEvent(warp);
+                Bukkit.getServer().getPluginManager().callEvent(postCreateEvent);
+
+                return warp;
+            });
         });
     }
 
