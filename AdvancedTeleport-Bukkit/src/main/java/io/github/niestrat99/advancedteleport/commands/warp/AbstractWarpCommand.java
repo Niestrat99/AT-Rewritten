@@ -12,11 +12,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractWarpCommand implements ATCommand {
+public abstract class AbstractWarpCommand extends ATCommand {
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args
+    ) {
 
         // Set up the resulting tab completion options
         List<String> results = new ArrayList<>();

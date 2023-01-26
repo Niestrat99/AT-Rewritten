@@ -17,11 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class SetHomeCommand implements PlayerCommand {
+public final class SetHomeCommand extends AbstractHomeCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
@@ -73,17 +77,14 @@ public class SetHomeCommand implements PlayerCommand {
         }
 
         // Attempt to add the home.
-        atPlayer.addHome(homeName, sender.getLocation(), sender).handle((x, e) -> {
-            if (e != null) {
-                CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName, "{player}", playerName);
-                e.printStackTrace();
-                return x;
-            }
-
-            CustomMessages.sendMessage(sender, (sender.getUniqueId() == player ? "Info.setHome" : "Info.setHomeOther"),
-                    "{home}", homeName, "{player}", playerName);
-            return x;
-        });
+        atPlayer.addHome(homeName, sender.getLocation(), sender).whenComplete((ignored, err) -> CustomMessages.failableContextualPath(
+                sender,
+                player,
+                "Info.homeSet",
+                "Error.setHomeFail",
+                () -> err == null,
+                "{home}", homeName, "{player}", playerName
+        ));
     }
 
     @Override
@@ -92,14 +93,17 @@ public class SetHomeCommand implements PlayerCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.sethome";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command,
-                                      @NotNull String s, @NotNull String[] strings) {
+    public @NotNull List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return new ArrayList<>();
     }
 }

@@ -11,11 +11,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class DeleteWarpCommand extends AbstractWarpCommand {
+public final class DeleteWarpCommand extends AbstractWarpCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args
+    ) {
 
         // If the command can't proceed due to being disabled, stop there
         if (!canProceed(sender)) return true;
@@ -40,13 +44,13 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
 
         // If the warp exists, delete it.
          if (warp != null) {
-             warp.delete(sender).handle((x, e) -> {
-                 if (e != null) e.printStackTrace();
-
-                 CustomMessages.sendMessage(sender, (e == null) ? "Info.deletedWarp" : "Error.deleteWarpFail",
-                         "{warp}", args[0]);
-                 return x;
-         });
+             warp.delete(sender).whenCompleteAsync((ignored, exception) -> CustomMessages.failable(
+                     sender,
+                     "Info.deletedWarp",
+                     "Error.deleteWarpFail",
+                     () -> exception != null,
+                     "{warp}", args[0]
+             ));
         } else {
             CustomMessages.sendMessage(sender, "Error.noWarpInput");
         }
@@ -54,7 +58,7 @@ public class DeleteWarpCommand extends AbstractWarpCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.delwarp";
     }
 }

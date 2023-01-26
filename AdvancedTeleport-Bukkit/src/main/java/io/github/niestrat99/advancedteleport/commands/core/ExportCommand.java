@@ -10,17 +10,20 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ExportCommand implements SubATCommand {
+public final class ExportCommand extends SubATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-
+    public boolean onCommand(
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args
+    ) {
         // If there's no arguments contained, stop there
         if (args.length == 0) {
             // TODO - send message
@@ -28,15 +31,14 @@ public class ExportCommand implements SubATCommand {
         }
 
         // Attempt to get the plugin
-        String pluginName = args[0].toLowerCase();
-        ImportExportPlugin plugin = PluginHookManager.get().getImportPlugin(pluginName);
-        if (plugin == null) {
+        final var pluginHook = ImportCommand.getImportExportPlugin(sender, args);
+        if (pluginHook == null) {
             CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
             return true;
         }
 
         // If the plugin is unable to import/export data, let the player know
-        if (!plugin.canImport()) {
+        if (!pluginHook.canImport()) {
             CustomMessages.sendMessage(sender, "Error.cantExport", "{plugin}", args[0]);
             return true;
         }
@@ -47,7 +49,7 @@ public class ExportCommand implements SubATCommand {
 
             // Export it asynchronously
             Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                plugin.exportAll();
+                pluginHook.exportAll();
                 CustomMessages.sendMessage(sender, "Info.exportFinished", "{plugin}", args[0]);
             });
             return true;
@@ -57,30 +59,39 @@ public class ExportCommand implements SubATCommand {
         CustomMessages.sendMessage(sender, "Info.exportStarted", "{plugin}", args[0]);
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             switch (args[1].toLowerCase()) {
-                case "homes" -> plugin.exportHomes();
-                case "warps" -> plugin.exportWarps();
-                case "lastlocs" -> plugin.exportLastLocations();
-                case "spawns" -> plugin.exportSpawn();
-                case "players" -> plugin.exportPlayerInformation();
-                default -> plugin.exportAll();
+                case "homes" -> pluginHook.exportHomes();
+                case "warps" -> pluginHook.exportWarps();
+                case "lastlocs" -> pluginHook.exportLastLocations();
+                case "spawns" -> pluginHook.exportSpawn();
+                case "players" -> pluginHook.exportPlayerInformation();
+                default -> pluginHook.exportAll();
             }
             CustomMessages.sendMessage(sender, "Info.exportFinished", "{plugin}", args[0]);
         });
-        return false;
+
+        return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        List<String> results = new ArrayList<>();
-        List<String> possibilities = new ArrayList<>();
+    public @NotNull List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
+        final var possibilities = new ArrayList<String>();
+
         if (args.length == 1) {
-            possibilities.addAll(PluginHookManager.get().getImportPlugins().keySet());
+            possibilities.addAll(PluginHookManager.get()
+                .getPluginHooks(ImportExportPlugin.class, true)
+                .collect(ArrayList::new, (list, plugin) -> list.add(plugin.pluginName()), ArrayList::addAll)
+            );
         }
+
         if (args.length == 2) {
             possibilities.addAll(Arrays.asList("all", "homes", "lastlocs", "warps", "spawns", "players"));
         }
-        StringUtil.copyPartialMatches(args[args.length - 1], possibilities, results);
-        return results;
+
+        return StringUtil.copyPartialMatches(args[args.length - 1], possibilities, new ArrayList<>());
     }
 }

@@ -4,18 +4,23 @@ import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * The event fired when a warp is deleted.
  */
-public class WarpDeleteEvent extends TrackableATEvent {
+public final class WarpDeleteEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
     private final @NotNull Warp warp;
 
-    public WarpDeleteEvent(@NotNull Warp warp, @Nullable CommandSender sender) {
+    @Contract(pure = true)
+    public WarpDeleteEvent(
+        @NotNull final Warp warp,
+        @Nullable final CommandSender sender
+    ) {
         super(sender);
         this.warp = warp;
     }
@@ -25,18 +30,19 @@ public class WarpDeleteEvent extends TrackableATEvent {
      *
      * @return the warp being deleted.
      */
-    @NotNull
-    public Warp getWarp() {
+    @Contract(pure = true)
+    public @NotNull Warp getWarp() {
         return warp;
     }
 
-    @NotNull
     @Override
-    public HandlerList getHandlers() {
+    @Contract(pure = true)
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Contract(pure = true)
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 }

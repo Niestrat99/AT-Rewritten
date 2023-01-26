@@ -1,10 +1,13 @@
-\.idea
-*.class
-\target
-*.jar
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+/.idea/
+/lib
+/libs
+.run
+
+# Ignore bogus files
 *.iml
-\.gradle
-\build
-AdvancedTeleport-Bukkit\.gradle
-AdvancedTeleport-Bukkit\build
-AdvancedTeleport-Bukkit\src\main\resources\META-INF
+*.class

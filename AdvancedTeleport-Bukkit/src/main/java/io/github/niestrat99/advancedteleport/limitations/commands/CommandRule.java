@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a teleportation rule controlled by the command.
@@ -16,7 +17,7 @@ public abstract class CommandRule {
     protected @NotNull List<String> worlds;
     protected boolean inclusive;
 
-    public CommandRule(@NotNull String commandRule) {
+    protected CommandRule(@NotNull String commandRule) {
 
         // Create the worlds list.
         worlds = new ArrayList<>();
@@ -40,6 +41,8 @@ public abstract class CommandRule {
      * @param toLoc the destination location.
      * @return true if the player can teleport to the destination location, false if not.
      */
-    public abstract boolean canTeleport(Player player, Location toLoc);
-
+    public abstract boolean canTeleport(
+        @NotNull final Player player,
+        @NotNull final Location toLoc
+    );
 }

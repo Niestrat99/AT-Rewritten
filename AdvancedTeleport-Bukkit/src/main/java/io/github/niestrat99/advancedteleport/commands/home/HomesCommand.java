@@ -22,34 +22,34 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class HomesCommand implements ATCommand {
+public final class HomesCommand extends AbstractHomeCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-        if (args.length > 0) {
-            if (sender.hasPermission("at.admin.homes")) {
-                ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
-                    if (player.getHomes() == null || player.getHomes().size() == 0) {
-                        CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
-                        return;
-                    }
-                    getHomes(sender, player.getOfflinePlayer());
-                });
-                return true;
-            }
+
+        if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
+            ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
+                if (player.getHomes() == null || player.getHomes().size() == 0) {
+                    CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
+                    return;
+                }
+                getHomes(sender, player.getOfflinePlayer());
+            });
+            return true;
         }
-        if (sender instanceof Player) {
-            getHomes(sender, (Player) sender);
-        } else {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-        }
+
+        getHomes(sender, (Player) sender);
         return true;
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.homes";
     }
 
@@ -61,8 +61,8 @@ public class HomesCommand implements ATCommand {
     private void getHomes(CommandSender sender, OfflinePlayer target) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
-        if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
-            ((ATFloodgatePlayer) atPlayer).sendHomeForm();
+        if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+            atFloodgatePlayer.sendHomeForm();
             return;
         }
 

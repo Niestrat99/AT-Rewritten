@@ -12,16 +12,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class TpNo extends TeleportATCommand implements PlayerCommand {
+public final class TpNo extends TeleportATCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
         Player player = (Player) sender;
         TeleportRequest request = TeleportTests.teleportTests(player, args, "tpano");
         if (request == null) return true;
-        TeleportDenyEvent event = new TeleportDenyEvent(request.getResponder(), request.getRequester(), request.getType());
+        TeleportDenyEvent event = new TeleportDenyEvent(request.responder(), request.requester(), request.type());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             // Could not deny request
@@ -31,7 +35,7 @@ public class TpNo extends TeleportATCommand implements PlayerCommand {
         if (args.length > 0) {
             target = Bukkit.getPlayer(args[0]);
         } else {
-            target = request.getRequester();
+            target = request.requester();
         }
         CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", "{player}", player.getName());
         CustomMessages.sendMessage(player, "Info.requestDeclined");
@@ -40,7 +44,7 @@ public class TpNo extends TeleportATCommand implements PlayerCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.no";
     }
 }

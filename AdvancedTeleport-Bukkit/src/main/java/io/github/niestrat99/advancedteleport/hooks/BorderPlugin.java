@@ -1,12 +1,30 @@
 package io.github.niestrat99.advancedteleport.hooks;
 
+import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A plugin that sets up a border around a given world.
  */
-public abstract class BorderPlugin {
+public abstract class BorderPlugin<P extends Plugin, R> extends PluginHook<P, R> {
+
+    @Contract(pure = true)
+    protected BorderPlugin(
+            @Nullable final String pluginName,
+            @Nullable final Class<?> provider
+    ) {
+        super(pluginName);
+    }
+
+    @Contract(pure = true)
+    protected BorderPlugin(@Nullable final String pluginName) {
+        super(pluginName, null);
+    }
 
     /**
      * Checks if the plugin is enabled and there is a world border for the given world.
@@ -14,7 +32,9 @@ public abstract class BorderPlugin {
      * @param world the world to check.
      * @return true if the plugin is enabled and there is a viable world border, false if not.
      */
-    public abstract boolean canUse(World world);
+    public boolean canUse(@NotNull final World world) {
+        return NewConfig.get().USE_PLUGIN_BORDERS.get() && this.pluginUsable();
+    }
 
     /**
      * Returns the minimum X coordinate of the world border.
@@ -22,7 +42,7 @@ public abstract class BorderPlugin {
      * @param world the world to check.
      * @return the minimum X coordinate of the world border.
      */
-    public abstract double getMinX(World world);
+    public abstract double getMinX(@NotNull final World world);
 
     /**
      * Returns the minimum Z coordinate of the world border.
@@ -30,7 +50,7 @@ public abstract class BorderPlugin {
      * @param world the world to check.
      * @return the minimum Z coordinate of the world border.
      */
-    public abstract double getMinZ(World world);
+    public abstract double getMinZ(@NotNull final World world);
 
     /**
      * Returns the maximum X coordinate of the world border.
@@ -38,7 +58,7 @@ public abstract class BorderPlugin {
      * @param world the world to check.
      * @return the maximum X coordinate of the world border.
      */
-    public abstract double getMaxX(World world);
+    public abstract double getMaxX(@NotNull final World world);
 
     /**
      * Returns the maximum Z coordinate of the world border.
@@ -46,7 +66,7 @@ public abstract class BorderPlugin {
      * @param world the world to check.
      * @return the maximum Z coordinate of the world border.
      */
-    public abstract double getMaxZ(World world);
+    public abstract double getMaxZ(@NotNull final World world);
 
     /**
      * Returns the centre of the world border.
@@ -54,5 +74,5 @@ public abstract class BorderPlugin {
      * @param world the world to check.
      * @return the location of the centre at Y 128.
      */
-    public abstract Location getCentre(World world);
+    public abstract @NotNull Location getCentre(@NotNull final World world);
 }

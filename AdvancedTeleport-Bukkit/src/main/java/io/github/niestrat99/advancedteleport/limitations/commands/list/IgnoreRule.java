@@ -3,18 +3,22 @@ package io.github.niestrat99.advancedteleport.limitations.commands.list;
 import io.github.niestrat99.advancedteleport.limitations.commands.CommandRule;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a rule that leads to a teleportation being cancelled depending on the world context.
  */
-public class IgnoreRule extends CommandRule {
+public final class IgnoreRule extends CommandRule {
 
-    public IgnoreRule(String commandRule) {
+    public IgnoreRule(@NotNull final String commandRule) {
         super(commandRule);
     }
 
     @Override
-    public boolean canTeleport(Player player, Location toLoc) {
+    public boolean canTeleport(
+        @NotNull final Player player,
+        @NotNull final Location toLoc
+    ) {
 
         // If the worlds aren't loaded, stop there
         if (player.getLocation().getWorld() == null) return false;

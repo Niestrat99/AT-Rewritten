@@ -3,12 +3,13 @@ package io.github.niestrat99.advancedteleport.api.events;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Fired when a player is teleporting using AT.
  */
-public class ATTeleportEvent extends CancellableATEvent {
+public final class ATTeleportEvent extends CancellableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
     private final @NotNull Player player;
@@ -17,8 +18,14 @@ public class ATTeleportEvent extends CancellableATEvent {
     private final @NotNull String locName;
     private @NotNull Location toLoc;
 
-    public ATTeleportEvent(@NotNull Player player, @NotNull Location toLoc, @NotNull Location fromLoc,
-                           @NotNull String locName, @NotNull TeleportType type) {
+    @Contract(pure = true)
+    public ATTeleportEvent(
+        @NotNull final Player player,
+        @NotNull final Location toLoc,
+        @NotNull final Location fromLoc,
+        @NotNull final String locName,
+        @NotNull final TeleportType type
+    ) {
         this.player = player;
         this.toLoc = toLoc;
         this.fromLoc = fromLoc;
@@ -27,40 +34,43 @@ public class ATTeleportEvent extends CancellableATEvent {
     }
 
     @Override
-    public HandlerList getHandlers() {
+    @Contract(pure = true)
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    // Also needs this, useless but ok
-    public static HandlerList getHandlerList() {
+    @Contract(pure = true)
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 
-    public Location getFromLocation() {
+    @Contract(pure = true)
+    public @NotNull Location getFromLocation() {
         return fromLoc;
     }
 
-    @NotNull
-    public Location getToLocation() {
+    @Contract(pure = true)
+    public @NotNull Location getToLocation() {
         return toLoc;
     }
 
-    @NotNull
-    public Player getPlayer() {
+    @Contract(pure = true)
+    public @NotNull Player getPlayer() {
         return player;
     }
 
-    @NotNull
-    public TeleportType getType() {
+    @Contract(pure = true)
+    public @NotNull TeleportType getType() {
         return type;
     }
 
-    @NotNull
-    public String getLocName() {
+    @Contract(pure = true)
+    public @NotNull String getLocName() {
         return locName;
     }
 
-    public void setToLocation(@NotNull Location toLoc) {
+    @Contract(pure = true)
+    public void setToLocation(@NotNull final Location toLoc) {
         this.toLoc = toLoc;
     }
 
@@ -75,19 +85,24 @@ public class ATTeleportEvent extends CancellableATEvent {
         BACK(true, "back"),
         TPLOC(false, "tploc");
 
-        private boolean restricted;
-        private String name;
+        private final boolean restricted;
+        private final String name;
 
-        TeleportType(boolean restricted, String name) {
+        TeleportType(
+            final boolean restricted,
+            @NotNull final String name
+        ) {
             this.restricted = restricted;
             this.name = name;
         }
 
+        @Contract(pure = true)
         public boolean isRestricted() {
             return restricted;
         }
 
-        public String getName() {
+        @Contract(pure = true)
+        public @NotNull String getName() {
             return name;
         }
     }

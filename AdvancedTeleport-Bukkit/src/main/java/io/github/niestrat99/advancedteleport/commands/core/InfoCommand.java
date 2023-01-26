@@ -5,16 +5,22 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class InfoCommand implements SubATCommand {
+public final class InfoCommand extends SubATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    @Contract(value = "_, _, _, _ -> true", pure = true)
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String label,
+        @NotNull final String[] args
+    ) {
         sender.sendMessage(ChatColor.GOLD + "--[" + ChatColor.AQUA + "AdvancedTeleport" + ChatColor.GOLD + "]--");
         sender.sendMessage(ChatColor.GOLD + "- Developed by " + ChatColor.AQUA + "Niestrat99" + ChatColor.GOLD + " and " + ChatColor.AQUA + "Thatsmusic99");
         sender.sendMessage(ChatColor.GOLD + "- Version: " + ChatColor.AQUA + CoreClass.getInstance().getDescription().getVersion());
@@ -28,9 +34,14 @@ public class InfoCommand implements SubATCommand {
         return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+    @Contract(value = "_, _, _, _ -> null", pure = true)
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender commandSender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] strings
+    ) {
         return null;
     }
 }

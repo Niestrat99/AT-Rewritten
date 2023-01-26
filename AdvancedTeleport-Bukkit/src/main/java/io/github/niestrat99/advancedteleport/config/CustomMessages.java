@@ -1,17 +1,22 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
+import java.util.function.BooleanSupplier;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.*;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
-public class CustomMessages extends ATConfig {
+public final class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
@@ -141,6 +146,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Error.blockFail", "&b↑ &8» &7Failed to save the block against &b{player}&7!");
         addDefault("Error.unblockFail", "&b↑ &8» &7Failed to save the block removal against &b{player}&7!");
         addDefault("Error.noParticlePlugins", "&b↑ &8» &7There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
+        addDefault("Error.setWarpFail", "&b↑ &8» &7Failed to set the warp {warp}!");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
@@ -447,6 +453,58 @@ public class CustomMessages extends ATConfig {
             }
         }
         FancyMessage.send(sender);
+    }
+
+    @Contract(pure = true)
+    public static @NotNull String contextualPath(
+        @NotNull final CommandSender sender,
+        @NotNull final UUID target,
+        @NotNull final String path
+    ) { return sender instanceof OfflinePlayer player && player.getUniqueId() == target ? path : (path + "Other"); }
+
+    @Contract(pure = true)
+    public static void failableContextualPath(
+        @NotNull final CommandSender sender,
+        @NotNull final UUID target,
+        @NotNull final String path,
+        @NotNull final String errorPath,
+        @NotNull final BooleanSupplier isError,
+        final String... placeholders
+    ) {
+        final var truePath = isError.getAsBoolean() ? errorPath : contextualPath(sender, target, path);
+        sendMessage(sender, truePath, placeholders);
+    }
+
+    @Contract(pure = true)
+    public static void failableContextualPath(
+        @NotNull final CommandSender sender,
+        @NotNull final OfflinePlayer target,
+        @NotNull final String path,
+        @NotNull final String errorPath,
+        @NotNull final BooleanSupplier isError,
+        final String... placeholders
+    ) { failableContextualPath(sender, target.getUniqueId(), path, errorPath, isError, placeholders); }
+
+    @Contract(pure = true)
+    public static void failableContextualPath(
+        @NotNull final CommandSender sender,
+        @NotNull final ATPlayer target,
+        @NotNull final String path,
+        @NotNull final String errorPath,
+        @NotNull final BooleanSupplier isError,
+        final String... placeholders
+    ) { failableContextualPath(sender, target.uuid(), path, errorPath, isError, placeholders); }
+
+    @Contract(pure = true)
+    public static void failable(
+        @NotNull final CommandSender sender,
+        @NotNull final String path,
+        @NotNull final String errorPath,
+        @NotNull final BooleanSupplier isError,
+        final String... placeholders
+    ) {
+        final var truePath = isError.getAsBoolean() ? errorPath : path;
+        sendMessage(sender, truePath, placeholders);
     }
 
     private static boolean supportsTitles() {
