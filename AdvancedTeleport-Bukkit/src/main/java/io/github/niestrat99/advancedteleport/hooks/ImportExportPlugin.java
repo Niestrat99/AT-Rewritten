@@ -2,8 +2,24 @@ package io.github.niestrat99.advancedteleport.hooks;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import java.util.logging.Level;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class ImportExportPlugin {
+public abstract class ImportExportPlugin<P extends Plugin, R> extends PluginHook<P ,R> {
+
+    @Contract(pure = true)
+    protected ImportExportPlugin(
+        @Nullable final String pluginName,
+        @Nullable final Class<R> providerClazz
+    ) {
+        super(pluginName, providerClazz);
+    }
+
+    @Contract(pure = true)
+    protected ImportExportPlugin(@Nullable final String pluginName) {
+        super(pluginName, null);
+    }
 
     public abstract boolean canImport();
 

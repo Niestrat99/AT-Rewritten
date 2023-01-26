@@ -14,14 +14,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class Tpo extends TeleportATCommand implements PlayerCommand {
+public final class Tpo extends TeleportATCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-
         Player player = (Player) sender;
+
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
             if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
@@ -46,7 +50,7 @@ public class Tpo extends TeleportATCommand implements PlayerCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.tpo";
     }
 }

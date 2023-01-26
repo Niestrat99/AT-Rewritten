@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.api.Title;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class NewConfig extends ATConfig {
+public final class NewConfig extends ATConfig {
 
     public ConfigOption<Boolean> USE_BASIC_TELEPORT_FEATURES;
     public ConfigOption<Boolean> USE_WARPS;
@@ -32,7 +31,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
     public PerCommandOption<Integer> WARM_UPS;
-    public ConfigOption<ConfigurationSection> CUSTOM_WARM_UPS;
+    public ConfigOption<ConfigSection> CUSTOM_WARM_UPS;
 
     public ConfigOption<Boolean> BLINDNESS_ON_WARMUP;
 
@@ -41,11 +40,11 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS;
     public ConfigOption<String> APPLY_COOLDOWN_AFTER;
     public PerCommandOption<Integer> COOLDOWNS;
-    public ConfigOption<ConfigurationSection> CUSTOM_COOLDOWNS;
+    public ConfigOption<ConfigSection> CUSTOM_COOLDOWNS;
 
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
-    public ConfigOption<ConfigurationSection> CUSTOM_COSTS;
+    public ConfigOption<ConfigSection> CUSTOM_COSTS;
 
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
@@ -66,7 +65,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS;
     public PerCommandOption<Integer> DISTANCE_LIMITS;
-    public ConfigOption<ConfigurationSection> CUSTOM_DISTANCE_LIMITS;
+    public ConfigOption<ConfigSection> CUSTOM_DISTANCE_LIMITS;
 
     public ConfigOption<Boolean> ENABLE_TELEPORT_LIMITATIONS;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS_LIMITS;
@@ -76,10 +75,6 @@ public class NewConfig extends ATConfig {
 
     public ConfigOption<ConfigSection> X;
     public ConfigOption<ConfigSection> Z;
-    @Deprecated public ConfigOption<Integer> MAXIMUM_X;
-    @Deprecated public ConfigOption<Integer> MAXIMUM_Z;
-    @Deprecated public ConfigOption<Integer> MINIMUM_X;
-    @Deprecated public ConfigOption<Integer> MINIMUM_Z;
     public ConfigOption<Boolean> RAPID_RESPONSE;
     public ConfigOption<Boolean> USE_VANILLA_BORDER;
     public ConfigOption<Boolean> USE_PLUGIN_BORDERS;
@@ -780,10 +775,6 @@ public class NewConfig extends ATConfig {
 
         X = new ConfigOption<>("x");
         Z = new ConfigOption<>("z");
-        MAXIMUM_X = new ConfigOption<>("maximum-x");
-        MAXIMUM_Z = new ConfigOption<>("maximum-z");
-        MINIMUM_X = new ConfigOption<>("minimum-x");
-        MINIMUM_Z = new ConfigOption<>("minimum-z");
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
         USE_VANILLA_BORDER = new ConfigOption<>("use-vanilla-border");
         USE_PLUGIN_BORDERS = new ConfigOption<>("use-plugin-borders");

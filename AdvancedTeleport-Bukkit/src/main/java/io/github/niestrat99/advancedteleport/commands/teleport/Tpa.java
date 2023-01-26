@@ -20,12 +20,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
-public class Tpa extends TeleportATCommand implements TimedATCommand {
+public final class Tpa extends TeleportATCommand implements TimedATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
@@ -96,12 +99,12 @@ public class Tpa extends TeleportATCommand implements TimedATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.tpa";
     }
 
     @Override
-    public String getSection() {
+    public @NotNull String getSection() {
         return "tpa";
     }
 }

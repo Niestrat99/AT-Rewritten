@@ -10,14 +10,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class ToggleTP extends TeleportATCommand implements PlayerCommand {
+public final class ToggleTP extends TeleportATCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args
+    ) {
 
         // If the command can't proceed, stop there
         if (!canProceed(sender)) return true;
+
+        Player player = (Player) sender;
 
         // If more than one argument has been specified, see if the sender can change the teleportation state of another player
         if (args.length > 0 && sender.hasPermission("at.admin.toggletp")) {
@@ -45,7 +51,6 @@ public class ToggleTP extends TeleportATCommand implements PlayerCommand {
             return true;
 
         }
-        Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (atPlayer.isTeleportationEnabled()) {
             atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(callback -> CustomMessages.sendMessage(sender, "Info.tpOff"));
@@ -57,7 +62,7 @@ public class ToggleTP extends TeleportATCommand implements PlayerCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.toggletp";
     }
 }

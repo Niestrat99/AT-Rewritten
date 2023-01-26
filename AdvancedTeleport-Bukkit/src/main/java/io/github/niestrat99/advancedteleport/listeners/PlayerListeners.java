@@ -7,17 +7,18 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
-import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.NotNull;
 
-public class PlayerListeners implements Listener {
+public final class PlayerListeners implements Listener {
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerJoin(@NotNull final PlayerJoinEvent event) {
 
         // Don't track if the player is an NPC
         if (event.getPlayer().hasMetadata("NPC")) return;
@@ -51,8 +52,8 @@ public class PlayerListeners implements Listener {
                 "{new-version}", newVersion, "{title}", title);
     }
 
-    @EventHandler
-    public void onPlayerLeave(PlayerQuitEvent event) {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerLeave(@NotNull final PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if (player.hasMetadata("NPC")) return;
         ATPlayer.removePlayer(player);

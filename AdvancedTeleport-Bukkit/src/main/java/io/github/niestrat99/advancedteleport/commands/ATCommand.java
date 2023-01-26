@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * Represents the base implementation for a command in AT.
  */
-public interface ATCommand extends TabExecutor {
+public abstract class ATCommand implements IATCommand {
 
     /**
      * Determines whether the command can continue after performing basic checks.<br>
@@ -24,7 +25,8 @@ public interface ATCommand extends TabExecutor {
      * @param sender the command sender running the command.
      * @return true if the sender can run the command, false if not.
      */
-    default boolean canProceed(@NotNull CommandSender sender) {
+    @Contract(pure = true)
+    public boolean canProceed(@NotNull final CommandSender sender) {
         // Make sure the required feature is enabled
         if (!getRequiredFeature()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
@@ -35,11 +37,7 @@ public interface ATCommand extends TabExecutor {
         return sender.hasPermission(getPermission());
     }
 
-    boolean getRequiredFeature();
-
-    String getPermission();
-
-    default Void handleCommandFeedback(Throwable ex, CommandSender sender, String success, String failure, String... placeholders) {
+    public Void handleCommandFeedback(Throwable ex, CommandSender sender, String success, String failure, String... placeholders) {
         // If an error occurred, send the error and print the stacktrace
         if (ex != null) {
             CustomMessages.sendMessage(sender, failure, placeholders);
@@ -52,17 +50,18 @@ public interface ATCommand extends TabExecutor {
         return null;
     }
 
-    @Nullable
     @Override
-    default List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        List<String> results = new ArrayList<>();
-        List<String> players = new ArrayList<>();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (sender instanceof Player && ((Player) sender).canSee(player)) {
-                players.add(player.getName());
-            }
-        }
-        StringUtil.copyPartialMatches(args[args.length - 1], players, results);
-        return results;
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
+        final var checkVisibility = sender instanceof Player;
+        final var players = Bukkit.getOnlinePlayers().stream() // TODO - see how performance intensive this is (love streams)
+            .filter(player -> !checkVisibility || ((Player) sender).canSee(player))
+            .map(Player::getName).toList();
+
+        return StringUtil.copyPartialMatches(args[args.length - 1], players, new ArrayList<>());
     }
 }

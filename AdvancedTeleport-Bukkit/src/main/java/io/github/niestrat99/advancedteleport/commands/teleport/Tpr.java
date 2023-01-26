@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -24,13 +25,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Tpr implements TimedATCommand {
+public final class Tpr extends ATCommand implements TimedATCommand {
 
     private static final List<UUID> searchingPlayers = new ArrayList<>();
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
         Player player;
         if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
@@ -138,7 +143,7 @@ public class Tpr implements TimedATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.tpr";
     }
 

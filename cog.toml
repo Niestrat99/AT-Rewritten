@@ -1,5 +1,5 @@
 pre_bump_hooks = [
-    "bash -c \"scripts/pre-bump.sh {{version}}\""
+    "bash -c \"scripts/pre-bump.sh {{latest}} {{version}}\""
 ]
 
 post_bump_hooks = [

@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public abstract class ATConfig extends ConfigFile {
 
-    public ATConfig(@NotNull String name) throws IOException {
+    protected ATConfig(@NotNull final String name) throws IOException {
         super(getOrCreateFile(name));
         load();
     }
@@ -37,10 +37,11 @@ public abstract class ATConfig extends ConfigFile {
         postSave();
     }
 
-    protected static File getOrCreateFile(String name) {
-        File dataFolder = CoreClass.getInstance().getDataFolder();
-        if (!dataFolder.exists()) dataFolder.mkdirs();
-        File file = new File(dataFolder, name);
+    protected static File getOrCreateFile(@NotNull final String name) throws IllegalStateException {
+        final var dataFolder = CoreClass.getInstance().getDataFolder();
+        if (!dataFolder.exists() && dataFolder.mkdirs()) throw new IllegalStateException("Could not create data folder");
+        final var file = new File(dataFolder, name);
+
         try {
             if (!file.exists()) file.createNewFile();
             return file;

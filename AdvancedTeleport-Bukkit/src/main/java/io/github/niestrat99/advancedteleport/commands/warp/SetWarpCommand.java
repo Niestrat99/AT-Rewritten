@@ -15,11 +15,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class SetWarpCommand extends AbstractWarpCommand implements PlayerCommand {
+public final class SetWarpCommand extends AbstractWarpCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
@@ -37,8 +41,14 @@ public class SetWarpCommand extends AbstractWarpCommand implements PlayerCommand
         Location warp = player.getLocation();
 
         if (!AdvancedTeleportAPI.isWarpSet(args[0])) {
-            AdvancedTeleportAPI.setWarp(args[0], player, warp).thenAcceptAsync(result ->
-                    CustomMessages.sendMessage(sender, "Info.setWarp", "{warp}", args[0]));
+            AdvancedTeleportAPI.setWarp(args[0], player, warp).whenComplete((result, err) -> CustomMessages.failableContextualPath(
+                    sender,
+                    player.getUniqueId(),
+                    "Info.setWarp",
+                    "Error.setWarpFail",
+                    () -> err == null,
+                    "{warp}", result.getName()
+            ));
         } else {
             CustomMessages.sendMessage(sender, "Error.warpAlreadySet", "{warp}", args[0]);
         }
@@ -46,14 +56,17 @@ public class SetWarpCommand extends AbstractWarpCommand implements PlayerCommand
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.admin.setwarp";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                                      @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return null;
     }
 }

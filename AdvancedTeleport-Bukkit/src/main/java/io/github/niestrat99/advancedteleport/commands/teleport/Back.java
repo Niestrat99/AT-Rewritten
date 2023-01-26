@@ -19,18 +19,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Back extends TeleportATCommand implements TimedATCommand {
+public final class Back extends TeleportATCommand implements TimedATCommand {
 
     private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR"));
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         // Make sure the sender has permission and the associated feature is enabled
         if (!canProceed(sender)) return true;
 
-        // Initialise player variables
         Player player = (Player) sender;
+        // Initialise player variables
         if (args.length > 0 && sender.hasPermission("at.admin.back")) {
             player = Bukkit.getPlayer(args[0]);
             if (player == null) {
@@ -129,19 +133,22 @@ public class Back extends TeleportATCommand implements TimedATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.back";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
-        return new ArrayList<>();
+    public @NotNull String getSection() {
+        return "back";
     }
 
     @Override
-    public String getSection() {
-        return "back";
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
+        return null;
     }
 }

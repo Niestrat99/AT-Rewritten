@@ -15,16 +15,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class TpYes extends TeleportATCommand implements PlayerCommand {
+public final class TpYes extends TeleportATCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
         Player player = (Player) sender;
         TeleportRequest request = TeleportTests.teleportTests(player, args, "tpayes");
         if (request == null) return true;
-        TeleportAcceptEvent event = new TeleportAcceptEvent(request.getResponder(), request.getRequester(), request.getType());
+        TeleportAcceptEvent event = new TeleportAcceptEvent(request.responder(), request.requester(), request.type());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             // Could not accept request.
@@ -34,14 +38,14 @@ public class TpYes extends TeleportATCommand implements PlayerCommand {
         AcceptRequest.acceptRequest(request);
         // If the cooldown is to be applied after the request is accepted, apply it now
         if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
-            CooldownManager.addToCooldown(request.getType() == TeleportRequestType.TPAHERE ? "tpahere" :
-                    "tpa", request.getRequester());
+            CooldownManager.addToCooldown(request.type() == TeleportRequestType.TPAHERE ? "tpahere" :
+                    "tpa", request.requester());
         }
         return true;
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.yes";
     }
 }

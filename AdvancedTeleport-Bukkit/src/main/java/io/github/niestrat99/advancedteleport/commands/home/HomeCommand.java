@@ -17,19 +17,55 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class HomeCommand extends AbstractHomeCommand implements TimedATCommand {
+public final class HomeCommand extends AbstractHomeCommand implements TimedATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
 
-        Player player = (Player) sender;
-        ATPlayer atPlayer = ATPlayer.getPlayer((Player) sender);
+        final var player = (Player) sender;
+        final var atPlayer = ATPlayer.getPlayer(player);
+
+        final var homes = atPlayer.getHomes();
+
+        if (args.length == 0) {
+            if (atPlayer.hasMainHome()) {
+                teleport(player, atPlayer.getMainHome());
+            } else if (homes.size() == 1) {
+                String name = homes.keySet().iterator().next();
+                Home home = homes.get(name);
+                if (atPlayer.canAccessHome(home)) {
+                    teleport(player, home);
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
+                }
+            } else if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
+                Home home = atPlayer.getBedSpawn();
+                if (home == null) {
+                    if (homes.isEmpty()) {
+                        CustomMessages.sendMessage(sender, "Error.noHomes");
+                    } else {
+                        CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                    }
+                    return true;
+                }
+                teleport(player, home);
+            } else if (homes.isEmpty()) {
+                CustomMessages.sendMessage(sender, "Error.noHomes");
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            }
+            return true;
+        }
 
         if (args.length > 1 && sender.hasPermission("at.admin.home")) {
             ATPlayer.getPlayerFuture(args[0]).thenAccept(target -> {
-                HashMap<String, Home> homesOther = target.getHomes();
+                final var homesOther = target.getHomes();
                 Home home;
                 switch (args[1].toLowerCase()) {
                     case "bed":
@@ -92,7 +128,10 @@ public class HomeCommand extends AbstractHomeCommand implements TimedATCommand {
         return true;
     }
 
-    public static void teleport(Player player, Home home) {
+    public static void teleport(
+        @NotNull final Player player,
+        @NotNull final Home home
+    ) {
         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
             ATTeleportEvent event = new ATTeleportEvent(
                     player,
@@ -107,7 +146,7 @@ public class HomeCommand extends AbstractHomeCommand implements TimedATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.home";
     }
 

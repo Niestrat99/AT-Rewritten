@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class GUI extends ATConfig {
+public final class GUI extends ATConfig {
 
     private static GUI instance;
 

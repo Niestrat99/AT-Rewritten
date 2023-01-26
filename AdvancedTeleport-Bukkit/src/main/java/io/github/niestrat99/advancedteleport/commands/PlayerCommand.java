@@ -5,13 +5,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public interface PlayerCommand extends ATCommand {
+public interface PlayerCommand extends IATCommand {
 
     @Override
     default boolean canProceed(@NotNull CommandSender sender) {
 
         // If the base checks fail, stop there
-        if (!ATCommand.super.canProceed(sender)) return false;
+        if (!IATCommand.super.canProceed(sender)) return false;
 
         // If it's not a player, stop there
         if (!(sender instanceof Player)) {

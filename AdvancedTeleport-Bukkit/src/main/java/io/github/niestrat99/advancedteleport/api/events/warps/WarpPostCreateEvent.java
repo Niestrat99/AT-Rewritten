@@ -3,29 +3,32 @@ package io.github.niestrat99.advancedteleport.api.events.warps;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public class WarpPostCreateEvent extends Event {
+public final class WarpPostCreateEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
     private final @NotNull Warp warp;
 
-    public WarpPostCreateEvent(@NotNull Warp warp) {
+    @Contract(pure = true)
+    public WarpPostCreateEvent(@NotNull final Warp warp) {
         this.warp = warp;
     }
 
-    @NotNull
     @Override
-    public HandlerList getHandlers() {
+    @Contract(pure = true)
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Contract(pure = true)
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 
-    @NotNull
-    public Warp getWarp() {
+    @Contract(pure = true)
+    public @NotNull Warp getWarp() {
         return warp;
     }
 }

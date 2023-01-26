@@ -15,14 +15,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TpList extends TeleportATCommand implements PlayerCommand {
+public final class TpList extends TeleportATCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
+
         // If there are actually any pending teleport requests.
         if (TeleportRequest.getRequests(player).isEmpty()) {
             CustomMessages.sendMessage(player, "Error.noRequests");
@@ -35,9 +40,9 @@ public class TpList extends TeleportATCommand implements PlayerCommand {
             for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
                 TeleportRequest request = requests.getContentsInPage(1).get(i);
                 new FancyMessage()
-                        .command("/tpayes " + request.getRequester().getName())
+                        .command("/tpayes " + request.requester().getName())
                         .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
-                                .replaceAll("\\{player}", request.getRequester().getName()))
+                                .replaceAll("\\{player}", request.requester().getName()))
                         .sendProposal(player, i);
             }
             FancyMessage.send(player);
@@ -57,9 +62,9 @@ public class TpList extends TeleportATCommand implements PlayerCommand {
                 for (int i = 0; i < requests.getContentsInPage(page).size(); i++) {
                     TeleportRequest request = requests.getContentsInPage(page).get(i);
                     new FancyMessage()
-                            .command("/tpayes " + request.getRequester().getName())
+                            .command("/tpayes " + request.requester().getName())
                             .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
-                                    .replaceAll("\\{player}", request.getRequester().getName()))
+                                    .replaceAll("\\{player}", request.requester().getName()))
                             .sendProposal(player, i);
                 }
             } catch (IllegalArgumentException ex) {
@@ -78,14 +83,17 @@ public class TpList extends TeleportATCommand implements PlayerCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.list";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return null;
     }
 }
