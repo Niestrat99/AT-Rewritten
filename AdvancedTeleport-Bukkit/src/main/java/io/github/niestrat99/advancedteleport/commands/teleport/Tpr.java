@@ -85,7 +85,8 @@ public final class Tpr extends ATCommand implements TimedATCommand {
                     for (String worldName : allowedWorlds) {
                         world = Bukkit.getWorld(worldName);
                         String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0,
-                                0, 0), new Location(world, 0, 0, 0), "tpr", player);
+                            0, 0
+                        ), new Location(world, 0, 0, 0), "tpr", player);
                         if (world != null && conditionResult.isEmpty()) break;
                     }
                     if (world == null) {
@@ -102,7 +103,8 @@ public final class Tpr extends ATCommand implements TimedATCommand {
         }
 
         String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0),
-                new Location(world, 0, 0, 0), "tpr", player);
+            new Location(world, 0, 0, 0), "tpr", player
+        );
         if (!conditionResult.isEmpty()) {
             CustomMessages.sendMessage(player, conditionResult, "world", world.getName());
             return true;
@@ -123,13 +125,17 @@ public final class Tpr extends ATCommand implements TimedATCommand {
             CustomMessages.sendMessage(player, "Info.searching");
             searchingPlayers.add(player.getUniqueId());
             RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world,
-                    location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> processLocation(player, location)));
+                location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> processLocation(player, location))
+            );
         }
 
         return true;
     }
 
-    private static void processLocation(Player player, Location location) {
+    private static void processLocation(
+        Player player,
+        Location location
+    ) {
         searchingPlayers.remove(player.getUniqueId());
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);

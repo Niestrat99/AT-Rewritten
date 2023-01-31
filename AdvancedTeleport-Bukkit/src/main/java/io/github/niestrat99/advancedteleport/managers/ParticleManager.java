@@ -2,15 +2,16 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
-import java.util.Objects;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public final class ParticleManager {
-    private ParticleManager() {}
+    private ParticleManager() { }
 
     public static void applyParticles(
         @NotNull final Player player,

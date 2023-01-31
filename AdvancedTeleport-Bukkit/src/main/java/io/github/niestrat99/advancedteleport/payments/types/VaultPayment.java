@@ -17,7 +17,10 @@ public class VaultPayment extends Payment {
     private double price;
     private Economy economy;
 
-    public VaultPayment(double price, @Nullable String economyName) throws IllegalStateException {
+    public VaultPayment(
+        double price,
+        @Nullable String economyName
+    ) throws IllegalStateException {
 
         // Sets the internal fields.
         this.price = price;
@@ -57,15 +60,6 @@ public class VaultPayment extends Payment {
     }
 
     @Override
-    public boolean canPay(Player player) {
-        boolean result = super.canPay(player);
-        if (!result) {
-            CustomMessages.sendMessage(player, "Error.notEnoughMoney", "amount", economy.format(price));
-        }
-        return result;
-    }
-
-    @Override
     public double getPlayerAmount(Player player) {
         return economy.getBalance(player);
     }
@@ -84,6 +78,15 @@ public class VaultPayment extends Payment {
     public void setPlayerAmount(Player player) {
         economy.withdrawPlayer(player, price);
         CustomMessages.sendMessage(player, "Info.paymentVault", "amount", economy.format(price), "balance", economy.format(getPlayerAmount(player)));
+    }
+
+    @Override
+    public boolean canPay(Player player) {
+        boolean result = super.canPay(player);
+        if (!result) {
+            CustomMessages.sendMessage(player, "Error.notEnoughMoney", "amount", economy.format(price));
+        }
+        return result;
     }
 
 }

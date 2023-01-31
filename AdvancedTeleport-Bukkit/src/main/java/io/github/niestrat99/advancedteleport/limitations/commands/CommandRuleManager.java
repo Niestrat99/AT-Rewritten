@@ -5,13 +5,12 @@ import io.github.niestrat99.advancedteleport.limitations.commands.list.IgnoreRul
 import io.github.niestrat99.advancedteleport.limitations.commands.list.OverrideRule;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class CommandRuleManager {
 

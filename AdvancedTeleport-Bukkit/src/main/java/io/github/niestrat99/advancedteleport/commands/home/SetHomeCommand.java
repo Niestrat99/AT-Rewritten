@@ -11,7 +11,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,20 +58,21 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
         return true;
     }
 
-    private void setHome(Player sender, String name) {
-        setHome(sender, sender.getUniqueId(), name, sender.getName());
-    }
-
     // Separated this into a separate method so that the code is easier to read.
     // Player player - the player which is having the home set.
     // String name - the name of the home.
-    private void setHome(Player sender, UUID player, String homeName, String playerName) {
+    private void setHome(
+        Player sender,
+        UUID player,
+        String homeName,
+        String playerName
+    ) {
         OfflinePlayer settingPlayer = Bukkit.getOfflinePlayer(player);
 
         ATPlayer atPlayer = ATPlayer.getPlayer(settingPlayer);
 
         if (atPlayer.getHome(homeName) != null) {
-            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "{home}", homeName);
+            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "home", homeName);
             return;
         }
 
@@ -88,9 +88,11 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
         ));
     }
 
-    @Override
-    public boolean getRequiredFeature() {
-        return NewConfig.get().USE_HOMES.get();
+    private void setHome(
+        Player sender,
+        String name
+    ) {
+        setHome(sender, sender.getUniqueId(), name, sender.getName());
     }
 
     @Override
@@ -106,5 +108,10 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
         @NotNull final String[] args
     ) {
         return new ArrayList<>();
+    }
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_HOMES.get();
     }
 }

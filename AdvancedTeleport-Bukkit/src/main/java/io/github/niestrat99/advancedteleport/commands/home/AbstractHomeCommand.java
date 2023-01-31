@@ -5,7 +5,6 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import java.util.Collections;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,9 +13,27 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class AbstractHomeCommand extends ATCommand {
+
+    @Override
+    public boolean getRequiredFeature() {
+        return NewConfig.get().USE_HOMES.get();
+    }
+
+    @Override
+    public boolean canProceed(@NotNull final CommandSender sender) {
+        if (!super.canProceed(sender)) return false;
+
+        if (!(sender instanceof Player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return false;
+        }
+
+        return true;
+    }
 
     @Override
     public @Nullable List<String> onTabComplete(
@@ -44,22 +61,5 @@ public abstract class AbstractHomeCommand extends ATCommand {
         }
 
         return Collections.emptyList();
-    }
-
-    @Override
-    public boolean getRequiredFeature() {
-        return NewConfig.get().USE_HOMES.get();
-    }
-
-    @Override
-    public boolean canProceed(@NotNull final CommandSender sender) {
-        if (!super.canProceed(sender)) return false;
-
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return false;
-        }
-
-        return true;
     }
 }

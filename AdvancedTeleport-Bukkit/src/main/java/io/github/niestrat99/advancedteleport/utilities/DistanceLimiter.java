@@ -6,7 +6,12 @@ import org.bukkit.Location;
 
 public class DistanceLimiter {
 
-    public static boolean canTeleport(Location loc1, Location loc2, String command, ATPlayer player) {
+    public static boolean canTeleport(
+        Location loc1,
+        Location loc2,
+        String command,
+        ATPlayer player
+    ) {
         if (command == null && !NewConfig.get().MONITOR_ALL_TELEPORTS.get()) return true;
         int allowedDistance = player.getDistanceLimitation(command);
         if (NewConfig.get().ENABLE_DISTANCE_LIMITATIONS.get() && allowedDistance > 0) {

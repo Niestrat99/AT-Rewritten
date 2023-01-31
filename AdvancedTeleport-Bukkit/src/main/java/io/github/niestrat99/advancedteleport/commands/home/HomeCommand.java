@@ -15,8 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-
 public final class HomeCommand extends AbstractHomeCommand implements TimedATCommand {
 
     @Override
@@ -72,7 +70,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                         if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
                             home = target.getBedSpawn();
                             if (home == null) {
-                                CustomMessages.sendMessage(player, "Error.noBedHomeOther", "{player}", args[0]);
+                                CustomMessages.sendMessage(player, "Error.noBedHomeOther", "player", args[0]);
                                 return;
                             }
                         } else {
@@ -97,7 +95,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                 }
                 Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
                     PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
+                    CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "player", args[0], "home", args[1]);
                 });
             });
         }
@@ -112,8 +110,10 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                 return true;
             }
         } else if (args[0].equalsIgnoreCase("list")) {
-            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender,
-                    "advancedteleport:homes " + args[0]));
+            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(
+                sender,
+                "advancedteleport:homes " + args[0]
+            ));
             return true;
         } else {
             CustomMessages.sendMessage(sender, "Error.noSuchHome");
@@ -123,7 +123,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
         if (atPlayer.canAccessHome(home)) {
             teleport(player, home);
         } else {
-            CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
+            CustomMessages.sendMessage(sender, "Error.noAccessHome", "home", home.getName());
         }
         return true;
     }
@@ -134,11 +134,11 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
     ) {
         Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
             ATTeleportEvent event = new ATTeleportEvent(
-                    player,
-                    home.getLocation(),
-                    player.getLocation(),
-                    home.getName(),
-                    ATTeleportEvent.TeleportType.HOME
+                player,
+                home.getLocation(),
+                player.getLocation(),
+                home.getName(),
+                ATTeleportEvent.TeleportType.HOME
             );
             Bukkit.getPluginManager().callEvent(event);
             ATPlayer.getPlayer(player).teleport(event, "home", "Teleport.teleportingToHome");

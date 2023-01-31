@@ -6,7 +6,11 @@ import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public abstract class SQLManager {
 
@@ -23,31 +27,20 @@ public abstract class SQLManager {
         createTable();
     }
 
-    private Connection loadSqlite() {
-        // Load JDBC
-        try {
-            Class.forName("org.sqlite.JDBC");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + CoreClass.getInstance().getDataFolder() + "/data.db");
-            usingSqlite = true;
-            return connection;
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public Connection implementConnection() {
         Connection connection;
         if (NewConfig.get().USE_MYSQL.get()) {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
-                        NewConfig.get().MYSQL_HOST.get(),
-                        NewConfig.get().MYSQL_PORT.get(),
-                        NewConfig.get().MYSQL_DATABASE.get(),
-                        NewConfig.get().USE_SSL.get(),
-                        NewConfig.get().AUTO_RECONNECT.get(),
-                        NewConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get());
+                String url = String.format(
+                    "jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
+                    NewConfig.get().MYSQL_HOST.get(),
+                    NewConfig.get().MYSQL_PORT.get(),
+                    NewConfig.get().MYSQL_DATABASE.get(),
+                    NewConfig.get().USE_SSL.get(),
+                    NewConfig.get().AUTO_RECONNECT.get(),
+                    NewConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get()
+                );
                 connection = DriverManager.getConnection(url, NewConfig.get().USERNAME.get(), NewConfig.get().PASSWORD.get());
                 usingSqlite = false;
                 return connection;
@@ -61,17 +54,30 @@ public abstract class SQLManager {
         return connection;
     }
 
+    public abstract void createTable();
+
+    private Connection loadSqlite() {
+        // Load JDBC
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + CoreClass.getInstance().getDataFolder() + "/data.db");
+            usingSqlite = true;
+            return connection;
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void runAsync(Runnable runnable) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), runnable);
     }
 
-    public abstract void createTable();
-
-    public abstract void transferOldData();
-
     public static String getTablePrefix() {
         return tablePrefix;
     }
+
+    public abstract void transferOldData();
 
     public String getStupidAutoIncrementThing() {
         return usingSqlite ? "AUTOINCREMENT" : "AUTO_INCREMENT";
@@ -85,31 +91,38 @@ public abstract class SQLManager {
         statement.executeUpdate();
     }
 
-    protected synchronized PreparedStatement prepareStatement(Connection connection, String sql) throws SQLException {
+    protected synchronized PreparedStatement prepareStatement(
+        Connection connection,
+        String sql
+    ) throws SQLException {
         return connection.prepareStatement(sql);
     }
 
     public interface SQLCallback<D> {
-        void onSuccess(D data);
-
-        default void onSuccess() {}
-
-        default void onFail() {}
-
-        static SQLCallback<Boolean> getDefaultCallback(CommandSender sender, String success, String fail, String... placeholders) {
+        static SQLCallback<Boolean> getDefaultCallback(
+            CommandSender sender,
+            String success,
+            String fail,
+            String... placeholders
+        ) {
             return new SQLCallback<>() {
                 @Override
                 public void onSuccess(Boolean data) {
-                    CustomMessages.sendMessage(sender, success, placeholders);
+                    CustomMessages.sendMessage(sender, success, (Object[]) placeholders);
                 }
 
                 @Override
                 public void onFail() {
-                    CustomMessages.sendMessage(sender, fail, placeholders);
+                    CustomMessages.sendMessage(sender, fail, (Object[]) placeholders);
                 }
             };
         }
-    }
 
+        void onSuccess(D data);
+
+        default void onSuccess() { }
+
+        default void onFail() { }
+    }
 
 }

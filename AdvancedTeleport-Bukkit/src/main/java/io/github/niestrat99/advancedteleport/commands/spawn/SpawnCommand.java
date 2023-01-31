@@ -31,7 +31,7 @@ public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
         Player player = (Player) sender;
         String location = player.getWorld().getName();
         if (args.length > 0 &&
-                (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
+            (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
             if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
                 location = args[0];
             }
@@ -40,13 +40,16 @@ public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
         return true;
     }
 
-    public static void spawn(Player player, String name) {
+    public static void spawn(
+        Player player,
+        String name
+    ) {
 
         Location spawn = Spawn.get().getSpawn(name, player, false);
         if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
         }
-        
+
         ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         Bukkit.getPluginManager().callEvent(event);
         ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn");

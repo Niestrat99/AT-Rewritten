@@ -5,18 +5,30 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
-
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class RTPManager {
 
-    private static HashMap<UUID, Queue<Location>> locQueue;
     private static final HashSet<String> airs = Sets.newHashSet("AIR", "CAVE_AIR", "VOID_AIR");
+    private static HashMap<UUID, Queue<Location>> locQueue;
 
     public static void init() {
         locQueue = new HashMap<>();
@@ -59,7 +71,11 @@ public class RTPManager {
         }
     }
 
-    public static CompletableFuture<@Nullable Location> addLocation(final World world, final boolean urgent, int tries) {
+    public static CompletableFuture<@Nullable Location> addLocation(
+        final World world,
+        final boolean urgent,
+        int tries
+    ) {
         if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
         tries++;
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
@@ -88,7 +104,10 @@ public class RTPManager {
         }, CoreClass.async).thenApplyAsync(loc -> loc, CoreClass.sync);
     }
 
-    private static Block doBinaryJump(World world, int[] coords) {
+    private static Block doBinaryJump(
+        World world,
+        int[] coords
+    ) {
         Location location = new Location(world, coords[0], 128, coords[1]);
         // This is how much we'll jump by at first
         int jumpAmount = 128;
@@ -127,7 +146,7 @@ public class RTPManager {
 
             if (currentMat != Material.AIR) {
                 if (subTempLocation.add(0, 1, 0).getBlock().getType() == Material.AIR
-                        && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
+                    && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
                     return subTempLocation.add(0.5, -1, 0.5).getBlock();
                 } else {
                     up = true;
@@ -193,7 +212,7 @@ public class RTPManager {
             while (locations.peek() != null) {
                 Location loc = locations.poll();
                 String locLine = worldUUID.toString() +
-                        "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
+                    "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
                 writer.write(locLine);
                 writer.write("\n");
             }

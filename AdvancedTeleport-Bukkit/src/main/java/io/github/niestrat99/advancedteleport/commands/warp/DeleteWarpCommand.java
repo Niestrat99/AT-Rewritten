@@ -15,10 +15,10 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
 
     @Override
     public boolean onCommand(
-            @NotNull final CommandSender sender,
-            @NotNull final Command command,
-            @NotNull final String s,
-            @NotNull final String[] args
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
     ) {
 
         // If the command can't proceed due to being disabled, stop there
@@ -43,14 +43,14 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
         Warp warp = AdvancedTeleportAPI.getWarp(args[0]);
 
         // If the warp exists, delete it.
-         if (warp != null) {
-             warp.delete(sender).whenCompleteAsync((ignored, exception) -> CustomMessages.failable(
-                 sender,
-                 "Error.deleteWarpFail",
-                 "Info.deletedWarp,",
-                 () -> exception != null,
-                 "warp", args[0]
-             ));
+        if (warp != null) {
+            warp.delete(sender).whenCompleteAsync((ignored, exception) -> CustomMessages.failable(
+                sender,
+                "Error.deleteWarpFail",
+                "Info.deletedWarp,",
+                () -> exception != null,
+                "warp", args[0]
+            ));
         } else {
             CustomMessages.sendMessage(sender, "Error.noWarpInput");
         }

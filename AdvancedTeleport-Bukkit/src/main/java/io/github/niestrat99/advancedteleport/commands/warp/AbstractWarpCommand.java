@@ -16,10 +16,10 @@ public abstract class AbstractWarpCommand extends ATCommand {
 
     @Override
     public @Nullable List<String> onTabComplete(
-            @NotNull final CommandSender sender,
-            @NotNull final Command command,
-            @NotNull final String s,
-            @NotNull final String[] args
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
     ) {
 
         // Set up the resulting tab completion options
@@ -31,7 +31,7 @@ public abstract class AbstractWarpCommand extends ATCommand {
             if (sender.hasPermission("at.member.warp." + warp.toLowerCase())) {
                 warps.add(warp);
             } else if (!sender.isPermissionSet("at.member.warp." + warp.toLowerCase())
-                    && sender.hasPermission("at.member.warp.*")) {
+                && sender.hasPermission("at.member.warp.*")) {
                 warps.add(warp);
             }
         }

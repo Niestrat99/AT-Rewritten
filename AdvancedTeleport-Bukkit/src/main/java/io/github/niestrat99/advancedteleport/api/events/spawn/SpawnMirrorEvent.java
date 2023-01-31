@@ -45,16 +45,6 @@ public final class SpawnMirrorEvent extends TrackableATEvent {
     }
 
     /**
-     * Gives the name of the world that the spawn is getting mirrored to.
-     *
-     * @return the provided world the spawn is being mirrored to.
-     */
-    @Contract(pure = true)
-    public @NotNull String getToWorld() {
-        return toWorld;
-    }
-
-    /**
      * Sets the world for the spawn to be mirrored from.
      *
      * @param fromWorld the name of the world.
@@ -66,6 +56,16 @@ public final class SpawnMirrorEvent extends TrackableATEvent {
         if (fromWorld.isEmpty()) throw new IllegalArgumentException("The world name must not be empty.");
 
         this.fromWorld = fromWorld;
+    }
+
+    /**
+     * Gives the name of the world that the spawn is getting mirrored to.
+     *
+     * @return the provided world the spawn is being mirrored to.
+     */
+    @Contract(pure = true)
+    public @NotNull String getToWorld() {
+        return toWorld;
     }
 
     /**

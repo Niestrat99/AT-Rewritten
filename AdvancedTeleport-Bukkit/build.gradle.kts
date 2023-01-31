@@ -1,4 +1,5 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import java.io.BufferedReader
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.regex.Pattern
@@ -130,12 +131,6 @@ publishing {
     }
 }
 
-task("tryChangelog") {
-    doFirst {
-        println(getCogChangelog())
-    }
-}
-
 tasks {
     withType<JavaCompile> {
         options.encoding = "UTF-8"
@@ -169,6 +164,13 @@ tasks {
             relocate("io.github.slimjar", "io.github.niestrat99.advancedteleport.libs.slimjar")
         }
     }
+
+    create("tryChangelog") {
+        doFirst {
+            println(getCogChangelog())
+        }
+    }
+
 }
 
 // Lead development use only.
@@ -511,10 +513,12 @@ bukkit {
 fun getCogChangelog(): String {
 
     println("Fetching changelog at v" + project.version.toString())
-    val process = Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString())
-    process.waitFor()
-    if (process.exitValue() != 0) return ""
-    return process.inputStream.bufferedReader().readText()
+    return runCatching { Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString()) }
+        .onSuccess(Process::waitFor)
+        .map { process ->
+            if (process.exitValue() != 0) ""
+            else process.inputStream.bufferedReader().use(BufferedReader::readText)
+        }.getOrDefault("")
 }
 
 // Lead development use only.

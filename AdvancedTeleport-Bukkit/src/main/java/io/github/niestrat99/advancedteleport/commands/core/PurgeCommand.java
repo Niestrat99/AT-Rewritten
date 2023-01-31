@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
-import java.util.Collections;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -17,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public final class PurgeCommand extends SubATCommand {
@@ -61,7 +61,7 @@ public final class PurgeCommand extends SubATCommand {
                 case "homes" -> HomeSQLManager.get().purgeHomes(world.getName(), new SQLManager.SQLCallback<>() {
                     @Override
                     public void onSuccess(Void data) {
-                        CustomMessages.sendMessage(sender, "Info.purgeHomesWorld", "{world}", args[2]);
+                        CustomMessages.sendMessage(sender, "Info.purgeHomesWorld", "world", args[2]);
                     }
 
                     @Override
@@ -72,7 +72,7 @@ public final class PurgeCommand extends SubATCommand {
                 case "warps" -> WarpSQLManager.get().purgeWarps(world.getName(), new SQLManager.SQLCallback<>() {
                     @Override
                     public void onSuccess(Void data) {
-                        CustomMessages.sendMessage(sender, "Info.purgeWarpsWorld", "{world}", args[2]);
+                        CustomMessages.sendMessage(sender, "Info.purgeWarpsWorld", "world", args[2]);
                     }
 
                     @Override
@@ -92,7 +92,7 @@ public final class PurgeCommand extends SubATCommand {
                     case "homes" -> HomeSQLManager.get().purgeHomes(player.getUniqueId(), new SQLManager.SQLCallback<>() {
                         @Override
                         public void onSuccess(Void data) {
-                            CustomMessages.sendMessage(sender, "Info.purgeHomesCreator", "{player}", args[2]);
+                            CustomMessages.sendMessage(sender, "Info.purgeHomesCreator", "player", args[2]);
                         }
 
                         @Override
@@ -103,7 +103,7 @@ public final class PurgeCommand extends SubATCommand {
                     case "warps" -> WarpSQLManager.get().purgeWarps(player.getUniqueId(), new SQLManager.SQLCallback<>() {
                         @Override
                         public void onSuccess(Void data) {
-                            CustomMessages.sendMessage(sender, "Info.purgeWarpsCreator", "{player}", args[2]);
+                            CustomMessages.sendMessage(sender, "Info.purgeWarpsCreator", "player", args[2]);
                         }
 
                         @Override

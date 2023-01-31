@@ -18,11 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public final class WarpsCommand extends ATCommand {
 
     @Override
@@ -57,20 +52,23 @@ public final class WarpsCommand extends ATCommand {
             for (String warpName : warps.getKeys(false)) {
                 ConfigSection warp = warps.getConfigSection(warpName);
                 if (sender.hasPermission("at.member.warp.*")
-                        || sender.hasPermission("at.member.warp." + warpName)
-                        || !warp.getBoolean("hideIfNoPermission")) {
+                    || sender.hasPermission("at.member.warp." + warpName)
+                    || !warp.getBoolean("hideIfNoPermission")) {
 
                     menu.setIcon(warp.getInteger("page"), warp.getInteger("slot"),
-                            new IconMenu.Icon(
-                                    new ItemStack(
-                                            Material.valueOf(warp.getString("item")),
-                                            1,
-                                            (byte) warp.getInteger("data-value")))
-                                    .withNameAndLore(
-                                            warp.getString("name"),
-                                            warp.getStringList("tooltip"))
-                                    .withCommands("warp " + warpName)
-                                    .withTexture("texture"));
+                        new IconMenu.Icon(
+                            new ItemStack(
+                                Material.valueOf(warp.getString("item")),
+                                1,
+                                (byte) warp.getInteger("data-value")
+                            ))
+                            .withNameAndLore(
+                                warp.getString("name"),
+                                warp.getStringList("tooltip")
+                            )
+                            .withCommands("warp " + warpName)
+                            .withTexture("texture")
+                    );
                 }
             }
             // Next page icons will override warps
@@ -78,32 +76,38 @@ public final class WarpsCommand extends ATCommand {
                 if (i != 0) {
                     ConfigSection lastPage = GUI.getLastPageIcon();
                     menu.setIcon(i, lastPage.getInteger("slot"),
-                            new IconMenu.Icon(
-                                    new ItemStack(Material.valueOf(lastPage.getString("item")),
-                                            1,
-                                            (byte) lastPage.getInteger("data-value")))
-                                    .withTexture(lastPage.getString("texture"))
-                                    .withNameAndLore(lastPage.getString("name"), lastPage.getStringList("tooltip"))
-                                    .withHandler(handler -> {
-                                        handler.setWillClose(false);
-                                        handler.setWillDestroy(false);
-                                        menu.openPreviousPage();
-                                    }));
+                        new IconMenu.Icon(
+                            new ItemStack(
+                                Material.valueOf(lastPage.getString("item")),
+                                1,
+                                (byte) lastPage.getInteger("data-value")
+                            ))
+                            .withTexture(lastPage.getString("texture"))
+                            .withNameAndLore(lastPage.getString("name"), lastPage.getStringList("tooltip"))
+                            .withHandler(handler -> {
+                                handler.setWillClose(false);
+                                handler.setWillDestroy(false);
+                                menu.openPreviousPage();
+                            })
+                    );
                 }
                 if (i != pages - 1) {
                     ConfigSection nextPage = GUI.getNextPageIcon();
                     menu.setIcon(i, nextPage.getInteger("slot"),
-                            new IconMenu.Icon(
-                                    new ItemStack(Material.valueOf(nextPage.getString("item")),
-                                            1,
-                                            (byte) nextPage.getInteger("data-value")))
-                                    .withTexture(nextPage.getString("texture"))
-                                    .withNameAndLore(nextPage.getString("name"), nextPage.getStringList("tooltip"))
-                                    .withHandler(handler -> {
-                                        handler.setWillClose(false);
-                                        handler.setWillDestroy(false);
-                                        menu.openNextPage();
-                                    }));
+                        new IconMenu.Icon(
+                            new ItemStack(
+                                Material.valueOf(nextPage.getString("item")),
+                                1,
+                                (byte) nextPage.getInteger("data-value")
+                            ))
+                            .withTexture(nextPage.getString("texture"))
+                            .withNameAndLore(nextPage.getString("name"), nextPage.getStringList("tooltip"))
+                            .withHandler(handler -> {
+                                handler.setWillClose(false);
+                                handler.setWillDestroy(false);
+                                menu.openNextPage();
+                            })
+                    );
                 }
             }
             menu.open((Player) sender);

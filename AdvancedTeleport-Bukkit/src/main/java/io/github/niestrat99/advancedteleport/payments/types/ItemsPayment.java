@@ -14,9 +14,33 @@ public class ItemsPayment extends Payment {
     private int amount;
 
     // DIAMOND#{Count:10,tag:{display:{Name:"&b&lSetwarp Token"}}}
-    public ItemsPayment(Material material, int amount) {
+    public ItemsPayment(
+        Material material,
+        int amount
+    ) {
         this.material = material;
         this.amount = amount;
+    }
+
+    public static ItemsPayment getFromString(String str) {
+        String[] parts = str.split(":");
+
+        switch (parts.length) {
+        case 0:
+            return null;
+        case 1:
+            Material material = Material.getMaterial(parts[0].toUpperCase());
+            if (material == null) return null;
+            return new ItemsPayment(material, 1);
+        default:
+            material = Material.getMaterial(parts[0].toUpperCase());
+            if (material == null) return null;
+            int amount = 1;
+            if (parts[1].matches("^[0-9]+$")) {
+                amount = Integer.parseInt(parts[1]);
+            }
+            return new ItemsPayment(material, amount);
+        }
     }
 
     @Override
@@ -36,23 +60,6 @@ public class ItemsPayment extends Payment {
             count += item.getAmount();
         }
         return count;
-    }
-
-    @Override
-    public boolean canPay(Player player) {
-        boolean result = super.canPay(player);
-        if (!result) {
-            ItemMeta meta = new ItemStack(material).getItemMeta();
-            String name;
-            if (meta != null && meta.hasLocalizedName()) {
-                name = meta.getLocalizedName();
-            } else {
-                name = material.name();
-            }
-            CustomMessages.sendMessage(player, "Error.notEnoughItems", "amount", String.valueOf(amount),
-                    "type", name);
-        }
-        return result;
     }
 
     @Override
@@ -89,34 +96,32 @@ public class ItemsPayment extends Payment {
         }
         if (amount > 0) {
             CustomMessages.sendMessage(player, "Info.paymentItems",
-                    "{amount}", String.valueOf(amount),
-                    "{type}", name);
+                "amount", String.valueOf(amount),
+                "type", name
+            );
         }
+    }
+
+    @Override
+    public boolean canPay(Player player) {
+        boolean result = super.canPay(player);
+        if (!result) {
+            ItemMeta meta = new ItemStack(material).getItemMeta();
+            String name;
+            if (meta != null && meta.hasLocalizedName()) {
+                name = meta.getLocalizedName();
+            } else {
+                name = material.name();
+            }
+            CustomMessages.sendMessage(player, "Error.notEnoughItems", "amount", String.valueOf(amount),
+                "type", name
+            );
+        }
+        return result;
     }
 
     public Material getMaterial() {
         return material;
-    }
-
-    public static ItemsPayment getFromString(String str) {
-        String[] parts = str.split(":");
-
-        switch (parts.length) {
-            case 0:
-                return null;
-            case 1:
-                Material material = Material.getMaterial(parts[0].toUpperCase());
-                if (material == null) return null;
-                return new ItemsPayment(material, 1);
-            default:
-                material = Material.getMaterial(parts[0].toUpperCase());
-                if (material == null) return null;
-                int amount = 1;
-                if (parts[1].matches("^[0-9]+$")) {
-                    amount = Integer.parseInt(parts[1]);
-                }
-                return new ItemsPayment(material, amount);
-        }
     }
 
     // TODO: Implement NBT

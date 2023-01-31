@@ -22,23 +22,22 @@ import java.util.concurrent.CompletableFuture;
  */
 public class Warp implements NamedLocation {
 
-
+    private static final HashMap<String, Warp> warps = new HashMap<>();
     private final @Nullable UUID creator;
     private final @NotNull String name;
-    private @NotNull Location location;
     private final long createdTime;
-    private long updatedTime;
     private final @NotNull String createdTimeFormatted;
-    private @NotNull String updatedTimeFormatted;
     private final @NotNull SimpleDateFormat format;
-    private static final HashMap<String, Warp> warps = new HashMap<>();
+    private @NotNull Location location;
+    private long updatedTime;
+    private @NotNull String updatedTimeFormatted;
 
     /**
      * Creates a warp object, but does not formally register it. To register a warp, use {@link AdvancedTeleportAPI#setWarp(String, CommandSender, Location)}.
      *
-     * @param creator The creator of the warp. Can be null.
-     * @param name The name of the warp.
-     * @param location The location of the warp.
+     * @param creator     The creator of the warp. Can be null.
+     * @param name        The name of the warp.
+     * @param location    The location of the warp.
      * @param createdTime The time in milliseconds when the warp was created.
      * @param updatedTime The time in milliseconds when the warp was updated.
      */
@@ -60,6 +59,17 @@ public class Warp implements NamedLocation {
         this.format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
         this.createdTimeFormatted = format.format(new Date(createdTime));
         this.updatedTimeFormatted = format.format(new Date(updatedTime));
+    }
+
+    @Contract(pure = true)
+    public static void registerWarp(@NotNull final Warp warp) {
+        warps.put(warp.name, warp);
+    }
+
+    @ApiStatus.Internal
+    @Contract(pure = true)
+    static @NotNull HashMap<String, Warp> warps() {
+        return warps;
     }
 
     /**
@@ -92,7 +102,6 @@ public class Warp implements NamedLocation {
         return creator;
     }
 
-
     /**
      * Sets the location of the warp.
      *
@@ -107,10 +116,13 @@ public class Warp implements NamedLocation {
      * Sets the location of the warp. This will fire WarpMoveEvent.
      *
      * @param location the new location of the warp.
-     * @param sender the command sender who triggered the action.
+     * @param sender   the command sender who triggered the action.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
+    public CompletableFuture<Void> setLocation(
+        @NotNull Location location,
+        @Nullable CommandSender sender
+    ) {
 
         // Make sure the event runs without any issues.
         return AdvancedTeleportAPI.validateEvent(new WarpMoveEvent(this, location, sender), event -> {
@@ -168,9 +180,14 @@ public class Warp implements NamedLocation {
         return updatedTimeFormatted;
     }
 
+    /**
+     * Deletes a specified warp.
+     *
+     * @return A completable future of whether the action failed or succeeded.
+     */
     @Contract(pure = true)
-    public static void registerWarp(@NotNull final Warp warp) {
-        warps.put(warp.name, warp);
+    public @NotNull CompletableFuture<Void> delete() {
+        return delete(null);
     }
 
     /**
@@ -193,21 +210,5 @@ public class Warp implements NamedLocation {
                 WarpSQLManager.get().removeWarp(name, callback);
             });
         });
-    }
-
-    /**
-     * Deletes a specified warp.
-     *
-     * @return A completable future of whether the action failed or succeeded.
-     */
-    @Contract(pure = true)
-    public @NotNull CompletableFuture<Void> delete() {
-        return delete(null);
-    }
-
-    @ApiStatus.Internal
-    @Contract(pure = true)
-    static @NotNull HashMap<String, Warp> warps() {
-        return warps;
     }
 }

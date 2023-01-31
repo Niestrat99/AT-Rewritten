@@ -1,12 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportRequestEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
-import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
-import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -58,10 +58,11 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
             }
 
             CustomMessages.sendMessage(sender, "Info.requestSent",
-                    "player", target.getName(),
-                    "lifetime", String.valueOf(requestLifetime));
+                "player", target.getName(),
+                "lifetime", String.valueOf(requestLifetime)
+            );
 
-           CoreClass.playSound("tpa", "sent", player);
+            CoreClass.playSound("tpa", "sent", player);
 
             ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
@@ -69,31 +70,35 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
                 ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPA(player);
             } else {
                 CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
-                        "player", sender.getName(),
-                        "lifetime", String.valueOf(requestLifetime));
+                    "player", sender.getName(),
+                    "lifetime", String.valueOf(requestLifetime)
+                );
             }
 
             CoreClass.playSound("tpa", "received", target);
 
             BukkitRunnable run = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                            CustomMessages.sendMessage(sender, "Error.requestExpired", "player",
-                                    target.getName());
-                        }
-                        TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target,
-                                player));
+                @Override
+                public void run() {
+                    if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                        CustomMessages.sendMessage(sender, "Error.requestExpired", "player",
+                            target.getName()
+                        );
                     }
-           };
-           run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
-           TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPA);
-           // Creates a new teleport request.
-           TeleportRequest.addRequest(request);
-           // If the cooldown is to be applied after request, apply it now
-           if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
-               CooldownManager.addToCooldown("tpa", player);
-           }
+                    TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(
+                        target,
+                        player
+                    ));
+                }
+            };
+            run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
+            TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPA);
+            // Creates a new teleport request.
+            TeleportRequest.addRequest(request);
+            // If the cooldown is to be applied after request, apply it now
+            if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+                CooldownManager.addToCooldown("tpa", player);
+            }
         }
         return true;
     }

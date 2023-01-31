@@ -2,9 +2,9 @@ package io.github.niestrat99.advancedteleport.api;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Contract;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

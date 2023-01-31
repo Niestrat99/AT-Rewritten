@@ -95,7 +95,7 @@ public class RandomTPAlgorithms {
                         }
 
                         if (subTempLocation.add(0, 1, 0).getBlock().getType() == Material.AIR
-                                && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
+                            && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
                             location = subTempLocation.add(0.5, 0, 0.5);
                             validLocation = true;
                         } else {
@@ -123,11 +123,15 @@ public class RandomTPAlgorithms {
         return algorithms;
     }
 
-    public static interface Algorithm {
-        void fire(Player player, World world, Callback<Location> callback);
+    public interface Algorithm {
+        void fire(
+            Player player,
+            World world,
+            Callback<Location> callback
+        );
     }
 
-    public static interface Callback<D> {
+    public interface Callback<D> {
         void onSuccess(D data);
     }
 }

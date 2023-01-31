@@ -49,7 +49,8 @@ public final class PlayerListeners implements Listener {
 
         // let 'em know :D
         CustomMessages.sendMessage(event.getPlayer(), "Info.updateInfo", "version", currentVersion,
-                "new-version", newVersion, "title", title);
+            "new-version", newVersion, "title", title
+        );
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

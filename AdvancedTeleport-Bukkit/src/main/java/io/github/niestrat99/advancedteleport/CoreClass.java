@@ -1,20 +1,31 @@
 package io.github.niestrat99.advancedteleport;
 
-import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.config.ATConfig;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.GUI;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
-import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
+import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
-import io.github.niestrat99.advancedteleport.managers.*;
-import io.github.niestrat99.advancedteleport.sql.*;
+import io.github.niestrat99.advancedteleport.managers.CommandManager;
+import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
+import io.github.niestrat99.advancedteleport.managers.MovementManager;
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import io.github.niestrat99.advancedteleport.managers.RTPManager;
+import io.github.niestrat99.advancedteleport.managers.TeleportTrackingManager;
+import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
+import io.github.niestrat99.advancedteleport.sql.DataFailManager;
+import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
+import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
+import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
+import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import io.github.slimjar.app.builder.InjectingApplicationBuilder;
 import io.github.slimjar.logging.ProcessLogger;
 import io.papermc.lib.PaperLib;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Optional;
-import java.security.NoSuchAlgorithmException;
 import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -29,27 +40,71 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 public final class CoreClass extends JavaPlugin {
+
+    private static CoreClass instance;
+    public static final Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
+    public static final Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
+    private static Permission perms = null;
+    private Object[] updateInfo = null;
+
+    public static void playSound(
+        String type,
+        String subType,
+        Player target
+    ) {
+        String sound = null;
+        if (type.equals("tpa")) {
+            sound = switch (subType) {
+                case "sent" -> NewConfig.get().TPA_REQUEST_SENT.get();
+                case "received" -> NewConfig.get().TPA_REQUEST_RECEIVED.get();
+                default -> null;
+            };
+        } else if (type.equals("tpahere")) {
+            sound = switch (subType) {
+                case "sent" -> NewConfig.get().TPAHERE_REQUEST_SENT.get();
+                case "received" -> NewConfig.get().TPAHERE_REQUEST_RECEIVED.get();
+                default -> null;
+            };
+        }
+
+        if (sound == null || sound.equalsIgnoreCase("none")) return;
+
+        try {
+            target.playSound(target.getLocation(), Sound.valueOf(sound), 10, 1);
+        } catch (IllegalArgumentException e) {
+            CoreClass.getInstance().getLogger().warning(CoreClass.pltitle(sound + " is an invalid sound name"));
+        }
+    }
+
+    public static CoreClass getInstance() {
+        return instance;
+    }
 
     public static String pltitle(String title) {
         title = "&3[&bAdvancedTeleport&3] " + title;
         return ChatColor.translateAlternateColorCodes('&', title);
     }
 
-    private static CoreClass Instance;
-    private static Permission perms = null;
-    private int version;
-    private Object[] updateInfo = null;
+    public static Permission getPerms() {
+        return perms;
+    }
 
-    public static final Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
-    public static final Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
+    public static void debug(String message) {
+        if (NewConfig.get().DEBUG.get()) {
+            CoreClass.getInstance().getLogger().info(message);
+        }
+    }
 
-    public static CoreClass getInstance() {
-        return Instance;
+    public static String getShortLocation(Location location) {
+        return location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " + location.getWorld();
     }
 
     @Override
@@ -64,8 +119,26 @@ public final class CoreClass extends JavaPlugin {
     }
 
     @Override
+    public void onDisable() {
+        DataFailManager.get().onDisable();
+
+        try {
+            hackTheMainFrame();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            getLogger().warning("Failed to shut down async tasks.");
+            e.printStackTrace();
+        }
+
+        try {
+            RTPManager.saveLocations();
+        } catch (IOException e) {
+            getLogger().warning("Failed to save RTP locations: " + e.getMessage());
+        }
+    }
+
+    @Override
     public void onEnable() {
-        Instance = this;
+        instance = this;
         checkVersion();
         getLogger().info("Advanced Teleport is now enabling...");
         setupPermissions();
@@ -96,7 +169,6 @@ public final class CoreClass extends JavaPlugin {
         CooldownManager.init();
         RandomTPAlgorithms.init();
 
-        setupVersion();
         new Metrics(this, 5146);
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             RTPManager.init();
@@ -126,22 +198,11 @@ public final class CoreClass extends JavaPlugin {
         }
     }
 
-    @Override
-    public void onDisable() {
-        DataFailManager.get().onDisable();
-
-        try {
-            hackTheMainFrame();
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            getLogger().warning("Failed to shut down async tasks.");
-            e.printStackTrace();
-        }
-
-        try {
-            RTPManager.saveLocations();
-        } catch (IOException e) {
-            getLogger().warning("Failed to save RTP locations: " + e.getMessage());
-        }
+    private static void setupPermissions() {
+        if (Bukkit.getPluginManager().getPlugin("Vault") == null) return;
+        Optional.ofNullable(Bukkit.getServicesManager().getRegistration(Permission.class))
+            .map(RegisteredServiceProvider::getProvider)
+            .ifPresent(permission -> perms = permission);
     }
 
     private void registerEvents() {
@@ -157,9 +218,9 @@ public final class CoreClass extends JavaPlugin {
      * Nag author: 'Niestrat99' of 'AdvancedTeleport' about the following:
      * This plugin is not properly shutting down its async tasks when it is being shut down.
      * This task may throw errors during the final shutdown logs and might not complete before process dies.
-     *
+     * <p>
      * Careful what you consider proper, Paper...
-     *
+     * <p>
      * FYI - any Paper devs that see this, is there a better way to work around this?
      * AT freezes up due to the PaperLib#getChunkAtAsync method being held up, then floods the console, and considering the userbase...
      * If there's a better way of handling this please either open an issue or DM @ Error#7365 because this method honestly sucks ass
@@ -190,79 +251,29 @@ public final class CoreClass extends JavaPlugin {
         runnersField.set(scheduler, runners);
     }
 
-    private static void setupPermissions() {
-        if (Bukkit.getPluginManager().getPlugin("Vault") == null) return;
-        Optional.ofNullable(Bukkit.getServicesManager().getRegistration(Permission.class))
-            .map(RegisteredServiceProvider::getProvider)
-            .ifPresent(permission -> perms = permission);
-    }
-
-    public static void playSound(String type, String subType, Player target) {
-        String sound = null;
-        switch (type) {
-            case "tpa":
-                switch (subType) {
-                    case "sent" -> sound = NewConfig.get().TPA_REQUEST_SENT.get();
-                    case "received" -> sound = NewConfig.get().TPA_REQUEST_RECEIVED.get();
-                }
-                break;
-            case "tpahere":
-                sound = switch (subType) {
-                    case "sent" -> NewConfig.get().TPAHERE_REQUEST_SENT.get();
-                    case "received" -> NewConfig.get().TPAHERE_REQUEST_RECEIVED.get();
-                    default -> sound;
-                };
-                break;
-        }
-        if (sound == null) return;
-        if (sound.equalsIgnoreCase("none")) return;
-        try {
-            target.playSound(target.getLocation(), Sound.valueOf(sound), 10, 1);
-        } catch(IllegalArgumentException e){
-            CoreClass.getInstance().getLogger().warning(CoreClass.pltitle(sound + " is an invalid sound name"));
-        }
-    }
-
-    public static Permission getPerms() {
-        return perms;
-    }
-
-    private void setupVersion() {
-        String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].split("_")[1];
-        this.version = Integer.parseInt(bukkitVersion);
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public Object[] getUpdateInfo() {
-        return updateInfo;
-    }
-
-    public static void debug(String message) {
-        if (NewConfig.get().DEBUG.get()) {
-            CoreClass.getInstance().getLogger().info(message);
-        }
-    }
-
-    public static String getShortLocation(Location location) {
-        return location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " + location.getWorld();
-    }
-
     private void loadLibraries() throws ReflectiveOperationException, IOException, URISyntaxException, NoSuchAlgorithmException, InterruptedException {
         InjectingApplicationBuilder.createAppending("AT", getClassLoader())
             .downloadDirectoryPath(getDataFolder().toPath().resolve(".libs"))
             .logger(new ProcessLogger() {
                 @Override
-                public void log(String s, Object... objects) {
+                public void log(
+                    String s,
+                    Object... objects
+                ) {
                     getLogger().info(String.format(s, objects));
                 }
 
                 @Override
-                public void debug(String message, Object... args) {
+                public void debug(
+                    String message,
+                    Object... args
+                ) {
                     getLogger().info(String.format(message, args));
                 }
             }).build();
+    }
+
+    public Object[] getUpdateInfo() {
+        return updateInfo;
     }
 }

@@ -49,7 +49,8 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
         if (PaymentManager.getInstance().canPay("tpahere", player)) {
             int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
             CustomMessages.sendMessage(sender, "Info.requestSent",
-                    "player", target.getName(), "lifetime", String.valueOf(requestLifetime));
+                "player", target.getName(), "lifetime", String.valueOf(requestLifetime)
+            );
             CoreClass.playSound("tpahere", "sent", player);
             ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
@@ -57,19 +58,23 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
                 ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPAHere(player);
             } else {
                 CustomMessages.sendMessage(target, "Info.tpaRequestHere",
-                        "{player}", sender.getName(), "lifetime", String.valueOf(requestLifetime));
+                    "player", sender.getName(), "lifetime", String.valueOf(requestLifetime)
+                );
             }
             CoreClass.playSound("tpahere", "received", target);
 
             BukkitRunnable run = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                            CustomMessages.sendMessage(sender, "Error.requestExpired", "player",
-                                    target.getName());
+                @Override
+                public void run() {
+                    if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                        CustomMessages.sendMessage(sender, "Error.requestExpired", "player",
+                            target.getName()
+                        );
 
-                        TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target,
-                                player));
+                        TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(
+                            target,
+                            player
+                        ));
                     }
                 }
             };

@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.sql;
 
 public class AuditLogManager extends SQLManager {
 
-
     @Override
     public void createTable() {
 

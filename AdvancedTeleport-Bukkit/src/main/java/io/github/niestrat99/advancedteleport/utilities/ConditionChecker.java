@@ -22,7 +22,11 @@ public class ConditionChecker {
      * @param command the command being used
      * @return if the string is empty, the player can teleport, otherwise, state why
      */
-    public static String canTeleport(Player player, Player target, String command) {
+    public static String canTeleport(
+        Player player,
+        Player target,
+        String command
+    ) {
 
         // If the target is null, don't teleport
         if (target == null) return "Error.noSuchPlayer";
@@ -56,22 +60,27 @@ public class ConditionChecker {
         return "";
     }
 
-    public static String canTeleport(Location fromLoc, Location toLoc, String command, Player teleportingPlayer) {
+    public static String canTeleport(
+        Location fromLoc,
+        Location toLoc,
+        String command,
+        Player teleportingPlayer
+    ) {
         CoreClass.debug("Requested to see if " + teleportingPlayer.getName() + " can teleport from "
-                + CoreClass.getShortLocation(fromLoc) + " to " + CoreClass.getShortLocation(toLoc) + " using command "
-                + command);
+            + CoreClass.getShortLocation(fromLoc) + " to " + CoreClass.getShortLocation(toLoc) + " using command "
+            + command);
 
         // Check if the player is too far away
         if (NewConfig.get().ENABLE_DISTANCE_LIMITATIONS.get()
-                && !teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")
-                && fromLoc.getWorld() == toLoc.getWorld()
-                && !DistanceLimiter.canTeleport(toLoc, fromLoc, command, ATPlayer.getPlayer(teleportingPlayer))) {
+            && !teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")
+            && fromLoc.getWorld() == toLoc.getWorld()
+            && !DistanceLimiter.canTeleport(toLoc, fromLoc, command, ATPlayer.getPlayer(teleportingPlayer))) {
             return "Error.tooFarAway";
         }
 
         // Check if the player is able to teleport between/within worlds
         if (NewConfig.get().ENABLE_TELEPORT_LIMITATIONS.get()
-                && !teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
+            && !teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
             CoreClass.debug("Teleportation limits are enabled and the player is not bypassing them.");
             if (!NewConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return "";
             if (!LimitationsManager.canTeleport(teleportingPlayer, toLoc, command)) {
@@ -91,7 +100,10 @@ public class ConditionChecker {
         return players;
     }
 
-    public static <T> T validate(T object, String message) {
+    public static <T> T validate(
+        T object,
+        String message
+    ) {
         if (object != null) return object;
         throw new NullPointerException(message);
     }

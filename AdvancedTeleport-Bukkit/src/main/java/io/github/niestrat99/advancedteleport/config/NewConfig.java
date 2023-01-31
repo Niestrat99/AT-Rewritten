@@ -16,40 +16,35 @@ import java.util.List;
 
 public final class NewConfig extends ATConfig {
 
+    private static NewConfig instance;
+    private static List<String> defaults;
     public ConfigOption<Boolean> USE_BASIC_TELEPORT_FEATURES;
     public ConfigOption<Boolean> USE_WARPS;
     public ConfigOption<Boolean> USE_RANDOMTP;
     public ConfigOption<Boolean> USE_SPAWN;
     public ConfigOption<Boolean> USE_HOMES;
     public ConfigOption<List<String>> DISABLED_COMMANDS;
-
     public ConfigOption<Integer> REQUEST_LIFETIME;
     public ConfigOption<Boolean> USE_MULTIPLE_REQUESTS;
     public ConfigOption<Boolean> NOTIFY_ON_EXPIRE;
-
     public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
     public PerCommandOption<Integer> WARM_UPS;
     public ConfigOption<ConfigSection> CUSTOM_WARM_UPS;
-
     public ConfigOption<Boolean> BLINDNESS_ON_WARMUP;
-
     public ConfigOption<Integer> COOLDOWN_TIMER_DURATION;
     public ConfigOption<Boolean> ADD_COOLDOWN_DURATION_TO_WARM_UP;
     public ConfigOption<Boolean> APPLY_COOLDOWN_TO_ALL_COMMANDS;
     public ConfigOption<String> APPLY_COOLDOWN_AFTER;
     public PerCommandOption<Integer> COOLDOWNS;
     public ConfigOption<ConfigSection> CUSTOM_COOLDOWNS;
-
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
     public ConfigOption<ConfigSection> CUSTOM_COSTS;
-
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
     public PerCommandOption<String> WAITING_PARTICLES;
-
     public ConfigOption<Boolean> USE_MYSQL;
     public ConfigOption<String> MYSQL_HOST;
     public ConfigOption<Integer> MYSQL_PORT;
@@ -60,19 +55,15 @@ public final class NewConfig extends ATConfig {
     public ConfigOption<Boolean> USE_SSL;
     public ConfigOption<Boolean> AUTO_RECONNECT;
     public ConfigOption<Boolean> ALLOW_PUBLIC_KEY_RETRIEVAL;
-
     public ConfigOption<Boolean> ENABLE_DISTANCE_LIMITATIONS;
     public ConfigOption<Integer> MAXIMUM_TELEPORT_DISTANCE;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS;
     public PerCommandOption<Integer> DISTANCE_LIMITS;
     public ConfigOption<ConfigSection> CUSTOM_DISTANCE_LIMITS;
-
     public ConfigOption<Boolean> ENABLE_TELEPORT_LIMITATIONS;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS_LIMITS;
     public ConfigOption<ConfigSection> WORLD_RULES;
     public PerCommandOption<String> COMMAND_RULES;
-
-
     public ConfigOption<ConfigSection> X;
     public ConfigOption<ConfigSection> Z;
     public ConfigOption<Boolean> RAPID_RESPONSE;
@@ -86,41 +77,30 @@ public final class NewConfig extends ATConfig {
     public ConfigOption<Boolean> WHITELIST_WORLD;
     public ConfigOption<Boolean> REDIRECT_TO_WORLD;
     public ConfigOption<List<String>> ALLOWED_WORLDS;
-
     public ConfigOption<Integer> DEFAULT_HOMES_LIMIT;
     public ConfigOption<Boolean> ADD_BED_TO_HOMES;
     public ConfigOption<Boolean> DENY_HOMES_IF_OVER_LIMIT;
     public ConfigOption<Boolean> HIDE_HOMES_IF_DENIED;
     public ConfigOption<Boolean> OVERWRITE_SETHOME;
-
     public ConfigOption<String> TPA_REQUEST_RECEIVED;
     public ConfigOption<String> TPA_REQUEST_SENT;
     public ConfigOption<String> TPAHERE_REQUEST_RECEIVED;
     public ConfigOption<String> TPAHERE_REQUEST_SENT;
-
     public ConfigOption<List<String>> BACK_TELEPORT_CAUSES;
     public ConfigOption<Integer> BACK_SEARCH_RADIUS;
-
     public MapOptions MAP_HOMES;
     public MapOptions MAP_WARPS;
     public MapOptions MAP_SPAWNS;
-
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
-
     public ConfigOption<ConfigSection> DEATH_MANAGEMENT;
-
     public ConfigOption<List<String>> DEFAULT_PERMISSIONS;
     public ConfigOption<Boolean> ALLOW_ADMIN_PERMS;
-
     public ConfigOption<Boolean> CHECK_FOR_UPDATES;
     public ConfigOption<Boolean> NOTIFY_ADMINS;
     public ConfigOption<Boolean> DEBUG;
     public ConfigOption<Boolean> USE_FLOODGATE_FORMS;
-
-    private static NewConfig instance;
-    private static List<String> defaults;
 
     /**
      *
@@ -128,17 +108,21 @@ public final class NewConfig extends ATConfig {
     public NewConfig() throws IOException {
         super("config.yml");
         setTitle(new Title().withWidth(100).addSolidLine()
-                .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
-                .addLine("Made by Niestrat99 and Thatsmusic99", Title.Pos.CENTER)
-                .addLine("")
-                .addSolidLine('-')
-                .addLine("A rapidly growing teleportation plugin looking to break the boundaries of traditional " +
-                        "teleport plugins.")
-                .addLine("")
-                .addLine("SpigotMC - https://www.spigotmc.org/resources/advanced-teleport.64139/")
-                .addLine("Wiki - https://github.com/Niestrat99/AT-Rewritten/wiki")
-                .addLine("Discord - https://discord.gg/mgWbbN4")
-                .addSolidLine());
+            .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
+            .addLine("Made by Niestrat99 and Thatsmusic99", Title.Pos.CENTER)
+            .addLine("")
+            .addSolidLine('-')
+            .addLine("A rapidly growing teleportation plugin looking to break the boundaries of traditional " +
+                "teleport plugins.")
+            .addLine("")
+            .addLine("SpigotMC - https://www.spigotmc.org/resources/advanced-teleport.64139/")
+            .addLine("Wiki - https://github.com/Niestrat99/AT-Rewritten/wiki")
+            .addLine("Discord - https://discord.gg/mgWbbN4")
+            .addSolidLine());
+    }
+
+    public static NewConfig get() {
+        return instance;
     }
 
     @Override
@@ -198,30 +182,30 @@ public final class NewConfig extends ATConfig {
         addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
         makeSectionLenient("custom-warm-ups");
         addComment("Use this section to create custom warm-ups per-group.\n" +
-                "Use the following format:\n" +
-                "custom-warm-ups:\n" +
-                "  vip-warm-up: 3\n" +
-                "Giving a group, such as VIP, the permission at.member.timer.vip-warm-up will have a warm-up of 3.\n" +
-                "The key (vip-warm-up) and group name (VIP) do not have to be different, this is just an example.\n" +
-                "You can also add at.member.timer.3, but this is more efficient if you find permissions lag." +
-                "To make it per-command, use at.member.timer.<command>.vip-warm-up. To make it per-world, use at.member.timer.<world>.vip-warm-up.\n" +
-                "To combine the two, you can use at.member.timer.<command>.<world>.vip-warm-up.");
+            "Use the following format:\n" +
+            "custom-warm-ups:\n" +
+            "  vip-warm-up: 3\n" +
+            "Giving a group, such as VIP, the permission at.member.timer.vip-warm-up will have a warm-up of 3.\n" +
+            "The key (vip-warm-up) and group name (VIP) do not have to be different, this is just an example.\n" +
+            "You can also add at.member.timer.3, but this is more efficient if you find permissions lag." +
+            "To make it per-command, use at.member.timer.<command>.vip-warm-up. To make it per-world, use at.member.timer.<world>.vip-warm-up.\n" +
+            "To combine the two, you can use at.member.timer.<command>.<world>.vip-warm-up.");
 
         addDefault("blindness-on-warmup", false, "Gives the teleporting player a blindness effect whilst waiting to " +
-                "teleport.");
+            "teleport.");
 
         addDefault("cooldown-duration", 5, "Cooldowns", "How long before the user can use a command again.\n" +
-                "This stops users spamming commands repeatedly.\n" +
-                "This is also the default cooldown period for all commands.");
+            "This stops users spamming commands repeatedly.\n" +
+            "This is also the default cooldown period for all commands.");
         addDefault("add-cooldown-duration-to-warm-up", true, "Adds the warm-up duration to the cooldown duration.\n" +
-                "For example, if the cooldown duration was 5 seconds but the warm-up was 3, the cooldown becomes 8 " +
-                "seconds long.");
+            "For example, if the cooldown duration was 5 seconds but the warm-up was 3, the cooldown becomes 8 " +
+            "seconds long.");
         addDefault("apply-cooldown-to-all-commands", false, "Whether or not the cooldown of one command will stop a " +
-                "user from using all commands.\n" +
-                "For example, if a player used /tpa with a cooldown of 10 seconds but then used /tpahere with a " +
-                "cooldown of 5, the 10-second cooldown would still apply.\n" +
-                "On the other hand, if a player used /tpahere, the cooldown of 5 seconds would apply to /tpa and " +
-                "other commands.");
+            "user from using all commands.\n" +
+            "For example, if a player used /tpa with a cooldown of 10 seconds but then used /tpahere with a " +
+            "cooldown of 5, the 10-second cooldown would still apply.\n" +
+            "On the other hand, if a player used /tpahere, the cooldown of 5 seconds would apply to /tpa and " +
+            "other commands.");
         addDefault("apply-cooldown-after", "request", "When to apply the cooldown\n" +
                 "Options include:\n" +
                 "- request - Cooldown starts as soon as any teleport command is made and still applies even if no " +
@@ -528,9 +512,9 @@ public final class NewConfig extends ATConfig {
             addDefault(type + ".enabled", !type.equals("homes"), "Whether the icons for " + type + " will be added at all.");
             addDefault(type + ".default-icon", singular + "-default", "The default icon for " + type + " in the map.");
             addDefault(type + ".shown-by-default", true, "Whether the player viewing the map has to explicitly enable the layer to view " + type + " on the map.");
-            addDefault(type + ".hover-tooltip", "{name}", "The tooltip that will appear when someone hovers over the icon in the map." +
+            addDefault(type + ".hover-tooltip", "name", "The tooltip that will appear when someone hovers over the icon in the map." +
                     "\nFor Dynmap, this supports HTML formatting.");
-            addDefault(type + ".click-tooltip", "{name}", "Squaremap only - the tooltip that will appear when someone clicks on the icon.");
+            addDefault(type + ".click-tooltip", "name", "Squaremap only - the tooltip that will appear when someone clicks on the icon.");
             addDefault(type + ".icon-size", "32", "The scale of the icon on the map.\n" +
                     "With Dynmap, only 8, 16 and 32 are supported. With Squaremap, 2147483647 is your limit. But don't try it.");
             addDefault(type + ".layer-name", capitalised, "The layer display name that appears on the map.");
@@ -557,13 +541,13 @@ public final class NewConfig extends ATConfig {
                 " Hub, you'd type warp:Hub\n" +
                 "- tpr - Teleports the player to a random location. Can only be used when the rapid response system " +
                 "is enabled." +
-                "- {default} - Uses the default respawn option, which is spawn unless set differently.\n" +
+                "- default - Uses the default respawn option, which is spawn unless set differently.\n" +
                 "If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set " +
                 "respawn-listener-priority in EssX's config.yml file to lowest.");
 
         makeSectionLenient("death-management");
         addDefault("death-management.default", "bed;spawn");
-        addExample("death-management.world", "{default}");
+        addExample("death-management.world", "default");
         addExample("death-management.special-world", "warp:Special");
         addExample("death-management.another-world", "bed");
 
@@ -589,10 +573,6 @@ public final class NewConfig extends ATConfig {
                 These work by having a Bedrock player type in the command itself (such as /warp, /tpa, /setwarp), then fill in the rest of the commands through a form.
                 This only works when Geyser and Floodgate are used on the server. This improves accessibility for mobile or console players.""");
 
-    }
-
-    public static NewConfig get() {
-        return instance;
     }
 
     @Override
@@ -646,9 +626,9 @@ public final class NewConfig extends ATConfig {
                 Object vault = get("payments.vault." + command + ".price");
                 Object exp = get("payments.exp." + command + ".price");
                 boolean vaultOn = get("payments.vault." + command + ".enabled").equals("default")
-                        ? defaultVault : getBoolean("payments.vault." + command + ".enabled");
+                                  ? defaultVault : getBoolean("payments.vault." + command + ".enabled");
                 boolean expOn = get("payments.exp." + command + ".enabled").equals("default")
-                        ? defaultEXP : getBoolean("payments.exp." + command + ".enabled");
+                                ? defaultEXP : getBoolean("payments.exp." + command + ".enabled");
                 StringBuilder paymentCombination = new StringBuilder();
                 if (vaultOn) {
                     if (vault.equals("default")) {
@@ -834,7 +814,6 @@ public final class NewConfig extends ATConfig {
             }
         }
 
-
         Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), () -> {
             boolean warned = false;
             for (String permission : permissions) {
@@ -842,19 +821,19 @@ public final class NewConfig extends ATConfig {
                 if (permission.startsWith("at.admin")) {
                     if (!warned) {
                         CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default" +
-                                " to all users.");
+                            " to all users.");
                         if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
                             CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so we're " +
-                                    "not adding it right now.");
+                                "not adding it right now.");
                             CoreClass.getInstance().getLogger().warning("To allow people to use admin permissions such as" +
-                                    " the ones specified, please disable the check in the configuration.");
+                                " the ones specified, please disable the check in the configuration.");
                             CoreClass.getInstance().getLogger().warning("If you have a permissions plugin hooked into " +
-                                    "Vault too, you cannot make admin permissions default permissions.");
+                                "Vault too, you cannot make admin permissions default permissions.");
                         } else {
                             CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so if this " +
-                                    "is not your doing, please check your configuration.");
+                                "is not your doing, please check your configuration.");
                             CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as " +
-                                    "the ones specified, please enable the check in the configuration.");
+                                "the ones specified, please enable the check in the configuration.");
                         }
                         warned = true;
                     }
@@ -878,14 +857,17 @@ public final class NewConfig extends ATConfig {
 
     public static class ConfigOption<T> {
 
-        private String path;
+        private final String path;
         private String defaultPath;
 
         public ConfigOption(String path) {
             this.path = path;
         }
 
-        public ConfigOption(String path, String defaultPath) {
+        public ConfigOption(
+            String path,
+            String defaultPath
+        ) {
             this.path = path;
             this.defaultPath = defaultPath;
         }
@@ -913,7 +895,10 @@ public final class NewConfig extends ATConfig {
         public ConfigOption<T> HOME;
         public ConfigOption<T> BACK;
 
-        public PerCommandOption(String path, String defaultPath) {
+        public PerCommandOption(
+            String path,
+            String defaultPath
+        ) {
             TPA = new ConfigOption<>(path + ".tpa", defaultPath);
             TPAHERE = new ConfigOption<>(path + ".tpahere", defaultPath);
             TPR = new ConfigOption<>(path + ".tpr", defaultPath);

@@ -29,12 +29,14 @@ public class MetadataSQLManager extends SQLManager {
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement createTable = prepareStatement(connection,
-                        "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_metadata " +
-                                "(data_id VARCHAR(256) NOT NULL, " +
-                                "type VARCHAR(256) NOT NULL," +
-                                "key VARCHAR(256) NOT NULL, " +
-                                "value TEXT NOT NULL)");
+                PreparedStatement createTable = prepareStatement(
+                    connection,
+                    "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_metadata " +
+                        "(data_id VARCHAR(256) NOT NULL, " +
+                        "type VARCHAR(256) NOT NULL," +
+                        "key VARCHAR(256) NOT NULL, " +
+                        "value TEXT NOT NULL)"
+                );
                 executeUpdate(createTable);
             } catch (SQLException exception) {
                 CoreClass.getInstance().getLogger().severe("Failed to create the metadata table.");
@@ -48,23 +50,17 @@ public class MetadataSQLManager extends SQLManager {
     public void transferOldData() {
     }
 
-    public String getValue(Connection connection, String dataId, String type, String key) throws SQLException {
-        PreparedStatement statement = prepareStatement(connection,
-                "SELECT value FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;");
-        statement.setString(1, dataId);
-        statement.setString(2, type);
-        statement.setString(3, key);
-        ResultSet set = executeQuery(statement);
-        if (set.next()) {
-            return set.getString("value");
-        }
-        return null;
-    }
-
-    public List<String> getAllValues(Connection connection, String dataId, String type, String key) throws SQLException {
+    public List<String> getAllValues(
+        Connection connection,
+        String dataId,
+        String type,
+        String key
+    ) throws SQLException {
         List<String> results = new ArrayList<>();
-        PreparedStatement statement = prepareStatement(connection,
-                "SELECT value FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;");
+        PreparedStatement statement = prepareStatement(
+            connection,
+            "SELECT value FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;"
+        );
         statement.setString(1, dataId);
         statement.setString(2, type);
         statement.setString(3, key);
@@ -75,28 +71,11 @@ public class MetadataSQLManager extends SQLManager {
         return results;
     }
 
-    public boolean addMetadata(Connection connection, String dataId, String type, String key, String value) throws SQLException {
-        PreparedStatement statement = prepareStatement(connection,
-                "INSERT INTO " + tablePrefix + "_metadata (data_id, type, key, value) VALUES (?, ?, ?, ?);");
-        statement.setString(1, dataId);
-        statement.setString(2, type);
-        statement.setString(3, key);
-        statement.setString(4, value);
-        executeUpdate(statement);
-        return true;
-    }
-
-    public boolean deleteMetadata(Connection connection, String dataId, String type, String key) throws SQLException {
-        PreparedStatement statement = prepareStatement(connection,
-                "DELETE FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;");
-        statement.setString(1, dataId);
-        statement.setString(2, type);
-        statement.setString(3, key);
-        executeUpdate(statement);
-        return true;
-    }
-
-    public CompletableFuture<Boolean> addWarpMetadata(String warpName, String key, String value) {
+    public CompletableFuture<Boolean> addWarpMetadata(
+        String warpName,
+        String key,
+        String value
+    ) {
         return WarpSQLManager.get().getWarpId(warpName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;
@@ -107,7 +86,31 @@ public class MetadataSQLManager extends SQLManager {
         }, CoreClass.async);
     }
 
-    public CompletableFuture<Boolean> addHomeMetadata(String homeName, UUID owner, String key, String value) {
+    public boolean addMetadata(
+        Connection connection,
+        String dataId,
+        String type,
+        String key,
+        String value
+    ) throws SQLException {
+        PreparedStatement statement = prepareStatement(
+            connection,
+            "INSERT INTO " + tablePrefix + "_metadata (data_id, type, key, value) VALUES (?, ?, ?, ?);"
+        );
+        statement.setString(1, dataId);
+        statement.setString(2, type);
+        statement.setString(3, key);
+        statement.setString(4, value);
+        executeUpdate(statement);
+        return true;
+    }
+
+    public CompletableFuture<Boolean> addHomeMetadata(
+        String homeName,
+        UUID owner,
+        String key,
+        String value
+    ) {
         return HomeSQLManager.get().getHomeId(homeName, owner).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;
@@ -118,7 +121,11 @@ public class MetadataSQLManager extends SQLManager {
         });
     }
 
-    public CompletableFuture<Boolean> addSpawnMetadata(String spawnName, String key, String value) {
+    public CompletableFuture<Boolean> addSpawnMetadata(
+        String spawnName,
+        String key,
+        String value
+    ) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = implementConnection()) {
                 if (spawnName == null) return false;
@@ -129,7 +136,10 @@ public class MetadataSQLManager extends SQLManager {
         });
     }
 
-    public CompletableFuture<String> getWarpMetadata(String warpName, String key) {
+    public CompletableFuture<String> getWarpMetadata(
+        String warpName,
+        String key
+    ) {
         return WarpSQLManager.get().getWarpId(warpName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return null;
@@ -140,7 +150,31 @@ public class MetadataSQLManager extends SQLManager {
         });
     }
 
-    public CompletableFuture<String> getHomeMetadata(String homeName, UUID owner, String key) {
+    public String getValue(
+        Connection connection,
+        String dataId,
+        String type,
+        String key
+    ) throws SQLException {
+        PreparedStatement statement = prepareStatement(
+            connection,
+            "SELECT value FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;"
+        );
+        statement.setString(1, dataId);
+        statement.setString(2, type);
+        statement.setString(3, key);
+        ResultSet set = executeQuery(statement);
+        if (set.next()) {
+            return set.getString("value");
+        }
+        return null;
+    }
+
+    public CompletableFuture<String> getHomeMetadata(
+        String homeName,
+        UUID owner,
+        String key
+    ) {
         return HomeSQLManager.get().getHomeId(homeName, owner).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return null;
@@ -151,7 +185,10 @@ public class MetadataSQLManager extends SQLManager {
         });
     }
 
-    public CompletableFuture<String> getSpawnMetadata(String spawnName, String key) {
+    public CompletableFuture<String> getSpawnMetadata(
+        String spawnName,
+        String key
+    ) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = implementConnection()) {
                 if (spawnName == null) return null;
@@ -162,7 +199,10 @@ public class MetadataSQLManager extends SQLManager {
         });
     }
 
-    public CompletableFuture<Boolean> deleteWarpMetadata(String warpName, String key) {
+    public CompletableFuture<Boolean> deleteWarpMetadata(
+        String warpName,
+        String key
+    ) {
         return WarpSQLManager.get().getWarpId(warpName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;
@@ -173,7 +213,28 @@ public class MetadataSQLManager extends SQLManager {
         }, CoreClass.async);
     }
 
-    public CompletableFuture<Boolean> deleteHomeMetadata(String homeName, UUID owner, String key) {
+    public boolean deleteMetadata(
+        Connection connection,
+        String dataId,
+        String type,
+        String key
+    ) throws SQLException {
+        PreparedStatement statement = prepareStatement(
+            connection,
+            "DELETE FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;"
+        );
+        statement.setString(1, dataId);
+        statement.setString(2, type);
+        statement.setString(3, key);
+        executeUpdate(statement);
+        return true;
+    }
+
+    public CompletableFuture<Boolean> deleteHomeMetadata(
+        String homeName,
+        UUID owner,
+        String key
+    ) {
         return HomeSQLManager.get().getHomeId(homeName, owner).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;

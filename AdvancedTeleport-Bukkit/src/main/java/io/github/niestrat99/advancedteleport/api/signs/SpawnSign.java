@@ -14,7 +14,10 @@ public class SpawnSign extends ATSign {
     }
 
     @Override
-    public void onInteract(@NotNull Sign sign, @NotNull Player player) {
+    public void onInteract(
+        @NotNull Sign sign,
+        @NotNull Player player
+    ) {
         String world = player.getWorld().getName();
         if (!sign.getLine(1).isEmpty()) {
             world = sign.getLine(1);
@@ -23,7 +26,10 @@ public class SpawnSign extends ATSign {
     }
 
     @Override
-    public boolean canCreate(@NotNull Sign sign, @NotNull Player player) {
+    public boolean canCreate(
+        @NotNull Sign sign,
+        @NotNull Player player
+    ) {
         return true;
     }
 }

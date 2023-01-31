@@ -34,7 +34,7 @@ public final class SetSpawn extends SpawnATCommand implements PlayerCommand {
         String finalName = name;
         String finalMessage = message;
         AdvancedTeleportAPI.setSpawn(name, player, player.getLocation()).thenAcceptAsync(result ->
-                CustomMessages.sendMessage(sender, finalMessage, "spawn", finalName));
+            CustomMessages.sendMessage(sender, finalMessage, "spawn", finalName));
         return true;
     }
 

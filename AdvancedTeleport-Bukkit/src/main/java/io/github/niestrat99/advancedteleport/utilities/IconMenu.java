@@ -38,11 +38,10 @@ public class IconMenu implements Listener, InventoryHolder {
     private final String title;
     // Size of the inventory, must be a multiple of 9
     private final int size;
-    // Current page the user is on
-    private int currentPage;
     // Number of pages
     private final int pageCount;
-
+    // Current page the user is on
+    private int currentPage;
     //
     private OptionPage[] optionPages;
 
@@ -52,7 +51,12 @@ public class IconMenu implements Listener, InventoryHolder {
     // Stores the Inventory itself
     private Inventory inventory;
 
-    public IconMenu(String title, int size, int pageCount, CoreClass core) {
+    public IconMenu(
+        String title,
+        int size,
+        int pageCount,
+        CoreClass core
+    ) {
         this.title = title;
         this.size = size;
         this.core = core;
@@ -67,11 +71,27 @@ public class IconMenu implements Listener, InventoryHolder {
         core.getServer().getPluginManager().registerEvents(this, core);
     }
 
-    public Player getPlayer() {
-        return Bukkit.getPlayer(player);
+    private static ItemStack setItemNameAndLore(
+        ItemStack item,
+        String name,
+        List<String> lore
+    ) {
+        ItemMeta im = item.getItemMeta();
+        im.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+        List<String> colLore = new ArrayList<>();
+        for (String str : lore) {
+            colLore.add(ChatColor.translateAlternateColorCodes('&', str));
+        }
+        im.setLore(colLore);
+        item.setItemMeta(im);
+        return item;
     }
 
-    public IconMenu setIcon(int page, int position, Icon icon) {
+    public IconMenu setIcon(
+        int page,
+        int position,
+        Icon icon
+    ) {
         this.optionPages[page].optionIcons[position] = icon;
         return this;
     }
@@ -83,10 +103,30 @@ public class IconMenu implements Listener, InventoryHolder {
         player.openInventory(inventory);
     }
 
+    private void updateContents() {
+        for (int i = 0; i < size; i++) {
+            Icon icon = this.optionPages[currentPage].optionIcons[i];
+            if (icon != null) {
+                inventory.setItem(i, icon.item);
+            } else {
+                inventory.clear(i);
+            }
+        }
+    }
+
     public void openNextPage() {
         if (this.currentPage + 1 >= pageCount) return;
         this.currentPage++;
         this.updatePage();
+    }
+
+    public void updatePage() {
+        updateContents();
+        getPlayer().updateInventory();
+    }
+
+    public Player getPlayer() {
+        return Bukkit.getPlayer(player);
     }
 
     public void openPreviousPage() {
@@ -101,19 +141,14 @@ public class IconMenu implements Listener, InventoryHolder {
         this.updatePage();
     }
 
-    public void updatePage() {
-        updateContents();
-        getPlayer().updateInventory();
+    public int getPageCount() {
+        return pageCount;
     }
 
-    private void updateContents() {
-        for (int i = 0; i < size; i++) {
-            Icon icon = this.optionPages[currentPage].optionIcons[i];
-            if (icon != null) {
-                inventory.setItem(i, icon.item);
-            } else {
-                inventory.clear(i);
-            }
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onInventoryClosed(InventoryCloseEvent event) {
+        if (event.getInventory().getHolder() == this) {
+            destroy();
         }
     }
 
@@ -123,25 +158,6 @@ public class IconMenu implements Listener, InventoryHolder {
         optionPages = null;
         player = null;
         inventory = null;
-    }
-
-    public int getPageCount() {
-        return pageCount;
-    }
-
-    private static class OptionPage {
-        private final Icon[] optionIcons;
-
-        public OptionPage(int size) {
-            this.optionIcons = new Icon[size];
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onInventoryClosed(InventoryCloseEvent event) {
-        if (event.getInventory().getHolder() == this) {
-            destroy();
-        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -179,6 +195,14 @@ public class IconMenu implements Listener, InventoryHolder {
         void onOptionClick(OptionClickEvent event);
     }
 
+    private static class OptionPage {
+        private final Icon[] optionIcons;
+
+        public OptionPage(int size) {
+            this.optionIcons = new Icon[size];
+        }
+    }
+
     public static class Icon {
 
         private final ItemStack item;
@@ -194,7 +218,10 @@ public class IconMenu implements Listener, InventoryHolder {
             return this;
         }
 
-        public Icon withNameAndLore(String name, List<String> lore) {
+        public Icon withNameAndLore(
+            String name,
+            List<String> lore
+        ) {
             setItemNameAndLore(item, name, lore);
             return this;
         }
@@ -203,9 +230,9 @@ public class IconMenu implements Listener, InventoryHolder {
             String typeName = item.getType().name();
             // Make sure it's an actual skull and the texture exists - otherwise, skip it all
             if (((typeName.equalsIgnoreCase("SKULL_ITEM") && item.getDurability() == 3)
-                    || typeName.equalsIgnoreCase("PLAYER_HEAD"))
-                    && texture != null
-                    && !texture.isEmpty()) {
+                || typeName.equalsIgnoreCase("PLAYER_HEAD"))
+                && texture != null
+                && !texture.isEmpty()) {
                 // Create the fake game profile - it needs a UUID, otherwise there would be a delay in setting the texture.
                 GameProfile profile = new GameProfile(UUID.nameUUIDFromBytes(texture.getBytes()), "AdvTPHead");
                 // The data which contains the texture.
@@ -246,7 +273,10 @@ public class IconMenu implements Listener, InventoryHolder {
             return this;
         }
 
-        public void activate(Player player, OptionClickEvent event) {
+        public void activate(
+            Player player,
+            OptionClickEvent event
+        ) {
             if (commands != null) {
                 for (String command : commands) {
                     Bukkit.dispatchCommand(player, command);
@@ -269,7 +299,11 @@ public class IconMenu implements Listener, InventoryHolder {
         private boolean close;
         private boolean destroy;
 
-        public OptionClickEvent(Player player, int position, Icon icon) {
+        public OptionClickEvent(
+            Player player,
+            int position,
+            Icon icon
+        ) {
             this.player = player;
             this.position = position;
             this.icon = icon;
@@ -304,18 +338,6 @@ public class IconMenu implements Listener, InventoryHolder {
         public void setWillDestroy(boolean destroy) {
             this.destroy = destroy;
         }
-    }
-
-    private static ItemStack setItemNameAndLore(ItemStack item, String name, List<String> lore) {
-        ItemMeta im = item.getItemMeta();
-        im.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        List<String> colLore = new ArrayList<>();
-        for (String str : lore) {
-            colLore.add(ChatColor.translateAlternateColorCodes('&', str));
-        }
-        im.setLore(colLore);
-        item.setItemMeta(im);
-        return item;
     }
 }
 

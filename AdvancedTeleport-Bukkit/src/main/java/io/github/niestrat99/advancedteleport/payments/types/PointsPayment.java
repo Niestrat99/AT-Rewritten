@@ -24,37 +24,9 @@ public class PointsPayment extends Payment {
         points = (int) amount;
     }
 
-    public void addLevels(LevelsPayment levels) {
-        if (this.levels == null) {
-            this.levels = levels;
-        } else {
-            this.levels.setPaymentAmount(this.levels.getPaymentAmount() + levels.getPaymentAmount());
-        }
-    }
-
     @Override
     public double getPlayerAmount(Player player) {
         return player.getTotalExperience();
-    }
-
-    @Override
-    public boolean canPay(Player player) {
-        int requiredPoints = points;
-        if (levels != null) {
-            if (levels.getPaymentAmount() > player.getLevel()) {
-                CustomMessages.sendMessage(player, "Error.notEnoughEXP", "levels", String.valueOf(levels.getPaymentAmount()));
-                return false;
-            }
-            int expPoints = getEXPBetweenLevels(player.getLevel());
-            requiredPoints += expPoints;
-        }
-        if (player.getTotalExperience() >= requiredPoints) {
-            return true;
-        } else {
-            CustomMessages.sendMessage(player, "Error.notEnoughEXPPoints", "points", String.valueOf(requiredPoints));
-
-            return false;
-        }
     }
 
     @Override
@@ -74,8 +46,29 @@ public class PointsPayment extends Payment {
         player.giveExp(-expPoints);
         if (expPoints > 0) {
             CustomMessages.sendMessage(player, "Info.paymentEXP",
-                    "{amount}", String.valueOf(levels.getPaymentAmount()),
-                    "{levels}", String.valueOf(player.getLevel()));
+                "amount", String.valueOf(levels.getPaymentAmount()),
+                "levels", String.valueOf(player.getLevel())
+            );
+        }
+    }
+
+    @Override
+    public boolean canPay(Player player) {
+        int requiredPoints = points;
+        if (levels != null) {
+            if (levels.getPaymentAmount() > player.getLevel()) {
+                CustomMessages.sendMessage(player, "Error.notEnoughEXP", "levels", String.valueOf(levels.getPaymentAmount()));
+                return false;
+            }
+            int expPoints = getEXPBetweenLevels(player.getLevel());
+            requiredPoints += expPoints;
+        }
+        if (player.getTotalExperience() >= requiredPoints) {
+            return true;
+        } else {
+            CustomMessages.sendMessage(player, "Error.notEnoughEXPPoints", "points", String.valueOf(requiredPoints));
+
+            return false;
         }
     }
 
@@ -99,5 +92,13 @@ public class PointsPayment extends Payment {
             }
         }
         return expPoints;
+    }
+
+    public void addLevels(LevelsPayment levels) {
+        if (this.levels == null) {
+            this.levels = levels;
+        } else {
+            this.levels.setPaymentAmount(this.levels.getPaymentAmount() + levels.getPaymentAmount());
+        }
     }
 }

@@ -1,12 +1,51 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.commands.*;
-import io.github.niestrat99.advancedteleport.commands.core.*;
-import io.github.niestrat99.advancedteleport.commands.home.*;
-import io.github.niestrat99.advancedteleport.commands.spawn.*;
-import io.github.niestrat99.advancedteleport.commands.teleport.*;
-import io.github.niestrat99.advancedteleport.commands.warp.*;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.commands.CoreCommand;
+import io.github.niestrat99.advancedteleport.commands.SubATCommand;
+import io.github.niestrat99.advancedteleport.commands.core.ExportCommand;
+import io.github.niestrat99.advancedteleport.commands.core.HelpCommand;
+import io.github.niestrat99.advancedteleport.commands.core.ImportCommand;
+import io.github.niestrat99.advancedteleport.commands.core.InfoCommand;
+import io.github.niestrat99.advancedteleport.commands.core.ParticlesCommand;
+import io.github.niestrat99.advancedteleport.commands.core.PurgeCommand;
+import io.github.niestrat99.advancedteleport.commands.core.ReloadCommand;
+import io.github.niestrat99.advancedteleport.commands.home.DelHomeCommand;
+import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
+import io.github.niestrat99.advancedteleport.commands.home.HomesCommand;
+import io.github.niestrat99.advancedteleport.commands.home.MoveHomeCommand;
+import io.github.niestrat99.advancedteleport.commands.home.SetHomeCommand;
+import io.github.niestrat99.advancedteleport.commands.home.SetMainHomeCommand;
+import io.github.niestrat99.advancedteleport.commands.spawn.MirrorSpawn;
+import io.github.niestrat99.advancedteleport.commands.spawn.RemoveSpawn;
+import io.github.niestrat99.advancedteleport.commands.spawn.SetMainSpawn;
+import io.github.niestrat99.advancedteleport.commands.spawn.SetSpawn;
+import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
+import io.github.niestrat99.advancedteleport.commands.teleport.Back;
+import io.github.niestrat99.advancedteleport.commands.teleport.ToggleTP;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpAll;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpBlockCommand;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpCancel;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpHereOffline;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpList;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpLoc;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpNo;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpOff;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpOffline;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpOn;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpUnblock;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpYes;
+import io.github.niestrat99.advancedteleport.commands.teleport.Tpa;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpaHere;
+import io.github.niestrat99.advancedteleport.commands.teleport.Tpo;
+import io.github.niestrat99.advancedteleport.commands.teleport.TpoHere;
+import io.github.niestrat99.advancedteleport.commands.teleport.Tpr;
+import io.github.niestrat99.advancedteleport.commands.warp.DeleteWarpCommand;
+import io.github.niestrat99.advancedteleport.commands.warp.MoveWarpCommand;
+import io.github.niestrat99.advancedteleport.commands.warp.SetWarpCommand;
+import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
+import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -17,7 +56,11 @@ import org.bukkit.command.SimpleCommandMap;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class CommandManager {
 
@@ -76,7 +119,10 @@ public class CommandManager {
         subcommands.put("particles", new ParticlesCommand());
     }
 
-    private static void register(String name, ATCommand atCommand) {
+    private static void register(
+        String name,
+        ATCommand atCommand
+    ) {
         PluginCommand command = Bukkit.getPluginCommand("advancedteleport:" + name);
         if (command == null) command = atCommands.get(name);
         if (command == null) return;

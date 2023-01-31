@@ -45,7 +45,8 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
             }
             players++;
             CustomMessages.sendMessage(target, "Info.tpaRequestHere", "player", sender.getName(),
-                    "{lifetime}", String.valueOf(requestLifetime));
+                "lifetime", String.valueOf(requestLifetime)
+            );
 
             BukkitRunnable run = new BukkitRunnable() {
                 @Override
@@ -61,7 +62,7 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
             CooldownManager.addToCooldown("tpahere", player);
         }
         if (players > 0) {
-            CustomMessages.sendMessage(player, "Info.tpallRequestSent", "{amount}", String.valueOf(players));
+            CustomMessages.sendMessage(player, "Info.tpallRequestSent", "amount", String.valueOf(players));
         } else {
             CustomMessages.sendMessage(player, "Error.noRequestsSent");
         }

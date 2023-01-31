@@ -43,8 +43,9 @@ public final class MirrorSpawn extends SpawnATCommand {
         String finalToWorld = toWorld;
         String finalFromWorld = fromWorld;
         AdvancedTeleportAPI.mirrorSpawn(fromWorld, toWorld, sender).handleAsync((v, e) ->
-                handleCommandFeedback(e, sender, "Info.mirroredSpawn", "Error.noSpawn", "{spawn}",
-                        finalToWorld, "{from}", finalFromWorld));
+            handleCommandFeedback(e, sender, "Info.mirroredSpawn", "Error.noSpawn", "spawn",
+                finalToWorld, "from", finalFromWorld
+            ));
         return true;
     }
 

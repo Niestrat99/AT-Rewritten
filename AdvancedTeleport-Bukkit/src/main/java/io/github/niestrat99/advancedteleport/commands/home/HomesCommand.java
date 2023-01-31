@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.extensions.ExPermission;
-import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -17,6 +16,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public final class HomesCommand extends AbstractHomeCommand {
 
@@ -65,7 +66,7 @@ public final class HomesCommand extends AbstractHomeCommand {
         final var body = Component.join(
             JoinConfiguration.commas(true),
             atPlayer.getHomes().values().stream()
-                .map(home -> new Object[] {home, atPlayer.canAccessHome(home) || ExPermission.hasPermissionOrStar(sender, "at.admin.homes")}) // How the fuck do you associate a value like a pair in java?
+                .map(home -> new Object[]{home, atPlayer.canAccessHome(home) || ExPermission.hasPermissionOrStar(sender, "at.admin.homes")}) // How the fuck do you associate a value like a pair in java?
                 .map(pair -> {
                     final var home = (Home) pair[0];
                     final var canAccess = (boolean) pair[1];

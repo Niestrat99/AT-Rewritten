@@ -44,7 +44,7 @@ public final class SetMainSpawn extends SpawnATCommand {
         Location loc = ((Player) sender).getLocation();
         if (!Spawn.get().doesSpawnExist(id)) {
             if (sender.hasPermission("at.admin.setspawn")
-                    && (world || sender.hasPermission("at.admin.setspawn.other"))) {
+                && (world || sender.hasPermission("at.admin.setspawn.other"))) {
 
                 AdvancedTeleportAPI.setSpawn(id, sender, loc).join();
             } else {
@@ -60,7 +60,7 @@ public final class SetMainSpawn extends SpawnATCommand {
             // Attempt to set the spawn before setting the main spawn
             AdvancedTeleportAPI.setSpawn(id, sender, loc).handleAsync((v, e) -> {
                 if (e != null) {
-                    CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "{spawn}", id);
+                    CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "spawn", id);
                     e.printStackTrace();
                     return v;
                 }
@@ -96,12 +96,12 @@ public final class SetMainSpawn extends SpawnATCommand {
     private void setMainSpawn(String id, CommandSender sender) {
         AdvancedTeleportAPI.setMainSpawn(id, sender).handleAsync((v, e) -> {
             if (e != null) {
-                CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "{spawn}", id);
+                CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "spawn", id);
                 e.printStackTrace();
                 return v;
             }
 
-            CustomMessages.sendMessage(sender, "Info.setMainSpawn","{spawn}", id);
+            CustomMessages.sendMessage(sender, "Info.setMainSpawn","spawn", id);
             return v;
         });
     }

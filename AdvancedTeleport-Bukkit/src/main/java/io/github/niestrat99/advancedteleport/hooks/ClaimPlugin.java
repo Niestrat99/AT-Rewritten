@@ -1,16 +1,14 @@
 package io.github.niestrat99.advancedteleport.hooks;
 
-
 import io.github.niestrat99.advancedteleport.config.NewConfig;
-import org.bukkit.World;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ClaimPlugin<P extends Plugin, R> extends PluginHook<P, R> {
-
 
     @Contract(pure = true)
     protected ClaimPlugin(

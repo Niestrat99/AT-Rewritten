@@ -19,10 +19,10 @@ public final class ExportCommand extends SubATCommand {
 
     @Override
     public boolean onCommand(
-            @NotNull final CommandSender sender,
-            @NotNull final Command command,
-            @NotNull final String s,
-            @NotNull final String[] args
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
     ) {
         // If there's no arguments contained, stop there
         if (args.length == 0) {
@@ -46,7 +46,7 @@ public final class ExportCommand extends SubATCommand {
         // Start the export with the specified section.
         CustomMessages.sendMessage(sender, "Info.exportStarted", "plugin", args[0]);
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            final var arg = args.length == 1 : "all" ? args[1]
+            final var arg = args.length == 1 ? "all" : args[1];
             switch (arg.toLowerCase()) {
                 case "homes" -> pluginHook.exportHomes();
                 case "warps" -> pluginHook.exportWarps();
@@ -58,20 +58,13 @@ public final class ExportCommand extends SubATCommand {
                     // TODO: Error message + fail
                     CustomMessages.sendMessage(sender, "Error.cantExport", "plugin", args[0]);
                     sender.sendMessage("Invalid input %s".formatted(arg));
-                    return
+                    return;
                 }
             }
-            CustomMessages.sendMessage(sender, "Info.exportFinished", "{plugin}", args[0]);
+            CustomMessages.sendMessage(sender, "Info.exportFinished", "plugin", args[0]);
         });
 
         return true;
-    }
-    
-    private void cantExport(
-        final @NotNull sender: CommandSender,
-        final @NotNull plugin: Object
-    ) {
-        CustomMessages.sendMessage(sender, "Error.cantExport", "plugin", args[0]);
     }
 
     @Override

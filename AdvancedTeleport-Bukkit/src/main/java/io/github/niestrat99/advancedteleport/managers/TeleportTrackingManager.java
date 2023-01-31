@@ -30,6 +30,14 @@ public class TeleportTrackingManager implements Listener {
 
     private static final HashMap<UUID, Location> lastLocations = new HashMap<>();
 
+    public static Location getLastLocation(UUID uuid) {
+        return lastLocations.get(uuid);
+    }
+
+    public static HashMap<UUID, Location> getLastLocations() {
+        return lastLocations;
+    }
+
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         if (e.getPlayer().hasMetadata("NPC")) return;
@@ -63,7 +71,7 @@ public class TeleportTrackingManager implements Listener {
             return;
         }
         if (NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
-                && NewConfig.get().BACK_TELEPORT_CAUSES.get().contains(e.getCause().name())) {
+            && NewConfig.get().BACK_TELEPORT_CAUSES.get().contains(e.getCause().name())) {
             ATPlayer.getPlayer(e.getPlayer()).setPreviousLocation(e.getFrom());
         }
     }
@@ -97,7 +105,7 @@ public class TeleportTrackingManager implements Listener {
             if (atPlayer.getPreviousLocation().getWorld() == null) return;
             ConfigSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
             String spawnCommand = deathManagement.getString(atPlayer.getPreviousLocation().getWorld().getName());
-            if (spawnCommand == null || spawnCommand.equals("{default}")) {
+            if (spawnCommand == null || spawnCommand.equals("default")) {
                 spawnCommand = deathManagement.getString("default");
                 if (spawnCommand == null) return;
             }
@@ -107,10 +115,13 @@ public class TeleportTrackingManager implements Listener {
         }
     }
 
-    private static boolean handleSpawn(PlayerRespawnEvent e, String spawnCommand) {
+    private static boolean handleSpawn(
+        PlayerRespawnEvent e,
+        String spawnCommand
+    ) {
         ATPlayer atPlayer = ATPlayer.getPlayer(e.getPlayer());
         ConfigSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
-        if (spawnCommand.equals("{default}")) {
+        if (spawnCommand.equals("default")) {
             spawnCommand = deathManagement.getString("default");
             if (spawnCommand == null) return false;
         }
@@ -132,41 +143,33 @@ public class TeleportTrackingManager implements Listener {
         }
 
         switch (spawnCommand) {
-            case "spawn":
-                Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName(), e.getPlayer(), false);
-                if (spawn != null) {
-                    e.setRespawnLocation(spawn);
-                    return true;
-                }
-                break;
-            case "bed":
-                return e.getPlayer().getBedSpawnLocation() != null;
-            case "anchor":
-                // Vanilla just handles that
-                break;
-            default:
-                if (spawnCommand.startsWith("warp:")) {
-                    try {
-                        String warp = spawnCommand.split(":")[1];
-                        if (AdvancedTeleportAPI.getWarps().containsKey(warp)) {
-                            e.setRespawnLocation(AdvancedTeleportAPI.getWarps().get(warp).getLocation());
-                            return true;
-                        } else {
-                            CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + atPlayer.getPreviousLocation().getWorld());
-                        }
-                    } catch (IndexOutOfBoundsException ex) {
-                        CoreClass.getInstance().getLogger().warning("Malformed warp name for death in " + atPlayer.getPreviousLocation().getWorld());
+        case "spawn":
+            Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName(), e.getPlayer(), false);
+            if (spawn != null) {
+                e.setRespawnLocation(spawn);
+                return true;
+            }
+            break;
+        case "bed":
+            return e.getPlayer().getBedSpawnLocation() != null;
+        case "anchor":
+            // Vanilla just handles that
+            break;
+        default:
+            if (spawnCommand.startsWith("warp:")) {
+                try {
+                    String warp = spawnCommand.split(":")[1];
+                    if (AdvancedTeleportAPI.getWarps().containsKey(warp)) {
+                        e.setRespawnLocation(AdvancedTeleportAPI.getWarps().get(warp).getLocation());
+                        return true;
+                    } else {
+                        CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + atPlayer.getPreviousLocation().getWorld());
                     }
+                } catch (IndexOutOfBoundsException ex) {
+                    CoreClass.getInstance().getLogger().warning("Malformed warp name for death in " + atPlayer.getPreviousLocation().getWorld());
                 }
+            }
         }
         return false;
-    }
-
-    public static Location getLastLocation(UUID uuid) {
-        return lastLocations.get(uuid);
-    }
-
-    public static HashMap<UUID, Location> getLastLocations() {
-        return lastLocations;
     }
 }

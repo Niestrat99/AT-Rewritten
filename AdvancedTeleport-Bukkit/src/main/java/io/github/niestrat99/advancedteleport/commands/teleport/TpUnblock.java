@@ -51,7 +51,7 @@ public final class TpUnblock extends TeleportATCommand implements PlayerCommand 
                 "Info.unblockPlayer",
                 "Error.unblockFail",
                 () -> err != null,
-                "{player}", target.getName()
+                "player", target.getName()
             ), CoreClass.async);
         });
         return true;

@@ -17,18 +17,24 @@ public class WarpSign extends ATSign {
     }
 
     @Override
-    public void onInteract(Sign sign, @NotNull Player player) {
+    public void onInteract(
+        @NotNull Sign sign,
+        @NotNull Player player
+    ) {
         if (!AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1))) return;
         WarpCommand.warp(AdvancedTeleportAPI.getWarps().get(sign.getLine(1)), player, true);
     }
 
     @Override
-    public boolean canCreate(Sign sign, @NotNull Player player) {
+    public boolean canCreate(
+        @NotNull Sign sign,
+        @NotNull Player player
+    ) {
         if (sign.getLine(1).isEmpty()) {
             CustomMessages.sendMessage(player, "Error.noWarpInput");
             return false;
         } else {
-            if (AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1))){
+            if (AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1))) {
                 String warpName = sign.getLine(1);
                 sign.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Warp]");
                 sign.setLine(1, warpName);

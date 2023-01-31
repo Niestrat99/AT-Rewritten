@@ -24,17 +24,23 @@ public class BlocklistManager extends SQLManager {
         instance = this;
     }
 
+    public static BlocklistManager get() {
+        return instance;
+    }
+
     @Override
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement createTable = prepareStatement(connection,
-                        "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_blocklist " +
+                PreparedStatement createTable = prepareStatement(
+                    connection,
+                    "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_blocklist " +
                         "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "uuid_receiver VARCHAR(256) NOT NULL, " +
                         "uuid_blocked VARCHAR(256) NOT NULL," +
                         "timestamp BIGINT NOT NULL," +
-                        "reason TEXT)");
+                        "reason TEXT)"
+                );
                 executeUpdate(createTable);
             } catch (SQLException exception) {
                 CoreClass.getInstance().getLogger().severe("Failed to create the blocklist table.");
@@ -70,18 +76,27 @@ public class BlocklistManager extends SQLManager {
         blocklistFile.renameTo(new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
     }
 
-    public void blockUser(String receiverUUID, String blockedUUID, String reason, SQLCallback<Boolean> callback) {
+    public void blockUser(
+        String receiverUUID,
+        String blockedUUID,
+        String reason,
+        SQLCallback<Boolean> callback
+    ) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement;
             if (reason != null) {
-                statement = prepareStatement(connection,
-                        "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp, reason) " +
-                                "VALUES (?, ?, ?, ?)");
+                statement = prepareStatement(
+                    connection,
+                    "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp, reason) " +
+                        "VALUES (?, ?, ?, ?)"
+                );
                 statement.setString(4, reason);
             } else {
-                statement = prepareStatement(connection,
-                        "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp) VALUES " +
-                                "(?, ?, ?)");
+                statement = prepareStatement(
+                    connection,
+                    "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp) VALUES " +
+                        "(?, ?, ?)"
+                );
             }
             statement.setString(1, receiverUUID);
             statement.setString(2, blockedUUID);
@@ -97,10 +112,16 @@ public class BlocklistManager extends SQLManager {
         }
     }
 
-    public void unblockUser(String receiverUUID, String blockedUUID, SQLCallback<Boolean> callback) {
+    public void unblockUser(
+        String receiverUUID,
+        String blockedUUID,
+        SQLCallback<Boolean> callback
+    ) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(connection,
-                    "DELETE FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?");
+            PreparedStatement statement = prepareStatement(
+                connection,
+                "DELETE FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?"
+            );
             statement.setString(1, receiverUUID);
             statement.setString(2, blockedUUID);
             executeUpdate(statement);
@@ -114,10 +135,15 @@ public class BlocklistManager extends SQLManager {
         }
     }
 
-    public void getBlockedPlayers(String receiverUUID, SQLCallback<HashMap<UUID, BlockInfo>> callback) {
+    public void getBlockedPlayers(
+        String receiverUUID,
+        SQLCallback<HashMap<UUID, BlockInfo>> callback
+    ) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(connection,
-                    "SELECT * FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ?");
+            PreparedStatement statement = prepareStatement(
+                connection,
+                "SELECT * FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ?"
+            );
             statement.setString(1, receiverUUID);
             ResultSet results = executeQuery(statement);
             // Create a list for all blocked players.
@@ -125,10 +151,12 @@ public class BlocklistManager extends SQLManager {
             // For each blocked player...
             while (results.next()) {
                 // Create the BI object.
-                BlockInfo blockInfo = new BlockInfo(UUID.fromString(receiverUUID),
-                        UUID.fromString(results.getString("uuid_blocked")),
-                        results.getString("reason"),
-                        results.getLong("timestamp"));
+                BlockInfo blockInfo = new BlockInfo(
+                    UUID.fromString(receiverUUID),
+                    UUID.fromString(results.getString("uuid_blocked")),
+                    results.getString("reason"),
+                    results.getLong("timestamp")
+                );
                 // Add it to the list.
                 blockedPlayers.put(blockInfo.getBlockedUUID(), blockInfo);
             }
@@ -138,9 +166,5 @@ public class BlocklistManager extends SQLManager {
             exception.printStackTrace();
             callback.onFail();
         }
-    }
-
-    public static BlocklistManager get() {
-        return instance;
     }
 }

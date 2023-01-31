@@ -53,7 +53,7 @@ public final class RemoveSpawn extends SpawnATCommand {
 
         String finalRemovingSpawn = removingSpawn;
         AdvancedTeleportAPI.removeSpawn(removingSpawn, sender).thenAcceptAsync(result ->
-                CustomMessages.sendMessage(sender, "Info.removedSpawn", "spawn", finalRemovingSpawn));
+            CustomMessages.sendMessage(sender, "Info.removedSpawn", "spawn", finalRemovingSpawn));
         return false;
     }
 

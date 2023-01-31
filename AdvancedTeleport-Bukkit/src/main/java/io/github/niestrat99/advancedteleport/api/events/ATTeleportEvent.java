@@ -33,14 +33,14 @@ public final class ATTeleportEvent extends CancellableATEvent {
         this.type = type;
     }
 
-    @Override
     @Contract(pure = true)
-    public @NotNull HandlerList getHandlers() {
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 
+    @Override
     @Contract(pure = true)
-    public static @NotNull HandlerList getHandlerList() {
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
@@ -52,6 +52,11 @@ public final class ATTeleportEvent extends CancellableATEvent {
     @Contract(pure = true)
     public @NotNull Location getToLocation() {
         return toLoc;
+    }
+
+    @Contract(pure = true)
+    public void setToLocation(@NotNull final Location toLoc) {
+        this.toLoc = toLoc;
     }
 
     @Contract(pure = true)
@@ -67,11 +72,6 @@ public final class ATTeleportEvent extends CancellableATEvent {
     @Contract(pure = true)
     public @NotNull String getLocName() {
         return locName;
-    }
-
-    @Contract(pure = true)
-    public void setToLocation(@NotNull final Location toLoc) {
-        this.toLoc = toLoc;
     }
 
     public enum TeleportType {

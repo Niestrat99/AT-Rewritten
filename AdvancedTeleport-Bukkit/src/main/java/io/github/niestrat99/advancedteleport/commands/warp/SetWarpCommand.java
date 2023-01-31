@@ -1,8 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
-import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
@@ -42,12 +42,12 @@ public final class SetWarpCommand extends AbstractWarpCommand implements PlayerC
 
         if (!AdvancedTeleportAPI.isWarpSet(args[0])) {
             AdvancedTeleportAPI.setWarp(args[0], player, warp).whenComplete((result, err) -> CustomMessages.failableContextualPath(
-                    sender,
-                    player.getUniqueId(),
-                    "Info.setWarp",
-                    "Error.setWarpFail",
-                    () -> err == null,
-                    "warp", result.getName()
+                sender,
+                player.getUniqueId(),
+                "Info.setWarp",
+                "Error.setWarpFail",
+                () -> err == null,
+                "warp", result.getName()
             ));
         } else {
             CustomMessages.sendMessage(sender, "Error.warpAlreadySet", "warp", args[0]);

@@ -24,7 +24,7 @@ public final class TpOn extends TeleportATCommand implements PlayerCommand {
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (!atPlayer.isTeleportationEnabled()) {
             atPlayer.setTeleportationEnabled(true, sender).thenAcceptAsync(callback ->
-                    CustomMessages.sendMessage(sender, "Info.tpOn"));
+                CustomMessages.sendMessage(sender, "Info.tpOn"));
         } else {
             CustomMessages.sendMessage(sender, "Error.alreadyOn");
         }

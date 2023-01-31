@@ -20,40 +20,32 @@ import java.util.UUID;
 
 public class MovementManager implements Listener {
 
-    private static HashMap<UUID, ImprovedRunnable> movement = new HashMap<>();
-
-    @EventHandler
-    public void onMovement(PlayerMoveEvent event) {
-        boolean cancelOnRotate = NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get();
-        boolean cancelOnMove = NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get();
-        if (!cancelOnRotate) {
-            Location locTo = event.getTo();
-            Location locFrom = event.getFrom();
-            if (locTo.getBlockX() == locFrom.getBlockX() // If the player rotated instead of moved
-                    && locTo.getBlockY() == locFrom.getBlockY()
-                    && locTo.getBlockZ() == locFrom.getBlockZ()) {
-                return;
-            }
-        }
-        UUID uuid = event.getPlayer().getUniqueId();
-        if ((cancelOnRotate || cancelOnMove) && movement.containsKey(uuid)) {
-            ImprovedRunnable timer = movement.get(uuid);
-            timer.cancel();
-            CustomMessages.sendMessage(event.getPlayer(), "Teleport.eventMovement");
-            ParticleManager.removeParticles(event.getPlayer(), timer.command);
-            movement.remove(uuid);
-        }
-    }
+    private static final HashMap<UUID, ImprovedRunnable> movement = new HashMap<>();
 
     public static HashMap<UUID, ImprovedRunnable> getMovement() {
         return movement;
     }
 
-    public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, Object... placeholders) {
+    public static void createMovementTimer(
+        Player teleportingPlayer,
+        Location location,
+        String command,
+        String message,
+        int warmUp,
+        Object... placeholders
+    ) {
         createMovementTimer(teleportingPlayer, location, command, message, warmUp, teleportingPlayer, placeholders);
     }
 
-    public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, Player payingPlayer, Object... placeholders) {
+    public static void createMovementTimer(
+        Player teleportingPlayer,
+        Location location,
+        String command,
+        String message,
+        int warmUp,
+        Player payingPlayer,
+        Object... placeholders
+    ) {
         UUID uuid = teleportingPlayer.getUniqueId();
 
         // When this config is enabled the teleporting player will receive a blindness effect until it gets teleported.
@@ -83,13 +75,36 @@ public class MovementManager implements Listener {
             }
         };
         movement.put(uuid, movementtimer);
-        movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
+        movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20L);
         if (NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() || NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
             CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTP", "countdown", String.valueOf(warmUp));
         } else {
             CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTPMovementAllowed", "countdown", String.valueOf(warmUp));
         }
 
+    }
+
+    @EventHandler
+    public void onMovement(PlayerMoveEvent event) {
+        boolean cancelOnRotate = NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get();
+        boolean cancelOnMove = NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get();
+        if (!cancelOnRotate) {
+            Location locTo = event.getTo();
+            Location locFrom = event.getFrom();
+            if (locTo.getBlockX() == locFrom.getBlockX() // If the player rotated instead of moved
+                && locTo.getBlockY() == locFrom.getBlockY()
+                && locTo.getBlockZ() == locFrom.getBlockZ()) {
+                return;
+            }
+        }
+        UUID uuid = event.getPlayer().getUniqueId();
+        if ((cancelOnRotate || cancelOnMove) && movement.containsKey(uuid)) {
+            ImprovedRunnable timer = movement.get(uuid);
+            timer.cancel();
+            CustomMessages.sendMessage(event.getPlayer(), "Teleport.eventMovement");
+            ParticleManager.removeParticles(event.getPlayer(), timer.command);
+            movement.remove(uuid);
+        }
     }
 
     public abstract static class ImprovedRunnable extends BukkitRunnable {

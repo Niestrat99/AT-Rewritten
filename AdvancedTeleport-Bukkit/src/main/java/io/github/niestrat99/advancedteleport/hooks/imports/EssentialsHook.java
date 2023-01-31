@@ -23,17 +23,15 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.UUID;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
 
@@ -52,16 +50,6 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
             this.essentials = essentials;
             return true;
         }).orElse(false);
-    }
-
-    private @Nullable User getUser(@NotNull final UUID uuid) {
-        try {
-            UserMap userMap = essentials.getUserMap();
-            if (userMap == null) return null;
-            return userMap.getUser(uuid);
-        } catch (RuntimeException e) {
-            return null;
-        }
     }
 
     @Override
@@ -109,6 +97,16 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         debug("Finished importing homes!");
     }
 
+    private @Nullable User getUser(@NotNull final UUID uuid) {
+        try {
+            UserMap userMap = essentials.getUserMap();
+            if (userMap == null) return null;
+            return userMap.getUser(uuid);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
     @Override
     public void importLastLocations() {
         debug("Importing last locations...");
@@ -120,9 +118,9 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
             try {
                 User user = userMap.getUser(uuid);
                 if (user == null
-                        || user.getName() == null
-                        || user.getLastLocation() == null
-                        || user.getLastLocation().getWorld() == null) continue;
+                    || user.getName() == null
+                    || user.getLastLocation() == null
+                    || user.getLastLocation().getWorld() == null) continue;
                 if (ATPlayer.isPlayerCached(user.getName())) {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setPreviousLocation(user.getLastLocation());
@@ -149,11 +147,13 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                 if (AdvancedTeleportAPI.getWarps().containsKey(warp)) {
                     AdvancedTeleportAPI.getWarps().get(warp).setLocation(warps.getWarp(warp));
                 } else {
-                    WarpSQLManager.get().addWarp(new Warp(warps.getLastOwner(warp),
-                            warp,
-                            warps.getWarp(warp),
-                            System.currentTimeMillis(),
-                            System.currentTimeMillis()), null);
+                    WarpSQLManager.get().addWarp(new Warp(
+                        warps.getLastOwner(warp),
+                        warp,
+                        warps.getWarp(warp),
+                        System.currentTimeMillis(),
+                        System.currentTimeMillis()
+                    ), null);
                 }
             } catch (WarpNotFoundException | InvalidWorldException e) {
                 e.printStackTrace();
@@ -194,7 +194,7 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
             } else {
                 if (CoreClass.getPerms() != null && CoreClass.getPerms().hasGroupSupport()) {
                     CoreClass.getPerms().groupAdd((String) null, key, "at.member.spawn." + key);
-                    debug("Added at.member.spawn." + key + " to group "+ key);
+                    debug("Added at.member.spawn." + key + " to group " + key);
                 }
             }
         }

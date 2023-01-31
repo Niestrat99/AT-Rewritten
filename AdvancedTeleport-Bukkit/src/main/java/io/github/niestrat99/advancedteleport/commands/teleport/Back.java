@@ -46,13 +46,6 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
         // Get the ATPlayer object
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
-        // Check the player's cooldown
-        int cooldown = CooldownManager.secondsLeftOnCooldown("back", player);
-        if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "time", String.valueOf(cooldown));
-            return true;
-        }
-
         // Get the player's previous location
         Location loc = atPlayer.getPreviousLocation();
 
@@ -82,13 +75,15 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
                 for (int dy = -radius; dy <= radius; dy++) {
                     t.setY(originalY - dy);
                     if (!t.getBlock().getType().name().equals("LAVA")
-                            && !airMaterials.contains(t.getBlock().getType().name())
-                            && airMaterials.contains(t.clone().add(0.0, 1.0, 0.0).getBlock().getType().name())
-                            && airMaterials.contains(t.clone().add(0.0, 2.0, 0.0).getBlock().getType().name())) {
-                        possiblelocs.add(new Location(loc.getWorld(),
-                                loc.getBlockX() - dx + 0.5,
-                                loc.getBlockY() - dy + 1,
-                                loc.getBlockZ() - dz + 0.5));
+                        && !airMaterials.contains(t.getBlock().getType().name())
+                        && airMaterials.contains(t.clone().add(0.0, 1.0, 0.0).getBlock().getType().name())
+                        && airMaterials.contains(t.clone().add(0.0, 2.0, 0.0).getBlock().getType().name())) {
+                        possiblelocs.add(new Location(
+                            loc.getWorld(),
+                            loc.getBlockX() - dx + 0.5,
+                            loc.getBlockY() - dy + 1.0,
+                            loc.getBlockZ() - dz + 0.5
+                        ));
                     }
                 }
             }
@@ -119,7 +114,7 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
 
         // If the distance limiter is in effect and it's too far, stop there
         if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back", ATPlayer.getPlayer(player))
-                && !player.hasPermission("at.admin.bypass.distance-limit")) {
+            && !player.hasPermission("at.admin.bypass.distance-limit")) {
             CustomMessages.sendMessage(player, "Error.tooFarAway");
             return true;
         }
