@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class MovementManager implements Listener {
 
-    private static HashMap<UUID, ImprovedRunnable> movement = new HashMap<>();
+    private static final HashMap<UUID, ImprovedRunnable> movement = new HashMap<>();
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
@@ -49,11 +49,26 @@ public class MovementManager implements Listener {
         return movement;
     }
 
-    public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, Object... placeholders) {
+    public static void createMovementTimer(
+        Player teleportingPlayer,
+        Location location,
+        String command,
+        String message,
+        int warmUp,
+        Object... placeholders
+    ) {
         createMovementTimer(teleportingPlayer, location, command, message, warmUp, teleportingPlayer, placeholders);
     }
 
-    public static void createMovementTimer(Player teleportingPlayer, Location location, String command, String message, int warmUp, Player payingPlayer, Object... placeholders) {
+    public static void createMovementTimer(
+        Player teleportingPlayer,
+        Location location,
+        String command,
+        String message,
+        int warmUp,
+        Player payingPlayer,
+        Object... placeholders
+    ) {
         UUID uuid = teleportingPlayer.getUniqueId();
 
         // When this config is enabled the teleporting player will receive a blindness effect until it gets teleported.

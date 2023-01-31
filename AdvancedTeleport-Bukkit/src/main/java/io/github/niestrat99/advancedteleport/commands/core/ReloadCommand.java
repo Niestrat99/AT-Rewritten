@@ -2,7 +2,11 @@ package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
-import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.config.ATConfig;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.GUI;
+import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.Spawn;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;

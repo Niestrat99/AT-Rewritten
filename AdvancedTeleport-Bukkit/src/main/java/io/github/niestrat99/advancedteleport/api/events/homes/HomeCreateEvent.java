@@ -57,6 +57,17 @@ public final class HomeCreateEvent extends TrackableATEvent {
     }
 
     /**
+     * Sets the owner of the home.
+     *
+     * @param player the new owner of the home.
+     * @throws NullPointerException if the player is null.
+     */
+    @Contract(pure = true)
+    public void setPlayer(@NotNull final OfflinePlayer player) {
+        this.player = player;
+    }
+
+    /**
      * Gets the location of the home.
      *
      * @return the location of the home.
@@ -64,6 +75,19 @@ public final class HomeCreateEvent extends TrackableATEvent {
     @Contract(pure = true)
     public @NotNull Location getLocation() {
         return location;
+    }
+
+    /**
+     * Sets the location of the home.
+     *
+     * @param location the new location of the home.
+     * @throws NullPointerException  if the location is null.
+     * @throws IllegalStateException if the location's world isn't loaded.
+     */
+    @Contract(pure = true)
+    public void setLocation(@NotNull final Location location) throws IllegalStateException {
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
+        this.location = location;
     }
 
     /**
@@ -80,36 +104,12 @@ public final class HomeCreateEvent extends TrackableATEvent {
      * Sets the name of the home.
      *
      * @param name the new name to be used.
-     * @throws NullPointerException if the name is null.
+     * @throws NullPointerException     if the name is null.
      * @throws IllegalArgumentException if the name is empty.
      */
     @Contract(pure = true)
     public void setName(@NotNull final String name) throws IllegalArgumentException {
         if (name.isEmpty()) throw new IllegalArgumentException("The home name must not be empty.");
         this.name = name;
-    }
-
-    /**
-     * Sets the location of the home.
-     *
-     * @param location the new location of the home.
-     * @throws NullPointerException if the location is null.
-     * @throws IllegalStateException if the location's world isn't loaded.
-     */
-    @Contract(pure = true)
-    public void setLocation(@NotNull final Location location) throws IllegalStateException {
-        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
-        this.location = location;
-    }
-
-    /**
-     * Sets the owner of the home.
-     *
-     * @param player the new owner of the home.
-     * @throws NullPointerException if the player is null.
-     */
-    @Contract(pure = true)
-    public void setPlayer(@NotNull final OfflinePlayer player) {
-        this.player = player;
     }
 }

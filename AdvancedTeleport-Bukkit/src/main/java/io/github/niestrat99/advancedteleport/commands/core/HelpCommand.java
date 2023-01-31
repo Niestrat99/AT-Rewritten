@@ -39,75 +39,75 @@ public final class HelpCommand extends SubATCommand {
         if (args.length > 0) {
             switch (args[0].toLowerCase()) {
 
-                // Warps
-                case "warps" -> {
-                    commands.add("warp");
-                    commands.add("warps");
-                    commands.add("movewarp");
-                    commands.add("setwarp");
-                    commands.add("delwarp");
-                }
+            // Warps
+            case "warps" -> {
+                commands.add("warp");
+                commands.add("warps");
+                commands.add("movewarp");
+                commands.add("setwarp");
+                commands.add("delwarp");
+            }
 
-                // Teleportation
-                case "teleporting" -> {
-                    commands.add("back");
-                    commands.add("toggletp");
-                    commands.add("tpa");
-                    commands.add("tpahere");
-                    commands.add("tpall");
-                    commands.add("tpalist");
-                    commands.add("tpblock");
-                    commands.add("tpcancel");
-                    commands.add("tploc");
-                    commands.add("tpno");
-                    commands.add("tpo");
-                    commands.add("tpoff");
-                    commands.add("tpoffline");
-                    commands.add("tpofflinehere");
-                    commands.add("tpohere");
-                    commands.add("tpon");
-                    commands.add("tpr");
-                    commands.add("tpunblock");
-                    commands.add("tpyes");
-                }
+            // Teleportation
+            case "teleporting" -> {
+                commands.add("back");
+                commands.add("toggletp");
+                commands.add("tpa");
+                commands.add("tpahere");
+                commands.add("tpall");
+                commands.add("tpalist");
+                commands.add("tpblock");
+                commands.add("tpcancel");
+                commands.add("tploc");
+                commands.add("tpno");
+                commands.add("tpo");
+                commands.add("tpoff");
+                commands.add("tpoffline");
+                commands.add("tpofflinehere");
+                commands.add("tpohere");
+                commands.add("tpon");
+                commands.add("tpr");
+                commands.add("tpunblock");
+                commands.add("tpyes");
+            }
 
-                // Core commands
-                case "core" -> {
-                    subcommands.add("import");
-                    subcommands.add("help");
-                    subcommands.add("export");
-                    subcommands.add("info");
-                    subcommands.add("reload");
-                    subcommands.add("purge");
-                }
+            // Core commands
+            case "core" -> {
+                subcommands.add("import");
+                subcommands.add("help");
+                subcommands.add("export");
+                subcommands.add("info");
+                subcommands.add("reload");
+                subcommands.add("purge");
+            }
 
-                // Home commands
-                case "homes" -> {
-                    commands.add("delhome");
-                    commands.add("home");
-                    commands.add("homes");
-                    commands.add("movehome");
-                    commands.add("sethome");
-                    commands.add("setmainhome");
-                }
+            // Home commands
+            case "homes" -> {
+                commands.add("delhome");
+                commands.add("home");
+                commands.add("homes");
+                commands.add("movehome");
+                commands.add("sethome");
+                commands.add("setmainhome");
+            }
 
-                // Spawn commands
-                case "spawns" -> {
-                    commands.add("mirrorspawn");
-                    commands.add("removespawn");
-                    commands.add("setmainspawn");
-                    commands.add("setspawn");
-                    commands.add("spawn");
-                }
+            // Spawn commands
+            case "spawns" -> {
+                commands.add("mirrorspawn");
+                commands.add("removespawn");
+                commands.add("setmainspawn");
+                commands.add("setspawn");
+                commands.add("spawn");
+            }
 
-                // Anything that just isn't what we expect, such as a number
-                default -> {
-                    if (args[0].matches("^\\d+$")) {
-                        page = Integer.parseInt(args[0]);
-                    }
-                    commands.addAll(CommandManager.registeredCommands.keySet());
-                    subcommands.addAll(CommandManager.subcommands.keySet());
+            // Anything that just isn't what we expect, such as a number
+            default -> {
+                if (args[0].matches("^\\d+$")) {
+                    page = Integer.parseInt(args[0]);
                 }
+                commands.addAll(CommandManager.registeredCommands.keySet());
+                subcommands.addAll(CommandManager.subcommands.keySet());
+            }
             }
 
             // If there's a section specified and the second argument is a number, treat it as a page.

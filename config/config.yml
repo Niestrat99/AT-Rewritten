@@ -38,7 +38,7 @@ use-homes: true
 # The commands that AT should not register upon starting up.
 # In other words, this gives up the command for other plugins to use.
 # NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for anything to change.
-disabled-commands: []
+disabled-commands: [ ]
 
 #########################
 #  Teleport Requesting  #
@@ -331,28 +331,28 @@ prepared-locations-limit: 3
 # In response, this list acts as pro-active protection and ignores worlds generated using the following generators.
 # This is provided as an option so you can have control over which worlds have locations load.
 ignore-world-generators:
-- us.talabrek.ultimateskyblock.world.SkyBlockChunkGenerator
-- us.talabrek.ultimateskyblock.world.SkyBlockNetherChunkGenerator
-- world.bentobox.bskyblock.generators.ChunkGeneratorWorld
-- world.bentobox.acidisland.world.ChunkGeneratorWorld
-- world.bentobox.oneblock.generators.ChunkGeneratorWorld
-- com.wasteofplastic.askyblock.generators.ChunkGeneratorWorld
-- com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld
-- b.a
-- com.chaseoes.voidworld.VoidWorld.VoidWorldGenerator
-- club.bastonbolado.voidgenerator.EmptyChunkGenerator
+  - us.talabrek.ultimateskyblock.world.SkyBlockChunkGenerator
+  - us.talabrek.ultimateskyblock.world.SkyBlockNetherChunkGenerator
+  - world.bentobox.bskyblock.generators.ChunkGeneratorWorld
+  - world.bentobox.acidisland.world.ChunkGeneratorWorld
+  - world.bentobox.oneblock.generators.ChunkGeneratorWorld
+  - com.wasteofplastic.askyblock.generators.ChunkGeneratorWorld
+  - com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld
+  - b.a
+  - com.chaseoes.voidworld.VoidWorld.VoidWorldGenerator
+  - club.bastonbolado.voidgenerator.EmptyChunkGenerator
 
 # Blocks that people must not be able to land in when using /tpr.
 avoid-blocks:
-- WATER
-- LAVA
-- STATIONARY_WATER
-- STATIONARY_LAVA
+  - WATER
+  - LAVA
+  - STATIONARY_WATER
+  - STATIONARY_LAVA
 
 # Biomes that the plugin should avoid when searching for a location.
 avoid-biomes:
-- OCEAN
-- DEEP_OCEAN
+  - OCEAN
+  - DEEP_OCEAN
 
 # Whether or not /tpr should only be used in the worlds listed below.
 whitelist-worlds: false
@@ -365,8 +365,8 @@ redirect-to-whitelisted-worlds: true
 # If a player uses /tpr in a world that doesn't allow it, they will be teleported in the first world on the list instead.
 # To make this feature effective, turn on "whitelist-worlds" above.
 allowed-worlds:
-- world
-- world_nether
+  - world
+  - world_nether
 
 ###########
 #  Homes  #
@@ -416,9 +416,9 @@ tpahere-request-sent: none
 # The teleport causes that the plugin must listen to allow players to teleport back to the previous location.
 # You can see a full list of these causes at https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html
 used-teleport-causes:
-- COMMAND
-- PLUGIN
-- SPECTATE
+  - COMMAND
+  - PLUGIN
+  - SPECTATE
 
 # The cubic radius to search for a safe block when using /back.
 # If a player teleports from an unsafe location and uses /back to return to it, the plugin will search all blocks within this radius to see if it is a safe place for the player to be moved to.
@@ -446,7 +446,7 @@ teleport-to-spawn-on-every-join: false
 # If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.
 death-management:
   default: spawn
-  world: '{default}'
+  world: 'default'
   special-world: warp:Special
   another-world: bed
 
@@ -459,8 +459,8 @@ death-management:
 # This allows for permission management without a permissions plugin, especially if a user doesn't understand how such plugins work.
 # However, if you have a permissions plugin and Vault installed, you cannot make admin permissions work by default.
 default-permissions:
-- at.member.*
-- at.member.warp.*
+  - at.member.*
+  - at.member.warp.*
 
 # Allows admin permissions to be allowed as default permissions by default.
 # If you want to use admin permissions, it's often recommended to use a permissions plugin such as LuckPerms.

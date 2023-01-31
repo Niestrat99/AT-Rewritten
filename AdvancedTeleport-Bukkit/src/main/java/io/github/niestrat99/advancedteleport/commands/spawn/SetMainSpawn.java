@@ -48,7 +48,7 @@ public final class SetMainSpawn extends SpawnATCommand {
         Spawn spawn = AdvancedTeleportAPI.getSpawn(id);
         if (spawn == null) {
             if (sender.hasPermission("at.admin.setspawn")
-                    && (world || sender.hasPermission("at.admin.setspawn.other"))) {
+                && (world || sender.hasPermission("at.admin.setspawn.other"))) {
 
                 // Set it
                 Location loc = ((Player) sender).getLocation();
@@ -93,6 +93,6 @@ public final class SetMainSpawn extends SpawnATCommand {
                         "Info.setMainSpawn",
                         "Error.setMainSpawnFail",
                         e,
-                        "{spawn}", spawn.getName()));
+                        "spawn", spawn.getName()));
     }
 }

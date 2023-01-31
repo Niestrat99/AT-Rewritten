@@ -18,10 +18,10 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
 
     @Override
     public boolean onCommand(
-            @NotNull final CommandSender sender,
-            @NotNull final Command command,
-            @NotNull final String s,
-            @NotNull final String[] args
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
     ) {
 
         // If the feature isn't enabled/no permission, stop there
@@ -50,10 +50,14 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
         return true;
     }
 
-    public static void warp(Warp warp, Player player, boolean useSign) {
+    public static void warp(
+        Warp warp,
+        Player player,
+        boolean useSign
+    ) {
         String warpPrefix = "at.member.warp." + (useSign ? "sign." : "");
 
-        boolean found = player.hasPermission( warpPrefix + "*");
+        boolean found = player.hasPermission(warpPrefix + "*");
         if (player.isPermissionSet(warpPrefix + warp.getName().toLowerCase())) {
             found = player.hasPermission(warpPrefix + warp.getName().toLowerCase());
         }

@@ -51,7 +51,16 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
         return true;
     }
 
-    private void delHome(OfflinePlayer player, Player sender, String name) {
+    @Override
+    public @NotNull String getPermission() {
+        return "at.member.delhome";
+    }
+
+    private void delHome(
+        OfflinePlayer player,
+        Player sender,
+        String name
+    ) {
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         // If the player doesn't have such a home, let them know
@@ -68,7 +77,7 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
                 "Error.deleteHomeFail",
                 err,
                 "home", name,
-                "player", player.getName()
+                "player", player.getName() // TODO: Displayname
         ));
     }
 
@@ -77,10 +86,5 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
         @NotNull final String name
     ) {
         delHome(player, player, name);
-    }
-
-    @Override
-    public @NotNull String getPermission() {
-        return "at.member.delhome";
     }
 }

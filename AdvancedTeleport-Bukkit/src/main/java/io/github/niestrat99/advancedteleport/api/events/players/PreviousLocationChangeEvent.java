@@ -41,6 +41,17 @@ public final class PreviousLocationChangeEvent extends CancellableATEvent {
     }
 
     /**
+     * Sets the player that will have their previous location changed.
+     *
+     * @param player the player to change to.
+     * @throws NullPointerException if player is null.
+     */
+    @Contract(pure = true)
+    public void setPlayer(@NotNull final OfflinePlayer player) {
+        this.player = player;
+    }
+
+    /**
      * Gets the new location that will become the player's previous location. This is not where the player currently is.
      *
      * @return the new location that is to be the previous location. Can be null if modified.
@@ -48,16 +59,6 @@ public final class PreviousLocationChangeEvent extends CancellableATEvent {
     @Contract(pure = true)
     public @Nullable Location getNewLocation() {
         return newLocation;
-    }
-
-    /**
-     * Gets the current previous location of the player.
-     *
-     * @return the current previous location, or null if there was none prior.
-     */
-    @Contract(pure = true)
-    public @Nullable Location getOldLocation() {
-        return oldLocation;
     }
 
     /**
@@ -71,14 +72,13 @@ public final class PreviousLocationChangeEvent extends CancellableATEvent {
     }
 
     /**
-     * Sets the player that will have their previous location changed.
+     * Gets the current previous location of the player.
      *
-     * @param player the player to change to.
-     * @throws NullPointerException if player is null.
+     * @return the current previous location, or null if there was none prior.
      */
     @Contract(pure = true)
-    public void setPlayer(@NotNull final OfflinePlayer player) {
-        this.player = player;
+    public @Nullable Location getOldLocation() {
+        return oldLocation;
     }
 
     @Override

@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
-import java.util.Collections;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -59,13 +59,13 @@ public final class PurgeCommand extends SubATCommand {
                                 "Info.purgeHomesWorld",
                                 "Error.purgeHomesFail",
                                 err,
-                                "{world}", args[2]));
+                                "world", args[2]));
                 case "warps" -> CompletableFuture.runAsync(() -> WarpSQLManager.get().purgeWarps(args[2])).whenComplete((v, err) ->
                         CustomMessages.failable(sender,
                                 "Info.purgeWarpsWorld",
                                 "Error.purgeWarpsFail",
                                 err,
-                                "{world}", args[2]));
+                                "world", args[2]));
             }
 
             return true;
@@ -81,13 +81,13 @@ public final class PurgeCommand extends SubATCommand {
                                     "Info.purgeHomesCreator",
                                     "Error.purgeHomesFail",
                                     err,
-                                    "{player}", args[2]));
+                                    "player", args[2]));
                     case "warps" -> CompletableFuture.runAsync(() -> WarpSQLManager.get().purgeWarps(player.getUniqueId())).whenComplete((v, err) ->
                             CustomMessages.failable(sender,
                                     "Info.purgeWarpsCreator",
                                     "Error.purgeWarpsFail",
                                     err,
-                                    "{player}", args[2]));
+                                    "player", args[2]));
                 }
             }, CoreClass.sync);
         }

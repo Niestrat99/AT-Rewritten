@@ -136,7 +136,7 @@ public class TeleportTrackingManager implements Listener {
                 "default" : atPlayer.getPreviousLocation().getWorld().getName());
 
         // If one of those don't work, try the default option again
-        if (spawnCommand == null || spawnCommand.equals("{default}")) {
+        if (spawnCommand == null || spawnCommand.equals("default")) {
             spawnCommand = deathManagement.getString("default");
             if (spawnCommand == null) return;
         }
@@ -161,7 +161,7 @@ public class TeleportTrackingManager implements Listener {
                 : atPlayer.getPreviousLocation().getWorld()); // this should really be tidier
 
         // If the default option is being used, check there - if it's invalid or such, stop there
-        if (spawnCommand.equals("{default}")) {
+        if (spawnCommand.equals("default")) {
             spawnCommand = deathManagement.getString("default");
             if (spawnCommand == null) return false;
         }

@@ -126,7 +126,10 @@ public final class Tpr extends ATCommand implements TimedATCommand {
         return true;
     }
 
-    private static void processLocation(Player player, Location location) {
+    private static void processLocation(
+        Player player,
+        Location location
+    ) {
         searchingPlayers.remove(player.getUniqueId());
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
@@ -145,7 +148,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
     }
 
     @Override
-    public String getSection() {
+    public @NotNull String getSection() {
         return "tpr";
     }
 

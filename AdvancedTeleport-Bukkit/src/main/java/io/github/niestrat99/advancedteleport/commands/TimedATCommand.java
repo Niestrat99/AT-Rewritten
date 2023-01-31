@@ -21,7 +21,7 @@ public interface TimedATCommand extends PlayerCommand {
         // If the player is on a cooldown, stop there
         int cooldown = CooldownManager.secondsLeftOnCooldown(getSection(), player);
         if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            CustomMessages.sendMessage(sender, "Error.onCooldown", "time", String.valueOf(cooldown));
             return true;
         }
 

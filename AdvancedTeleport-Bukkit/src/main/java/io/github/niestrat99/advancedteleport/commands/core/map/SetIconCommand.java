@@ -5,7 +5,6 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
-import java.util.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public final class SetIconCommand extends SubATCommand {
@@ -39,8 +39,13 @@ public final class SetIconCommand extends SubATCommand {
             case "home" -> {
                 if (args.length < 4) return true;
 
+<<<<<<< HEAD
                 AdvancedTeleportAPI.getOfflinePlayer(args[1]).whenComplete((player, err) ->
                         MetadataSQLManager.get().addHomeMetadata(args[2], player.getUniqueId(), "map_icon", args[3]));
+=======
+                CompletableFuture.supplyAsync(() -> Bukkit.getOfflinePlayer(args[1]).getUniqueId(), CoreClass.async)
+                    .thenAcceptAsync(uuid -> MetadataSQLManager.get().addHomeMetadata(args[2], uuid, "map_icon", args[3]));
+>>>>>>> 3ef5591c (chore: rebase fixes)
 
                 return true;
             }
@@ -89,8 +94,8 @@ public final class SetIconCommand extends SubATCommand {
                     .map(List.class::cast) // Cast so we can return the empty list.
                     .orElse(List.of());
                 default -> new ArrayList<>();
-                };
-            }
+            };
+        }
 
         if (args.length == 4 && args[3].equalsIgnoreCase("home")) {
             return StringUtil.copyPartialMatches(args[3], MapAssetManager.getImageNames(), new ArrayList<>());

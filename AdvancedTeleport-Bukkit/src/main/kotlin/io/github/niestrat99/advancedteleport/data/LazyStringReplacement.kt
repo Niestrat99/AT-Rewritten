@@ -4,7 +4,7 @@ import net.kyori.adventure.text.minimessage.tag.PreProcess
 import net.kyori.adventure.text.minimessage.tag.Tag
 
 /**
- * Based on [link](https://github.com/DaRacci/Minix/blob/master/Minix-API/src/main/kotlin/dev/racci/minix/api/utils/adventure/LazyStringReplacement.kt#L6)
+ * Based on [link](https://github.com/DaRacci/Minix/blob/1cba4a243bd227f96203a107f37b8b61ca66f7aa/minix-modules/module-common/src/main/kotlin/dev/racci/minix/api/utils/adventure/LazyStringReplacement.kt#L6)
  *
  * @author Racci
  */

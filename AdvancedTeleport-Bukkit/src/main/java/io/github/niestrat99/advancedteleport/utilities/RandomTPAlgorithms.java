@@ -91,7 +91,7 @@ public class RandomTPAlgorithms {
                         }
 
                         if (subTempLocation.add(0, 1, 0).getBlock().getType() == Material.AIR
-                                && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
+                            && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
                             location = subTempLocation.add(0.5, 0, 0.5);
                             validLocation = true;
                         } else {
@@ -110,6 +110,9 @@ public class RandomTPAlgorithms {
     }
 
     public interface Algorithm {
-        Location fire(Player player, World world);
+        Location fire(
+                Player player,
+                World world
+        );
     }
 }

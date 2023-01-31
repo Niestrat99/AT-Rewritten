@@ -117,7 +117,8 @@ public final class TpLoc extends TeleportATCommand implements PlayerCommand {
         }
 
         ATTeleportEvent event = new ATTeleportEvent(target, location, target.getLocation(), "",
-                ATTeleportEvent.TeleportType.TPLOC);
+            ATTeleportEvent.TeleportType.TPLOC
+        );
         Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
             Location blockBelow = location.clone().add(0, -1, 0);
@@ -127,21 +128,23 @@ public final class TpLoc extends TeleportATCommand implements PlayerCommand {
             PaperLib.teleportAsync(target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
             if (player != target) {
                 CustomMessages.sendMessage(player, "Info.teleportedToLocOther",
-                        "{x}", String.valueOf(loc[0]),
-                        "{y}", String.valueOf(loc[1]),
-                        "{z}", String.valueOf(loc[2]),
-                        "{yaw}", String.valueOf(yaw),
-                        "{pitch}", String.valueOf(pitch),
-                        "{world}", world.getName(),
-                        "{player}", args[6]);
+                    "x", String.valueOf(loc[0]),
+                    "y", String.valueOf(loc[1]),
+                    "z", String.valueOf(loc[2]),
+                    "yaw", String.valueOf(yaw),
+                    "pitch", String.valueOf(pitch),
+                    "world", world.getName(),
+                    "player", args[6]
+                );
             } else {
                 CustomMessages.sendMessage(player, "Info.teleportedToLoc",
-                        "{x}", String.valueOf(loc[0]),
-                        "{y}", String.valueOf(loc[1]),
-                        "{z}", String.valueOf(loc[2]),
-                        "{yaw}", String.valueOf(yaw),
-                        "{pitch}", String.valueOf(pitch),
-                        "{world}", world.getName());
+                    "x", String.valueOf(loc[0]),
+                    "y", String.valueOf(loc[1]),
+                    "z", String.valueOf(loc[2]),
+                    "yaw", String.valueOf(yaw),
+                    "pitch", String.valueOf(pitch),
+                    "world", world.getName()
+                );
             }
         }
 
@@ -162,60 +165,71 @@ public final class TpLoc extends TeleportATCommand implements PlayerCommand {
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-                                      @NotNull String[] args) {
+    public List<String> onTabComplete(
+        @NotNull CommandSender sender,
+        @NotNull Command command,
+        @NotNull String label,
+        @NotNull String[] args
+    ) {
         List<String> results = new ArrayList<>();
         if (sender instanceof Player player) {
             Location location = player.getLocation();
             switch (args.length) {
-                case 1:
-                    StringUtil.copyPartialMatches(args[0],
-                            Arrays.asList(String.valueOf(location.getX()),
-                                    String.valueOf(location.getBlockX()),
-                                    "~"), results);
-                    break;
-                case 2:
-                    StringUtil.copyPartialMatches(args[1],
-                            Arrays.asList(String.valueOf(location.getY()),
-                                    String.valueOf(location.getBlockY()),
-                                    "~"), results);
-                    break;
-                case 3:
-                    StringUtil.copyPartialMatches(args[2],
-                            Arrays.asList(String.valueOf(location.getZ()),
-                                    String.valueOf(location.getBlockZ()),
-                                    "~"), results);
-                    break;
-                case 4:
-                    StringUtil.copyPartialMatches(args[3],
-                            Arrays.asList(String.valueOf(location.getYaw()),
-                                    "~"), results);
-                    break;
-                case 5:
-                    StringUtil.copyPartialMatches(args[4],
-                            Arrays.asList(String.valueOf(location.getPitch()),
-                                    "~"), results);
-                    break;
-                case 6:
-                    List<String> worlds = new ArrayList<>();
-                    for (World world : Bukkit.getWorlds()) {
-                        worlds.add(world.getName());
-                    }
-                    worlds.add("~");
-                    StringUtil.copyPartialMatches(args[5], worlds, results);
-                    break;
-                case 7:
-                    if (player.hasPermission("at.admin.tploc.others")) {
-                        StringUtil.copyPartialMatches(args[6],
-                                ConditionChecker.getPlayers(player), results);
-                    }
-                    break;
-                case 8:
-                    if (player.hasPermission("at.admin.tploc.safe-teleport")) {
-                        StringUtil.copyPartialMatches(args[7],
-                                Arrays.asList("precise", "noflight"), results);
-                    }
-                    break;
+            case 1 -> StringUtil.copyPartialMatches(args[0],
+                Arrays.asList(
+                    String.valueOf(location.getX()),
+                    String.valueOf(location.getBlockX()),
+                    "~"
+                ), results
+            );
+            case 2 -> StringUtil.copyPartialMatches(args[1],
+                Arrays.asList(
+                    String.valueOf(location.getY()),
+                    String.valueOf(location.getBlockY()),
+                    "~"
+                ), results
+            );
+            case 3 -> StringUtil.copyPartialMatches(args[2],
+                Arrays.asList(
+                    String.valueOf(location.getZ()),
+                    String.valueOf(location.getBlockZ()),
+                    "~"
+                ), results
+            );
+            case 4 -> StringUtil.copyPartialMatches(args[3],
+                Arrays.asList(
+                    String.valueOf(location.getYaw()),
+                    "~"
+                ), results
+            );
+            case 5 -> StringUtil.copyPartialMatches(args[4],
+                Arrays.asList(
+                    String.valueOf(location.getPitch()),
+                    "~"
+                ), results
+            );
+            case 6 -> {
+                List<String> worlds = new ArrayList<>();
+                for (World world : Bukkit.getWorlds()) {
+                    worlds.add(world.getName());
+                }
+                worlds.add("~");
+                StringUtil.copyPartialMatches(args[5], worlds, results);
+            }
+            case 7 -> {
+                if (player.hasPermission("at.admin.tploc.others")) {
+                    StringUtil.copyPartialMatches(args[6],
+                        ConditionChecker.getPlayers(player), results
+                    );
+                }
+            }
+            case 8 -> {
+                if (player.hasPermission("at.admin.tploc.safe-teleport")) {
+                    StringUtil.copyPartialMatches(args[7],
+                        Arrays.asList("precise", "noflight"), results
+                    );
+                }
+            }
             }
         }
         return results;

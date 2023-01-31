@@ -38,6 +38,7 @@ fun MiniMessage.lazyPlaceholder(
                 in components -> Tag.selfClosingInserting { value.get() as Component }
                 else -> LazyStringReplacement { value.get().toString() }
             }
+
             else -> Tag.preProcessParsed(value.toString())
         }
     }.forEach { (placeholder, tag) -> resolver.tag(placeholder, tag) }

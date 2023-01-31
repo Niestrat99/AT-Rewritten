@@ -9,8 +9,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 /**
  * The event fired when a warp is moved.
  */
@@ -42,19 +40,6 @@ public final class WarpMoveEvent extends TrackableATEvent {
     }
 
     /**
-     * Sets the location the warp is being moved to.
-     *
-     * @param location the location to be moved to.
-     * @throws NullPointerException if the location is null.
-     * @throws IllegalStateException if the location's world is not loaded.
-     */
-    @Contract(pure = true)
-    public void setLocation(@NotNull final Location location) throws IllegalStateException {
-        if (!location.isWorldLoaded()) throw new IllegalStateException("The new location's world is not loaded.");
-        this.location = location;
-    }
-
-    /**
      * Gets the location the warp is moving to.
      *
      * @return the upcoming location of the warp.
@@ -62,6 +47,19 @@ public final class WarpMoveEvent extends TrackableATEvent {
     @Contract(pure = true)
     public @NotNull Location getLocation() {
         return location;
+    }
+
+    /**
+     * Sets the location the warp is being moved to.
+     *
+     * @param location the location to be moved to.
+     * @throws NullPointerException  if the location is null.
+     * @throws IllegalStateException if the location's world is not loaded.
+     */
+    @Contract(pure = true)
+    public void setLocation(@NotNull final Location location) throws IllegalStateException {
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The new location's world is not loaded.");
+        this.location = location;
     }
 
     @Override

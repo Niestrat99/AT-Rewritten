@@ -32,7 +32,11 @@ public class AcceptRequest {
         request.destroy();
     }
 
-    private static void teleport(Player toPlayer, Player fromPlayer, String type) {
+    private static void teleport(
+        Player toPlayer,
+        Player fromPlayer,
+        String type
+    ) {
         final Location toLocation = toPlayer.getLocation();
         ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toLocation, fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
         Bukkit.getPluginManager().callEvent(event);

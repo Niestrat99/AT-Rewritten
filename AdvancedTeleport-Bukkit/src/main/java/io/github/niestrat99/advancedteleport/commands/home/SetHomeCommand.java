@@ -79,13 +79,18 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
     // Separated this into a separate method so that the code is easier to read.
     // Player player - the player which is having the home set.
     // String name - the name of the home.
-    private void setHome(Player sender, OfflinePlayer target, String homeName, String playerName) {
+    private void setHome(
+        Player sender,
+        OfflinePlayer target,
+        String homeName,
+        String playerName
+    ) {
 
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
         // If the home with that name already exists, and we can't overwrite homes, let the player know
         if (!MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(homeName)) {
-            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "{home}", homeName);
+            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "home", homeName);
             return;
         }
 

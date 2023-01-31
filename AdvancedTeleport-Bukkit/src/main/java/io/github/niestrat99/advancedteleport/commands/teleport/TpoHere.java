@@ -1,9 +1,9 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
-import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
+import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.papermc.lib.PaperLib;
@@ -44,9 +44,11 @@ public final class TpoHere extends TeleportATCommand implements PlayerCommand {
             return true;
         }
         CustomMessages.sendMessage(sender, "Teleport.teleportingPlayerToSelf", "player",
-                target.getName());
+            target.getName()
+        );
         CustomMessages.sendMessage(target, "Teleport.teleportingSelfToPlayer", "player",
-                sender.getName());
+            sender.getName()
+        );
         PaperLib.teleportAsync(target, player.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
         return true;
     }

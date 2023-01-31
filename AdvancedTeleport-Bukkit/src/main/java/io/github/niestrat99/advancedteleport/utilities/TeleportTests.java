@@ -2,13 +2,18 @@ package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.function.Supplier;
+
 public class TeleportTests {
 
-    public static TeleportRequest teleportTests(Player player, String[] args, String type) {
+    public static TeleportRequest teleportTests(
+        Player player,
+        String[] args,
+        String type
+    ) {
 
         // Checks if any players have sent a request at all.
         if (TeleportRequest.getRequests(player).isEmpty()) {

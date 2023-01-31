@@ -86,12 +86,17 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                     "Info.setMainHome",
                     "Error.setMainHomeFail",
                     err,
-                    "{home}", homeName
+                    "home", homeName
                 ));
             } else CustomMessages.sendMessage(sender, "Error.noAccessHome", "home", home.getName());
         }
 
         return true;
+    }
+
+    @Override
+    public @NotNull String getPermission() {
+        return "at.member.setmainhome";
     }
 
     private void addAndMaybeSetHome(
@@ -117,10 +122,5 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                     "player", atTarget.getPlayer().displayName()
             ));
         });
-    }
-
-    @Override
-    public @NotNull String getPermission() {
-        return "at.member.setmainhome";
     }
 }

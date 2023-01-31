@@ -14,18 +14,22 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 public final class ParticlesCommand extends SubATCommand {
 
-    private final HashSet<String> types =  new HashSet<>(Arrays.asList("home", "tpa", "tpahere", "tpr", "warp", "spawn", "back"));
+    private final HashSet<String> types = new HashSet<>(Arrays.asList("home", "tpa", "tpahere", "tpr", "warp", "spawn", "back"));
 
     @Override
     public boolean onCommand(
-            @NotNull final CommandSender sender,
-            @NotNull final Command command,
-            @NotNull final String s,
-            @NotNull final String[] args
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
     ) {
 
         // If particles aren't enabled, stop there.
@@ -63,7 +67,7 @@ public final class ParticlesCommand extends SubATCommand {
                 return false;
             }
             MainConfig.get().set("waiting-particles." + type, data);
-            CustomMessages.sendMessage(sender, "Info.specificParticlesUpdated", "{type}", type);
+            CustomMessages.sendMessage(sender, "Info.specificParticlesUpdated", "type", type);
         }
 
         // Then save the config.

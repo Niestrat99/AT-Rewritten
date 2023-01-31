@@ -42,20 +42,10 @@ public final class WarpCreateEvent extends TrackableATEvent {
     }
 
     /**
-     * Gives the location of the warp to be created.
-     *
-     * @return the provided location.
-     */
-    @Contract(pure = true)
-    public @NotNull Location getLocation() {
-        return location;
-    }
-
-    /**
      * Sets the name of the warp.
      *
      * @param name the name to be used.
-     * @throws NullPointerException if the warp name is null.
+     * @throws NullPointerException     if the warp name is null.
      * @throws IllegalArgumentException if the warp name is empty.
      */
     @Contract(pure = true)
@@ -66,10 +56,20 @@ public final class WarpCreateEvent extends TrackableATEvent {
     }
 
     /**
+     * Gives the location of the warp to be created.
+     *
+     * @return the provided location.
+     */
+    @Contract(pure = true)
+    public @NotNull Location getLocation() {
+        return location;
+    }
+
+    /**
      * Sets the location of the warp.
      *
      * @param location the location to be used.
-     * @throws NullPointerException if the location is null.
+     * @throws NullPointerException  if the location is null.
      * @throws IllegalStateException if the location's world is unloaded.
      */
     @Contract(pure = true)

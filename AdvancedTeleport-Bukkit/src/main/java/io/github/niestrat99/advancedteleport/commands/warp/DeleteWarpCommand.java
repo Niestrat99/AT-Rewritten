@@ -15,10 +15,10 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
 
     @Override
     public boolean onCommand(
-            @NotNull final CommandSender sender,
-            @NotNull final Command command,
-            @NotNull final String s,
-            @NotNull final String[] args
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
     ) {
 
         // If the command can't proceed due to being disabled, stop there

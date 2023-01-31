@@ -1,9 +1,12 @@
 package io.github.niestrat99.advancedteleport;
 
-import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.config.ATConfig;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.GUIConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
-import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
+import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
 import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
 import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
@@ -11,10 +14,6 @@ import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import io.github.slimjar.app.builder.InjectingApplicationBuilder;
 import io.github.slimjar.logging.ProcessLogger;
 import io.papermc.lib.PaperLib;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Optional;
-import java.security.NoSuchAlgorithmException;
 import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -29,27 +28,24 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 public final class CoreClass extends JavaPlugin {
 
-    public static String pltitle(String title) {
-        title = "&3[&bAdvancedTeleport&3] " + title;
-        return ChatColor.translateAlternateColorCodes('&', title);
-    }
-
-    private static CoreClass Instance;
-    private static Permission perms = null;
-    private int version;
-    private Object[] updateInfo = null;
-
+    private static CoreClass instance;
     public static final Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
     public static final Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
+    private static Permission perms;
+    private Object[] updateInfo;
+    private int version;
 
     public static CoreClass getInstance() {
-        return Instance;
+        return instance;
     }
 
     @Override
@@ -64,8 +60,26 @@ public final class CoreClass extends JavaPlugin {
     }
 
     @Override
+    public void onDisable() {
+        DataFailManager.get().onDisable();
+
+        try {
+            hackTheMainFrame();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            getLogger().warning("Failed to shut down async tasks.");
+            e.printStackTrace();
+        }
+
+        try {
+            RTPManager.saveLocations();
+        } catch (IOException e) {
+            getLogger().warning("Failed to save RTP locations: " + e.getMessage());
+        }
+    }
+
+    @Override
     public void onEnable() {
-        Instance = this;
+        instance = this;
 
         // Perform version checks.
         checkVersion();
@@ -108,7 +122,6 @@ public final class CoreClass extends JavaPlugin {
         CooldownManager.init();
         RandomTPAlgorithms.init();
 
-        setupVersion();
         new Metrics(this, 5146);
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             RTPManager.init();
@@ -142,24 +155,6 @@ public final class CoreClass extends JavaPlugin {
         debug("Detected major version: " + number);
     }
 
-    @Override
-    public void onDisable() {
-        DataFailManager.get().onDisable();
-
-        try {
-            hackTheMainFrame();
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            getLogger().warning("Failed to shut down async tasks.");
-            e.printStackTrace();
-        }
-
-        try {
-            RTPManager.saveLocations();
-        } catch (IOException e) {
-            getLogger().warning("Failed to save RTP locations: " + e.getMessage());
-        }
-    }
-
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new SignInteractListener(), this);
         getServer().getPluginManager().registerEvents(new TeleportTrackingManager(), this);
@@ -173,9 +168,9 @@ public final class CoreClass extends JavaPlugin {
      * Nag author: 'Niestrat99' of 'AdvancedTeleport' about the following:
      * This plugin is not properly shutting down its async tasks when it is being shut down.
      * This task may throw errors during the final shutdown logs and might not complete before process dies.
-     *
+     * <p>
      * Careful what you consider proper, Paper...
-     *
+     * <p>
      * FYI - any Paper devs that see this, is there a better way to work around this?
      * AT freezes up due to the PaperLib#getChunkAtAsync method being held up, then floods the console, and considering the userbase...
      * If there's a better way of handling this please either open an issue or DM @ Error#7365 because this method honestly sucks ass
@@ -252,7 +247,7 @@ public final class CoreClass extends JavaPlugin {
         try {
             target.playSound(target.getLocation(), Sound.valueOf(sound), 10, 1);
         } catch(IllegalArgumentException e){
-            CoreClass.getInstance().getLogger().warning(CoreClass.pltitle(sound + " is an invalid sound name"));
+            CoreClass.getInstance().getLogger().warning(sound + " is an invalid sound name");
         }
     }
 
@@ -273,10 +268,6 @@ public final class CoreClass extends JavaPlugin {
         return version;
     }
 
-    public Object[] getUpdateInfo() {
-        return updateInfo;
-    }
-
     public static void debug(String message) {
         if (MainConfig.get() == null || MainConfig.get().DEBUG.get()) {
             CoreClass.getInstance().getLogger().info(message);
@@ -292,7 +283,10 @@ public final class CoreClass extends JavaPlugin {
             .downloadDirectoryPath(getDataFolder().toPath().resolve(".libs"))
             .logger(new ProcessLogger() {
                 @Override
-                public void log(String s, Object... objects) {
+                public void log(
+                    String s,
+                    Object... objects
+                ) {
                     getLogger().info(String.format(s, objects));
                 }
 
@@ -300,5 +294,9 @@ public final class CoreClass extends JavaPlugin {
                 public void debug(String message, Object... args) {
                 }
             }).build();
+    }
+
+    public Object[] getUpdateInfo() {
+        return updateInfo;
     }
 }

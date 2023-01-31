@@ -9,10 +9,13 @@ public class PagedLists<T> {
     private final List<T> list;
     private final int pages;
     private final int contents;
-    private int currentPage;
     private final int contentsPerPage;
+    private int currentPage;
 
-    public PagedLists(List<T> list, int contentsPerPage) {
+    public PagedLists(
+        List<T> list,
+        int contentsPerPage
+    ) {
         if (contentsPerPage < 1) {
             throw new IllegalArgumentException("The provided int must be bigger than 0 for contents per page!");
         }
@@ -29,20 +32,12 @@ public class PagedLists<T> {
         this.contentsPerPage = contentsPerPage;
     }
 
-    public int getTotalPages() {
-        return pages;
-    }
-
     public int getTotalContents() {
         return contents;
     }
 
     public int getCurrentPage() {
         return currentPage;
-    }
-
-    private List<T> getList() {
-        return list;
     }
 
     public List<T> getContentsInPage(int page) {
@@ -58,13 +53,20 @@ public class PagedLists<T> {
         return getList().subList(sIndex, eIndex);
     }
 
-    private void setPage(int page) {
-        this.currentPage = page;
+    public int getTotalPages() {
+        return pages;
     }
 
     public int getContentsPerPage() {
         return contentsPerPage;
     }
 
+    private List<T> getList() {
+        return list;
+    }
+
+    private void setPage(int page) {
+        this.currentPage = page;
+    }
 
 }

@@ -1,15 +1,14 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportCancelEvent;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
-import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
-import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
-import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.Bukkit;
@@ -17,6 +16,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public final class TpCancel extends TeleportATCommand implements PlayerCommand {
 
@@ -28,7 +29,6 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
         @NotNull final String[] args
     ) {
         if (!canProceed(sender)) return true;
-
 
         Player player = (Player) sender;
         // Checks if any players have sent a request at all.
@@ -45,10 +45,11 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                     }
                     TeleportRequest request = TeleportRequest.getRequestByReqAndResponder(target, player);
                     if (request == null) {
-                        CustomMessages.sendMessage(sender, "Error.noRequestsFromPlayer", "player",  args[0]);
+                        CustomMessages.sendMessage(sender, "Error.noRequestsFromPlayer", "player", args[0]);
                     } else {
                         TeleportCancelEvent event = new TeleportCancelEvent(request.requester(),
-                                request.requester(), request.type());
+                            request.requester(), request.type()
+                        );
                         Bukkit.getPluginManager().callEvent(event);
                         if (event.isCancelled()) {
                             // Could not be cancelled
@@ -89,7 +90,8 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                 TeleportRequest request = TeleportRequest.getRequestsByRequester(player).get(0);
 
                 TeleportCancelEvent event = new TeleportCancelEvent(request.requester(),
-                        request.requester(), request.type());
+                    request.requester(), request.type()
+                );
                 Bukkit.getPluginManager().callEvent(event);
                 if (event.isCancelled()) {
                     // Could not be cancelled

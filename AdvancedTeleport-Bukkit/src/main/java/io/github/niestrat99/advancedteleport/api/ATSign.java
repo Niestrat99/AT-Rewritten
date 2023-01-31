@@ -23,9 +23,15 @@ public abstract class ATSign {
         this.enabled = enabled;
     }
 
-    public abstract void onInteract(@NotNull Sign sign, @NotNull Player player);
+    public abstract void onInteract(
+        @NotNull Sign sign,
+        @NotNull Player player
+    );
 
-    public abstract boolean canCreate(@NotNull Sign sign, @NotNull Player player);
+    public abstract boolean canCreate(
+        @NotNull Sign sign,
+        @NotNull Player player
+    );
 
     @Contract(pure = true)
     public boolean isEnabled() {

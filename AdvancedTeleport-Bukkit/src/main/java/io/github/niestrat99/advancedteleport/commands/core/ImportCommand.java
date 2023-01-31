@@ -44,7 +44,7 @@ public final class ImportCommand extends SubATCommand {
                 default -> {
                     // TODO: Error message
                     CustomMessages.sendMessage(sender, "Error.cantImport", "plugin", args[0]);
-                    return
+                    return;
                 }
             }
             CustomMessages.sendMessage(sender, "Info.importFinished", "plugin", args[0]);

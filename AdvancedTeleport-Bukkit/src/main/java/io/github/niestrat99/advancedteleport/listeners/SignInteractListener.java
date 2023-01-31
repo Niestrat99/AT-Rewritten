@@ -1,7 +1,13 @@
 package io.github.niestrat99.advancedteleport.listeners;
 
 import io.github.niestrat99.advancedteleport.api.ATSign;
-import io.github.niestrat99.advancedteleport.api.signs.*;
+import io.github.niestrat99.advancedteleport.api.signs.BedSign;
+import io.github.niestrat99.advancedteleport.api.signs.HomeSign;
+import io.github.niestrat99.advancedteleport.api.signs.HomesSign;
+import io.github.niestrat99.advancedteleport.api.signs.RandomTPSign;
+import io.github.niestrat99.advancedteleport.api.signs.SpawnSign;
+import io.github.niestrat99.advancedteleport.api.signs.WarpSign;
+import io.github.niestrat99.advancedteleport.api.signs.WarpsSign;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
@@ -52,7 +58,7 @@ public class SignInteractListener implements Listener {
     }
 
     @EventHandler
-    public void onSignPlace(SignChangeEvent event){
+    public void onSignPlace(SignChangeEvent event) {
         Block placeBlock = event.getBlock();
         BlockState state = placeBlock.getState();
         Player player = event.getPlayer();
