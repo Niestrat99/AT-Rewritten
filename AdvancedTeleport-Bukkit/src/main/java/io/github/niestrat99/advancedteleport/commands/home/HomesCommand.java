@@ -4,9 +4,8 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -55,13 +54,13 @@ public final class HomesCommand extends AbstractHomeCommand {
 
     @Override
     public boolean getRequiredFeature() {
-        return NewConfig.get().USE_HOMES.get();
+        return MainConfig.get().USE_HOMES.get();
     }
 
     private void getHomes(CommandSender sender, OfflinePlayer target) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
-        if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+        if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
             atFloodgatePlayer.sendHomeForm();
             return;
         }
@@ -85,7 +84,7 @@ public final class HomesCommand extends AbstractHomeCommand {
                             .command("/home " + extraArg + home.getName())
                             .tooltip(getTooltip(sender, home))
                             .then(", ");
-                } else if (!NewConfig.get().HIDE_HOMES_IF_DENIED.get()) {
+                } else if (!MainConfig.get().HIDE_HOMES_IF_DENIED.get()) {
                     hList.then(home.getName())
                             .tooltip(getTooltip(sender, home))
                             .color(ChatColor.GRAY)

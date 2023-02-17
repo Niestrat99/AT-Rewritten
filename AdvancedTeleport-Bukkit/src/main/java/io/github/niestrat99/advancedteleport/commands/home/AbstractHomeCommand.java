@@ -4,7 +4,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import java.util.Collections;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -48,7 +48,7 @@ public abstract class AbstractHomeCommand extends ATCommand {
 
     @Override
     public boolean getRequiredFeature() {
-        return NewConfig.get().USE_HOMES.get();
+        return MainConfig.get().USE_HOMES.get();
     }
 
     @Override

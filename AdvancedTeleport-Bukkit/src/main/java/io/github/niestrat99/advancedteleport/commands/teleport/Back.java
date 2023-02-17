@@ -5,7 +5,7 @@ import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -59,7 +59,7 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
         double originalY = loc.getY();
         double originalX = loc.getX();
         double originalZ = loc.getZ();
-        int radius = NewConfig.get().BACK_SEARCH_RADIUS.get();
+        int radius = MainConfig.get().BACK_SEARCH_RADIUS.get();
         ArrayList<Location> possiblelocs = new ArrayList<>();
 
         /*

@@ -4,7 +4,7 @@ import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
@@ -37,7 +37,7 @@ public class AcceptRequest {
         ATTeleportEvent event = new ATTeleportEvent(fromPlayer, toLocation, fromPlayer.getLocation(), "", ATTeleportEvent.TeleportType.valueOf(type.toUpperCase()));
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
-        int warmUp = NewConfig.get().WARM_UPS.valueOf(type).get();
+        int warmUp = MainConfig.get().WARM_UPS.valueOf(type).get();
         Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
         if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
             MovementManager.createMovementTimer(fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
@@ -48,7 +48,7 @@ public class AcceptRequest {
         PaymentManager.getInstance().withdraw(type, payingPlayer);
 
         // If the cooldown is to be applied after only after a teleport takes place, apply it now
-        if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+        if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
             CooldownManager.addToCooldown(type, payingPlayer);
         }
     }

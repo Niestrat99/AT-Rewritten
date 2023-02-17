@@ -7,7 +7,7 @@ import io.github.niestrat99.advancedteleport.commands.home.*;
 import io.github.niestrat99.advancedteleport.commands.spawn.*;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -97,7 +97,7 @@ public class CommandManager {
         aliases.add(name);
         boolean removed = false;
         for (String alias : aliases) {
-            if (NewConfig.get().DISABLED_COMMANDS.get().contains(alias) || removed || !atCommand.getRequiredFeature()) {
+            if (MainConfig.get().DISABLED_COMMANDS.get().contains(alias) || removed || !atCommand.getRequiredFeature()) {
                 if (command.isRegistered()) {
                     removed = true;
                     command.unregister(map);

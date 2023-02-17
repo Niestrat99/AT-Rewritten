@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.api.signs;
 
 import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpsCommand;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class WarpsSign extends ATSign {
 
     public WarpsSign() {
-        super("Warps", NewConfig.get().USE_WARPS.get());
+        super("Warps", MainConfig.get().USE_WARPS.get());
     }
 
     @Override

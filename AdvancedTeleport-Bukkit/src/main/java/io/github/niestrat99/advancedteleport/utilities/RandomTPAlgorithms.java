@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -83,7 +83,7 @@ public class RandomTPAlgorithms {
 
                     boolean mustBreak = false;
                     if (currentMat != Material.AIR) {
-                        for (String material : NewConfig.get().AVOID_BLOCKS.get()) {
+                        for (String material : MainConfig.get().AVOID_BLOCKS.get()) {
                             if (currentMat.name().equalsIgnoreCase(material)) {
                                 mustBreak = true;
                                 break;

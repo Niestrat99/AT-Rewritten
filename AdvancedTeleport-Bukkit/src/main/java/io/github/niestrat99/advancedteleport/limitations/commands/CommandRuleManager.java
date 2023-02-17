@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.limitations.commands;
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.limitations.commands.list.IgnoreRule;
 import io.github.niestrat99.advancedteleport.limitations.commands.list.OverrideRule;
 import org.bukkit.Location;
@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class CommandRuleManager {
 
@@ -20,7 +19,7 @@ public final class CommandRuleManager {
     public CommandRuleManager() {
         rules = new HashMap<>();
         for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
-            addCommand(command, NewConfig.get().COMMAND_RULES.valueOf(command).get());
+            addCommand(command, MainConfig.get().COMMAND_RULES.valueOf(command).get());
         }
     }
 

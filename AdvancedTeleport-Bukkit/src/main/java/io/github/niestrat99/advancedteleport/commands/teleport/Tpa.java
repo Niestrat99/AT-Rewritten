@@ -9,7 +9,7 @@ import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
@@ -35,7 +35,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
 
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+            if (atPlayer instanceof ATFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendTPAForm(false);
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
@@ -49,7 +49,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
             return true;
         }
         if (PaymentManager.getInstance().canPay("tpa", player)) {
-            int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
+            int requestLifetime = MainConfig.get().REQUEST_LIFETIME.get();
             TeleportRequestEvent event = new TeleportRequestEvent(target, player, TeleportRequestType.TPA);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
@@ -65,7 +65,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
 
             ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
-            if (targetPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+            if (targetPlayer instanceof ATFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPA(player);
             } else {
                 CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
@@ -78,7 +78,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
             BukkitRunnable run = new BukkitRunnable() {
                     @Override
                     public void run() {
-                        if (NewConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                        if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
                             CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}",
                                     target.getName());
                         }
@@ -91,7 +91,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
            // Creates a new teleport request.
            TeleportRequest.addRequest(request);
            // If the cooldown is to be applied after request, apply it now
-           if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+           if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
                CooldownManager.addToCooldown("tpa", player);
            }
         }

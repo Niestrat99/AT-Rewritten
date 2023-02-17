@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.signs;
 
 import io.github.niestrat99.advancedteleport.api.ATSign;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class HomesSign extends ATSign {
 
     public HomesSign() {
-        super("Homes", NewConfig.get().USE_HOMES.get());
+        super("Homes", MainConfig.get().USE_HOMES.get());
     }
 
     @Override

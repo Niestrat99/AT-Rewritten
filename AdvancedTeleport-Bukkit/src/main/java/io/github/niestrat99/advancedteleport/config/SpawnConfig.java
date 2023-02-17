@@ -11,12 +11,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Spawn extends ATConfig {
+public final class SpawnConfig extends ATConfig {
 
-    private static Spawn instance;
+    private static SpawnConfig instance;
     private Location mainSpawn;
 
-    public Spawn() throws IOException {
+    public SpawnConfig() throws IOException {
         super("spawn.yml");
         instance = this;
     }
@@ -217,7 +217,7 @@ public final class Spawn extends ATConfig {
         return new ArrayList<>(section.getKeys(false));
     }
 
-    public static Spawn get() {
+    public static SpawnConfig get() {
         return instance;
     }
 }

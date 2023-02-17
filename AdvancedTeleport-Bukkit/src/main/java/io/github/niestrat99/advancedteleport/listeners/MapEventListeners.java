@@ -4,7 +4,7 @@ import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import org.bukkit.event.EventHandler;
@@ -16,7 +16,7 @@ public class MapEventListeners implements Listener {
     public void onWarpAdd(WarpPostCreateEvent event) {
 
         // If warps aren't meant to be put on maps, stop there
-        if (!NewConfig.get().MAP_WARPS.isEnabled()) return;
+        if (!MainConfig.get().MAP_WARPS.isEnabled()) return;
 
         // Add the warp to each map plugin.
         Warp warp = event.getWarp();
@@ -32,7 +32,7 @@ public class MapEventListeners implements Listener {
     public void onWarpMove(WarpMoveEvent event) {
 
         // If warps aren't meant to be put on maps, stop there.
-        if (!NewConfig.get().MAP_WARPS.isEnabled()) return;
+        if (!MainConfig.get().MAP_WARPS.isEnabled()) return;
 
         // Move the warp accordingly.
         PluginHookManager.get().getPluginHooks(MapPlugin.class, true).forEach(mapPlugin -> mapPlugin.moveWarp(event.getWarp()));

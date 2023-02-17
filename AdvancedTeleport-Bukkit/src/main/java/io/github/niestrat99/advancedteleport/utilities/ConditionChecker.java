@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.utilities;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -62,7 +62,7 @@ public class ConditionChecker {
                 + command);
 
         // Check if the player is too far away
-        if (NewConfig.get().ENABLE_DISTANCE_LIMITATIONS.get()
+        if (MainConfig.get().ENABLE_DISTANCE_LIMITATIONS.get()
                 && !teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")
                 && fromLoc.getWorld() == toLoc.getWorld()
                 && !DistanceLimiter.canTeleport(toLoc, fromLoc, command, ATPlayer.getPlayer(teleportingPlayer))) {
@@ -70,10 +70,10 @@ public class ConditionChecker {
         }
 
         // Check if the player is able to teleport between/within worlds
-        if (NewConfig.get().ENABLE_TELEPORT_LIMITATIONS.get()
+        if (MainConfig.get().ENABLE_TELEPORT_LIMITATIONS.get()
                 && !teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
             CoreClass.debug("Teleportation limits are enabled and the player is not bypassing them.");
-            if (!NewConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return "";
+            if (!MainConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return "";
             if (!LimitationsManager.canTeleport(teleportingPlayer, toLoc, command)) {
                 return "Error.cantTPToWorldLim";
             }

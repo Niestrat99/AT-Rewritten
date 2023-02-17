@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Location;
@@ -37,8 +37,8 @@ public class RandomCoords {
         double[] coords = PluginHookManager.get().getRandomCoords(world);
         if (coords == null) {
             coordCache.computeIfAbsent(world.getName(), k -> {
-                ConfigSection x = NewConfig.get().X.get();
-                ConfigSection z = NewConfig.get().Z.get();
+                ConfigSection x = MainConfig.get().X.get();
+                ConfigSection z = MainConfig.get().Z.get();
 
                 String xStr = x.contains(world.getName()) ? x.getString(world.getName()) : x.getString("default");
                 String zStr = x.contains(world.getName()) ? z.getString(world.getName()) : z.getString("default");

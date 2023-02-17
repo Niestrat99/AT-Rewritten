@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -14,7 +14,7 @@ public abstract class SQLManager {
     protected static volatile boolean usingSqlite;
 
     public SQLManager() {
-        tablePrefix = NewConfig.get().TABLE_PREFIX.get();
+        tablePrefix = MainConfig.get().TABLE_PREFIX.get();
         if (!tablePrefix.matches("^[_A-Za-z0-9]+$")) {
             CoreClass.getInstance().getLogger().warning("Table prefix " + tablePrefix + " is not alphanumeric. Using advancedtp...");
             tablePrefix = "advancedtp";
@@ -38,17 +38,17 @@ public abstract class SQLManager {
 
     public Connection implementConnection() {
         Connection connection;
-        if (NewConfig.get().USE_MYSQL.get()) {
+        if (MainConfig.get().USE_MYSQL.get()) {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
                 String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
-                        NewConfig.get().MYSQL_HOST.get(),
-                        NewConfig.get().MYSQL_PORT.get(),
-                        NewConfig.get().MYSQL_DATABASE.get(),
-                        NewConfig.get().USE_SSL.get(),
-                        NewConfig.get().AUTO_RECONNECT.get(),
-                        NewConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get());
-                connection = DriverManager.getConnection(url, NewConfig.get().USERNAME.get(), NewConfig.get().PASSWORD.get());
+                        MainConfig.get().MYSQL_HOST.get(),
+                        MainConfig.get().MYSQL_PORT.get(),
+                        MainConfig.get().MYSQL_DATABASE.get(),
+                        MainConfig.get().USE_SSL.get(),
+                        MainConfig.get().AUTO_RECONNECT.get(),
+                        MainConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get());
+                connection = DriverManager.getConnection(url, MainConfig.get().USERNAME.get(), MainConfig.get().PASSWORD.get());
                 usingSqlite = false;
                 return connection;
             } catch (ClassNotFoundException | SQLException e) {

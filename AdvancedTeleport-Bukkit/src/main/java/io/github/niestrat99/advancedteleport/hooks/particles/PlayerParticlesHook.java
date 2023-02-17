@@ -10,7 +10,7 @@ import dev.esophose.playerparticles.particles.data.NoteColor;
 import dev.esophose.playerparticles.particles.data.OrdinaryColor;
 import dev.esophose.playerparticles.particles.data.Vibration;
 import dev.esophose.playerparticles.styles.ParticleStyle;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 import java.util.Arrays;
 import java.util.Objects;
@@ -63,7 +63,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
     ) {
 
         // Get the existing particles in place, but if it doesn't already exist? Meh
-        String rawParticle = NewConfig.get().WAITING_PARTICLES.valueOf(command).get();
+        String rawParticle = MainConfig.get().WAITING_PARTICLES.valueOf(command).get();
         if (rawParticle.isEmpty()) return;
 
         // Get the raw pairs of particles and parse them
@@ -226,7 +226,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
         @NotNull final Player player,
         @NotNull final String command
     ) {
-        final var rawParticle = NewConfig.get().WAITING_PARTICLES.valueOf(command).get();
+        final var rawParticle = MainConfig.get().WAITING_PARTICLES.valueOf(command).get();
         if (rawParticle.isEmpty()) return Stream.empty();
 
         return Arrays.stream(rawParticle.split(";"))

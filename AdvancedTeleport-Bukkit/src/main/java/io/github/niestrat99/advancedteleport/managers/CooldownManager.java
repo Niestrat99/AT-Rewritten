@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -24,8 +24,8 @@ public class CooldownManager {
         public ATRunnable(UUID uuid, long waitingTime, String command) {
             this.uuid = uuid;
             ms = waitingTime;
-            if (NewConfig.get().ADD_COOLDOWN_DURATION_TO_WARM_UP.get() && !Bukkit.getPlayer(uuid).hasPermission("at.admin.bypass.timer")) {
-                ms += NewConfig.get().WARM_UPS.valueOf(command).get();
+            if (MainConfig.get().ADD_COOLDOWN_DURATION_TO_WARM_UP.get() && !Bukkit.getPlayer(uuid).hasPermission("at.admin.bypass.timer")) {
+                ms += MainConfig.get().WARM_UPS.valueOf(command).get();
             }
             this.command = getKey(command);
             startingTime = System.currentTimeMillis();
@@ -62,12 +62,12 @@ public class CooldownManager {
     }
 
     private static String getKey(String command) {
-        return NewConfig.get().APPLY_COOLDOWN_TO_ALL_COMMANDS.get() ? "all" : command;
+        return MainConfig.get().APPLY_COOLDOWN_TO_ALL_COMMANDS.get() ? "all" : command;
     }
 
     public static void init() {
         cooldown.clear();
-        if (NewConfig.get().APPLY_COOLDOWN_TO_ALL_COMMANDS.get()) {
+        if (MainConfig.get().APPLY_COOLDOWN_TO_ALL_COMMANDS.get()) {
             cooldown.put("all", new ArrayList<>());
         } else {
             for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {

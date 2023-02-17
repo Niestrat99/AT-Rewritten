@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.hooks;
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
@@ -31,7 +31,7 @@ public abstract class ParticlesPlugin<P extends Plugin, R> extends PluginHook<P,
      */
     @Contract(pure = true)
     public boolean canUse() {
-        return NewConfig.get().USE_PARTICLES.get() && this.pluginUsable();
+        return MainConfig.get().USE_PARTICLES.get() && this.pluginUsable();
     }
 
     /**

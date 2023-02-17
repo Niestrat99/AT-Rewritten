@@ -4,8 +4,8 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.GUI;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.GUIConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.IconMenu;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
@@ -37,8 +37,8 @@ public final class WarpsCommand extends ATCommand {
     }
 
     public static void sendWarps(CommandSender sender) {
-        if (GUI.isUsingWarpsGUIMenu()) {
-            ConfigSection warps = GUI.getWarpsMenu();
+        if (GUIConfig.isUsingWarpsGUIMenu()) {
+            ConfigSection warps = GUIConfig.getWarpsMenu();
             int minPage = 999;
             int maxPage = 0;
             for (String warp : warps.getKeys(false)) {
@@ -51,7 +51,7 @@ public final class WarpsCommand extends ATCommand {
                 }
             }
             int pages = maxPage - minPage + 1;
-            IconMenu menu = new IconMenu(CustomMessages.getStringRaw("Info.warps"), GUI.getWarpsMenuSlots(), pages, CoreClass.getInstance());
+            IconMenu menu = new IconMenu(CustomMessages.getStringRaw("Info.warps"), GUIConfig.getWarpsMenuSlots(), pages, CoreClass.getInstance());
 
             for (String warpName : warps.getKeys(false)) {
                 ConfigSection warp = warps.getConfigSection(warpName);
@@ -75,7 +75,7 @@ public final class WarpsCommand extends ATCommand {
             // Next page icons will override warps
             for (int i = 0; i < pages; i++) {
                 if (i != 0) {
-                    ConfigSection lastPage = GUI.getLastPageIcon();
+                    ConfigSection lastPage = GUIConfig.getLastPageIcon();
                     menu.setIcon(i, lastPage.getInteger("slot"),
                             new IconMenu.Icon(
                                     new ItemStack(Material.valueOf(lastPage.getString("item")),
@@ -90,7 +90,7 @@ public final class WarpsCommand extends ATCommand {
                                     }));
                 }
                 if (i != pages - 1) {
-                    ConfigSection nextPage = GUI.getNextPageIcon();
+                    ConfigSection nextPage = GUIConfig.getNextPageIcon();
                     menu.setIcon(i, nextPage.getInteger("slot"),
                             new IconMenu.Icon(
                                     new ItemStack(Material.valueOf(nextPage.getString("item")),
@@ -156,7 +156,7 @@ public final class WarpsCommand extends ATCommand {
 
     @Override
     public boolean getRequiredFeature() {
-        return NewConfig.get().USE_WARPS.get();
+        return MainConfig.get().USE_WARPS.get();
     }
 
     @Override

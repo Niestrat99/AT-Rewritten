@@ -4,14 +4,13 @@ import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
                 }
             }
 
-            if (atPlayer.canSetMoreHomes() || (NewConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
+            if (atPlayer.canSetMoreHomes() || (MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
                 setHome(player, args[0]);
 
             } else {
@@ -50,7 +49,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
             int limit = atPlayer.getHomesLimit();
             if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
                 setHome(player, "home");
-            } else if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+            } else if (atPlayer instanceof ATFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendSetHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
@@ -89,7 +88,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
 
     @Override
     public boolean getRequiredFeature() {
-        return NewConfig.get().USE_HOMES.get();
+        return MainConfig.get().USE_HOMES.get();
     }
 
     @Override

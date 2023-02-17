@@ -2,7 +2,8 @@ package io.github.niestrat99.advancedteleport.api.signs;
 
 import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class SpawnSign extends ATSign {
 
     public SpawnSign() {
-        super("Spawn", NewConfig.get().USE_SPAWN.get());
+        super("Spawn", MainConfig.get().USE_SPAWN.get());
     }
 
     @Override
