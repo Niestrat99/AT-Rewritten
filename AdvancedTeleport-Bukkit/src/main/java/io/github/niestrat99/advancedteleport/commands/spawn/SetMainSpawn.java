@@ -1,9 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -24,52 +26,45 @@ public final class SetMainSpawn extends SpawnATCommand {
         @NotNull final String s,
         @NotNull final String[] args
     ) {
+
+        // If the player can't proceed, stop there
         if (!canProceed(sender)) return true;
+
+        // Note the ID of the spawn and whether it is in a given world
         String id;
         boolean world = true;
+
+        // If an ID has been specified, use that, otherwise, use the player's world
         if (args.length > 0) {
-            if (!args[0].matches("^[0-9A-Za-z\\-_]+$")) {
-                CustomMessages.sendMessage(sender, "Error.nonAlphanumericSpawn");
-                return true;
-            }
             id = args[0];
             world = false;
-        } else if (sender instanceof Player) {
-            id = ((Player) sender).getWorld().getName();
+        } else if (sender instanceof Player player) {
+            id = player.getWorld().getName();
         } else {
             CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawnConsole");
             return true;
         }
 
-        Location loc = ((Player) sender).getLocation();
-        if (!Spawn.get().doesSpawnExist(id)) {
+        // Get the spawn - if it doesn't exist, see if the admin can set it
+        Spawn spawn = AdvancedTeleportAPI.getSpawn(id);
+        if (spawn == null) {
             if (sender.hasPermission("at.admin.setspawn")
                     && (world || sender.hasPermission("at.admin.setspawn.other"))) {
 
-                AdvancedTeleportAPI.setSpawn(id, sender, loc).join();
+                // Set it
+                Location loc = ((Player) sender).getLocation();
+                AdvancedTeleportAPI.setSpawn(id, sender, loc).thenAcceptAsync(newSpawn ->
+                        setMainSpawn(newSpawn, sender), CoreClass.sync);
             } else {
+
+                // Otherwise, stop them
                 CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
-                return true;
             }
-
-            // Set the main spawn
-            setMainSpawn(id, sender);
-        } else {
-            loc = Spawn.get().getSpawn(id);
-
-            // Attempt to set the spawn before setting the main spawn
-            AdvancedTeleportAPI.setSpawn(id, sender, loc).handleAsync((v, e) -> {
-                if (e != null) {
-                    CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "{spawn}", id);
-                    e.printStackTrace();
-                    return v;
-                }
-
-                // Set the main spawn itself
-                setMainSpawn(id, sender);
-                return v;
-            });
+            return true;
         }
+
+        // Set it
+        setMainSpawn(spawn, sender);
         return true;
     }
 
@@ -87,21 +82,21 @@ public final class SetMainSpawn extends SpawnATCommand {
     ) {
         if (sender.hasPermission("at.admin.setmainspawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
-            StringUtil.copyPartialMatches(args[0], Spawn.get().getSpawns(), spawns);
+            StringUtil.copyPartialMatches(args[0], NamedLocationManager.get().getSpawns(), spawns);
             return spawns;
         }
         return null;
     }
 
-    private void setMainSpawn(String id, CommandSender sender) {
-        AdvancedTeleportAPI.setMainSpawn(id, sender).handleAsync((v, e) -> {
+    private void setMainSpawn(Spawn spawn, CommandSender sender) {
+        AdvancedTeleportAPI.setMainSpawn(spawn, sender).handleAsync((v, e) -> {
             if (e != null) {
-                CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "{spawn}", id);
+                CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "{spawn}", spawn.getName());
                 e.printStackTrace();
                 return v;
             }
 
-            CustomMessages.sendMessage(sender, "Info.setMainSpawn","{spawn}", id);
+            CustomMessages.sendMessage(sender, "Info.setMainSpawn","{spawn}", spawn.getName());
             return v;
         });
     }

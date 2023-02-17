@@ -80,6 +80,9 @@ public final class CoreClass extends JavaPlugin {
             }
         }
 
+        // Initiate the named locations manager early
+        new NamedLocationManager();
+
         {
             new BlocklistManager();
             new HomeSQLManager();

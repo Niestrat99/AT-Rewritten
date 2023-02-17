@@ -2,12 +2,12 @@ package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -30,25 +30,21 @@ public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
-        String location = player.getWorld().getName();
+        Spawn spawn = NamedLocationManager.get().getSpawn(player.getWorld(), player);
         if (args.length > 0 &&
                 (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
             if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
-                location = args[0];
+                Spawn tempSpawn = NamedLocationManager.get().getSpawn(args[0]);
+                if (tempSpawn != null) spawn = tempSpawn;
             }
         }
-        spawn(player, location);
+        spawn(player, spawn);
         return true;
     }
 
-    public static void spawn(Player player, String name) {
-
-        Location spawn = Spawn.get().getSpawn(name, player, false);
-        if (spawn == null) {
-            spawn = player.getWorld().getSpawnLocation();
-        }
+    public static void spawn(Player player, Spawn spawn) {
         
-        ATTeleportEvent event = new ATTeleportEvent(player, spawn, player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
+        ATTeleportEvent event = new ATTeleportEvent(player, spawn.getLocation(), player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         Bukkit.getPluginManager().callEvent(event);
         ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn");
     }
