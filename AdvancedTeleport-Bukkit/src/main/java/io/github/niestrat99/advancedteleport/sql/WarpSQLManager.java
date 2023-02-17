@@ -139,21 +139,15 @@ public class WarpSQLManager extends SQLManager {
         }
     }
 
-    public void removeWarp(String name, SQLCallback<Boolean> callback) {
+    public void removeWarp(String name) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement = prepareStatement(connection,
                     "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
             statement.setString(1, name);
             executeUpdate(statement);
-            if (callback != null) {
-                callback.onSuccess(true);
-            }
         } catch (SQLException exception) {
             DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_WARP, name);
             exception.printStackTrace();
-            if (callback != null) {
-                callback.onFail();
-            }
         }
     }
 
