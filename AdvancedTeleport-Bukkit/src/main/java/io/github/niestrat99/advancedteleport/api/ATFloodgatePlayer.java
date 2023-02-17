@@ -25,7 +25,7 @@ public final class ATFloodgatePlayer extends ATPlayer {
     private final @NotNull UUID floodgateUuid;
 
     @Contract(pure = true)
-    protected ATFloodgatePlayer(@NotNull final Player player) throws IllegalStateException {
+    ATFloodgatePlayer(@NotNull final Player player) throws IllegalStateException {
         super(player);
         if (!PluginHookManager.get().floodgateEnabled()) {
             throw new IllegalStateException("Floodgate is not enabled.");
