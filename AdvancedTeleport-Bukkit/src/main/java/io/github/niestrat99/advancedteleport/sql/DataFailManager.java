@@ -117,7 +117,7 @@ public class DataFailManager {
                 WarpSQLManager.get().addWarp(warp, callback);
             }
             case MOVE_WARP -> WarpSQLManager.get().moveWarp(locFromStrings(fail.data), fail.data[6], callback);
-            case DELETE_WARP -> WarpSQLManager.get().removeWarp(fail.data[0], callback);
+            case DELETE_WARP -> WarpSQLManager.get().removeWarp(fail.data[0]);
             case UPDATE_LOCATION ->
                     PlayerSQLManager.get().setPreviousLocation(fail.data[6], locFromStrings(fail.data), callback);
         }
