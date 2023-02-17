@@ -3,8 +3,8 @@ package io.github.niestrat99.advancedteleport.hooks.maps;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import org.bukkit.Bukkit;
@@ -47,15 +47,15 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
             for (final var world : Bukkit.getWorlds()) {
                 provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
                     final var key = Key.of("advancedteleport_warps");
-                    mapWorld.layerRegistry().register(key, createLayerProvider(NewConfig.get().MAP_WARPS));
+                    mapWorld.layerRegistry().register(key, createLayerProvider(MainConfig.get().MAP_WARPS));
                     CoreClass.getInstance().getLogger().info("Added the warp layer for " + world.getName() + ".");
 
                     final var homesKey = Key.of("advancedteleport_homes");
-                    mapWorld.layerRegistry().register(homesKey, createLayerProvider(NewConfig.get().MAP_HOMES));
+                    mapWorld.layerRegistry().register(homesKey, createLayerProvider(MainConfig.get().MAP_HOMES));
                     CoreClass.getInstance().getLogger().info("Added the homes layer for " + world.getName() + ".");
 
                     final var spawnsKey = Key.of("advancedteleport_spawns");
-                    mapWorld.layerRegistry().register(spawnsKey, createLayerProvider(NewConfig.get().MAP_SPAWNS));
+                    mapWorld.layerRegistry().register(spawnsKey, createLayerProvider(MainConfig.get().MAP_SPAWNS));
                     CoreClass.getInstance().getLogger().info("Added the spawns layer for " + world.getName() + ".");
                 });
             }
@@ -108,7 +108,7 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
 
     @Override
     public void removeSpawn(@NotNull final String name) {
-        Location spawn = Spawn.get().getSpawn(name);
+        Location spawn = SpawnConfig.get().getSpawn(name);
         removeMarker(name, "spawn", spawn.getWorld());
     }
 
@@ -188,7 +188,7 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
         addMarker(name, type, location, owner);
     }
 
-    private @NotNull LayerProvider createLayerProvider(@NotNull final NewConfig.MapOptions options) {
+    private @NotNull LayerProvider createLayerProvider(@NotNull final MainConfig.MapOptions options) {
         return SimpleLayerProvider.builder(options.getLayerName())
                 .showControls(true)
                 .defaultHidden(!options.isShownByDefault())

@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
@@ -29,7 +29,7 @@ public final class ParticlesCommand extends SubATCommand {
     ) {
 
         // If particles aren't enabled, stop there.
-        if (!NewConfig.get().USE_PARTICLES.get()) {
+        if (!MainConfig.get().USE_PARTICLES.get()) {
             CustomMessages.sendMessage(sender, "Error.featureDisabled");
             return true;
         }
@@ -52,7 +52,7 @@ public final class ParticlesCommand extends SubATCommand {
         // If no arguments have been specified, get the player's current particles and set it to the default particles.
         if (args.length == 0) {
             if (data == null) data = "";
-            NewConfig.get().set("default-waiting-particles", data);
+            MainConfig.get().set("default-waiting-particles", data);
             CustomMessages.sendMessage(sender, "Info.defaultParticlesUpdated");
         } else {
 
@@ -62,13 +62,13 @@ public final class ParticlesCommand extends SubATCommand {
             if (!types.contains(type)) {
                 return false;
             }
-            NewConfig.get().set("waiting-particles." + type, data);
+            MainConfig.get().set("waiting-particles." + type, data);
             CustomMessages.sendMessage(sender, "Info.specificParticlesUpdated", "{type}", type);
         }
 
         // Then save the config.
         try {
-            NewConfig.get().save();
+            MainConfig.get().save();
         } catch (IOException e) {
             e.printStackTrace(); // TODO - let's handle this more gracefully
         }

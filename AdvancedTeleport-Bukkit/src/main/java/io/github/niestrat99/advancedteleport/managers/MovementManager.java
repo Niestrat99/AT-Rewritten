@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
@@ -24,8 +24,8 @@ public class MovementManager implements Listener {
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
-        boolean cancelOnRotate = NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get();
-        boolean cancelOnMove = NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get();
+        boolean cancelOnRotate = MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get();
+        boolean cancelOnMove = MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get();
         if (!cancelOnRotate) {
             Location locTo = event.getTo();
             Location locFrom = event.getFrom();
@@ -57,7 +57,7 @@ public class MovementManager implements Listener {
         UUID uuid = teleportingPlayer.getUniqueId();
 
         // When this config is enabled the teleporting player will receive a blindness effect until it gets teleported.
-        if (NewConfig.get().BLINDNESS_ON_WARMUP.get()) {
+        if (MainConfig.get().BLINDNESS_ON_WARMUP.get()) {
             teleportingPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, warmUp * 20 + 20, 0, false, false));
         }
 
@@ -77,14 +77,14 @@ public class MovementManager implements Listener {
                 CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
                 PaymentManager.getInstance().withdraw(command, payingPlayer);
                 // If the cooldown is to be applied after only after a teleport takes place, apply it now
-                if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+                if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
                     CooldownManager.addToCooldown(command, payingPlayer);
                 }
             }
         };
         movement.put(uuid, movementtimer);
         movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
-        if (NewConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() || NewConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
+        if (MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() || MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
             CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTP", "{countdown}", String.valueOf(warmUp));
         } else {
             CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTPMovementAllowed", "{countdown}", String.valueOf(warmUp));

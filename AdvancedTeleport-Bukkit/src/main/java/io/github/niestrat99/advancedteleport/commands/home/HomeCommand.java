@@ -6,7 +6,7 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -14,8 +14,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
 
 public final class HomeCommand extends AbstractHomeCommand implements TimedATCommand {
 
@@ -44,7 +42,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
                 }
-            } else if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
+            } else if (MainConfig.get().ADD_BED_TO_HOMES.get()) {
                 Home home = atPlayer.getBedSpawn();
                 if (home == null) {
                     if (homes.isEmpty()) {
@@ -69,7 +67,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                 Home home;
                 switch (args[1].toLowerCase()) {
                     case "bed":
-                        if (NewConfig.get().ADD_BED_TO_HOMES.get()) {
+                        if (MainConfig.get().ADD_BED_TO_HOMES.get()) {
                             home = target.getBedSpawn();
                             if (home == null) {
                                 CustomMessages.sendMessage(player, "Error.noBedHomeOther", "{player}", args[0]);
@@ -105,7 +103,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
         Home home;
         if (atPlayer.getHomes().containsKey(args[0])) {
             home = atPlayer.getHomes().get(args[0]);
-        } else if (args[0].equalsIgnoreCase("bed") && NewConfig.get().ADD_BED_TO_HOMES.get()) {
+        } else if (args[0].equalsIgnoreCase("bed") && MainConfig.get().ADD_BED_TO_HOMES.get()) {
             home = atPlayer.getBedSpawn();
             if (home == null) {
                 CustomMessages.sendMessage(player, "Error.noBedHome");

@@ -6,7 +6,7 @@ import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import org.bukkit.Bukkit;
@@ -37,7 +37,7 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
             return true;
         }
         int players = 0;
-        int requestLifetime = NewConfig.get().REQUEST_LIFETIME.get();
+        int requestLifetime = MainConfig.get().REQUEST_LIFETIME.get();
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (target == player) continue;
             if (!ConditionChecker.canTeleport(player, target, "tpahere").isEmpty()) {

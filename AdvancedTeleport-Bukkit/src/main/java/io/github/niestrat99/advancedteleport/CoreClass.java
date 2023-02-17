@@ -68,7 +68,7 @@ public final class CoreClass extends JavaPlugin {
         checkVersion();
         getLogger().info("Advanced Teleport is now enabling...");
         setupPermissions();
-        for (Class<? extends ATConfig> config : Arrays.asList(NewConfig.class, CustomMessages.class, Spawn.class, GUI.class)) {
+        for (Class<? extends ATConfig> config : Arrays.asList(MainConfig.class, CustomMessages.class, SpawnConfig.class, GUIConfig.class)) {
             try {
                 config.getDeclaredConstructor().newInstance();
             } catch (NoSuchMethodException ex) {
@@ -99,7 +99,7 @@ public final class CoreClass extends JavaPlugin {
         new Metrics(this, 5146);
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             RTPManager.init();
-            if (NewConfig.get().CHECK_FOR_UPDATES.get()) {
+            if (MainConfig.get().CHECK_FOR_UPDATES.get()) {
                 updateInfo = UpdateChecker.getUpdate();
                 if (updateInfo != null) {
                     getLogger().info(ChatColor.AQUA + "" + ChatColor.BOLD + "A new version is available!");
@@ -201,14 +201,14 @@ public final class CoreClass extends JavaPlugin {
         switch (type) {
             case "tpa":
                 switch (subType) {
-                    case "sent" -> sound = NewConfig.get().TPA_REQUEST_SENT.get();
-                    case "received" -> sound = NewConfig.get().TPA_REQUEST_RECEIVED.get();
+                    case "sent" -> sound = MainConfig.get().TPA_REQUEST_SENT.get();
+                    case "received" -> sound = MainConfig.get().TPA_REQUEST_RECEIVED.get();
                 }
                 break;
             case "tpahere":
                 sound = switch (subType) {
-                    case "sent" -> NewConfig.get().TPAHERE_REQUEST_SENT.get();
-                    case "received" -> NewConfig.get().TPAHERE_REQUEST_RECEIVED.get();
+                    case "sent" -> MainConfig.get().TPAHERE_REQUEST_SENT.get();
+                    case "received" -> MainConfig.get().TPAHERE_REQUEST_RECEIVED.get();
                     default -> sound;
                 };
                 break;
@@ -240,7 +240,7 @@ public final class CoreClass extends JavaPlugin {
     }
 
     public static void debug(String message) {
-        if (NewConfig.get().DEBUG.get()) {
+        if (MainConfig.get().DEBUG.get()) {
             CoreClass.getInstance().getLogger().info(message);
         }
     }

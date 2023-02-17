@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.managers;
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 import java.util.Objects;
 import org.bukkit.Location;
@@ -16,7 +16,7 @@ public final class ParticleManager {
         @NotNull final Player player,
         @NotNull final String command
     ) {
-        if (!NewConfig.get().USE_PARTICLES.get()) return;
+        if (!MainConfig.get().USE_PARTICLES.get()) return;
         PluginHookManager.get().getPluginHooks(ParticlesPlugin.class, true)
             .forEach(plugin -> plugin.applyParticles(player, command));
     }
@@ -25,11 +25,11 @@ public final class ParticleManager {
         @NotNull final Player player,
         @NotNull final String command
     ) {
-        if (!NewConfig.get().USE_PARTICLES.get()) return;
+        if (!MainConfig.get().USE_PARTICLES.get()) return;
         PluginHookManager.get().getPluginHooks(ParticlesPlugin.class, true)
             .map(hook -> {
                 hook.removeParticles(player, command);
-                return NewConfig.get().TELEPORT_PARTICLES.valueOf(command).get();
+                return MainConfig.get().TELEPORT_PARTICLES.valueOf(command).get();
             })
             .filter("spark"::equals)
             .forEach(inbuilt -> doSpark(player.getLocation()));
@@ -39,16 +39,16 @@ public final class ParticleManager {
         @NotNull final Player player,
         @NotNull final String command
     ) {
-        if (!NewConfig.get().USE_PARTICLES.get()) return;
+        if (!MainConfig.get().USE_PARTICLES.get()) return;
         removeParticles(player, command);
         PluginHookManager.get().getPluginHooks(ParticlesPlugin.class, true)
-            .map(hook -> NewConfig.get().TELEPORT_PARTICLES.valueOf(command).get())
+            .map(hook -> MainConfig.get().TELEPORT_PARTICLES.valueOf(command).get())
             .filter("spark"::equals)
             .forEach(hook -> doSpark(player.getLocation()));
     }
 
     public static @Nullable String getData(@NotNull final Player player) {
-        if (!NewConfig.get().USE_PARTICLES.get()) return null;
+        if (!MainConfig.get().USE_PARTICLES.get()) return null;
         return PluginHookManager.get().getPluginHooks(ParticlesPlugin.class, true)
             .map(hook -> hook.getParticle(player))
             .filter(Objects::nonNull)

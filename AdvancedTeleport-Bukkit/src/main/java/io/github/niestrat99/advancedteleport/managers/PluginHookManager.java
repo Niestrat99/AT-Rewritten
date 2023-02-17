@@ -1,8 +1,8 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.extensions.ExCast;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
@@ -68,9 +68,9 @@ public final class PluginHookManager {
         
         getPluginHooks(MapPlugin.class, true).forEach(mapPlugin -> {
             mapPlugin.enable();
-            addIcons(NewConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), mapPlugin::addWarp);
-            addIcons(NewConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), mapPlugin::addHome);
-            addIcons(NewConfig.get().MAP_SPAWNS.isEnabled(), CompletableFuture.completedFuture(Spawn.get().getSpawns()), spawn -> mapPlugin.addSpawn(spawn, Spawn.get().getSpawn(spawn)));
+            addIcons(MainConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), mapPlugin::addWarp);
+            addIcons(MainConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), mapPlugin::addHome);
+            addIcons(MainConfig.get().MAP_SPAWNS.isEnabled(), CompletableFuture.completedFuture(SpawnConfig.get().getSpawns()), spawn -> mapPlugin.addSpawn(spawn, SpawnConfig.get().getSpawn(spawn)));
         });
     }
 

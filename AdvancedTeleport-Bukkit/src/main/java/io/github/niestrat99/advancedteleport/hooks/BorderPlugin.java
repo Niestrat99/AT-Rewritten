@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.hooks;
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
@@ -33,7 +33,7 @@ public abstract class BorderPlugin<P extends Plugin, R> extends PluginHook<P, R>
      * @return true if the plugin is enabled and there is a viable world border, false if not.
      */
     public boolean canUse(@NotNull final World world) {
-        return NewConfig.get().USE_PLUGIN_BORDERS.get() && this.pluginUsable();
+        return MainConfig.get().USE_PLUGIN_BORDERS.get() && this.pluginUsable();
     }
 
     /**

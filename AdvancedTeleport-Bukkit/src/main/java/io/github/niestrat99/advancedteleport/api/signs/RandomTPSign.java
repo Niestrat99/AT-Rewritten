@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.api.signs;
 import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.commands.teleport.Tpr;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public class RandomTPSign extends ATSign {
 
     public RandomTPSign() {
-        super("RandomTP", NewConfig.get().USE_RANDOMTP.get());
+        super("RandomTP", MainConfig.get().USE_RANDOMTP.get());
     }
 
     @Override

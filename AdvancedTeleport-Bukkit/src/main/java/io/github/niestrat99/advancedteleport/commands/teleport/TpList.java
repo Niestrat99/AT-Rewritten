@@ -4,7 +4,7 @@ import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import org.bukkit.command.Command;
@@ -79,7 +79,7 @@ public final class TpList extends TeleportATCommand implements PlayerCommand {
 
     @Override
     public boolean getRequiredFeature() {
-        return NewConfig.get().USE_BASIC_TELEPORT_FEATURES.get();
+        return MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get();
     }
 
     @Override

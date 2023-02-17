@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.payments;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.payments.types.ItemsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.LevelsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
@@ -24,13 +24,13 @@ public class PaymentManager {
         teleportCosts = new HashMap<>();
 
         // Registers the payments for each command.
-        addCommand("tpa", NewConfig.get().COSTS.TPA.get());
-        addCommand("tpahere", NewConfig.get().COSTS.TPAHERE.get());
-        addCommand("tpr", NewConfig.get().COSTS.TPR.get());
-        addCommand("spawn", NewConfig.get().COSTS.SPAWN.get());
-        addCommand("warp", NewConfig.get().COSTS.WARP.get());
-        addCommand("home", NewConfig.get().COSTS.HOME.get());
-        addCommand("back", NewConfig.get().COSTS.BACK.get());
+        addCommand("tpa", MainConfig.get().COSTS.TPA.get());
+        addCommand("tpahere", MainConfig.get().COSTS.TPAHERE.get());
+        addCommand("tpr", MainConfig.get().COSTS.TPR.get());
+        addCommand("spawn", MainConfig.get().COSTS.SPAWN.get());
+        addCommand("warp", MainConfig.get().COSTS.WARP.get());
+        addCommand("home", MainConfig.get().COSTS.HOME.get());
+        addCommand("back", MainConfig.get().COSTS.BACK.get());
     }
 
     private void addCommand(String command, Object value) {
@@ -108,7 +108,7 @@ public class PaymentManager {
     }
 
     private HashMap<String, Payment> getPayments(String command, Player player) {
-        final var customCosts = NewConfig.get().CUSTOM_COSTS.get();
+        final var customCosts = MainConfig.get().CUSTOM_COSTS.get();
         var payments = new HashMap<String, Payment>();
         for (String key : customCosts.getKeys(false)) {
             String worldName = player.getWorld().getName().toLowerCase(Locale.ROOT);

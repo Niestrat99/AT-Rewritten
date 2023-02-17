@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -53,12 +52,12 @@ public record TeleportRequest(
 
     @Contract(pure = true)
     public static void addRequest(@NotNull final TeleportRequest request) {
-        if (NewConfig.get().USE_MULTIPLE_REQUESTS.get()) {
+        if (MainConfig.get().USE_MULTIPLE_REQUESTS.get()) {
             requestList.add(request);
             return;
         }
 
-        final var shouldNotify = NewConfig.get().NOTIFY_ON_EXPIRE.get();
+        final var shouldNotify = MainConfig.get().NOTIFY_ON_EXPIRE.get();
         getRequests(request.responder()).forEach(otherRequest -> {
             otherRequest.destroy();
             if (!shouldNotify) return;

@@ -27,7 +27,7 @@ public final class ReloadCommand extends SubATCommand {
         @NotNull final String[] args
     ) {
         CustomMessages.sendMessage(sender, "Info.reloadingConfig");
-        for (ATConfig config : Arrays.asList(NewConfig.get(), CustomMessages.config, Spawn.get(), GUI.get())) {
+        for (ATConfig config : Arrays.asList(MainConfig.get(), CustomMessages.config, SpawnConfig.get(), GUIConfig.get())) {
             try {
                 config.reload();
             } catch (IOException ex) {

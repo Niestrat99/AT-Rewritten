@@ -4,7 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import java.util.Optional;
@@ -69,7 +69,7 @@ public final class SetIconCommand extends SubATCommand {
         if (args.length == 2) {
             return switch (args[0].toLowerCase()) {
                 case "warp" -> StringUtil.copyPartialMatches(args[1], AdvancedTeleportAPI.getWarps().keySet(), new ArrayList<>());
-                case "spawn" -> StringUtil.copyPartialMatches(args[1], Spawn.get().getSpawns(), new ArrayList<>());
+                case "spawn" -> StringUtil.copyPartialMatches(args[1], SpawnConfig.get().getSpawns(), new ArrayList<>());
                 case "home" -> StringUtil.copyPartialMatches(
                     args[1],
                     Bukkit.getOnlinePlayers().stream()

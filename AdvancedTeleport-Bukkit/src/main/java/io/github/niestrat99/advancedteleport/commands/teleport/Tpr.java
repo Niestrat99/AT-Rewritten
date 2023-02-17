@@ -6,7 +6,7 @@ import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
@@ -75,10 +75,10 @@ public final class Tpr extends ATCommand implements TimedATCommand {
             CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
             return true;
         }
-        if (NewConfig.get().WHITELIST_WORLD.get() && !sender.hasPermission("at.admin.rtp.bypass-world")) {
-            List<String> allowedWorlds = NewConfig.get().ALLOWED_WORLDS.get();
+        if (MainConfig.get().WHITELIST_WORLD.get() && !sender.hasPermission("at.admin.rtp.bypass-world")) {
+            List<String> allowedWorlds = MainConfig.get().ALLOWED_WORLDS.get();
             if (!allowedWorlds.contains(world.getName())) {
-                if (allowedWorlds.isEmpty() || !NewConfig.get().REDIRECT_TO_WORLD.get()) {
+                if (allowedWorlds.isEmpty() || !MainConfig.get().REDIRECT_TO_WORLD.get()) {
                     CustomMessages.sendMessage(sender, "Error.cantTPToWorld");
                     return true;
                 } else {
@@ -110,7 +110,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
 
         if (!PaymentManager.getInstance().canPay("tpr", player)) return false;
 
-        if (NewConfig.get().RAPID_RESPONSE.get() && PaperLib.isPaper()) {
+        if (MainConfig.get().RAPID_RESPONSE.get() && PaperLib.isPaper()) {
             Location nextLoc = RTPManager.getLocationUrgently(world);
             if (nextLoc != null) {
                 processLocation(player, nextLoc);
@@ -139,7 +139,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
 
     @Override
     public boolean getRequiredFeature() {
-        return NewConfig.get().USE_RANDOMTP.get();
+        return MainConfig.get().USE_RANDOMTP.get();
     }
 
     @Override

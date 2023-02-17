@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.hooks;
 
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.World;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
@@ -27,7 +27,7 @@ public abstract class ClaimPlugin<P extends Plugin, R> extends PluginHook<P, R> 
 
     @Contract(pure = true)
     public boolean canUse(@NotNull final World world) {
-        return NewConfig.get().PROTECT_CLAIM_LOCATIONS.get() && this.pluginUsable();
+        return MainConfig.get().PROTECT_CLAIM_LOCATIONS.get() && this.pluginUsable();
     }
 
     public abstract boolean isClaimed(@NotNull final Location location);

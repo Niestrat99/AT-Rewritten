@@ -57,19 +57,25 @@ public class WarpSQLManager extends SQLManager {
 
     @Override
     public void transferOldData() {
+
         // Create the existing warps first because we're savage
         addWarps();
+
         // Get the file itself.
         File file = new File(CoreClass.getInstance().getDataFolder(), "warps.yml");
         if (!file.exists()) return;
+
         // Load the config file.
         YamlConfiguration warps = YamlConfiguration.loadConfiguration(file);
+
         // For each player found...
         for (String warp : warps.getKeys(false)) {
+
             // Get the config section representing their homes.
             ConfigurationSection warpSection = warps.getConfigurationSection(warp);
             if (warpSection == null) continue;
-            // For each home that appears...
+
+            // For each warp that appears...
             String world = warpSection.getString("world");
             if (world == null) continue;
             if (Bukkit.getWorld(world) == null) continue;

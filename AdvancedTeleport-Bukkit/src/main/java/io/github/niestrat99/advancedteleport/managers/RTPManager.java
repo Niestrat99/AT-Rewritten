@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import com.google.common.collect.Sets;
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
 import org.bukkit.*;
@@ -62,7 +62,7 @@ public class RTPManager {
     public static CompletableFuture<@Nullable Location> addLocation(final World world, final boolean urgent, int tries) {
         if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
         tries++;
-        if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
+        if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > MainConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             Location loc = locQueue.get(world.getUID()).poll();
             if (!PluginHookManager.get().isClaimed(loc)) {
                 return CompletableFuture.completedFuture(loc);
@@ -140,17 +140,17 @@ public class RTPManager {
 
     private static boolean isValidLocation(Block block) {
         if (airs.contains(block.getType().name())) return false;
-        if (NewConfig.get().AVOID_BIOMES.get().contains(block.getBiome().name())) return false;
-        return !NewConfig.get().AVOID_BLOCKS.get().contains(block.getType().name());
+        if (MainConfig.get().AVOID_BIOMES.get().contains(block.getBiome().name())) return false;
+        return !MainConfig.get().AVOID_BLOCKS.get().contains(block.getType().name());
     }
 
     public static void loadWorldData(World world) {
         if (locQueue == null) return;
-        if (NewConfig.get().WHITELIST_WORLD.get() && !NewConfig.get().ALLOWED_WORLDS.get().contains(world.getName())) return;
-        if (world.getGenerator() != null && NewConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
+        if (MainConfig.get().WHITELIST_WORLD.get() && !MainConfig.get().ALLOWED_WORLDS.get().contains(world.getName())) return;
+        if (world.getGenerator() != null && MainConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
         int size = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>()).size();
 
-        for (int i = size; i < NewConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
+        for (int i = size; i < MainConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
             addLocation(world, false, 0).thenAccept(location -> {
                 Queue<Location> queue = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>());
                 queue.add(location);

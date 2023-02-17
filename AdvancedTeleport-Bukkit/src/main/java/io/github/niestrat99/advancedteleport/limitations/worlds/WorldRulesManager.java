@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.limitations.worlds;
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopIntoRule;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopOutOfRule;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopWithinRule;
@@ -18,7 +18,7 @@ public class WorldRulesManager {
 
     public WorldRulesManager() {
         rules = new HashMap<>();
-        ConfigSection worlds = NewConfig.get().WORLD_RULES.get();
+        ConfigSection worlds = MainConfig.get().WORLD_RULES.get();
         for (String world : worlds.getKeys(false)) {
             addWorld(world, worlds.getString(world));
         }

@@ -5,7 +5,7 @@ import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportAcceptEvent;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.AcceptRequest;
 import io.github.niestrat99.advancedteleport.utilities.TeleportTests;
@@ -37,7 +37,7 @@ public final class TpYes extends TeleportATCommand implements PlayerCommand {
         // It's not null, we've already run the tests to make sure it isn't
         AcceptRequest.acceptRequest(request);
         // If the cooldown is to be applied after the request is accepted, apply it now
-        if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
+        if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
             CooldownManager.addToCooldown(request.type() == TeleportRequestType.TPAHERE ? "tpahere" :
                     "tpa", request.requester());
         }

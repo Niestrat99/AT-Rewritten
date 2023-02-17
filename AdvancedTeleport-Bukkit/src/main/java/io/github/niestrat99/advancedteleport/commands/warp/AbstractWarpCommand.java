@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.warp;
 
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -43,6 +43,6 @@ public abstract class AbstractWarpCommand extends ATCommand {
 
     @Override
     public boolean getRequiredFeature() {
-        return NewConfig.get().USE_WARPS.get();
+        return MainConfig.get().USE_WARPS.get();
     }
 }

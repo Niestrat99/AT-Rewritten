@@ -8,7 +8,7 @@ import io.github.niestrat99.advancedteleport.api.events.homes.*;
 import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocationChangeEvent;
 import io.github.niestrat99.advancedteleport.api.events.players.ToggleTeleportationEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
@@ -95,7 +95,7 @@ public class ATPlayer {
                 }
             });
             // Add the bed spawn home
-            if (getBedSpawn() != null && NewConfig.get().ADD_BED_TO_HOMES.get()) {
+            if (getBedSpawn() != null && MainConfig.get().ADD_BED_TO_HOMES.get()) {
                 homes.put("bed", getBedSpawn());
             }
         });
@@ -149,7 +149,7 @@ public class ATPlayer {
         if (!PaymentManager.getInstance().canPay(command, player)) return;
                 
         // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
-        String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
+        String cooldownConfig = MainConfig.get().APPLY_COOLDOWN_AFTER.get();
 
         if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
             CooldownManager.addToCooldown(command, player);
@@ -580,7 +580,7 @@ public class ATPlayer {
      * - at.member.homes.100000
      */
     public int getHomesLimit() {
-        int maxHomes = NewConfig.get().DEFAULT_HOMES_LIMIT.get();
+        int maxHomes = MainConfig.get().DEFAULT_HOMES_LIMIT.get();
 
         // Whether or not the limit is being overriden by a per-world homes limit
         boolean worldSpecific = false;
@@ -630,20 +630,20 @@ public class ATPlayer {
     @Range(from = 0, to = Integer.MAX_VALUE)
     @Contract(pure = true)
     public int getCooldown(@NotNull final String command) {
-        return getMin("at.member.cooldown", command, NewConfig.get().CUSTOM_COOLDOWNS.get(), NewConfig.get().COOLDOWNS.valueOf(command).get());
+        return getMin("at.member.cooldown", command, MainConfig.get().CUSTOM_COOLDOWNS.get(), MainConfig.get().COOLDOWNS.valueOf(command).get());
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
     @Contract(pure = true)
     public int getWarmUp(@NotNull final String command) {
-        return getMin("at.member.timer", command, NewConfig.get().CUSTOM_WARM_UPS.get(), NewConfig.get().WARM_UPS.valueOf(command).get());
+        return getMin("at.member.timer", command, MainConfig.get().CUSTOM_WARM_UPS.get(), MainConfig.get().WARM_UPS.valueOf(command).get());
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
     @Contract(pure = true)
     public int getDistanceLimitation(@Nullable final String command) {
-        return determineValue("at.member.distance", command, command == null ? NewConfig.get().MAXIMUM_TELEPORT_DISTANCE.get()
-                : NewConfig.get().DISTANCE_LIMITS.valueOf(command).get(), NewConfig.get().CUSTOM_DISTANCE_LIMITS.get(), Math::max);
+        return determineValue("at.member.distance", command, command == null ? MainConfig.get().MAXIMUM_TELEPORT_DISTANCE.get()
+                : MainConfig.get().DISTANCE_LIMITS.valueOf(command).get(), MainConfig.get().CUSTOM_DISTANCE_LIMITS.get(), Math::max);
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
@@ -767,7 +767,7 @@ public class ATPlayer {
         if (getHomesLimit() == -1) return true;
 
         // If we don't deny home access if the home limit has already been exceeded, allow them access
-        if (!NewConfig.get().DENY_HOMES_IF_OVER_LIMIT.get()) return true;
+        if (!MainConfig.get().DENY_HOMES_IF_OVER_LIMIT.get()) return true;
 
         // If the home exists, ensure the index is below the homes index.
         if (homes.containsValue(home)) {

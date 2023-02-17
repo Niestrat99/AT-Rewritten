@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.api.signs;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class BedSign extends ATSign {
 
     public BedSign() {
-        super("Bed", NewConfig.get().USE_HOMES.get());
+        super("Bed", MainConfig.get().USE_HOMES.get());
     }
 
     @Override

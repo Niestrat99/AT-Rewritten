@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.listeners;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
@@ -30,7 +30,7 @@ public final class PlayerListeners implements Listener {
         PlayerSQLManager.get().updatePlayerData(event.getPlayer());
 
         // If we aren't notifying administrators about new updates
-        if (!NewConfig.get().NOTIFY_ADMINS.get()) return;
+        if (!MainConfig.get().NOTIFY_ADMINS.get()) return;
 
         // If the player doesn't have the permission to receive update notifications
         if (!event.getPlayer().hasPermission("at.admin.notify")) return;
