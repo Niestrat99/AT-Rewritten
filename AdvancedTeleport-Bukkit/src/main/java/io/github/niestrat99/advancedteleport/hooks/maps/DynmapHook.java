@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.hooks.maps;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
@@ -95,7 +95,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
         @NotNull final String name,
         @NotNull final Location location
     ) {
-        moveMarker("advancedteleport_spawn_" + name, "Spawn", spawnsMarker, Spawn.get().getSpawn(name));
+        moveMarker("advancedteleport_spawn_" + name, "Spawn", spawnsMarker, SpawnConfig.get().getSpawn(name));
     }
 
     @Override

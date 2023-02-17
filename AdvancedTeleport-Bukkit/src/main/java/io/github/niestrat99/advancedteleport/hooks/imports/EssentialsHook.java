@@ -10,7 +10,8 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
@@ -23,10 +24,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -165,15 +164,19 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
     @Override
     public void importSpawn() {
         debug("Importing spawnpoints...");
+
+        // Verify the spawns plugin is there, otherwise stop
         EssentialsSpawn spawnPlugin = (EssentialsSpawn) Bukkit.getPluginManager().getPlugin("EssentialsSpawn");
         if (spawnPlugin == null || !spawnPlugin.isEnabled()) return;
 
+        // Get the spawn.yml file - if it doesn't exist though, skip it
         final var spawnFileEss = this.plugin().map(essentials -> new File(essentials.getDataFolder(), "spawn.yml")).get();
         if (!spawnFileEss.exists() || !spawnFileEss.isFile()) {
             debug("Spawn file doesn't exist/wasn't found, skipping...");
             return;
         }
 
+        // Get the spawns section
         YamlConfiguration spawn = YamlConfiguration.loadConfiguration(spawnFileEss);
         ConfigurationSection spawns = spawn.getConfigurationSection("spawns");
         if (spawns == null) {
@@ -181,17 +184,31 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
             return;
         }
 
+        // Track whether the main spawnpoint has been set
         boolean setMainSpawn = false;
+
+        // Go through each set spawnpoint in Essentials
         for (String key : spawns.getKeys(false)) {
+
+            // Get the config section for the spawnpoint
             ConfigurationSection spawnSection = spawns.getConfigurationSection(key);
+            if (spawnSection == null) continue;
+
+            // Get the location of the spawnpoint
             Location loc = getLocationFromSection(spawnSection);
-            Spawn.get().setSpawn(loc, key);
+
+            // Set the spawnpoint
+            Spawn spawn1 = AdvancedTeleportAPI.setSpawn(key, null, loc).join();
             debug("Set spawn for " + key);
+
+            // If it's marked as the default spawn, then mark it as the main spawnpoint
             if (key.equals("default")) {
                 setMainSpawn = true;
-                Spawn.get().setMainSpawn("default", loc);
+                AdvancedTeleportAPI.setMainSpawn(spawn1, null);
                 debug("Set main spawn");
             } else {
+
+                // Otherwise, if it's a group spawn, add the AT permission to the group
                 if (CoreClass.getPerms() != null && CoreClass.getPerms().hasGroupSupport()) {
                     CoreClass.getPerms().groupAdd((String) null, key, "at.member.spawn." + key);
                     debug("Added at.member.spawn." + key + " to group "+ key);
@@ -199,9 +216,11 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
             }
         }
 
+        // If the main spawn has not been set, remove it
         if (!setMainSpawn) {
             debug("Removed main spawn");
-            Spawn.get().setMainSpawn(null, null);
+            SpawnConfig.get().setMainSpawn(null, null);
+            AdvancedTeleportAPI.setMainSpawn(null, null);
         }
 
         debug("Finished importing spawns");
@@ -354,15 +373,15 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         EssentialsSpawn spawnPlugin = (EssentialsSpawn) Bukkit.getPluginManager().getPlugin("EssentialsSpawn");
         if (spawnPlugin == null || !spawnPlugin.isEnabled()) return;
 
-        String mainSpawn = Spawn.get().getMainSpawn();
+        String mainSpawn = SpawnConfig.get().getMainSpawn();
         if (mainSpawn != null) {
-            Location mainSpawnLoc = Spawn.get().getSpawn(mainSpawn);
+            Location mainSpawnLoc = SpawnConfig.get().getSpawn(mainSpawn);
             spawnPlugin.setSpawn(mainSpawnLoc, "default");
         }
-        for (String atSpawn : Spawn.get().getSpawns()) {
+        for (String atSpawn : SpawnConfig.get().getSpawns()) {
             for (String group : CoreClass.getPerms().getGroups()) {
                 if (CoreClass.getPerms().groupHas((World) null, group, atSpawn)) {
-                    Location spawnLoc = Spawn.get().getSpawn(atSpawn);
+                    Location spawnLoc = SpawnConfig.get().getSpawn(atSpawn);
                     spawnPlugin.setSpawn(spawnLoc, group);
                 }
             }

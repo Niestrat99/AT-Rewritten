@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.signs;
 
 import io.github.niestrat99.advancedteleport.api.ATSign;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
@@ -16,11 +17,19 @@ public class SpawnSign extends ATSign {
 
     @Override
     public void onInteract(@NotNull Sign sign, @NotNull Player player) {
-        String world = player.getWorld().getName();
-        if (!sign.getLine(1).isEmpty()) {
-            world = sign.getLine(1);
-        }
-        SpawnCommand.spawn(player, world);
+
+        // Get the ID of the proposed spawn
+        String spawnName = player.getWorld().getName();
+        if (!sign.getLine(1).isEmpty()) spawnName = sign.getLine(1);
+
+        // Get the spawn on its own
+        Spawn spawn = NamedLocationManager.get().getSpawn(spawnName);
+
+        // If it's null, get the main spawn
+        if (spawn == null) spawn = NamedLocationManager.get().getSpawn(player.getWorld(), player);
+
+        // Teleport them to spawn
+        SpawnCommand.spawn(player, spawn);
     }
 
     @Override

@@ -43,7 +43,7 @@ public final class PreviousLocationChangeEvent extends CancellableATEvent {
     /**
      * Gets the new location that will become the player's previous location. This is not where the player currently is.
      *
-     * @return the new location that is to be the previous location. Can be null if modified
+     * @return the new location that is to be the previous location. Can be null if modified.
      */
     @Contract(pure = true)
     public @Nullable Location getNewLocation() {

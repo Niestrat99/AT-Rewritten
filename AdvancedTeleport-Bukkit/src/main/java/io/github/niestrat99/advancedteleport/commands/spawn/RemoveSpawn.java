@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
-import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.SpawnConfig;
@@ -38,21 +38,16 @@ public final class RemoveSpawn extends SpawnATCommand {
         if (args.length > 0) {
             removingSpawn = args[0];
         }
-        if (!Spawn.get().doesSpawnExist(removingSpawn)) {
+
+
+        Spawn spawn = AdvancedTeleportAPI.getSpawn(removingSpawn);
+        if (spawn == null) {
             CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "{spawn}", removingSpawn);
             return true;
         }
 
-        SpawnRemoveEvent event = new SpawnRemoveEvent(removingSpawn, sender);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) {
-            // Could not cancel event at this time
-            return true;
-        }
-
-        String finalRemovingSpawn = removingSpawn;
-        AdvancedTeleportAPI.removeSpawn(removingSpawn, sender).thenAcceptAsync(result ->
-                CustomMessages.sendMessage(sender, "Info.removedSpawn", "{spawn}", finalRemovingSpawn));
+        spawn.delete(sender).thenAcceptAsync(result ->
+                CustomMessages.sendMessage(sender, "Info.removedSpawn", "{spawn}", spawn.getName()));
         return false;
     }
 

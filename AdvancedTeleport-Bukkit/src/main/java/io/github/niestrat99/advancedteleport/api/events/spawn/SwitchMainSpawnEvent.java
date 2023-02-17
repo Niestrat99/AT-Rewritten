@@ -1,13 +1,12 @@
 package io.github.niestrat99.advancedteleport.api.events.spawn;
 
 import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 /**
  * The event fired when the main spawnpoint is switched.
@@ -15,13 +14,13 @@ import java.util.Objects;
 public final class SwitchMainSpawnEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
-    private final @Nullable String oldMainSpawn;
-    private @NotNull String newMainSpawn;
+    private final @Nullable Spawn oldMainSpawn;
+    private @Nullable Spawn newMainSpawn;
 
     @Contract(pure = true)
     public SwitchMainSpawnEvent(
-        @Nullable final String oldMainSpawn,
-        @NotNull final String newMainSpawn,
+        @Nullable final Spawn oldMainSpawn,
+        @Nullable final Spawn newMainSpawn,
         @Nullable final CommandSender sender
     ) {
         super(sender);
@@ -35,7 +34,7 @@ public final class SwitchMainSpawnEvent extends TrackableATEvent {
      * @return the current main spawn.
      */
     @Contract(pure = true)
-    public @Nullable String getOldMainSpawn() {
+    public @Nullable Spawn getOldMainSpawn() {
         return oldMainSpawn;
     }
 
@@ -45,7 +44,7 @@ public final class SwitchMainSpawnEvent extends TrackableATEvent {
      * @return the new main spawn.
      */
     @Contract(pure = true)
-    public @NotNull String getNewMainSpawn() {
+    public @Nullable Spawn getNewMainSpawn() {
         return newMainSpawn;
     }
 
@@ -55,8 +54,7 @@ public final class SwitchMainSpawnEvent extends TrackableATEvent {
      * @param newMainSpawn the new main spawn question.
      */
     @Contract(pure = true)
-    public void setNewMainSpawn(@NotNull final String newMainSpawn) throws IllegalArgumentException {
-        if (newMainSpawn.isEmpty()) throw new IllegalArgumentException("The new main spawn must not be empty.");
+    public void setNewMainSpawn(@Nullable final Spawn newMainSpawn) throws IllegalArgumentException {
         this.newMainSpawn = newMainSpawn;
     }
 

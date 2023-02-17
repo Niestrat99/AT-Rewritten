@@ -108,6 +108,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
+    public ConfigOption<Boolean> USE_OVERWORLD;
 
     public ConfigOption<ConfigSection> DEATH_MANAGEMENT;
 
@@ -119,13 +120,13 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> DEBUG;
     public ConfigOption<Boolean> USE_FLOODGATE_FORMS;
 
-    private static NewConfig instance;
+    private static MainConfig instance;
     private static List<String> defaults;
 
     /**
      *
      */
-    public NewConfig() throws IOException {
+    public MainConfig() throws IOException {
         super("config.yml");
         setTitle(new Title().withWidth(100).addSolidLine()
                 .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
@@ -546,6 +547,7 @@ public final class MainConfig extends ATConfig {
                 "If it is blank, then it will take the main spawnpoint.");
         addDefault("teleport-to-spawn-on-every-join", false,
                 "Whether the player should be teleported to the spawnpoint every time they join.");
+        addDefault("use-overworld", true, "If no main spawn has been set and the world being checked is in the Nether or End, use the Overworld spawn instead (if applicable).");
 
         addComment("death-management", "Determines how and where players teleport when they die.\n" +
                 "Options include:\n" +
@@ -591,7 +593,7 @@ public final class MainConfig extends ATConfig {
 
     }
 
-    public static NewConfig get() {
+    public static MainConfig get() {
         return instance;
     }
 
@@ -808,6 +810,7 @@ public final class MainConfig extends ATConfig {
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
+        USE_OVERWORLD = new ConfigOption<>("use-overworld");
 
         DEATH_MANAGEMENT = new ConfigOption<>("death-management");
 

@@ -1,22 +1,22 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import com.google.common.collect.ImmutableMap;
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.api.events.CancellableATEvent;
-import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnCreateEvent;
-import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnMirrorEvent;
-import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
-import io.github.niestrat99.advancedteleport.api.events.spawn.SwitchMainSpawnEvent;
+import io.github.niestrat99.advancedteleport.api.events.spawn.*;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
+import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
+import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import java.util.Optional;
 import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
@@ -123,7 +123,7 @@ public final class AdvancedTeleportAPI {
      */
     @Contract(pure = true)
     public static @NotNull ImmutableMap<String, Warp> getWarps() {
-        return ImmutableMap.copyOf(Warp.warps());
+        return NamedLocationManager.get().getWarps();
     }
 
     /**
@@ -134,7 +134,7 @@ public final class AdvancedTeleportAPI {
      * @param location the location of the warp.
      * @return a completable future action of the saved spawnpoint.
      */
-    public static @NotNull CompletableFuture<Void> setSpawn(
+    public static @NotNull CompletableFuture<Spawn> setSpawn(
             @NotNull final String name,
             @Nullable final CommandSender sender,
             @NotNull final Location location
@@ -144,59 +144,64 @@ public final class AdvancedTeleportAPI {
         Objects.requireNonNull(location, "The spawn location must not be null.");
         if (!location.isWorldLoaded()) return ATException.failedFuture(location.getWorld(), "The world the spawn is being set in must be loaded.");
 
-        return validateEvent(new SpawnCreateEvent(name, sender, location), event -> CompletableFuture.runAsync(() ->
-                Spawn.get().setSpawn(event.getLocation(), event.getName()), CoreClass.async));
+        return validateEvent(new SpawnCreateEvent(name, sender, location), event -> {
+
+            // Set up the spawn, register it, and send it off
+            Spawn spawn = new Spawn(name, location, maybePlayer(event.getSender()).map(Player::getUniqueId).orElse(null));
+            NamedLocationManager.get().registerSpawn(spawn);
+
+            // Add it to the database.
+            return SpawnSQLManager.get().addSpawn(spawn).thenApplyAsync(x -> {
+
+                // Call the post-create event to indicate success
+                new SpawnPostCreateEvent(spawn).callEvent();
+                return spawn;
+            });
+        });
     }
 
     /**
      * Sets the main spawn.
      *
-     * @param newName the ID of the spawnpoint.
+     * @param newSpawn the spawnpoint to be made the main one.
      * @param sender the player/command sender setting the main spawnpoint.
      * @return a completable future action of the new main spawn.
      */
-
-    public static @NotNull CompletableFuture<Void> setMainSpawn(
-            @NotNull final String newName,
+    public static @NotNull CompletableFuture<Spawn> setMainSpawn(
+            @Nullable final Spawn newSpawn,
             @Nullable final CommandSender sender
     ) {
-        return validateEvent(new SwitchMainSpawnEvent(Spawn.get().getMainSpawn(), newName, sender), event -> CompletableFuture.runAsync(() -> {
-            final var spawn = Spawn.get().getSpawn(newName);
-            Spawn.get().setMainSpawn(newName, spawn);
-        }, CoreClass.async));
+        return validateEvent(new SwitchMainSpawnEvent(AdvancedTeleportAPI.getMainSpawn(), newSpawn, sender),
+                event -> CompletableFuture.supplyAsync(() -> {
+
+            // Set the main spawn
+            NamedLocationManager.get().setMainSpawn(event.getNewMainSpawn());
+
+            // Update it internally
+            MetadataSQLManager.get().deleteMainSpawn().join();
+            if (event.getNewMainSpawn() != null) MetadataSQLManager.get().addSpawnMetadata(event.getNewMainSpawn().getName(), "main_spawn", "true");
+
+            return event.getNewMainSpawn();
+        }));
     }
 
-    /**
-     * Removes a given spawnpoint.
-     *
-     * @param name the name of the spawnpoint.
-     * @param sender the player/command sender who removed the spawnpoint.
-     * @return a completable future action of the new main spawn.
-     */
-    public static @NotNull CompletableFuture<Void> removeSpawn(
-            @NotNull final String name,
-            @Nullable final CommandSender sender
-    ) {
-        return validateEvent(new SpawnRemoveEvent(name, sender), event -> CompletableFuture.runAsync(() -> {
-            Spawn.get().removeSpawn(event.getSpawnName());
-        }, CoreClass.async));
+    public static @Nullable Spawn getSpawn(@NotNull String name) {
+        return NamedLocationManager.get().getSpawn(name);
     }
 
-    /**
-     * Mirrors a world's spawnpoint to a different spawnpoint.
-     *
-     * @param fromWorld the world to be mirrored from.
-     * @param toSpawnID the spawn ID to be mirrored to.
-     * @param sender the player/command sender making this change.
-     * @return a completable future action of the new main spawn.
-     */
-    public static @NotNull CompletableFuture<Void> mirrorSpawn(
-            @NotNull final String fromWorld,
-            @NotNull final String toSpawnID,
-            @Nullable final CommandSender sender
+    public static @NotNull Spawn getSpawn(@NotNull World world) {
+        return getDestinationSpawn(world, null);
+    }
+
+    public static @NotNull Spawn getDestinationSpawn(
+            @NotNull World world,
+            @Nullable Player player
     ) {
-        return validateEvent(new SpawnMirrorEvent(fromWorld, toSpawnID, sender), event ->
-                CompletableFuture.runAsync(() -> Spawn.get().mirrorSpawn(event.getFromWorld(), event.getToWorld()), CoreClass.async));
+        return NamedLocationManager.get().getSpawn(world, player);
+    }
+
+    public static @Nullable Spawn getMainSpawn() {
+        return NamedLocationManager.get().getMainSpawn();
     }
 
     static class FlattenedCallback<D> implements SQLManager.SQLCallback<D> {

@@ -1,7 +1,10 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -118,11 +121,10 @@ public class MetadataSQLManager extends SQLManager {
         });
     }
 
-    public CompletableFuture<Boolean> addSpawnMetadata(String spawnName, String key, String value) {
-        return CompletableFuture.supplyAsync(() -> {
+    public CompletableFuture<Boolean> addSpawnMetadata(@NotNull String spawnName, String key, String value) {
+        return SpawnSQLManager.get().getSpawnId(spawnName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
-                if (spawnName == null) return false;
-                return addMetadata(connection, spawnName, "SPAWN", key, value);
+                return addMetadata(connection, String.valueOf(id), "SPAWN", key, value);
             } catch (SQLException throwables) {
                 throw new RuntimeException(throwables);
             }
@@ -180,6 +182,51 @@ public class MetadataSQLManager extends SQLManager {
                 return deleteMetadata(connection, String.valueOf(id), "HOME", key);
             } catch (SQLException throwables) {
                 throw new RuntimeException(throwables);
+            }
+        });
+    }
+
+    public CompletableFuture<Boolean> deleteMainSpawn() {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection connection = implementConnection()) {
+
+                PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_metadata " +
+                        "WHERE type = 'SPAWN' AND key = 'main_spawn'");
+                statement.executeUpdate();
+                return true;
+            } catch (SQLException exception) {
+                throw new RuntimeException(exception);
+            }
+        });
+    }
+
+    public CompletableFuture<Boolean> mirrorSpawn(@NotNull Spawn source, @Nullable Spawn mirror) {
+        return SpawnSQLManager.get().getSpawnId(source.getName()).thenApplyAsync(id -> {
+
+            try (Connection connection = implementConnection()) {
+
+                if (id == -1) return false;
+
+                // If the mirror is null, remove the mirror altogether
+                if (mirror == null) {
+
+                    PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_metadata " +
+                            "WHERE type = 'SPAWN' AND key = 'mirror' AND data_id = ?");
+
+                    statement.setInt(1, id);
+
+                    executeUpdate(statement);
+                    return true;
+                }
+
+                // Get the mirror ID
+                int mirrorId = SpawnSQLManager.get().getSpawnId(mirror.getName()).join();
+
+                //
+
+                return true;
+            } catch (SQLException exception) {
+                throw new RuntimeException(exception);
             }
         });
     }

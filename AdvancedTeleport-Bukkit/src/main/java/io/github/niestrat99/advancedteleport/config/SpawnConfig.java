@@ -54,6 +54,7 @@ public final class SpawnConfig extends ATConfig {
                 getFloat("spawns." + mainSpawn + ".pitch"));
     }
 
+    @Deprecated
     public void setSpawn(Location location, String name) {
         set("spawns." + name + ".x", location.getX());
         set("spawns." + name + ".y", location.getY());
@@ -72,6 +73,7 @@ public final class SpawnConfig extends ATConfig {
         }
     }
 
+    @Deprecated
     public String mirrorSpawn(String from, String to) {
         ConfigSection section = getConfigSection("spawns");
         String mirror = to;
@@ -101,6 +103,7 @@ public final class SpawnConfig extends ATConfig {
         }
     }
 
+    @Deprecated
     public Location getSpawn(Player player) {
         String worldName = player.getWorld().getName();
         // Would do less looping
@@ -114,10 +117,12 @@ public final class SpawnConfig extends ATConfig {
         return getSpawn(worldName);
     }
 
+    @Deprecated
     public Location getSpawn(String name) {
         return getSpawn(name, null, false);
     }
 
+    @Deprecated
     public Location getSpawn(String name, Player player, boolean bypassPermission) {
         // if (get("spawns." + name) == null) return getProperMainSpawn();
         if (get("spawns." + name) == null) return getProperMainSpawn();
@@ -168,6 +173,7 @@ public final class SpawnConfig extends ATConfig {
         return mainSpawn;
     }
 
+    @Deprecated
     public void setMainSpawn(String id, Location location) {
         mainSpawn = location;
         set("main-spawn", id);
@@ -178,10 +184,12 @@ public final class SpawnConfig extends ATConfig {
         }
     }
 
+    @Deprecated
     public String getMainSpawn() {
         return getString("main-spawn");
     }
 
+    @Deprecated
     public String removeSpawn(String id) {
         set("spawns." + id, null);
         try {
@@ -193,6 +201,7 @@ public final class SpawnConfig extends ATConfig {
         return "Info.removedSpawn";
     }
 
+    @Deprecated
     @Nullable
     public Location getProperMainSpawn() {
         if (getMainSpawn() == null || getMainSpawn().isEmpty()) return null;
@@ -207,10 +216,12 @@ public final class SpawnConfig extends ATConfig {
         return mainSpawn;
     }
 
+    @Deprecated
     public boolean doesSpawnExist(String id) {
         return get("spawns." + id) != null;
     }
 
+    @Deprecated
     public List<String> getSpawns() {
         ConfigSection section = getConfigSection("spawns");
         if (section == null) return new ArrayList<>();
