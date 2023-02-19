@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.extensions.ExCast;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
@@ -17,6 +16,7 @@ import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import io.github.niestrat99.advancedteleport.hooks.maps.DynmapHook;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
+import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import java.util.stream.Stream;
 import org.bukkit.Bukkit;
@@ -70,7 +70,7 @@ public final class PluginHookManager {
             mapPlugin.enable();
             addIcons(MainConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), mapPlugin::addWarp);
             addIcons(MainConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), mapPlugin::addHome);
-            addIcons(MainConfig.get().MAP_SPAWNS.isEnabled(), CompletableFuture.completedFuture(SpawnConfig.get().getSpawns()), spawn -> mapPlugin.addSpawn(spawn, SpawnConfig.get().getSpawn(spawn)));
+            addIcons(MainConfig.get().MAP_SPAWNS.isEnabled(), SpawnSQLManager.get().getSpawns(), mapPlugin::addSpawn);
         });
     }
 

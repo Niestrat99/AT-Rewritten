@@ -11,4 +11,11 @@ public final class UnloadedWorldException extends ATException {
     ) {
         super("World [%s] | Message [%s]".formatted(world.getName(), message));
     }
+
+    public UnloadedWorldException(
+        @NotNull final String worldName,
+        @Nullable final String message
+    ) {
+        super("World [%s] | Message [%s]".formatted(worldName, message));
+    }
 }

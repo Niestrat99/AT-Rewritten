@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.hooks.maps;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.config.SpawnConfig;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
@@ -58,11 +58,8 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     }
 
     @Override
-    public void addSpawn(
-        @NotNull final String name,
-        @NotNull final Location location
-    ) {
-        addMarker("advancedteleport_spawn_" + name, "Spawn", spawnsMarker, location);
+    public void addSpawn(@NotNull final Spawn spawn) {
+        addMarker("advancedteleport_spawn_" + spawn.getName(), "Spawn", spawnsMarker, spawn.getLocation());
     }
 
     @Override
@@ -76,8 +73,8 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     }
 
     @Override
-    public void removeSpawn(@NotNull final String name) {
-        removeMarker("advancedteleport_spawn_" + name, spawnsMarker);
+    public void removeSpawn(@NotNull final Spawn spawn) {
+        removeMarker("advancedteleport_spawn_" + spawn.getName(), spawnsMarker);
     }
 
     @Override
@@ -91,11 +88,8 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     }
 
     @Override
-    public void moveSpawn(
-        @NotNull final String name,
-        @NotNull final Location location
-    ) {
-        moveMarker("advancedteleport_spawn_" + name, "Spawn", spawnsMarker, SpawnConfig.get().getSpawn(name));
+    public void moveSpawn(@NotNull final Spawn spawn) {
+        moveMarker("advancedteleport_spawn_" + spawn.getName(), "Spawn", spawnsMarker, spawn.getLocation());
     }
 
     @Override

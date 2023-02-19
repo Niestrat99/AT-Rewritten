@@ -219,7 +219,6 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         // If the main spawn has not been set, remove it
         if (!setMainSpawn) {
             debug("Removed main spawn");
-            SpawnConfig.get().setMainSpawn(null, null);
             AdvancedTeleportAPI.setMainSpawn(null, null);
         }
 
@@ -370,20 +369,20 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         debug("Exporting spawnpoints...");
         debug("WARNING - any changes made to the spawnpoints may be dodgy due to the differences between Essentials and AT's spawn systems.");
         debug("If you notice any problems, please fix them yourself.");
+
+        // If the spawn plugin doesn't exist, stop there
         EssentialsSpawn spawnPlugin = (EssentialsSpawn) Bukkit.getPluginManager().getPlugin("EssentialsSpawn");
         if (spawnPlugin == null || !spawnPlugin.isEnabled()) return;
 
-        String mainSpawn = SpawnConfig.get().getMainSpawn();
-        if (mainSpawn != null) {
-            Location mainSpawnLoc = SpawnConfig.get().getSpawn(mainSpawn);
-            spawnPlugin.setSpawn(mainSpawnLoc, "default");
-        }
-        for (String atSpawn : SpawnConfig.get().getSpawns()) {
+        // Get the main spawnpoint - if it's not null, set it as the default spawn
+        Spawn mainSpawn = AdvancedTeleportAPI.getMainSpawn();
+        if (mainSpawn != null) spawnPlugin.setSpawn(mainSpawn.getLocation(), "default");
+
+        // Go through each group and spawn set
+        for (Spawn atSpawn : AdvancedTeleportAPI.getSpawns().values()) {
             for (String group : CoreClass.getPerms().getGroups()) {
-                if (CoreClass.getPerms().groupHas((World) null, group, atSpawn)) {
-                    Location spawnLoc = SpawnConfig.get().getSpawn(atSpawn);
-                    spawnPlugin.setSpawn(spawnLoc, group);
-                }
+                if (!CoreClass.getPerms().groupHas((World) null, group, atSpawn.getName())) continue;
+                spawnPlugin.setSpawn(atSpawn.getLocation(), group);
             }
         }
 
