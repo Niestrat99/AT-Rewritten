@@ -137,12 +137,7 @@ public class HomeSQLManager extends SQLManager {
                             "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             statement.setString(1, owner.toString());
             statement.setString(2, name);
-            statement.setDouble(3, location.getX());
-            statement.setDouble(4, location.getY());
-            statement.setDouble(5, location.getZ());
-            statement.setDouble(6, location.getYaw());
-            statement.setDouble(7, location.getPitch());
-            statement.setString(8, location.getWorld().getName());
+            prepareLocation(location, 3, statement);
             statement.setLong(9, System.currentTimeMillis());
             statement.setLong(10, System.currentTimeMillis());
             executeUpdate(statement);
@@ -218,12 +213,7 @@ public class HomeSQLManager extends SQLManager {
                     "UPDATE " + tablePrefix + "_homes SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, " +
                             "timestamp_updated = ? WHERE uuid_owner = ? AND home = ? ");
 
-            statement.setDouble(1, newLocation.getX());
-            statement.setDouble(2, newLocation.getY());
-            statement.setDouble(3, newLocation.getZ());
-            statement.setDouble(4, newLocation.getYaw());
-            statement.setDouble(5, newLocation.getPitch());
-            statement.setString(6, newLocation.getWorld().getName());
+            prepareLocation(newLocation, 1, statement);
             statement.setLong(7, System.currentTimeMillis());
             statement.setString(8, owner.toString());
             statement.setString(9, name);

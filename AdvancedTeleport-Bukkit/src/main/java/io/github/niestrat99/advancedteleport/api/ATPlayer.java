@@ -42,6 +42,8 @@ import java.util.function.BiFunction;
 /**
  * A wrapper class used to represent a player. An ATPlayer stores information such as their homes, the players they
  * have blocked, whether they have teleportation enabled, their main home, and previous location.
+ *
+ * @since v5.4
  */
 public class ATPlayer {
 

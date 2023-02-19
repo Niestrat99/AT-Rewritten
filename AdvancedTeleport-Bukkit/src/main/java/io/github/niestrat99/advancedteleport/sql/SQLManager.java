@@ -1,10 +1,14 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 
@@ -87,6 +91,35 @@ public abstract class SQLManager {
 
     protected synchronized PreparedStatement prepareStatement(Connection connection, String sql) throws SQLException {
         return connection.prepareStatement(sql);
+    }
+
+    protected void prepareLocation(@NotNull Location location, int startingIndex, PreparedStatement statement) throws SQLException {
+        statement.setDouble(startingIndex++, location.getX());
+        statement.setDouble(startingIndex++, location.getY());
+        statement.setDouble(startingIndex++, location.getZ());
+        statement.setFloat(startingIndex++, location.getYaw());
+        statement.setFloat(startingIndex++, location.getPitch());
+        statement.setString(startingIndex, location.getWorld().getName());
+    }
+
+    protected @NotNull Location getLocation(ResultSet set) throws SQLException, UnloadedWorldException {
+
+        // Get base coordinates
+        double x = set.getDouble("x");
+        double y = set.getDouble("y");
+        double z = set.getDouble("z");
+
+        // Get rotation
+        float yaw = set.getFloat("yaw");
+        float pitch = set.getFloat("pitch");
+
+        // Get the world name
+        String worldName = set.getString("world");
+        World world = Bukkit.getWorld(worldName);
+        if (world == null)
+            throw new UnloadedWorldException(worldName, "Error getting location: world " + worldName + " is unloaded.");
+
+        return new Location(world, x, y, z, yaw, pitch);
     }
 
     public interface SQLCallback<D> {
