@@ -3,8 +3,8 @@ package io.github.niestrat99.advancedteleport.hooks.maps;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import org.bukkit.Bukkit;
@@ -89,11 +89,8 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
     }
 
     @Override
-    public void addSpawn(
-        @NotNull final String name,
-        @NotNull final Location location
-    ) {
-        addMarker(name, "spawn", location, null);
+    public void addSpawn(@NotNull final Spawn spawn) {
+        addMarker(spawn.getName(), "spawn", spawn.getLocation(), null);
     }
 
     @Override
@@ -107,9 +104,8 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
     }
 
     @Override
-    public void removeSpawn(@NotNull final String name) {
-        Location spawn = SpawnConfig.get().getSpawn(name);
-        removeMarker(name, "spawn", spawn.getWorld());
+    public void removeSpawn(@NotNull final Spawn spawn) {
+        removeMarker(spawn.getName(), "spawn", spawn.getLocation().getWorld());
     }
 
     @Override
@@ -123,11 +119,8 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
     }
 
     @Override
-    public void moveSpawn(
-        @NotNull final String name,
-        @NotNull final Location location
-    ) {
-        moveMarker(name, "spawn", location, null);
+    public void moveSpawn(@NotNull final Spawn spawn) {
+        moveMarker(spawn.getName(), "spawn", spawn.getLocation(), null);
     }
 
     private void addMarker(

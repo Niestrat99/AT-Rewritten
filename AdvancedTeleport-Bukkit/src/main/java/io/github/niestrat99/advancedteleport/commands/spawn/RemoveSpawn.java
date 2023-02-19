@@ -4,7 +4,6 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -65,7 +64,7 @@ public final class RemoveSpawn extends SpawnATCommand {
     ) {
         if (sender.hasPermission("at.admin.removespawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
-            StringUtil.copyPartialMatches(args[0], SpawnConfig.get().getSpawns(), spawns);
+            StringUtil.copyPartialMatches(args[0], AdvancedTeleportAPI.getSpawns().keySet(), spawns);
             return spawns;
         }
         return null;

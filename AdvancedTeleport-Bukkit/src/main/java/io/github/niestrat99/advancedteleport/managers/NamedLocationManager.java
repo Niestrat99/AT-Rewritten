@@ -1,11 +1,11 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.api.spawn.MirroredSpawn;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Used to manage the internal registration of warps and spawns during runtime.
@@ -45,7 +44,13 @@ public class NamedLocationManager {
     public void loadSpawnData() {
 
         // Go through each registered spawn in the SQL database
+        SpawnSQLManager.get().getSpawns().thenAcceptAsync(spawns -> {
 
+            // Add to the spawns list
+            spawns.forEach(spawn -> this.spawns.put(spawn.getName(), spawn));
+
+            
+        }, CoreClass.sync);
     }
 
     @Contract(pure = true)
@@ -103,11 +108,11 @@ public class NamedLocationManager {
             spawn = spawn.getMirroringSpawn();
         }
 
-        // If the spawn cannot be reached, return the undeclared spawn
-        if (!spawn.canAccess(teleportingPlayer)) return null;
+        // Return the spawn if it can be reached
+        if (spawn.canAccess(teleportingPlayer)) return spawn;
 
-        // Return the spawn
-        return spawn;
+        // Return nothing
+        return null;
     }
 
     @Contract(pure = true)
@@ -142,33 +147,31 @@ public class NamedLocationManager {
     @Contract(pure = true)
     private Spawn getUndeclaredSpawn(@NotNull World world) {
 
-        // If the main spawn isn't there though, get the
-        if (this.mainSpawn == null) {
-            if (MainConfig.get().USE_OVERWORLD.get()) {
+        // If there's a main spawn, just return it
+        if (this.mainSpawn != null) return mainSpawn;
 
-                // If the dimension is in the overworld, just send them there
-                if (world.getEnvironment() == World.Environment.NORMAL)
-                    return new Spawn(world.getName(), world.getSpawnLocation());
+        // If the main spawn isn't there though, get the spawn location of the world
+        if (MainConfig.get().USE_OVERWORLD.get()) {
 
-                // Remove the end/nether suffix
-                String overworldName = world.getName().replaceAll("(_nether|_the_end)$", "");
+            // If the dimension is in the overworld, just send them there
+            if (world.getEnvironment() == World.Environment.NORMAL)
+                return new Spawn(world.getName(), world.getSpawnLocation());
 
-                // If the world isn't loaded/existent, just relocate to the original world's spawn
-                World overworld = Bukkit.getWorld(overworldName);
-                if (overworld == null)
-                    return new Spawn(world.getName(), world.getSpawnLocation(), false);
+            // Remove the end/nether suffix
+            String overworldName = world.getName().replaceAll("(_nether|_the_end)$", "");
 
-                // Otherwise, teleport to the overworld
-                return new Spawn(overworld.getName(), overworld.getSpawnLocation(), false);
-            } else {
+            // If the world isn't loaded/existent, just relocate to the original world's spawn
+            World overworld = Bukkit.getWorld(overworldName);
+            if (overworld == null)
+                return new Spawn(world.getName(), world.getSpawnLocation());
 
-                // Return a new spawn object, but don't register it for now
-                return new Spawn(world.getName(), world.getSpawnLocation(), false);
-            }
+            // Otherwise, teleport to the overworld
+            return new Spawn(overworld.getName(), overworld.getSpawnLocation());
+        } else {
+
+            // Return a new spawn object, but don't register it for now
+            return new Spawn(world.getName(), world.getSpawnLocation());
         }
-
-        // Return a mirrored version of the spawn
-        return new MirroredSpawn(world.getName(), mainSpawn);
     }
 
     @Contract(pure = true)
@@ -186,8 +189,9 @@ public class NamedLocationManager {
         return this.spawns.containsKey(id);
     }
 
-    public Set<String> getSpawns() {
-        return ImmutableSet.copyOf(this.spawns.keySet());
+    @Contract(pure = true)
+    public @NotNull ImmutableMap<String, Spawn> getSpawns() {
+        return ImmutableMap.copyOf(this.spawns);
     }
 
     public @Nullable Spawn getMainSpawn() {

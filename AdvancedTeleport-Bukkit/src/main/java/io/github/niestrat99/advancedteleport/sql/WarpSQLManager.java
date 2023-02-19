@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -87,7 +88,7 @@ public class WarpSQLManager extends SQLManager {
                     (float) warpSection.getDouble("pitch"));
             Warp warpObj = new Warp(null, warp, location, -1, -1);
             addWarp(warpObj, null);
-            Warp.registerWarp(warpObj);
+            NamedLocationManager.get().registerWarp(warpObj);
         }
 
         file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "warps-backup.yml"));
@@ -157,12 +158,7 @@ public class WarpSQLManager extends SQLManager {
                     "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, " +
                             "timestamp_updated = ? WHERE warp = ?");
 
-            statement.setDouble(1, newLocation.getX());
-            statement.setDouble(2, newLocation.getY());
-            statement.setDouble(3, newLocation.getZ());
-            statement.setDouble(4, newLocation.getYaw());
-            statement.setDouble(5, newLocation.getPitch());
-            statement.setString(6, newLocation.getWorld().getName());
+            prepareLocation(newLocation, 1, statement);
             statement.setLong(7, System.currentTimeMillis());
             statement.setString(8, name);
             executeUpdate(statement);
@@ -196,7 +192,7 @@ public class WarpSQLManager extends SQLManager {
                 if (world == null) continue;
                 // Create the warp object and it'll register itself.
                 String creator = results.getString("uuid_creator");
-                Warp.registerWarp(new Warp(creator == null ? null : UUID.fromString(creator),
+                NamedLocationManager.get().registerWarp(new Warp(creator == null ? null : UUID.fromString(creator),
                         results.getString("warp"),
                         new Location(world,
                                 results.getDouble("x"),

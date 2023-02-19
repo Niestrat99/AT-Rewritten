@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
-import io.github.niestrat99.advancedteleport.hooks.PluginHook;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 
 import java.io.File;
@@ -20,10 +19,13 @@ public class MapAssetManager {
 
     public static void init() {
         images = new HashMap<>();
+
         // Get the AT folder
         File advTpFolder = CoreClass.getInstance().getDataFolder();
+
         // Get the map assets folder
         File mapAssetsFolder = new File(advTpFolder, "map-assets");
+
         // If it doesn't exist, try creating it
         if (!mapAssetsFolder.exists() && !mapAssetsFolder.mkdirs()) {
             CoreClass.getInstance().getLogger().warning("Failed to create the map-assets folder.");
@@ -40,6 +42,7 @@ public class MapAssetManager {
         if (fileNames == null) return;
         for (String fileName : fileNames) {
             File file = new File(mapAssetsFolder, fileName);
+
             // Create an InputStream
             InputStream stream;
             try {

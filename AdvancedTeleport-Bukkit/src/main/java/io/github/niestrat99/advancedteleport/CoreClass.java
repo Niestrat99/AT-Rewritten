@@ -68,7 +68,7 @@ public final class CoreClass extends JavaPlugin {
         checkVersion();
         getLogger().info("Advanced Teleport is now enabling...");
         setupPermissions();
-        for (Class<? extends ATConfig> config : Arrays.asList(MainConfig.class, CustomMessages.class, SpawnConfig.class, GUIConfig.class)) {
+        for (Class<? extends ATConfig> config : Arrays.asList(MainConfig.class, CustomMessages.class, GUIConfig.class)) {
             try {
                 config.getDeclaredConstructor().newInstance();
             } catch (NoSuchMethodException ex) {

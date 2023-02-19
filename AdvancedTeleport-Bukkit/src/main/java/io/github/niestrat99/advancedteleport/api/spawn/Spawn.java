@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.NamedLocation;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnMirrorEvent;
+import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnMoveEvent;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
@@ -24,7 +25,6 @@ public class Spawn implements NamedLocation {
     @Nullable private final UUID creator;
     @NotNull private Location location;
     @Nullable private Spawn mirroringSpawn;
-    private final boolean requiresPermission;
     private final long createdTime;
     private long updatedTime;
 
@@ -32,15 +32,7 @@ public class Spawn implements NamedLocation {
             @NotNull String name,
             @NotNull Location location
     ) {
-        this(name, location, null, true);
-    }
-
-    public Spawn(
-            @NotNull String name,
-            @NotNull Location location,
-            boolean requiresPermission
-    ) {
-        this(name, location, null, requiresPermission);
+        this(name, location, null);
     }
 
     public Spawn(
@@ -48,16 +40,7 @@ public class Spawn implements NamedLocation {
             @NotNull Location location,
             @Nullable UUID creator
     ) {
-        this(name, location, creator, true);
-    }
-
-    public Spawn(
-            @NotNull String name,
-            @NotNull Location location,
-            @Nullable UUID creator,
-            boolean requiresPermission
-    ) {
-        this(name, location, null, creator, requiresPermission, System.currentTimeMillis(), System.currentTimeMillis());
+        this(name, location, null, creator, System.currentTimeMillis(), System.currentTimeMillis());
     }
 
     public Spawn(
@@ -65,14 +48,12 @@ public class Spawn implements NamedLocation {
             @NotNull Location location,
             @Nullable Spawn mirroringSpawn,
             @Nullable UUID creator,
-            boolean requiresPermission,
             final long createdTime,
             final long updatedTime
     ) {
         this.name = name;
         this.location = location;
         this.creator = creator;
-        this.requiresPermission = requiresPermission;
         this.mirroringSpawn = mirroringSpawn;
 
         this.createdTime = createdTime;
@@ -90,10 +71,18 @@ public class Spawn implements NamedLocation {
     }
 
     @Contract(pure = true)
-    public CompletableFuture<Void> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
+    public CompletableFuture<Location> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
 
         // If the event was cancelled, stop there
-        return AdvancedTeleportAPI.validateEvent()
+        return AdvancedTeleportAPI.validateEvent(new SpawnMoveEvent(this, location, sender), event -> {
+
+            // Set the location
+            this.location = event.getNewLocation();
+            this.updatedTime = System.currentTimeMillis();
+
+            // Update in the database
+            return SpawnSQLManager.get().moveSpawn(this).thenApplyAsync(result -> this.location);
+        });
     }
 
     @Contract(pure = true)
@@ -102,14 +91,8 @@ public class Spawn implements NamedLocation {
     }
 
     @Contract(pure = true)
-    public boolean requiresPermission() {
-        return requiresPermission;
-    }
-
-    @Contract(pure = true)
     public boolean canAccess(Player teleportingPlayer) {
-        return !requiresPermission || teleportingPlayer.hasPermission("at.member.spawn." + name)
-                && teleportingPlayer.hasPermission("at.member.spawn." + name);
+        return teleportingPlayer.hasPermission("at.member.spawn." + name);
     }
 
     @Contract(pure = true)
@@ -133,6 +116,7 @@ public class Spawn implements NamedLocation {
 
             // Set the mirroring spawn
             this.mirroringSpawn = event.getDestinationSpawn();
+            this.updatedTime = System.currentTimeMillis();
 
             // Update it in the database
             return MetadataSQLManager.get().mirrorSpawn(this, event.getDestinationSpawn())
@@ -158,5 +142,15 @@ public class Spawn implements NamedLocation {
             NamedLocationManager.get().removeSpawn(this);
             return CompletableFuture.runAsync(() -> SpawnSQLManager.get().removeSpawn(name), CoreClass.async);
         });
+    }
+
+    @Contract(pure = true)
+    public long getCreatedTime() {
+        return createdTime;
+    }
+
+    @Contract(pure = true)
+    public long getUpdatedTime() {
+        return updatedTime;
     }
 }

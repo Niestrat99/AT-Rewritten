@@ -1,11 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
-import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -63,7 +63,7 @@ public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
     ) {
         if (sender.hasPermission("at.admin.spawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
-            StringUtil.copyPartialMatches(args[0], SpawnConfig.get().getSpawns(), spawns);
+            StringUtil.copyPartialMatches(args[0], AdvancedTeleportAPI.getSpawns().keySet(), spawns);
             return spawns;
         }
         return null;

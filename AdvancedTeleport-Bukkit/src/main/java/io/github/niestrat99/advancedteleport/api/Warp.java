@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.api;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpDeleteEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpMoveEvent;
+import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -23,15 +24,15 @@ import java.util.concurrent.CompletableFuture;
 public class Warp implements NamedLocation {
 
 
-    private final @Nullable UUID creator;
-    private final @NotNull String name;
-    private @NotNull Location location;
+    @Nullable private final UUID creator;
+    @NotNull private final String name;
+    @NotNull private final String createdTimeFormatted;
+    @NotNull private final SimpleDateFormat dateFormat;
+    @NotNull private String updatedTimeFormatted;
+    @NotNull private Location location;
     private final long createdTime;
     private long updatedTime;
-    private final @NotNull String createdTimeFormatted;
-    private @NotNull String updatedTimeFormatted;
-    private final @NotNull SimpleDateFormat format;
-    private static final HashMap<String, Warp> warps = new HashMap<>();
+    @Deprecated private static final HashMap<String, Warp> warps = new HashMap<>();
 
     /**
      * Creates a warp object, but does not formally register it. To register a warp, use {@link AdvancedTeleportAPI#setWarp(String, CommandSender, Location)}.
@@ -57,9 +58,9 @@ public class Warp implements NamedLocation {
         this.createdTime = createdTime;
         this.updatedTime = updatedTime;
 
-        this.format = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
-        this.createdTimeFormatted = format.format(new Date(createdTime));
-        this.updatedTimeFormatted = format.format(new Date(updatedTime));
+        this.dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+        this.createdTimeFormatted = dateFormat.format(new Date(createdTime));
+        this.updatedTimeFormatted = dateFormat.format(new Date(updatedTime));
     }
 
     /**
@@ -120,7 +121,7 @@ public class Warp implements NamedLocation {
             this.updatedTime = System.currentTimeMillis();
 
             // The warp was updated, so update the timestamp and update it in the database.
-            this.updatedTimeFormatted = format.format(new Date(updatedTime));
+            this.updatedTimeFormatted = dateFormat.format(new Date(updatedTime));
 
             return CompletableFuture.runAsync(() -> {
                 WarpSQLManager.get().moveWarp(location, name, null);
@@ -168,11 +169,6 @@ public class Warp implements NamedLocation {
         return updatedTimeFormatted;
     }
 
-    @Contract(pure = true)
-    public static void registerWarp(@NotNull final Warp warp) {
-        warps.put(warp.name, warp);
-    }
-
     /**
      * Deletes a specified warp.
      *
@@ -185,13 +181,10 @@ public class Warp implements NamedLocation {
         return AdvancedTeleportAPI.validateEvent(new WarpDeleteEvent(this, sender), event -> {
 
             // Removes the warp in cache.
-            warps.remove(name);
+            NamedLocationManager.get().removeWarp(this);
 
             // Remove the warp in the database.
-            return CompletableFuture.runAsync(() -> {
-                AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-                WarpSQLManager.get().removeWarp(name, callback);
-            });
+            return CompletableFuture.runAsync(() -> WarpSQLManager.get().removeWarp(name), CoreClass.async);
         });
     }
 
@@ -207,6 +200,7 @@ public class Warp implements NamedLocation {
 
     @ApiStatus.Internal
     @Contract(pure = true)
+    @Deprecated
     static @NotNull HashMap<String, Warp> warps() {
         return warps;
     }

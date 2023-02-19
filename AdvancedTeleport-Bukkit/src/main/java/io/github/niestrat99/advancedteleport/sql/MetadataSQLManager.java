@@ -153,15 +153,15 @@ public class MetadataSQLManager extends SQLManager {
         });
     }
 
-    public CompletableFuture<String> getSpawnMetadata(String spawnName, String key) {
-        return CompletableFuture.supplyAsync(() -> {
+    public CompletableFuture<String> getSpawnMetadata(String spawn, String key) {
+        return SpawnSQLManager.get().getSpawnId(spawn).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
-                if (spawnName == null) return null;
-                return getValue(connection, spawnName, "SPAWN", key);
+                if (id == null) return null;
+                return getValue(connection, String.valueOf(id), "SPAWN", key);
             } catch (SQLException throwables) {
                 throw new RuntimeException(throwables);
             }
-        });
+        }, CoreClass.async);
     }
 
     public CompletableFuture<Boolean> deleteWarpMetadata(String warpName, String key) {
@@ -209,20 +209,18 @@ public class MetadataSQLManager extends SQLManager {
 
                 // If the mirror is null, remove the mirror altogether
                 if (mirror == null) {
-
                     PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_metadata " +
                             "WHERE type = 'SPAWN' AND key = 'mirror' AND data_id = ?");
-
                     statement.setInt(1, id);
-
                     executeUpdate(statement);
                     return true;
                 }
 
                 // Get the mirror ID
-                int mirrorId = SpawnSQLManager.get().getSpawnId(mirror.getName()).join();
+                int mirrorId = SpawnSQLManager.get().getSpawnId(mirror.getName()).join(); // TODO - will cause a lock
 
-                //
+                // Set up the statement
+                PreparedStatement statement = prepareStatement(connection, "");
 
                 return true;
             } catch (SQLException exception) {

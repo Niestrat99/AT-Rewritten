@@ -5,7 +5,6 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -82,7 +81,7 @@ public final class SetMainSpawn extends SpawnATCommand {
     ) {
         if (sender.hasPermission("at.admin.setmainspawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
-            StringUtil.copyPartialMatches(args[0], NamedLocationManager.get().getSpawns(), spawns);
+            StringUtil.copyPartialMatches(args[0], AdvancedTeleportAPI.getSpawns().keySet(), spawns);
             return spawns;
         }
         return null;

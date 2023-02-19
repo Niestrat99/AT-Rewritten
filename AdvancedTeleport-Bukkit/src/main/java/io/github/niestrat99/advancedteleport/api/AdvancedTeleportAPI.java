@@ -204,6 +204,10 @@ public final class AdvancedTeleportAPI {
         return NamedLocationManager.get().getMainSpawn();
     }
 
+    public static @NotNull ImmutableMap<String, Spawn> getSpawns() {
+        return NamedLocationManager.get().getSpawns();
+    }
+
     static class FlattenedCallback<D> implements SQLManager.SQLCallback<D> {
         D data;
 
