@@ -44,7 +44,7 @@ public class TpUnblock implements AsyncATCommand {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
             if (!atPlayer.hasBlocked(target)) {
-                sender.sendMessage("Player never blocked");
+                CustomMessages.sendMessage(sender, "Error.neverBlocked");
                 return;
             }
 
