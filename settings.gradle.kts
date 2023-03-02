@@ -3,6 +3,7 @@ enableFeaturePreview("VERSION_CATALOGS")
 rootProject.name = "AdvancedTeleport"
 
 include(":AdvancedTeleport-Bukkit")
+include(":AdvancedTeleport-Velocity")
 include(":AdvancedTP-Core")
 
 pluginManagement {
