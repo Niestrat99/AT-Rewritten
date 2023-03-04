@@ -5,6 +5,8 @@ import io.github.niestrat99.advancedteleport.api.BlockInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.sql.Connection;
@@ -27,6 +29,10 @@ public class BlocklistManager extends SQLManager {
     @Override
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+
+            CoreClass.debug("Creating table data for the block list manager if it is not already set up.");
+
+            // Attempt to create the table.
             try (Connection connection = implementConnection()) {
                 PreparedStatement createTable = prepareStatement(connection,
                         "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_blocklist " +
@@ -40,6 +46,8 @@ public class BlocklistManager extends SQLManager {
                 CoreClass.getInstance().getLogger().severe("Failed to create the blocklist table.");
                 exception.printStackTrace();
             }
+
+            // Transfer old data.
             transferOldData();
         });
 
@@ -47,12 +55,20 @@ public class BlocklistManager extends SQLManager {
 
     @Override
     public void transferOldData() {
-        //
+
+        CoreClass.debug("Transferring old blocklist data...");
+
+        // Get the legacy blocklist file - if it doesn't exist, stop there.
         File blocklistFile = new File(CoreClass.getInstance().getDataFolder(), "blocklist.yml");
-        if (!blocklistFile.exists()) return;
+        if (!blocklistFile.exists()) {
+            CoreClass.debug("No blocklist data to import.");
+            return;
+        }
+
         // Load the config file.
         YamlConfiguration blocklist = YamlConfiguration.loadConfiguration(blocklistFile);
 
+        // Get the player section that stores all blocklist data.
         ConfigurationSection playersSection = blocklist.getConfigurationSection("players");
         if (playersSection != null) {
             // For each player found...
@@ -62,12 +78,14 @@ public class BlocklistManager extends SQLManager {
                 // For each blocked player...
                 for (String blockedPlayer : blockedPlayers) {
                     // Reasons didn't exist pre-5.4, so the reason is null.
-                    blockUser(player, blockedPlayer, null, null);
+                    blockUser(player, blockedPlayer, null);
                 }
             }
         }
 
-        blocklistFile.renameTo(new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
+        // See if renaming was successful.
+        boolean renameResult = blocklistFile.renameTo(new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
+        CoreClass.debug(renameResult ? "Successfully renamed the blocklist file." : "Failed to rename the blocklist file.");
     }
 
     public void blockUser(

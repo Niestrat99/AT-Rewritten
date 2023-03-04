@@ -2,12 +2,10 @@ package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
@@ -23,7 +21,11 @@ public abstract class SQLManager {
             CoreClass.getInstance().getLogger().warning("Table prefix " + tablePrefix + " is not alphanumeric. Using advancedtp...");
             tablePrefix = "advancedtp";
         }
-        implementConnection();
+        try (Connection ignored = implementConnection()) {
+            CoreClass.debug("Connection to SQL data source successful.");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         createTable();
     }
 
