@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.api.events;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Contract;
@@ -31,5 +32,11 @@ public abstract class CancellableATEvent extends Event implements Cancellable {
     @Contract(pure = true)
     public void setCancelled(boolean newState) {
         cancelled = newState;
+    }
+
+    @Contract(pure = true)
+    public boolean callEvent() {
+        Bukkit.getPluginManager().callEvent(this);
+        return !isCancelled();
     }
 }

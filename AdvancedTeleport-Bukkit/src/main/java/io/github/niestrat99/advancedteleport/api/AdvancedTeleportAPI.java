@@ -154,7 +154,7 @@ public final class AdvancedTeleportAPI {
             return SpawnSQLManager.get().addSpawn(spawn).thenApplyAsync(x -> {
 
                 // Call the post-create event to indicate success
-                new SpawnPostCreateEvent(spawn).callEvent();
+                Bukkit.getPluginManager().callEvent(new SpawnPostCreateEvent(spawn));
                 return spawn;
             });
         });

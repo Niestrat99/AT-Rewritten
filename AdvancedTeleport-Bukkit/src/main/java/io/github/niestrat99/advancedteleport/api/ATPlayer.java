@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.api;
 
 import com.google.common.collect.ImmutableMap;
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.data.ATException;
+import io.github.niestrat99.advancedteleport.api.data.CancelledEventException;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.*;
 import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocationChangeEvent;
