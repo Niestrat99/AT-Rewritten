@@ -50,7 +50,15 @@ public class ATException extends Exception {
         @Nullable final CommandSender sender,
         @NotNull final String message
     ) {
-        return new ATException(sender, message).future();
+        return failed(sender, message).future();
+    }
+
+    @Contract(value = "_, _ -> new", pure = true)
+    public static @NotNull ATException failed(
+            @Nullable final CommandSender sender,
+            @NotNull final String message
+    ) {
+        return new ATException(sender, message);
     }
 
     @Contract(value = "_ -> new", pure = true)

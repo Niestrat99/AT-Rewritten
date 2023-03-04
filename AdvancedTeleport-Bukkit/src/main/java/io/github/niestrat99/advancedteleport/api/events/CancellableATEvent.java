@@ -26,7 +26,7 @@ public abstract class CancellableATEvent extends Event implements Cancellable {
     /**
      * Set the event to be cancelled - true cancels the event, false doesn't.
      *
-     * @param b whether to cancel the event.
+     * @param newState whether to cancel the event.
      */
     @Override
     @Contract(pure = true)
