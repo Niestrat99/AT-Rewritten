@@ -87,7 +87,7 @@ public class WarpSQLManager extends SQLManager {
                     (float) warpSection.getDouble("yaw"),
                     (float) warpSection.getDouble("pitch"));
             Warp warpObj = new Warp(null, warp, location, -1, -1);
-            addWarp(warpObj, null);
+            addWarp(warpObj);
             NamedLocationManager.get().registerWarp(warpObj);
         }
 
@@ -95,7 +95,7 @@ public class WarpSQLManager extends SQLManager {
 
     }
 
-    public void addWarp(Warp warp, SQLCallback<Boolean> callback) {
+    public void addWarp(Warp warp) {
         Location location = warp.getLocation();
         UUID creator = warp.getCreator();
         String name = warp.getName();
@@ -118,9 +118,6 @@ public class WarpSQLManager extends SQLManager {
             statement.setLong(10, updated);
             executeUpdate(statement);
 
-            if (callback != null) {
-                callback.onSuccess(true);
-            }
         } catch (SQLException exception) {
             DataFailManager.get().addFailure(DataFailManager.Operation.ADD_WARP,
                     location.getWorld().getName(),
@@ -134,9 +131,6 @@ public class WarpSQLManager extends SQLManager {
                     String.valueOf(created),
                     String.valueOf(updated));
             exception.printStackTrace();
-            if (callback != null) {
-                callback.onFail();
-            }
         }
     }
 
@@ -152,7 +146,7 @@ public class WarpSQLManager extends SQLManager {
         }
     }
 
-    public void moveWarp(Location newLocation, String name, SQLCallback<Boolean> callback) {
+    public void moveWarp(Location newLocation, String name) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement = prepareStatement(connection,
                     "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, " +
@@ -162,9 +156,6 @@ public class WarpSQLManager extends SQLManager {
             statement.setLong(7, System.currentTimeMillis());
             statement.setString(8, name);
             executeUpdate(statement);
-            if (callback != null) {
-                callback.onSuccess(true);
-            }
         } catch (SQLException exception) {
             DataFailManager.get().addFailure(DataFailManager.Operation.MOVE_WARP,
                     newLocation.getWorld().getName(),
@@ -175,9 +166,6 @@ public class WarpSQLManager extends SQLManager {
                     String.valueOf(newLocation.getPitch()),
                     name);
             exception.printStackTrace();
-            if (callback != null) {
-                callback.onFail();
-            }
         }
     }
 
@@ -227,52 +215,46 @@ public class WarpSQLManager extends SQLManager {
         return -1;
     }
 
-    public void purgeWarps(String worldName, SQLCallback<Void> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE world = ?");
-                statement.setString(1, worldName);
+    public void purgeWarps(String worldName) {
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE world = ?");
+            statement.setString(1, worldName);
 
-                ResultSet set = statement.executeQuery();
-                while (set.next()) {
-                    AdvancedTeleportAPI.getWarps().remove(set.getString("warp"));
-                }
-                set.close();
-
-                statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE world = ?");
-                statement.setString(1, worldName);
-
-                executeUpdate(statement);
-                if (callback != null) callback.onSuccess(null);
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-                if (callback != null) callback.onFail();
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                Warp warp = AdvancedTeleportAPI.getWarp(set.getString("warp"));
+                if (warp != null) NamedLocationManager.get().removeWarp(warp);
             }
-        });
+            set.close();
+
+            statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE world = ?");
+            statement.setString(1, worldName);
+
+            executeUpdate(statement);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
-    public void purgeWarps(UUID creatorID, SQLCallback<Void> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
-                statement.setString(1, creatorID.toString());
+    public void purgeWarps(UUID creatorID) {
+        try (Connection connection = implementConnection()) {
+            PreparedStatement statement = prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
+            statement.setString(1, creatorID.toString());
 
-                ResultSet set = statement.executeQuery();
-                while (set.next()) {
-                    AdvancedTeleportAPI.getWarps().remove(set.getString("warp"));
-                }
-                set.close();
-
-                statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
-                statement.setString(1, creatorID.toString());
-
-                executeUpdate(statement);
-                if (callback != null) callback.onSuccess(null);
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-                if (callback != null) callback.onFail();
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                Warp warp = AdvancedTeleportAPI.getWarp(set.getString("warp"));
+                if (warp != null) NamedLocationManager.get().removeWarp(warp);
             }
-        });
+            set.close();
+
+            statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
+            statement.setString(1, creatorID.toString());
+
+            executeUpdate(statement);
+        } catch (SQLException throwables) {
+            throw new RuntimeException(throwables);
+        }
     }
 
     public static WarpSQLManager get() {
@@ -307,6 +289,6 @@ public class WarpSQLManager extends SQLManager {
             } catch (SQLException exception) {
                 throw new RuntimeException(exception);
             }
-        });
+        }, CoreClass.async);
     }
 }

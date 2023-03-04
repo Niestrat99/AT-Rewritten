@@ -9,7 +9,6 @@ import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEven
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import java.util.Optional;
@@ -79,7 +78,7 @@ public final class AdvancedTeleportAPI {
             );
 
             // Add the warp
-            return CompletableFuture.runAsync(() -> WarpSQLManager.get().addWarp(warp, null)).thenApply(ignored -> {
+            return CompletableFuture.runAsync(() -> WarpSQLManager.get().addWarp(warp)).thenApply(ignored -> {
 
                 // Call the event
                 final WarpPostCreateEvent postCreateEvent = new WarpPostCreateEvent(warp);
@@ -206,19 +205,5 @@ public final class AdvancedTeleportAPI {
 
     public static @NotNull ImmutableMap<String, Spawn> getSpawns() {
         return NamedLocationManager.get().getSpawns();
-    }
-
-    static class FlattenedCallback<D> implements SQLManager.SQLCallback<D> {
-        D data;
-
-        @Override
-        public void onSuccess(D data) {
-            this.data = data;
-        }
-
-        @Override
-        public void onFail() {
-            this.data = null;
-        }
     }
 }

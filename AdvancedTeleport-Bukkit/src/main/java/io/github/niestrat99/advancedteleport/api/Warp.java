@@ -124,7 +124,7 @@ public class Warp implements NamedLocation {
             this.updatedTimeFormatted = dateFormat.format(new Date(updatedTime));
 
             return CompletableFuture.runAsync(() -> {
-                WarpSQLManager.get().moveWarp(location, name, null);
+                WarpSQLManager.get().moveWarp(location, name);
             }, CoreClass.async);
         });
     }

@@ -1,15 +1,13 @@
 package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import java.util.Collections;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -18,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public final class PurgeCommand extends SubATCommand {
 
@@ -49,70 +48,48 @@ public final class PurgeCommand extends SubATCommand {
             CustomMessages.sendMessage(sender, "Error.invalidArgs");
             return false;
         }
+
+        // If we're purging by world...
         if (args[1].equalsIgnoreCase("world")) {
 
-            World world = Bukkit.getWorld(args[2]);
-            if (world == null) {
-                CustomMessages.sendMessage(sender, "Error.noSuchWorld");
-                return false;
-            }
-
+            // Purge using the world name
             switch (args[0].toLowerCase()) {
-                case "homes" -> HomeSQLManager.get().purgeHomes(world.getName(), new SQLManager.SQLCallback<>() {
-                    @Override
-                    public void onSuccess(Void data) {
-                        CustomMessages.sendMessage(sender, "Info.purgeHomesWorld", "{world}", args[2]);
-                    }
-
-                    @Override
-                    public void onFail() {
-                        CustomMessages.sendMessage(sender, "Error.purgeHomesFail");
-                    }
-                });
-                case "warps" -> WarpSQLManager.get().purgeWarps(world.getName(), new SQLManager.SQLCallback<>() {
-                    @Override
-                    public void onSuccess(Void data) {
-                        CustomMessages.sendMessage(sender, "Info.purgeWarpsWorld", "{world}", args[2]);
-                    }
-
-                    @Override
-                    public void onFail() {
-                        CustomMessages.sendMessage(sender, "Error.purgeWarpsFail");
-                    }
-                });
+                case "homes" -> CompletableFuture.runAsync(() -> HomeSQLManager.get().purgeHomes(args[2])).whenComplete((v, err) ->
+                        CustomMessages.failable(sender,
+                                "Info.purgeHomesWorld",
+                                "Error.purgeHomesFail",
+                                () -> err != null,
+                                "{world}", args[2]));
+                case "warps" -> CompletableFuture.runAsync(() -> WarpSQLManager.get().purgeWarps(args[2])).whenComplete((v, err) ->
+                        CustomMessages.failable(sender,
+                                "Info.purgeWarpsWorld",
+                                "Error.purgeWarpsFail",
+                                () -> err != null,
+                                "{world}", args[2]));
             }
-        } else if (args[1].equalsIgnoreCase("player")) {
-            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                OfflinePlayer player = Bukkit.getOfflinePlayer(args[2]);
-                if (player.getName() == null) {
-                    CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
-                    return;
-                }
+
+            return true;
+        }
+
+        if (args[1].equalsIgnoreCase("player")) {
+            AdvancedTeleportAPI.getOfflinePlayer(args[2]).thenAcceptAsync(player -> {
+
+                // Purge by creator
                 switch (args[0].toLowerCase()) {
-                    case "homes" -> HomeSQLManager.get().purgeHomes(player.getUniqueId(), new SQLManager.SQLCallback<>() {
-                        @Override
-                        public void onSuccess(Void data) {
-                            CustomMessages.sendMessage(sender, "Info.purgeHomesCreator", "{player}", args[2]);
-                        }
-
-                        @Override
-                        public void onFail() {
-                            CustomMessages.sendMessage(sender, "Error.purgeHomesFail");
-                        }
-                    });
-                    case "warps" -> WarpSQLManager.get().purgeWarps(player.getUniqueId(), new SQLManager.SQLCallback<>() {
-                        @Override
-                        public void onSuccess(Void data) {
-                            CustomMessages.sendMessage(sender, "Info.purgeWarpsCreator", "{player}", args[2]);
-                        }
-
-                        @Override
-                        public void onFail() {
-                            CustomMessages.sendMessage(sender, "Error.purgeWarpsFail");
-                        }
-                    });
+                    case "homes" -> CompletableFuture.runAsync(() -> HomeSQLManager.get().purgeHomes(player.getUniqueId())).whenComplete((v, err) ->
+                            CustomMessages.failable(sender,
+                                    "Info.purgeHomesCreator",
+                                    "Error.purgeHomesFail",
+                                    () -> err != null,
+                                    "{player}", args[2]));
+                    case "warps" -> CompletableFuture.runAsync(() -> WarpSQLManager.get().purgeWarps(player.getUniqueId())).whenComplete((v, err) ->
+                            CustomMessages.failable(sender,
+                                    "Info.purgeWarpsCreator",
+                                    "Error.purgeWarpsFail",
+                                    () -> err != null,
+                                    "{player}", args[2]));
                 }
-            });
+            }, CoreClass.sync);
         }
 
         return false;
