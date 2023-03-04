@@ -86,7 +86,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
                         world = Bukkit.getWorld(worldName);
                         String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0,
                                 0, 0), new Location(world, 0, 0, 0), "tpr", player);
-                        if (world != null && conditionResult.isEmpty()) break;
+                        if (world != null && conditionResult == null) break;
                     }
                     if (world == null) {
                         CustomMessages.sendMessage(sender, "Error.cantTPToWorld");
@@ -103,7 +103,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
 
         String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0),
                 new Location(world, 0, 0, 0), "tpr", player);
-        if (!conditionResult.isEmpty()) {
+        if (conditionResult != null) {
             CustomMessages.sendMessage(player, conditionResult, "{world}", world.getName());
             return true;
         }

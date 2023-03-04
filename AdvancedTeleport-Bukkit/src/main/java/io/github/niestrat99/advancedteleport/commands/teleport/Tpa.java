@@ -44,7 +44,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
         }
         Player target = Bukkit.getPlayer(args[0]);
         String result = ConditionChecker.canTeleport(player, target, "tpa");
-        if (!result.isEmpty()) {
+        if (result != null) {
             CustomMessages.sendMessage(player, result, "{player}", args[0], "{world}", target == null ? "<No Such World>" : target.getWorld().getName());
             return true;
         }

@@ -8,6 +8,8 @@ import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,8 @@ public class ConditionChecker {
      * @param command the command being used
      * @return if the string is empty, the player can teleport, otherwise, state why
      */
-    public static String canTeleport(Player player, Player target, String command) {
+    @Contract("_, null, _ -> !null; _, !null, _ -> _")
+    public static @Nullable String canTeleport(Player player, Player target, String command) {
 
         // If the target is null, don't teleport
         if (target == null) return "Error.noSuchPlayer";
@@ -40,7 +43,7 @@ public class ConditionChecker {
         // Check if the distance/worlds are a limit
         // if someone removes this for uk and germany that would be great
         String teleportLims = canTeleport(player.getLocation(), target.getLocation(), command, player);
-        if (!teleportLims.isEmpty()) return teleportLims;
+        if (teleportLims != null) return teleportLims;
         ATPlayer atTarget = ATPlayer.getPlayer(target);
 
         // If the target has teleportation disabled
@@ -53,10 +56,12 @@ public class ConditionChecker {
         if (command.equalsIgnoreCase("tpa") || command.equalsIgnoreCase("tpahere")) {
             if (TeleportRequest.getRequestByReqAndResponder(target, player) != null) return "Error.alreadySentRequest";
         }
-        return "";
+        return null;
     }
 
-    public static String canTeleport(Location fromLoc, Location toLoc, String command, Player teleportingPlayer) {
+    public static @Nullable String canTeleport(Location fromLoc, Location toLoc, String command, Player teleportingPlayer) {
+
+        // Use debug print
         CoreClass.debug("Requested to see if " + teleportingPlayer.getName() + " can teleport from "
                 + CoreClass.getShortLocation(fromLoc) + " to " + CoreClass.getShortLocation(toLoc) + " using command "
                 + command);
@@ -78,7 +83,7 @@ public class ConditionChecker {
                 return "Error.cantTPToWorldLim";
             }
         }
-        return "";
+        return null;
     }
 
     public static List<String> getPlayers(Player player) {
