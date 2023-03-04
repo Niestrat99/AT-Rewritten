@@ -112,9 +112,9 @@ public final class PluginHookManager {
     ) {
         try {
             activePluginHooks.put(name, ExCast.cast(clazz.getConstructor().newInstance())); // Honestly couldn't be arsed to fight java on this one.
-        } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             e.printStackTrace();
-        } catch (NoClassDefFoundError ignored) { // Why are you like this essentials?
+        } catch (InvocationTargetException | InstantiationException | NoClassDefFoundError ignored) { // Why are you like this essentials?
         }
     }
 
