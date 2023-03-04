@@ -279,10 +279,10 @@ public final class MainConfig extends ATConfig {
         addDefault("per-command-cost.back", "default", "Cost for /back");
         //addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
         //addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
-        makeSectionLenient("custom-cost");
-        addComment("custom-cost", "Use this section to create custom costs per-group.\n" +
+        makeSectionLenient("custom-costs");
+        addComment("custom-costs", "Use this section to create custom costs per-group.\n" +
                 "Use the following format:\n" +
-                "custom-cost:\n" +
+                "custom-costs:\n" +
                 "  vip-cost: Essentials:100\n" +
                 "Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.\n" +
                 "To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.");
