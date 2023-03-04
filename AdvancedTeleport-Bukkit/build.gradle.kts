@@ -138,9 +138,21 @@ tasks {
     }
 
     runServer {
+
+        // Wait for slimJar to go through first
+        dependsOn(slimJar)
+
+        // Set the version to 1.19.3
+        minecraftVersion("1.19.3")
+
+        // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
+        val pluginsFolder = devServer.resolve("plugins")
         runDirectory.set(rootDir.resolve(".run"))
-        pluginJars(devServer.resolve("plugins").resolve("Vault.jar"))
+        pluginJars(pluginsFolder.resolve("Vault.jar"))
+        pluginJars(pluginsFolder.resolve("Spark.jar"))
+        pluginJars(getJarFile())
+
     }
 
     withType<ProcessResources> {
@@ -165,6 +177,12 @@ tasks {
             relocate("io.github.slimjar", "io.github.niestrat99.advancedteleport.libs.slimjar")
         }
     }
+
+    this.slimJar {
+        dependsOn(shadowJar)
+        dependsOn(jar)
+        dependsOn(inspectClassesForKotlinIC)
+    }
 }
 
 // Lead development use only.
@@ -173,7 +191,7 @@ modrinth {
     projectId.set("BQFzmxKU")
     versionNumber.set(project.version.toString())
     versionType.set(getReleaseType())
-    uploadFile.set(tasks.shadowJar.get())
+    uploadFile.set(getJarFile())
     gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3"))
     loaders.addAll("paper", "spigot", "purpur")
     changelog.set(getCogChangelog())
@@ -520,4 +538,11 @@ fun getReleaseType(): String {
     val matcher = pattern.matcher(project.version.toString())
     if (!matcher.matches()) return "release"
     return matcher.group(1)
+}
+
+fun getJarFile(): File {
+
+    // Get the jar file
+    val fileName = project.name + "-" + project.version.toString() + ".jar"
+    return tasks.slimJar.get().buildDirectory.resolve("libs").resolve(fileName)
 }
