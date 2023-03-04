@@ -18,23 +18,34 @@ public final class SetSpawn extends SpawnATCommand implements PlayerCommand {
         @NotNull final String s,
         @NotNull final String[] args
     ) {
+
+        // If the sender can't set the spawn, stop there
         if (!canProceed(sender)) return true;
 
-        Player player = (Player) sender;
+        // Get the player object
+        final var player = (Player) sender;
+
+        // Get the name and message to use
         String name = player.getWorld().getName();
         String message = "Info.setSpawn";
+
+        // If the player is an admin, pick out the spawn that they choose
         if (args.length > 0 && sender.hasPermission("at.admin.setspawn.other")) {
-            if (!args[0].matches("^[0-9a-zA-Z_\\-]+$")) {
-                CustomMessages.sendMessage(sender, "Error.nonAlphanumericSpawn");
-                return false;
-            }
             name = args[0];
             message = "Info.setSpawnSpecial";
         }
-        String finalName = name;
-        String finalMessage = message;
-        AdvancedTeleportAPI.setSpawn(name, player, player.getLocation()).thenAcceptAsync(result ->
-                CustomMessages.sendMessage(sender, finalMessage, "{spawn}", finalName));
+
+        // Get the final variables set
+        final String finalName = name;
+        final String finalMessage = message;
+
+        // Set the spawn
+        AdvancedTeleportAPI.setSpawn(name, player, player.getLocation()).whenComplete((v, err) ->
+                CustomMessages.failable(sender,
+                        finalMessage,
+                        "Error.setSpawnFail",
+                        () -> err != null,
+                        "{spawn}", finalName));
 
         return true;
     }

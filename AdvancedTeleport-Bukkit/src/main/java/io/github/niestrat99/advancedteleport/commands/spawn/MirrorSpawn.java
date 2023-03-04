@@ -36,7 +36,7 @@ public final class MirrorSpawn extends SpawnATCommand {
         if (args.length == 1) {
             toSpawn = getSpawn(args[0]);
 
-            // If the sender is a player,
+            // If the sender is a player, get the spawn that they are coming from
             if (sender instanceof Player player) {
                 fromSpawn = AdvancedTeleportAPI.getSpawn(player.getWorld());
             } else {
@@ -48,7 +48,7 @@ public final class MirrorSpawn extends SpawnATCommand {
             toSpawn = getSpawn(args[1]);
         }
 
-        fromSpawn.setMirroringSpawn(toSpawn, sender).handleAsync((v, e) ->
+        fromSpawn.setMirroringSpawn(toSpawn, sender).whenComplete((v, e) ->
                 handleCommandFeedback(e, sender, "Info.mirroredSpawn", "Error.noSpawn", "{spawn}",
                         v.getMirroringSpawn().getName(), "{from}", fromSpawn.getName()));
         return true;
