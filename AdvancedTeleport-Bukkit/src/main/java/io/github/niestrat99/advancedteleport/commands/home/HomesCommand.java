@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import com.google.common.collect.ImmutableCollection;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
@@ -16,10 +17,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public final class HomesCommand extends AbstractHomeCommand {
 
@@ -33,17 +31,20 @@ public final class HomesCommand extends AbstractHomeCommand {
         if (!canProceed(sender)) return true;
 
         if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
-            ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
-                if (player.getHomes() == null || player.getHomes().size() == 0) {
-                    CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
-                    return;
-                }
-                getHomes(sender, player.getOfflinePlayer());
-            });
+            ATPlayer.getPlayerFuture(args[0]).thenAccept(player ->
+                    player.getHomesAsync().thenAcceptAsync(homes ->
+                            getHomes(sender, player.getOfflinePlayer(), homes.values())));
             return true;
         }
 
-        getHomes(sender, (Player) sender);
+        if (!(sender instanceof Player player)) {
+            CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
+        }
+
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+
+        atPlayer.getHomesAsync().thenAcceptAsync(homes -> getHomes(sender, player, homes.values()));
         return true;
     }
 
@@ -57,13 +58,13 @@ public final class HomesCommand extends AbstractHomeCommand {
         return MainConfig.get().USE_HOMES.get();
     }
 
-    private void getHomes(CommandSender sender, OfflinePlayer target) {
+    private void getHomes(CommandSender sender, OfflinePlayer target, ImmutableCollection<Home> homes) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
-        if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-            atFloodgatePlayer.sendHomeForm();
-            return;
-        }
+        if (sender == target && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
+             atFloodgatePlayer.sendHomeForm();
+             return;
+         }
 
         FancyMessage hList = new FancyMessage();
 
@@ -77,8 +78,8 @@ public final class HomesCommand extends AbstractHomeCommand {
         }
 
         hList.text(CustomMessages.getString(infoPath, "{player}", target.getName()));
-        if (atPlayer.getHomes().size() > 0) {
-            for (Home home : atPlayer.getHomes().values()) {
+        if (homes.size() > 0) {
+            for (Home home : homes) {
                 if (atPlayer.canAccessHome(home) || sender.hasPermission("at.admin.homes")) {
                     hList.then(home.getName())
                             .command("/home " + extraArg + home.getName())

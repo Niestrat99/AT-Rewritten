@@ -1,12 +1,13 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -28,8 +29,8 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
 
         if (args.length > 0) {
             if (sender.hasPermission(getPermission()) && args.length > 1) {
-                final var target = Bukkit.getOfflinePlayer(args[0]);
-                delHome(target, player, args[1]);
+                AdvancedTeleportAPI.getOfflinePlayer(args[0]).whenCompleteAsync((target, err) ->
+                        delHome(target, player, args[1]), CoreClass.sync);
                 return true;
             }
 

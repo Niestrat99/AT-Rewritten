@@ -27,33 +27,48 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
     ) {
         if (!canProceed(sender)) return true;
 
-        Player player = (Player) sender;
-        ATPlayer atPlayer = ATPlayer.getPlayer(player);
-        if (args.length > 0) {
-            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-            if (sender.hasPermission("at.admin.sethome") && player != target) {
-                // We'll just assume that the admin command overrides the homes limit.
-                if (args.length > 1) {
-                    setHome(player, target.getUniqueId(), args[1], args[0]);
-                    return true;
-                }
-            }
+        // Specify player variables
+        final var player = (Player) sender;
+        final var atPlayer = ATPlayer.getPlayer(player);
 
-            if (atPlayer.canSetMoreHomes() || (MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
-                setHome(player, args[0]);
+        // If no arguments have been specified, just use the information from that
+        if (args.length == 0) {
 
-            } else {
-                CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
-            }
-        } else {
-            int limit = atPlayer.getHomesLimit();
+            // Get the player's homes limit
+            final int limit = atPlayer.getHomesLimit();
+
+            // If the homes list is empty, set a new home called "home".
             if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
                 setHome(player, "home");
-            } else if (atPlayer instanceof ATFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
+                return true;
+            }
+
+            // If the player is a floodgate player, send them a form, otherwise tell the player to enter some arguments
+            if (atPlayer instanceof ATFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendSetHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
             }
+
+            return true;
+        }
+
+
+        // We'll just assume that the admin command overrides the homes limit.
+        if (args.length > 1 && sender.hasPermission("at.admin.sethome")) {
+
+            // Get the player to be targeted.
+            AdvancedTeleportAPI.getOfflinePlayer(args[0]).whenCompleteAsync((target, err) ->
+                    setHome(player, target, args[1], args[0]));
+            return true;
+        }
+
+        // If the player can set more homes,
+        if (atPlayer.canSetMoreHomes() || (MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
+            setHome(player, args[0]);
+
+        } else {
+            CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
         }
         return true;
     }

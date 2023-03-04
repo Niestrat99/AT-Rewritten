@@ -24,7 +24,7 @@ public class RandomTPAlgorithms {
                 Location location = RandomCoords.generateCoords(world);
 
                 // Whilst the location is too far away...
-                while (!ConditionChecker.canTeleport(player.getLocation(), location, "tpr", player).isEmpty()) {
+                while (ConditionChecker.canTeleport(player.getLocation(), location, "tpr", player) != null) {
                     location = RandomCoords.generateCoords(world);
                 }
 

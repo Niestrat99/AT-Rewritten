@@ -1,14 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -42,9 +40,7 @@ public final class TpBlockCommand extends TeleportATCommand implements PlayerCom
             return true;
         }
         // Must be async due to searching for offline player
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            //
-            OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+        AdvancedTeleportAPI.getOfflinePlayer(args[0]).whenComplete((target, err1) -> {
 
             if (atPlayer.hasBlocked(target)) {
                 CustomMessages.sendMessage(sender, "Error.alreadyBlocked");
