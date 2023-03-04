@@ -17,7 +17,6 @@ import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
 import java.util.ArrayList;
@@ -295,10 +294,8 @@ public class ATPlayer {
         blockedUsers.put(otherUUID, new BlockInfo(uuid, otherUUID, reason, System.currentTimeMillis()));
 
         // Add the entry to the SQL database.
-        return CompletableFuture.runAsync(() -> {
-            final var callback = new AdvancedTeleportAPI.FlattenedCallback<Boolean>();
-            BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason, callback);
-        }, CoreClass.async);
+        return CompletableFuture.runAsync(() ->
+                BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason), CoreClass.async);
     }
 
     /**
@@ -310,10 +307,8 @@ public class ATPlayer {
     public @NotNull CompletableFuture<Void> unblockUser(@NotNull final UUID otherUUID) {
         blockedUsers.remove(otherUUID);
 
-        return CompletableFuture.runAsync(() -> {
-            final var callback = new AdvancedTeleportAPI.FlattenedCallback<Boolean>();
-            BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString(), callback);
-        }, CoreClass.async);
+        return CompletableFuture.runAsync(() ->
+                BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString()), CoreClass.async);
     }
 
     /*
@@ -394,29 +389,6 @@ public class ATPlayer {
         });
     }
 
-
-    /**
-     * Moves a specified home to a new location.
-     *
-     * @param name the name of the home.
-     * @param newLocation the new location of the home.
-     * @param callback what to do after the home has been moved.
-     * @param async true if the action should be done asynchronously, false if not.
-     * @deprecated use {@link #moveHome(String, Location)} instead.
-     */
-    @Deprecated
-    public void moveHome(
-        @NotNull final String name,
-        @NotNull final Location newLocation,
-        @Nullable final SQLManager.SQLCallback<Boolean> callback,
-        final boolean async
-    ) {
-        homes.get(name).move(newLocation);
-        HomeSQLManager.get().moveHome(newLocation, uuid, name, callback, async);
-        moveHome(name, newLocation);
-        if (callback != null) callback.onSuccess(true);
-    }
-
     /**
      * Moves a specified home to a new location.
      *
@@ -428,7 +400,7 @@ public class ATPlayer {
         @NotNull final String name,
         @NotNull final Location newLocation
     ) {
-        return moveHome(name, newLocation, (CommandSender) null);
+        return moveHome(name, newLocation, null);
     }
 
     /**

@@ -197,7 +197,7 @@ public class MetadataSQLManager extends SQLManager {
             } catch (SQLException exception) {
                 throw new RuntimeException(exception);
             }
-        });
+        }, CoreClass.async);
     }
 
     public CompletableFuture<Boolean> mirrorSpawn(@NotNull Spawn source, @Nullable Spawn mirror) {

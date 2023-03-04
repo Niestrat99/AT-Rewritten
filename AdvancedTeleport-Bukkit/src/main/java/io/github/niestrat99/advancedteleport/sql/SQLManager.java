@@ -121,28 +121,4 @@ public abstract class SQLManager {
 
         return new Location(world, x, y, z, yaw, pitch);
     }
-
-    public interface SQLCallback<D> {
-        void onSuccess(D data);
-
-        default void onSuccess() {}
-
-        default void onFail() {}
-
-        static SQLCallback<Boolean> getDefaultCallback(CommandSender sender, String success, String fail, String... placeholders) {
-            return new SQLCallback<>() {
-                @Override
-                public void onSuccess(Boolean data) {
-                    CustomMessages.sendMessage(sender, success, placeholders);
-                }
-
-                @Override
-                public void onFail() {
-                    CustomMessages.sendMessage(sender, fail, placeholders);
-                }
-            };
-        }
-    }
-
-
 }

@@ -70,7 +70,11 @@ public class BlocklistManager extends SQLManager {
         blocklistFile.renameTo(new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
     }
 
-    public void blockUser(String receiverUUID, String blockedUUID, String reason, SQLCallback<Boolean> callback) {
+    public void blockUser(
+            @NotNull String receiverUUID,
+            @NotNull String blockedUUID,
+            @Nullable String reason
+    ) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement;
             if (reason != null) {
@@ -87,34 +91,26 @@ public class BlocklistManager extends SQLManager {
             statement.setString(2, blockedUUID);
             statement.setLong(3, System.currentTimeMillis());
             executeUpdate(statement);
-            if (callback != null) {
-                callback.onSuccess(true);
-            }
         } catch (SQLException exception) {
             DataFailManager.get().addFailure(DataFailManager.Operation.ADD_BLOCK, receiverUUID, blockedUUID, reason);
-            callback.onFail();
-            exception.printStackTrace();
+            throw new RuntimeException(exception);
         }
     }
 
-    public void unblockUser(String receiverUUID, String blockedUUID, SQLCallback<Boolean> callback) {
+    public void unblockUser(String receiverUUID, String blockedUUID) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement = prepareStatement(connection,
                     "DELETE FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?");
             statement.setString(1, receiverUUID);
             statement.setString(2, blockedUUID);
             executeUpdate(statement);
-            if (callback != null) {
-                callback.onSuccess(true);
-            }
         } catch (SQLException exception) {
             DataFailManager.get().addFailure(DataFailManager.Operation.UNBLOCK, receiverUUID, blockedUUID);
-            callback.onFail();
-            exception.printStackTrace();
+            throw new RuntimeException(exception);
         }
     }
 
-    public void getBlockedPlayers(String receiverUUID, SQLCallback<HashMap<UUID, BlockInfo>> callback) {
+    public HashMap<UUID, BlockInfo> getBlockedPlayers(String receiverUUID) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement = prepareStatement(connection,
                     "SELECT * FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ?");
@@ -133,10 +129,9 @@ public class BlocklistManager extends SQLManager {
                 blockedPlayers.put(blockInfo.getBlockedUUID(), blockInfo);
             }
             // Go back to the main thread and return the list.
-            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> callback.onSuccess(blockedPlayers));
+            return blockedPlayers;
         } catch (SQLException exception) {
-            exception.printStackTrace();
-            callback.onFail();
+            throw new RuntimeException(exception);
         }
     }
 
