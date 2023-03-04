@@ -494,7 +494,7 @@ public class ATPlayer {
      */
     @Contract(pure = true)
     public @Nullable Home getHome(@NotNull final String name) {
-        return homes.get(name);
+        return homes.data == null ? null : homes.data.get(name);
     }
 
     /**
