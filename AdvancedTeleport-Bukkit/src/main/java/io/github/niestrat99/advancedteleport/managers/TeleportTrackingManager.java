@@ -76,7 +76,7 @@ public class TeleportTrackingManager implements Listener {
 
         // Get the results from teleportation
         String result = ConditionChecker.canTeleport(e.getFrom(), e.getTo(), null, e.getPlayer());
-        if (!result.isEmpty()) {
+        if (result != null) {
             CustomMessages.sendMessage(e.getPlayer(), result, "{world}", e.getTo().getWorld().getName());
             e.setCancelled(true);
             return;
@@ -97,7 +97,7 @@ public class TeleportTrackingManager implements Listener {
 
         // If the player can't teleport, stop there
         String result = ConditionChecker.canTeleport(e.getFromLocation(), e.getToLocation(), e.getType().getName(), e.getPlayer());
-        if (!result.isEmpty()) {
+        if (result != null) {
             CustomMessages.sendMessage(e.getPlayer(), result, "{world}", e.getToLocation().getWorld().getName());
             e.setCancelled(true);
         }
