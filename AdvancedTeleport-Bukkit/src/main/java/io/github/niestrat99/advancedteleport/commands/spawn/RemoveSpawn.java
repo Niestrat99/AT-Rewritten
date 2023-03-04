@@ -23,22 +23,29 @@ public final class RemoveSpawn extends SpawnATCommand {
         @NotNull final String s,
         @NotNull final String[] args
     ) {
+
+        // If the player cannot proceed, stop there
         if (!canProceed(sender)) return true;
+
+        // Note the ID of the spawn being removed
         String removingSpawn = "";
+
+        // If there's no arguments specified, use the player's world - unless they aren't a player, in which case, banish
         if (args.length == 0) {
-            if (sender instanceof Player) {
-                removingSpawn = ((Player) sender).getWorld().getName();
+            if (sender instanceof Player player) {
+                removingSpawn = player.getWorld().getName();
             } else {
                 CustomMessages.sendMessage(sender, "Error.removeSpawnNoArgs");
                 return true;
             }
         }
 
+        // If there have been arguments specified, use that
         if (args.length > 0) {
             removingSpawn = args[0];
         }
 
-
+        // If the spawn does not exist, stop there
         Spawn spawn = AdvancedTeleportAPI.getSpawn(removingSpawn);
         if (spawn == null) {
             CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "{spawn}", removingSpawn);

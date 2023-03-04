@@ -2,10 +2,10 @@ package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public final class SetHomeCommand extends AbstractHomeCommand implements PlayerCommand {
 
@@ -74,18 +73,18 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
     }
 
     private void setHome(Player sender, String name) {
-        setHome(sender, sender.getUniqueId(), name, sender.getName());
+        setHome(sender, sender, name, sender.getName());
     }
 
     // Separated this into a separate method so that the code is easier to read.
     // Player player - the player which is having the home set.
     // String name - the name of the home.
-    private void setHome(Player sender, UUID player, String homeName, String playerName) {
-        OfflinePlayer settingPlayer = Bukkit.getOfflinePlayer(player);
+    private void setHome(Player sender, OfflinePlayer target, String homeName, String playerName) {
 
-        ATPlayer atPlayer = ATPlayer.getPlayer(settingPlayer);
+        ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
-        if (atPlayer.getHome(homeName) != null) {
+        // If the home with that name already exists, and we can't overwrite homes, let the player know
+        if (!MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(homeName)) {
             CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "{home}", homeName);
             return;
         }
