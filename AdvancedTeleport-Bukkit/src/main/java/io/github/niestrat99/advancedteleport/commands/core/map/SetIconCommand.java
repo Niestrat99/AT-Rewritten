@@ -1,6 +1,5 @@
 package io.github.niestrat99.advancedteleport.commands.core.map;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
@@ -40,8 +39,8 @@ public final class SetIconCommand extends SubATCommand {
             case "home" -> {
                 if (args.length < 4) return true;
 
-                CompletableFuture.supplyAsync(() -> Bukkit.getOfflinePlayer(args[1]).getUniqueId(), CoreClass.async)
-                        .thenAcceptAsync(uuid -> MetadataSQLManager.get().addHomeMetadata(args[2], uuid, "map_icon", args[3]));
+                AdvancedTeleportAPI.getOfflinePlayer(args[1]).whenComplete((player, err) ->
+                        MetadataSQLManager.get().addHomeMetadata(args[2], player.getUniqueId(), "map_icon", args[3]));
 
                 return true;
             }

@@ -2,11 +2,10 @@ package io.github.niestrat99.advancedteleport.commands.home;
 
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.api.Home;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,7 +19,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
         @NotNull final Command command,
         @NotNull final String s,
         @NotNull final String[] args
-) {
+    ) {
         if (!canProceed(sender)) return true;
 
         final var player = (Player) sender;
@@ -34,11 +33,10 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
             }
             return true;
         }
-        // TODO deprecated code
-        if (args.length > 1 && sender.hasPermission(getPermission())) {
-            final var target = Bukkit.getOfflinePlayer(args[0]);
 
-            if (target != player) {
+        if (args.length > 1 && sender.hasPermission(getPermission()) && !args[0].equalsIgnoreCase(sender.getName())) {
+
+            AdvancedTeleportAPI.getOfflinePlayer(args[0]).whenCompleteAsync((target, err1) -> {
                 ATPlayer atTarget = ATPlayer.getPlayer(target);
                 String homeName = args[1];
 
@@ -52,25 +50,24 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                             "{home}", homeName, "{player}", target.getName()
                     ));
 
-                    return true;
+                    return;
                 }
 
                 if (atPlayer.canSetMoreHomes()) {
                     addAndMaybeSetHome(sender, atTarget, player, homeName);
-                    return true;
+                    return;
                 }
 
                 atTarget.setMainHome(homeName, sender).whenCompleteAsync((ignore, err) -> CustomMessages.failableContextualPath(
-                    sender,
-                    target,
-                    "Info.setMainHome",
-                    "Error.setMainHomeFail",
-                    () -> err != null,
-                    "{home}", homeName, "{player}", args[0]
+                        sender,
+                        target,
+                        "Info.setMainHome",
+                        "Error.setMainHomeFail",
+                        () -> err != null,
+                        "{home}", homeName, "{player}", args[0]
                 ));
-
-                return true;
-            }
+            });
+            return true;
         }
 
         final var homeName = args[0];

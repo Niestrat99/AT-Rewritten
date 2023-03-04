@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import com.google.common.collect.ImmutableMap;
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.api.events.CancellableATEvent;
 import io.github.niestrat99.advancedteleport.api.events.spawn.*;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -46,6 +48,10 @@ public final class AdvancedTeleportAPI {
         if (sender instanceof Player player) {
             return Optional.of(player);
         } else return Optional.empty();
+    }
+
+    public static @NotNull CompletableFuture<OfflinePlayer> getOfflinePlayer(@NotNull final String name) {
+        return CompletableFuture.supplyAsync(() -> Bukkit.getOfflinePlayer(name), CoreClass.async);
     }
 
     /**
