@@ -65,12 +65,20 @@ public final class CoreClass extends JavaPlugin {
     @Override
     public void onEnable() {
         Instance = this;
+
+        // Perform version checks.
         checkVersion();
         getLogger().info("Advanced Teleport is now enabling...");
+
+        // Set up Vault.
         setupPermissions();
+
+        // Set up main configuration files.
         for (Class<? extends ATConfig> config : Arrays.asList(MainConfig.class, CustomMessages.class, GUIConfig.class)) {
             try {
+                debug("Loading " + config.getSimpleName() + ".");
                 config.getDeclaredConstructor().newInstance();
+                debug("Finished loading " + config.getSimpleName() + ".");
             } catch (NoSuchMethodException ex) {
                 getLogger().severe(config.getSimpleName() + " is not properly formed, it shouldn't take any constructor arguments. Please inform the developer.");
             } catch (InvocationTargetException | InstantiationException e) {
@@ -117,6 +125,9 @@ public final class CoreClass extends JavaPlugin {
     }
 
     private void checkVersion() {
+
+        // Get the version in question.
+        debug("Performing server version check.");
         String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         int number = Integer.parseInt(bukkitVersion.split("_")[1]);
         if (number < 17) {
@@ -126,6 +137,7 @@ public final class CoreClass extends JavaPlugin {
             getLogger().severe("If you experience issues that only occur on your version, then we are not responsible for addressing it.");
             getLogger().severe("You have been warned.");
         }
+        debug("Detected major version: " + number);
     }
 
     @Override
@@ -193,10 +205,27 @@ public final class CoreClass extends JavaPlugin {
     }
 
     private static void setupPermissions() {
-        if (Bukkit.getPluginManager().getPlugin("Vault") == null) return;
+
+        debug("Setting up permissions integration with Vault.");
+
+        // If Vault is not on the server, stop there.
+        if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
+            debug("Vault is not on the server, skipping.");
+            return;
+        }
+
+        // If Vault isn't even enabled, stop there.
+        if (!Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+            debug("Vault is not enabled, skipping.");
+            return;
+        }
+
+        // Get the permission interface to use.
         Optional.ofNullable(Bukkit.getServicesManager().getRegistration(Permission.class))
             .map(RegisteredServiceProvider::getProvider)
             .ifPresent(permission -> perms = permission);
+
+        debug(perms == null ? "No permissions hook for Vault found." : perms.getName() + " hooked into successfully.");
     }
 
     public static void playSound(String type, String subType, Player target) {
@@ -230,8 +259,12 @@ public final class CoreClass extends JavaPlugin {
     }
 
     private void setupVersion() {
+
+        // Parse the major version of the server (e.g. 1.19)
+        debug("Performing version checks.");
         String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].split("_")[1];
         this.version = Integer.parseInt(bukkitVersion);
+        debug("Parsed major version: " + this.version);
     }
 
     public int getVersion() {
@@ -243,7 +276,7 @@ public final class CoreClass extends JavaPlugin {
     }
 
     public static void debug(String message) {
-        if (MainConfig.get().DEBUG.get()) {
+        if (MainConfig.get() == null || MainConfig.get().DEBUG.get()) {
             CoreClass.getInstance().getLogger().info(message);
         }
     }
@@ -263,7 +296,6 @@ public final class CoreClass extends JavaPlugin {
 
                 @Override
                 public void debug(String message, Object... args) {
-                    getLogger().info(String.format(message, args));
                 }
             }).build();
     }
