@@ -65,11 +65,10 @@ public class ATPlayer {
     /**
      * Internal use only.
      */
-    // TODO - handle Citizens NPCs correctly, UUIDs may be null
     @ApiStatus.Internal
     public ATPlayer(
         @NotNull final UUID uuid,
-        @Nullable final String name
+        @NotNull final String name
     ) {
         this.uuid = uuid;
 
@@ -164,10 +163,20 @@ public class ATPlayer {
                     "{home}", event.getLocName(), "{warp}", event.getLocName());
         } else {
             ParticleManager.onTeleport(player, command);
-            PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-            CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
-                    event.getLocName());
-            PaymentManager.getInstance().withdraw(command, player);
+            PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND).whenComplete((result, err) -> {
+
+                // If we didn't succeed, let the player know.
+                if (!result) {
+                    CustomMessages.sendMessage(player, "Error.teleportFailed");
+                    return;
+                }
+
+                // Let the player know they have been teleported and withdraw any money.
+                CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
+                        event.getLocName());
+                PaymentManager.getInstance().withdraw(command, player);
+            });
+
         }
     }
     
@@ -179,7 +188,7 @@ public class ATPlayer {
      */
     @Contract(pure = true)
     public boolean isTeleportationEnabled() {
-        return isTeleportationEnabled;
+        return Boolean.TRUE.equals(isTeleportationEnabled.data);
     }
 
     /**
