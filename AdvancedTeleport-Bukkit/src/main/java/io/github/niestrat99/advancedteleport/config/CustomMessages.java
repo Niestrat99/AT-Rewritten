@@ -143,10 +143,12 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.mirrorSpawnFail", "&b↑ &8» &7Failed to mirror &b{from}&7's spawnpoint to &b{spawn}&7!");
         addDefault("Error.removeSpawnFail", "&b↑ &8» &7Failed to remove the spawnpoint &b{spawn}&7!");
         addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
+        addDefault("Error.setSpawnFail", "&b↑ &8» &7Failed to set the spawnpoint &b{spawn}&7!");
         addDefault("Error.blockFail", "&b↑ &8» &7Failed to save the block against &b{player}&7!");
         addDefault("Error.unblockFail", "&b↑ &8» &7Failed to save the block removal against &b{player}&7!");
         addDefault("Error.noParticlePlugins", "&b↑ &8» &7There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
         addDefault("Error.setWarpFail", "&b↑ &8» &7Failed to set the warp {warp}!");
+        addDefault("Error.teleportFailed", "&b↑ &8» &7Sorry, we couldn't teleport you :(");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");

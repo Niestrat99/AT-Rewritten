@@ -93,10 +93,10 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
         // Attempt to add the home.
         atPlayer.addHome(homeName, sender.getLocation(), sender).whenComplete((ignored, err) -> CustomMessages.failableContextualPath(
                 sender,
-                player,
-                "Info.homeSet",
+                target,
+                "Info.setHome",
                 "Error.setHomeFail",
-                () -> err == null,
+                () -> err != null,
                 "{home}", homeName, "{player}", playerName
         ));
     }
