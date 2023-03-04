@@ -45,9 +45,13 @@ public final class RemoveSpawn extends SpawnATCommand {
             return true;
         }
 
-        spawn.delete(sender).thenAcceptAsync(result ->
-                CustomMessages.sendMessage(sender, "Info.removedSpawn", "{spawn}", spawn.getName()));
-        return false;
+        // Remove the spawn
+        spawn.delete(sender).whenComplete((ignored, err) -> CustomMessages.failable(sender,
+                        "Info.removedSpawn",
+                        "Error.removeSpawnFail",
+                        () -> err != null,
+                        "{spawn}", spawn.getName()));
+        return true;
     }
 
     @Override
