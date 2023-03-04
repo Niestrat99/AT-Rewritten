@@ -88,15 +88,11 @@ public final class SetMainSpawn extends SpawnATCommand {
     }
 
     private void setMainSpawn(Spawn spawn, CommandSender sender) {
-        AdvancedTeleportAPI.setMainSpawn(spawn, sender).handleAsync((v, e) -> {
-            if (e != null) {
-                CustomMessages.sendMessage(sender, "Error.setMainSpawnFail", "{spawn}", spawn.getName());
-                e.printStackTrace();
-                return v;
-            }
-
-            CustomMessages.sendMessage(sender, "Info.setMainSpawn","{spawn}", spawn.getName());
-            return v;
-        });
+        AdvancedTeleportAPI.setMainSpawn(spawn, sender).whenComplete((v, e) ->
+                CustomMessages.failable(sender,
+                        "Info.setMainSpawn",
+                        "Error.setMainSpawnFail",
+                        () -> e != null,
+                        "{spawn}", spawn.getName()));
     }
 }
