@@ -1,9 +1,12 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import io.github.niestrat99.advancedteleport.api.events.homes.HomeMoveEvent;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -92,15 +95,21 @@ public final class Home implements NamedLocation {
      * @param location The new location that the home will be set to.
      * @return true if the move succeeded, false if it failed.
      */
-    public @NotNull CompletableFuture<Void> move(@NotNull final Location location) {
-        this.location = location;
+    public @NotNull CompletableFuture<Void> move(
+            @NotNull final Location location,
+            @Nullable final CommandSender sender
+    ) {
 
-        this.updatedTime = System.currentTimeMillis();
-        this.updatedTimeFormatted = format.format(new Date(updatedTime));
+        // Validate the event
+        return AdvancedTeleportAPI.validateEvent(new HomeMoveEvent(this, location, sender), event -> {
 
-        return CompletableFuture.runAsync(() -> {
-            final var callback = new AdvancedTeleportAPI.FlattenedCallback<Boolean>();
-            HomeSQLManager.get().moveHome(location, owner, name, callback);
+            this.location = event.getLocation();
+
+            this.updatedTime = System.currentTimeMillis();
+            this.updatedTimeFormatted = format.format(new Date(updatedTime));
+
+            HomeSQLManager.get().moveHome(location, owner, name, false);
+            return null;
         });
 
     }

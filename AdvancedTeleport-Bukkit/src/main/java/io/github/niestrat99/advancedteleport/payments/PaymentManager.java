@@ -48,9 +48,8 @@ public class PaymentManager {
                 Payment payment = parsePayment(rawPayment);
                 if (payment == null) continue;
                 addPayment(payment.getId(), payment, payments);
-            } catch (Exception e) {
-                CoreClass.getInstance().getLogger().warning("Failed to parse payment " + rawPayment + " for command " + command + "!");
-                CoreClass.getInstance().getLogger().warning("Error message: " + e.getMessage());
+            } catch (Exception | NoClassDefFoundError e) {
+                CoreClass.getInstance().getLogger().warning("Failed to parse payment " + rawPayment + " for command " + command + "! Error message: " + e.getMessage());
             }
         }
         teleportCosts.put(command, payments);

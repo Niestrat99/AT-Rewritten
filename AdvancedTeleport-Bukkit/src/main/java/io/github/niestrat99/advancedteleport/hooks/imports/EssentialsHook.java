@@ -11,7 +11,6 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
-import io.github.niestrat99.advancedteleport.config.SpawnConfig;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
@@ -94,8 +93,8 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                             query.setString(2, home);
 
                             if (query.executeQuery().next()) {
-                                HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, null, false);
-                            } else HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null, false);
+                                HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, false);
+                            } else HomeSQLManager.get().addHome(user.getHome(home), uuid, home, false);
                         }
                     }
                 }
@@ -126,7 +125,7 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setPreviousLocation(user.getLastLocation());
                 } else {
-                    PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation(), null);
+                    PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation());
                 }
             } catch (Exception ex) {
                 debug("Failed to export previous locations for UUID " + uuid.toString() + ":");
@@ -152,7 +151,7 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                             warp,
                             warps.getWarp(warp),
                             System.currentTimeMillis(),
-                            System.currentTimeMillis()), null);
+                            System.currentTimeMillis()));
                 }
             } catch (WarpNotFoundException | InvalidWorldException e) {
                 e.printStackTrace();
@@ -238,7 +237,7 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                 if (user == null) continue;
                 if (user.getName() == null) continue;
                 if (!ATPlayer.isPlayerCached(user.getName())) {
-                    PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled(), null);
+                    PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled());
                 } else {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setTeleportationEnabled(user.isTeleportEnabled());
@@ -265,8 +264,10 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                if (ATPlayer.isPlayerCached(user.getName())) {
-                    ATPlayer player = ATPlayer.getPlayer(user.getName());
+
+                ATPlayer player = ATPlayer.getPlayer(user.getName());
+                if (player != null) {
+
                     for (String home : player.getHomes().keySet()) {
                         user.setHome(home, player.getHome(home).getLocation());
                     }

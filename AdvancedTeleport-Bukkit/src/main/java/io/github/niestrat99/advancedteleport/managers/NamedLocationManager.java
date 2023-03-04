@@ -35,6 +35,7 @@ public class NamedLocationManager {
 
         this.warps = new HashMap<>();
         this.spawns = new HashMap<>();
+        CoreClass.debug("Set up the NamedLocationManager. Ready to accept warps and spawnpoints.");
     }
 
     public static NamedLocationManager get() {

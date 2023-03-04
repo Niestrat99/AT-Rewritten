@@ -71,12 +71,12 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
         }
 
         final var homeName = args[0];
-        if (!atPlayer.hasHome(homeName)) {
+        final var home = atPlayer.getHome(homeName);
+        if (home == null) {
             if (atPlayer.canSetMoreHomes()) { // TODO - message to mention no more homes can be set
                 addAndMaybeSetHome(sender, atPlayer, player, homeName);
             }
         } else {
-            Home home = atPlayer.getHome(homeName);
             if (atPlayer.canAccessHome(home)) {
                 atPlayer.setMainHome(homeName, sender).whenCompleteAsync((ignored, err) -> CustomMessages.failable(
                     sender,

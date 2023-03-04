@@ -38,6 +38,7 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
         if (sender.hasPermission("at.admin.movehome") && args.length > 1) {
             // We'll just assume that the admin command overrides the homes limit.
             ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
+
                 if (!atTarget.getHomes().containsKey(args[1])) {
                     CustomMessages.sendMessage(sender, "Error.noSuchHome");
                     return;

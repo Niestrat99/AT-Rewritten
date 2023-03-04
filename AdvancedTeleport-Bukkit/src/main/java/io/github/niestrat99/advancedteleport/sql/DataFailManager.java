@@ -10,12 +10,13 @@ import org.bukkit.World;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class DataFailManager {
 
-    private HashMap<Fail, Integer> pendingFails;
+    private final HashMap<Fail, Integer> pendingFails;
     private static DataFailManager instance;
-    private File failCsv;
+    private final File failCsv;
 
     public DataFailManager() {
         pendingFails = new HashMap<>();
@@ -68,27 +69,16 @@ public class DataFailManager {
 
     public void handleFailure(Fail fail) {
 
-        SQLManager.SQLCallback<Boolean> callback = new SQLManager.SQLCallback<>() {
-
-            @Override
-            public void onSuccess(Boolean data) {
-                pendingFails.remove(fail);
-            }
-
-            @Override
-            public void onFail() {
-                pendingFails.put(fail, pendingFails.get(fail) + 1);
-            }
-        };
+        Runnable run = null;
 
         switch (fail.operation) {
-            case ADD_HOME -> HomeSQLManager.get().addHome(locFromStrings(fail.data),
+            case ADD_HOME -> run = () -> HomeSQLManager.get().addHome(locFromStrings(fail.data),
                     UUID.fromString(fail.data[7]),
-                    fail.data[6], callback);
-            case DELETE_HOME -> HomeSQLManager.get().removeHome(UUID.fromString(fail.data[0]), fail.data[1], callback);
-            case MOVE_HOME -> HomeSQLManager.get().moveHome(locFromStrings(fail.data),
+                    fail.data[6]);
+            case DELETE_HOME -> run = () -> HomeSQLManager.get().removeHome(UUID.fromString(fail.data[0]), fail.data[1]);
+            case MOVE_HOME -> run = () -> HomeSQLManager.get().moveHome(locFromStrings(fail.data),
                     UUID.fromString(fail.data[7]),
-                    fail.data[6], callback);
+                    fail.data[6]);
             case ADD_PLAYER -> {
                 // TODO - apply this where necessary for other checks that require a UUID check.
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0]));
@@ -97,16 +87,16 @@ public class DataFailManager {
                     pendingFails.remove(fail);
                     return;
                 }
-                PlayerSQLManager.get().addPlayer(offlinePlayer, callback);
+                run = () -> PlayerSQLManager.get().addPlayer(offlinePlayer);
             }
             case UPDATE_PLAYER ->
-                    PlayerSQLManager.get().updatePlayerInformation(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])), callback);
+                    run = () -> PlayerSQLManager.get().updatePlayerInformation(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])));
             case CHANGE_TELEPORTATION ->
-                    PlayerSQLManager.get().setTeleportationOn(UUID.fromString(fail.data[0]), Boolean.parseBoolean(fail.data[1]), callback);
+                    run = () -> PlayerSQLManager.get().setTeleportationOn(UUID.fromString(fail.data[0]), Boolean.parseBoolean(fail.data[1]));
             case SET_MAIN_HOME ->
-                    PlayerSQLManager.get().setMainHome(UUID.fromString(fail.data[1]), fail.data[0], callback);
-            case ADD_BLOCK -> BlocklistManager.get().blockUser(fail.data[0], fail.data[1], fail.data[2], callback);
-            case UNBLOCK -> BlocklistManager.get().unblockUser(fail.data[0], fail.data[1], callback);
+                    run = () -> PlayerSQLManager.get().setMainHome(UUID.fromString(fail.data[1]), fail.data[0]);
+            case ADD_BLOCK -> run = () -> BlocklistManager.get().blockUser(fail.data[0], fail.data[1], fail.data[2]);
+            case UNBLOCK -> run = () -> BlocklistManager.get().unblockUser(fail.data[0], fail.data[1]);
             case ADD_WARP -> {
                 Warp warp;
                 if (AdvancedTeleportAPI.getWarps().get(fail.data[6]) != null) {
@@ -114,13 +104,24 @@ public class DataFailManager {
                 } else {
                     warp = new Warp(UUID.fromString(fail.data[7]), fail.data[6], locFromStrings(fail.data), Long.parseLong(fail.data[8]), Long.parseLong(fail.data[9]));
                 }
-                WarpSQLManager.get().addWarp(warp, callback);
+                if (warp == null) return;
+                run = () -> WarpSQLManager.get().addWarp(warp);
             }
-            case MOVE_WARP -> WarpSQLManager.get().moveWarp(locFromStrings(fail.data), fail.data[6], callback);
-            case DELETE_WARP -> WarpSQLManager.get().removeWarp(fail.data[0]);
+            case MOVE_WARP -> run = () -> WarpSQLManager.get().moveWarp(locFromStrings(fail.data), fail.data[6]);
+            case DELETE_WARP -> run = () -> WarpSQLManager.get().removeWarp(fail.data[0]);
             case UPDATE_LOCATION ->
-                    PlayerSQLManager.get().setPreviousLocation(fail.data[6], locFromStrings(fail.data), callback);
+                    run = () -> PlayerSQLManager.get().setPreviousLocation(fail.data[6], locFromStrings(fail.data));
+
+
         }
+
+        CompletableFuture.runAsync(run, CoreClass.async).whenComplete((v, err) -> {
+            if (err != null) {
+                pendingFails.put(fail, pendingFails.get(fail) + 1);
+            } else {
+                pendingFails.remove(fail);
+            }
+        });
     }
 
     public void onDisable() {

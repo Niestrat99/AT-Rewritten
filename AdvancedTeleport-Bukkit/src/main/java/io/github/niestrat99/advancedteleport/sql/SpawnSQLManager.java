@@ -111,9 +111,9 @@ public class SpawnSQLManager extends SQLManager {
         return addSpawn(spawn.getName(),
                 spawn.getLocation().getWorld().getName(),
                 spawn.getCreatorUUID(),
-                spawn.getLocation().x(),
-                spawn.getLocation().y(),
-                spawn.getLocation().z(),
+                spawn.getLocation().getX(),
+                spawn.getLocation().getY(),
+                spawn.getLocation().getZ(),
                 spawn.getLocation().getYaw(),
                 spawn.getLocation().getPitch());
     }
@@ -220,7 +220,7 @@ public class SpawnSQLManager extends SQLManager {
             } catch (SQLException exception) {
                 throw new RuntimeException(exception);
             }
-        });
+        }, CoreClass.async);
     }
 
     public CompletableFuture<Integer> getSpawnId(String name) {

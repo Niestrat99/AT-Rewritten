@@ -78,12 +78,16 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
             BukkitRunnable run = new BukkitRunnable() {
                     @Override
                     public void run() {
+
+                        // Get the teleport request
+                        TeleportRequest request = TeleportRequest.getRequestByReqAndResponder(target, player);
+                        if (request == null) return;
+
                         if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
                             CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}",
                                     target.getName());
                         }
-                        TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target,
-                                player));
+                        TeleportRequest.removeRequest(request);
                     }
            };
            run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
