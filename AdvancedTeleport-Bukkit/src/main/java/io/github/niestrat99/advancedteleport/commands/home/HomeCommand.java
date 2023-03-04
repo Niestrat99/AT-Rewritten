@@ -33,38 +33,37 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
 
         // If more than one argument has been specified and the player is an admin...
         if (args.length > 1 && sender.hasPermission("at.admin.home")) {
-            ATPlayer.getPlayerFuture(args[0]).thenAccept(target -> {
+            ATPlayer.getPlayerFuture(args[0]).thenAccept(target -> target.getHomesAsync().thenAcceptAsync(homesOther -> {
 
-                target.getHomesAsync().thenAcceptAsync(homesOther -> {
+                // If the home has been set with the specific name, use that
+                Home home = homesOther.get(args[1]);
+                if (home != null) {
+                    PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                    CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
+                    return;
+                }
 
-                    // If the home has been set with the specific name, use that
-                    Home home = homesOther.get(args[1]);
+                // If we're using a bed, try getting the bed spawn
+                if (args[1].equalsIgnoreCase("bed") && MainConfig.get().ADD_BED_TO_HOMES.get()) {
+                    home = target.getBedSpawn();
                     if (home != null) {
                         PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
                         return;
                     }
+                }
 
-                    // If we're using a bed, try getting the bed spawn
-                    if (args[1].equalsIgnoreCase("bed") && MainConfig.get().ADD_BED_TO_HOMES.get()) {
-                        home = target.getBedSpawn();
-                        if (home != null) {
-                            PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                            CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
-                            return;
-                        }
-                    }
+                // If we're requesting a list, just throw it
+                if (args[1].equalsIgnoreCase("list")) {
+                    Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+                    return;
+                }
 
-                    // If we're requesting a list, just throw it
-                    if (args[1].equalsIgnoreCase("list")) {
-                        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
-                        return;
-                    }
+                // Tell the player there is no such home
+                CustomMessages.sendMessage(sender, "Error.noSuchHome");
+            }, CoreClass.sync));
 
-                    // Tell the player there is no such home
-                    CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                }, CoreClass.sync);
-            });
+            return true;
         }
 
         // If there's no arguments specified...
