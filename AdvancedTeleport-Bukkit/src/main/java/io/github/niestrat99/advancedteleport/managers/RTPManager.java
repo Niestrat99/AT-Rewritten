@@ -23,6 +23,9 @@ public class RTPManager {
         if (!PaperLib.isPaper()) return;
         if (!NewConfig.get().RAPID_RESPONSE.get()) return;
 
+        CoreClass.getInstance().getLogger().info("Preparing random teleportation locations. " +
+                "If your server performance or memory suffers, please set `use-rapid-response` to false in the config.yml file.");
+
         try {
             getPreviousLocations();
         } catch (IOException e) {
