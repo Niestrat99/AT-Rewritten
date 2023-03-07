@@ -20,6 +20,8 @@ public class RTPManager {
     public static void init() {
         locQueue = new HashMap<>();
         if (!PaperLib.isPaper()) return;
+        if (!NewConfig.get().RAPID_RESPONSE.get()) return;
+
         try {
             getPreviousLocations();
         } catch (IOException e) {
