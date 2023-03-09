@@ -84,14 +84,15 @@ public final class AdvancedTeleportAPI {
             );
 
             // Add the warp
-            return CompletableFuture.runAsync(() -> WarpSQLManager.get().addWarp(warp)).thenApply(ignored -> {
+            NamedLocationManager.get().registerWarp(warp);
+            return CompletableFuture.runAsync(() -> WarpSQLManager.get().addWarp(warp)).thenApplyAsync(ignored -> {
 
                 // Call the event
                 final WarpPostCreateEvent postCreateEvent = new WarpPostCreateEvent(warp);
                 Bukkit.getServer().getPluginManager().callEvent(postCreateEvent);
 
                 return warp;
-            });
+            }, CoreClass.sync);
         });
     }
 
