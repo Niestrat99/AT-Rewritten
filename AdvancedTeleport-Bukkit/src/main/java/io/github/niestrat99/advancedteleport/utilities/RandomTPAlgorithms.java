@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -17,8 +16,7 @@ public class RandomTPAlgorithms {
     private static final HashMap<String, Algorithm> algorithms = new HashMap<>();
 
     public static void init() {
-        algorithms.put("binary", (player, world, callback) -> {
-            Runnable runnable = () -> {
+        algorithms.put("binary", (player, world) -> {
 
                 // Generate random coordinates
                 Location location = RandomCoords.generateCoords(world);
@@ -61,8 +59,7 @@ public class RandomTPAlgorithms {
                     if (jumpAmount == 0) {
 
                         // Start over.
-                        getAlgorithms().get("binary").fire(player, world, callback);
-                        return;
+                        return getAlgorithms().get("binary").fire(player, world);
                     }
 
                     // Clone the current location.
@@ -90,8 +87,7 @@ public class RandomTPAlgorithms {
                             }
                         }
                         if (mustBreak) {
-                            getAlgorithms().get("binary").fire(player, world, callback);
-                            return;
+                            return getAlgorithms().get("binary").fire(player, world);
                         }
 
                         if (subTempLocation.add(0, 1, 0).getBlock().getType() == Material.AIR
@@ -105,17 +101,7 @@ public class RandomTPAlgorithms {
                         up = false;
                     }
                 }
-                if (callback != null) {
-                    callback.onSuccess(location);
-                }
-            };
-            if (Bukkit.getServer().getVersion().contains("1.8")) {
-                runnable.run();
-            } else {
-                Thread thread = new Thread(runnable, "AdvancedTeleport RTP Worker");
-                thread.setPriority(3);
-                thread.start();
-            }
+                return location;
         });
     }
 
@@ -123,11 +109,7 @@ public class RandomTPAlgorithms {
         return algorithms;
     }
 
-    public static interface Algorithm {
-        void fire(Player player, World world, Callback<Location> callback);
-    }
-
-    public static interface Callback<D> {
-        void onSuccess(D data);
+    public interface Algorithm {
+        Location fire(Player player, World world);
     }
 }

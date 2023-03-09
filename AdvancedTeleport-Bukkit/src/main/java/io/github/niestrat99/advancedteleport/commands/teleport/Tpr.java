@@ -1,18 +1,15 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.RTPManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
-import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -110,21 +107,21 @@ public final class Tpr extends ATCommand implements TimedATCommand {
 
         if (!PaymentManager.getInstance().canPay("tpr", player)) return false;
 
-        if (MainConfig.get().RAPID_RESPONSE.get() && PaperLib.isPaper()) {
-            Location nextLoc = RTPManager.getLocationUrgently(world);
-            if (nextLoc != null) {
-                processLocation(player, nextLoc);
-            } else {
-                CustomMessages.sendMessage(player, "Info.searching");
-                searchingPlayers.add(player.getUniqueId());
-                RTPManager.getNextAvailableLocation(world).thenAccept(location -> processLocation(player, location));
+        CustomMessages.sendMessage(player, "Info.searching");
+        searchingPlayers.add(player.getUniqueId());
+
+        // Search for a random location
+        AdvancedTeleportAPI.getRandomLocation(world, player).whenComplete((result, err) -> {
+
+            // If there was an error, let the player know
+            if (err != null) {
+                CustomMessages.sendMessage(sender, "Error.randomLocFailed");
+                return;
             }
-        } else {
-            CustomMessages.sendMessage(player, "Info.searching");
-            searchingPlayers.add(player.getUniqueId());
-            RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world,
-                    location -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> processLocation(player, location)));
-        }
+
+            // Process the teleportation location
+            processLocation(player, result);
+        });
 
         return true;
     }

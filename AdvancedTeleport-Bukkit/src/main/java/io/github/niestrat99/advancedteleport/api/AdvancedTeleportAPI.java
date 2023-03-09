@@ -8,12 +8,18 @@ import io.github.niestrat99.advancedteleport.api.events.spawn.*;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
+import io.github.niestrat99.advancedteleport.managers.RTPManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import java.util.Optional;
 import java.util.function.Function;
+
+import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -212,5 +218,25 @@ public final class AdvancedTeleportAPI {
 
     public static @NotNull ImmutableMap<String, Spawn> getSpawns() {
         return NamedLocationManager.get().getSpawns();
+    }
+
+    public static @NotNull CompletableFuture<@NotNull Location> getRandomLocation(
+            @NotNull World world,
+            @NotNull Player player
+    ) {
+
+        if (MainConfig.get().RAPID_RESPONSE.get() && PaperLib.isPaper()) {
+
+            // Attempt to get a nearby location urgently.
+            Location nextLoc = RTPManager.getLocationUrgently(world);
+            if (nextLoc != null) return CompletableFuture.completedFuture(nextLoc);
+
+            // If one is not found, then look for another location.
+            return RTPManager.getNextAvailableLocation(world);
+        } else {
+
+            // Otherwise get it from the Random TP algorithms
+            return CompletableFuture.supplyAsync(() -> RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world), CoreClass.async);
+        }
     }
 }
