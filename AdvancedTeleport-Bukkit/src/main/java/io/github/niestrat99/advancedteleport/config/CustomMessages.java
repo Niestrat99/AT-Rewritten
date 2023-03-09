@@ -150,6 +150,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.noParticlePlugins", "&b↑ &8» &7There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
         addDefault("Error.setWarpFail", "&b↑ &8» &7Failed to set the warp {warp}!");
         addDefault("Error.teleportFailed", "&b↑ &8» &7Sorry, we couldn't teleport you :(");
+        addDefault("Error.randomLocFailed", "&b↑ &8» &7Sorry, we couldn't find a location to teleport you to :(");
 
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
