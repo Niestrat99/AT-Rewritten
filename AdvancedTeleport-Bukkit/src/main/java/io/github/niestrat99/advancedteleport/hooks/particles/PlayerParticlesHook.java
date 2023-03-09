@@ -84,6 +84,8 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
                 id = newPair.getId();
                 break;
             }
+
+            // If there's no ID to remove, stop there
             if (id == -1) continue;
             api.removeActivePlayerParticle(player, id);
         }
@@ -114,12 +116,15 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
     }
 
     private String getRawDataFromPair(@NotNull final ParticlePair pair) {
-        if (pair.getEffect() == ParticleEffect.BLOCK || pair.getEffect() == ParticleEffect.FALLING_DUST) {
+
+        // If it's a block or falling dust, use the name of the block material
+        if (pair.getEffect() == ParticleEffect.BLOCK || pair.getEffect() == ParticleEffect.FALLING_DUST)
             return pair.getBlockMaterial().name();
-        }
-        if (pair.getEffect() == ParticleEffect.ITEM) {
-            return pair.getItemMaterial().name();
-        }
+
+        // If it's an item, get the name of the item material
+        if (pair.getEffect() == ParticleEffect.ITEM) return pair.getItemMaterial().name();
+
+        // If the effect is colourable, get the colour of that
         if (pair.getEffect().hasProperty(ParticleEffect.ParticleProperty.COLORABLE)) {
             if (pair.getEffect() == ParticleEffect.NOTE) {
                 return parseColour(pair.getNoteColor(), NoteColor.RAINBOW, NoteColor.RANDOM,
@@ -128,7 +133,10 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
                 return parseColour(pair.getColor(), OrdinaryColor.RAINBOW, OrdinaryColor.RANDOM,
                         pair.getColor().getRed() + " " + pair.getColor().getGreen() + " " + pair.getColor().getBlue());
             }
-        } else if (pair.getEffect().hasProperty(ParticleEffect.ParticleProperty.COLORABLE_TRANSITION)) {
+        }
+
+        // If the effect transitions between colours, get the values of that
+        if (pair.getEffect().hasProperty(ParticleEffect.ParticleProperty.COLORABLE_TRANSITION)) {
             String start = parseColour(pair.getColorTransition().getStartColor(), OrdinaryColor.RAINBOW, OrdinaryColor.RANDOM,
                     pair.getColor().getRed() + " " + pair.getColor().getGreen() + " " + pair.getColor().getBlue());
             String end = parseColour(pair.getColorTransition().getEndColor(), OrdinaryColor.RAINBOW, OrdinaryColor.RANDOM,
