@@ -151,6 +151,8 @@ tasks {
         runDirectory.set(rootDir.resolve(".run"))
         pluginJars(pluginsFolder.resolve("Vault.jar"))
         pluginJars(pluginsFolder.resolve("Spark.jar"))
+        pluginJars(pluginsFolder.resolve("squaremap.jar"))
+        pluginJars(pluginsFolder.resolve("PlayerParticles.jar"))
         pluginJars(getJarFile())
 
     }
