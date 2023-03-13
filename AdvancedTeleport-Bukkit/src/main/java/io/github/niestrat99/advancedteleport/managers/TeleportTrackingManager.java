@@ -91,16 +91,20 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
         if (e.getPlayer().hasMetadata("NPC")) return;
+        CoreClass.debug("Respawn event triggered for " + e.getPlayer().getName() + ".");
         ATPlayer atPlayer = ATPlayer.getPlayer(e.getPlayer());
         if (NewConfig.get().USE_SPAWN.get()) {
+            CoreClass.debug("Spawning feature is enabled.");
             if (atPlayer.getPreviousLocation() == null) return;
             if (atPlayer.getPreviousLocation().getWorld() == null) return;
+            CoreClass.debug("Player has a previous location to go back to.");
             ConfigSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
             String spawnCommand = deathManagement.getString(atPlayer.getPreviousLocation().getWorld().getName());
             if (spawnCommand == null || spawnCommand.equals("{default}")) {
                 spawnCommand = deathManagement.getString("default");
                 if (spawnCommand == null) return;
             }
+            CoreClass.debug("Spawn command to handle: " + spawnCommand);
             for (String command : spawnCommand.split(";")) {
                 if (handleSpawn(e, command)) break;
             }
@@ -109,8 +113,10 @@ public class TeleportTrackingManager implements Listener {
     }
 
     private static boolean handleSpawn(PlayerRespawnEvent e, String spawnCommand) {
+        CoreClass.debug("Handling spawn command: " + spawnCommand);
         ATPlayer atPlayer = ATPlayer.getPlayer(e.getPlayer());
         if (spawnCommand.startsWith("tpr") && NewConfig.get().RAPID_RESPONSE.get()) {
+            CoreClass.debug("Handling TPR respawning.");
             World world = atPlayer.getPreviousLocation().getWorld();
             if (spawnCommand.indexOf(':') != -1) {
                 String worldStr = spawnCommand.substring(spawnCommand.indexOf(':'));
@@ -122,6 +128,7 @@ public class TeleportTrackingManager implements Listener {
                 Location loc = RTPManager.getLocationUrgently(world);
                 if (loc != null) {
                     e.setRespawnLocation(loc);
+                    CoreClass.debug("There is a world to TPR back to.");
                     return true;
                 }
             }
@@ -131,11 +138,13 @@ public class TeleportTrackingManager implements Listener {
             case "spawn":
                 Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName(), e.getPlayer(), false);
                 if (spawn != null) {
+                    CoreClass.debug("Spawn found at " + spawn.getX() + ", " + spawn.getY() + ", " + spawn.getZ());
                     e.setRespawnLocation(spawn);
                     return true;
                 }
                 break;
             case "bed":
+                CoreClass.debug("Player has a bed: " + (e.getPlayer().getBedSpawnLocation() != null));
                 return e.getPlayer().getBedSpawnLocation() != null;
             case "anchor":
                 // Vanilla just handles that
@@ -144,8 +153,10 @@ public class TeleportTrackingManager implements Listener {
                 if (spawnCommand.startsWith("warp:")) {
                     try {
                         String warp = spawnCommand.split(":")[1];
+                        CoreClass.debug("Found warp: " + warp);
                         if (Warp.getWarps().containsKey(warp)) {
                             e.setRespawnLocation(Warp.getWarps().get(warp).getLocation());
+                            CoreClass.debug("Set respawn to warp " + warp + ".");
                             return true;
                         } else {
                             CoreClass.getInstance().getLogger().warning("Unknown warp " + warp + " for death in " + atPlayer.getPreviousLocation().getWorld());
