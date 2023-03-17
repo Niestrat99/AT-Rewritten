@@ -98,6 +98,7 @@ public final class CoreClass extends JavaPlugin {
             new WarpSQLManager();
             new DataFailManager();
             new MetadataSQLManager();
+            new SpawnSQLManager();
         }
         new PluginHookManager();
         MapAssetManager.init();

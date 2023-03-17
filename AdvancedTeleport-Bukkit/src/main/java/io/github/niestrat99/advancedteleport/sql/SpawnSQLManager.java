@@ -27,8 +27,6 @@ public class SpawnSQLManager extends SQLManager {
     public SpawnSQLManager() {
         super();
         instance = this;
-
-        transferOldData();
     }
 
     public static SpawnSQLManager get() {
@@ -134,7 +132,7 @@ public class SpawnSQLManager extends SQLManager {
             try (Connection connection = implementConnection()) {
 
                 PreparedStatement statement = prepareStatement(connection, "INSERT INTO " + tablePrefix + "_spawns " +
-                        "(spawn, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?,?,?,?,?,?,?,?)");
+                        "(spawn, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?,?,?,?,?,?,?,?,?,?)");
                 statement.setString(1, name);
                 statement.setString(2, (creator == null ? null : creator.toString()));
                 statement.setDouble(3, x);
