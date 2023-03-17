@@ -8,7 +8,6 @@ import io.github.niestrat99.advancedteleport.api.events.spawn.*;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;

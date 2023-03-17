@@ -57,7 +57,7 @@ public final class TpBlockCommand extends TeleportATCommand implements PlayerCom
                     sender,
                     "Info.block",
                     "Error.blockFail",
-                    () -> err != null,
+                    err,
                     "{player}", target.getName()
                 ));
             } else {
@@ -65,7 +65,7 @@ public final class TpBlockCommand extends TeleportATCommand implements PlayerCom
                     sender,
                     "Info.blockPlayer",
                     "Error.blockFail",
-                    () -> err != null,
+                    err,
                     "{player}", target.getName()
                 ));
             }

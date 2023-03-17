@@ -46,7 +46,7 @@ public final class SetWarpCommand extends AbstractWarpCommand implements PlayerC
                     player.getUniqueId(),
                     "Info.setWarp",
                     "Error.setWarpFail",
-                    () -> err != null,
+                    err,
                     "{warp}", result.getName()
             ));
         } else {

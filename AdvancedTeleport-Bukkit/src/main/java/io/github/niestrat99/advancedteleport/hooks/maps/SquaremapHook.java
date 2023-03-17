@@ -132,14 +132,19 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
         World world = location.getWorld();
         Objects.requireNonNull(world, "The world for " + name + " is not loaded.");
         provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
+
             // Get the key
             final var layerKey = Key.of("advancedteleport_" + type + "s");
+
             // Get the layer provider associated
             final var layer = (SimpleLayerProvider) mapWorld.layerRegistry().get(layerKey);
+
             // Create the icon key
             final var key = Key.of("advancedteleport_" + type + "_" + name);
+
             // Get the point
             final var point = Point.of(location.getX(), location.getZ());
+
             // Get the image associated with the icon
             MapAssetManager.getImageKey(name, type, owner).thenAcceptAsync(result -> {
                 result = "advancedteleport_" + result;

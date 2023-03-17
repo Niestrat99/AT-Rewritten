@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.home;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
@@ -46,7 +47,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                             target,
                             "Info.setMainHome",
                             "Error.setMainHomeFail",
-                            () -> err != null,
+                            err,
                             "{home}", homeName, "{player}", target.getName()
                     ));
 
@@ -63,7 +64,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                         target,
                         "Info.setMainHome",
                         "Error.setMainHomeFail",
-                        () -> err != null,
+                        err,
                         "{home}", homeName, "{player}", args[0]
                 ));
             });
@@ -82,7 +83,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                     sender,
                     "Info.setMainHome",
                     "Error.setMainHomeFail",
-                    () -> err != null,
+                    err,
                     "{home}", homeName
                 ));
             } else CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
@@ -100,6 +101,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
         atTarget.addHome(homeName, player.getLocation(), player).whenCompleteAsync((ignored, err) -> {
             if (err != null) {
                 CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                if (!(err instanceof ATException)) err.printStackTrace();
                 return;
             }
 
@@ -108,7 +110,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                 atTarget,
                 "Info.setAndMadeMainHome",
                 "Error.setMainHomeFail",
-                () -> err2 != null,
+                err2,
                 "{home}", homeName, "{player}", atTarget.getPlayer().getName()
             ));
         });
