@@ -167,7 +167,7 @@ public final class AdvancedTeleportAPI {
                 // Call the post-create event to indicate success
                 Bukkit.getPluginManager().callEvent(new SpawnPostCreateEvent(spawn));
                 return spawn;
-            });
+            }, CoreClass.sync);
         });
     }
 
