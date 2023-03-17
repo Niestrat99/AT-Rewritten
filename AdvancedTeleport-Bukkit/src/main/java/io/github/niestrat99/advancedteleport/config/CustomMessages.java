@@ -5,8 +5,6 @@ import com.google.common.collect.ImmutableSortedSet;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
-import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
-import org.bukkit.ChatColor;
 import io.github.niestrat99.advancedteleport.data.PartialComponent;
 import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
@@ -14,15 +12,6 @@ import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.impl.CMConfigSection;
 import io.papermc.lib.PaperLib;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.BooleanSupplier;
-import java.util.function.Function;
 import kotlin.Pair;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -41,6 +30,11 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.*;
+import java.util.function.Function;
 
 // TODO: Load all components on initialization and reload and formatRaw at that point.
 public final class CustomMessages extends ATConfig {
