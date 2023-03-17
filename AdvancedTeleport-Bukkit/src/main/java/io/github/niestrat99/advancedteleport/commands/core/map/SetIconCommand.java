@@ -39,13 +39,8 @@ public final class SetIconCommand extends SubATCommand {
             case "home" -> {
                 if (args.length < 4) return true;
 
-<<<<<<< HEAD
                 AdvancedTeleportAPI.getOfflinePlayer(args[1]).whenComplete((player, err) ->
                         MetadataSQLManager.get().addHomeMetadata(args[2], player.getUniqueId(), "map_icon", args[3]));
-=======
-                CompletableFuture.supplyAsync(() -> Bukkit.getOfflinePlayer(args[1]).getUniqueId(), CoreClass.async)
-                    .thenAcceptAsync(uuid -> MetadataSQLManager.get().addHomeMetadata(args[2], uuid, "map_icon", args[3]));
->>>>>>> 3ef5591c (chore: rebase fixes)
 
                 return true;
             }
