@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.data
 import io.github.niestrat99.advancedteleport.extensions.lazyPlaceholder
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import java.util.SortedSet
 
 /**
@@ -66,7 +67,16 @@ class PartialComponent private constructor(private var raw: String) {
 
         @JvmStatic
         fun of(raw: String): PartialComponent {
-            return PartialComponent(raw)
+
+            // Replace all {} brackets
+            val formattedRaw = raw.replace('{', '<').replace('}', '>')
+
+            // Replace legacy codes
+            val translatedComponent = LegacyComponentSerializer.builder().character('&').build().deserialize(formattedRaw)
+            val miniFormat = MiniMessage.miniMessage().serialize(translatedComponent).replace("\\<", "<")
+
+            // Return everything
+            return PartialComponent(miniFormat)
         }
     }
 }
