@@ -137,7 +137,7 @@ tasks {
         dependsOn(slimJar)
 
         // Set the version to 1.19.3
-        minecraftVersion("1.19.3")
+        minecraftVersion("1.19.4")
 
         // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
@@ -188,7 +188,7 @@ modrinth {
     versionNumber.set(project.version.toString())
     versionType.set(getReleaseType())
     uploadFile.set(getJarFile())
-    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3"))
+    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4"))
     loaders.addAll("paper", "spigot", "purpur")
     // changelog.set(getCogChangelog())
 }
