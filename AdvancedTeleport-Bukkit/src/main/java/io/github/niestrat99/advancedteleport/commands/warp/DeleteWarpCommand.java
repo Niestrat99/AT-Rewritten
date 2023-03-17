@@ -48,7 +48,7 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
                      sender,
                      "Info.deletedWarp",
                      "Error.deleteWarpFail",
-                     () -> exception != null,
+                     exception,
                      "{warp}", args[0]
              ));
         } else {

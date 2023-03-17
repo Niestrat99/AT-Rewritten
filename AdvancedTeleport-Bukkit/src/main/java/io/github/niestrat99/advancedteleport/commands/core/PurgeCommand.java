@@ -58,13 +58,13 @@ public final class PurgeCommand extends SubATCommand {
                         CustomMessages.failable(sender,
                                 "Info.purgeHomesWorld",
                                 "Error.purgeHomesFail",
-                                () -> err != null,
+                                err,
                                 "{world}", args[2]));
                 case "warps" -> CompletableFuture.runAsync(() -> WarpSQLManager.get().purgeWarps(args[2])).whenComplete((v, err) ->
                         CustomMessages.failable(sender,
                                 "Info.purgeWarpsWorld",
                                 "Error.purgeWarpsFail",
-                                () -> err != null,
+                                err,
                                 "{world}", args[2]));
             }
 
@@ -80,13 +80,13 @@ public final class PurgeCommand extends SubATCommand {
                             CustomMessages.failable(sender,
                                     "Info.purgeHomesCreator",
                                     "Error.purgeHomesFail",
-                                    () -> err != null,
+                                    err,
                                     "{player}", args[2]));
                     case "warps" -> CompletableFuture.runAsync(() -> WarpSQLManager.get().purgeWarps(player.getUniqueId())).whenComplete((v, err) ->
                             CustomMessages.failable(sender,
                                     "Info.purgeWarpsCreator",
                                     "Error.purgeWarpsFail",
-                                    () -> err != null,
+                                    err,
                                     "{player}", args[2]));
                 }
             }, CoreClass.sync);

@@ -49,7 +49,7 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                     atTarget,
                     "Info.movedHome",
                     "Error.moveHomeFail",
-                    () -> err != null,
+                    err,
                     "{home}", args[1], "{player}", args[0]
                 ));
             });
@@ -67,7 +67,7 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                 atPlayer,
                 "Info.movedHome",
                 "Error.moveHomeFail",
-                () -> err != null,
+                err,
                 "{home}", args[0]
         ));
 

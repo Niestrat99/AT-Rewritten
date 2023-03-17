@@ -44,7 +44,7 @@ public final class SetSpawn extends SpawnATCommand implements PlayerCommand {
                 CustomMessages.failable(sender,
                         finalMessage,
                         "Error.setSpawnFail",
-                        () -> err != null,
+                        err,
                         "{spawn}", finalName));
 
         return true;

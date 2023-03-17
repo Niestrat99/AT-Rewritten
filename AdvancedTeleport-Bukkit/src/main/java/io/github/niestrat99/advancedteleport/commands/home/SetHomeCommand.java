@@ -95,7 +95,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
                 target,
                 "Info.setHome",
                 "Error.setHomeFail",
-                () -> err != null,
+                err,
                 "{home}", homeName, "{player}", playerName
         ));
     }

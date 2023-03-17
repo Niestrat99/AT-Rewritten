@@ -56,7 +56,7 @@ public final class RemoveSpawn extends SpawnATCommand {
         spawn.delete(sender).whenComplete((ignored, err) -> CustomMessages.failable(sender,
                         "Info.removedSpawn",
                         "Error.removeSpawnFail",
-                        () -> err != null,
+                        err,
                         "{spawn}", spawn.getName()));
         return true;
     }

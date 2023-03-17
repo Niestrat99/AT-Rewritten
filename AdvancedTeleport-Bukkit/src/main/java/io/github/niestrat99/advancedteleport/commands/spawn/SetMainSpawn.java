@@ -92,7 +92,7 @@ public final class SetMainSpawn extends SpawnATCommand {
                 CustomMessages.failable(sender,
                         "Info.setMainSpawn",
                         "Error.setMainSpawnFail",
-                        () -> e != null,
+                        e,
                         "{spawn}", spawn.getName()));
     }
 }

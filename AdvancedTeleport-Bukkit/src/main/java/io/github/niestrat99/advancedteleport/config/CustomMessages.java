@@ -2,9 +2,9 @@ package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
-import java.util.function.BooleanSupplier;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class CustomMessages extends ATConfig {
 
@@ -476,11 +477,14 @@ public final class CustomMessages extends ATConfig {
         @NotNull final UUID target,
         @NotNull final String path,
         @NotNull final String errorPath,
-        @NotNull final BooleanSupplier isError,
+        @Nullable final Throwable error,
         final String... placeholders
     ) {
-        final var truePath = isError.getAsBoolean() ? errorPath : contextualPath(sender, target, path);
+        final var truePath = error != null ? errorPath : contextualPath(sender, target, path);
         sendMessage(sender, truePath, placeholders);
+
+        // If there was an error, print it
+        if (error != null && !(error instanceof ATException)) error.printStackTrace();
     }
 
     @Contract(pure = true)
@@ -489,9 +493,9 @@ public final class CustomMessages extends ATConfig {
         @NotNull final OfflinePlayer target,
         @NotNull final String path,
         @NotNull final String errorPath,
-        @NotNull final BooleanSupplier isError,
+        @Nullable final Throwable error,
         final String... placeholders
-    ) { failableContextualPath(sender, target.getUniqueId(), path, errorPath, isError, placeholders); }
+    ) { failableContextualPath(sender, target.getUniqueId(), path, errorPath, error, placeholders); }
 
     @Contract(pure = true)
     public static void failableContextualPath(
@@ -499,20 +503,23 @@ public final class CustomMessages extends ATConfig {
         @NotNull final ATPlayer target,
         @NotNull final String path,
         @NotNull final String errorPath,
-        @NotNull final BooleanSupplier isError,
+        @Nullable final Throwable error,
         final String... placeholders
-    ) { failableContextualPath(sender, target.uuid(), path, errorPath, isError, placeholders); }
+    ) { failableContextualPath(sender, target.uuid(), path, errorPath, error, placeholders); }
 
     @Contract(pure = true)
     public static void failable(
         @NotNull final CommandSender sender,
         @NotNull final String path,
         @NotNull final String errorPath,
-        @NotNull final BooleanSupplier isError,
+        @Nullable final Throwable error,
         final String... placeholders
     ) {
-        final var truePath = isError.getAsBoolean() ? errorPath : path;
+        final var truePath = error != null ? errorPath : path;
         sendMessage(sender, truePath, placeholders);
+
+        // If there was an error, print it
+        if (error != null && !(error instanceof ATException)) error.printStackTrace();
     }
 
     private static boolean supportsTitles() {
