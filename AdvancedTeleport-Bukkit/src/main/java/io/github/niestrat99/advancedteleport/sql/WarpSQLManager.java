@@ -33,6 +33,9 @@ public class WarpSQLManager extends SQLManager {
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             try (Connection connection = implementConnection()) {
+
+                CoreClass.debug("Creating table data for the warps manager if it is not already set up.");
+
                 PreparedStatement createTable = prepareStatement(connection,
                         "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_warps " +
                                 "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
