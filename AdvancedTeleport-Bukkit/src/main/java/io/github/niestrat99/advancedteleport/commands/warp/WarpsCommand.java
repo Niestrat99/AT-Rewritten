@@ -11,6 +11,8 @@ import io.github.niestrat99.advancedteleport.utilities.IconMenu;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -113,17 +115,19 @@ public final class WarpsCommand extends ATCommand {
             menu.open((Player) sender);
 
         } else {
-            final var body = Component.join(
+            final TextComponent body = (TextComponent) Component.join(
                 JoinConfiguration.commas(true),
                 AdvancedTeleportAPI.getWarps().values().stream()
-                    .filter(warp -> ExPermission.hasPermissionOrStar(sender, "at.member.warp." + warp.getName()))
-                    .map(warp -> Component.text(warp.getName()).hoverEvent(CustomMessages.locationBasedTooltip(sender, warp.getLocation(), "warps")))
-                    .toList()
+                    .filter(warp -> ExPermission.hasPermissionOrStar(sender, "at.member.warp." + warp.getName().toLowerCase()))
+                    .map(warp -> Component.text(warp.getName())
+                            .clickEvent(ClickEvent.runCommand("/advancedteleport:warp " + warp.getName()))
+                            .hoverEvent(CustomMessages.locationBasedTooltip(sender, warp, "warps"))
+                    ).toList()
             );
 
-            if (!body.children().isEmpty()) {
-                CustomMessages.sendMessage(sender, "Info.warps");
-                CustomMessages.asAudience(sender).sendMessage(body);
+            if (!body.content().isEmpty() || !body.children().isEmpty()) {
+                Component text = CustomMessages.getComponent("Info.warps");
+                CustomMessages.asAudience(sender).sendMessage(text.append(body));
             } else CustomMessages.sendMessage(sender, "Error.noWarps");
         }
     }

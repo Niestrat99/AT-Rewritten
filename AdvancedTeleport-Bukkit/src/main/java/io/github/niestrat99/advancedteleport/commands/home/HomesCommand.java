@@ -10,6 +10,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -68,7 +69,7 @@ public final class HomesCommand extends AbstractHomeCommand {
              return;
          }
 
-        final var body = Component.join(
+        final TextComponent body = (TextComponent) Component.join(
             JoinConfiguration.commas(true),
             atPlayer.getHomes().values().stream()
                 .map(home -> new Object[]{home, atPlayer.canAccessHome(home) || ExPermission.hasPermissionOrStar(sender, "at.admin.homes")}) // How the fuck do you associate a value like a pair in java?
@@ -76,20 +77,20 @@ public final class HomesCommand extends AbstractHomeCommand {
                     final var home = (Home) pair[0];
                     final var canAccess = (boolean) pair[1];
                     final var baseComponent = Component.text(home.getName())
-                        .hoverEvent(CustomMessages.locationBasedTooltip(sender, home.getLocation(), "homes"));
+                        .hoverEvent(CustomMessages.locationBasedTooltip(sender, home, "homes"));
 
                     if (!canAccess) {
                         if (!MainConfig.get().HIDE_HOMES_IF_DENIED.get()) return Component.empty(); // TODO: Make sure this doesn't cause an extra comma.
                         return baseComponent.color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC);
                     }
 
-                    return baseComponent.clickEvent(ClickEvent.runCommand("/home " + (sender == target ? "" : target.getName() + " ") + home.getName()));
+                    return baseComponent.clickEvent(ClickEvent.runCommand("/advancedteleport:home " + (sender == target ? "" : target.getName() + " ") + home.getName()));
                 }).toList()
         );
 
-        if (!body.children().isEmpty()) {
-            CustomMessages.sendMessage(sender, "Info.warps");
-            CustomMessages.asAudience(sender).sendMessage(body);
+        if (!body.content().isEmpty() || !body.children().isEmpty()) {
+            Component text = CustomMessages.getComponent("Info.homes");
+            CustomMessages.asAudience(sender).sendMessage(text.append(body));
         } else CustomMessages.sendMessage(
             sender,
             CustomMessages.contextualPath(sender, target, "Error.noHomes"),

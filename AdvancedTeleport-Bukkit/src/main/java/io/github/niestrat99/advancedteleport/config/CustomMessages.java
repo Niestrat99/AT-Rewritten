@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.NamedLocation;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.data.PartialComponent;
 import io.github.niestrat99.advancedteleport.extensions.ExPermission;
@@ -639,18 +640,22 @@ public final class CustomMessages extends ATConfig {
     @Contract(pure = true)
     public static @NotNull HoverEventSource<Component> locationBasedTooltip(
         @NotNull final CommandSender sender,
-        @NotNull final Location location,
+        @NotNull final NamedLocation location,
         @NotNull final String path
     ) {
-        final var tooltipBuilder = Component.text().append(CustomMessages.getComponent("Tooltip." + path));
+        final var tooltipBuilder = Component.text().append(
+                CustomMessages.get("Tooltip." + path,
+                        "home", location.getName(),
+                        "warp", location.getName()
+                ));
 
         if (ExPermission.hasPermissionOrStar(sender, "at.member." + path + ".location")) {
             tooltipBuilder.append(CustomMessages.get(
                 "Tooltip.location",
-                "x", location.getBlock(),
-                "y", location.getBlockY(),
-                "z", location.getBlockZ(),
-                "world", location.getWorld().getName()
+                "x", location.getLocation().getBlockX(),
+                "y", location.getLocation().getBlockY(),
+                "z", location.getLocation().getBlockZ(),
+                "world", location.getLocation().getWorld().getName()
             ));
         }
 
