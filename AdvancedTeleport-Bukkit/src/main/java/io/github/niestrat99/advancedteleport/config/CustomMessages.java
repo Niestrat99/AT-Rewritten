@@ -105,15 +105,15 @@ public final class CustomMessages extends ATConfig {
         addDefault("Teleport.eventMovement_title.fade-out", 10);
         addDefault("Teleport.eventMovement_title.0", "<yellow><b>! <red>Cancelled</red> !");
         addDefault("Teleport.teleportingToSpawn", "<prefix> <gray>Teleporting you to spawn!");
-        addDefault("Teleport.teleporting", "<prefix> <gray>Teleporting to <aqua>player</aqua>!");
-        addDefault("Teleport.teleportingToHome", "<prefix> <gray>Teleporting to <aqua>home</aqua>!");
-        addDefault("Teleport.teleportingToHomeOther", "<prefix> <gray>Teleporting to <aqua>player</aqua>'s home, <aqua>home</aqua>!");
-        addDefault("Teleport.teleportingToWarp", "<prefix> <gray>Teleporting you to <aqua>warp</aqua>!");
+        addDefault("Teleport.teleporting", "<prefix> <gray>Teleporting to <aqua><player></aqua>!");
+        addDefault("Teleport.teleportingToHome", "<prefix> <gray>Teleporting to <aqua><home></aqua>!");
+        addDefault("Teleport.teleportingToHomeOther", "<prefix> <gray>Teleporting to <aqua><player></aqua>'s home, <aqua><home></aqua>!");
+        addDefault("Teleport.teleportingToWarp", "<prefix> <gray>Teleporting you to <aqua><warp></aqua>!");
         addDefault("Teleport.teleportingPlayerToSelf", "<prefix> <gray>Teleporting <aqua><player></aqua> to you!");
-        addDefault("Teleport.teleportingSelfToPlayer", "<prefix> <gray>Teleporting you to <aqua>player</aqua>!");
+        addDefault("Teleport.teleportingSelfToPlayer", "<prefix> <gray>Teleporting you to <aqua><player></aqua>!");
         addDefault("Teleport.teleportingToRandomPlace", "<prefix> <gray>Teleporting you to a random place!");
         addDefault("Teleport.teleportingToLastLoc", "<prefix> <gray>Teleporting to your last location!");
-        addDefault("Teleport.teleportedToOfflinePlayer", "<prefix> <gray>Teleported to offline player <aqua>player</aqua>!");
+        addDefault("Teleport.teleportedToOfflinePlayer", "<prefix> <gray>Teleported to offline player <aqua><player></aqua>!");
         addDefault("Teleport.teleportedOfflinePlayerHere", "<prefix> <gray>Teleported offline player <aqua><player></aqua> to your location!");
 
         makeSectionLenient("Error");
@@ -146,7 +146,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.requestExpired", "<prefix> <gray>Your teleport request to <aqua><player></aqua> has expired!");
         addDefault("Error.noPlayerInput", "<prefix> <gray>You must include a player name!");
         addDefault("Error.blockSelf", "<prefix> <gray>You can't block yourself!");
-        addDefault("Error.noRequestsFromPlayer", "<prefix> <gray>You don't have any pending requests from <aqua>player</aqua>!");
+        addDefault("Error.noRequestsFromPlayer", "<prefix> <gray>You don't have any pending requests from <aqua><player></aqua>!");
         addDefault("Error.noRequests", "<prefix> <gray>You don't have any pending requests!");
         addDefault("Error.invalidPageNo", "<prefix> <gray>You've inserted an invalid page number!");
         addDefault("Error.noHomeInput", "<prefix> <gray>You have to include a home name!");
@@ -154,10 +154,10 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.noBedHome", "<prefix> <gray>You don't have any bed spawn set!");
         addDefault("Error.noBedHomeOther", "<prefix> <aqua><player></aqua> <gray>doesn't have a bed spawn set!");
         addDefault("Error.reachedHomeLimit", "<prefix> <gray>You can't set any more homes!");
-        addDefault("Error.homeAlreadySet", "<prefix> <gray>You already have a home called <aqua>home</aqua>!");
+        addDefault("Error.homeAlreadySet", "<prefix> <gray>You already have a home called <aqua><home></aqua>!");
         addDefault("Error.noWarpInput", "<prefix> <gray>You have to include the warp's name!");
         addDefault("Error.noSuchWarp", "<prefix> <gray>That warp doesn't exist!");
-        addDefault("Error.warpAlreadySet", "<prefix> <gray>There is already a warp called <aqua>warp</aqua>!");
+        addDefault("Error.warpAlreadySet", "<prefix> <gray>There is already a warp called <aqua><warp></aqua>!");
         addDefault("Error.noSuchWorld", "<prefix> <gray>That world doesn't exist!");
         addDefault("Error.noLocation", "<prefix> <gray>You don't have any location to teleport back to!");
         addDefault("Error.notAPlayer", "<prefix> <gray>You must be a player to run this command!");
@@ -166,14 +166,14 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.tooFarAway", "<prefix> <gray>The teleport destination is too far away so you can not teleport there!");
         addDefault("Error.noRequestsSent", "<prefix> <gray>Couldn't send a request to anyone :(");
         addDefault("Error.onCountdown","<prefix> <gray>You can't use this command whilst waiting to teleport!");
-        addDefault("Error.noPermissionWarp", "<prefix> <gray>You can't warp to <aqua>warp</aqua>!");
+        addDefault("Error.noPermissionWarp", "<prefix> <gray>You can't warp to <aqua><warp></aqua>!");
         addDefault("Error.cantTPToWorld", "<prefix> <gray>You can't randomly teleport in that world!");
-        addDefault("Error.cantTPToWorldLim", "<prefix> <gray>You can't teleport to <aqua>world</aqua>!");
+        addDefault("Error.cantTPToWorldLim", "<prefix> <gray>You can't teleport to <aqua><world></aqua>!");
         addDefault("Error.tooFewArguments", "<prefix> <gray>Too few arguments!");
         addDefault("Error.invalidArgs", "<prefix> <gray>Invalid arguments!");
-        addDefault("Error.cantTPToPlayer", "<prefix> <gray>You can't request a teleportation to <aqua>player</aqua>!");
+        addDefault("Error.cantTPToPlayer", "<prefix> <gray>You can't request a teleportation to <aqua><player></aqua>!");
         addDefault("Error.noWarps", "<prefix> <gray>There are no warps as of currently!");
-        addDefault("Error.noAccessHome", "<prefix> <gray>You cannot access <aqua>home</aqua> as of currently!");
+        addDefault("Error.noAccessHome", "<prefix> <gray>You cannot access <aqua><home></aqua> as of currently!");
         addDefault("Error.moveHomeFail", "<prefix> <gray>The home has been moved but the data has not been stored successfully. The plugin will try to fix this itself.");
         addDefault("Error.setMainHomeFail", "<prefix> <gray>The main home has been set but the data has not been stored successfully. The plugin will try to fix this itself.");
         addDefault("Error.deleteHomeFail", "<prefix> <gray>The home has been deleted but the data has not been stored successfully. The plugin will try to fix this itself.");
@@ -182,13 +182,13 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.purgeWarpsFail", "<prefix> <gray>Could not purge warps. Please check the console for more information.");
         addDefault("Error.purgeHomesFail", "<prefix> <gray>Could not purge homes. Please check the console for more information.");
         addDefault("Error.homesNotLoaded", "<prefix> <gray>Homes for this player haven't loaded yet, please wait a little bit (even just a second) before trying this again!");
-        addDefault("Error.noOfflineLocation", "<prefix> <gray>No offline location was found for <aqua>player</aqua>!");
-        addDefault("Error.failedOfflineTeleport", "<prefix> <gray>Failed to teleport to offline player <aqua>player</aqua>!");
+        addDefault("Error.noOfflineLocation", "<prefix> <gray>No offline location was found for <aqua><player></aqua>!");
+        addDefault("Error.failedOfflineTeleport", "<prefix> <gray>Failed to teleport to offline player <aqua><player></aqua>!");
         addDefault("Error.failedOfflineTeleportHere", "<prefix> <gray>Failed to teleport offline player <aqua><player></aqua> to your location!");
         addDefault("Error.alreadySearching", "<prefix> <gray>Already searching for a location to teleport to!");
         addDefault("Error.mirrorSpawnNoArguments", "<prefix> <gray>No worlds/spawn points have been specified!");
         addDefault("Error.mirrorSpawnLackOfArguments", "<prefix> <gray>You must be a player to only specify one world - please specify a world and a spawnpoint to mirror players to!");
-        addDefault("Error.noSuchSpawn", "<prefix> <gray>There is no such spawn called <aqua>spawn</aqua>!");
+        addDefault("Error.noSuchSpawn", "<prefix> <gray>There is no such spawn called <aqua><spawn></aqua>!");
         addDefault("Error.cannotSetMainSpawn", "<prefix> <gray>You can only make existing spawnpoints into the main spawnpoint rather than create new ones!");
         addDefault("Error.cannotSetMainSpawnConsole", "<prefix> <gray>You can only make existing spawnpoints into the main spawnpoint rather than create new ones since you are not a player!");
         addDefault("Error.nonAlphanumericSpawn", "<prefix> <gray>Spawnpoints need to be alphanumeric!");
@@ -200,11 +200,11 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>You do not have enough items to teleport there!
             <prefix> <gray>You need at least <aqua><amount></aqua> <type>(s)!
         """.trim());
-        addDefault("Error.mirrorSpawnFail", "<prefix> <gray>Failed to mirror <aqua>from</aqua>'s spawnpoint to <aqua>spawn</aqua>!");
-        addDefault("Error.removeSpawnFail", "<prefix> <gray>Failed to remove the spawnpoint <aqua>spawn</aqua>!");
-        addDefault("Error.setMainSpawnFail", "<prefix> <gray>Failed to set the main spawnpoint <aqua>spawn</aqua>!");
-        addDefault("Error.blockFail", "<prefix> <gray>Failed to save the block against <aqua>player</aqua>!");
-        addDefault("Error.unblockFail", "<prefix> <gray>Failed to save the block removal against <aqua>player</aqua>!");
+        addDefault("Error.mirrorSpawnFail", "<prefix> <gray>Failed to mirror <aqua><from></aqua>'s spawnpoint to <aqua><spawn></aqua>!");
+        addDefault("Error.removeSpawnFail", "<prefix> <gray>Failed to remove the spawnpoint <aqua><spawn></aqua>!");
+        addDefault("Error.setMainSpawnFail", "<prefix> <gray>Failed to set the main spawnpoint <aqua><spawn></aqua>!");
+        addDefault("Error.blockFail", "<prefix> <gray>Failed to save the block against <aqua><player></aqua>!");
+        addDefault("Error.unblockFail", "<prefix> <gray>Failed to save the block removal against <aqua><player></aqua>!");
         addDefault("Error.noParticlePlugins", "<prefix> <gray>There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
 
         addDefault("Error.setWarpFail", "<prefix> <gray>Failed to set the warp <warp>!");
@@ -213,11 +213,11 @@ public final class CustomMessages extends ATConfig {
 
         addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "<prefix> <gray>Successfully enabled teleport requests!");
-        addDefault("Info.tpAdminOff", "<prefix> <gray>Successfully disabled teleport requests for <aqua>player</aqua>!");
-        addDefault("Info.tpAdminOn", "<prefix> <gray>Successfully enabled teleport requests for <aqua>player</aqua>!");
+        addDefault("Info.tpAdminOff", "<prefix> <gray>Successfully disabled teleport requests for <aqua><player></aqua>!");
+        addDefault("Info.tpAdminOn", "<prefix> <gray>Successfully enabled teleport requests for <aqua><player></aqua>!");
         // TODO: Possible "Common" components for the hover and click events?
         addDefault("Info.requestSent", """
-            <prefix> <gray>Successfully sent request to <aqua>player</aqua>!
+            <prefix> <gray>Successfully sent request to <aqua><player></aqua>!
             <prefix> <gray>They've got <aqua><lifetime></aqua> to respond!
             <prefix> <gray>To cancel the request use <aqua>/tpcancel</aqua> to cancel it.
 
@@ -252,16 +252,16 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.deletedHome", "<prefix> <gray>Successfully deleted the home <aqua><home></aqua>!");
         addDefault("Info.deletedHomeOther", "<prefix> <gray>Successfully deleted the home <aqua><home></aqua> for <aqua><player></aqua>!");
         addDefault("Info.setHome", "<prefix> <gray>Successfully set the home <aqua><home></aqua>!");
-        addDefault("Info.setHomeOther", "<prefix> <gray>Successfully set the home <aqua><home></aqua> for <aqua>player</aqua>!");
+        addDefault("Info.setHomeOther", "<prefix> <gray>Successfully set the home <aqua><home></aqua> for <aqua><player></aqua>!");
         addDefault("Info.setSpawn", "<prefix> <gray>Successfully set the spawnpoint!");
-        addDefault("Info.setWarp", "<prefix> <gray>Successfully set the warp <aqua>warp</aqua>!");
-        addDefault("Info.deletedWarp", "<prefix> <gray>Successfully deleted the warp <aqua>warp</aqua>!");
-        addDefault("Info.purgeWarpsWorld", "<prefix> <gray>Successfully purged warps in <aqua>world</aqua>!");
-        addDefault("Info.purgeWarpsCreator", "<prefix> <gray>Successfully purged warps created by <aqua>player</aqua>!");
-        addDefault("Info.purgeHomesWorld", "<prefix> <gray>Successfully purged homes in <aqua>world</aqua>!");
-        addDefault("Info.purgeHomesCreator", "<prefix> <gray>Successfully purged homes created for <aqua>player</aqua>!");
+        addDefault("Info.setWarp", "<prefix> <gray>Successfully set the warp <aqua><warp></aqua>!");
+        addDefault("Info.deletedWarp", "<prefix> <gray>Successfully deleted the warp <aqua><warp></aqua>!");
+        addDefault("Info.purgeWarpsWorld", "<prefix> <gray>Successfully purged warps in <aqua><world></aqua>!");
+        addDefault("Info.purgeWarpsCreator", "<prefix> <gray>Successfully purged warps created by <aqua><player></aqua>!");
+        addDefault("Info.purgeHomesWorld", "<prefix> <gray>Successfully purged homes in <aqua><world></aqua>!");
+        addDefault("Info.purgeHomesCreator", "<prefix> <gray>Successfully purged homes created for <aqua><player></aqua>!");
         addDefault("Info.searching", "<prefix> <gray>Searching for a location...");
-        addDefault("Info.unblockPlayer", "<prefix> <gray>Successfully unblocked <aqua>player</aqua>!");
+        addDefault("Info.unblockPlayer", "<prefix> <gray>Successfully unblocked <aqua><player></aqua>!");
         addDefault("Info.reloadingConfig", "<prefix> <gray>Reloading <aqua>AdvancedTeleport</aqua>'s config...");
         addDefault("Info.reloadedConfig", "<prefix> <gray>Finished reloading the config!");
         addDefault("Info.warps", "<aqua><bold>Warps <dark_gray>» <reset>");
@@ -269,15 +269,15 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.homesOther", "<aqua><bold><player>'s homes <dark_gray>» <reset>");
         addDefault("Info.requestAccepted", "<prefix> <gray>You've accepted the teleport request!");
         addDefault("Info.requestAcceptedResponder", "<prefix> <aqua><player></aqua> has accepted the teleport request!");
-        addDefault("Info.paymentVault", "<prefix> <gray>You have paid <aqua><amount></aqua> and now have <aqua>balance</aqua>!");
+        addDefault("Info.paymentVault", "<prefix> <gray>You have paid <aqua><amount></aqua> and now have <aqua><balance></aqua>!");
         addDefault("Info.paymentEXP", "<prefix> <gray>You have paid <aqua><amount> EXP Levels</aqua>and now have <aqua><levels></aqua>levels!");
         addDefault("Info.paymentPoints", "<prefix> <gray>You have paid <aqua><amount> EXP Points</aqua>and now have <aqua><points></aqua>points!");
         addDefault("Info.createdWarpSign", "<prefix> <gray>Successfully created the warp sign!");
         addDefault("Info.createdRTPSign", "<prefix> <gray>Successfully created the RandomTP sign!");
         addDefault("Info.createdSpawnSign", "<prefix> <gray>Successfully created the spawn sign!");
         addDefault("Info.tpallRequestSent", "<prefix> <gray>Successfully sent a teleport request to <aqua><amount></aqua>player(s)!");
-        addDefault("Info.teleportedToLoc", "<prefix> <gray>Successfully teleported you to <aqua>x</aqua>, <aqua>y</aqua>, <aqua>z</aqua>! (Yaw: <aqua>yaw</aqua>, Pitch: <aqua>pitch</aqua>, World: <aqua>world</aqua>)");
-        addDefault("Info.teleportedToLocOther", "<prefix> <gray>Successfully teleported <aqua><player></aqua>to <aqua>x</aqua>, <aqua>y</aqua>, <aqua>z</aqua>! (Yaw: <aqua>yaw</aqua>, Pitch: <aqua>pitch</aqua>, World: <aqua>world</aqua>)");
+        addDefault("Info.teleportedToLoc", "<prefix> <gray>Successfully teleported you to <aqua><x></aqua>, <aqua><y></aqua>, <aqua><z></aqua>! (Yaw: <aqua><yaw></aqua>, Pitch: <aqua><pitch></aqua>, World: <aqua><world></aqua>)");
+        addDefault("Info.teleportedToLocOther", "<prefix> <gray>Successfully teleported <aqua><player></aqua>to <aqua><x></aqua>, <aqua><y></aqua>, <aqua><z></aqua>! (Yaw: <aqua><yaw></aqua>, Pitch: <aqua><pitch></aqua>, World: <aqua><world></aqua>)");
         addDefault("Info.movedWarp", "<prefix> <gray>Moved <aqua><warp></aqua>to your current location!");
         addDefault("Info.movedHome", "<prefix> <gray>Moved home <aqua><home></aqua>to your current location!");
         addDefault("Info.movedHomeOther", "<prefix> <gray>Moved <aqua><player>'s </aqua> home <aqua><home></aqua>to your location!");
@@ -285,18 +285,18 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.setAndMadeMainHome", "<prefix> <gray>Set <aqua><home></aqua>at your current location and made it your main home!");
         addDefault("Info.setMainHomeOther", "<prefix> <gray>Made <aqua><home> <player></aqua>'s main home!");
         addDefault("Info.setAndMadeMainHomeOther", "<prefix> <gray>Set <aqua><home></aqua>for <aqua><player></aqua>at your current location and made it their main home!");
-        addDefault("Info.mirroredSpawn", "<prefix> <gray>Mirrored <aqua>from</aqua>'s spawnpoint to <aqua>spawn</aqua>!");
-        addDefault("Info.setMainSpawn", "<prefix> <gray>Set the main spawnpoint to <aqua>spawn</aqua>! All players will teleport there if there are no overriding spawns/permissions.");
-        addDefault("Info.removedSpawn", "<prefix> <gray>Removed the spawnpoint <aqua>spawn</aqua>!");
-        addDefault("Info.setSpawnSpecial", "<prefix> <gray>Set spawnpoint <aqua>spawn</aqua>!");
-        addDefault("Info.importStarted", "<prefix> <gray>Starting import from <aqua>plugin</aqua>...");
-        addDefault("Info.importFinished", "<prefix> <gray>Finished import from <aqua>plugin</aqua>!");
-        addDefault("Info.exportStarted", "<prefix> <gray>Starting export to <aqua>plugin</aqua>...");
-        addDefault("Info.exportFinished", "<prefix> <gray>Finished export to <aqua>plugin</aqua>!");
+        addDefault("Info.mirroredSpawn", "<prefix> <gray>Mirrored <aqua><from></aqua>'s spawnpoint to <aqua><spawn></aqua>!");
+        addDefault("Info.setMainSpawn", "<prefix> <gray>Set the main spawnpoint to <aqua><spawn></aqua>! All players will teleport there if there are no overriding spawns/permissions.");
+        addDefault("Info.removedSpawn", "<prefix> <gray>Removed the spawnpoint <aqua><spawn></aqua>!");
+        addDefault("Info.setSpawnSpecial", "<prefix> <gray>Set spawnpoint <aqua><spawn></aqua>!");
+        addDefault("Info.importStarted", "<prefix> <gray>Starting import from <aqua><plugin></aqua>...");
+        addDefault("Info.importFinished", "<prefix> <gray>Finished import from <aqua><plugin></aqua>!");
+        addDefault("Info.exportStarted", "<prefix> <gray>Starting export to <aqua><plugin></aqua>...");
+        addDefault("Info.exportFinished", "<prefix> <gray>Finished export to <aqua><plugin></aqua>!");
         addDefault("Info.paymentItems", "<prefix> <gray>You have paid <aqua><amount> <type>(s)</aqua> for that teleport!");
         addDefault("Info.updateInfo", """
             <prefix> <hover:show_text:'<aqua>Current Version <dark_gray>» <gray><version>
-            <aqua>New Version <dark_gray>» <gray><new_version>
+            <aqua>New Version <dark_gray>» <gray><new-version>
             <aqua>Title <dark_gray>» <gray><title>'><click:open_url:https://www.spigotmc.org/resources/advancedteleport.64139/><gray>AdvancedTeleport has an update available! Click/hover over this text for more information.</click></hover>""".trim());
         addDefault("Info.defaultParticlesUpdated", "<prefix> <gray>The default waiting particles have been set to your current particle setup!");
         addDefault("Info.specificParticlesUpdated", "<prefix> <gray>The waiting particles settings for <aqua><type></aqua>have been set to your current particle setup!");
