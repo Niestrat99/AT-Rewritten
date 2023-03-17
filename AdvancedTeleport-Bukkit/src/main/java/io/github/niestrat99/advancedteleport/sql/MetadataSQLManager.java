@@ -31,6 +31,9 @@ public class MetadataSQLManager extends SQLManager {
     @Override
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+
+            CoreClass.debug("Creating table data for the metadata manager if it is not already set up.");
+
             try (Connection connection = implementConnection()) {
                 PreparedStatement createTable = prepareStatement(connection,
                         "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_metadata " +
