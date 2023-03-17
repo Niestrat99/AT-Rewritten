@@ -90,11 +90,11 @@ public final class CustomMessages extends ATConfig {
         addExample("Teleport.eventBeforeTP_title.length" , 80 , "How many seconds (in ticks) the header should last. This is not including fading.");
         addExample("Teleport.eventBeforeTP_title.fade-in" , 0 , "How many seconds (in ticks) the header should take to fade in.");
         addExample("Teleport.eventBeforeTP_title.fade-out" , 10 , "How many seconds (in ticks) the header should take to fade out.");
-        addExample("Teleport.eventBeforeTP_title.0", "<gray><bold>Teleporting...");
-        addExample("Teleport.eventBeforeTP_title.20", "<aqua>></aqua>&lTeleporting... &b<");
-        addExample("Teleport.eventBeforeTP_title.40", "<aqua>>></aqua>&lTeleporting... &b<<");
-        addExample("Teleport.eventBeforeTP_title.60", "&b>>> &e&lTeleported! &b<<<");
-        addExample("Teleport.eventBeforeTP_subtitle.0", "&bPlease do not move!");
+        addExample("Teleport.eventBeforeTP_title.0", "<gray><b>Teleporting...");
+        addExample("Teleport.eventBeforeTP_title.20", "<aqua>></aqua> <gray><b>Teleporting...</b></gray> <aqua><");
+        addExample("Teleport.eventBeforeTP_title.40", "<aqua>>></aqua> <gray><b>Teleporting...</b></gray> <aqua><<");
+        addExample("Teleport.eventBeforeTP_title.60", "<aqua>>>> <b><yellow>Teleported!</yellow></b> <aqua><<<");
+        addExample("Teleport.eventBeforeTP_subtitle.0", "<aqua>Please do not move!");
         addExample("Teleport.eventBeforeTP_subtitle.60", "");
 
         addDefault("Teleport.eventBeforeTPMovementAllowed", "<prefix> <gray>Teleporting in <aqua><countdown></aqua> seconds!");
@@ -103,7 +103,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Teleport.eventMovement_title.length", 60);
         addDefault("Teleport.eventMovement_title.fade-in", 0);
         addDefault("Teleport.eventMovement_title.fade-out", 10);
-        addDefault("Teleport.eventMovement_title.0", "&e&l! &c&lCancelled &e&l!");
+        addDefault("Teleport.eventMovement_title.0", "<yellow><b>! <red>Cancelled</red> !");
         addDefault("Teleport.teleportingToSpawn", "<prefix> <gray>Teleporting you to spawn!");
         addDefault("Teleport.teleporting", "<prefix> <gray>Teleporting to <aqua>player</aqua>!");
         addDefault("Teleport.teleportingToHome", "<prefix> <gray>Teleporting to <aqua>home</aqua>!");
@@ -121,7 +121,6 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.noPermissionSign", "<prefix> <gray>You do not have permission to make this sign!");
         addDefault("Error.featureDisabled", "<prefix> <gray>This feature has been disabled!");
         addDefault("Error.noRequests", "<prefix> <gray>You do not have any pending requests!");
-    //    Config.addDefault("Error.requestSendFail", "&cCould not send request to &e<player>!"); - NOT USED!!!
         addDefault("Error.tpOff", "<prefix> <aqua><player> <gray>has their teleportation disabled!");
         addDefault("Error.tpBlock", "<prefix> <aqua><player> <gray>has blocked you from sending requests to them!");
         addDefault("Error.alreadyOn", "<prefix> <gray>Your teleport requests are already enabled!");
@@ -169,7 +168,6 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.onCountdown","<prefix> <gray>You can't use this command whilst waiting to teleport!");
         addDefault("Error.noPermissionWarp", "<prefix> <gray>You can't warp to <aqua>warp</aqua>!");
         addDefault("Error.cantTPToWorld", "<prefix> <gray>You can't randomly teleport in that world!");
-       // config.addDefault("Error.invalidName", "&cHomes and warps may only have letters and numbers in the names!");
         addDefault("Error.cantTPToWorldLim", "<prefix> <gray>You can't teleport to <aqua>world</aqua>!");
         addDefault("Error.tooFewArguments", "<prefix> <gray>Too few arguments!");
         addDefault("Error.invalidArgs", "<prefix> <gray>Invalid arguments!");
@@ -200,7 +198,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.cantExport", "<prefix> <gray>Can't export plugin data from <aqua><plugin></aqua> (make sure it's enabled and by the correct authors)!");
         addDefault("Error.notEnoughItems", """
             <prefix> <gray>You do not have enough items to teleport there!
-            <prefix> <gray>You need at least &b<amount> <type>(s)!
+            <prefix> <gray>You need at least <aqua><amount></aqua> <type>(s)!
         """.trim());
         addDefault("Error.mirrorSpawnFail", "<prefix> <gray>Failed to mirror <aqua>from</aqua>'s spawnpoint to <aqua>spawn</aqua>!");
         addDefault("Error.removeSpawnFail", "<prefix> <gray>Failed to remove the spawnpoint <aqua>spawn</aqua>!");
@@ -230,15 +228,15 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime></aqua> to respond to it!
 
-                                <click:run_command:tpayes <player>><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.>&c&l[DENY]</hover></click>
-        &7""".stripIndent());
+                                <click:run_command:tpayes <player>><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
+        """.stripIndent());
         addDefault("Info.tpaRequestHere", """
             <prefix> <gray>The player <aqua><player></aqua> wants to teleport you to them!
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime> seconds</aqua> to respond to it!
 
-                              <click:run_command:/tpayes <player>><hover:show_text:'<green>Click here to accept the request.><green>&l[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.>&c&l[DENY]</hover></click>
-        &7""".stripIndent());
+                              <click:run_command:/tpayes <player>><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
+        """.stripIndent());
         addDefault("Info.blockPlayer", "<prefix> <aqua><player> <gray>has been blocked.");
         addDefault("Info.tpCancel", "<prefix> <gray>You have cancelled your teleport request.");
         addDefault("Info.tpCancelResponder", "<prefix> <aqua><player> <gray>has cancelled their teleport request.");
@@ -297,16 +295,14 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.exportFinished", "<prefix> <gray>Finished export to <aqua>plugin</aqua>!");
         addDefault("Info.paymentItems", "<prefix> <gray>You have paid <aqua><amount> <type>(s)</aqua> for that teleport!");
         addDefault("Info.updateInfo", """
-            <prefix> [&7AdvancedTeleport has an update available!
-            Click/hover over this text for more information.]
-            (&bCurrent Version » &7<version>|&bNew Version <dark_gray> &7{new-version}|&bTitle <dark_gray> &7<title>
-            |https://www.spigotmc.org/resources/advancedteleport.64139/)
-        """.trim());
+            <prefix> <hover:show_text:'<aqua>Current Version <dark_gray>» <gray><version>
+            <aqua>New Version <dark_gray>» <gray><new_version>
+            <aqua>Title <dark_gray>» <gray><title>'><click:open_url:https://www.spigotmc.org/resources/advancedteleport.64139/><gray>AdvancedTeleport has an update available! Click/hover over this text for more information.</click></hover>""".trim());
         addDefault("Info.defaultParticlesUpdated", "<prefix> <gray>The default waiting particles have been set to your current particle setup!");
         addDefault("Info.specificParticlesUpdated", "<prefix> <gray>The waiting particles settings for <aqua><type></aqua>have been set to your current particle setup!");
 
-        addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: &b<home>");
-        addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: &b<warp>");
+        addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: <aqua><home>");
+        addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: <aqua><warp>");
         addDefault("Tooltip.location", """
 
             <aqua>X <dark_gray>» <gray><x>
