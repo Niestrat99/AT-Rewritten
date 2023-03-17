@@ -47,7 +47,7 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                     if (request == null) {
                         CustomMessages.sendMessage(sender, "Error.noRequestsFromPlayer", "player", args[0]);
                     } else {
-                        TeleportCancelEvent event = new TeleportCancelEvent(request.requester(),
+                        TeleportCancelEvent event = new TeleportCancelEvent(request.responder(),
                             request.requester(), request.type()
                         );
                         Bukkit.getPluginManager().callEvent(event);
