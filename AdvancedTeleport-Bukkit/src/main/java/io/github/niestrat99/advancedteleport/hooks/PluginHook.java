@@ -40,7 +40,7 @@ public abstract class PluginHook<P extends Plugin, R> {
     @Contract(pure = true)
     protected @NotNull Optional<P> plugin() {
         return pluginName
-            .filter(name -> name.equals("Unknown"))
+            .filter(name -> !name.equals("Unknown"))
             .map(name -> Bukkit.getServer().getPluginManager().getPlugin(name))
             .map(plugin -> (P) plugin); // Is there a way to do a safe or catching cast in java?
     }
