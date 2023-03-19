@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // TODO: Load all components on initialization and reload and formatRaw at that point.
 public final class CustomMessages extends ATConfig {
@@ -732,11 +734,172 @@ public final class CustomMessages extends ATConfig {
 
         keys.forEach(key -> {
             final var rawValue = this.get(key, this.defaults.get(key));
-            final var component = PartialComponent.of(rawValue.toString());
+            final var component = PartialComponent.of(translateLegacy(rawValue.toString()));
             component.formatRaw(prefixes);
             cacheBuilder.put(key, component);
         });
 
         messageCache = cacheBuilder.build();
+    }
+
+    @ApiStatus.Internal
+    private static @NotNull String translateLegacy(String format) {
+
+        // Replace brackets
+        format = format.replace('{', '<').replace('}', '>');
+
+        // Replace legacy codes
+        var serializer = LegacyComponentSerializer.legacyAmpersand();
+        format = MiniMessage.miniMessage().serialize(serializer.deserialize(format));
+
+        // STOP GETTING RID OF THE BACKSLASHES!!
+        format = format.replace("\\<", "<");
+
+        // Replace markdown
+        format = translateMarkdown(format);
+
+        return format;
+    }
+
+    /**
+     * Used to translate the legacy markdown format in pre-v6 versions.
+     *
+     * @param format
+     * @return
+     */
+    @ApiStatus.Internal
+    private static @NotNull String translateMarkdown(String format) {
+
+        // Text [] pointers
+        int startTextPointer = -1;
+        int endTextPointer = -1;
+
+        // Command () pointers
+        int startCommandPointer = -1;
+        int endCommandPointer;
+
+        // Last markdown pointer
+        int lastMarkdownPointer = 0;
+        boolean building = false;
+
+        // The built result
+        StringBuilder result = new StringBuilder();
+
+        // Go through each character
+        for (int i = 0; i < format.length(); i++) {
+
+            // If a component isn't being built but we're gonna start one, let's begin
+            if (!building && format.charAt(i) == '[' && (i == 0 || !(format.charAt(i - 1) == '\\'))) {
+                startTextPointer = i + 1;
+                building = true;
+                continue;
+            }
+
+            // If the text pointer is ending, note that
+            if (building && format.charAt(i) == ']' && !(format.charAt(i - 1) == '\\')) {
+                endTextPointer = i;
+                continue;
+            }
+
+            // If the command pointer is starting, start building that
+            if (building && format.charAt(i) == '(') {
+                if (format.charAt(i - 1) == ']') {
+                    startCommandPointer = i + 1;
+                } else if (startCommandPointer == -1) {
+                    building = false;
+                    startTextPointer = -1;
+                    endTextPointer = -1;
+                }
+                continue;
+            }
+
+            // If we're not building a component, add the letter
+            if (!building) {
+                result.append(format.charAt(i));
+                continue;
+            }
+
+            // If this isn't a valid character to end on, then continue for now
+            if (format.charAt(i) != ')' || (format.charAt(i - 1) == '\\')) continue;
+            if (startCommandPointer == -1) continue;
+
+            // Note the ending command pointer
+            endCommandPointer = i;
+
+            // Get the text and the command itself
+            String text = format.substring(startTextPointer, endTextPointer);
+            String[] commands = format.substring(startCommandPointer, endCommandPointer).split("\\|");
+
+            // Note specific elements
+            @Nullable String command = null;
+            @Nullable String url = null;
+            List<String> hoverText = new ArrayList<>();
+
+            // Go through each command part
+            for (String cmd : commands) {
+
+                // If it starts with /, note it as a command
+                if (cmd.startsWith("/")) {
+                    command = cmd;
+                    continue;
+                }
+
+                // If it's a URL, note it as such
+                if (cmd.startsWith("http")) {
+                    url = cmd;
+                    continue;
+                }
+
+                // Otherwise, consider it as hover text
+                hoverText.add(stripEndingTags(cmd));
+            }
+
+            // Ensure there's no closing tags at the start - they need to be outside
+            String component = stripEndingTags(text);
+
+
+            // Add the command
+            if (command != null) {
+                component = "<click:run_command:'" + command + "'>" + component + "</click>";
+            }
+
+            // Add the URL
+            if (url != null) {
+                component = "<click:open_url:'" + url + "'>" + component + "</click>";
+            }
+
+            // Add the hovertext
+            if (!hoverText.isEmpty()) {
+                component = "<hover:show_text:'" + String.join("\n", hoverText) + "'>" + component + "</hover>";
+            }
+
+            result.append(component);
+
+            // Reset variables
+            building = false;
+            startTextPointer = -1;
+            endTextPointer = -1;
+            startCommandPointer = -1;
+        }
+
+        return result.toString();
+    }
+
+    @ApiStatus.Internal
+    private static String stripEndingTags(String input) {
+
+        // Ensure there's no closing tags at the start - they need to be outside
+        Pattern pattern = Pattern.compile("^(</[a-zA-Z_-]+>)");
+        Matcher matcher;
+
+        // Whilst it still matches...
+        while ((matcher = pattern.matcher(input)).find()) {
+
+            // Get the matched tag and extract it
+            String tag = matcher.group(1);
+            input = input.replaceFirst(tag, "");
+        }
+
+        return input;
     }
 }
