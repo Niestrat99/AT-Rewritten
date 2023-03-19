@@ -12,6 +12,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -53,7 +54,7 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
         if (PaymentManager.getInstance().canPay("tpahere", player)) {
             int requestLifetime = MainConfig.get().REQUEST_LIFETIME.get();
             CustomMessages.sendMessage(sender, "Info.requestSent",
-                    Placeholder.unparsed("player", target.getName()),
+                    Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(target.getName())),
                     Placeholder.unparsed("lifetime", String.valueOf(requestLifetime))
             );
             CoreClass.playSound("tpahere", "sent", player);
@@ -63,7 +64,7 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
                 ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPAHere(player);
             } else {
                 CustomMessages.sendMessage(target, "Info.tpaRequestHere",
-                        Placeholder.unparsed("player", sender.getName()),
+                        Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(sender.getName())),
                         Placeholder.unparsed("lifetime", String.valueOf(requestLifetime))
                 );
             }

@@ -13,6 +13,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -62,7 +63,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
             }
 
             CustomMessages.sendMessage(sender, "Info.requestSent",
-                    Placeholder.unparsed("player", target.getName()),
+                    Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(target.getName())),
                     Placeholder.unparsed("lifetime", String.valueOf(requestLifetime))
             );
 
@@ -74,7 +75,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
                 ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPA(player);
             } else {
                 CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
-                        Placeholder.unparsed("player", sender.getName()),
+                        Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(sender.getName())),
                         Placeholder.unparsed("lifetime", String.valueOf(requestLifetime))
                 );
             }
