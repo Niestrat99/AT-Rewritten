@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -59,13 +60,13 @@ public final class PurgeCommand extends SubATCommand {
                                 "Info.purgeHomesWorld",
                                 "Error.purgeHomesFail",
                                 err,
-                                "world", args[2]));
+                                Placeholder.unparsed("world", args[2])));
                 case "warps" -> CompletableFuture.runAsync(() -> WarpSQLManager.get().purgeWarps(args[2])).whenComplete((v, err) ->
                         CustomMessages.failable(sender,
                                 "Info.purgeWarpsWorld",
                                 "Error.purgeWarpsFail",
                                 err,
-                                "world", args[2]));
+                                Placeholder.unparsed("world", args[2])));
             }
 
             return true;
@@ -81,13 +82,13 @@ public final class PurgeCommand extends SubATCommand {
                                     "Info.purgeHomesCreator",
                                     "Error.purgeHomesFail",
                                     err,
-                                    "player", args[2]));
+                                    Placeholder.unparsed("player", args[2])));
                     case "warps" -> CompletableFuture.runAsync(() -> WarpSQLManager.get().purgeWarps(player.getUniqueId())).whenComplete((v, err) ->
                             CustomMessages.failable(sender,
                                     "Info.purgeWarpsCreator",
                                     "Error.purgeWarpsFail",
                                     err,
-                                    "player", args[2]));
+                                    Placeholder.unparsed("player", args[2])));
                 }
             }, CoreClass.sync);
         }

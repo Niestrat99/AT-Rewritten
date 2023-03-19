@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -47,10 +48,10 @@ public final class SetWarpCommand extends AbstractWarpCommand implements PlayerC
                     "Info.setWarp",
                     "Error.setWarpFail",
                     err,
-                    "warp", result.getName()
+                    Placeholder.unparsed("warp", result.getName())
             ));
         } else {
-            CustomMessages.sendMessage(sender, "Error.warpAlreadySet", "warp", args[0]);
+            CustomMessages.sendMessage(sender, "Error.warpAlreadySet", Placeholder.unparsed("warp", args[0]));
         }
         return true;
     }

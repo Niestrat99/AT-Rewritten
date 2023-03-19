@@ -1,9 +1,8 @@
 package io.github.niestrat99.advancedteleport.data
 
-import io.github.niestrat99.advancedteleport.extensions.lazyPlaceholder
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import java.util.SortedSet
 
 /**
@@ -30,9 +29,9 @@ class PartialComponent private constructor(private var raw: String) {
             return cache!!
         }
 
-    operator fun get(vararg placeholders: Pair<String, *>): Component = if (placeholders.isEmpty()) {
+    operator fun get(vararg placeholders: TagResolver): Component = if (placeholders.isEmpty()) {
         value
-    } else MiniMessage.miniMessage().lazyPlaceholder(_value, *placeholders)
+    } else MiniMessage.miniMessage().deserialize(_value, *placeholders)
 
     fun formatRaw(placeholders: SortedSet<String>) {
         fun prefix(index: Int): String = buildString {
@@ -67,16 +66,7 @@ class PartialComponent private constructor(private var raw: String) {
 
         @JvmStatic
         fun of(raw: String): PartialComponent {
-
-            // Replace all {} brackets
-            val formattedRaw = raw.replace('{', '<').replace('}', '>')
-
-            // Replace legacy codes
-            val translatedComponent = LegacyComponentSerializer.builder().character('&').build().deserialize(formattedRaw)
-            val miniFormat = MiniMessage.miniMessage().serialize(translatedComponent).replace("\\<", "<")
-
-            // Return everything
-            return PartialComponent(miniFormat)
+            return PartialComponent(raw)
         }
     }
 }

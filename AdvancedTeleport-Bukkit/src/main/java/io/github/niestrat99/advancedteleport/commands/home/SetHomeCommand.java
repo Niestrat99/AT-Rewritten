@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -90,7 +91,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
 
         // If the home with that name already exists, and we can't overwrite homes, let the player know
         if (!MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(homeName)) {
-            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", "home", homeName);
+            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", Placeholder.unparsed("home", homeName));
             return;
         }
 
@@ -101,8 +102,8 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
                 "Info.setHome",
                 "Error.setHomeFail",
                 err,
-                "home", homeName,
-                "player", playerName
+                Placeholder.unparsed("home", homeName),
+                Placeholder.unparsed("player", playerName)
         ));
     }
 

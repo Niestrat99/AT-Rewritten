@@ -13,15 +13,17 @@ import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.impl.CMConfigSection;
 import io.papermc.lib.PaperLib;
-import kotlin.Pair;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.HoverEventSource;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -444,7 +446,7 @@ public final class CustomMessages extends ATConfig {
      */
     public static @NotNull Component get(
         @NotNull final String path,
-        @Nullable final Object... placeholders
+        @Nullable final TagResolver... placeholders
     ) throws IllegalArgumentException {
         if (config == null) throw new IllegalStateException("Config not initialized");
 
@@ -455,42 +457,28 @@ public final class CustomMessages extends ATConfig {
             return partial.getValue();
         }
 
-        if (placeholders.length % 2 != 0) {
-            throw new IllegalArgumentException("Placeholders must be in pairs");
-        }
-
-        final Pair<String, Object>[] array = new Pair[placeholders.length / 2];
-        for (int i = 0; i < placeholders.length / 2; i++) {
-            final var key = placeholders[i * 2];
-            final var value = placeholders[i * 2 + 1];
-
-            if (key == null) throw new IllegalArgumentException("Placeholder key cannot be null");
-            if (value == null) throw new IllegalArgumentException("Placeholder value cannot be null");
-
-            array[i] = new Pair<>(key.toString(), value);
-        }
-
-        return partial.get(array);
+        return partial.get(placeholders);
     }
 
     // Can't be named “get” because it conflicts with the non-static method.
     public static @NotNull Component getComponent(@NotNull final String path) {
-        return get(path, (Object[]) null);
+        return get(path, (TagResolver[]) null);
     }
 
     public static @NotNull String asString(
         @NotNull final String path,
-        @Nullable final Object... placeholders
+        @Nullable final TagResolver... placeholders
     ) { return PlainTextComponentSerializer.plainText().serialize(get(path, placeholders)); }
 
     public static @NotNull String asString(@NotNull final String path) {
-        return asString(path, (Object[]) null);
+        return asString(path, (TagResolver[]) null);
     }
 
     public static void sendMessage(
         @NotNull final CommandSender sender,
         @NotNull final String path,
-        @Nullable final Object... placeholders
+        @NotNull final Function<String, String> preProcess,
+        @Nullable final TagResolver... placeholders
     ) {
         if (config == null) return;
         if (supportsTitles() && sender instanceof Player player) {
@@ -532,15 +520,15 @@ public final class CustomMessages extends ATConfig {
                         }
 
                         asAudience(player).showTitle(
-                            Title.title(
-                                title == null ? (previousTitle == null ? Component.empty() : previousTitle) : (previousTitle = get(title, placeholders)),
-                                subtitle == null ? (previousSubtitle == null ? Component.empty() : previousSubtitle) : (previousSubtitle = get(subtitle, placeholders)),
-                                Title.Times.times(
-                                    Duration.ofMillis(titleInfo[0] * 50L),
-                                    Duration.ofMillis((titleInfo[1] - current) * 50L),
-                                    Duration.ofMillis(titleInfo[2] * 50L)
+                                Title.title(
+                                        title == null ? (previousTitle == null ? Component.empty() : previousTitle) : (previousTitle = get(title, placeholders)),
+                                        subtitle == null ? (previousSubtitle == null ? Component.empty() : previousSubtitle) : (previousSubtitle = get(subtitle, placeholders)),
+                                        Title.Times.times(
+                                                Duration.ofMillis(titleInfo[0] * 50L),
+                                                Duration.ofMillis((titleInfo[1] - current) * 50L),
+                                                Duration.ofMillis(titleInfo[2] * 50L)
+                                        )
                                 )
-                            )
                         );
 
                         current++;
@@ -553,10 +541,18 @@ public final class CustomMessages extends ATConfig {
 
         final var component = Component.text();
         if (config.get(path) instanceof List) {
-            config.getStringList(path).forEach(line -> component.append(get(line, placeholders)));
+            config.getStringList(path).forEach(line -> component.append(get(preProcess.apply(line), placeholders)));
         } else component.append(get(path, placeholders));
 
         asAudience(sender).sendMessage(component);
+    }
+
+    public static void sendMessage(
+        @NotNull final CommandSender sender,
+        @NotNull final String path,
+        @Nullable final TagResolver... placeholders
+    ) {
+        sendMessage(sender, path, Function.identity(), placeholders);
     }
 
     @Contract(pure = true)
@@ -580,7 +576,7 @@ public final class CustomMessages extends ATConfig {
         @NotNull final String path,
         @NotNull final String errorPath,
         @Nullable final Throwable error,
-        final Object... placeholders
+        final TagResolver... placeholders
     ) {
         final var truePath = error != null ? errorPath : contextualPath(sender, target, path);
         sendMessage(sender, truePath, placeholders);
@@ -596,7 +592,7 @@ public final class CustomMessages extends ATConfig {
         @NotNull final String path,
         @NotNull final String errorPath,
         @Nullable final Throwable error,
-        final Object... placeholders
+        final TagResolver... placeholders
     ) { failableContextualPath(sender, target.getUniqueId(), path, errorPath, error, placeholders); }
 
     @Contract(pure = true)
@@ -606,7 +602,7 @@ public final class CustomMessages extends ATConfig {
         @NotNull final String path,
         @NotNull final String errorPath,
         @Nullable final Throwable error,
-        final Object... placeholders
+        final TagResolver... placeholders
     ) { failableContextualPath(sender, target.uuid(), path, errorPath, error, placeholders); }
 
     @Contract(pure = true)
@@ -615,7 +611,7 @@ public final class CustomMessages extends ATConfig {
         @NotNull final String path,
         @NotNull final String errorPath,
         @Nullable final Throwable error,
-        final Object... placeholders
+        final TagResolver... placeholders
     ) {
         final var truePath = error != null ? errorPath : path;
         sendMessage(sender, truePath, placeholders);
@@ -645,17 +641,17 @@ public final class CustomMessages extends ATConfig {
     ) {
         final var tooltipBuilder = Component.text().append(
                 CustomMessages.get("Tooltip." + path,
-                        "home", location.getName(),
-                        "warp", location.getName()
+                        Placeholder.unparsed("home", location.getName()),
+                        Placeholder.unparsed("warp", location.getName())
                 ));
 
         if (ExPermission.hasPermissionOrStar(sender, "at.member." + path + ".location")) {
             tooltipBuilder.append(CustomMessages.get(
                 "Tooltip.location",
-                "x", location.getLocation().getBlockX(),
-                "y", location.getLocation().getBlockY(),
-                "z", location.getLocation().getBlockZ(),
-                "world", location.getLocation().getWorld().getName()
+                    Placeholder.unparsed("x", String.valueOf(location.getLocation().getBlockX())),
+                    Placeholder.unparsed("y", String.valueOf(location.getLocation().getBlockY())),
+                    Placeholder.unparsed("z", String.valueOf(location.getLocation().getBlockZ())),
+                    Placeholder.unparsed("world", location.getLocation().getWorld().getName())
             ));
         }
 

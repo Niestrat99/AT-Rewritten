@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -48,7 +49,7 @@ public final class RemoveSpawn extends SpawnATCommand {
         // If the spawn does not exist, stop there
         Spawn spawn = AdvancedTeleportAPI.getSpawn(removingSpawn);
         if (spawn == null) {
-            CustomMessages.sendMessage(sender, "Error.noSuchSpawn", "spawn", removingSpawn);
+            CustomMessages.sendMessage(sender, "Error.noSuchSpawn", Placeholder.unparsed("spawn", removingSpawn));
             return true;
         }
 
@@ -57,7 +58,7 @@ public final class RemoveSpawn extends SpawnATCommand {
                         "Info.removedSpawn",
                         "Error.removeSpawnFail",
                         err,
-                        "spawn", spawn.getName()));
+                Placeholder.unparsed("spawn", spawn.getName())));
         return true;
     }
 

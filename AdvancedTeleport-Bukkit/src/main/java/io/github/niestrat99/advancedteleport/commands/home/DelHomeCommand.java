@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -76,8 +77,8 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
                 "Info.deletedHome",
                 "Error.deleteHomeFail",
                 err,
-                "home", name,
-                "player", player.getName() // TODO: Displayname
+                Placeholder.unparsed("home", name),
+                Placeholder.unparsed("player", player.getName()) // TODO: Displayname
         ));
     }
 
