@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.data
 
+import io.github.niestrat99.advancedteleport.extensions.cleanDeserialize
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
@@ -23,7 +24,7 @@ class PartialComponent private constructor(private var raw: String) {
     val value: Component
         get() {
             if (dirty) {
-                cache = MiniMessage.miniMessage().deserialize(_value)
+                cache = MiniMessage.miniMessage().cleanDeserialize(_value)
                 dirty = false
             }
             return cache!!
@@ -31,7 +32,7 @@ class PartialComponent private constructor(private var raw: String) {
 
     operator fun get(vararg placeholders: TagResolver): Component = if (placeholders.isEmpty()) {
         value
-    } else MiniMessage.miniMessage().deserialize(_value, *placeholders)
+    } else MiniMessage.miniMessage().cleanDeserialize(_value, *placeholders)
 
     fun formatRaw(placeholders: SortedSet<String>) {
         fun prefix(index: Int): String = buildString {
