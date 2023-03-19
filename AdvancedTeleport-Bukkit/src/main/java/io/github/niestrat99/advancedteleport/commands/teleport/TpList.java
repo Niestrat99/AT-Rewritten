@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -67,8 +68,8 @@ public final class TpList extends TeleportATCommand implements PlayerCommand {
     ) {
         final var body = CustomMessages.getPagesComponent(page, requests, request -> CustomMessages.get(
             "Info.multipleRequestsIndex",
-            "command", "/tpayes",
-            "player", request.requester().getName() // TODO: Try use player DisplayName
+                Placeholder.unparsed("command", "/tpayes"),
+                Placeholder.unparsed("player", request.requester().getName()) // TODO: Try use player DisplayName
         ));
 
         CustomMessages.sendMessage(player, "Info.multipleRequestAccept");

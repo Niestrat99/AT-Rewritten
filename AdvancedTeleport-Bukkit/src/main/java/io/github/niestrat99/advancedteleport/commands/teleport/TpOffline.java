@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -38,7 +39,7 @@ public final class TpOffline extends TeleportATCommand implements PlayerCommand 
             public void onSuccess(Location data) {
                 Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
                     PaperLib.teleportAsync((Player) sender, data);
-                    CustomMessages.sendMessage(sender, "Teleport.teleportedToOfflinePlayer", "player", args[0]);
+                    CustomMessages.sendMessage(sender, "Teleport.teleportedToOfflinePlayer", Placeholder.unparsed("player", args[0]));
                 });
             }
 

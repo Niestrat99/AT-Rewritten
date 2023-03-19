@@ -9,6 +9,7 @@ import net.kyori.adventure.nbt.DoubleBinaryTag;
 import net.kyori.adventure.nbt.FloatBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -30,12 +31,12 @@ public class NBTReader {
             try {
                 Location location = getLocation(player);
                 if (location == null) {
-                    callback.onFail(CustomMessages.get("Error.noOfflineLocation", "player", name));
+                    callback.onFail(CustomMessages.getComponent("Error.noOfflineLocation", Placeholder.unparsed("player", name)));
                     return;
                 }
                 callback.onSuccess(location);
             } catch (IOException e) {
-                callback.onFail(CustomMessages.get("Error.failedOfflineTeleport", "player", name));
+                callback.onFail(CustomMessages.getComponent("Error.failedOfflineTeleport", Placeholder.unparsed("player", name)));
                 e.printStackTrace();
             }
         });
@@ -97,7 +98,7 @@ public class NBTReader {
                 callback.onSuccess(true);
             } catch (IOException e) {
                 e.printStackTrace();
-                callback.onFail(CustomMessages.get("Error.failedOfflineTeleportHere", "player", name));
+                callback.onFail(CustomMessages.getComponent("Error.failedOfflineTeleportHere", Placeholder.unparsed("player", name)));
             }
         });
     }

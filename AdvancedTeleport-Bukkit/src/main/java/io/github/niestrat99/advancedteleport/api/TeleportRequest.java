@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Contract;
@@ -57,7 +58,7 @@ public record TeleportRequest(
             CustomMessages.sendMessage(
                 otherRequest.requester(),
                 "Error.requestDisplaced",
-                "player", otherRequest.responder().getName()
+                Placeholder.unparsed("player", otherRequest.responder().getName())
             );
         });
     }

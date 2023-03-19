@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -49,8 +50,9 @@ public final class MirrorSpawn extends SpawnATCommand {
         }
 
         fromSpawn.setMirroringSpawn(toSpawn, sender).whenComplete((v, e) ->
-                handleCommandFeedback(e, sender, "Info.mirroredSpawn", "Error.noSpawn", "spawn",
-                        v.getMirroringSpawn().getName(), "from", fromSpawn.getName()
+                handleCommandFeedback(e, sender, "Info.mirroredSpawn", "Error.noSpawn",
+                        Placeholder.unparsed("spawn", v.getMirroringSpawn().getName()),
+                        Placeholder.unparsed("from", fromSpawn.getName())
                 )
         );
         return true;

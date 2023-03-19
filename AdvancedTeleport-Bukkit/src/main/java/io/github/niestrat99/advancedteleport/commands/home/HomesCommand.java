@@ -14,6 +14,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -94,7 +95,7 @@ public final class HomesCommand extends AbstractHomeCommand {
         } else CustomMessages.sendMessage(
             sender,
             CustomMessages.contextualPath(sender, target, "Error.noHomes"),
-            "player", (Supplier<String>) target::getName // TODO: DisplayName
+            Placeholder.unparsed("player", target.getName()) // TODO: DisplayName
         );
     }
 }

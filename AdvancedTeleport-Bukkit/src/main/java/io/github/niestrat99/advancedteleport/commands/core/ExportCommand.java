@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -39,12 +40,12 @@ public final class ExportCommand extends SubATCommand {
 
         // If the plugin is unable to import/export data, let the player know
         if (!pluginHook.canImport()) {
-            CustomMessages.sendMessage(sender, "Error.cantExport", "plugin", args[0]);
+            CustomMessages.sendMessage(sender, "Error.cantExport", Placeholder.unparsed("plugin", args[0]));
             return true;
         }
 
         // Start the export with the specified section.
-        CustomMessages.sendMessage(sender, "Info.exportStarted", "plugin", args[0]);
+        CustomMessages.sendMessage(sender, "Info.exportStarted", Placeholder.unparsed("plugin", args[0]));
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             final var arg = args.length == 1 ? "all" : args[1];
             switch (arg.toLowerCase()) {
@@ -56,12 +57,12 @@ public final class ExportCommand extends SubATCommand {
                 case "all" -> pluginHook.exportAll();
                 default -> {
                     // TODO: Error message + fail
-                    CustomMessages.sendMessage(sender, "Error.cantExport", "plugin", args[0]);
+                    CustomMessages.sendMessage(sender, "Error.cantExport", Placeholder.unparsed("plugin", args[0]));
                     sender.sendMessage("Invalid input %s".formatted(arg));
                     return;
                 }
             }
-            CustomMessages.sendMessage(sender, "Info.exportFinished", "plugin", args[0]);
+            CustomMessages.sendMessage(sender, "Info.exportFinished", Placeholder.unparsed("plugin", args[0]));
         });
 
         return true;

@@ -21,6 +21,7 @@ import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -176,8 +177,10 @@ public class ATPlayer {
                 }
 
                 // Let the player know they have been teleported and withdraw any money.
-                CustomMessages.sendMessage(player, teleportMsg, "home", event.getLocName(), "warp",
-                        event.getLocName());
+                CustomMessages.sendMessage(player, teleportMsg,
+                        Placeholder.unparsed("home", event.getLocName()),
+                        Placeholder.unparsed("warp", event.getLocName())
+                );
                 PaymentManager.getInstance().withdraw(command, player);
             });
         }

@@ -11,6 +11,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -45,7 +46,7 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                     }
                     TeleportRequest request = TeleportRequest.getRequestByReqAndResponder(target, player);
                     if (request == null) {
-                        CustomMessages.sendMessage(sender, "Error.noRequestsFromPlayer", "player", args[0]);
+                        CustomMessages.sendMessage(sender, "Error.noRequestsFromPlayer", Placeholder.unparsed("player", args[0]));
                     } else {
                         TeleportCancelEvent event = new TeleportCancelEvent(request.responder(),
                             request.requester(), request.type()
@@ -57,7 +58,8 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                         }
 
                         CustomMessages.sendMessage(sender, "Info.tpCancel");
-                        CustomMessages.sendMessage(request.responder(), "Info.tpCancelResponder", "player", (Supplier<String>) player::getName); // TODO: Try use player DisplayName
+                        CustomMessages.sendMessage(request.responder(), "Info.tpCancelResponder",
+                                Placeholder.unparsed("player", player.getDisplayName())); // TODO: Try use player DisplayName
                         request.destroy();
                     }
                     return true;
@@ -77,8 +79,8 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                     JoinConfiguration.newlines(),
                     requests.getContentsInPage(1).stream().map(request -> CustomMessages.get(
                         "Info.multipleRequestsIndex",
-                        "command", "/tpcancel",
-                        "player", (Supplier<String>) () -> request.requester().getName() // TODO: Try use player DisplayName
+                            Placeholder.unparsed("command", "/tpcancel"),
+                            Placeholder.unparsed("player", request.requester().getName()) // TODO: Try use player DisplayName
                     )).toList() // TODO: Ensure order is correct
                 );
 
@@ -101,7 +103,7 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                 CustomMessages.sendMessage(
                     request.responder(),
                     "Info.tpCancelResponder",
-                    "player", (Supplier<String>) player::getName // TODO: Try use player DisplayName
+                        Placeholder.unparsed("player", player.getName()) // TODO: Try use player DisplayName
                 );
                 CustomMessages.sendMessage(player, "Info.tpCancel");
 

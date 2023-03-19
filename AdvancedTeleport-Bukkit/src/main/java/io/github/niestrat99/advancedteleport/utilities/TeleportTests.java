@@ -2,10 +2,9 @@ package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import java.util.function.Supplier;
 
 public class TeleportTests {
 
@@ -56,8 +55,8 @@ public class TeleportTests {
 
             final var body = CustomMessages.getPagesComponent(1, requests, request -> CustomMessages.get(
                 "Info.multipleRequestsIndex",
-                "command", type,
-                "player", (Supplier<String>) () -> request.requester().getName() // TODO: Try use player DisplayName
+                    Placeholder.unparsed("command", type),
+                    Placeholder.unparsed("player", request.requester().getName()) // TODO: Try use player DisplayName
             ));
 
             if (requests.getTotalPages() > 1) {

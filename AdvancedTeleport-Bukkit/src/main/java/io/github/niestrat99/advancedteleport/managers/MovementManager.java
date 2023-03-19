@@ -5,6 +5,8 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -67,7 +69,7 @@ public class MovementManager implements Listener {
         String message,
         int warmUp,
         Player payingPlayer,
-        Object... placeholders
+        TagResolver... placeholders
     ) {
         UUID uuid = teleportingPlayer.getUniqueId();
 
@@ -100,9 +102,9 @@ public class MovementManager implements Listener {
         movement.put(uuid, movementtimer);
         movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
         if (MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() || MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
-            CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTP", "countdown", String.valueOf(warmUp));
+            CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTP", Placeholder.unparsed("countdown", String.valueOf(warmUp)));
         } else {
-            CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTPMovementAllowed", "countdown", String.valueOf(warmUp));
+            CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTPMovementAllowed", Placeholder.unparsed("countdown", String.valueOf(warmUp)));
         }
 
     }

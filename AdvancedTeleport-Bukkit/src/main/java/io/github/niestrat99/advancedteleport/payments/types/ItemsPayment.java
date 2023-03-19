@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.payments.types;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.payments.Payment;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -96,8 +97,8 @@ public class ItemsPayment extends Payment {
         }
         if (amount > 0) {
             CustomMessages.sendMessage(player, "Info.paymentItems",
-                "amount", String.valueOf(amount),
-                "type", name
+                    Placeholder.unparsed("amount", String.valueOf(amount)),
+                    Placeholder.unparsed("type", name)
             );
         }
     }
@@ -113,8 +114,9 @@ public class ItemsPayment extends Payment {
             } else {
                 name = material.name();
             }
-            CustomMessages.sendMessage(player, "Error.notEnoughItems", "amount", String.valueOf(amount),
-                "type", name
+            CustomMessages.sendMessage(player, "Error.notEnoughItems",
+                    Placeholder.unparsed("amount", String.valueOf(amount)),
+                    Placeholder.unparsed("type", name)
             );
         }
         return result;

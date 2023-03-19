@@ -461,8 +461,11 @@ public final class CustomMessages extends ATConfig {
     }
 
     // Can't be named “get” because it conflicts with the non-static method.
-    public static @NotNull Component getComponent(@NotNull final String path) {
-        return get(path, (TagResolver[]) null);
+    public static @NotNull Component getComponent(
+            @NotNull final String path,
+            @Nullable final TagResolver... placeholders
+    ) {
+        return get(path, placeholders);
     }
 
     public static @NotNull String asString(

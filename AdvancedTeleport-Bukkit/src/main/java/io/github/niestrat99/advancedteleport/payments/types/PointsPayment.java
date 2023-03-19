@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.payments.types;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.payments.Payment;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 
 public class PointsPayment extends Payment {
@@ -46,8 +47,8 @@ public class PointsPayment extends Payment {
         player.giveExp(-expPoints);
         if (expPoints > 0) {
             CustomMessages.sendMessage(player, "Info.paymentEXP",
-                "amount", String.valueOf(levels.getPaymentAmount()),
-                "levels", String.valueOf(player.getLevel())
+                    Placeholder.unparsed("amount", String.valueOf(levels.getPaymentAmount())),
+                    Placeholder.unparsed("levels", String.valueOf(player.getLevel()))
             );
         }
     }
@@ -57,7 +58,7 @@ public class PointsPayment extends Payment {
         int requiredPoints = points;
         if (levels != null) {
             if (levels.getPaymentAmount() > player.getLevel()) {
-                CustomMessages.sendMessage(player, "Error.notEnoughEXP", "levels", String.valueOf(levels.getPaymentAmount()));
+                CustomMessages.sendMessage(player, "Error.notEnoughEXP", Placeholder.unparsed("levels", String.valueOf(levels.getPaymentAmount())));
                 return false;
             }
             int expPoints = getEXPBetweenLevels(player.getLevel());
@@ -66,7 +67,7 @@ public class PointsPayment extends Payment {
         if (player.getTotalExperience() >= requiredPoints) {
             return true;
         } else {
-            CustomMessages.sendMessage(player, "Error.notEnoughEXPPoints", "points", String.valueOf(requiredPoints));
+            CustomMessages.sendMessage(player, "Error.notEnoughEXPPoints", Placeholder.unparsed("points", String.valueOf(requiredPoints)));
 
             return false;
         }

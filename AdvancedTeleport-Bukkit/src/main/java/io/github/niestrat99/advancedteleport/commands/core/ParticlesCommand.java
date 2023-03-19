@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -67,7 +68,7 @@ public final class ParticlesCommand extends SubATCommand {
                 return false;
             }
             MainConfig.get().set("waiting-particles." + type, data);
-            CustomMessages.sendMessage(sender, "Info.specificParticlesUpdated", "type", type);
+            CustomMessages.sendMessage(sender, "Info.specificParticlesUpdated", Placeholder.unparsed("type", type));
         }
 
         // Then save the config.

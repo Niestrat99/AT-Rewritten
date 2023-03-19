@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -43,17 +44,17 @@ public abstract class ATCommand implements IATCommand {
         @NotNull final CommandSender sender,
         @NotNull final String success,
         @NotNull final String failure,
-        @NotNull String... placeholders
+        @NotNull TagResolver... placeholders
     ) {
         // If an error occurred, send the error and print the stacktrace
         if (err != null) {
-            CustomMessages.sendMessage(sender, failure, (Object[]) placeholders);
+            CustomMessages.sendMessage(sender, failure, placeholders);
             err.printStackTrace();
             return null;
         }
 
         // Otherwise, just send the success message
-        CustomMessages.sendMessage(sender, success, (Object[]) placeholders);
+        CustomMessages.sendMessage(sender, success, placeholders);
         return null;
     }
 

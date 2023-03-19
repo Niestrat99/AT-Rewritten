@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.CustomForm;
@@ -114,7 +115,7 @@ public final class ATFloodgatePlayer extends ATPlayer {
         // Set up the form
         SimpleForm form = SimpleForm.builder()
             .title(CustomMessages.asString("Forms.tpa-received-title"))
-            .content(CustomMessages.asString("Forms.tpa-received-description", "player", (Supplier<Component>) sender::displayName))
+            .content(CustomMessages.asString("Forms.tpa-received-description", Placeholder.unparsed("player", sender.getDisplayName())))
             .button(CustomMessages.asString("Forms.tpa-received-accept"))
             .button(CustomMessages.asString("Forms.tpa-received-deny"))
             .build();
@@ -149,7 +150,7 @@ public final class ATFloodgatePlayer extends ATPlayer {
         // Set up the form
         SimpleForm form = SimpleForm.builder()
             .title(CustomMessages.asString("Forms.tpahere-received-title"))
-            .content(CustomMessages.asString("Forms.tpahere-received-description", "player", (Supplier<Component>) sender::displayName))
+            .content(CustomMessages.asString("Forms.tpahere-received-description", Placeholder.unparsed("player", sender.getDisplayName())))
             .button(CustomMessages.asString("Forms.tpahere-received-accept"))
             .button(CustomMessages.asString("Forms.tpahere-received-deny"))
             .build();

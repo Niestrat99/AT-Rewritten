@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -128,22 +129,22 @@ public final class TpLoc extends TeleportATCommand implements PlayerCommand {
             PaperLib.teleportAsync(target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
             if (player != target) {
                 CustomMessages.sendMessage(player, "Info.teleportedToLocOther",
-                    "x", String.valueOf(loc[0]),
-                    "y", String.valueOf(loc[1]),
-                    "z", String.valueOf(loc[2]),
-                    "yaw", String.valueOf(yaw),
-                    "pitch", String.valueOf(pitch),
-                    "world", world.getName(),
-                    "player", args[6]
+                        Placeholder.unparsed("x", String.valueOf(loc[0])),
+                        Placeholder.unparsed("y", String.valueOf(loc[1])),
+                        Placeholder.unparsed("z", String.valueOf(loc[2])),
+                        Placeholder.unparsed("yaw", String.valueOf(yaw)),
+                        Placeholder.unparsed("pitch", String.valueOf(pitch)),
+                        Placeholder.unparsed("world", world.getName()),
+                        Placeholder.unparsed("player", args[6])
                 );
             } else {
                 CustomMessages.sendMessage(player, "Info.teleportedToLoc",
-                    "x", String.valueOf(loc[0]),
-                    "y", String.valueOf(loc[1]),
-                    "z", String.valueOf(loc[2]),
-                    "yaw", String.valueOf(yaw),
-                    "pitch", String.valueOf(pitch),
-                    "world", world.getName()
+                        Placeholder.unparsed("x", String.valueOf(loc[0])),
+                        Placeholder.unparsed("y", String.valueOf(loc[1])),
+                        Placeholder.unparsed("z", String.valueOf(loc[2])),
+                        Placeholder.unparsed("yaw", String.valueOf(yaw)),
+                        Placeholder.unparsed("pitch", String.valueOf(pitch)),
+                        Placeholder.unparsed("world", world.getName())
                 );
             }
         }
