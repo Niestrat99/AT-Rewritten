@@ -202,7 +202,7 @@ modrinth {
     uploadFile.set(getJarFile())
     gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4"))
     loaders.addAll("paper", "spigot", "purpur")
-    // changelog.set(getCogChangelog())
+    changelog.set(getCogChangelog())
 }
 
 bukkit {
