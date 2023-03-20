@@ -1,12 +1,13 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
-import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
+import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -43,10 +44,10 @@ public final class TpoHere extends TeleportATCommand implements PlayerCommand {
             CustomMessages.sendMessage(sender, "Error.noSuchPlayer");
             return true;
         }
-        CustomMessages.sendMessage(sender, "Teleport.teleportingPlayerToSelf", "{player}",
-                target.getName());
-        CustomMessages.sendMessage(target, "Teleport.teleportingSelfToPlayer", "{player}",
-                sender.getName());
+        CustomMessages.sendMessage(sender, "Teleport.teleportingPlayerToSelf",
+                Placeholder.unparsed("player", target.getName()));
+        CustomMessages.sendMessage(target, "Teleport.teleportingSelfToPlayer",
+                Placeholder.unparsed("player", sender.getName()));
         PaperLib.teleportAsync(target, player.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
         return true;
     }

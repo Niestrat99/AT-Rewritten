@@ -11,6 +11,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -77,7 +78,7 @@ public class TeleportTrackingManager implements Listener {
         // Get the results from teleportation
         String result = ConditionChecker.canTeleport(e.getFrom(), e.getTo(), null, e.getPlayer());
         if (result != null) {
-            CustomMessages.sendMessage(e.getPlayer(), result, "{world}", e.getTo().getWorld().getName());
+            CustomMessages.sendMessage(e.getPlayer(), result, Placeholder.unparsed("world", e.getTo().getWorld().getName()));
             e.setCancelled(true);
             return;
         }
@@ -98,7 +99,7 @@ public class TeleportTrackingManager implements Listener {
         // If the player can't teleport, stop there
         String result = ConditionChecker.canTeleport(e.getFromLocation(), e.getToLocation(), e.getType().getName(), e.getPlayer());
         if (result != null) {
-            CustomMessages.sendMessage(e.getPlayer(), result, "{world}", e.getToLocation().getWorld().getName());
+            CustomMessages.sendMessage(e.getPlayer(), result, Placeholder.unparsed("world", e.getToLocation().getWorld().getName()));
             e.setCancelled(true);
         }
 
@@ -136,7 +137,7 @@ public class TeleportTrackingManager implements Listener {
                 "default" : atPlayer.getPreviousLocation().getWorld().getName());
 
         // If one of those don't work, try the default option again
-        if (spawnCommand == null || spawnCommand.equals("{default}")) {
+        if (spawnCommand == null || spawnCommand.equals("default")) {
             spawnCommand = deathManagement.getString("default");
             if (spawnCommand == null) return;
         }
@@ -161,7 +162,7 @@ public class TeleportTrackingManager implements Listener {
                 : atPlayer.getPreviousLocation().getWorld()); // this should really be tidier
 
         // If the default option is being used, check there - if it's invalid or such, stop there
-        if (spawnCommand.equals("{default}")) {
+        if (spawnCommand.equals("default")) {
             spawnCommand = deathManagement.getString("default");
             if (spawnCommand == null) return false;
         }

@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -45,8 +46,7 @@ public final class SetSpawn extends SpawnATCommand implements PlayerCommand {
                         finalMessage,
                         "Error.setSpawnFail",
                         err,
-                        "{spawn}", finalName));
-
+                        Placeholder.unparsed("spawn", finalName)));
         return true;
     }
 

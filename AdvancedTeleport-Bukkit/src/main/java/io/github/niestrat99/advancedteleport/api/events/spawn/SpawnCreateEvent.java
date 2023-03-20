@@ -45,6 +45,20 @@ public final class SpawnCreateEvent extends TrackableATEvent {
     }
 
     /**
+     * Sets the name of the spawn.
+     *
+     * @param name the name to be used.
+     * @throws NullPointerException     if the spawn name is null.
+     * @throws IllegalArgumentException if the spawn name is empty.
+     */
+    @Contract(pure = true)
+    public void setName(@NotNull final String name) throws IllegalArgumentException {
+        if (name.isEmpty()) throw new IllegalArgumentException("The spawn name must not be empty.");
+
+        this.name = name;
+    }
+
+    /**
      * Gives the location of the spawn to be created.
      *
      * @return the provided location.
@@ -55,24 +69,10 @@ public final class SpawnCreateEvent extends TrackableATEvent {
     }
 
     /**
-     * Sets the name of the spawn.
-     *
-     * @param name the name to be used.
-     * @throws NullPointerException if the spawn name is null.
-     * @throws IllegalArgumentException if the spawn name is empty.
-     */
-    @Contract(pure = true)
-    public void setName(@NotNull final String name) throws IllegalArgumentException{
-        if (name.isEmpty()) throw new IllegalArgumentException("The spawn name must not be empty.");
-
-        this.name = name;
-    }
-
-    /**
      * Sets the location of the spawn.
      *
      * @param location the location to be used.
-     * @throws NullPointerException if the location is null.
+     * @throws NullPointerException  if the location is null.
      * @throws IllegalStateException if the location's world is unloaded.
      */
     @Contract(pure = true)

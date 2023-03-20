@@ -25,7 +25,7 @@ public final class MapCommand extends SubATCommand {
         @NotNull final Command command,
         @NotNull final String s,
         @NotNull final String[] args
-) {
+    ) {
         return false;
     }
 }

@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.payments.types;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.payments.Payment;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,7 +18,10 @@ public class VaultPayment extends Payment {
     private double price;
     private Economy economy;
 
-    public VaultPayment(double price, @Nullable String economyName) throws IllegalStateException {
+    public VaultPayment(
+        double price,
+        @Nullable String economyName
+    ) throws IllegalStateException {
 
         // Sets the internal fields.
         this.price = price;
@@ -57,15 +61,6 @@ public class VaultPayment extends Payment {
     }
 
     @Override
-    public boolean canPay(Player player) {
-        boolean result = super.canPay(player);
-        if (!result) {
-            CustomMessages.sendMessage(player, "Error.notEnoughMoney", "{amount}", economy.format(price));
-        }
-        return result;
-    }
-
-    @Override
     public double getPlayerAmount(Player player) {
         return economy.getBalance(player);
     }
@@ -83,7 +78,18 @@ public class VaultPayment extends Payment {
     @Override
     public void setPlayerAmount(Player player) {
         economy.withdrawPlayer(player, price);
-        CustomMessages.sendMessage(player, "Info.paymentVault", "{amount}", economy.format(price), "{balance}", economy.format(getPlayerAmount(player)));
+        CustomMessages.sendMessage(player, "Info.paymentVault",
+                Placeholder.unparsed("amount", economy.format(price)),
+                Placeholder.unparsed("balance", economy.format(getPlayerAmount(player))));
+    }
+
+    @Override
+    public boolean canPay(Player player) {
+        boolean result = super.canPay(player);
+        if (!result) {
+            CustomMessages.sendMessage(player, "Error.notEnoughMoney", Placeholder.unparsed("amount", economy.format(price)));
+        }
+        return result;
     }
 
 }

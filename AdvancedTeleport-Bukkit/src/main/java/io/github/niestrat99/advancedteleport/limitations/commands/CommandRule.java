@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a teleportation rule controlled by the command.
@@ -38,7 +37,7 @@ public abstract class CommandRule {
      * Determines whether the player can teleport to a location depending on the rule at hand.
      *
      * @param player the player being teleported.
-     * @param toLoc the destination location.
+     * @param toLoc  the destination location.
      * @return true if the player can teleport to the destination location, false if not.
      */
     public abstract boolean canTeleport(

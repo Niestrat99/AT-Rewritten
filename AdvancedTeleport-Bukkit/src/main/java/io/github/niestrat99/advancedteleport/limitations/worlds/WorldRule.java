@@ -2,11 +2,11 @@ package io.github.niestrat99.advancedteleport.limitations.worlds;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class WorldRule {
 

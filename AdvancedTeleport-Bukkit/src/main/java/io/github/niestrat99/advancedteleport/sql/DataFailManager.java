@@ -14,8 +14,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class DataFailManager {
 
-    private final HashMap<Fail, Integer> pendingFails;
     private static DataFailManager instance;
+    private final HashMap<Fail, Integer> pendingFails;
     private final File failCsv;
 
     public DataFailManager() {
@@ -58,7 +58,10 @@ public class DataFailManager {
         }, 1200, 1200);
     }
 
-    public void addFailure(Operation operation, String... data) {
+    public void addFailure(
+        Operation operation,
+        String... data
+    ) {
         Fail fail = new Fail(operation, data);
         if (!pendingFails.containsKey(fail)) {
             CoreClass.getInstance().getLogger().warning("SQL failure added for operation " + operation.name() + ".");
@@ -124,6 +127,25 @@ public class DataFailManager {
         });
     }
 
+    private Location locFromStrings(String... data) {
+        if (data.length < 6) {
+            throw new IllegalArgumentException("Not enough arguments to get a location! " + Arrays.toString(data));
+        }
+        String worldStr = data[0];
+        World world = Bukkit.getWorld(worldStr);
+        if (world == null) return null;
+        double x = Double.parseDouble(data[1]);
+        double y = Double.parseDouble(data[2]);
+        double z = Double.parseDouble(data[3]);
+        float yaw = Float.parseFloat(data[4]);
+        float pitch = Float.parseFloat(data[5]);
+        return new Location(world, x, y, z, yaw, pitch);
+    }
+
+    public static DataFailManager get() {
+        return instance;
+    }
+
     public void onDisable() {
         try {
             if (!pendingFails.isEmpty()) {
@@ -151,52 +173,6 @@ public class DataFailManager {
 
     }
 
-    private Location locFromStrings(String... data) {
-        if (data.length < 6) {
-            throw new IllegalArgumentException("Not enough arguments to get a location! " + Arrays.toString(data));
-        }
-        String worldStr = data[0];
-        World world = Bukkit.getWorld(worldStr);
-        if (world == null) return null;
-        double x = Double.parseDouble(data[1]);
-        double y = Double.parseDouble(data[2]);
-        double z = Double.parseDouble(data[3]);
-        float yaw = Float.parseFloat(data[4]);
-        float pitch = Float.parseFloat(data[5]);
-        return new Location(world, x, y, z, yaw, pitch);
-    }
-
-    public static DataFailManager get() {
-        return instance;
-    }
-
-    public static class Fail {
-
-        private String[] data;
-        private Operation operation;
-
-        public Fail(Operation operation, String... data) {
-            this.data = data;
-            this.operation = operation;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Fail fail = (Fail) o;
-            return Arrays.equals(data, fail.data) &&
-                    operation == fail.operation;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = Objects.hash(operation);
-            result = 31 * result + Arrays.hashCode(data);
-            return result;
-        }
-    }
-
     public enum Operation {
         ADD_BLOCK,
         UNBLOCK,
@@ -211,5 +187,35 @@ public class DataFailManager {
         ADD_WARP,
         MOVE_WARP,
         DELETE_WARP
+    }
+
+    public static class Fail {
+
+        private final String[] data;
+        private final Operation operation;
+
+        public Fail(
+            Operation operation,
+            String... data
+        ) {
+            this.data = data;
+            this.operation = operation;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(operation);
+            result = 31 * result + Arrays.hashCode(data);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Fail fail = (Fail) o;
+            return Arrays.equals(data, fail.data) &&
+                operation == fail.operation;
+        }
     }
 }

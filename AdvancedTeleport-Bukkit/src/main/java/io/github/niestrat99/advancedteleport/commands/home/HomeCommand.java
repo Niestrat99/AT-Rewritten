@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -21,7 +22,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
     public boolean onCommand(
         @NotNull final CommandSender sender,
         @NotNull final Command command,
-        @NotNull final String s,
+        @NotNull final String label,
         @NotNull final String[] args
     ) {
         if (!canProceed(sender)) return true;
@@ -39,7 +40,10 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                 Home home = homesOther.get(args[1]);
                 if (home != null) {
                     PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
+                    CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther",
+                            Placeholder.unparsed("player", args[0]),
+                            Placeholder.unparsed("home", args[1])
+                    );
                     return;
                 }
 
@@ -48,7 +52,10 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                     home = target.getBedSpawn();
                     if (home != null) {
                         PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                        CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
+                        CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther",
+                                Placeholder.unparsed("player", args[0]),
+                                Placeholder.unparsed("home", args[1])
+                        );
                         return;
                     }
                 }
@@ -87,7 +94,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                 if (atPlayer.canAccessHome(home)) {
                     teleport(player, home);
                 } else {
-                    CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
+                    CustomMessages.sendMessage(sender, "Error.noAccessHome", Placeholder.unparsed("home", home.getName()));
                 }
                 return true;
             }
@@ -128,8 +135,10 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
         }
 
         if (args[0].equalsIgnoreCase("list")) {
-            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender,
-                    "advancedteleport:homes " + args[0]));
+            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(
+                    sender,
+                    "advancedteleport:homes " + args[0]
+            ));
             return true;
         }
 
@@ -138,7 +147,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
             return true;
         }
 
-        CustomMessages.sendMessage(sender, (home == null ? "Error.noSuchHome" : "Error.noAccessHome"), "{home}", args[0]);
+        CustomMessages.sendMessage(sender, (home == null ? "Error.noSuchHome" : "Error.noAccessHome"), Placeholder.unparsed("home", args[0]));
         return true;
     }
 
@@ -163,7 +172,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
     }
 
     @Override
-    public String getSection() {
+    public @NotNull String getSection() {
         return "home";
     }
 }

@@ -44,7 +44,10 @@ public abstract class MapPlugin<P extends Plugin, R> extends PluginHook<P, R> {
 
     public abstract void moveSpawn(Spawn spawn);
 
-    public abstract void registerImage(String name, InputStream stream);
+    public abstract void registerImage(
+        String name,
+        InputStream stream
+    );
 
     public enum TeleportPoint {
         WARP,

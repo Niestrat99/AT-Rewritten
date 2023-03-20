@@ -52,7 +52,7 @@ public final class SpawnMirrorEvent extends TrackableATEvent {
     /**
      * Sets the world for the spawn to be mirrored from.
      *
-     * @param fromWorld the name of the world.
+     * @param fromSpawn the name of the world.
      * @throws NullPointerException     if the spawn name is null.
      * @throws IllegalArgumentException if the spawn name is empty.
      */
@@ -65,7 +65,7 @@ public final class SpawnMirrorEvent extends TrackableATEvent {
     /**
      * Sets the world for the spawn to be mirrored to.
      *
-     * @param toWorld the name of the world.
+     * @param toSpawn the name of the world.
      * @throws NullPointerException     if the spawn name is null.
      * @throws IllegalArgumentException if the spawn name is empty.
      */

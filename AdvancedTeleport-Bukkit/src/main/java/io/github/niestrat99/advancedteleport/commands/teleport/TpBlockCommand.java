@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -58,7 +59,7 @@ public final class TpBlockCommand extends TeleportATCommand implements PlayerCom
                     "Info.block",
                     "Error.blockFail",
                     err,
-                    "{player}", target.getName()
+                    Placeholder.unparsed("player", target.getName())
                 ));
             } else {
                 atPlayer.blockUser(target).whenCompleteAsync((ignored, err) -> CustomMessages.failable(
@@ -66,7 +67,7 @@ public final class TpBlockCommand extends TeleportATCommand implements PlayerCom
                     "Info.blockPlayer",
                     "Error.blockFail",
                     err,
-                    "{player}", target.getName()
+                    Placeholder.unparsed("player", target.getName())
                 ));
             }
         });

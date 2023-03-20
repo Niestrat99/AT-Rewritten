@@ -5,12 +5,12 @@ import org.jetbrains.annotations.NotNull;
 public abstract class SubATCommand extends ATCommand {
 
     @Override
-    public final @NotNull String getPermission() {
-        return "";
+    public final boolean getRequiredFeature() {
+        return true;
     }
 
     @Override
-    public final boolean getRequiredFeature() {
-        return true;
+    public final @NotNull String getPermission() {
+        return "";
     }
 }

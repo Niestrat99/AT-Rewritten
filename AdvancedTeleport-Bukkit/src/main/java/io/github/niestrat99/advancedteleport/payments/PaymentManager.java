@@ -15,9 +15,8 @@ import java.util.regex.Pattern;
 
 public class PaymentManager {
 
-    private final HashMap<String, HashMap<String, Payment>> teleportCosts;
-
     private static PaymentManager instance;
+    private final HashMap<String, HashMap<String, Payment>> teleportCosts;
 
     public PaymentManager() {
         instance = this;
@@ -33,7 +32,10 @@ public class PaymentManager {
         addCommand("back", MainConfig.get().COSTS.BACK.get());
     }
 
-    private void addCommand(String command, Object value) {
+    private void addCommand(
+        String command,
+        Object value
+    ) {
 
         // Generate a hashmap for each payment
         HashMap<String, Payment> payments = new HashMap<>();
@@ -55,7 +57,41 @@ public class PaymentManager {
         teleportCosts.put(command, payments);
     }
 
-    private void addPayment(String type, Payment payment, HashMap<String, Payment> currentPayMethods) {
+    private Payment parsePayment(String rawPayment) {
+        if (rawPayment.length() - 3 <= 0) {
+            Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
+            if (matcher.matches()) {
+                String plugin = matcher.group(1);
+                double payment = Double.parseDouble(matcher.group(2));
+                return new VaultPayment(payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
+            }
+            return null;
+        }
+        String points = rawPayment.substring(0, rawPayment.length() - 3);
+        if (rawPayment.endsWith("LVL")) {
+            return new LevelsPayment(Integer.parseInt(points));
+        } else if (rawPayment.endsWith("EXP")) {
+            return new PointsPayment(Integer.parseInt(points));
+        } else {
+            Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
+            if (matcher.matches()) {
+                String plugin = matcher.group(1);
+                double payment = Double.parseDouble(matcher.group(2));
+                return new VaultPayment(
+                    payment,
+                    plugin == null ? null : plugin.substring(0, plugin.length() - 1)
+                );
+            } else {
+                return ItemsPayment.getFromString(rawPayment);
+            }
+        }
+    }
+
+    private void addPayment(
+        String type,
+        Payment payment,
+        HashMap<String, Payment> currentPayMethods
+    ) {
         if (type.equalsIgnoreCase("levels")) {
             if (currentPayMethods.containsKey("exp")) {
                 PointsPayment existingPayment = (PointsPayment) currentPayMethods.get("exp");
@@ -86,8 +122,15 @@ public class PaymentManager {
 
     }
 
+    public static PaymentManager getInstance() {
+        return instance;
+    }
+
     // Method used to check if a player can pay for using a command
-    public boolean canPay(String command, Player player) {
+    public boolean canPay(
+        String command,
+        Player player
+    ) {
         if (player.hasPermission("at.admin.bypass.payment")) return true;
         for (Payment payment : getPayments(command, player).values()) {
             if (!payment.canPay(player)) {
@@ -98,7 +141,10 @@ public class PaymentManager {
     }
 
     // Method used to manage payments
-    public void withdraw(String command, Player player) {
+    public void withdraw(
+            String command,
+            Player player
+    ) {
         if (!player.hasPermission("at.admin.bypass.payment")) {
             for (Payment payment : getPayments(command, player).values()) {
                 payment.withdraw(player);
@@ -106,15 +152,18 @@ public class PaymentManager {
         }
     }
 
-    private HashMap<String, Payment> getPayments(String command, Player player) {
+    private HashMap<String, Payment> getPayments(
+            String command,
+            Player player
+    ) {
         final var customCosts = MainConfig.get().CUSTOM_COSTS.get();
         var payments = new HashMap<String, Payment>();
         for (String key : customCosts.getKeys(false)) {
             String worldName = player.getWorld().getName().toLowerCase(Locale.ROOT);
             if (!player.hasPermission("at.member.cost." + key)
-                    && !player.hasPermission("at.member.cost." + command + "." + key)
-                    && !player.hasPermission("at.member.cost." + worldName + "." + key)
-                    && !player.hasPermission("at.member.cost." + command + "." + worldName + "." + key)) continue;
+                && !player.hasPermission("at.member.cost." + command + "." + key)
+                && !player.hasPermission("at.member.cost." + worldName + "." + key)
+                && !player.hasPermission("at.member.cost." + command + "." + worldName + "." + key)) continue;
             String rawPayment = customCosts.getString(key);
             if (rawPayment == null) continue;
             Payment payment = parsePayment(rawPayment);
@@ -123,37 +172,5 @@ public class PaymentManager {
         }
         if (payments.isEmpty()) payments = teleportCosts.get(command);
         return payments;
-    }
-
-    private Payment parsePayment(String rawPayment) {
-        if (rawPayment.length() - 3 <= 0) {
-            Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
-            if (matcher.matches()) {
-                String plugin = matcher.group(1);
-                double payment = Double.parseDouble(matcher.group(2));
-                return new VaultPayment(payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
-            }
-            return null;
-        }
-        String points = rawPayment.substring(0, rawPayment.length() - 3);
-        if (rawPayment.endsWith("LVL")) {
-            return new LevelsPayment(Integer.parseInt(points));
-        } else if (rawPayment.endsWith("EXP")) {
-            return new PointsPayment(Integer.parseInt(points));
-        } else {
-            Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
-            if (matcher.matches()) {
-                String plugin = matcher.group(1);
-                double payment = Double.parseDouble(matcher.group(2));
-                return new VaultPayment(payment,
-                        plugin == null ? null : plugin.substring(0, plugin.length() - 1));
-            } else {
-                return ItemsPayment.getFromString(rawPayment);
-            }
-        }
-    }
-
-    public static PaymentManager getInstance() {
-        return instance;
     }
 }

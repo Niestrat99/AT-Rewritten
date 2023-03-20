@@ -1,18 +1,20 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportRequestEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
-import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
-import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -45,7 +47,10 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
         Player target = Bukkit.getPlayer(args[0]);
         String result = ConditionChecker.canTeleport(player, target, "tpa");
         if (result != null) {
-            CustomMessages.sendMessage(player, result, "{player}", args[0], "{world}", target == null ? "<No Such World>" : target.getWorld().getName());
+            CustomMessages.sendMessage(player, result,
+                    Placeholder.unparsed("player", args[0]),
+                    Placeholder.unparsed("world", target == null ? "<No Such World>" : target.getWorld().getName())
+            );
             return true;
         }
         if (PaymentManager.getInstance().canPay("tpa", player)) {
@@ -58,10 +63,11 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
             }
 
             CustomMessages.sendMessage(sender, "Info.requestSent",
-                    "{player}", target.getName(),
-                    "{lifetime}", String.valueOf(requestLifetime));
+                    Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(target.getName())),
+                    Placeholder.unparsed("lifetime", String.valueOf(requestLifetime))
+            );
 
-           CoreClass.playSound("tpa", "sent", player);
+            CoreClass.playSound("tpa", "sent", player);
 
             ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
@@ -69,8 +75,9 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
                 ((ATFloodgatePlayer) targetPlayer).sendRequestFormTPA(player);
             } else {
                 CustomMessages.sendMessage(target, "Info.tpaRequestReceived",
-                        "{player}", sender.getName(),
-                        "{lifetime}", String.valueOf(requestLifetime));
+                        Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(sender.getName())),
+                        Placeholder.unparsed("lifetime", String.valueOf(requestLifetime))
+                );
             }
 
             CoreClass.playSound("tpa", "received", target);
@@ -84,8 +91,8 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
                         if (request == null) return;
 
                         if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                            CustomMessages.sendMessage(sender, "Error.requestExpired", "{player}",
-                                    target.getName());
+                            CustomMessages.sendMessage(sender, "Error.requestExpired",
+                                    Placeholder.unparsed("player", target.getName()));
                         }
                         TeleportRequest.removeRequest(request);
                     }

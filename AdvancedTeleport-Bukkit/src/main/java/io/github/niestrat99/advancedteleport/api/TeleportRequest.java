@@ -2,14 +2,15 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * @param requester The player sending the request.
@@ -23,13 +24,6 @@ public record TeleportRequest(
 ) {
 
     private static final List<TeleportRequest> requestList = new ArrayList<>();
-
-    @Contract(pure = true)
-    public static @NotNull List<TeleportRequest> getRequests(@NotNull final Player responder) {
-        return requestList.stream()
-            .filter(request -> request.responder().equals(responder))
-            .toList();
-    }
 
     @Contract(pure = true)
     public static @NotNull List<TeleportRequest> getRequestsByRequester(@NotNull final Player requester) {
@@ -64,20 +58,27 @@ public record TeleportRequest(
             CustomMessages.sendMessage(
                 otherRequest.requester(),
                 "Error.requestDisplaced",
-                "{player}", otherRequest.responder().getName()
+                Placeholder.unparsed("player", otherRequest.responder().getName())
             );
         });
     }
 
     @Contract(pure = true)
-    public static void removeRequest(@NotNull final TeleportRequest request) {
-        requestList.remove(request);
+    public static @NotNull List<TeleportRequest> getRequests(@NotNull final Player responder) {
+        return requestList.stream()
+            .filter(request -> request.responder().equals(responder))
+            .toList();
     }
 
     @Contract(pure = true)
     public void destroy() {
         timer.cancel();
         removeRequest(this);
+    }
+
+    @Contract(pure = true)
+    public static void removeRequest(@NotNull final TeleportRequest request) {
+        requestList.remove(request);
     }
 
 }

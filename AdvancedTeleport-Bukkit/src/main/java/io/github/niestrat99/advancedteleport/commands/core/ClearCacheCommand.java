@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -53,7 +54,7 @@ public class ClearCacheCommand extends SubATCommand {
         // Reset the data
         RTPManager.unloadWorldData(world);
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> RTPManager.loadWorldData(world));
-        CustomMessages.sendMessage(sender, "Info.clearWorld", "world", args[0]);
+        CustomMessages.sendMessage(sender, "Info.clearWorld", Placeholder.unparsed("world", args[0]));
         return false;
     }
 

@@ -23,7 +23,7 @@ public final class TpOff extends TeleportATCommand implements PlayerCommand {
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (atPlayer.isTeleportationEnabled()) {
             atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(callback ->
-                    CustomMessages.sendMessage(sender, "Info.tpOff"));
+                CustomMessages.sendMessage(sender, "Info.tpOff"));
         } else {
             CustomMessages.sendMessage(sender, "Error.alreadyOff");
         }
