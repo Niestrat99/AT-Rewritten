@@ -142,7 +142,7 @@ public final class HelpCommand extends SubATCommand {
         // Then create a help menu out of it
         PagedLists<String> commandList = new PagedLists<>(possibleCommands, 7);
         if (page > commandList.getTotalPages()) {
-            sender.sendMessage("Invalid page"); // TODO - proper message
+            CustomMessages.sendMessage(sender, "Error.invalidPageNo");
             return true;
         }
 

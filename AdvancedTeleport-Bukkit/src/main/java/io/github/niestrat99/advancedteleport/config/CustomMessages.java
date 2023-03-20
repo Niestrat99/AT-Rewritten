@@ -204,6 +204,8 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.noSuchPlugin", "<prefix> <gray>This plugin is not supported for importing/exporting yet!");
         addDefault("Error.cantImport", "<prefix> <gray>Can't import plugin data from <aqua><plugin></aqua> (make sure it's enabled and by the correct authors)!");
         addDefault("Error.cantExport", "<prefix> <gray>Can't export plugin data from <aqua><plugin></aqua> (make sure it's enabled and by the correct authors)!");
+        addDefault("Error.noPluginSpecified", "<prefix> <gray>You need to specify a plugin to import/export from!");
+        addDefault("Error.invalidOption", "<prefix> <gray>That is not a valid option to import/export!");
         addDefault("Error.notEnoughItems", """
             <prefix> <gray>You do not have enough items to teleport there!
             <prefix> <gray>You need at least <aqua><amount></aqua> <type>(s)!

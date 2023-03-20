@@ -27,7 +27,7 @@ public final class ExportCommand extends SubATCommand {
     ) {
         // If there's no arguments contained, stop there
         if (args.length == 0) {
-            // TODO - send message
+            CustomMessages.sendMessage(sender, "Error.noPluginSpecified");
             return true;
         }
 
@@ -56,9 +56,7 @@ public final class ExportCommand extends SubATCommand {
                 case "players" -> pluginHook.exportPlayerInformation();
                 case "all" -> pluginHook.exportAll();
                 default -> {
-                    // TODO: Error message + fail
-                    CustomMessages.sendMessage(sender, "Error.cantExport", Placeholder.unparsed("plugin", args[0]));
-                    sender.sendMessage("Invalid input %s".formatted(arg));
+                    CustomMessages.sendMessage(sender, "Error.invalidOption");
                     return;
                 }
             }

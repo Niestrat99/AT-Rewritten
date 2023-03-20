@@ -27,10 +27,16 @@ public final class ImportCommand extends SubATCommand {
         @NotNull final String s,
         @NotNull final String[] args
     ) {
-        if (args.length == 0) return true;
+        if (args.length == 0) {
+            CustomMessages.sendMessage(sender, "Error.noPluginSpecified");
+            return true;
+        }
 
         final var pluginHook = getImportExportPlugin(sender, args);
-        if (pluginHook == null) return true;
+        if (pluginHook == null) {
+            CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
+            return true;
+        }
 
         final var arg = args.length == 1 ? "all" : args[1].toLowerCase();
         CustomMessages.sendMessage(sender, "Info.importStarted", Placeholder.unparsed("plugin", args[0]));
@@ -43,8 +49,7 @@ public final class ImportCommand extends SubATCommand {
                 case "players" -> pluginHook.importPlayerInformation();
                 case "all" -> pluginHook.importAll();
                 default -> {
-                    // TODO: Error message
-                    CustomMessages.sendMessage(sender, "Error.cantImport", Placeholder.unparsed("plugin", args[0]));
+                    CustomMessages.sendMessage(sender, "Error.invalidOption");
                     return;
                 }
             }
