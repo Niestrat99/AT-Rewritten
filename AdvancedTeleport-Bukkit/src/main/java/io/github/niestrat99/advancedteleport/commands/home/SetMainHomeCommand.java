@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -48,7 +49,8 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                             "Info.setMainHome",
                             "Error.setMainHomeFail",
                             err,
-                            "{home}", homeName, "{player}", target.getName()
+                            Placeholder.unparsed("home", homeName),
+                            Placeholder.unparsed("player", args[0])
                     ));
 
                     return;
@@ -65,7 +67,8 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                         "Info.setMainHome",
                         "Error.setMainHomeFail",
                         err,
-                        "{home}", homeName, "{player}", args[0]
+                        Placeholder.unparsed("home", homeName),
+                        Placeholder.unparsed("player", args[0]) // TODO: Displyname
                 ));
             });
             return true;
@@ -98,12 +101,17 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                     "Info.setMainHome",
                     "Error.setMainHomeFail",
                     err,
-                    "{home}", homeName
+                        Placeholder.unparsed("home", homeName)
                 ));
-            } else CustomMessages.sendMessage(sender, "Error.noAccessHome", "{home}", home.getName());
+            } else CustomMessages.sendMessage(sender, "Error.noAccessHome", Placeholder.unparsed("home", home.getName()));
         }
 
         return true;
+    }
+
+    @Override
+    public @NotNull String getPermission() {
+        return "at.member.setmainhome";
     }
 
     private void addAndMaybeSetHome(
@@ -114,7 +122,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
     ) {
         atTarget.addHome(homeName, player.getLocation(), player).whenCompleteAsync((ignored, err) -> {
             if (err != null) {
-                CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
+                CustomMessages.sendMessage(sender, "Error.setHomeFail", Placeholder.unparsed("home", homeName));
                 if (!(err instanceof ATException)) err.printStackTrace();
                 return;
             }
@@ -125,13 +133,9 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                 "Info.setAndMadeMainHome",
                 "Error.setMainHomeFail",
                 err2,
-                "{home}", homeName, "{player}", atTarget.getPlayer().getName()
+                Placeholder.unparsed("home", homeName),
+                Placeholder.component("player", atTarget.getPlayer().displayName())
             ));
         });
-    }
-
-    @Override
-    public @NotNull String getPermission() {
-        return "at.member.setmainhome";
     }
 }

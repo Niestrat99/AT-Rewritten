@@ -1,20 +1,24 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.events.players.TeleportCancelEvent;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
-import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
-import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public final class TpCancel extends TeleportATCommand implements PlayerCommand {
 
@@ -42,11 +46,11 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                     }
                     TeleportRequest request = TeleportRequest.getRequestByReqAndResponder(target, player);
                     if (request == null) {
-                        CustomMessages.sendMessage(sender, "Error.noRequestsFromPlayer", "{player}",
-                                args[0]);
+                        CustomMessages.sendMessage(sender, "Error.noRequestsFromPlayer", Placeholder.unparsed("player", args[0]));
                     } else {
-                        TeleportCancelEvent event = new TeleportCancelEvent(request.requester(),
-                                request.requester(), request.type());
+                        TeleportCancelEvent event = new TeleportCancelEvent(request.responder(),
+                            request.requester(), request.type()
+                        );
                         Bukkit.getPluginManager().callEvent(event);
                         if (event.isCancelled()) {
                             // Could not be cancelled
@@ -55,7 +59,7 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
 
                         CustomMessages.sendMessage(sender, "Info.tpCancel");
                         CustomMessages.sendMessage(request.responder(), "Info.tpCancelResponder",
-                                "{player}", player.getName());
+                                Placeholder.unparsed("player", player.getDisplayName())); // TODO: Try use player DisplayName
                         request.destroy();
                     }
                     return true;
@@ -71,34 +75,38 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                 PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequestsByRequester(player), 8);
                 CustomMessages.sendMessage(player, "Info.multipleRequestsCancel");
                 // Displays the first 8 requests
-                for (int i = 0; i < requests.getContentsInPage(1).size(); i++) {
-                    TeleportRequest request = requests.getContentsInPage(1).get(i);
-                    new FancyMessage()
-                            .command("/tpcancel " + request.responder().getName())
-                            .text(CustomMessages.getStringRaw("Info.multipleRequestsIndex")
-                                    .replaceAll("\\{player}", request.responder().getName()))
-                            .sendProposal(player, i);
-                }
+                final var component = Component.join(
+                    JoinConfiguration.newlines(),
+                    requests.getContentsInPage(1).stream().map(request -> CustomMessages.get(
+                        "Info.multipleRequestsIndex",
+                            Placeholder.unparsed("command", "/tpcancel"),
+                            Placeholder.unparsed("player", request.requester().getName()) // TODO: Try use player DisplayName
+                    )).toList() // TODO: Ensure order is correct
+                );
 
-                // TODO - if there's just one page?
                 if (requests.getTotalPages() > 1) {
-                    FancyMessage.send(player);
+                    CustomMessages.asAudience(player).sendMessage(component);
                     CustomMessages.sendMessage(player, "Info.multipleRequestsList");
                 }
             } else {
                 TeleportRequest request = TeleportRequest.getRequestsByRequester(player).get(0);
 
                 TeleportCancelEvent event = new TeleportCancelEvent(request.requester(),
-                        request.requester(), request.type());
+                    request.requester(), request.type()
+                );
                 Bukkit.getPluginManager().callEvent(event);
                 if (event.isCancelled()) {
                     // Could not be cancelled
                     return true;
                 }
 
-                CustomMessages.sendMessage(request.responder(), "Info.tpCancelResponder", "{player}",
-                        player.getName());
+                CustomMessages.sendMessage(
+                    request.responder(),
+                    "Info.tpCancelResponder",
+                        Placeholder.unparsed("player", player.getName()) // TODO: Try use player DisplayName
+                );
                 CustomMessages.sendMessage(player, "Info.tpCancel");
+
                 request.destroy();
                 return true;
             }

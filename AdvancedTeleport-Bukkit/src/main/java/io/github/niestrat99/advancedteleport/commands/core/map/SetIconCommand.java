@@ -5,7 +5,6 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
-import java.util.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public final class SetIconCommand extends SubATCommand {
@@ -89,8 +89,8 @@ public final class SetIconCommand extends SubATCommand {
                     .map(List.class::cast) // Cast so we can return the empty list.
                     .orElse(List.of());
                 default -> new ArrayList<>();
-                };
-            }
+            };
+        }
 
         if (args.length == 4 && args[3].equalsIgnoreCase("home")) {
             return StringUtil.copyPartialMatches(args[3], MapAssetManager.getImageNames(), new ArrayList<>());

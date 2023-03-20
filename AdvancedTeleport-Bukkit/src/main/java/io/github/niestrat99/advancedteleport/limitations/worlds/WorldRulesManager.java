@@ -14,7 +14,7 @@ import java.util.List;
 
 public class WorldRulesManager {
 
-    private HashMap<String, List<WorldRule>> rules;
+    private final HashMap<String, List<WorldRule>> rules;
 
     public WorldRulesManager() {
         rules = new HashMap<>();
@@ -24,7 +24,10 @@ public class WorldRulesManager {
         }
     }
 
-    private void addWorld(String world, String rulesRaw) {
+    private void addWorld(
+        String world,
+        String rulesRaw
+    ) {
         String[] rules = rulesRaw.split(";");
         List<WorldRule> ruleList = new ArrayList<>();
         for (String rule : rules) {
@@ -39,7 +42,10 @@ public class WorldRulesManager {
         this.rules.put(world, ruleList);
     }
 
-    public boolean canTeleport(Player player, Location toLoc) {
+    public boolean canTeleport(
+        Player player,
+        Location toLoc
+    ) {
         String world = player.getLocation().getWorld().getName();
         List<WorldRule> rulesFromWorld = this.rules.getOrDefault(world, this.rules.get("default"));
         List<WorldRule> rulesToWorld = this.rules.getOrDefault(toLoc.getWorld().getName(), this.rules.get("default"));

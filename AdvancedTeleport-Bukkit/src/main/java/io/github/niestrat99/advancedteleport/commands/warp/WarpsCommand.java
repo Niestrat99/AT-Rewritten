@@ -6,21 +6,19 @@ import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUIConfig;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
+import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 import io.github.niestrat99.advancedteleport.utilities.IconMenu;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
-import org.bukkit.Location;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public final class WarpsCommand extends ATCommand {
 
@@ -51,25 +49,28 @@ public final class WarpsCommand extends ATCommand {
                 }
             }
             int pages = maxPage - minPage + 1;
-            IconMenu menu = new IconMenu(CustomMessages.getStringRaw("Info.warps"), GUIConfig.getWarpsMenuSlots(), pages, CoreClass.getInstance());
+            IconMenu menu = new IconMenu(CustomMessages.asString("Info.warps"), GUIConfig.getWarpsMenuSlots(), pages, CoreClass.getInstance());
 
             for (String warpName : warps.getKeys(false)) {
                 ConfigSection warp = warps.getConfigSection(warpName);
                 if (sender.hasPermission("at.member.warp.*")
-                        || sender.hasPermission("at.member.warp." + warpName)
-                        || !warp.getBoolean("hideIfNoPermission")) {
+                    || sender.hasPermission("at.member.warp." + warpName)
+                    || !warp.getBoolean("hideIfNoPermission")) {
 
                     menu.setIcon(warp.getInteger("page"), warp.getInteger("slot"),
-                            new IconMenu.Icon(
-                                    new ItemStack(
-                                            Material.valueOf(warp.getString("item")),
-                                            1,
-                                            (byte) warp.getInteger("data-value")))
-                                    .withNameAndLore(
-                                            warp.getString("name"),
-                                            warp.getStringList("tooltip"))
-                                    .withCommands("warp " + warpName)
-                                    .withTexture("texture"));
+                        new IconMenu.Icon(
+                            new ItemStack(
+                                Material.valueOf(warp.getString("item")),
+                                1,
+                                (byte) warp.getInteger("data-value")
+                            ))
+                            .withNameAndLore(
+                                warp.getString("name"),
+                                warp.getStringList("tooltip")
+                            )
+                            .withCommands("warp " + warpName)
+                            .withTexture("texture")
+                    );
                 }
             }
             // Next page icons will override warps
@@ -77,81 +78,58 @@ public final class WarpsCommand extends ATCommand {
                 if (i != 0) {
                     ConfigSection lastPage = GUIConfig.getLastPageIcon();
                     menu.setIcon(i, lastPage.getInteger("slot"),
-                            new IconMenu.Icon(
-                                    new ItemStack(Material.valueOf(lastPage.getString("item")),
-                                            1,
-                                            (byte) lastPage.getInteger("data-value")))
-                                    .withTexture(lastPage.getString("texture"))
-                                    .withNameAndLore(lastPage.getString("name"), lastPage.getStringList("tooltip"))
-                                    .withHandler(handler -> {
-                                        handler.setWillClose(false);
-                                        handler.setWillDestroy(false);
-                                        menu.openPreviousPage();
-                                    }));
+                        new IconMenu.Icon(
+                            new ItemStack(
+                                Material.valueOf(lastPage.getString("item")),
+                                1,
+                                (byte) lastPage.getInteger("data-value")
+                            ))
+                            .withTexture(lastPage.getString("texture"))
+                            .withNameAndLore(lastPage.getString("name"), lastPage.getStringList("tooltip"))
+                            .withHandler(handler -> {
+                                handler.setWillClose(false);
+                                handler.setWillDestroy(false);
+                                menu.openPreviousPage();
+                            })
+                    );
                 }
                 if (i != pages - 1) {
                     ConfigSection nextPage = GUIConfig.getNextPageIcon();
                     menu.setIcon(i, nextPage.getInteger("slot"),
-                            new IconMenu.Icon(
-                                    new ItemStack(Material.valueOf(nextPage.getString("item")),
-                                            1,
-                                            (byte) nextPage.getInteger("data-value")))
-                                    .withTexture(nextPage.getString("texture"))
-                                    .withNameAndLore(nextPage.getString("name"), nextPage.getStringList("tooltip"))
-                                    .withHandler(handler -> {
-                                        handler.setWillClose(false);
-                                        handler.setWillDestroy(false);
-                                        menu.openNextPage();
-                                    }));
+                        new IconMenu.Icon(
+                            new ItemStack(
+                                Material.valueOf(nextPage.getString("item")),
+                                1,
+                                (byte) nextPage.getInteger("data-value")
+                            ))
+                            .withTexture(nextPage.getString("texture"))
+                            .withNameAndLore(nextPage.getString("name"), nextPage.getStringList("tooltip"))
+                            .withHandler(handler -> {
+                                handler.setWillClose(false);
+                                handler.setWillDestroy(false);
+                                menu.openNextPage();
+                            })
+                    );
                 }
             }
             menu.open((Player) sender);
 
         } else {
-            if (AdvancedTeleportAPI.getWarps().size() > 0) {
-                FancyMessage wList = new FancyMessage();
-                wList.text(CustomMessages.getStringRaw("Info.warps"));
-                int count = 0;
-                for(String warp: AdvancedTeleportAPI.getWarps().keySet()){
-                    if (sender.hasPermission("at.member.warp.*") || sender.hasPermission("at.member.warp." + warp)) {
-                        wList.then(warp)
-                                .command("/warp " + warp)
-                                .tooltip(getTooltip(sender, warp))
-                                .then(", ");
-                        count++;
-                    }
-                }
-                wList.text(""); //Removes trailing comma
-                if (count > 0) {
-                    wList.sendProposal(sender, 0);
-                    FancyMessage.send(sender);
-                } else {
-                    sender.sendMessage(CustomMessages.getStringRaw("Error.noWarps"));
-                }
+            final TextComponent body = (TextComponent) Component.join(
+                JoinConfiguration.commas(true),
+                AdvancedTeleportAPI.getWarps().values().stream()
+                    .filter(warp -> ExPermission.hasPermissionOrStar(sender, "at.member.warp." + warp.getName().toLowerCase()))
+                    .map(warp -> Component.text(warp.getName())
+                            .clickEvent(ClickEvent.runCommand("/advancedteleport:warp " + warp.getName()))
+                            .hoverEvent(CustomMessages.locationBasedTooltip(sender, warp, "warps"))
+                    ).toList()
+            );
 
-            } else {
-                CustomMessages.sendMessage(sender, "Error.noWarps");
-            }
-
+            if (!body.content().isEmpty() || !body.children().isEmpty()) {
+                Component text = CustomMessages.getComponent("Info.warps");
+                CustomMessages.asAudience(sender).sendMessage(text.append(body));
+            } else CustomMessages.sendMessage(sender, "Error.noWarps");
         }
-    }
-
-    private static List<String> getTooltip(CommandSender sender, String warp) {
-        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringRaw("Tooltip.warps")));
-        if (sender.hasPermission("at.member.warps.location")) {
-            tooltip.addAll(Arrays.asList(CustomMessages.getStringRaw("Tooltip.location").split("\n")));
-        }
-        List<String> homeTooltip = new ArrayList<>(tooltip);
-        for (int i = 0; i < homeTooltip.size(); i++) {
-            Location warpLoc = AdvancedTeleportAPI.getWarps().get(warp).getLocation();
-
-            homeTooltip.set(i, homeTooltip.get(i).replaceAll("\\{warp}", warp)
-                    .replaceAll("\\{x}", String.valueOf(warpLoc.getBlockX()))
-                    .replaceAll("\\{y}", String.valueOf(warpLoc.getBlockY()))
-                    .replaceAll("\\{z}", String.valueOf(warpLoc.getBlockZ()))
-                    .replaceAll("\\{world}", warpLoc.getWorld().getName()));
-        }
-        return homeTooltip;
     }
 
     @Override

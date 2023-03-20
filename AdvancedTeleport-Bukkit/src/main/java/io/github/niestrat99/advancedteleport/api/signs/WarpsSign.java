@@ -14,12 +14,18 @@ public class WarpsSign extends ATSign {
     }
 
     @Override
-    public void onInteract(@NotNull Sign sign, @NotNull Player player) {
+    public void onInteract(
+        @NotNull Sign sign,
+        @NotNull Player player
+    ) {
         WarpsCommand.sendWarps(player);
     }
 
     @Override
-    public boolean canCreate(@NotNull Sign sign, @NotNull Player player) {
+    public boolean canCreate(
+        @NotNull Sign sign,
+        @NotNull Player player
+    ) {
         return true;
     }
 }

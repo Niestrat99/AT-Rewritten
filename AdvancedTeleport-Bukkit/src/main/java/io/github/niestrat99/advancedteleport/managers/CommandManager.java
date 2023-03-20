@@ -1,7 +1,9 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.commands.*;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.commands.CoreCommand;
+import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.commands.core.*;
 import io.github.niestrat99.advancedteleport.commands.home.*;
 import io.github.niestrat99.advancedteleport.commands.spawn.*;
@@ -77,7 +79,10 @@ public class CommandManager {
         subcommands.put("particles", new ParticlesCommand());
     }
 
-    private static void register(String name, ATCommand atCommand) {
+    private static void register(
+        String name,
+        ATCommand atCommand
+    ) {
         PluginCommand command = Bukkit.getPluginCommand("advancedteleport:" + name);
         if (command == null) command = atCommands.get(name);
         if (command == null) return;

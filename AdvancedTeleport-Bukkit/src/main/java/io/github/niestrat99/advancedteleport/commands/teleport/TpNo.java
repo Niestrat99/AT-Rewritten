@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.utilities.TeleportTests;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -37,7 +38,7 @@ public final class TpNo extends TeleportATCommand implements PlayerCommand {
         } else {
             target = request.requester();
         }
-        CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", "{player}", player.getName());
+        CustomMessages.sendMessage(target, "Info.requestDeclinedResponder", Placeholder.unparsed("player", player.getName()));
         CustomMessages.sendMessage(player, "Info.requestDeclined");
         request.destroy();
         return true;

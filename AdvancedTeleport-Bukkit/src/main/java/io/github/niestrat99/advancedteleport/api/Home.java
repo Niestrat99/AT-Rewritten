@@ -24,19 +24,17 @@ public final class Home implements NamedLocation {
     private final @NotNull String name;
     private final @NotNull String createdTimeFormatted;
     private final @NotNull SimpleDateFormat format;
-    private @NotNull String updatedTimeFormatted;
-    // The location of the home.
-    private @NotNull Location location;
-    // When the home was made.
     private final long createdTime;
+    private @NotNull String updatedTimeFormatted;
+    private @NotNull Location location;
     private long updatedTime;
 
     /**
      * Creates a home object. Please note this does not add a home to the saved data; instead, use {@link ATPlayer#addHome(String, Location, org.bukkit.entity.Player)}.
      *
-     * @param owner The owner of the house.
-     * @param name The name of the house.
-     * @param location Where the house is located.
+     * @param owner       The owner of the house.
+     * @param name        The name of the house.
+     * @param location    Where the house is located.
      * @param createdTime When the house was created in milliseconds.
      * @param updatedTime When the house was last updated in milliseconds.
      */
@@ -60,16 +58,6 @@ public final class Home implements NamedLocation {
     }
 
     /**
-     * Returns the location of the house.
-     *
-     * @return the location of the house.
-     */
-    @Contract(pure = true)
-    public @NotNull Location getLocation() {
-        return location;
-    }
-
-    /**
      * Returns the name of the house.
      *
      * @return the name of the house.
@@ -77,6 +65,16 @@ public final class Home implements NamedLocation {
     @Contract(pure = true)
     public @NotNull String getName() {
         return name;
+    }
+
+    /**
+     * Returns the location of the house.
+     *
+     * @return the location of the house.
+     */
+    @Contract(pure = true)
+    public @NotNull Location getLocation() {
+        return location;
     }
 
     /**

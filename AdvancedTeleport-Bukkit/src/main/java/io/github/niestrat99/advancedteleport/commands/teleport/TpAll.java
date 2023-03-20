@@ -9,6 +9,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -33,7 +34,7 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
         Player player = (Player) sender;
         int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
         if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
+            CustomMessages.sendMessage(sender, "Error.onCooldown", Placeholder.unparsed("time", String.valueOf(cooldown)));
             return true;
         }
         int players = 0;
@@ -44,8 +45,10 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
                 continue;
             }
             players++;
-            CustomMessages.sendMessage(target, "Info.tpaRequestHere", "{player}", sender.getName(),
-                    "{lifetime}", String.valueOf(requestLifetime));
+            CustomMessages.sendMessage(target, "Info.tpaRequestHere",
+                    Placeholder.unparsed("player", sender.getName()),
+                    Placeholder.unparsed("lifetime", String.valueOf(requestLifetime))
+            );
 
             BukkitRunnable run = new BukkitRunnable() {
                 @Override
@@ -61,7 +64,7 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
             CooldownManager.addToCooldown("tpahere", player);
         }
         if (players > 0) {
-            CustomMessages.sendMessage(player, "Info.tpallRequestSent", "{amount}", String.valueOf(players));
+            CustomMessages.sendMessage(player, "Info.tpallRequestSent", Placeholder.unparsed("amount", String.valueOf(players)));
         } else {
             CustomMessages.sendMessage(player, "Error.noRequestsSent");
         }

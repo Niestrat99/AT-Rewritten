@@ -1,8 +1,10 @@
 package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.Contract;
@@ -37,11 +39,17 @@ public abstract class ATCommand implements IATCommand {
         return sender.hasPermission(getPermission());
     }
 
-    public Void handleCommandFeedback(Throwable ex, CommandSender sender, String success, String failure, String... placeholders) {
+    public Void handleCommandFeedback(
+        @Nullable final Throwable err,
+        @NotNull final CommandSender sender,
+        @NotNull final String success,
+        @NotNull final String failure,
+        @NotNull TagResolver... placeholders
+    ) {
         // If an error occurred, send the error and print the stacktrace
-        if (ex != null) {
+        if (err != null) {
             CustomMessages.sendMessage(sender, failure, placeholders);
-            ex.printStackTrace();
+            err.printStackTrace();
             return null;
         }
 

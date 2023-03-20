@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,10 +19,10 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
 
     @Override
     public boolean onCommand(
-            @NotNull final CommandSender sender,
-            @NotNull final Command command,
-            @NotNull final String s,
-            @NotNull final String[] args
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
     ) {
 
         // If the feature isn't enabled/no permission, stop there
@@ -50,15 +51,19 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
         return true;
     }
 
-    public static void warp(Warp warp, Player player, boolean useSign) {
+    public static void warp(
+        Warp warp,
+        Player player,
+        boolean useSign
+    ) {
         String warpPrefix = "at.member.warp." + (useSign ? "sign." : "");
 
-        boolean found = player.hasPermission( warpPrefix + "*");
+        boolean found = player.hasPermission(warpPrefix + "*");
         if (player.isPermissionSet(warpPrefix + warp.getName().toLowerCase())) {
             found = player.hasPermission(warpPrefix + warp.getName().toLowerCase());
         }
         if (!found) {
-            CustomMessages.sendMessage(player, "Error.noPermissionWarp", "{warp}", warp.getName());
+            CustomMessages.sendMessage(player, "Error.noPermissionWarp", Placeholder.unparsed("warp", warp.getName()));
             return;
         }
         ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);

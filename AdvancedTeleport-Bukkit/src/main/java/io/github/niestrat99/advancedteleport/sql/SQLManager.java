@@ -8,7 +8,11 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public abstract class SQLManager {
 
@@ -29,31 +33,20 @@ public abstract class SQLManager {
         createTable();
     }
 
-    private Connection loadSqlite() {
-        // Load JDBC
-        try {
-            Class.forName("org.sqlite.JDBC");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + CoreClass.getInstance().getDataFolder() + "/data.db");
-            usingSqlite = true;
-            return connection;
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public Connection implementConnection() {
         Connection connection;
         if (MainConfig.get().USE_MYSQL.get()) {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
+                String url = String.format(
+                        "jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
                         MainConfig.get().MYSQL_HOST.get(),
                         MainConfig.get().MYSQL_PORT.get(),
                         MainConfig.get().MYSQL_DATABASE.get(),
                         MainConfig.get().USE_SSL.get(),
                         MainConfig.get().AUTO_RECONNECT.get(),
-                        MainConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get());
+                        MainConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get()
+                );
                 connection = DriverManager.getConnection(url, MainConfig.get().USERNAME.get(), MainConfig.get().PASSWORD.get());
                 usingSqlite = false;
                 return connection;
@@ -67,17 +60,30 @@ public abstract class SQLManager {
         return connection;
     }
 
+    public abstract void createTable();
+
+    private Connection loadSqlite() {
+        // Load JDBC
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + CoreClass.getInstance().getDataFolder() + "/data.db");
+            usingSqlite = true;
+            return connection;
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void runAsync(Runnable runnable) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), runnable);
     }
 
-    public abstract void createTable();
-
-    public abstract void transferOldData();
-
     public static String getTablePrefix() {
         return tablePrefix;
     }
+
+    public abstract void transferOldData();
 
     public String getStupidAutoIncrementThing() {
         return usingSqlite ? "AUTOINCREMENT" : "AUTO_INCREMENT";
@@ -91,7 +97,10 @@ public abstract class SQLManager {
         statement.executeUpdate();
     }
 
-    protected synchronized PreparedStatement prepareStatement(Connection connection, String sql) throws SQLException {
+    protected synchronized PreparedStatement prepareStatement(
+        Connection connection,
+        String sql
+    ) throws SQLException {
         return connection.prepareStatement(sql);
     }
 

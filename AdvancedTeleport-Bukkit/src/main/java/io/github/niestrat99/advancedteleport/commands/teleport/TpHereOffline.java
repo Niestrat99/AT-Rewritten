@@ -5,6 +5,8 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -34,13 +36,13 @@ public final class TpHereOffline extends TeleportATCommand implements PlayerComm
                 @Override
                 public void onSuccess(Boolean data) {
                     Bukkit.getScheduler().runTask(CoreClass.getInstance(), () ->
-                            CustomMessages.sendMessage(sender, "Teleport.teleportedOfflinePlayerHere", "{player}"
-                                    , args[0]));
+                        CustomMessages.sendMessage(sender, "Teleport.teleportedOfflinePlayerHere",
+                                Placeholder.unparsed("player", args[0])));
                 }
 
                 @Override
-                public void onFail(String message) {
-                    sender.sendMessage(message);
+                public void onFail(@NotNull final Component message) {
+                    CustomMessages.asAudience(sender).sendMessage(message);
                 }
             });
             return true;

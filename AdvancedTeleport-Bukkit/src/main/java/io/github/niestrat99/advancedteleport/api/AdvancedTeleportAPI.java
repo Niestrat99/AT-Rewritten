@@ -25,35 +25,21 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /**
  * The class used for accessing common counterparts of the plugin.
  */
 public final class AdvancedTeleportAPI {
-    private AdvancedTeleportAPI() {}
-
-    @ApiStatus.Internal
-    public static <T extends CancellableATEvent, R> @NotNull CompletableFuture<R> validateEvent(
-        @NotNull final T event,
-        @NotNull final Function<T, CompletableFuture<R>> validatedEvent
-    ) {
-        if (event.callEvent()) {
-            return validatedEvent.apply(event);
-        } else return ATException.failedFuture(event);
-    }
-
-    static @NotNull Optional<Player> maybePlayer(@Nullable final CommandSender sender) {
-        if (sender instanceof Player player) {
-            return Optional.of(player);
-        } else return Optional.empty();
-    }
+    private AdvancedTeleportAPI() { }
 
     public static @NotNull CompletableFuture<OfflinePlayer> getOfflinePlayer(@NotNull final String name) {
         return CompletableFuture.supplyAsync(() -> Bukkit.getOfflinePlayer(name), CoreClass.async);
@@ -62,8 +48,8 @@ public final class AdvancedTeleportAPI {
     /**
      * Sets a warp at a given location. This will call
      *
-     * @param name The name of the warp.
-     * @param creator The creator of the warp.
+     * @param name     The name of the warp.
+     * @param creator  The creator of the warp.
      * @param location The location of the warp.
      * @return a completable future action of the saved warp.
      * @throws IllegalArgumentException if the world of the warp is not loaded.
@@ -82,10 +68,10 @@ public final class AdvancedTeleportAPI {
 
             // Create the warp object
             final Warp warp = new Warp(
-                    maybePlayer(event.getSender()).map(Player::getUniqueId).orElse(null),
-                    event.getName(),
-                    event.getLocation(),
-                    System.currentTimeMillis(), System.currentTimeMillis()
+                maybePlayer(event.getSender()).map(Player::getUniqueId).orElse(null),
+                event.getName(),
+                event.getLocation(),
+                System.currentTimeMillis(), System.currentTimeMillis()
             );
 
             // Add the warp
@@ -99,6 +85,22 @@ public final class AdvancedTeleportAPI {
                 return warp;
             }, CoreClass.sync);
         });
+    }
+
+    @ApiStatus.Internal
+    public static <T extends CancellableATEvent, R> @NotNull CompletableFuture<R> validateEvent(
+        @NotNull final T event,
+        @NotNull final Function<T, CompletableFuture<R>> validatedEvent
+    ) {
+        if (event.callEvent()) {
+            return validatedEvent.apply(event);
+        } else return ATException.failedFuture(event);
+    }
+
+    static @NotNull Optional<Player> maybePlayer(@Nullable final CommandSender sender) {
+        if (sender instanceof Player player) {
+            return Optional.of(player);
+        } else return Optional.empty();
     }
 
     /**
@@ -117,15 +119,6 @@ public final class AdvancedTeleportAPI {
         return getWarps().get(name);
     }
 
-    public static boolean isWarpSet(@NotNull String name) {
-
-        // Null check
-        Objects.requireNonNull(name, "The warp name must not be null.");
-
-        // Return the result
-        return getWarps().containsKey(name);
-    }
-
     /**
      * Returns a hashmap of warps. The keys are the names of the warps, and the corresponding value is the warp objects.
      * Cannot be directly modified.
@@ -137,11 +130,20 @@ public final class AdvancedTeleportAPI {
         return NamedLocationManager.get().getWarps();
     }
 
+    public static boolean isWarpSet(@NotNull String name) {
+
+        // Null check
+        Objects.requireNonNull(name, "The warp name must not be null.");
+
+        // Return the result
+        return getWarps().containsKey(name);
+    }
+
     /**
      * Sets a spawnpoint at a specific location.
      *
-     * @param name the name/ID of the spawnpoint.
-     * @param sender the creator of the spawnpoint.
+     * @param name     the name/ID of the spawnpoint.
+     * @param sender   the creator of the spawnpoint.
      * @param location the location of the warp.
      * @return a completable future action of the saved spawnpoint.
      */

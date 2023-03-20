@@ -1,4 +1,5 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import java.io.BufferedReader
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.regex.Pattern
@@ -89,11 +90,15 @@ dependencies {
 
     implementation(libMinix.slimjar)
 
+    slim(libMinix.bundles.kotlin)
     slim(libMinix.adventure.api)
     slim(libMinix.adventure.minimessage)
     slim(libMinix.adventure.platform.bukkit)
-    slim(libMinix.bundles.kotlin)
     slim(libMinix.minecraft.bstats.bukkit)
+    slim(libs.paperlib)
+    slim(libs.kyori.nbt)
+    slim(libs.kyori.examination)
+    slim(libs.configuration)
 
     slim(libs.paperlib)
     slim(libs.kyori.nbt)
@@ -145,6 +150,7 @@ tasks {
         runDirectory.set(rootDir.resolve(".run"))
         pluginJars(pluginsFolder.resolve("Vault.jar"))
         pluginJars(pluginsFolder.resolve("Spark.jar"))
+        pluginJars(pluginsFolder.resolve("Spoofer.jar"))
         pluginJars(pluginsFolder.resolve("squaremap.jar"))
         pluginJars(pluginsFolder.resolve("PlayerParticles.jar"))
         pluginJars(getJarFile())
@@ -179,6 +185,12 @@ tasks {
         dependsOn(jar)
         dependsOn(inspectClassesForKotlinIC)
     }
+
+    create("tryChangelog") {
+        doFirst {
+            println(getCogChangelog())
+        }
+    }
 }
 
 // Lead development use only.
@@ -197,7 +209,7 @@ bukkit {
     name = "AdvancedTeleport"
     version = project.version.toString().substring(if (project.version.toString().startsWith("v")) 1 else 0) // Remove the v in front
     description = "A plugin that allows you to teleport to players, locations, and more!"
-    authors = listOf("Niestrat99, Thatsmusic99, SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan, LucasMucGH (Github), jonas-t-s (Github), DaRacci")
+    authors = listOf("Niestrat99", "Thatsmusic99", "SuspiciousLookingOwl (Github)", "animeavi (Github)", "MrEngMan", "LucasMucGH (Github)", "jonas-t-s (Github)", "DaRacci")
 
     apiVersion = "1.16"
     main = "io.github.niestrat99.advancedteleport.CoreClass"
@@ -521,10 +533,12 @@ bukkit {
 fun getCogChangelog(): String {
 
     println("Fetching changelog at v" + project.version.toString())
-    val process = Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString())
-    process.waitFor()
-    if (process.exitValue() != 0) return ""
-    return process.inputStream.bufferedReader().readText()
+    return runCatching { Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString()) }
+        .onSuccess(Process::waitFor)
+        .map { process ->
+            if (process.exitValue() != 0) ""
+            else process.inputStream.bufferedReader().use(BufferedReader::readText)
+        }.getOrDefault("")
 }
 
 // Lead development use only.

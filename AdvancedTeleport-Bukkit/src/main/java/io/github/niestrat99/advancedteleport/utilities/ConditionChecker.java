@@ -25,7 +25,11 @@ public class ConditionChecker {
      * @return if the string is empty, the player can teleport, otherwise, state why
      */
     @Contract("_, null, _ -> !null; _, !null, _ -> _")
-    public static @Nullable String canTeleport(Player player, Player target, String command) {
+    public static @Nullable String canTeleport(
+        Player player,
+        Player target,
+        String command
+    ) {
 
         // If the target is null, don't teleport
         if (target == null) return "Error.noSuchPlayer";
@@ -59,12 +63,17 @@ public class ConditionChecker {
         return null;
     }
 
-    public static @Nullable String canTeleport(Location fromLoc, Location toLoc, String command, Player teleportingPlayer) {
+    public static @Nullable String canTeleport(
+        Location fromLoc,
+        Location toLoc,
+        String command,
+        Player teleportingPlayer
+    ) {
 
         // Use debug print
         CoreClass.debug("Requested to see if " + teleportingPlayer.getName() + " can teleport from "
-                + CoreClass.getShortLocation(fromLoc) + " to " + CoreClass.getShortLocation(toLoc) + " using command "
-                + command);
+            + CoreClass.getShortLocation(fromLoc) + " to " + CoreClass.getShortLocation(toLoc) + " using command "
+            + command);
 
         // Check if the player is too far away
         if (MainConfig.get().ENABLE_DISTANCE_LIMITATIONS.get()
@@ -96,7 +105,10 @@ public class ConditionChecker {
         return players;
     }
 
-    public static <T> T validate(T object, String message) {
+    public static <T> T validate(
+        T object,
+        String message
+    ) {
         if (object != null) return object;
         throw new NullPointerException(message);
     }

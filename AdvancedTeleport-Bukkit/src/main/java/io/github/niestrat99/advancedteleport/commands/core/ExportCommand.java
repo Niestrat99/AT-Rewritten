@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,10 +20,10 @@ public final class ExportCommand extends SubATCommand {
 
     @Override
     public boolean onCommand(
-            @NotNull final CommandSender sender,
-            @NotNull final Command command,
-            @NotNull final String s,
-            @NotNull final String[] args
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
     ) {
         // If there's no arguments contained, stop there
         if (args.length == 0) {
@@ -39,34 +40,29 @@ public final class ExportCommand extends SubATCommand {
 
         // If the plugin is unable to import/export data, let the player know
         if (!pluginHook.canImport()) {
-            CustomMessages.sendMessage(sender, "Error.cantExport", "{plugin}", args[0]);
-            return true;
-        }
-
-        // If only the plugin is specified, just export everything
-        if (args.length == 1) {
-            CustomMessages.sendMessage(sender, "Info.exportStarted", "{plugin}", args[0]);
-
-            // Export it asynchronously
-            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                pluginHook.exportAll();
-                CustomMessages.sendMessage(sender, "Info.exportFinished", "{plugin}", args[0]);
-            });
+            CustomMessages.sendMessage(sender, "Error.cantExport", Placeholder.unparsed("plugin", args[0]));
             return true;
         }
 
         // Start the export with the specified section.
-        CustomMessages.sendMessage(sender, "Info.exportStarted", "{plugin}", args[0]);
+        CustomMessages.sendMessage(sender, "Info.exportStarted", Placeholder.unparsed("plugin", args[0]));
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            switch (args[1].toLowerCase()) {
+            final var arg = args.length == 1 ? "all" : args[1];
+            switch (arg.toLowerCase()) {
                 case "homes" -> pluginHook.exportHomes();
                 case "warps" -> pluginHook.exportWarps();
                 case "lastlocs" -> pluginHook.exportLastLocations();
                 case "spawns" -> pluginHook.exportSpawn();
                 case "players" -> pluginHook.exportPlayerInformation();
-                default -> pluginHook.exportAll();
+                case "all" -> pluginHook.exportAll();
+                default -> {
+                    // TODO: Error message + fail
+                    CustomMessages.sendMessage(sender, "Error.cantExport", Placeholder.unparsed("plugin", args[0]));
+                    sender.sendMessage("Invalid input %s".formatted(arg));
+                    return;
+                }
             }
-            CustomMessages.sendMessage(sender, "Info.exportFinished", "{plugin}", args[0]);
+            CustomMessages.sendMessage(sender, "Info.exportFinished", Placeholder.unparsed("plugin", args[0]));
         });
 
         return true;

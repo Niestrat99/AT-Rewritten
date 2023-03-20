@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -50,7 +51,8 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                     "Info.movedHome",
                     "Error.moveHomeFail",
                     err,
-                    "{home}", args[1], "{player}", args[0]
+                    Placeholder.unparsed("home", args[1]),
+                    Placeholder.unparsed("player", args[0])
                 ));
             });
             return true;
@@ -68,7 +70,7 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                 "Info.movedHome",
                 "Error.moveHomeFail",
                 err,
-                "{home}", args[0]
+                Placeholder.unparsed("home", args[0])
         ));
 
         return true;

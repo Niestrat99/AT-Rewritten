@@ -139,7 +139,7 @@ public final class PluginHookManager {
     }
 
     @Contract(pure = true)
-    public boolean floodgateEnabled() {
+    public boolean floodgateEnabled() { // TODO - update to new recommended check
         return Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate");
     }
 

@@ -22,24 +22,22 @@ import java.util.concurrent.CompletableFuture;
  * Represents a warp point.
  */
 public class Warp implements NamedLocation {
-
-
-    @Nullable private final UUID creator;
-    @NotNull private final String name;
-    @NotNull private final String createdTimeFormatted;
-    @NotNull private final SimpleDateFormat dateFormat;
-    @NotNull private String updatedTimeFormatted;
-    @NotNull private Location location;
-    private final long createdTime;
-    private long updatedTime;
     @Deprecated private static final HashMap<String, Warp> warps = new HashMap<>();
+    private final @Nullable UUID creator;
+    private final @NotNull String name;
+    private final long createdTime;
+    private final @NotNull String createdTimeFormatted;
+    private final @NotNull SimpleDateFormat dateFormat;
+    private @NotNull Location location;
+    private long updatedTime;
+    private @NotNull String updatedTimeFormatted;
 
     /**
      * Creates a warp object, but does not formally register it. To register a warp, use {@link AdvancedTeleportAPI#setWarp(String, CommandSender, Location)}.
      *
-     * @param creator The creator of the warp. Can be null.
-     * @param name The name of the warp.
-     * @param location The location of the warp.
+     * @param creator     The creator of the warp. Can be null.
+     * @param name        The name of the warp.
+     * @param location    The location of the warp.
      * @param createdTime The time in milliseconds when the warp was created.
      * @param updatedTime The time in milliseconds when the warp was updated.
      */
@@ -93,7 +91,6 @@ public class Warp implements NamedLocation {
         return creator;
     }
 
-
     /**
      * Sets the location of the warp.
      *
@@ -108,10 +105,13 @@ public class Warp implements NamedLocation {
      * Sets the location of the warp. This will fire WarpMoveEvent.
      *
      * @param location the new location of the warp.
-     * @param sender the command sender who triggered the action.
+     * @param sender   the command sender who triggered the action.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
+    public CompletableFuture<Void> setLocation(
+        @NotNull Location location,
+        @Nullable CommandSender sender
+    ) {
 
         // Make sure the event runs without any issues.
         return AdvancedTeleportAPI.validateEvent(new WarpMoveEvent(this, location, sender), event -> {
@@ -172,6 +172,16 @@ public class Warp implements NamedLocation {
     /**
      * Deletes a specified warp.
      *
+     * @return A completable future of whether the action failed or succeeded.
+     */
+    @Contract(pure = true)
+    public @NotNull CompletableFuture<Void> delete() {
+        return delete(null);
+    }
+
+    /**
+     * Deletes a specified warp.
+     *
      * @param sender the command sender that called for the action. Can be null.
      * @return a completable future of whether the action failed or succeeded.
      */
@@ -186,16 +196,6 @@ public class Warp implements NamedLocation {
             // Remove the warp in the database.
             return CompletableFuture.runAsync(() -> WarpSQLManager.get().removeWarp(name), CoreClass.async);
         });
-    }
-
-    /**
-     * Deletes a specified warp.
-     *
-     * @return A completable future of whether the action failed or succeeded.
-     */
-    @Contract(pure = true)
-    public @NotNull CompletableFuture<Void> delete() {
-        return delete(null);
     }
 
     @ApiStatus.Internal

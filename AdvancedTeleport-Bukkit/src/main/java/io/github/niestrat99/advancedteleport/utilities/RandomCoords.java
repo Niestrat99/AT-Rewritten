@@ -5,11 +5,11 @@ import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import org.jetbrains.annotations.Nullable;
 
 public class RandomCoords {
 
@@ -17,11 +17,19 @@ public class RandomCoords {
 
     private static final Random random = new Random();
 
-    public static double getRandomCoords(double min, double max){
+    public static double getRandomCoords(
+        double min,
+        double max
+    ) {
         return random.nextInt((int) Math.round(max - min) + 1) + min;
     }
 
-    public static @Nullable Location getRandCoords(World world, double[] coords, int y, int attempt) {
+    public static @Nullable Location getRandCoords(
+        World world,
+        double[] coords,
+        int y,
+        int attempt
+    ) {
         if (attempt++ > 15) {
             return null;
         }
@@ -63,7 +71,12 @@ public class RandomCoords {
         return getRandCoords(world, coords, y, 0);
     }
 
-    private static void setArray(double[] array, String[] strArray, int c1, int c2) {
+    private static void setArray(
+        double[] array,
+        String[] strArray,
+        int c1,
+        int c2
+    ) {
         if (strArray.length > 1) {
             array[c1] = Integer.parseInt(strArray[0]);
             array[c2] = Integer.parseInt(strArray[1]);

@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,10 +16,10 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
 
     @Override
     public boolean onCommand(
-            @NotNull final CommandSender sender,
-            @NotNull final Command command,
-            @NotNull final String s,
-            @NotNull final String[] args
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
     ) {
 
         // If the command can't proceed due to being disabled, stop there
@@ -49,7 +50,7 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
                      "Info.deletedWarp",
                      "Error.deleteWarpFail",
                      exception,
-                     "{warp}", args[0]
+                     Placeholder.unparsed("warp", args[0])
              ));
         } else {
             CustomMessages.sendMessage(sender, "Error.noWarpInput");
