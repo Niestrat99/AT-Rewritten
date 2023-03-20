@@ -30,8 +30,8 @@ public abstract class ParticlesPlugin<P extends Plugin, R> extends PluginHook<P,
      * @return true if the plugin is usable, false if not.
      */
     @Contract(pure = true)
-    public boolean canUse() {
-        return MainConfig.get().USE_PARTICLES.get() && this.pluginUsable();
+    public boolean pluginUsable() {
+        return MainConfig.get().USE_PARTICLES.get() && super.pluginUsable();
     }
 
     /**

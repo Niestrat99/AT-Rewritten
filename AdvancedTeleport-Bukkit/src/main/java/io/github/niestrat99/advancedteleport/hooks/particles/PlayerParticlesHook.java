@@ -35,10 +35,10 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
     }
 
     @Override
-    public boolean canUse() {
+    public boolean pluginUsable() {
 
         // If particles are enabled and the plugin is enabled
-        if (!super.canUse()) return false;
+        if (!super.pluginUsable()) return false;
 
         // Get the plugin itself and ensure the API is the one we want.
         return plugin().map(plugin -> {
