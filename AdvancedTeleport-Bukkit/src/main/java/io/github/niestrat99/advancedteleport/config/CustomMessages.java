@@ -76,7 +76,9 @@ public final class CustomMessages extends ATConfig {
         addComment("""
                 This messages file uses MiniMessage formatting, a new form of message formatting for newer versions of MC.
                 More information about this formatting can be found here: https://docs.advntr.dev/minimessage/format.html#\s
-                If you prefer to use the Legacy Code format (i.e. &a, &b, etc.) then you can still use that format.""");
+                If you prefer to use the Legacy Code format (i.e. &a, &b, etc.) then you can still use that format.
+                
+                It is important to note though that this format may be subject to removal in a future version of AT, however nothing is set in stone yet.""");
 
         makeSectionLenient("Common");
         addDefault(
