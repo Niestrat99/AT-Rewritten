@@ -168,7 +168,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.noLocation", "<prefix> <gray>You don't have any location to teleport back to!");
         addDefault("Error.notAPlayer", "<prefix> <gray>You must be a player to run this command!");
         addDefault("Error.noHomes", "<prefix> <gray>You haven't got any homes!");
-        addDefault("Error.noHomesOther", "<prefix> <aqua><player></aqua> <gray>hasn't got any homes!"); // TODO: Note this changed from noHomesOtherPlayer
+        addDefault("Error.noHomesOther", "<prefix> <aqua><player></aqua> <gray>hasn't got any homes!");
         addDefault("Error.tooFarAway", "<prefix> <gray>The teleport destination is too far away so you can not teleport there!");
         addDefault("Error.noRequestsSent", "<prefix> <gray>Couldn't send a request to anyone :(");
         addDefault("Error.onCountdown","<prefix> <gray>You can't use this command whilst waiting to teleport!");
@@ -227,21 +227,21 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>They've got <aqua><lifetime></aqua> to respond!
             <prefix> <gray>To cancel the request use <aqua>/tpcancel</aqua> to cancel it.
 
-                                <click:run_command:tpcancel <player>><hover:show_text:'<red>Click here to cancel the request.'><gray><bold>[CANCEL]</hover></click>
+                                <click:run_command:'tpcancel <player>'><hover:show_text:'<red>Click here to cancel the request.'><gray><bold>[CANCEL]</hover></click>
         """.stripIndent());
         addDefault("Info.tpaRequestReceived", """
             <prefix> <gray>The player <aqua><player></aqua> wants to teleport to you!
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime></aqua> to respond to it!
 
-                                <click:run_command:tpayes <player>><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
+                                <click:run_command:'tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
         """.stripIndent());
         addDefault("Info.tpaRequestHere", """
             <prefix> <gray>The player <aqua><player></aqua> wants to teleport you to them!
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime> seconds</aqua> to respond to it!
 
-                              <click:run_command:/tpayes <player>><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
+                              <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
         """.stripIndent());
         addDefault("Info.blockPlayer", "<prefix> <aqua><player> <gray>has been blocked.");
         addDefault("Info.tpCancel", "<prefix> <gray>You have cancelled your teleport request.");
@@ -303,7 +303,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.updateInfo", """
             <prefix> <hover:show_text:'<aqua>Current Version <dark_gray>» <gray><version>
             <aqua>New Version <dark_gray>» <gray><new-version>
-            <aqua>Title <dark_gray>» <gray><title>'><click:open_url:https://www.spigotmc.org/resources/advancedteleport.64139/><gray>AdvancedTeleport has an update available! Click/hover over this text for more information.</click></hover>""".trim());
+            <aqua>Title <dark_gray>» <gray><title>'><click:open_url:'https://www.spigotmc.org/resources/advancedteleport.64139/'><gray>AdvancedTeleport has an update available! Click/hover over this text for more information.</click></hover>""".trim());
         addDefault("Info.defaultParticlesUpdated", "<prefix> <gray>The default waiting particles have been set to your current particle setup!");
         addDefault("Info.specificParticlesUpdated", "<prefix> <gray>The waiting particles settings for <aqua><type></aqua>have been set to your current particle setup!");
 
@@ -437,6 +437,11 @@ public final class CustomMessages extends ATConfig {
         addFormsDefault("tpcancel", "Cancel TP Request", "Select a request to cancel.");
         addFormsDefault("tpo", "Teleport", "Select a player to teleport to.");
         addFormsDefault("tpohere", "Teleport Here", "Select a player to teleport to your location.");
+    }
+
+    @Override
+    public void moveToNew() {
+        moveTo("Error.noHomesOtherPlayer", "Error.noHomesOther");
     }
 
     /**
