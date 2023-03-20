@@ -751,8 +751,14 @@ public final class CustomMessages extends ATConfig {
         messageCache = cacheBuilder.build();
     }
 
+    /**
+     * Used to translate the legacy AT message format into the MiniMessage format.
+     *
+     * @param format the message to be translated.
+     * @return The MM-formatted message.
+     */
     @ApiStatus.Internal
-    private static @NotNull String translateLegacy(String format) {
+    public static @NotNull String translateLegacy(String format) {
 
         // Replace brackets
         format = format.replace('{', '<').replace('}', '>');
