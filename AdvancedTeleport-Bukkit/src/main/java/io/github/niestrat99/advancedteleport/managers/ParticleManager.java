@@ -51,6 +51,7 @@ public final class ParticleManager {
     public static @Nullable String getData(@NotNull final Player player) {
         if (!MainConfig.get().USE_PARTICLES.get()) return null;
         return PluginHookManager.get().getPluginHooks(ParticlesPlugin.class, true)
+            .filter(ParticlesPlugin::canUse)
             .map(hook -> hook.getParticle(player))
             .filter(Objects::nonNull)
             .findFirst()
