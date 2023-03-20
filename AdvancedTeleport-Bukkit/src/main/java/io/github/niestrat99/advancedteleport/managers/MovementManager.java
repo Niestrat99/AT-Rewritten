@@ -57,7 +57,7 @@ public class MovementManager implements Listener {
         String command,
         String message,
         int warmUp,
-        Object... placeholders
+        TagResolver... placeholders
     ) {
         createMovementTimer(teleportingPlayer, location, command, message, warmUp, teleportingPlayer, placeholders);
     }
