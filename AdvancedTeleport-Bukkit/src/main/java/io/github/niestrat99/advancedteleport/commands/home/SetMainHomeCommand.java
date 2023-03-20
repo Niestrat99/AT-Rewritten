@@ -80,32 +80,17 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
             if (atPlayer.canSetMoreHomes()) { // TODO - message to mention no more homes can be set
                 addAndMaybeSetHome(sender, atPlayer, player, homeName);
             }
-        } else if (atPlayer.canSetMoreHomes()) {
-            atPlayer.addHome(homeName, player.getLocation(), player).handle((x, e) -> {
-                if (e != null) {
-                    CustomMessages.sendMessage(sender, "Error.setHomeFail", "{home}", homeName);
-                    e.printStackTrace();
-                    return x;
-                }
-
-                // TODO - no message response when called
-                atPlayer.setMainHome(homeName, sender).thenAcceptAsync(setMainResult ->
-                        CustomMessages.sendMessage(sender, setMainResult ? "Info.setAndMadeMainHome" : "Error.setMainHomeFail",
-                                "{home}", homeName));
-                return x;
-            });
         } else {
             if (atPlayer.canAccessHome(home)) {
                 atPlayer.setMainHome(homeName, sender).whenCompleteAsync((ignored, err) -> CustomMessages.failable(
-                    sender,
-                    "Info.setMainHome",
-                    "Error.setMainHomeFail",
-                    err,
+                        sender,
+                        "Info.setMainHome",
+                        "Error.setMainHomeFail",
+                        err,
                         Placeholder.unparsed("home", homeName)
                 ));
             } else CustomMessages.sendMessage(sender, "Error.noAccessHome", Placeholder.unparsed("home", home.getName()));
         }
-
         return true;
     }
 
