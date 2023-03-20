@@ -1,4 +1,5 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import java.io.BufferedReader
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.regex.Pattern
@@ -8,87 +9,103 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.modrinth.minotaur")
-    alias(libs.plugins.shadow)
-    alias(libs.plugins.userdev)
-    alias(libs.plugins.bukkitYML)
+    alias(libMinix.plugins.kotlin.jvm)
+    alias(libMinix.plugins.shadow)
+    alias(libMinix.plugins.minecraft.pluginYML)
+    alias(libMinix.plugins.minecraft.runPaper)
+    alias(libMinix.plugins.slimjar)
+}
+
+slimJar {
+    val baseRelocation = "io.github.niestrat99.advancedteleport.libs"
+
+    relocate("org.bstats", "$baseRelocation.bstats")
+    relocate("io.papermc.lib", "$baseRelocation.paperlib")
+    relocate("io.github.thatsmusic99.configurationmaster", "$baseRelocation.configurationmaster")
 }
 
 repositories {
 
-    maven {
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") {
         name = "Spigot"
-        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     }
 
-    maven {
+    maven("https://papermc.io/repo/repository/maven-public/") {
         name = "Paper and PaperLib"
-        url = uri("https://papermc.io/repo/repository/maven-public/")
     }
 
-    maven {
+    maven("https://repo.codemc.io/repository/maven-public/") {
         name = "Vault"
-        url = uri("https://repo.codemc.io/repository/maven-public/")
     }
 
-    maven {
+    maven("https://jitpack.io") {
         name = "WorldBorder and Chunky"
-        url = uri("https://jitpack.io")
     }
 
-    maven {
+    maven("https://ci.pluginwiki.us/plugin/repository/everything/") {
         name = "ConfigurationMaster"
-        url = uri("https://ci.pluginwiki.us/plugin/repository/everything/")
     }
 
-    maven {
+    maven("https://repo.essentialsx.net/releases/") {
         name = "Essentials"
-        url = uri("https://repo.essentialsx.net/releases/")
     }
 
-    maven {
+    maven("https://repo.opencollab.dev/maven-snapshots/") {
         name = "Geyser"
-        url = uri("https://repo.opencollab.dev/maven-snapshots/")
     }
 
-    maven {
+    maven("https://libraries.minecraft.net/") {
         name = "authlib maybe"
-        url = uri("https://libraries.minecraft.net/")
     }
 
-    maven {
+    maven("https://repo.maven.apache.org/maven2/") {
         name = "Adventure"
-        url = uri("https://repo.maven.apache.org/maven2/")
     }
 
-    maven {
+    maven("https://maven.enginehub.org/repo/") {
         name = "Sk89q"
-        url = uri("https://maven.enginehub.org/repo/")
     }
 
-    maven {
+    maven("https://repo.jpenilla.xyz/snapshots/") {
         name = "Squaremap"
-        url = uri("https://repo.jpenilla.xyz/snapshots/")
     }
 
-    maven {
+    maven("https://repo.mikeprimm.com/") {
         name = "Dynmap"
-        url = uri("https://repo.mikeprimm.com/")
     }
 
-    maven {
+    maven("https://repo.rosewooddev.io/repository/public/") {
         name = "PlayerParticles"
-        url = uri("https://repo.rosewooddev.io/repository/public/")
+        content { includeGroup("dev.esophose") }
+    }
+
+    maven("https://repo.racci.dev/releases") {
+        name = "RacciRepo"
+        mavenContent { releasesOnly() }
     }
 }
 
 dependencies {
-    paperDevBundle("1.19.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
 
-    implementation(libs.paperlib)
-    implementation(libs.kyori.nbt)
-    implementation(libs.kyori.examination)
-    implementation(libs.configuration)
+    implementation(libMinix.slimjar)
 
+    slim(libMinix.bundles.kotlin)
+    slim(libMinix.adventure.api)
+    slim(libMinix.adventure.minimessage)
+    slim(libMinix.adventure.platform.bukkit)
+    slim(libMinix.minecraft.bstats.bukkit)
+    slim(libs.paperlib)
+    slim(libs.kyori.nbt)
+    slim(libs.kyori.examination)
+    slim(libs.configuration)
+
+    slim(libs.paperlib)
+    slim(libs.kyori.nbt)
+    slim(libs.kyori.examination)
+    slim(libs.configuration)
+
+    compileOnly(libMinix.minecraft.authLib)
     compileOnly(libs.annotations)
     compileOnly(libs.vault)
     compileOnly(libs.essentials)
@@ -96,7 +113,7 @@ dependencies {
     compileOnly(libs.worldborder)
     compileOnly(libs.chunkyborder)
     compileOnly(libs.floodgate)
-    compileOnly(libs.lands)
+    compileOnly(libMinix.minecraft.api.landsAPI)
     compileOnly(libs.griefprevention)
     compileOnly(libs.playerparticles)
     compileOnly(libs.worldguard)
@@ -119,6 +136,27 @@ tasks {
         options.encoding = "UTF-8"
     }
 
+    runServer {
+
+        // Wait for slimJar to go through first
+        dependsOn(slimJar)
+
+        // Set the version to 1.19.3
+        minecraftVersion("1.19.4")
+
+        // Get the dev server folder
+        val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
+        val pluginsFolder = devServer.resolve("plugins")
+        runDirectory.set(rootDir.resolve(".run"))
+        pluginJars(pluginsFolder.resolve("Vault.jar"))
+        pluginJars(pluginsFolder.resolve("Spark.jar"))
+        pluginJars(pluginsFolder.resolve("Spoofer.jar"))
+        pluginJars(pluginsFolder.resolve("squaremap.jar"))
+        pluginJars(pluginsFolder.resolve("PlayerParticles.jar"))
+        pluginJars(getJarFile())
+
+    }
+
     withType<ProcessResources> {
         val currentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date())
         inputs.property("version", project.version)
@@ -138,22 +176,31 @@ tasks {
             project.configurations.implementation.get().dependencies.forEach {
                 include(dependency(it))
             }
+            relocate("io.github.slimjar", "io.github.niestrat99.advancedteleport.libs.slimjar")
         }
+    }
 
-        val baseRelocation = "io.github.niestrat99.advancedteleport"
-        relocate("io.paper", "$baseRelocation.paperlib")
-        relocate("net.kyori", "$baseRelocation.kyori")
-        relocate("io.github.thatsmusic99.configurationmaster", "$baseRelocation.configurationmaster")
+    this.slimJar {
+        dependsOn(shadowJar)
+        dependsOn(jar)
+        dependsOn(inspectClassesForKotlinIC)
+    }
+
+    create("tryChangelog") {
+        doFirst {
+            println(getCogChangelog())
+        }
     }
 }
 
+// Lead development use only.
 modrinth {
     token.set(System.getenv("MODRINTH_TOKEN"))
     projectId.set("BQFzmxKU")
     versionNumber.set(project.version.toString())
     versionType.set(getReleaseType())
-    uploadFile.set(tasks.shadowJar.get())
-    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3"))
+    uploadFile.set(getJarFile())
+    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4"))
     loaders.addAll("paper", "spigot", "purpur")
     // changelog.set(getCogChangelog())
 }
@@ -162,7 +209,7 @@ bukkit {
     name = "AdvancedTeleport"
     version = project.version.toString().substring(if (project.version.toString().startsWith("v")) 1 else 0) // Remove the v in front
     description = "A plugin that allows you to teleport to players, locations, and more!"
-    authors = listOf("Niestrat99, Thatsmusic99, SuspiciousLookingOwl (Github), animeavi (Github), MrEngMan, LucasMucGH (Github), jonas-t-s (Github), DaRacci")
+    authors = listOf("Niestrat99", "Thatsmusic99", "SuspiciousLookingOwl (Github)", "animeavi (Github)", "MrEngMan", "LucasMucGH (Github)", "jonas-t-s (Github)", "DaRacci")
 
     apiVersion = "1.16"
     main = "io.github.niestrat99.advancedteleport.CoreClass"
@@ -482,18 +529,30 @@ bukkit {
     }
 }
 
-/* fun getCogChangelog(): String {
+// Lead development use only.
+fun getCogChangelog(): String {
 
     println("Fetching changelog at v" + project.version.toString())
-    val process = Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString())
-    process.waitFor()
-    return process.inputStream.bufferedReader().readText()
-} */
+    return runCatching { Runtime.getRuntime().exec("cog changelog --at v" + project.version.toString()) }
+        .onSuccess(Process::waitFor)
+        .map { process ->
+            if (process.exitValue() != 0) ""
+            else process.inputStream.bufferedReader().use(BufferedReader::readText)
+        }.getOrDefault("")
+}
 
+// Lead development use only.
 fun getReleaseType(): String {
 
     val pattern = Pattern.compile("""v?[\d\\.]-(\w+)\\.?\d?""")
     val matcher = pattern.matcher(project.version.toString())
     if (!matcher.matches()) return "release"
     return matcher.group(1)
+}
+
+fun getJarFile(): File {
+
+    // Get the jar file
+    val fileName = project.name + "-" + project.version.toString() + ".jar"
+    return tasks.slimJar.get().buildDirectory.resolve("libs").resolve(fileName)
 }

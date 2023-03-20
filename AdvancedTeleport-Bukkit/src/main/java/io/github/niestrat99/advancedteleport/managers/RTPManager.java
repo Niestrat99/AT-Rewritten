@@ -2,24 +2,42 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import com.google.common.collect.Sets;
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class RTPManager {
 
-    private static HashMap<UUID, Queue<Location>> locQueue;
     private static final HashSet<String> airs = Sets.newHashSet("AIR", "CAVE_AIR", "VOID_AIR");
+    private static HashMap<UUID, Queue<Location>> locQueue;
 
     public static void init() {
         locQueue = new HashMap<>();
         if (!PaperLib.isPaper()) return;
+        if (!MainConfig.get().RAPID_RESPONSE.get()) return;
+
+        CoreClass.getInstance().getLogger().info("Preparing random teleportation locations. " +
+                "If your server performance or memory suffers, please set `use-rapid-response` to false in the config.yml file.");
+
         try {
             getPreviousLocations();
         } catch (IOException e) {
@@ -28,6 +46,10 @@ public class RTPManager {
         for (World loadedWorld : Bukkit.getWorlds()) {
             loadWorldData(loadedWorld);
         }
+    }
+
+    public static boolean isInitialised() {
+        return locQueue != null;
     }
 
     public static CompletableFuture<Location> getNextAvailableLocation(World world) {
@@ -58,20 +80,44 @@ public class RTPManager {
         }
     }
 
-    public static CompletableFuture<Location> addLocation(World world, boolean urgent, int tries) {
+    public static CompletableFuture<@Nullable Location> addLocation(
+            final World world,
+            final boolean urgent,
+            int tries
+    ) {
+
+        // If it's not a Paper server, stop there.
         if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
+
+        // Increment the number of attempts so we don't exhaust the server.
         tries++;
-        if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > NewConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
+
+        // If there are too many locations for a world, just return the first one and remove it from the queue.
+        if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > MainConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             Location loc = locQueue.get(world.getUID()).poll();
             if (!PluginHookManager.get().isClaimed(loc)) {
                 return CompletableFuture.completedFuture(loc);
             }
         }
+
+
+        // Generate the coordinates.
         Location location = RandomCoords.generateCoords(world);
+
+        if (location == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+
         int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};
         int finalTries = tries;
+
+        // Attempt to fetch the chunk to be loaded.
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
+
+            // If we're in the Nether, do a binary jump, otherwise get the highest block.
             Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : world.getHighestBlockAt(coords[0], coords[1]);
+
+            // If it's a valid location, return it. If not, try again unless the plugin has exhausted its attempts.
             if (isValidLocation(block)) {
                 return block.getLocation().add(0.5, 1, 0.5);
             } else if (finalTries < 5 || urgent) {
@@ -82,36 +128,52 @@ public class RTPManager {
         }, CoreClass.async).thenApplyAsync(loc -> loc, CoreClass.sync);
     }
 
-    private static Block doBinaryJump(World world, int[] coords) {
+    private static Block doBinaryJump(
+        World world,
+        int[] coords
+    ) {
         Location location = new Location(world, coords[0], 128, coords[1]);
+
         // This is how much we'll jump by at first
         int jumpAmount = 128;
+
         // However, if we're in the Nether...
         if (world.getEnvironment() == World.Environment.NETHER) {
+
             // We'll start at level 64 instead and start at a jump of 64.
             location.setY(64);
             jumpAmount = 64;
         }
+
         // Whether to go up or down.
         boolean up = false;
+
         // Temporary location.
         Location tempLoc = location.clone();
+
         // Whilst there's no valid location...
         while (true) {
+
             // Divide the amount to jump by 2.
             jumpAmount = jumpAmount / 2;
+
             // If we've hit a dead end with the jumps...
             if (jumpAmount == 0) {
+
                 // Return an invalid location.
                 location.setY(-3);
                 return location.getBlock();
             }
+
             // Clone the current location.
             Location subTempLocation = tempLoc.clone();
+
             // The current material we're looking at.
             Material currentMat;
+
             // If we're going up...
             if (up) {
+
                 // Get the material
                 currentMat = subTempLocation.add(0, jumpAmount, 0).getBlock().getType();
             } else {
@@ -121,7 +183,7 @@ public class RTPManager {
 
             if (currentMat != Material.AIR) {
                 if (subTempLocation.add(0, 1, 0).getBlock().getType() == Material.AIR
-                        && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
+                    && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
                     return subTempLocation.add(0.5, -1, 0.5).getBlock();
                 } else {
                     up = true;
@@ -134,17 +196,17 @@ public class RTPManager {
 
     private static boolean isValidLocation(Block block) {
         if (airs.contains(block.getType().name())) return false;
-        if (NewConfig.get().AVOID_BIOMES.get().contains(block.getBiome().name())) return false;
-        return !NewConfig.get().AVOID_BLOCKS.get().contains(block.getType().name());
+        if (MainConfig.get().AVOID_BIOMES.get().contains(block.getBiome().name())) return false;
+        return !MainConfig.get().AVOID_BLOCKS.get().contains(block.getType().name());
     }
 
     public static void loadWorldData(World world) {
         if (locQueue == null) return;
-        if (NewConfig.get().WHITELIST_WORLD.get() && !NewConfig.get().ALLOWED_WORLDS.get().contains(world.getName())) return;
-        if (world.getGenerator() != null && NewConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
+        if (MainConfig.get().WHITELIST_WORLD.get() && !MainConfig.get().ALLOWED_WORLDS.get().contains(world.getName())) return;
+        if (world.getGenerator() != null && MainConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
         int size = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>()).size();
 
-        for (int i = size; i < NewConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
+        for (int i = size; i < MainConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
             addLocation(world, false, 0).thenAccept(location -> {
                 Queue<Location> queue = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>());
                 queue.add(location);
@@ -155,6 +217,10 @@ public class RTPManager {
 
     public static void unloadWorldData(World world) {
         locQueue.remove(world.getUID());
+    }
+
+    public static void clearEverything() {
+        locQueue.clear();
     }
 
     public static void getPreviousLocations() throws IOException {
@@ -187,7 +253,7 @@ public class RTPManager {
             while (locations.peek() != null) {
                 Location loc = locations.poll();
                 String locLine = worldUUID.toString() +
-                        "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
+                    "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
                 writer.write(locLine);
                 writer.write("\n");
             }

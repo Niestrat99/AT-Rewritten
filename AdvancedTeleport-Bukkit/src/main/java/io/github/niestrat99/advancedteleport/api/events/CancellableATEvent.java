@@ -1,7 +1,9 @@
 package io.github.niestrat99.advancedteleport.api.events;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.Contract;
 
 /**
  * Represents an AT event that can be cancelled.
@@ -16,6 +18,7 @@ public abstract class CancellableATEvent extends Event implements Cancellable {
      * @return true if the event has been cancelled, false if it has not been.
      */
     @Override
+    @Contract(pure = true)
     public boolean isCancelled() {
         return cancelled;
     }
@@ -23,10 +26,17 @@ public abstract class CancellableATEvent extends Event implements Cancellable {
     /**
      * Set the event to be cancelled - true cancels the event, false doesn't.
      *
-     * @param b whether to cancel the event.
+     * @param newState whether to cancel the event.
      */
     @Override
-    public void setCancelled(boolean b) {
-        cancelled = b;
+    @Contract(pure = true)
+    public void setCancelled(boolean newState) {
+        cancelled = newState;
+    }
+
+    @Contract(pure = true)
+    public boolean callEvent() {
+        Bukkit.getPluginManager().callEvent(this);
+        return !isCancelled();
     }
 }

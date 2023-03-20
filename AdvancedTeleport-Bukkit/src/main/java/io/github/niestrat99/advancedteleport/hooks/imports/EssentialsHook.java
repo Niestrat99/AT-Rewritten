@@ -10,7 +10,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
@@ -23,44 +23,45 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.UUID;
 
-public class EssentialsHook extends ImportExportPlugin {
+public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
 
     private Essentials essentials;
 
-    @Override
-    public boolean canImport() {
-        this.essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-        // Makes sure the plugin exists and because there's so many Ess clones out there, ensure it's the right one
-        return essentials != null && essentials.getDescription().getMain().equals("com.earth2me.essentials.Essentials");
+    public EssentialsHook() {
+        super("Essentials");
     }
 
-    private User getUser(UUID uuid) {
-        try {
-            UserMap userMap = essentials.getUserMap();
-            if (userMap == null) return null;
-            return userMap.getUser(uuid);
-        } catch (RuntimeException e) {
-            return null;
-        }
+    @Override
+    @Contract(pure = true)
+    public boolean canImport() {
+
+        // Makes sure the plugin exists and because there's so many Ess clones out there, ensure it's the right one
+        return this.plugin().map(essentials -> {
+            this.essentials = essentials;
+            return true;
+        }).orElse(false);
     }
 
     @Override
     public void importHomes() {
         debug("Importing homes...");
+
+        // If the plugin or usermap isn't set up properly, stop there
         if (essentials == null) return;
         UserMap userMap = essentials.getUserMap();
         if (userMap == null) return;
 
+        // For each registered UUID...
         for (UUID uuid : userMap.getAllUniqueUsers()) {
             try {
                 User user = getUser(uuid);
@@ -71,20 +72,19 @@ public class EssentialsHook extends ImportExportPlugin {
                         ATPlayer player = ATPlayer.getPlayer(user.getName());
                         if (!player.hasHome(home)) {
                             player.addHome(home, user.getHome(home), null, false);
-                        } else {
-                            player.moveHome(home, user.getHome(home));
-                        }
-                    } else {
-                        try (Connection connection = HomeSQLManager.get().implementConnection()) {
-                            PreparedStatement query = connection.prepareStatement("SELECT uuid_owner FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid-owner=? AND home=?");
+                        } else player.moveHome(home, user.getHome(home));
+
+                        continue;
+                    }
+
+                    try (Connection connection = HomeSQLManager.get().implementConnection()) {
+                        try (PreparedStatement query = connection.prepareStatement("SELECT uuid_owner FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid-owner=? AND home=?")) {
                             query.setString(1, uuid.toString());
                             query.setString(2, home);
 
                             if (query.executeQuery().next()) {
-                                HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, null, false);
-                            } else {
-                                HomeSQLManager.get().addHome(user.getHome(home), uuid, home, null, false);
-                            }
+                                HomeSQLManager.get().moveHome(user.getHome(home), uuid, home, false);
+                            } else HomeSQLManager.get().addHome(user.getHome(home), uuid, home, false);
                         }
                     }
                 }
@@ -95,6 +95,16 @@ public class EssentialsHook extends ImportExportPlugin {
 
         }
         debug("Finished importing homes!");
+    }
+
+    private @Nullable User getUser(@NotNull final UUID uuid) {
+        try {
+            UserMap userMap = essentials.getUserMap();
+            if (userMap == null) return null;
+            return userMap.getUser(uuid);
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     @Override
@@ -108,14 +118,14 @@ public class EssentialsHook extends ImportExportPlugin {
             try {
                 User user = userMap.getUser(uuid);
                 if (user == null
-                        || user.getName() == null
-                        || user.getLastLocation() == null
-                        || user.getLastLocation().getWorld() == null) continue;
+                    || user.getName() == null
+                    || user.getLastLocation() == null
+                    || user.getLastLocation().getWorld() == null) continue;
                 if (ATPlayer.isPlayerCached(user.getName())) {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setPreviousLocation(user.getLastLocation());
                 } else {
-                    PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation(), null);
+                    PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation());
                 }
             } catch (Exception ex) {
                 debug("Failed to export previous locations for UUID " + uuid.toString() + ":");
@@ -141,7 +151,8 @@ public class EssentialsHook extends ImportExportPlugin {
                             warp,
                             warps.getWarp(warp),
                             System.currentTimeMillis(),
-                            System.currentTimeMillis()), null);
+                            System.currentTimeMillis()
+                    ));
                 }
             } catch (WarpNotFoundException | InvalidWorldException e) {
                 e.printStackTrace();
@@ -153,16 +164,19 @@ public class EssentialsHook extends ImportExportPlugin {
     @Override
     public void importSpawn() {
         debug("Importing spawnpoints...");
+
+        // Verify the spawns plugin is there, otherwise stop
         EssentialsSpawn spawnPlugin = (EssentialsSpawn) Bukkit.getPluginManager().getPlugin("EssentialsSpawn");
         if (spawnPlugin == null || !spawnPlugin.isEnabled()) return;
 
-        Plugin essentials = Bukkit.getPluginManager().getPlugin("Essentials");
-        File spawnFileEss = new File(essentials.getDataFolder(), "spawn.yml");
+        // Get the spawn.yml file - if it doesn't exist though, skip it
+        final var spawnFileEss = this.plugin().map(essentials -> new File(essentials.getDataFolder(), "spawn.yml")).get();
         if (!spawnFileEss.exists() || !spawnFileEss.isFile()) {
             debug("Spawn file doesn't exist/wasn't found, skipping...");
             return;
         }
 
+        // Get the spawns section
         YamlConfiguration spawn = YamlConfiguration.loadConfiguration(spawnFileEss);
         ConfigurationSection spawns = spawn.getConfigurationSection("spawns");
         if (spawns == null) {
@@ -170,33 +184,42 @@ public class EssentialsHook extends ImportExportPlugin {
             return;
         }
 
+        // Track whether the main spawnpoint has been set
         boolean setMainSpawn = false;
+
+        // Go through each set spawnpoint in Essentials
         for (String key : spawns.getKeys(false)) {
+
+            // Get the config section for the spawnpoint
             ConfigurationSection spawnSection = spawns.getConfigurationSection(key);
+            if (spawnSection == null) continue;
+
+            // Get the location of the spawnpoint
             Location loc = getLocationFromSection(spawnSection);
-            try {
-                Spawn.get().setSpawn(loc, key);
-            } catch (IOException e) {
-                CoreClass.getInstance().getLogger().severe("Failed to set spawn " + key + ": " + e.getMessage());
-                e.printStackTrace();
-                continue;
-            }
+
+            // Set the spawnpoint
+            Spawn spawn1 = AdvancedTeleportAPI.setSpawn(key, null, loc).join();
             debug("Set spawn for " + key);
+
+            // If it's marked as the default spawn, then mark it as the main spawnpoint
             if (key.equals("default")) {
                 setMainSpawn = true;
-                Spawn.get().setMainSpawn("default", loc);
+                AdvancedTeleportAPI.setMainSpawn(spawn1, null);
                 debug("Set main spawn");
             } else {
+
+                // Otherwise, if it's a group spawn, add the AT permission to the group
                 if (CoreClass.getPerms() != null && CoreClass.getPerms().hasGroupSupport()) {
                     CoreClass.getPerms().groupAdd((String) null, key, "at.member.spawn." + key);
-                    debug("Added at.member.spawn." + key + " to group "+ key);
+                    debug("Added at.member.spawn." + key + " to group " + key);
                 }
             }
         }
 
+        // If the main spawn has not been set, remove it
         if (!setMainSpawn) {
             debug("Removed main spawn");
-            Spawn.get().setMainSpawn(null, null);
+            AdvancedTeleportAPI.setMainSpawn(null, null);
         }
 
         debug("Finished importing spawns");
@@ -215,7 +238,7 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (user == null) continue;
                 if (user.getName() == null) continue;
                 if (!ATPlayer.isPlayerCached(user.getName())) {
-                    PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled(), null);
+                    PlayerSQLManager.get().setTeleportationOn(uuid, user.isTeleportEnabled());
                 } else {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setTeleportationEnabled(user.isTeleportEnabled());
@@ -242,26 +265,31 @@ public class EssentialsHook extends ImportExportPlugin {
                 User user = getUser(uuid);
                 if (user == null) continue;
                 if (user.getName() == null) continue;
-                if (ATPlayer.isPlayerCached(user.getName())) {
-                    ATPlayer player = ATPlayer.getPlayer(user.getName());
+
+                ATPlayer player = ATPlayer.getPlayer(user.getName());
+                if (player != null) {
+
                     for (String home : player.getHomes().keySet()) {
                         user.setHome(home, player.getHome(home).getLocation());
                     }
-                } else {
-                    try (Connection connection = HomeSQLManager.get().implementConnection()) {
-                        PreparedStatement statement = connection.prepareStatement("SELECT home, x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid_owner = ?");
+
+                    continue;
+                }
+
+                try (Connection connection = HomeSQLManager.get().implementConnection()) {
+                    ResultSet set;
+                    try (PreparedStatement statement = connection.prepareStatement("SELECT home, x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_homes WHERE uuid_owner = ?")) {
                         statement.setString(1, uuid.toString());
-                        ResultSet set = statement.executeQuery();
-                        connection.close();
-                        while (set.next()) {
-                            String name = set.getString("home");
-                            double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
-                            float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
-                            String world = set.getString("world");
-                            user.setHome(name, new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
-                        }
+                        set = statement.executeQuery();
                     }
 
+                    while (set.next()) {
+                        String name = set.getString("home");
+                        double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
+                        float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
+                        String world = set.getString("world");
+                        user.setHome(name, new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
+                    }
                 }
             } catch (Exception ex) {
                 debug("Failed to export home data for UUID " + uuid.toString() + ":");
@@ -288,23 +316,27 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (ATPlayer.isPlayerCached(user.getName())) {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     user.setLastLocation(player.getPreviousLocation());
-                } else {
-                    try (Connection connection = HomeSQLManager.get().implementConnection()) {
-                        PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
+
+                    continue;
+                }
+
+                try (Connection connection = HomeSQLManager.get().implementConnection()) {
+                    ResultSet set;
+                    try (PreparedStatement statement = connection.prepareStatement("SELECT x, y, z, yaw, pitch, world FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?")) {
                         statement.setString(1, uuid.toString());
-                        ResultSet set = statement.executeQuery();
-                        connection.close();
-                        // should run once but this is just standard
-                        while (set.next()) {
-                            double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
-                            float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
-                            String world = set.getString("world");
-                            if (world == null) {
-                                CoreClass.getInstance().getLogger().warning("World for previous location of " + user.getName() + " is null. Cannot export it.");
-                                continue;
-                            }
-                            user.setLastLocation(new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
+                        set = statement.executeQuery();
+                    }
+
+                    // should run once but this is just standard
+                    while (set.next()) {
+                        double[] pos = new double[]{set.getDouble("x"), set.getDouble("y"), set.getDouble("z")};
+                        float[] rot = new float[]{set.getFloat("yaw"), set.getFloat("pitch")};
+                        String world = set.getString("world");
+                        if (world == null) {
+                            CoreClass.getInstance().getLogger().warning("World for previous location of " + user.getName() + " is null. Cannot export it.");
+                            continue;
                         }
+                        user.setLastLocation(new Location(Bukkit.getWorld(world), pos[0], pos[1], pos[2], rot[0], rot[1]));
                     }
                 }
             } catch (Exception ex) {
@@ -339,20 +371,20 @@ public class EssentialsHook extends ImportExportPlugin {
         debug("Exporting spawnpoints...");
         debug("WARNING - any changes made to the spawnpoints may be dodgy due to the differences between Essentials and AT's spawn systems.");
         debug("If you notice any problems, please fix them yourself.");
+
+        // If the spawn plugin doesn't exist, stop there
         EssentialsSpawn spawnPlugin = (EssentialsSpawn) Bukkit.getPluginManager().getPlugin("EssentialsSpawn");
         if (spawnPlugin == null || !spawnPlugin.isEnabled()) return;
 
-        String mainSpawn = Spawn.get().getMainSpawn();
-        if (mainSpawn != null) {
-            Location mainSpawnLoc = Spawn.get().getSpawn(mainSpawn);
-            spawnPlugin.setSpawn(mainSpawnLoc, "default");
-        }
-        for (String atSpawn : Spawn.get().getSpawns()) {
+        // Get the main spawnpoint - if it's not null, set it as the default spawn
+        Spawn mainSpawn = AdvancedTeleportAPI.getMainSpawn();
+        if (mainSpawn != null) spawnPlugin.setSpawn(mainSpawn.getLocation(), "default");
+
+        // Go through each group and spawn set
+        for (Spawn atSpawn : AdvancedTeleportAPI.getSpawns().values()) {
             for (String group : CoreClass.getPerms().getGroups()) {
-                if (CoreClass.getPerms().groupHas((World) null, group, atSpawn)) {
-                    Location spawnLoc = Spawn.get().getSpawn(atSpawn);
-                    spawnPlugin.setSpawn(spawnLoc, group);
-                }
+                if (!CoreClass.getPerms().groupHas((World) null, group, atSpawn.getName())) continue;
+                spawnPlugin.setSpawn(atSpawn.getLocation(), group);
             }
         }
 
@@ -375,15 +407,18 @@ public class EssentialsHook extends ImportExportPlugin {
                 if (ATPlayer.isPlayerCached(user.getName())) {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     user.setTeleportEnabled(player.isTeleportationEnabled());
-                } else {
-                    try (Connection connection = HomeSQLManager.get().implementConnection()) {
-                        PreparedStatement statement = connection.prepareStatement("SELECT teleportation_on FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?");
+                    continue;
+                }
+
+                try (Connection connection = HomeSQLManager.get().implementConnection()) {
+                    ResultSet set;
+                    try (PreparedStatement statement = connection.prepareStatement("SELECT teleportation_on FROM " + SQLManager.getTablePrefix() + "_players WHERE uuid = ?")) {
                         statement.setString(1, uuid.toString());
-                        ResultSet set = statement.executeQuery();
-                        // also should run once but this is also just standard
-                        while (set.next()) {
-                            user.setTeleportEnabled(set.getBoolean("teleportation_on"));
-                        }
+                        set = statement.executeQuery();
+                    }
+                    // also should run once but this is also just standard
+                    while (set.next()) {
+                        user.setTeleportEnabled(set.getBoolean("teleportation_on"));
                     }
                 }
             } catch (Exception ex) {

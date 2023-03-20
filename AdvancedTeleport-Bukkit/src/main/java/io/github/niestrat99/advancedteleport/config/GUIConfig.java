@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class GUI extends ATConfig {
+public final class GUIConfig extends ATConfig {
 
-    private static GUI instance;
+    private static GUIConfig instance;
 
-    public GUI() throws IOException {
+    public GUIConfig() throws IOException {
         super("guis.yml");
         instance = this;
     }
@@ -53,7 +53,7 @@ public class GUI extends ATConfig {
         addExample("warps.warps.warpName2.hide-if-no-permission", true);
     }
 
-    public static GUI get() {
+    public static GUIConfig get() {
         return instance;
     }
 

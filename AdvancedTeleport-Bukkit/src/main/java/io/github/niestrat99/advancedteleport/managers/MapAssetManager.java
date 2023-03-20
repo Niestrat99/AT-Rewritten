@@ -19,16 +19,17 @@ public class MapAssetManager {
 
     public static void init() {
         images = new HashMap<>();
+
         // Get the AT folder
         File advTpFolder = CoreClass.getInstance().getDataFolder();
+
         // Get the map assets folder
         File mapAssetsFolder = new File(advTpFolder, "map-assets");
+
         // If it doesn't exist, try creating it
-        if (!mapAssetsFolder.exists()) {
-            if (!mapAssetsFolder.mkdirs()) {
-                CoreClass.getInstance().getLogger().warning("Failed to create the map-assets folder.");
-                return;
-            }
+        if (!mapAssetsFolder.exists() && !mapAssetsFolder.mkdirs()) {
+            CoreClass.getInstance().getLogger().warning("Failed to create the map-assets folder.");
+            return;
         }
 
         // Register default images
@@ -41,6 +42,7 @@ public class MapAssetManager {
         if (fileNames == null) return;
         for (String fileName : fileNames) {
             File file = new File(mapAssetsFolder, fileName);
+
             // Create an InputStream
             InputStream stream;
             try {
@@ -61,10 +63,8 @@ public class MapAssetManager {
 
     public static void registerImage(String name, InputStream stream) {
         images.put(name, stream);
-        for (MapPlugin plugin : PluginHookManager.get().getMapPlugins().values()) {
-            if (!plugin.canEnable()) continue;
-            plugin.registerImage(name, stream);
-        }
+        PluginHookManager.get().getPluginHooks(MapPlugin.class, true)
+            .forEach(mapPlugin -> mapPlugin.registerImage(name, stream));
         CoreClass.getInstance().getLogger().info("Registered the image " + name + "!");
     }
 

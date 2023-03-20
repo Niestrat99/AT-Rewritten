@@ -4,7 +4,9 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
+import io.github.niestrat99.advancedteleport.hooks.PluginHook;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,71 +18,84 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ImportCommand implements SubATCommand {
+public final class ImportCommand extends SubATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (args.length > 0) {
-            String pluginStr = args[0].toLowerCase();
-            ImportExportPlugin plugin = PluginHookManager.get().getImportPlugin(pluginStr);
-            if (plugin == null) {
-                CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
-                return true;
-            }
-            if (!plugin.canImport()) {
-                CustomMessages.sendMessage(sender, "Error.cantImport", "{plugin}", args[0]);
-                return true;
-            }
-            if (args.length > 1) {
-                CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                    switch (args[1].toLowerCase()) {
-                        case "homes":
-                            plugin.importHomes();
-                            break;
-                        case "warps":
-                            plugin.importWarps();
-                            break;
-                        case "lastlocs":
-                            plugin.importLastLocations();
-                            break;
-                        case "spawns":
-                            plugin.importSpawn();
-                            break;
-                        case "players":
-                            plugin.importPlayerInformation();
-                            break;
-                        default:
-                            plugin.importAll();
-                            break;
-                    }
-                    CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
-                });
-
-            } else {
-                CustomMessages.sendMessage(sender, "Info.importStarted", "{plugin}", args[0]);
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                    plugin.importAll();
-                    CustomMessages.sendMessage(sender, "Info.importFinished", "{plugin}", args[0]);
-                });
-            }
-
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
+        if (args.length == 0) {
+            CustomMessages.sendMessage(sender, "Error.noPluginSpecified");
+            return true;
         }
+
+        final var pluginHook = getImportExportPlugin(sender, args);
+        if (pluginHook == null) {
+            CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
+            return true;
+        }
+
+        final var arg = args.length == 1 ? "all" : args[1].toLowerCase();
+        CustomMessages.sendMessage(sender, "Info.importStarted", Placeholder.unparsed("plugin", args[0]));
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            switch (arg) {
+                case "homes" -> pluginHook.importHomes();
+                case "warps" -> pluginHook.importWarps();
+                case "lastlocs" -> pluginHook.importLastLocations();
+                case "spawns" -> pluginHook.importSpawn();
+                case "players" -> pluginHook.importPlayerInformation();
+                case "all" -> pluginHook.importAll();
+                default -> {
+                    CustomMessages.sendMessage(sender, "Error.invalidOption");
+                    return;
+                }
+            }
+            CustomMessages.sendMessage(sender, "Info.importFinished", Placeholder.unparsed("plugin", args[0]));
+        });
+
         return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        List<String> results = new ArrayList<>();
+    public @NotNull List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         List<String> possibilities = new ArrayList<>();
+
         if (args.length == 1) {
-            possibilities.addAll(PluginHookManager.get().getImportPlugins().keySet());
+            possibilities.addAll(PluginHookManager.get().getPluginHooks(ImportExportPlugin.class).map(PluginHook::pluginName).toList());
         }
+
         if (args.length == 2) {
             possibilities.addAll(Arrays.asList("all", "homes", "lastlocs", "warps", "spawns", "players"));
         }
-        StringUtil.copyPartialMatches(args[args.length - 1], possibilities, results);
-        return results;
+
+        return StringUtil.copyPartialMatches(args[args.length - 1], possibilities, new ArrayList<>());
+    }
+
+    static @Nullable ImportExportPlugin<?, ?> getImportExportPlugin(
+        @NotNull final CommandSender sender,
+        @NotNull final String @NotNull [] args
+    ) {
+        String pluginStr = args[0].toLowerCase();
+        final var plugin = PluginHookManager.get().getPluginHook(pluginStr, ImportExportPlugin.class);
+
+        if (plugin == null) {
+            CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
+            return null;
+        }
+
+        if (!plugin.canImport()) {
+            CustomMessages.sendMessage(sender, "Error.cantImport", Placeholder.unparsed("plugin", args[0]));
+            return null;
+        }
+
+        return plugin;
     }
 }

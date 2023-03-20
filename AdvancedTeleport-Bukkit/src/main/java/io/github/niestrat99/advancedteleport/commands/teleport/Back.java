@@ -3,9 +3,9 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
+import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,24 +19,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Back extends TeleportATCommand {
+public final class Back extends TeleportATCommand implements TimedATCommand {
 
     private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR"));
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         // Make sure the sender has permission and the associated feature is enabled
         if (!canProceed(sender)) return true;
 
-        // If the player isn't a sender, stop there
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
-
-        // Initialise player variables
         Player player = (Player) sender;
+        // Initialise player variables
         if (args.length > 0 && sender.hasPermission("at.admin.back")) {
             player = Bukkit.getPlayer(args[0]);
             if (player == null) {
@@ -45,14 +43,8 @@ public class Back extends TeleportATCommand {
             }
         }
 
+        // Get the ATPlayer object
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-
-        // Check the player's cooldown
-        int cooldown = CooldownManager.secondsLeftOnCooldown("back", player);
-        if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", "{time}", String.valueOf(cooldown));
-            return true;
-        }
 
         // Get the player's previous location
         Location loc = atPlayer.getPreviousLocation();
@@ -63,11 +55,11 @@ public class Back extends TeleportATCommand {
             return true;
         }
 
-
+        // Get the original previous location
         double originalY = loc.getY();
         double originalX = loc.getX();
         double originalZ = loc.getZ();
-        int radius = NewConfig.get().BACK_SEARCH_RADIUS.get();
+        int radius = MainConfig.get().BACK_SEARCH_RADIUS.get();
         ArrayList<Location> possiblelocs = new ArrayList<>();
 
         /*
@@ -83,24 +75,33 @@ public class Back extends TeleportATCommand {
                 for (int dy = -radius; dy <= radius; dy++) {
                     t.setY(originalY - dy);
                     if (!t.getBlock().getType().name().equals("LAVA")
-                            && !airMaterials.contains(t.getBlock().getType().name())
-                            && airMaterials.contains(t.clone().add(0.0, 1.0, 0.0).getBlock().getType().name())
-                            && airMaterials.contains(t.clone().add(0.0, 2.0, 0.0).getBlock().getType().name())) {
-                        possiblelocs.add(new Location(loc.getWorld(),
-                                loc.getBlockX() - dx + 0.5,
-                                loc.getBlockY() - dy + 1,
-                                loc.getBlockZ() - dz + 0.5));
+                        && !airMaterials.contains(t.getBlock().getType().name())
+                        && airMaterials.contains(t.clone().add(0.0, 1.0, 0.0).getBlock().getType().name())
+                        && airMaterials.contains(t.clone().add(0.0, 2.0, 0.0).getBlock().getType().name())) {
+                        possiblelocs.add(new Location(
+                            loc.getWorld(),
+                            loc.getBlockX() - dx + 0.5,
+                            loc.getBlockY() - dy + 1.0,
+                            loc.getBlockZ() - dz + 0.5
+                        ));
                     }
                 }
             }
         }
+
+        // If there's more than one location to go through, remove them one by one - the shortest distance should be kept.
         while (possiblelocs.size() > 1) {
-            if (loc.distance(possiblelocs.get(1)) > loc.distance(possiblelocs.get(0))) possiblelocs.remove(1);
+            if (loc.distanceSquared(possiblelocs.get(1)) > loc.distanceSquared(possiblelocs.get(0))) possiblelocs.remove(1);
             else possiblelocs.remove(0);
         }
+
+        // If there's only one location to retrieve, get that location
         if (possiblelocs.size() == 1) loc = possiblelocs.get(0);
+
+        // Check for bad blocks
         int lavablocks = 0;
         while (!airMaterials.contains(loc.getBlock().getType().name()) && possiblelocs.isEmpty()) {
+
             // If we go beyond max height, stop and reset the Y value
             if (loc.getBlock().getType().name().equalsIgnoreCase("Lava")) ++lavablocks;
             if (loc.getY() > loc.getWorld().getMaxHeight() || lavablocks > 5) {
@@ -111,13 +112,19 @@ public class Back extends TeleportATCommand {
         }
         // The total count of operations in a worstcase is 128
 
+        // If the distance limiter is in effect and it's too far, stop there
         if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back", ATPlayer.getPlayer(player))
-                && !player.hasPermission("at.admin.bypass.distance-limit")) {
+            && !player.hasPermission("at.admin.bypass.distance-limit")) {
             CustomMessages.sendMessage(player, "Error.tooFarAway");
             return true;
         }
 
+        // Call the event
         ATTeleportEvent event = new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return true;
+
+        // Teleport the target player
         if (sender != player) {
             CustomMessages.sendMessage(player, "Teleport.teleportingToLastLoc");
             player.teleport(loc);
@@ -128,14 +135,22 @@ public class Back extends TeleportATCommand {
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.back";
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                                      @NotNull String[] args) {
+    public @NotNull String getSection() {
+        return "back";
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return null;
     }
 }

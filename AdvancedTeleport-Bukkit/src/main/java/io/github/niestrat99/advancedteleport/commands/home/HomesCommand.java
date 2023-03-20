@@ -1,125 +1,101 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import com.google.common.collect.ImmutableCollection;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
-import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.extensions.ExPermission;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.function.Supplier;
 
-public class HomesCommand implements ATCommand {
+public final class HomesCommand extends AbstractHomeCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         if (!canProceed(sender)) return true;
-        if (args.length > 0) {
-            if (sender.hasPermission("at.admin.homes")) {
-                ATPlayer.getPlayerFuture(args[0]).thenAccept(player -> {
-                    if (player.getHomes() == null || player.getHomes().size() == 0) {
-                        CustomMessages.sendMessage(sender, "Error.homesNotLoaded");
-                        return;
-                    }
-                    getHomes(sender, player.getOfflinePlayer());
-                });
-                return true;
-            }
+
+        if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
+            ATPlayer.getPlayerFuture(args[0]).thenAccept(player ->
+                    player.getHomesAsync().thenAcceptAsync(homes ->
+                            getHomes(sender, player.getOfflinePlayer(), homes.values())));
+            return true;
         }
-        if (sender instanceof Player) {
-            getHomes(sender, (Player) sender);
-        } else {
+
+        if (!(sender instanceof Player player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");
+            return true;
         }
+
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
+
+        atPlayer.getHomesAsync().thenAcceptAsync(homes -> getHomes(sender, player, homes.values()));
         return true;
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.homes";
     }
 
     @Override
     public boolean getRequiredFeature() {
-        return NewConfig.get().USE_HOMES.get();
+        return MainConfig.get().USE_HOMES.get();
     }
 
-    private void getHomes(CommandSender sender, OfflinePlayer target) {
+    private void getHomes(CommandSender sender, OfflinePlayer target, ImmutableCollection<Home> homes) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
-        if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
-            ((ATFloodgatePlayer) atPlayer).sendHomeForm();
-            return;
-        }
+        if (sender == target && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
+             atFloodgatePlayer.sendHomeForm();
+             return;
+         }
 
-        FancyMessage hList = new FancyMessage();
+        final TextComponent body = (TextComponent) Component.join(
+            JoinConfiguration.commas(true),
+            atPlayer.getHomes().values().stream()
+                .map(home -> new Object[]{home, atPlayer.canAccessHome(home) || ExPermission.hasPermissionOrStar(sender, "at.admin.homes")}) // How the fuck do you associate a value like a pair in java?
+                .map(pair -> {
+                    final var home = (Home) pair[0];
+                    final var canAccess = (boolean) pair[1];
+                    final var baseComponent = Component.text(home.getName())
+                        .hoverEvent(CustomMessages.locationBasedTooltip(sender, home, "homes"));
 
-        String infoPath = "Info.homes";
-        String extraArg = "";
-        String noHomes = "Error.noHomes";
-        if (sender != target) {
-            infoPath = "Info.homesOther";
-            extraArg = target.getName() + " ";
-            noHomes = "Error.noHomesOtherPlayer";
-        }
+                    if (!canAccess) {
+                        if (!MainConfig.get().HIDE_HOMES_IF_DENIED.get()) return Component.empty(); // TODO: Make sure this doesn't cause an extra comma.
+                        return baseComponent.color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC);
+                    }
 
-        hList.text(CustomMessages.getString(infoPath, "{player}", target.getName()));
-        if (atPlayer.getHomes().size() > 0) {
-            for (Home home : atPlayer.getHomes().values()) {
-                if (atPlayer.canAccessHome(home) || sender.hasPermission("at.admin.homes")) {
-                    hList.then(home.getName())
-                            .command("/home " + extraArg + home.getName())
-                            .tooltip(getTooltip(sender, home))
-                            .then(", ");
-                } else if (!NewConfig.get().HIDE_HOMES_IF_DENIED.get()) {
-                    hList.then(home.getName())
-                            .tooltip(getTooltip(sender, home))
-                            .color(ChatColor.GRAY)
-                            .style(ChatColor.ITALIC)
-                            .then(", ");
-                }
+                    return baseComponent.clickEvent(ClickEvent.runCommand("/advancedteleport:home " + (sender == target ? "" : target.getName() + " ") + home.getName()));
+                }).toList()
+        );
 
-            }
-            hList.text(""); //Removes trailing comma
-        } else {
-            hList.text(CustomMessages.getString(noHomes, "{player}", target.getName()));
-        }
-
-        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
-            hList.sendProposal(sender, 0);
-            FancyMessage.send(sender);
-        });
-    }
-
-    private List<String> getTooltip(CommandSender sender, Home home) {
-        List<String> tooltip = new ArrayList<>(Collections.singletonList(CustomMessages.getStringRaw("Tooltip.homes")));
-        if (sender.hasPermission("at.member.homes.location")) {
-            tooltip.addAll(Arrays.asList(CustomMessages.getStringRaw("Tooltip.location").split("\n")));
-        }
-        List<String> homeTooltip = new ArrayList<>(tooltip);
-        for (int i = 0; i < homeTooltip.size(); i++) {
-            Location homeLoc = home.getLocation();
-
-            homeTooltip.set(i, homeTooltip.get(i).replace("{home}", home.getName())
-                    .replaceAll("\\{x}", String.valueOf(homeLoc.getX()))
-                    .replaceAll("\\{y}", String.valueOf(homeLoc.getY()))
-                    .replaceAll("\\{z}", String.valueOf(homeLoc.getZ()))
-                    .replaceAll("\\{world}", homeLoc.getWorld().getName()));
-        }
-        return homeTooltip;
+        if (!body.content().isEmpty() || !body.children().isEmpty()) {
+            Component text = CustomMessages.getComponent("Info.homes");
+            CustomMessages.asAudience(sender).sendMessage(text.append(body));
+        } else CustomMessages.sendMessage(
+            sender,
+            CustomMessages.contextualPath(sender, target, "Error.noHomes"),
+            Placeholder.unparsed("player", target.getName()) // TODO: DisplayName
+        );
     }
 }

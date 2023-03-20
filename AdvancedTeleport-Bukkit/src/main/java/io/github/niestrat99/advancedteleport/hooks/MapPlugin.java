@@ -2,13 +2,27 @@ package io.github.niestrat99.advancedteleport.hooks;
 
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
-import org.bukkit.Location;
+import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 
 import java.io.InputStream;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class MapPlugin {
+public abstract class MapPlugin<P extends Plugin, R> extends PluginHook<P, R> {
 
-    public abstract boolean canEnable();
+    @Contract(pure = true)
+    protected MapPlugin(
+        @Nullable final String pluginName,
+        @Nullable final Class<R> providerClazz
+    ) {
+        super(pluginName, providerClazz);
+    }
+
+    @Contract(pure = true)
+    protected MapPlugin(@Nullable final String pluginName) {
+        super(pluginName, null);
+    }
 
     public abstract void enable();
 
@@ -16,21 +30,24 @@ public abstract class MapPlugin {
 
     public abstract void addHome(Home home);
 
-    public abstract void addSpawn(String name, Location location);
+    public abstract void addSpawn(Spawn spawn);
 
     public abstract void removeWarp(Warp warp);
 
     public abstract void removeHome(Home home);
 
-    public abstract void removeSpawn(String name);
+    public abstract void removeSpawn(Spawn spawn);
 
     public abstract void moveWarp(Warp warp);
 
     public abstract void moveHome(Home home);
 
-    public abstract void moveSpawn(String name, Location location);
+    public abstract void moveSpawn(Spawn spawn);
 
-    public abstract void registerImage(String name, InputStream stream);
+    public abstract void registerImage(
+        String name,
+        InputStream stream
+    );
 
     public enum TeleportPoint {
         WARP,

@@ -2,12 +2,16 @@ package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
-import io.github.niestrat99.advancedteleport.config.*;
+import io.github.niestrat99.advancedteleport.config.ATConfig;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.GUIConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,13 +19,18 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class ReloadCommand implements SubATCommand {
+public final class ReloadCommand extends SubATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    @Contract("_, _, _, _ -> true")
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         CustomMessages.sendMessage(sender, "Info.reloadingConfig");
-        for (ATConfig config : Arrays.asList(NewConfig.get(), CustomMessages.config, Spawn.get(), GUI.get())) {
+        for (ATConfig config : Arrays.asList(MainConfig.get(), CustomMessages.config, GUIConfig.get())) {
             try {
                 config.reload();
             } catch (IOException ex) {
@@ -36,9 +45,14 @@ public class ReloadCommand implements SubATCommand {
         return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+    @Contract(value = "_, _, _, _ -> null", pure = true)
+    public @Nullable List<String> onTabComplete(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
         return null;
     }
 }

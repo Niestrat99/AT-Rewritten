@@ -3,33 +3,40 @@ package io.github.niestrat99.advancedteleport.api.events.homes;
 import io.github.niestrat99.advancedteleport.api.Home;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * The event that gets the home object after it has been created and fully registered properly.
  */
-public class HomePostCreateEvent extends Event {
+public final class HomePostCreateEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    @NotNull
-    private final Home home;
+    private final @NotNull Home home;
 
-    public HomePostCreateEvent(@NotNull Home home) {
+    @Contract(pure = true)
+    public HomePostCreateEvent(@NotNull final Home home) {
         this.home = home;
     }
 
-    @NotNull
     @Override
-    public HandlerList getHandlers() {
+    @Contract(pure = true)
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Contract(pure = true)
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 
-    @NotNull
-    public Home getHome() {
+    /**
+     * Gives the home object in question.
+     *
+     * @return the home that has been created.
+     */
+    @Contract(pure = true)
+    public @NotNull Home getHome() {
         return home;
     }
 }

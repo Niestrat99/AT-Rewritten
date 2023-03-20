@@ -2,6 +2,9 @@ package io.github.niestrat99.advancedteleport.api;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,17 +13,23 @@ import java.util.UUID;
 /**
  * Represents
  */
-public class BlockInfo {
+public final class BlockInfo {
 
-    private final UUID receiverUUID;
-    private final UUID blockedUUID;
-    private String reason;
+    private final @NotNull UUID receiverUUID;
+    private final @NotNull UUID blockedUUID;
+    private final @NotNull String formattedTime;
     private final long time;
-    private final String formattedTime;
+    private @Nullable String reason;
 
-    public BlockInfo(UUID receiver, UUID blocked, String reason, long time) {
-        receiverUUID = receiver;
-        blockedUUID = blocked;
+    @Contract(pure = true)
+    public BlockInfo(
+        @NotNull final UUID receiver,
+        @NotNull final UUID blocked,
+        @Nullable final String reason,
+        final long time
+    ) {
+        this.receiverUUID = receiver;
+        this.blockedUUID = blocked;
         this.reason = reason;
         this.time = time;
 
@@ -29,35 +38,43 @@ public class BlockInfo {
         formattedTime = format.format(date);
     }
 
-    public OfflinePlayer getReceivingPlayer() {
+    @Contract(pure = true)
+    public @NotNull OfflinePlayer getReceivingPlayer() {
         return Bukkit.getOfflinePlayer(receiverUUID);
     }
 
-    public OfflinePlayer getBlockedPlayer() {
+    @Contract(pure = true)
+    public @NotNull OfflinePlayer getBlockedPlayer() {
         return Bukkit.getOfflinePlayer(blockedUUID);
     }
 
-    public UUID getReceiverUUID() {
+    @Contract(pure = true)
+    public @NotNull UUID getReceiverUUID() {
         return receiverUUID;
     }
 
+    @Contract(pure = true)
     public long getTime() {
         return time;
     }
 
-    public UUID getBlockedUUID() {
+    @Contract(pure = true)
+    public @NotNull UUID getBlockedUUID() {
         return blockedUUID;
     }
 
-    public String getReason() {
+    @Contract(pure = true)
+    public @Nullable String getReason() {
         return reason;
     }
 
-    public void setReason(String reason) {
+    @Contract(pure = true)
+    public void setReason(@Nullable String reason) {
         this.reason = reason;
     }
 
-    public String getFormattedTime() {
+    @Contract(pure = true)
+    public @NotNull String getFormattedTime() {
         return formattedTime;
     }
 }

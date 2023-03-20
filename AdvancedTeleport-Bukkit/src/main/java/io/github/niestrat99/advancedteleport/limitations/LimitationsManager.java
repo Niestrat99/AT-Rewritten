@@ -5,8 +5,10 @@ import io.github.niestrat99.advancedteleport.limitations.commands.CommandRuleMan
 import io.github.niestrat99.advancedteleport.limitations.worlds.WorldRulesManager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-public class LimitationsManager {
+public final class LimitationsManager {
+    private LimitationsManager() {}
 
     private static WorldRulesManager worldMan;
     private static CommandRuleManager commandMan;
@@ -16,7 +18,11 @@ public class LimitationsManager {
         commandMan = new CommandRuleManager();
     }
 
-    public static boolean canTeleport(Player player, Location toLoc, String command) {
+    public static boolean canTeleport(
+        @NotNull final Player player,
+        @NotNull final Location toLoc,
+        @NotNull final String command
+    ) {
         CoreClass.debug("Checking " + player.getName() + " to " + CoreClass.getShortLocation(toLoc) + " with command " + command);
         int commandResponse = commandMan.canTeleport(player, toLoc, command);
         if (commandResponse == 0) {

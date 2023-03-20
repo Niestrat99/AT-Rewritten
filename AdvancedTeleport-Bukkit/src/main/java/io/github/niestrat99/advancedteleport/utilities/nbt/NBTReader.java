@@ -2,11 +2,19 @@ package io.github.niestrat99.advancedteleport.utilities.nbt;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import net.kyori.adventure.nbt.*;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.BinaryTagIO;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.DoubleBinaryTag;
+import net.kyori.adventure.nbt.FloatBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,32 +22,22 @@ import java.util.UUID;
 
 public class NBTReader {
 
-    public static void getLocation(String name, NBTCallback<Location> callback) {
+    public static void getLocation(
+        String name,
+        NBTCallback<Location> callback
+    ) {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
             try {
                 Location location = getLocation(player);
                 if (location == null) {
-                    callback.onFail(CustomMessages.getString("Error.noOfflineLocation", "{player}", name));
+                    callback.onFail(CustomMessages.getComponent("Error.noOfflineLocation", Placeholder.unparsed("player", name)));
                     return;
                 }
                 callback.onSuccess(location);
             } catch (IOException e) {
-                callback.onFail(CustomMessages.getString("Error.failedOfflineTeleport", "{player}", name));
+                callback.onFail(CustomMessages.getComponent("Error.failedOfflineTeleport", Placeholder.unparsed("player", name)));
                 e.printStackTrace();
-            }
-        });
-    }
-
-    public static void setLocation(String name, Location newLoc, NBTCallback<Boolean> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
-            try {
-                setLocation(player, newLoc);
-                callback.onSuccess(true);
-            } catch (IOException e) {
-                e.printStackTrace();
-                callback.onFail(CustomMessages.getString("Error.failedOfflineTeleportHere", "{player}", name));
             }
         });
     }
@@ -58,7 +56,8 @@ public class NBTReader {
         World world = Bukkit.getWorld(new UUID(worldUUIDMost, worldUUIDLeast));
 
         return new Location(world, posTag.getDouble(0), posTag.getDouble(1), posTag.getDouble(2),
-                rotTag.getFloat(0), rotTag.getFloat(1));
+            rotTag.getFloat(0), rotTag.getFloat(1)
+        );
     }
 
     private static File getPlayerFile(UUID uuid) {
@@ -75,7 +74,10 @@ public class NBTReader {
         return null;
     }
 
-    private static File getPlayerFile(File playerDataFolder, UUID uuid) {
+    private static File getPlayerFile(
+        File playerDataFolder,
+        UUID uuid
+    ) {
         File[] files = playerDataFolder.listFiles();
         if (files == null) return null;
         for (File file : files) {
@@ -84,7 +86,27 @@ public class NBTReader {
         return null;
     }
 
-    private static void setLocation(OfflinePlayer player, Location location) throws IOException {
+    public static void setLocation(
+        String name,
+        Location newLoc,
+        NBTCallback<Boolean> callback
+    ) {
+        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
+            try {
+                setLocation(player, newLoc);
+                callback.onSuccess(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+                callback.onFail(CustomMessages.getComponent("Error.failedOfflineTeleportHere", Placeholder.unparsed("player", name)));
+            }
+        });
+    }
+
+    private static void setLocation(
+        OfflinePlayer player,
+        Location location
+    ) throws IOException {
         UUID uuid = player.getUniqueId();
         File dataFile = getPlayerFile(uuid);
 
@@ -111,6 +133,6 @@ public class NBTReader {
 
         void onSuccess(D data);
 
-        default void onFail(String message) {}
+        default void onFail(@NotNull final Component message) { }
     }
 }

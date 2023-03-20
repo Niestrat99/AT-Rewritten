@@ -10,55 +10,72 @@ import dev.esophose.playerparticles.particles.data.NoteColor;
 import dev.esophose.playerparticles.particles.data.OrdinaryColor;
 import dev.esophose.playerparticles.particles.data.Vibration;
 import dev.esophose.playerparticles.styles.ParticleStyle;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
-import org.bukkit.Bukkit;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
 
-public class PlayerParticlesHook extends ParticlesPlugin {
+public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, Void> {
 
     // For configuration parsing, we'll use just id for presets, or particle,
     private PlayerParticlesAPI api;
 
-    @Override
-    public boolean canUse() {
-        if (!NewConfig.get().USE_PARTICLES.get()) return false;
-        if (!Bukkit.getPluginManager().isPluginEnabled("PlayerParticles")) return false;
-        Plugin rawPlugin = Bukkit.getPluginManager().getPlugin("PlayerParticles");
-        if (!(rawPlugin instanceof PlayerParticles)) return false;
-        this.api = PlayerParticlesAPI.getInstance();
-        return true;
+    public PlayerParticlesHook() {
+        super("PlayerParticles");
     }
 
     @Override
-    public void applyParticles(Player player, String command) {
-        String rawParticle = NewConfig.get().WAITING_PARTICLES.valueOf(command).get();
-        if (rawParticle.isEmpty()) return;
-        String[] rawPairs = rawParticle.split(";");
-        for (String rawPair : rawPairs) {
-            // Individual pieces
-            ParticlePair pair = getPairFromData(player, rawPair);
-            if (pair == null) continue;
-            api.addActivePlayerParticle(player, pair);
-        }
+    public boolean pluginUsable() {
+
+        // If particles are enabled and the plugin is enabled
+        if (!super.pluginUsable()) return false;
+
+        // Get the plugin itself and ensure the API is the one we want.
+        return plugin().map(plugin -> {
+            this.api = PlayerParticlesAPI.getInstance();
+            return true;
+        }).orElse(false);
     }
 
     @Override
-    public void removeParticles(Player player, String command) {
-        String rawParticle = NewConfig.get().WAITING_PARTICLES.valueOf(command).get();
+    public void applyParticles(
+            @NotNull final Player player,
+            @NotNull final String command
+    ) {
+        getPairStream(player, command)
+                .forEach(pair -> api.addActivePlayerParticle(player, pair));
+    }
+
+    @Override
+    public void removeParticles(
+            @NotNull final Player player,
+            @NotNull final String command
+    ) {
+
+        // Get the existing particles in place, but if it doesn't already exist? Meh
+        String rawParticle = MainConfig.get().WAITING_PARTICLES.valueOf(command).get();
         if (rawParticle.isEmpty()) return;
+
+        // Get the raw pairs of particles and parse them
         String[] rawPairs = rawParticle.split(";");
         for (String rawPair : rawPairs) {
+
             // Individual pieces
             String[] parts = rawPair.split(",");
             int id = -1;
+
+            // Go through each of the active particles active on the player
+            // If any comes from AT, remove it
             for (ParticlePair newPair : api.getActivePlayerParticles(player)) {
                 if (newPair == null) continue;
                 if (!newPair.getEffect().getInternalName().equals(parts[0])) continue;
@@ -67,34 +84,47 @@ public class PlayerParticlesHook extends ParticlesPlugin {
                 id = newPair.getId();
                 break;
             }
+
+            // If there's no ID to remove, stop there
             if (id == -1) continue;
             api.removeActivePlayerParticle(player, id);
         }
     }
 
     @Override
-    public String getParticle(Player player) {
+    @Nullable
+    public String getParticle(@NotNull final Player player) {
+
         // Get the player particles
         Collection<ParticlePair> particlePairs = api.getActivePlayerParticles(player);
+
         // Create the list of strings to build this up
         List<String> particleRawList = new ArrayList<>();
+
         // For each particle...
         for (ParticlePair pair : particlePairs) {
             ParticleEffect effect = pair.getEffect();
             ParticleStyle style = pair.getStyle();
             particleRawList.add(effect.getInternalName() + "," + style.getInternalName() + "," + getRawDataFromPair(pair));
         }
+
+        // If it's empty, return null
+        if (particleRawList.isEmpty()) return null;
+
         // Get all particles joined together with a semi-colon
         return String.join(";", particleRawList);
     }
 
-    private String getRawDataFromPair(ParticlePair pair) {
-        if (pair.getEffect() == ParticleEffect.BLOCK || pair.getEffect() == ParticleEffect.FALLING_DUST) {
+    private String getRawDataFromPair(@NotNull final ParticlePair pair) {
+
+        // If it's a block or falling dust, use the name of the block material
+        if (pair.getEffect() == ParticleEffect.BLOCK || pair.getEffect() == ParticleEffect.FALLING_DUST)
             return pair.getBlockMaterial().name();
-        }
-        if (pair.getEffect() == ParticleEffect.ITEM) {
-            return pair.getItemMaterial().name();
-        }
+
+        // If it's an item, get the name of the item material
+        if (pair.getEffect() == ParticleEffect.ITEM) return pair.getItemMaterial().name();
+
+        // If the effect is colourable, get the colour of that
         if (pair.getEffect().hasProperty(ParticleEffect.ParticleProperty.COLORABLE)) {
             if (pair.getEffect() == ParticleEffect.NOTE) {
                 return parseColour(pair.getNoteColor(), NoteColor.RAINBOW, NoteColor.RANDOM,
@@ -103,7 +133,10 @@ public class PlayerParticlesHook extends ParticlesPlugin {
                 return parseColour(pair.getColor(), OrdinaryColor.RAINBOW, OrdinaryColor.RANDOM,
                         pair.getColor().getRed() + " " + pair.getColor().getGreen() + " " + pair.getColor().getBlue());
             }
-        } else if (pair.getEffect().hasProperty(ParticleEffect.ParticleProperty.COLORABLE_TRANSITION)) {
+        }
+
+        // If the effect transitions between colours, get the values of that
+        if (pair.getEffect().hasProperty(ParticleEffect.ParticleProperty.COLORABLE_TRANSITION)) {
             String start = parseColour(pair.getColorTransition().getStartColor(), OrdinaryColor.RAINBOW, OrdinaryColor.RANDOM,
                     pair.getColor().getRed() + " " + pair.getColor().getGreen() + " " + pair.getColor().getBlue());
             String end = parseColour(pair.getColorTransition().getEndColor(), OrdinaryColor.RAINBOW, OrdinaryColor.RANDOM,
@@ -117,16 +150,23 @@ public class PlayerParticlesHook extends ParticlesPlugin {
         }
     }
 
-    private ParticlePair getPairFromData(Player player, String data) {
+    private @Nullable ParticlePair getPairFromData(
+        @NotNull final Player player,
+        @NotNull final String data
+    ) {
         String[] parts = data.split(",");
+
         // Get the effect
         ParticleEffect effect = ParticleEffect.fromInternalName(parts[0]);
         if (effect == null) return null;
+
         // Get the style
         ParticleStyle style = ParticleStyle.fromInternalName(parts[1]);
         if (style == null) return null;
+
         // If it's an RGB thing
         String[] rgb = parts[2].split(" ");
+
         // Get the data items
         Material itemMaterial = get(effect == ParticleEffect.ITEM, () -> Material.getMaterial(data));
         Material blockMaterial = get(effect == ParticleEffect.BLOCK
@@ -155,18 +195,32 @@ public class PlayerParticlesHook extends ParticlesPlugin {
                 itemMaterial, blockMaterial, ordinaryColor, noteColor, colorTransition, vibration);
     }
 
-    private <T> T get(boolean condition, Supplier<T> supplier) {
+    private <T> @Nullable T get(
+        final boolean condition,
+        @NotNull Supplier<T> supplier
+    ) {
         if (condition) supplier.get();
         return null;
     }
 
-    private <T> T getNote(String data, ParticleEffect effect, T rainbow, T random, Supplier<T> base) {
+    private <T> T getNote(
+        @NotNull final String data,
+        @NotNull final ParticleEffect effect,
+        @NotNull final T rainbow,
+        @NotNull final T random,
+        @NotNull final Supplier<T> base
+    ) {
         return get(effect.hasProperty(ParticleEffect.ParticleProperty.COLORABLE)
                 && effect != ParticleEffect.NOTE, () -> data.equals("rainbow") ? rainbow
                 : (data.equals("random") ? random : base.get()));
     }
 
-    private <T> String parseColour(T colour, T rainbow, T random, String base) {
+    private <T> @NotNull String parseColour(
+        @NotNull final T colour,
+        @NotNull final T rainbow,
+        @NotNull final T random,
+        @NotNull final String base
+    ) {
         if (colour == rainbow) {
             return "rainbow";
         } else if (colour == random) {
@@ -174,5 +228,17 @@ public class PlayerParticlesHook extends ParticlesPlugin {
         } else {
             return base;
         }
+    }
+
+    private @NotNull Stream<ParticlePair> getPairStream(
+        @NotNull final Player player,
+        @NotNull final String command
+    ) {
+        final var rawParticle = MainConfig.get().WAITING_PARTICLES.valueOf(command).get();
+        if (rawParticle.isEmpty()) return Stream.empty();
+
+        return Arrays.stream(rawParticle.split(";"))
+            .map(rawPair -> getPairFromData(player, rawPair))
+            .filter(Objects::nonNull);
     }
 }

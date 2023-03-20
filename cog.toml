@@ -1,5 +1,5 @@
 pre_bump_hooks = [
-    "bash -c \"scripts/pre-bump.sh {{version}}\""
+    "bash -c \"scripts/pre-bump.sh {{latest}} {{version}}\""
 ]
 
 post_bump_hooks = [
@@ -11,7 +11,7 @@ tag_prefix = "v"
 ignore_merge_commits = true
 
 [commit_types]
-dev = { changelog_title = "Development/Build Changes"}
+dev = { changelog_title = "Development/Build Changes" }
 
 [changelog]
 path = "CHANGELOG.md"

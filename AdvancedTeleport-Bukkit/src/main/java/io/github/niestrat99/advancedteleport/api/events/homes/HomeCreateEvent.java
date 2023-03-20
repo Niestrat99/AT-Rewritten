@@ -5,33 +5,30 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 /**
  * The event fired when a player - or admin - creates a new home.
  */
-public class HomeCreateEvent extends TrackableATEvent {
+public final class HomeCreateEvent extends TrackableATEvent {
 
-    @NotNull
-    private OfflinePlayer player;
-    @NotNull
-    private String name;
-    @NotNull
-    private Location location;
     private static final HandlerList handlers = new HandlerList();
+    private @NotNull OfflinePlayer player;
+    private @NotNull String name;
+    private @NotNull Location location;
 
-    public HomeCreateEvent(@NotNull OfflinePlayer player, @NotNull String name, @NotNull Location location, @Nullable Player creator) {
+    @Contract(pure = true)
+    public HomeCreateEvent(
+        @NotNull final OfflinePlayer player,
+        @NotNull final String name,
+        @NotNull final Location location,
+        @Nullable final Player creator
+    ) throws IllegalArgumentException, IllegalStateException {
         super(creator);
-        // Home name checks
-        Objects.requireNonNull(name, "The home name must not be null.");
+
         if (name.isEmpty()) throw new IllegalArgumentException("The home name must not be empty.");
-        // Player checks
-        Objects.requireNonNull(player, "The player must not be null.");
-        // Location checks
-        Objects.requireNonNull(location, "The location must not be null.");
         if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
 
         this.player = player;
@@ -39,13 +36,13 @@ public class HomeCreateEvent extends TrackableATEvent {
         this.location = location;
     }
 
-    @NotNull
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Contract(pure = true)
+    public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 
@@ -54,55 +51,9 @@ public class HomeCreateEvent extends TrackableATEvent {
      *
      * @return the owner of the home.
      */
-    @NotNull
-    public OfflinePlayer getPlayer() {
+    @Contract(pure = true)
+    public @NotNull OfflinePlayer getPlayer() {
         return player;
-    }
-
-    /**
-     * Gets the location of the home.
-     *
-     * @return the location of the home.
-     */
-    @NotNull
-    public Location getLocation() {
-        return location;
-    }
-
-    /**
-     * Gets the name of the home.
-     *
-     * @return the name of the home.
-     */
-    @NotNull
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Sets the name of the home.
-     *
-     * @param name the new name to be used.
-     * @throws NullPointerException if the name is null.
-     * @throws IllegalArgumentException if the name is empty.
-     */
-    public void setName(@NotNull String name) {
-        Objects.requireNonNull(name, "The home name must not be null.");
-        if (name.isEmpty()) throw new IllegalArgumentException("The home name must not be empty.");
-        this.name = name;
-    }
-
-    /**
-     * Sets the location of the home.
-     *
-     * @param location the new location of the home.
-     * @throws NullPointerException if the location is null.
-     * @throws IllegalStateException if the location's world isn't loaded.
-     */
-    public void setLocation(@NotNull Location location) {
-        Objects.requireNonNull(location, "The location must not be null.");
-        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
-        this.location = location;
     }
 
     /**
@@ -111,8 +62,54 @@ public class HomeCreateEvent extends TrackableATEvent {
      * @param player the new owner of the home.
      * @throws NullPointerException if the player is null.
      */
-    public void setPlayer(@NotNull OfflinePlayer player) {
-        Objects.requireNonNull(player, "The player must not be null.");
+    @Contract(pure = true)
+    public void setPlayer(@NotNull final OfflinePlayer player) {
         this.player = player;
+    }
+
+    /**
+     * Gets the location of the home.
+     *
+     * @return the location of the home.
+     */
+    @Contract(pure = true)
+    public @NotNull Location getLocation() {
+        return location;
+    }
+
+    /**
+     * Sets the location of the home.
+     *
+     * @param location the new location of the home.
+     * @throws NullPointerException  if the location is null.
+     * @throws IllegalStateException if the location's world isn't loaded.
+     */
+    @Contract(pure = true)
+    public void setLocation(@NotNull final Location location) throws IllegalStateException {
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
+        this.location = location;
+    }
+
+    /**
+     * Gets the name of the home.
+     *
+     * @return the name of the home.
+     */
+    @Contract(pure = true)
+    public @NotNull String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name of the home.
+     *
+     * @param name the new name to be used.
+     * @throws NullPointerException     if the name is null.
+     * @throws IllegalArgumentException if the name is empty.
+     */
+    @Contract(pure = true)
+    public void setName(@NotNull final String name) throws IllegalArgumentException {
+        if (name.isEmpty()) throw new IllegalArgumentException("The home name must not be empty.");
+        this.name = name;
     }
 }

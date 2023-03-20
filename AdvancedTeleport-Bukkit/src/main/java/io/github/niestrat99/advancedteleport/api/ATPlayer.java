@@ -1,25 +1,27 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import com.google.common.collect.ImmutableMap;
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.data.CancelledEventException;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.HomeCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.HomeDeleteEvent;
-import io.github.niestrat99.advancedteleport.api.events.homes.HomeMoveEvent;
 import io.github.niestrat99.advancedteleport.api.events.homes.SwitchMainHomeEvent;
 import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocationChangeEvent;
 import io.github.niestrat99.advancedteleport.api.events.players.ToggleTeleportationEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -27,79 +29,89 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.geysermc.floodgate.api.FloodgateApi;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
 /**
  * A wrapper class used to represent a player. An ATPlayer stores information such as their homes, the players they
  * have blocked, whether they have teleportation enabled, their main home, and previous location.
+ *
+ * @since v5.4
  */
 public class ATPlayer {
 
-    protected UUID uuid;
-    @NotNull
-    private LinkedHashMap<String, Home> homes;
-    @NotNull
-    private HashMap<UUID, BlockInfo> blockedUsers;
-    private boolean isTeleportationEnabled;
-    @Nullable
-    private String mainHome;
-    @Nullable
-    private Location previousLoc;
-
-    private static final HashMap<String, ATPlayer> players = new HashMap<>();
+    private static final @NotNull HashMap<String, ATPlayer> players = new HashMap<>();
+    protected @NotNull UUID uuid;
+    private final @NotNull PendingData<LinkedHashMap<String, @NotNull Home>> homes;
+    private final @NotNull PendingData<HashMap<UUID, @NotNull BlockInfo>> blockedUsers;
+    private final @NotNull PendingData<Boolean> isTeleportationEnabled;
+    private final @NotNull PendingData<@Nullable String> mainHome;
+    private final @NotNull PendingData<@Nullable Location> previousLoc;
 
     /**
      * Internal use only.
      */
-    public ATPlayer(Player player) {
+    public ATPlayer(@NotNull Player player) {
         this(player.getUniqueId(), player.getName());
     }
 
     /**
      * Internal use only.
      */
-    public ATPlayer(@Nullable UUID uuid, @Nullable String name) {
-        this.homes = new LinkedHashMap<>();
-        this.blockedUsers = new HashMap<>();
-        if (uuid == null || name == null) return;
-
+    @ApiStatus.Internal
+    public ATPlayer(
+        @NotNull final UUID uuid,
+        @NotNull final String name
+    ) {
         this.uuid = uuid;
 
-        BlocklistManager.get().getBlockedPlayers(uuid.toString(), (list) -> this.blockedUsers = list);
-        HomeSQLManager.get().getHomes(uuid.toString(), list -> {
-            this.homes = list;
-            // Do this after to be safe
-            PlayerSQLManager.get().getMainHome(name, result -> {
-                if (result != null && !result.isEmpty()) {
-                    setMainHome(result);
-                }
-            });
-            // Add the bed spawn home
-            if (getBedSpawn() != null && NewConfig.get().ADD_BED_TO_HOMES.get()) {
-                homes.put("bed", getBedSpawn());
-            }
-        });
+        // Set up homes data
+        this.homes = new PendingData<>(CompletableFuture.supplyAsync(() -> HomeSQLManager.get().getHomes(uuid.toString()), CoreClass.async)
+                .thenApplyAsync(list -> {
 
-        PlayerSQLManager.get().isTeleportationOn(uuid, result -> this.isTeleportationEnabled = result);
-        PlayerSQLManager.get().getPreviousLocation(name, result -> this.previousLoc = result);
+                    if (getBedSpawn() != null && MainConfig.get().ADD_BED_TO_HOMES.get()) {
+                        list.put("bed", getBedSpawn());
+                    }
+
+                    return list;
+                }, CoreClass.async));
+
+        // Set up the main home data
+        this.mainHome = new PendingData<>(CompletableFuture.supplyAsync(() -> PlayerSQLManager.get().getMainHome(name), CoreClass.async)
+                .thenApplyAsync(home -> {
+                    reorganiseHomes();
+                    return home;
+                }, CoreClass.async));
+
+        // Get blocked users
+        this.blockedUsers = new PendingData<>(CompletableFuture.supplyAsync(() -> BlocklistManager.get().getBlockedPlayers(uuid.toString()), CoreClass.async));
+        this.previousLoc = new PendingData<>(CompletableFuture.supplyAsync(() -> PlayerSQLManager.get().getPreviousLocation(name), CoreClass.async));
+        this.isTeleportationEnabled = new PendingData<>(CompletableFuture.supplyAsync(() -> PlayerSQLManager.get().isTeleportationOn(uuid), CoreClass.async));
+
+        if (PluginHookManager.get().floodgateEnabled()) {
+            org.geysermc.floodgate.api.FloodgateApi api = org.geysermc.floodgate.api.FloodgateApi.getInstance();
+            if (api == null) {
+                CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
+                return;
+            }
+            if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
+        }
+
 
         players.put(name.toLowerCase(), this);
-    }
-
-    /**
-     * Gets the Bukkit player object representing this ATPlayer.
-     *
-     * @return the Bukkit player representing this ATPlayer. This is null if the player is not online.
-     */
-    @Nullable
-    public Player getPlayer() {
-        return Bukkit.getPlayer(uuid);
     }
 
     /**
@@ -107,39 +119,71 @@ public class ATPlayer {
      *
      * @return the offline Bukkit player representing this ATPlayer.
      */
-    @NotNull
-    public OfflinePlayer getOfflinePlayer() {
+    @Contract(pure = true)
+    public @NotNull OfflinePlayer getOfflinePlayer() {
         return Bukkit.getOfflinePlayer(uuid);
     }
 
+    /*
+     * BLOCKING FUNCTIONALITY
+     */
+    @Contract(pure = true)
+    public @NotNull UUID uuid() {
+        return uuid;
+    }
+
     @Deprecated
-    public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp)  {
+    @ApiStatus.Internal
+    public void teleport(
+        ATTeleportEvent event,
+        String command,
+        String teleportMsg,
+        int warmUp
+    ) {
         teleport(event, command, teleportMsg);
     }
 
-    public void teleport(ATTeleportEvent event, String command, String teleportMsg) {
+    @ApiStatus.Internal
+    public void teleport(
+        @NotNull final ATTeleportEvent event,
+        @NotNull final String command,
+        @NotNull final String teleportMsg
+    ) {
         Player player = event.getPlayer();
         int warmUp = getWarmUp(command);
         if (event.isCancelled()) return;
         if (!PaymentManager.getInstance().canPay(command, player)) return;
-                
+
         // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
-        String cooldownConfig = NewConfig.get().APPLY_COOLDOWN_AFTER.get();
+        String cooldownConfig = MainConfig.get().APPLY_COOLDOWN_AFTER.get();
 
         if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
             CooldownManager.addToCooldown(command, player);
         }
-        
+
         // If there's a movement timer, apply it - otherwise, teleport them immediately
         if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
             MovementManager.createMovementTimer(player, event.getToLocation(), command, teleportMsg, warmUp,
-                    "{home}", event.getLocName(), "{warp}", event.getLocName());
+                 Placeholder.unparsed("home", event.getLocName()),
+                 Placeholder.unparsed("warp", event.getLocName())
+            );
         } else {
             ParticleManager.onTeleport(player, command);
-            PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-            CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}",
-                    event.getLocName());
-            PaymentManager.getInstance().withdraw(command, player);
+            PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND).whenComplete((result, err) -> {
+
+                // If we didn't succeed, let the player know.
+                if (!result) {
+                    CustomMessages.sendMessage(player, "Error.teleportFailed");
+                    return;
+                }
+
+                // Let the player know they have been teleported and withdraw any money.
+                CustomMessages.sendMessage(player, teleportMsg,
+                        Placeholder.unparsed("home", event.getLocName()),
+                        Placeholder.unparsed("warp", event.getLocName())
+                );
+                PaymentManager.getInstance().withdraw(command, player);
+            });
         }
     }
     
@@ -149,21 +193,19 @@ public class ATPlayer {
      *
      * @return true if teleportation is enabled, false if it is disabled.
      */
+    @Contract(pure = true)
     public boolean isTeleportationEnabled() {
-        return isTeleportationEnabled;
+        return Boolean.TRUE.equals(isTeleportationEnabled.data);
     }
 
     /**
-     * Toggles teleportation for the player, setting it to a specific status.
+     * Gets the Bukkit player object representing this ATPlayer.
      *
-     * @param teleportationEnabled true to enable teleportation, false to disable it.
-     * @param callback what to do after teleportation has been changed.
-     * @deprecated use {@link #setTeleportationEnabled(boolean)} instead.
+     * @return the Bukkit player representing this ATPlayer. This is null if the player is not online.
      */
-    @Deprecated
-    public void setTeleportationEnabled(boolean teleportationEnabled, SQLManager.SQLCallback<Boolean> callback) {
-        setTeleportationEnabled(teleportationEnabled);
-        callback.onSuccess(true);
+    @Contract(pure = true)
+    public @Nullable Player getPlayer() {
+        return Bukkit.getPlayer(uuid);
     }
 
     /**
@@ -172,33 +214,31 @@ public class ATPlayer {
      * @param teleportationEnabled true to enable teleportation, false to disable it.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> setTeleportationEnabled(boolean teleportationEnabled) {
-        return setTeleportationEnabled(teleportationEnabled, (CommandSender) null);
+    public @NotNull CompletableFuture<Void> setTeleportationEnabled(boolean teleportationEnabled) {
+        return setTeleportationEnabled(teleportationEnabled, null);
     }
 
     /**
      * Toggles teleportation for the player, setting it to a specific status.
      *
      * @param teleportationEnabled true to enable teleportation, false to disable it.
-     * @param sender the command sender that triggered the action.
+     * @param sender               the command sender that triggered the action.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> setTeleportationEnabled(boolean teleportationEnabled, CommandSender sender) {
-        ToggleTeleportationEvent event = new ToggleTeleportationEvent(sender, getOfflinePlayer(), teleportationEnabled,
-                isTeleportationEnabled ^ teleportationEnabled);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
-
-        this.isTeleportationEnabled = teleportationEnabled;
-        return CompletableFuture.runAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            PlayerSQLManager.get().setTeleportationOn(uuid, teleportationEnabled, callback);
+    public @NotNull CompletableFuture<Void> setTeleportationEnabled(
+        final boolean teleportationEnabled,
+        @Nullable final CommandSender sender
+    ) {
+        return AdvancedTeleportAPI.validateEvent(new ToggleTeleportationEvent(
+                sender,
+                getOfflinePlayer(),
+                teleportationEnabled,
+                isTeleportationEnabled() ^ teleportationEnabled
+        ), event -> {
+            this.isTeleportationEnabled.data = event.isEnabled();
+            return CompletableFuture.runAsync(() -> PlayerSQLManager.get().setTeleportationOn(uuid, teleportationEnabled), CoreClass.async);
         });
     }
-
-    /*
-     * BLOCKING FUNCTIONALITY
-     */
 
     /**
      * Checks to see if this player has blocked a specified player.
@@ -206,8 +246,20 @@ public class ATPlayer {
      * @param otherPlayer The player that this one theoretically blocked.
      * @return true is otherPlayer is blocked, false if otherwise.
      */
-    public boolean hasBlocked(OfflinePlayer otherPlayer) {
-        return blockedUsers.containsKey(otherPlayer.getUniqueId());
+    @Contract(pure = true)
+    public boolean hasBlocked(@NotNull final OfflinePlayer otherPlayer) {
+        return hasBlocked(otherPlayer.getUniqueId());
+    }
+
+    /**
+     * Checks to see if this player has blocked a specified player.
+     *
+     * @param otherPlayer The player that this one theoretically blocked.
+     * @return true is otherPlayer is blocked, false if otherwise.
+     */
+    @Contract(pure = true)
+    public boolean hasBlocked(@NotNull final UUID otherPlayer) {
+        return blockedUsers.data != null && blockedUsers.data.containsKey(otherPlayer);
     }
 
     /**
@@ -218,53 +270,9 @@ public class ATPlayer {
      * @param otherPlayer The other player.
      * @return A BlockInfo object if this player has blocked the other player, but null if they haven't.
      */
-    @Nullable
-    public BlockInfo getBlockInfo(OfflinePlayer otherPlayer) {
-        return blockedUsers.get(otherPlayer.getUniqueId());
-    }
-
-    /**
-     * Makes this ATPlayer block another player, stopping the other player from sending teleportation requests to them.
-     *
-     * @param otherPlayer the player being blocked.
-     * @param callback what to do after the player has been blocked.
-     * @deprecated use {@link #blockUser(OfflinePlayer)} instead.
-     */
-    @Deprecated
-    public void blockUser(@NotNull OfflinePlayer otherPlayer, SQLManager.SQLCallback<Boolean> callback) {
-        blockUser(otherPlayer, (String) null);
-        callback.onSuccess(true);
-    }
-
-    /**
-     * Makes this ATPlayer block another player with a specified reason, stopping the other player from sending
-     * teleportation requests to them.
-     *
-     * @param otherPlayer the player being blocked.
-     * @param reason the reason the player has been blocked. Can be null.
-     * @param callback what to do after the player has been blocked.
-     * @deprecated use {@link #blockUser(OfflinePlayer, String)} instead.
-     */
-    @Deprecated
-    public void blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason,
-                          SQLManager.SQLCallback<Boolean> callback) {
-        blockUser(otherPlayer.getUniqueId(), reason);
-        callback.onSuccess(true);
-    }
-
-    /**
-     * Makes this ATPLayer block another player with the specified UUID with a given reason, stopping the other player
-     * from sending teleportation requests to them.
-     *
-     * @param otherUUID the player's UUID to be blocked.
-     * @param reason the reason the player has been blocked. Can be null.
-     * @param callback what to do after the player has been blocked.
-     * @deprecated use {@link #blockUser(UUID, String)} instead.
-     */
-    @Deprecated
-    public void blockUser(@NotNull UUID otherUUID, @Nullable String reason, SQLManager.SQLCallback<Boolean> callback) {
-        blockUser(otherUUID, reason);
-        callback.onSuccess(true);
+    @Contract(pure = true)
+    public @Nullable BlockInfo getBlockInfo(@NotNull final OfflinePlayer otherPlayer) {
+        return blockedUsers.data != null ? blockedUsers.data.get(otherPlayer.getUniqueId()) : null;
     }
 
     /**
@@ -273,51 +281,45 @@ public class ATPlayer {
      * @param otherPlayer the player being blocked.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> blockUser(@NotNull OfflinePlayer otherPlayer) {
+    public @NotNull CompletableFuture<Void> blockUser(@NotNull final OfflinePlayer otherPlayer) {
         return blockUser(otherPlayer.getUniqueId(), null);
     }
 
     /**
-     * Makes this ATPlayer block another player with a specified reason, stopping the other player from sending
-     * teleportation requests to them.
-     *
-     * @param otherPlayer the player being blocked.
-     * @param reason the reason the player has been blocked. Can be null.
-     * @return a completable future of whether the action failed or succeeded.
-     */
-    public CompletableFuture<Void> blockUser(@NotNull OfflinePlayer otherPlayer, @Nullable String reason) {
-        return blockUser(otherPlayer.getUniqueId(), reason);
-    }
-
-    /**
      * Makes this ATPLayer block another player with the specified UUID with a given reason, stopping the other player
      * from sending teleportation requests to them.
      *
      * @param otherUUID the player's UUID to be blocked.
-     * @param reason the reason the player has been blocked. Can be null.
+     * @param reason    the reason the player has been blocked. Can be null.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> blockUser(@NotNull UUID otherUUID, @Nullable String reason) {
-        // Add the user to the list of blocked users.
-        blockedUsers.put(otherUUID, new BlockInfo(uuid, otherUUID, reason, System.currentTimeMillis()));
+    public @NotNull CompletableFuture<Void> blockUser(
+        @NotNull final UUID otherUUID,
+        @Nullable final String reason
+    ) {
+
+        // Add it to the internal data store
+        blockedUsers.getData().thenApplyAsync(list ->
+                list.put(otherUUID, new BlockInfo(uuid, otherUUID, reason, System.currentTimeMillis())));
+
         // Add the entry to the SQL database.
-        return CompletableFuture.runAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason, callback);
-        }, CoreClass.async);
+        return CompletableFuture.runAsync(() ->
+                BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason), CoreClass.async);
     }
 
     /**
-     * Makes this player unblock a player with the specified UUID.
+     * Makes this ATPlayer block another player with a specified reason, stopping the other player from sending
+     * teleportation requests to them.
      *
-     * @param otherUUID the UUID of the player to be unblocked.
-     * @param callback what to do after the player has been unblocked.
-     * @deprecated use {@link #unblockUser(UUID)} instead.
+     * @param otherPlayer the player being blocked.
+     * @param reason      the reason the player has been blocked. Can be null.
+     * @return a completable future of whether the action failed or succeeded.
      */
-    @Deprecated
-    public void unblockUser(@NotNull UUID otherUUID, SQLManager.SQLCallback<Boolean> callback) {
-        unblockUser(otherUUID);
-        callback.onSuccess(true);
+    public @NotNull CompletableFuture<Void> blockUser(
+        @NotNull final OfflinePlayer otherPlayer,
+        @Nullable final String reason
+    ) {
+        return blockUser(otherPlayer.getUniqueId(), reason);
     }
 
     /**
@@ -326,50 +328,39 @@ public class ATPlayer {
      * @param otherUUID the UUID of the player to be unblocked.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> unblockUser(@NotNull UUID otherUUID) {
-        blockedUsers.remove(otherUUID);
+    public @NotNull CompletableFuture<Void> unblockUser(@NotNull final UUID otherUUID) {
+        blockedUsers.getData().thenApplyAsync(list -> list.remove(otherUUID));
 
-        return CompletableFuture.runAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString(), callback);
-        });
+        return CompletableFuture.runAsync(() ->
+                BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString()), CoreClass.async);
     }
-
-    /*
-     * HOMES FUNCTIONALITY
-     */
 
     /**
      * Returns a hashmap of homes, where the key is the home name, and the value is the home object.
      *
      * @return a hashmap of homes.
      */
-    public HashMap<String, Home> getHomes() {
-        return new HashMap<>(homes);
+    @Contract(pure = true)
+    public @NotNull ImmutableMap<String, Home> getHomes() {
+        return ImmutableMap.copyOf(homes.data == null ? new HashMap<>() : homes.data);
+    }
+
+    @Contract(pure = true)
+    public @NotNull CompletableFuture<ImmutableMap<String, Home>> getHomesAsync() {
+        return homes.getData().thenApplyAsync(ImmutableMap::copyOf);
     }
 
     /**
      * Adds a home to the player's home list.
      *
-     * @param name the name of the home.
-     * @param location the location of the home.
-     * @param callback what to do after the home has been added.
-     * @deprecated use {@link #addHome(String, Location)} instead.
-     */
-    @Deprecated
-    public void addHome(@NotNull String name, @NotNull Location location, SQLManager.SQLCallback<Boolean> callback) {
-        addHome(name, location, getPlayer(), true);
-        if (callback != null) callback.onSuccess(true);
-    }
-
-    /**
-     * Adds a home to the player's home list.
-     *
-     * @param name the name of the home.
+     * @param name     the name of the home.
      * @param location the location of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> addHome(String name, Location location) {
+    public @NotNull CompletableFuture<Void> addHome(
+        @NotNull final String name,
+        @NotNull final Location location
+    ) {
         return addHome(name, location, getPlayer(), true);
     }
 
@@ -381,95 +372,101 @@ public class ATPlayer {
      * @param creator the player who created the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> addHome(String name, Location location, Player creator) {
+    public @NotNull CompletableFuture<Void> addHome(
+        @NotNull final String name,
+        @NotNull final Location location,
+        @NotNull final Player creator
+    ) {
         return addHome(name, location, creator, true);
     }
 
     /**
      * Adds a home to the player's home list.
      *
-     * @param name the name of the home.
+     * @param name     the name of the home.
      * @param location the location of the home.
-     * @param creator the player who created the home.
-     * @param async true if the home is to be added asynchronously, false if not.
+     * @param creator  the player who created the home.
+     * @param async    true if the home is to be added asynchronously, false if not.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> addHome(String name, Location location, Player creator, boolean async) {
-        if (hasHome(name)) {
-            return moveHome(name, location);
-        }
+    public @NotNull CompletableFuture<Void> addHome(
+        @NotNull final String name,
+        @NotNull final Location location,
+        @Nullable final Player creator,
+        final boolean async
+    ) {
 
-        HomeCreateEvent event = new HomeCreateEvent(getOfflinePlayer(), name, location, creator);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
+        // If the home exists, move it instead
+        if (hasHome(name)) return moveHome(name, location);
 
-        homes.put(name, new Home(event.getPlayer().getUniqueId(), event.getName(), event.getLocation(),
-                System.currentTimeMillis(), System.currentTimeMillis()));
+        return AdvancedTeleportAPI.validateEvent(new HomeCreateEvent(
+            getOfflinePlayer(),
+            name,
+            location,
+            creator
+        ), event -> {
+            homes.getData().thenApplyAsync(list -> {
+                    list.put(name,
+                            new Home(
+                                    event.getPlayer().getUniqueId(),
+                                    event.getName(), event.getLocation(),
+                                    System.currentTimeMillis(),
+                                    System.currentTimeMillis()
+                            )
+                    );
 
-        return CompletableFuture.runAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            HomeSQLManager.get().addHome(location, uuid, name, callback, async);
+                    homes.data = list;
+                    return list;
+            });
+
+            return CompletableFuture.runAsync(() -> HomeSQLManager.get().addHome(location, uuid, name, async), CoreClass.async);
         });
     }
 
     /**
-     * Moves a specified home to a new location.
+     * Whether the player has a home with the specified name.
      *
-     * @param name the name of the home.
-     * @param newLocation the new location of the home.
-     * @param callback what to do after the home has been moved.
-     * @deprecated use {@link #moveHome(String, Location)} instead.
+     * @param name The name of the home.
+     * @return true if the player has a home named as specified, false if they do not.
      */
-    @Deprecated
-    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback) {
-        moveHome(name, newLocation, callback, true);
-    }
-
-    public void moveHome(String name, Location newLocation, SQLManager.SQLCallback<Boolean> callback, boolean async) {
-        homes.get(name).move(newLocation);
-        HomeSQLManager.get().moveHome(newLocation, uuid, name, callback, async);
-        moveHome(name, newLocation);
-        if (callback != null) callback.onSuccess(true);
+    public boolean hasHome(@NotNull final String name) {
+        return homes.data != null && homes.data.containsKey(name);
     }
 
     /**
      * Moves a specified home to a new location.
      *
-     * @param name the name of the home.
+     * @param name        the name of the home.
      * @param newLocation the new location of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> moveHome(String name, Location newLocation) {
-        return moveHome(name, newLocation, (CommandSender) null);
+    public @NotNull CompletableFuture<Void> moveHome(
+        @NotNull final String name,
+        @NotNull final Location newLocation
+    ) {
+        return moveHome(name, newLocation, null);
     }
 
     /**
      * Moves a specified home to a new location.
      *
-     * @param name the name of the home.
+     * @param name        the name of the home.
      * @param newLocation the new location of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> moveHome(String name, Location newLocation, CommandSender sender) {
-        if (!homes.containsKey(name)) return CompletableFuture.completedFuture(null);
-        HomeMoveEvent event = new HomeMoveEvent(homes.get(name), newLocation, sender);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
+    public @NotNull CompletableFuture<Void> moveHome(
+        @NotNull final String name,
+        @NotNull final Location newLocation,
+        @Nullable final CommandSender sender
+    ) {
+        return this.homes.getData().thenApplyAsync(homes -> {
 
-        return event.getHome().move(event.getLocation());
-    }
+            Home home = homes.get(name);
+            if (home == null)
+                throw new NullPointerException("Context [%s] | Message [%s]".formatted(sender, "Missing home: " + name));
 
-    /**
-     * Removes a specified home.
-     *
-     * @param name the name of the home.
-     * @param callback what to do after the home has been added.
-     * @deprecated use {@link #removeHome(String)} instead.
-     */
-    @Deprecated
-    public void removeHome(String name, SQLManager.SQLCallback<Boolean> callback) {
-        removeHome(name);
-        callback.onSuccess(true);
+            return home;
+        }, CoreClass.sync).thenAcceptAsync(home -> home.move(newLocation, sender));
     }
 
     /**
@@ -478,27 +475,33 @@ public class ATPlayer {
      * @param name the name of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> removeHome(String name) {
-        return removeHome(name, (CommandSender) null);
+    public @NotNull CompletableFuture<Void> removeHome(@NotNull final String name) {
+        return removeHome(name, null);
     }
 
     /**
      * Removes a specified home.
      *
-     * @param name the name of the home.
+     * @param name   the name of the home.
      * @param sender the command sender that triggered the event.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Void> removeHome(String name, CommandSender sender) {
-        HomeDeleteEvent event = new HomeDeleteEvent(homes.get(name), sender);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(null);
+    public @NotNull CompletableFuture<Void> removeHome(
+        @NotNull final String name,
+        @Nullable final CommandSender sender
+    ) {
+        return homes.getData().thenAcceptAsync(list -> {
 
-        homes.remove(event.getHome().getName());
-        return CompletableFuture.runAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            HomeSQLManager.get().removeHome(uuid, event.getHome().getName(), callback);
-        });
+            Home home = list.get(name);
+            if (home == null) return;
+
+            HomeDeleteEvent event = new HomeDeleteEvent(home, sender);
+            if (!event.callEvent()) throw new RuntimeException(CancelledEventException.of(event));
+
+            list.remove(event.getHome().getName());
+            homes.data = list;
+            HomeSQLManager.get().removeHome(uuid, event.getHome().getName());
+        }, CoreClass.sync);
     }
 
     /**
@@ -508,9 +511,9 @@ public class ATPlayer {
      * @return the home object itself, null if it doesn't exist.
      * @throws NullPointerException if name is null.
      */
-    public Home getHome(@NotNull String name) {
-        Objects.requireNonNull(name, "Home name cannot be null.");
-        return homes.get(name);
+    @Contract(pure = true)
+    public @Nullable Home getHome(@NotNull final String name) {
+        return homes.data == null ? null : homes.data.get(name);
     }
 
     /**
@@ -518,11 +521,12 @@ public class ATPlayer {
      *
      * @return if the player has a bed spawn set, return the home object, else return null.
      */
-    @Nullable
-    public Home getBedSpawn() {
+    @Contract(pure = true)
+    public @Nullable Home getBedSpawn() {
         if (getOfflinePlayer().getBedSpawnLocation() != null) {
             return new Home(uuid, "bed", getOfflinePlayer().getBedSpawnLocation(), -1, -1);
         }
+
         return null;
     }
 
@@ -531,8 +535,9 @@ public class ATPlayer {
      *
      * @return true if the player has a main home that exists, false if not.
      */
+    @Contract(pure = true)
     public boolean hasMainHome() {
-        return mainHome != null && !mainHome.isEmpty() && homes.containsKey(mainHome);
+        return homes.data != null && mainHome.data != null && homes.data.containsKey(mainHome.data);
     }
 
     /**
@@ -540,8 +545,10 @@ public class ATPlayer {
      *
      * @return the main home as a home object, or null if it does not exist.
      */
-    public Home getMainHome() {
-        return mainHome == null ? null : homes.get(mainHome);
+    @Contract(pure = true)
+    public @Nullable Home getMainHome() {
+        if (homes.data == null || mainHome.data == null) return null;
+        return homes.data.get(mainHome.data);
     }
 
     /**
@@ -550,8 +557,9 @@ public class ATPlayer {
      * @param name the name of the home to be used.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setMainHome(String name) {
-        return setMainHome(name, (CommandSender) null);
+    @Contract(pure = true)
+    public @NotNull CompletableFuture<Void> setMainHome(@NotNull final String name) {
+        return setMainHome(name, null);
     }
 
     /**
@@ -561,39 +569,50 @@ public class ATPlayer {
      * @param sender the command sender that triggered the event.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setMainHome(String name, CommandSender sender) {
-        if (!homes.containsKey(name)) return CompletableFuture.completedFuture(false);
-        SwitchMainHomeEvent event = new SwitchMainHomeEvent(homes.get(mainHome), homes.get(name), sender);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+    @Contract(pure = true)
+    public @NotNull CompletableFuture<Void> setMainHome(
+            @NotNull final String name,
+            @Nullable final CommandSender sender
+    ) {
 
-        this.mainHome = name;
-        LinkedHashMap<String, Home> tempHomes = new LinkedHashMap<>();
-        tempHomes.put(name, homes.get(name));
-        for (String home : homes.keySet()) {
-            if (home.equals(name)) continue;
-            tempHomes.put(home, homes.get(home));
-        }
-        homes = tempHomes;
+        return homes.getData().thenAcceptAsync(list -> {
 
-        return CompletableFuture.supplyAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            PlayerSQLManager.get().setMainHome(uuid, name, callback);
-            return callback.data;
-        });
+            Home home = list.get(name);
+            if (home == null)
+                throw new NullPointerException("Context [%s] | Message [%s]".formatted(sender, "Missing home: " + name));
+
+            reorganiseHomes();
+
+            SwitchMainHomeEvent event = new SwitchMainHomeEvent(mainHome.data == null ? null : list.get(mainHome.data), home, sender);
+            if (!event.callEvent()) return;
+
+            this.mainHome.data = event.getNewMainHome().getName();
+
+            PlayerSQLManager.get().setMainHome(uuid, event.getNewMainHome().getName());
+        }, CoreClass.sync);
     }
 
-    /**
-     * Sets the main home of the player.
-     *
-     * @param name the name of the home to be used.
-     * @param callback what to do after the home has been added.
-     * @deprecated use {@link #setMainHome(String)} instead.
-     */
-    @Deprecated
-    public void setMainHome(String name, SQLManager.SQLCallback<Boolean> callback) {
-        setMainHome(name);
-        callback.onSuccess(true);
+    private void reorganiseHomes() {
+
+        this.homes.getData().thenAcceptAsync(homes -> {
+
+            final var homesList = homes;
+
+            this.mainHome.getData().thenAcceptAsync(mainHome -> {
+
+                if (!homesList.containsKey(mainHome)) return;
+
+                final var tempHomes = new LinkedHashMap<String, Home>();
+
+                tempHomes.put(mainHome, homesList.get(mainHome));
+                homesList.keySet().stream()
+                        .filter(home -> !home.equals(mainHome))
+                        .forEach(home -> tempHomes.put(home, homes.get(home)));
+
+                this.homes.data = tempHomes;
+                this.mainHome.data = mainHome;
+            });
+        });
     }
 
     /**
@@ -610,23 +629,29 @@ public class ATPlayer {
      * - at.member.homes.100000
      */
     public int getHomesLimit() {
-        int maxHomes = NewConfig.get().DEFAULT_HOMES_LIMIT.get();
+        int maxHomes = MainConfig.get().DEFAULT_HOMES_LIMIT.get();
+
         // Whether or not the limit is being overriden by a per-world homes limit
         boolean worldSpecific = false;
+
         // Player is offline, we'll assume an admin is getting the homes
         if (getPlayer() == null) return -1;
         for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
             if (permission.getValue() && permission.getPermission().startsWith("at.member.homes.")) {
+
                 // Get the permission and all data following the base permission
                 String perm = permission.getPermission();
                 String endNode = perm.substring("at.member.homes.".length());
+
                 // If there's a world included
                 // If not, make sure there's no world limit overriding
                 if (endNode.lastIndexOf(".") != -1) {
                     String[] data = endNode.split("\\.");
+
                     // Make sure it's in the same world
-                    if (data[0].equals(getPlayer().getWorld().getName()) && data[1].matches("^[0-9]+$")) {
+                    if (data[0].equals(getPlayer().getWorld().getName()) && data[1].matches("^\\d+$")) {
                         int homes = Integer.parseInt(data[1]);
+
                         // If there isn't already a world limit overriding this one, make it do so.
                         // Otherwise, make sure this limit actually changes something
                         if (!worldSpecific) {
@@ -640,7 +665,7 @@ public class ATPlayer {
                     continue;
                 }
                 if (endNode.equalsIgnoreCase("unlimited")) return -1;
-                if (!endNode.matches("^[0-9]+$")) continue;
+                if (!endNode.matches("^\\d+$")) continue;
                 int homes = Integer.parseInt(endNode);
                 if (maxHomes < homes) {
                     maxHomes = homes;
@@ -651,27 +676,50 @@ public class ATPlayer {
         return maxHomes;
     }
 
-    public int getCooldown(@NotNull String command) {
-        return getMin("at.member.cooldown", command, NewConfig.get().CUSTOM_COOLDOWNS.get(), NewConfig.get().COOLDOWNS.valueOf(command).get());
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    @Contract(pure = true)
+    public int getCooldown(@NotNull final String command) {
+        return getMin("at.member.cooldown", command, MainConfig.get().CUSTOM_COOLDOWNS.get(), MainConfig.get().COOLDOWNS.valueOf(command).get());
     }
 
-    public int getWarmUp(@NotNull String command) {
-        return getMin("at.member.timer", command, NewConfig.get().CUSTOM_WARM_UPS.get(), NewConfig.get().WARM_UPS.valueOf(command).get());
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    @Contract(pure = true)
+    public int getWarmUp(@NotNull final String command) {
+        return getMin("at.member.timer", command, MainConfig.get().CUSTOM_WARM_UPS.get(), MainConfig.get().WARM_UPS.valueOf(command).get());
     }
 
-    public int getDistanceLimitation(@Nullable String command) {
-        return determineValue("at.member.distance", command, command == null ? NewConfig.get().MAXIMUM_TELEPORT_DISTANCE.get()
-                : NewConfig.get().DISTANCE_LIMITS.valueOf(command).get(), NewConfig.get().CUSTOM_DISTANCE_LIMITS.get(), Math::max);
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    @Contract(pure = true)
+    public int getDistanceLimitation(@Nullable final String command) {
+        return determineValue("at.member.distance", command, command == null ? MainConfig.get().MAXIMUM_TELEPORT_DISTANCE.get()
+                : MainConfig.get().DISTANCE_LIMITS.valueOf(command).get(), MainConfig.get().CUSTOM_DISTANCE_LIMITS.get(), Math::max);
     }
 
-    private int getMin(String permission, String command, ConfigSection customSection, int defaultValue) {
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    @Contract(pure = true)
+    private int getMin(
+        @NotNull final String permission,
+        @Nullable final String command,
+        @NotNull final ConfigSection customSection,
+        final int defaultValue
+    ) {
         return determineValue(permission, command, defaultValue, customSection, Math::min);
     }
 
-    private int determineValue(String permission, String command, int defaultValue, ConfigSection customSection, BiFunction<Integer, Integer, Integer> consumer) {
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    @Contract(pure = true)
+    private int determineValue(
+        @NotNull final String permission,
+        @Nullable final String command,
+        final int defaultValue,
+        @NotNull final ConfigSection customSection,
+        @NotNull final BiFunction<Integer, Integer, Integer> consumer
+    ) {
         List<String> cooldowns = new ArrayList<>();
-        // If the player is null
+
+        // If the player is null, return the default value
         if (getPlayer() == null) return defaultValue;
+
         // Get the custom section keys
         for (String key : customSection.getKeys(false)) {
             String value = customSection.getString(key);
@@ -680,11 +728,13 @@ public class ATPlayer {
                     && !getPlayer().hasPermission(permission + "." + command + "." + key)
                     && !getPlayer().hasPermission(permission + "." + worldName + "." + key)
                     && !getPlayer().hasPermission(permission + "." + command + "." + worldName + "." + key)) continue;
+
             // Make sure there's only one value
             cooldowns.clear();
             cooldowns.add(value);
         }
 
+        // If no cooldowns have been specified,
         if (cooldowns.isEmpty()) {
             if (command == null) {
                 cooldowns = getDynamicPermission(permission);
@@ -700,7 +750,7 @@ public class ATPlayer {
         int min = defaultValue;
         boolean changed = false;
         for (String cooldown : cooldowns) {
-            if (!cooldown.matches("^[0-9]+$")) continue;
+            if (!cooldown.matches("^\\d+$")) continue;
             if (!changed) {
                 min = Integer.parseInt(cooldown);
                 changed = true;
@@ -711,25 +761,32 @@ public class ATPlayer {
         return min;
     }
 
-    private List<String> getDynamicPermission(String prefix) {
-        prefix = prefix.endsWith(".") ? prefix : prefix + ".";
+    private @NotNull List<String> getDynamicPermission(@NotNull final String rawPrefix) {
+        final var prefix = rawPrefix.endsWith(".") ? rawPrefix : rawPrefix + ".";
         // If the player is offline, return nothing
         if (getPlayer() == null) return new ArrayList<>();
+
         // Whether the limit is being overridden by a per-world homes limit
         boolean worldSpecific = false;
+
         // Track values - String is the value after the permissions
         List<String> results = new ArrayList<>();
+
         // Go through each permission
         for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
+
             // If the permission is granted, and it's the one we want
             if (permission.getValue() && permission.getPermission().startsWith(prefix)) {
+
                 // Get the permission and all data following the base permission
                 String perm = permission.getPermission();
                 String endNode = perm.substring(prefix.length());
+
                 // If there's a world included
                 // If not, make sure there's no world limit overriding
                 if (endNode.lastIndexOf(".") != -1) {
                     String[] data = endNode.split("\\.");
+
                     // Make sure it's in the same world
                     if (data[0].equals(getPlayer().getWorld().getName())) {
                         if (!worldSpecific) results.clear();
@@ -753,25 +810,23 @@ public class ATPlayer {
      * @param home The home having access checked.
      * @return true if the player can access the home, false if they cannot.
      */
-    public boolean canAccessHome(Home home) {
+    public boolean canAccessHome(@NotNull final Home home) {
+
+        // If the homes limit is -1, it's unlimited
         if (getHomesLimit() == -1) return true;
-        if (!NewConfig.get().DENY_HOMES_IF_OVER_LIMIT.get()) return true;
-        if (homes.containsValue(home)) {
-            List<Home> homes = new ArrayList<>(this.homes.values());
+
+        // If we don't deny home access if the home limit has already been exceeded, allow them access
+        if (!MainConfig.get().DENY_HOMES_IF_OVER_LIMIT.get()) return true;
+
+        // If the home exists, ensure the index is below the homes index.
+        if (homes.data != null && homes.data.containsValue(home)) {
+            List<Home> homes = new ArrayList<>(this.homes.data.values());
             int index = homes.indexOf(home);
             return index < getHomesLimit();
         }
-        return false;
-    }
 
-    /**
-     * Whether the player has a home with the specified name.
-     *
-     * @param name The name of the home.
-     * @return true if the player has a home named as specified, false if they do not.
-     */
-    public boolean hasHome(String name) {
-        return homes.containsKey(name);
+        // If they don't have a home though, stop there
+        return false;
     }
 
     /**
@@ -782,7 +837,7 @@ public class ATPlayer {
      * @return true if the player can set more homes, false if they can not.
      */
     public boolean canSetMoreHomes() {
-        return getHomesLimit() == -1 || homes.size() < getHomesLimit();
+        return getHomesLimit() == -1 || (homes.data != null && homes.data.size() < getHomesLimit());
     }
 
     /**
@@ -790,14 +845,15 @@ public class ATPlayer {
      *
      * @param player the player to get an ATPlayer instance of.
      * @return an ATPlayer object representing the player.
-     * @throws NullPointerException if the player is null.
      */
-    @NotNull
-    public static ATPlayer getPlayer(@NotNull Player player) {
-        Objects.requireNonNull(player, "Player must not be null.");
+    public static @NotNull ATPlayer getPlayer(@NotNull final Player player) {
+
+        // If the player is cached, return the cached player
         if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
-        if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
-            FloodgateApi api = FloodgateApi.getInstance();
+
+        // If floodgate is on the server, see if they're a Bedrock player - if so, initiate them as a Floodgate player
+        if (PluginHookManager.get().floodgateEnabled()) {
+            org.geysermc.floodgate.api.FloodgateApi api = org.geysermc.floodgate.api.FloodgateApi.getInstance();
             if (api == null) {
                 CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
                 return new ATPlayer(player);
@@ -812,13 +868,16 @@ public class ATPlayer {
      *
      * @param player the player to get an ATPlayer instance of.
      * @return an ATPlayer object representing the player.
-     * @throws NullPointerException if the player or their name is null.
+     * @throws NullPointerException if the player, their UUID or their name is null.
      */
-    @NotNull
-    public static ATPlayer getPlayer(@NotNull OfflinePlayer player) {
-        Objects.requireNonNull(player, "Player must not be null.");
+    public static @NotNull ATPlayer getPlayer(@NotNull final OfflinePlayer player) {
         String name = player.getName();
+
+        // Perform null checks
         Objects.requireNonNull(name, "Player name must not be null.");
+        Objects.requireNonNull(player.getUniqueId(), "Player UUID must not be null.");
+
+        // If the player is cached, get the cached object, otherwise create a new one.
         return players.containsKey(name.toLowerCase()) ? players.get(name.toLowerCase()) :
                 new ATPlayer(player.getUniqueId(), name);
     }
@@ -829,16 +888,16 @@ public class ATPlayer {
      * @param name the player name to get an ATPlayer instance of.
      * @return an ATPlayer object representing the player, but null if they haven't immediately loaded.
      */
-    @Nullable
-    @SuppressWarnings("deprecation") // for Bukkit#getOfflinePlayer
-    public static ATPlayer getPlayer(@NotNull String name) {
+    public static @Nullable ATPlayer getPlayer(@NotNull final String name) {
+
+        // If the player is cached, just return it
         if (players.containsKey(name.toLowerCase())) {
             return players.get(name.toLowerCase());
         }
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
-            new ATPlayer(player.getUniqueId(), player.getName());
-        });
+
+        // Create the player object on an alternative thread
+        AdvancedTeleportAPI.getOfflinePlayer(name).whenComplete((player, err) -> new ATPlayer(player.getUniqueId(), name));
+
         return null;
     }
 
@@ -848,29 +907,33 @@ public class ATPlayer {
      * @param name the player name to get an ATPlayer instance of.
      * @return an ATPlayer object representing the player within a CompletableFuture.
      */
-    @NotNull
     @SuppressWarnings("deprecation") // for Bukkit#getOfflinePlayer
-    public static CompletableFuture<ATPlayer> getPlayerFuture(String name) {
+    public static @NotNull CompletableFuture<ATPlayer> getPlayerFuture(@NotNull final String name) {
+
+        // If the player is cached, just return it
         if (players.containsKey(name.toLowerCase())) {
             return CompletableFuture.completedFuture(players.get(name.toLowerCase()));
         }
-        return CompletableFuture.supplyAsync(() -> {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
-            return new ATPlayer(player.getUniqueId(), player.getName());
-        }, CoreClass.async).thenApplyAsync(player -> player, CoreClass.sync);
+
+        // Create the player object on an alternative thread
+        return AdvancedTeleportAPI.getOfflinePlayer(name).thenApplyAsync(player -> new ATPlayer(player.getUniqueId(), name), CoreClass.sync);
     }
 
     /**
      * Internal use only
      */
-    public static void removePlayer(Player player) {
+    @ApiStatus.Internal
+    @Contract(pure = true)
+    public static void removePlayer(@NotNull final Player player) {
         players.remove(player.getName());
     }
 
     /**
      * Internal use only
      */
-    public static boolean isPlayerCached(String name) {
+    @ApiStatus.Internal
+    @Contract(pure = true)
+    public static boolean isPlayerCached(@NotNull final String name) {
         return players.containsKey(name.toLowerCase());
     }
 
@@ -880,21 +943,9 @@ public class ATPlayer {
      * @return the location the player was last at before teleporting. Can be null if they literally never teleported
      * before.
      */
-    public Location getPreviousLocation() {
-        return previousLoc;
-    }
-
-    /**
-     * Sets the player's previous location.
-     *
-     * @param previousLoc the new previous location to use.
-     * @param callback what to do after the home has been added.
-     * @deprecated use {@link #setPreviousLocation(Location)} instead.
-     */
-    @Deprecated
-    public void setPreviousLocation(@Nullable Location previousLoc, SQLManager.SQLCallback<Boolean> callback) {
-        setPreviousLocation(previousLoc);
-        callback.onSuccess(true);
+    @Contract(pure = true)
+    public @Nullable Location getPreviousLocation() {
+        return previousLoc.data;
     }
 
     /**
@@ -903,16 +954,36 @@ public class ATPlayer {
      * @param previousLoc the new previous location to use.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public CompletableFuture<Boolean> setPreviousLocation(@Nullable Location previousLoc) {
-        PreviousLocationChangeEvent event = new PreviousLocationChangeEvent(getOfflinePlayer(), previousLoc,
-                this.previousLoc);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return CompletableFuture.completedFuture(false);
+    public @NotNull CompletableFuture<Void> setPreviousLocation(@NotNull final Location previousLoc) {
+        return AdvancedTeleportAPI.validateEvent(new PreviousLocationChangeEvent(
+            getOfflinePlayer(),
+            previousLoc,
+            this.previousLoc.data
+        ), event -> CompletableFuture.runAsync(() -> PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc)));
+    }
 
-        return CompletableFuture.supplyAsync(() -> {
-            AdvancedTeleportAPI.FlattenedCallback<Boolean> callback = new AdvancedTeleportAPI.FlattenedCallback<>();
-            PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc, null);
-            return callback.data;
-        });
+    private static class PendingData<T> {
+        private final CompletableFuture<T> future;
+        private @Nullable T data;
+
+        public PendingData(CompletableFuture<T> future) {
+            this.future = future;
+
+            // Wait for the data to go through
+            this.future.thenApplyAsync(data -> this.data = data);
+        }
+
+        public CompletableFuture<T> getFuture() {
+            return future;
+        }
+
+        public CompletableFuture<T> getData() {
+
+            // If the data has been fetched, return it
+            if (data != null) return CompletableFuture.completedFuture(data);
+
+            // Otherwise return the future to wait on
+            return this.future;
+        }
     }
 }

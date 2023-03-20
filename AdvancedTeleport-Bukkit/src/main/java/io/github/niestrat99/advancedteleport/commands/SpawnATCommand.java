@@ -1,11 +1,11 @@
 package io.github.niestrat99.advancedteleport.commands;
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 
-public abstract class SpawnATCommand implements ATCommand {
+public abstract class SpawnATCommand extends ATCommand {
 
     @Override
     public boolean getRequiredFeature() {
-        return NewConfig.get().USE_SPAWN.get();
+        return MainConfig.get().USE_SPAWN.get();
     }
 }

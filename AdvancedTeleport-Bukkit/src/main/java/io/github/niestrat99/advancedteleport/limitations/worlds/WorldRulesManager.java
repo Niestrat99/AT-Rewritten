@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.limitations.worlds;
 
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopIntoRule;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopOutOfRule;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopWithinRule;
@@ -14,17 +14,20 @@ import java.util.List;
 
 public class WorldRulesManager {
 
-    private HashMap<String, List<WorldRule>> rules;
+    private final HashMap<String, List<WorldRule>> rules;
 
     public WorldRulesManager() {
         rules = new HashMap<>();
-        ConfigSection worlds = NewConfig.get().WORLD_RULES.get();
+        ConfigSection worlds = MainConfig.get().WORLD_RULES.get();
         for (String world : worlds.getKeys(false)) {
             addWorld(world, worlds.getString(world));
         }
     }
 
-    private void addWorld(String world, String rulesRaw) {
+    private void addWorld(
+        String world,
+        String rulesRaw
+    ) {
         String[] rules = rulesRaw.split(";");
         List<WorldRule> ruleList = new ArrayList<>();
         for (String rule : rules) {
@@ -39,7 +42,10 @@ public class WorldRulesManager {
         this.rules.put(world, ruleList);
     }
 
-    public boolean canTeleport(Player player, Location toLoc) {
+    public boolean canTeleport(
+        Player player,
+        Location toLoc
+    ) {
         String world = player.getLocation().getWorld().getName();
         List<WorldRule> rulesFromWorld = this.rules.getOrDefault(world, this.rules.get("default"));
         List<WorldRule> rulesToWorld = this.rules.getOrDefault(toLoc.getWorld().getName(), this.rules.get("default"));

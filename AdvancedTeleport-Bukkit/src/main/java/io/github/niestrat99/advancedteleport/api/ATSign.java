@@ -2,38 +2,54 @@ package io.github.niestrat99.advancedteleport.api;
 
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class ATSign {
 
-    private final String requiredPermission;
+    private final @NotNull String requiredPermission;
+    private final @NotNull String adminPermission;
+    private final @NotNull String name;
     private final boolean enabled;
-    private final String adminPermission;
-    private final String name;
 
-    public ATSign(String name, boolean enabled) {
+    @Contract(pure = true)
+    protected ATSign(
+        @NotNull final String name,
+        final boolean enabled
+    ) {
         this.requiredPermission = ("at.member." + name + ".use-sign").toLowerCase();
-        this.enabled = enabled;
         this.adminPermission = ("at.admin.sign." + name + ".create").toLowerCase();
         this.name = name;
+        this.enabled = enabled;
     }
 
+    public abstract void onInteract(
+        @NotNull Sign sign,
+        @NotNull Player player
+    );
+
+    public abstract boolean canCreate(
+        @NotNull Sign sign,
+        @NotNull Player player
+    );
+
+    @Contract(pure = true)
     public boolean isEnabled() {
         return enabled;
     }
 
-    public abstract void onInteract(Sign sign, Player player);
-
-    public abstract boolean canCreate(Sign sign, Player player);
-
-    public String getAdminPermission() {
+    @Contract(pure = true)
+    public @NotNull String getAdminPermission() {
         return adminPermission;
     }
 
-    public String getRequiredPermission() {
+    @Contract(pure = true)
+    public @NotNull String getRequiredPermission() {
         return requiredPermission;
     }
 
-    public String getName() {
+    @Contract(pure = true)
+    public @NotNull String getName() {
         return name;
     }
 }

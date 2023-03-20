@@ -3,53 +3,59 @@ package io.github.niestrat99.advancedteleport.commands.home;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
+import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class MoveHomeCommand extends AbstractHomeCommand {
+public final class MoveHomeCommand extends AbstractHomeCommand implements PlayerCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+        @NotNull final CommandSender sender,
+        @NotNull final Command command,
+        @NotNull final String s,
+        @NotNull final String[] args
+    ) {
 
         if (!canProceed(sender)) return true;
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return true;
-        }
+
         Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         if (args.length == 0) {
-            if (atPlayer instanceof ATFloodgatePlayer && NewConfig.get().USE_FLOODGATE_FORMS.get()) {
+            if (atPlayer instanceof ATFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendMoveHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
             }
             return true;
         }
-        if (sender.hasPermission("at.admin.movehome")) {
+
+        if (sender.hasPermission("at.admin.movehome") && args.length > 1) {
             // We'll just assume that the admin command overrides the homes limit.
-            if (args.length > 1) {
-                ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
-                    if (!atTarget.getHomes().containsKey(args[1])) {
-                        CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                        return;
-                    }
-                    atTarget.moveHome(args[0], player.getLocation(), sender).handle((x, e) -> {
+            ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
 
-                        if (e != null) e.printStackTrace();
+                if (!atTarget.getHomes().containsKey(args[1])) {
+                    CustomMessages.sendMessage(sender, "Error.noSuchHome");
+                    return;
+                }
 
-                        CustomMessages.sendMessage(sender, e == null ? "Info.movedHomeOther" : "Error.moveHomeFail",
-                                "{home}", args[1], "{player}", args[0]);
-                        return x;
-                    });
-                });
-            }
+                atTarget.moveHome(args[0], player.getLocation(), sender).whenCompleteAsync((ignored, err) -> CustomMessages.failableContextualPath(
+                    sender,
+                    atTarget,
+                    "Info.movedHome",
+                    "Error.moveHomeFail",
+                    err,
+                    Placeholder.unparsed("home", args[1]),
+                    Placeholder.unparsed("player", args[0])
+                ));
+            });
+            return true;
         }
         Home home = atPlayer.getHome(args[0]);
 
@@ -58,19 +64,20 @@ public class MoveHomeCommand extends AbstractHomeCommand {
             return true;
         }
 
-        atPlayer.moveHome(args[0], player.getLocation(), sender).handle((x, e) -> {
+        atPlayer.moveHome(args[0], player.getLocation(), sender).whenCompleteAsync((ignored, err) -> CustomMessages.failableContextualPath(
+                sender,
+                atPlayer,
+                "Info.movedHome",
+                "Error.moveHomeFail",
+                err,
+                Placeholder.unparsed("home", args[0])
+        ));
 
-            if (e != null) e.printStackTrace();
-
-            CustomMessages.sendMessage(sender, e == null ? "Info.movedHome" : "Error.moveHomeFail",
-                    "{home}", args[0]);
-            return x;
-        });
         return true;
     }
 
     @Override
-    public String getPermission() {
+    public @NotNull String getPermission() {
         return "at.member.movehome";
     }
 }

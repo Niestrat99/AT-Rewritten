@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.events;
 
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -9,10 +10,10 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class TrackableATEvent extends CancellableATEvent {
 
-    @Nullable
-    private CommandSender sender;
+    private @Nullable CommandSender sender;
 
-    public TrackableATEvent(@Nullable CommandSender sender) {
+    @Contract(pure = true)
+    protected TrackableATEvent(@Nullable final CommandSender sender) {
         this.sender = sender;
     }
 
@@ -21,8 +22,8 @@ public abstract class TrackableATEvent extends CancellableATEvent {
      *
      * @return the command sender that caused the event to happen.
      */
-    @Nullable
-    public CommandSender getSender() {
+    @Contract(pure = true)
+    public @Nullable CommandSender getSender() {
         return sender;
     }
 
@@ -31,7 +32,8 @@ public abstract class TrackableATEvent extends CancellableATEvent {
      *
      * @param sender the command sender that triggered the event.
      */
-    public void setSender(@Nullable CommandSender sender) {
+    @Contract(pure = true)
+    public void setSender(@Nullable final CommandSender sender) {
         this.sender = sender;
     }
 }

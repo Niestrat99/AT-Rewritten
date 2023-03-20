@@ -5,6 +5,8 @@ import io.github.niestrat99.advancedteleport.api.BlockInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.sql.Connection;
@@ -24,22 +26,34 @@ public class BlocklistManager extends SQLManager {
         instance = this;
     }
 
+    public static BlocklistManager get() {
+        return instance;
+    }
+
     @Override
     public void createTable() {
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+
+            CoreClass.debug("Creating table data for the block list manager if it is not already set up.");
+
+            // Attempt to create the table.
             try (Connection connection = implementConnection()) {
-                PreparedStatement createTable = prepareStatement(connection,
-                        "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_blocklist " +
+                PreparedStatement createTable = prepareStatement(
+                    connection,
+                    "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_blocklist " +
                         "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
                         "uuid_receiver VARCHAR(256) NOT NULL, " +
                         "uuid_blocked VARCHAR(256) NOT NULL," +
                         "timestamp BIGINT NOT NULL," +
-                        "reason TEXT)");
+                        "reason TEXT)"
+                );
                 executeUpdate(createTable);
             } catch (SQLException exception) {
                 CoreClass.getInstance().getLogger().severe("Failed to create the blocklist table.");
                 exception.printStackTrace();
             }
+
+            // Transfer old data.
             transferOldData();
         });
 
@@ -47,12 +61,20 @@ public class BlocklistManager extends SQLManager {
 
     @Override
     public void transferOldData() {
-        //
+
+        CoreClass.debug("Transferring old blocklist data...");
+
+        // Get the legacy blocklist file - if it doesn't exist, stop there.
         File blocklistFile = new File(CoreClass.getInstance().getDataFolder(), "blocklist.yml");
-        if (!blocklistFile.exists()) return;
+        if (!blocklistFile.exists()) {
+            CoreClass.debug("No blocklist data to import.");
+            return;
+        }
+
         // Load the config file.
         YamlConfiguration blocklist = YamlConfiguration.loadConfiguration(blocklistFile);
 
+        // Get the player section that stores all blocklist data.
         ConfigurationSection playersSection = blocklist.getConfigurationSection("players");
         if (playersSection != null) {
             // For each player found...
@@ -62,62 +84,71 @@ public class BlocklistManager extends SQLManager {
                 // For each blocked player...
                 for (String blockedPlayer : blockedPlayers) {
                     // Reasons didn't exist pre-5.4, so the reason is null.
-                    blockUser(player, blockedPlayer, null, null);
+                    blockUser(player, blockedPlayer, null);
                 }
             }
         }
 
-        blocklistFile.renameTo(new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
+        // See if renaming was successful.
+        boolean renameResult = blocklistFile.renameTo(new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
+        CoreClass.debug(renameResult ? "Successfully renamed the blocklist file." : "Failed to rename the blocklist file.");
     }
 
-    public void blockUser(String receiverUUID, String blockedUUID, String reason, SQLCallback<Boolean> callback) {
+    public void blockUser(
+            @NotNull String receiverUUID,
+            @NotNull String blockedUUID,
+            @Nullable String reason
+    ) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement;
             if (reason != null) {
-                statement = prepareStatement(connection,
-                        "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp, reason) " +
-                                "VALUES (?, ?, ?, ?)");
+                statement = prepareStatement(
+                    connection,
+                    "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp, reason) " +
+                        "VALUES (?, ?, ?, ?)"
+                );
                 statement.setString(4, reason);
             } else {
-                statement = prepareStatement(connection,
-                        "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp) VALUES " +
-                                "(?, ?, ?)");
+                statement = prepareStatement(
+                    connection,
+                    "INSERT INTO " + tablePrefix + "_blocklist (uuid_receiver, uuid_blocked, timestamp) VALUES " +
+                        "(?, ?, ?)"
+                );
             }
             statement.setString(1, receiverUUID);
             statement.setString(2, blockedUUID);
             statement.setLong(3, System.currentTimeMillis());
             executeUpdate(statement);
-            if (callback != null) {
-                callback.onSuccess(true);
-            }
         } catch (SQLException exception) {
             DataFailManager.get().addFailure(DataFailManager.Operation.ADD_BLOCK, receiverUUID, blockedUUID, reason);
-            callback.onFail();
-            exception.printStackTrace();
+            throw new RuntimeException(exception);
         }
     }
 
-    public void unblockUser(String receiverUUID, String blockedUUID, SQLCallback<Boolean> callback) {
+    public void unblockUser(
+        String receiverUUID,
+        String blockedUUID
+    ) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(connection,
-                    "DELETE FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?");
+            PreparedStatement statement = prepareStatement(
+                connection,
+                "DELETE FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?"
+            );
             statement.setString(1, receiverUUID);
             statement.setString(2, blockedUUID);
             executeUpdate(statement);
-            if (callback != null) {
-                callback.onSuccess(true);
-            }
         } catch (SQLException exception) {
             DataFailManager.get().addFailure(DataFailManager.Operation.UNBLOCK, receiverUUID, blockedUUID);
-            callback.onFail();
-            exception.printStackTrace();
+            throw new RuntimeException(exception);
         }
     }
 
-    public void getBlockedPlayers(String receiverUUID, SQLCallback<HashMap<UUID, BlockInfo>> callback) {
+    public HashMap<UUID, BlockInfo> getBlockedPlayers(String receiverUUID) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(connection,
-                    "SELECT * FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ?");
+            PreparedStatement statement = prepareStatement(
+                connection,
+                "SELECT * FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ?"
+            );
             statement.setString(1, receiverUUID);
             ResultSet results = executeQuery(statement);
             // Create a list for all blocked players.
@@ -125,22 +156,19 @@ public class BlocklistManager extends SQLManager {
             // For each blocked player...
             while (results.next()) {
                 // Create the BI object.
-                BlockInfo blockInfo = new BlockInfo(UUID.fromString(receiverUUID),
-                        UUID.fromString(results.getString("uuid_blocked")),
-                        results.getString("reason"),
-                        results.getLong("timestamp"));
+                BlockInfo blockInfo = new BlockInfo(
+                    UUID.fromString(receiverUUID),
+                    UUID.fromString(results.getString("uuid_blocked")),
+                    results.getString("reason"),
+                    results.getLong("timestamp")
+                );
                 // Add it to the list.
                 blockedPlayers.put(blockInfo.getBlockedUUID(), blockInfo);
             }
             // Go back to the main thread and return the list.
-            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> callback.onSuccess(blockedPlayers));
+            return blockedPlayers;
         } catch (SQLException exception) {
-            exception.printStackTrace();
-            callback.onFail();
+            throw new RuntimeException(exception);
         }
-    }
-
-    public static BlocklistManager get() {
-        return instance;
     }
 }

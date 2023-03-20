@@ -1,13 +1,16 @@
 package io.github.niestrat99.advancedteleport.commands;
 
-public interface SubATCommand extends ATCommand {
+import org.jetbrains.annotations.NotNull;
 
-    default String getPermission() {
-        return "";
+public abstract class SubATCommand extends ATCommand {
+
+    @Override
+    public final boolean getRequiredFeature() {
+        return true;
     }
 
     @Override
-    default boolean getRequiredFeature() {
-        return true;
+    public final @NotNull String getPermission() {
+        return "";
     }
 }

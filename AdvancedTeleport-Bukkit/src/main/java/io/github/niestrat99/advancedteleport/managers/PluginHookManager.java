@@ -1,13 +1,12 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
-import io.github.niestrat99.advancedteleport.config.Spawn;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.extensions.ExCast;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
-import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
-import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
+import io.github.niestrat99.advancedteleport.hooks.PluginHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.ChunkyBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.VanillaBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.WorldBorderHook;
@@ -17,7 +16,10 @@ import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import io.github.niestrat99.advancedteleport.hooks.maps.DynmapHook;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
+import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
+import java.util.stream.Stream;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.hooks.particles.PlayerParticlesHook;
@@ -28,14 +30,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class PluginHookManager {
-
-    private HashMap<String, ImportExportPlugin> importPlugins;
-    private HashMap<String, BorderPlugin> borderPlugins;
-    private HashMap<String, ParticlesPlugin> particlesPlugins;
-    private HashMap<String, ClaimPlugin> claimPlugins;
-    private HashMap<String, MapPlugin> mapPlugins;
+@SuppressWarnings("rawtypes")
+public final class PluginHookManager {
+    private HashMap<String, ? extends PluginHook> activePluginHooks;
     private static PluginHookManager instance;
 
     public PluginHookManager() {
@@ -44,93 +45,112 @@ public class PluginHookManager {
     }
 
     public void init() {
-        importPlugins = new HashMap<>();
-        borderPlugins = new HashMap<>();
-        particlesPlugins = new HashMap<>();
-        mapPlugins = new HashMap<>();
-        claimPlugins = new HashMap<>();
+        activePluginHooks = new HashMap<>();
 
         // Import plugins
-        loadPlugin(importPlugins, "essentials", EssentialsHook.class);
+        loadPlugin("essentials", EssentialsHook.class);
 
         // World border Plugins
-        loadPlugin(borderPlugins, "worldborder", WorldBorderHook.class);
-        loadPlugin(borderPlugins, "chunkyborder", ChunkyBorderHook.class);
-        loadPlugin(borderPlugins, "vanilla", VanillaBorderHook.class);
+        loadPlugin("worldborder", WorldBorderHook.class);
+        loadPlugin("chunkyborder", ChunkyBorderHook.class);
+        loadPlugin("vanilla", VanillaBorderHook.class);
 
         // Particle plugins
-        loadPlugin(particlesPlugins, "playerparticles", PlayerParticlesHook.class);
+        loadPlugin("playerparticles", PlayerParticlesHook.class);
 
         // Claim Plugins
-        loadPlugin(claimPlugins, "worldguard", WorldGuardClaimHook.class);
-        loadPlugin(claimPlugins, "lands", LandsClaimHook.class);
-        loadPlugin(claimPlugins, "griefprevention", GriefPreventionClaimHook.class);
+        loadPlugin("worldguard", WorldGuardClaimHook.class);
+        loadPlugin("lands", LandsClaimHook.class);
+        loadPlugin("griefprevention", GriefPreventionClaimHook.class);
 
-        // Map plugins
-        loadPlugin(mapPlugins, "squaremap", SquaremapHook.class);
-        loadPlugin(mapPlugins, "dynmap", DynmapHook.class);
-
-        for (MapPlugin plugin : mapPlugins.values()) {
-            if (plugin.canEnable()) {
-                plugin.enable();
-                addIcons(NewConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), plugin::addWarp);
-                addIcons(NewConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), plugin::addHome);
-                addIcons(NewConfig.get().MAP_SPAWNS.isEnabled(), CompletableFuture.completedFuture(Spawn.get().getSpawns()), (spawn) -> plugin.addSpawn(spawn, Spawn.get().getSpawn(spawn)));
-            }
-        }
+        loadPlugin("squaremap", SquaremapHook.class);
+        loadPlugin("dynmap", DynmapHook.class);
+        
+        getPluginHooks(MapPlugin.class, true).forEach(mapPlugin -> {
+            mapPlugin.enable();
+            addIcons(MainConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), mapPlugin::addWarp);
+            addIcons(MainConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), mapPlugin::addHome);
+            addIcons(MainConfig.get().MAP_SPAWNS.isEnabled(), SpawnSQLManager.get().getSpawns(), mapPlugin::addSpawn);
+        });
     }
 
+    @Contract(pure = true)
     public static PluginHookManager get() {
         return instance;
     }
 
-    public HashMap<String, ImportExportPlugin> getImportPlugins() {
-        return importPlugins;
+    @Contract(pure = true)
+    public <H extends PluginHook> @NotNull Stream<H> getPluginHooks(
+        @NotNull final Class<H> clazz,
+        final boolean filterUsable
+    ) {
+        return activePluginHooks.values().stream()
+            .filter(clazz::isInstance)
+            .map(clazz::cast)
+            .filter(hook -> !filterUsable || hook.pluginUsable());
     }
 
-    public HashMap<String, ParticlesPlugin> getParticlesPlugins() {
-        return particlesPlugins;
+    @Contract(pure = true)
+    public <H extends PluginHook> @NotNull Stream<H> getPluginHooks(@NotNull final Class<H> clazz) {
+        return getPluginHooks(clazz, false);
     }
 
-    public ImportExportPlugin getImportPlugin(String name) {
-        return importPlugins.get(name);
+    @Contract(pure = true)
+    public <H extends PluginHook> @Nullable H getPluginHook(
+        @NotNull final String name,
+        @NotNull final Class<H> clazz
+    ) {
+        final var plugin = activePluginHooks.get(name);
+        if (plugin == null) return null;
+        if (!clazz.isInstance(plugin)) return null;
+        return clazz.cast(plugin);
     }
 
-    public HashMap<String, MapPlugin> getMapPlugins() {
-        return mapPlugins;
-    }
-
-    private <T> void loadPlugin(HashMap<String, T> map, String name, Class<? extends T> clazz) {
+    private <T extends PluginHook> void loadPlugin(
+        @NotNull final String name,
+        @NotNull final Class<? extends T> clazz
+    ) {
         try {
-            map.put(name, clazz.getConstructor().newInstance());
-        } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            activePluginHooks.put(name, ExCast.cast(clazz.getConstructor().newInstance())); // Honestly couldn't be arsed to fight java on this one.
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             e.printStackTrace();
-        } catch (NoClassDefFoundError ignored) { // Why are you like this essentials?
+        } catch (InvocationTargetException | InstantiationException | NoClassDefFoundError ignored) { // Why are you like this essentials?
         }
     }
 
-    public double[] getRandomCoords(World world) {
-        for (BorderPlugin plugin : borderPlugins.values()) {
-            if (!plugin.canUse(world)) continue;
-            return new double[]{plugin.getMinX(world), plugin.getMaxX(world), plugin.getMinZ(world), plugin.getMaxZ(world)};
-        }
-        return null;
+    @Contract(pure = true)
+    public double[] getRandomCoords(@NotNull final World world) {
+        return getPluginHooks(BorderPlugin.class, true)
+            .filter(plugin -> plugin.canUse(world))
+            .findFirst()
+            .map(hook -> new double[]{
+                hook.getMinX(world),
+                hook.getMaxX(world),
+                hook.getMinZ(world),
+                hook.getMaxZ(world)
+            }).orElse(null);
     }
 
-    public boolean isClaimed(Location location) {
-        for (ClaimPlugin plugin : claimPlugins.values()) {
-            if (!plugin.canUse(location.getWorld())) continue;
-            return plugin.isClaimed(location);
-        }
-        return false;
+    @Contract(pure = true)
+    public boolean isClaimed(@NotNull final Location location) {
+        return getPluginHooks(ClaimPlugin.class, true)
+            .filter(plugin -> plugin.canUse(location.getWorld()))
+            .findFirst()
+            .map(hook -> hook.isClaimed(location))
+            .orElse(false);
     }
 
-    private <T> void addIcons(boolean requirement, CompletableFuture<List<T>> pois, Consumer<T> handler) {
+    @Contract(pure = true)
+    public boolean floodgateEnabled() { // TODO - update to new recommended check
+        return Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate");
+    }
+
+    private <T> void addIcons(
+        final boolean requirement,
+        @NotNull final CompletableFuture<List<T>> pois,
+        @NotNull final Consumer<T> handler
+    ) {
         if (!requirement) return;
-        pois.thenAcceptAsync(result -> {
-            for (T poi : result) {
-                handler.accept(poi);
-            }
-        }, CoreClass.sync);
+        pois.thenAcceptAsync(result -> result.forEach(handler), CoreClass.sync);
     }
 }

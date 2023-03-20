@@ -10,12 +10,13 @@ import org.bukkit.World;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class DataFailManager {
 
-    private HashMap<Fail, Integer> pendingFails;
     private static DataFailManager instance;
-    private File failCsv;
+    private final HashMap<Fail, Integer> pendingFails;
+    private final File failCsv;
 
     public DataFailManager() {
         pendingFails = new HashMap<>();
@@ -57,7 +58,10 @@ public class DataFailManager {
         }, 1200, 1200);
     }
 
-    public void addFailure(Operation operation, String... data) {
+    public void addFailure(
+        Operation operation,
+        String... data
+    ) {
         Fail fail = new Fail(operation, data);
         if (!pendingFails.containsKey(fail)) {
             CoreClass.getInstance().getLogger().warning("SQL failure added for operation " + operation.name() + ".");
@@ -68,35 +72,17 @@ public class DataFailManager {
 
     public void handleFailure(Fail fail) {
 
-        SQLManager.SQLCallback<Boolean> callback = new SQLManager.SQLCallback<Boolean>() {
-
-            @Override
-            public void onSuccess(Boolean data) {
-                pendingFails.remove(fail);
-            }
-
-            @Override
-            public void onFail() {
-                pendingFails.put(fail, pendingFails.get(fail) + 1);
-            }
-        };
+        Runnable run = null;
 
         switch (fail.operation) {
-            case ADD_HOME:
-                HomeSQLManager.get().addHome(locFromStrings(fail.data),
-                        UUID.fromString(fail.data[7]),
-                        fail.data[6], callback);
-                break;
-
-            case DELETE_HOME:
-                HomeSQLManager.get().removeHome(UUID.fromString(fail.data[0]), fail.data[1], callback);
-                break;
-            case MOVE_HOME:
-                HomeSQLManager.get().moveHome(locFromStrings(fail.data),
-                        UUID.fromString(fail.data[7]),
-                        fail.data[6], callback);
-                break;
-            case ADD_PLAYER:
+            case ADD_HOME -> run = () -> HomeSQLManager.get().addHome(locFromStrings(fail.data),
+                    UUID.fromString(fail.data[7]),
+                    fail.data[6]);
+            case DELETE_HOME -> run = () -> HomeSQLManager.get().removeHome(UUID.fromString(fail.data[0]), fail.data[1]);
+            case MOVE_HOME -> run = () -> HomeSQLManager.get().moveHome(locFromStrings(fail.data),
+                    UUID.fromString(fail.data[7]),
+                    fail.data[6]);
+            case ADD_PLAYER -> {
                 // TODO - apply this where necessary for other checks that require a UUID check.
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0]));
                 if (offlinePlayer.getName() == null) {
@@ -104,42 +90,60 @@ public class DataFailManager {
                     pendingFails.remove(fail);
                     return;
                 }
-                PlayerSQLManager.get().addPlayer(offlinePlayer, callback);
-                break;
-            case UPDATE_PLAYER:
-                PlayerSQLManager.get().updatePlayerInformation(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])), callback);
-                break;
-            case CHANGE_TELEPORTATION:
-                PlayerSQLManager.get().setTeleportationOn(UUID.fromString(fail.data[0]), Boolean.parseBoolean(fail.data[1]), callback);
-                break;
-            case SET_MAIN_HOME:
-                PlayerSQLManager.get().setMainHome(UUID.fromString(fail.data[1]), fail.data[0], callback);
-                break;
-            case ADD_BLOCK:
-                BlocklistManager.get().blockUser(fail.data[0], fail.data[1], fail.data[2], callback);
-                break;
-            case UNBLOCK:
-                BlocklistManager.get().unblockUser(fail.data[0], fail.data[1], callback);
-                break;
-            case ADD_WARP:
+                run = () -> PlayerSQLManager.get().addPlayer(offlinePlayer);
+            }
+            case UPDATE_PLAYER ->
+                    run = () -> PlayerSQLManager.get().updatePlayerInformation(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])));
+            case CHANGE_TELEPORTATION ->
+                    run = () -> PlayerSQLManager.get().setTeleportationOn(UUID.fromString(fail.data[0]), Boolean.parseBoolean(fail.data[1]));
+            case SET_MAIN_HOME ->
+                    run = () -> PlayerSQLManager.get().setMainHome(UUID.fromString(fail.data[1]), fail.data[0]);
+            case ADD_BLOCK -> run = () -> BlocklistManager.get().blockUser(fail.data[0], fail.data[1], fail.data[2]);
+            case UNBLOCK -> run = () -> BlocklistManager.get().unblockUser(fail.data[0], fail.data[1]);
+            case ADD_WARP -> {
                 Warp warp;
                 if (AdvancedTeleportAPI.getWarps().get(fail.data[6]) != null) {
                     warp = AdvancedTeleportAPI.getWarps().get(fail.data[6]);
                 } else {
                     warp = new Warp(UUID.fromString(fail.data[7]), fail.data[6], locFromStrings(fail.data), Long.parseLong(fail.data[8]), Long.parseLong(fail.data[9]));
                 }
-                WarpSQLManager.get().addWarp(warp, callback);
-                break;
-            case MOVE_WARP:
-                WarpSQLManager.get().moveWarp(locFromStrings(fail.data), fail.data[6], callback);
-                break;
-            case DELETE_WARP:
-                WarpSQLManager.get().removeWarp(fail.data[0], callback);
-                break;
-            case UPDATE_LOCATION:
-                PlayerSQLManager.get().setPreviousLocation(fail.data[6], locFromStrings(fail.data), callback);
+                if (warp == null) return;
+                run = () -> WarpSQLManager.get().addWarp(warp);
+            }
+            case MOVE_WARP -> run = () -> WarpSQLManager.get().moveWarp(locFromStrings(fail.data), fail.data[6]);
+            case DELETE_WARP -> run = () -> WarpSQLManager.get().removeWarp(fail.data[0]);
+            case UPDATE_LOCATION ->
+                    run = () -> PlayerSQLManager.get().setPreviousLocation(fail.data[6], locFromStrings(fail.data));
+
 
         }
+
+        CompletableFuture.runAsync(run, CoreClass.async).whenComplete((v, err) -> {
+            if (err != null) {
+                pendingFails.put(fail, pendingFails.get(fail) + 1);
+            } else {
+                pendingFails.remove(fail);
+            }
+        });
+    }
+
+    private Location locFromStrings(String... data) {
+        if (data.length < 6) {
+            throw new IllegalArgumentException("Not enough arguments to get a location! " + Arrays.toString(data));
+        }
+        String worldStr = data[0];
+        World world = Bukkit.getWorld(worldStr);
+        if (world == null) return null;
+        double x = Double.parseDouble(data[1]);
+        double y = Double.parseDouble(data[2]);
+        double z = Double.parseDouble(data[3]);
+        float yaw = Float.parseFloat(data[4]);
+        float pitch = Float.parseFloat(data[5]);
+        return new Location(world, x, y, z, yaw, pitch);
+    }
+
+    public static DataFailManager get() {
+        return instance;
     }
 
     public void onDisable() {
@@ -169,52 +173,6 @@ public class DataFailManager {
 
     }
 
-    private Location locFromStrings(String... data) {
-        if (data.length < 6) {
-            throw new IllegalArgumentException("Not enough arguments to get a location! " + Arrays.toString(data));
-        }
-        String worldStr = data[0];
-        World world = Bukkit.getWorld(worldStr);
-        if (world == null) return null;
-        double x = Double.parseDouble(data[1]);
-        double y = Double.parseDouble(data[2]);
-        double z = Double.parseDouble(data[3]);
-        float yaw = Float.parseFloat(data[4]);
-        float pitch = Float.parseFloat(data[5]);
-        return new Location(world, x, y, z, yaw, pitch);
-    }
-
-    public static DataFailManager get() {
-        return instance;
-    }
-
-    public static class Fail {
-
-        private String[] data;
-        private Operation operation;
-
-        public Fail(Operation operation, String... data) {
-            this.data = data;
-            this.operation = operation;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Fail fail = (Fail) o;
-            return Arrays.equals(data, fail.data) &&
-                    operation == fail.operation;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = Objects.hash(operation);
-            result = 31 * result + Arrays.hashCode(data);
-            return result;
-        }
-    }
-
     public enum Operation {
         ADD_BLOCK,
         UNBLOCK,
@@ -229,5 +187,35 @@ public class DataFailManager {
         ADD_WARP,
         MOVE_WARP,
         DELETE_WARP
+    }
+
+    public static class Fail {
+
+        private final String[] data;
+        private final Operation operation;
+
+        public Fail(
+            Operation operation,
+            String... data
+        ) {
+            this.data = data;
+            this.operation = operation;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(operation);
+            result = 31 * result + Arrays.hashCode(data);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Fail fail = (Fail) o;
+            return Arrays.equals(data, fail.data) &&
+                operation == fail.operation;
+        }
     }
 }

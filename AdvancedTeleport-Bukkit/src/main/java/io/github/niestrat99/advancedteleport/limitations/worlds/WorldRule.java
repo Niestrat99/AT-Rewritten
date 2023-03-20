@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.limitations.worlds;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,7 @@ public abstract class WorldRule {
     protected List<String> worlds;
     protected boolean inclusive = false;
 
-    public WorldRule(String worldRule) {
+    protected WorldRule(@NotNull String worldRule) {
         worlds = new ArrayList<>();
         if (worldRule.isEmpty()) return;
         if (worldRule.contains(":")) {
@@ -24,5 +25,8 @@ public abstract class WorldRule {
         worlds.addAll(Arrays.asList(worldRule.split(",")));
     }
 
-    public abstract boolean canTeleport(Player player, Location toLoc);
+    public abstract boolean canTeleport(
+        @NotNull final Player player,
+        @NotNull final Location toLoc
+    );
 }

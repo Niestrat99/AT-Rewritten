@@ -1,13 +1,15 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.commands.*;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
+import io.github.niestrat99.advancedteleport.commands.CoreCommand;
+import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.commands.core.*;
 import io.github.niestrat99.advancedteleport.commands.home.*;
 import io.github.niestrat99.advancedteleport.commands.spawn.*;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
-import io.github.niestrat99.advancedteleport.config.NewConfig;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -21,9 +23,9 @@ import java.util.*;
 
 public class CommandManager {
 
+    private static final LinkedHashMap<String, PluginCommand> atCommands = new LinkedHashMap<>();
     public static LinkedHashMap<String, SubATCommand> subcommands = new LinkedHashMap<>();
     public static LinkedHashMap<String, PluginCommand> registeredCommands = new LinkedHashMap<>();
-    private static LinkedHashMap<String, PluginCommand> atCommands = new LinkedHashMap<>();
 
     public static void registerCommands() {
         register("at", new CoreCommand());
@@ -67,6 +69,7 @@ public class CommandManager {
         register("removespawn", new RemoveSpawn());
         register("setmainspawn", new SetMainSpawn());
 
+        subcommands.put("clearcache", new ClearCacheCommand());
         subcommands.put("import", new ImportCommand());
         subcommands.put("help", new HelpCommand());
         subcommands.put("reload", new ReloadCommand());
@@ -76,7 +79,10 @@ public class CommandManager {
         subcommands.put("particles", new ParticlesCommand());
     }
 
-    private static void register(String name, ATCommand atCommand) {
+    private static void register(
+        String name,
+        ATCommand atCommand
+    ) {
         PluginCommand command = Bukkit.getPluginCommand("advancedteleport:" + name);
         if (command == null) command = atCommands.get(name);
         if (command == null) return;
@@ -97,7 +103,7 @@ public class CommandManager {
         aliases.add(name);
         boolean removed = false;
         for (String alias : aliases) {
-            if (NewConfig.get().DISABLED_COMMANDS.get().contains(alias) || removed || !atCommand.getRequiredFeature()) {
+            if (MainConfig.get().DISABLED_COMMANDS.get().contains(alias) || removed || !atCommand.getRequiredFeature()) {
                 if (command.isRegistered()) {
                     removed = true;
                     command.unregister(map);
