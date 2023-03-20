@@ -121,6 +121,7 @@ public final class PluginHookManager {
     @Contract(pure = true)
     public double[] getRandomCoords(@NotNull final World world) {
         return getPluginHooks(BorderPlugin.class, true)
+            .filter(plugin -> plugin.canUse(world))
             .findFirst()
             .map(hook -> new double[]{
                 hook.getMinX(world),
@@ -133,6 +134,7 @@ public final class PluginHookManager {
     @Contract(pure = true)
     public boolean isClaimed(@NotNull final Location location) {
         return getPluginHooks(ClaimPlugin.class, true)
+            .filter(plugin -> plugin.canUse(location.getWorld()))
             .findFirst()
             .map(hook -> hook.isClaimed(location))
             .orElse(false);
