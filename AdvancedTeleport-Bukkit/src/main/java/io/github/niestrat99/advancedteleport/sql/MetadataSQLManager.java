@@ -155,7 +155,7 @@ public class MetadataSQLManager extends SQLManager {
         });
     }
 
-    public String getValue(
+    public @Nullable String getValue(
         Connection connection,
         String dataId,
         String type,

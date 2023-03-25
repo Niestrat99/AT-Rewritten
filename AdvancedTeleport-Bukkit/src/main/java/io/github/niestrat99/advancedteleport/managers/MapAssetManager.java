@@ -1,15 +1,21 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
-import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
+import io.github.niestrat99.advancedteleport.sql.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -68,50 +74,62 @@ public class MapAssetManager {
         CoreClass.getInstance().getLogger().info("Registered the image " + name + "!");
     }
 
-    public static CompletableFuture<String> getImageKey(String name, String type, UUID owner) {
-        CompletableFuture<String> completableFuture;
-        switch (type) {
-            case "warp":
-                completableFuture = MetadataSQLManager.get().getWarpMetadata(name, "map_icon");
-                break;
-            case "home":
-                completableFuture = MetadataSQLManager.get().getHomeMetadata(name, owner, "map_icon");
-                break;
-            case "spawn":
-                completableFuture = MetadataSQLManager.get().getSpawnMetadata(name, "map_icon");
-                break;
-            default:
-                return null;
-        }
-        return completableFuture.thenApplyAsync(result -> {
-            if (result != null && images.containsKey(result)) return result;
-            result = type + "_" + name;
-            if (images.containsKey(result)) return result;
-            return type + "_default";
-        });
+    public static CompletableFuture<@Nullable IconInfo> getIcon(
+            @NotNull String name,
+            @NotNull IconType type,
+            @Nullable UUID owner
+    ) {
+        CompletableFuture<Integer> idFetcher = switch (type) {
+            case WARP -> WarpSQLManager.get().getWarpId(name);
+            case HOME -> HomeSQLManager.get().getHomeId(name, owner);
+            case SPAWN -> SpawnSQLManager.get().getSpawnId(name);
+        };
+
+        return idFetcher.thenApplyAsync(id -> IconInfo.fromSQL(id, type), CoreClass.async);
     }
 
-    public static class IconInfo {
-        private final String imageKey;
-        private final int size;
-        private final boolean hidden;
-        private final String label;
-        private final String clickTooltip;
-        
-        public IconInfo(String imageKey, int size, boolean hidden, String label, String clickTooltip) {
-            this.imageKey = imageKey;
-            this.size = size;
-            this.hidden = hidden;
-            this.label = label;
-            this.clickTooltip = clickTooltip;
-        }
+    public record IconInfo(String imageKey, int size, boolean hidden, String clickTooltip, String hoverTooltip) {
 
-        public String getImageKey() {
-            return imageKey;
-        }
+        public static @Nullable IconInfo fromSQL(int id, IconType type) {
 
-        public int getSize() {
-            return size;
+            //
+            try (Connection connection = MetadataSQLManager.get().implementConnection()) {
+
+                // Create an interface for managing SQL connections.
+                SQLInterface sql = new SQLInterface(connection, String.valueOf(id), type);
+
+                String imageKey = sql.get("map_icon", type.section.getDefaultIcon().replace('-', '_'));
+                String size = sql.get("map_icon_size", String.valueOf(type.section.getIconSize()));
+                String hidden = sql.get("map_visibility", String.valueOf(!type.section.isShownByDefault()));
+                String clickTooltip = sql.get("map_click_tooltip", type.section.getClickTooltip());
+                String hoverTooltip = sql.get("map_hover_tooltip", type.section.getHoverTooltip());
+
+                return new IconInfo(imageKey, Integer.parseInt(size), Boolean.getBoolean(hidden), clickTooltip, hoverTooltip);
+
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+
+            return null;
+        }
+    }
+
+    private record SQLInterface(Connection connection, String id, IconType type) {
+
+        private @NotNull String get(String key, String defaultOpt) throws SQLException {
+            return Objects.requireNonNullElse(MetadataSQLManager.get().getValue(connection, id, type.name(), key), defaultOpt);
+        }
+    }
+
+    public enum IconType {
+        WARP(MainConfig.get().MAP_WARPS),
+        HOME(MainConfig.get().MAP_HOMES),
+        SPAWN(MainConfig.get().MAP_SPAWNS);
+
+        private final MainConfig.MapOptions section;
+
+        IconType(MainConfig.MapOptions section) {
+            this.section = section;
         }
     }
 }

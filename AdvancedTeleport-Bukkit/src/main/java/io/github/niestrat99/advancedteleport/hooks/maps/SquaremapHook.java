@@ -21,6 +21,7 @@ import xyz.jpenilla.squaremap.api.Point;
 import xyz.jpenilla.squaremap.api.SimpleLayerProvider;
 import xyz.jpenilla.squaremap.api.Squaremap;
 import xyz.jpenilla.squaremap.api.marker.Icon;
+import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -80,52 +81,52 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
 
     @Override
     public void addWarp(@NotNull final Warp warp) {
-        addMarker(warp.getName(), "warp", warp.getLocation(), null);
+        addMarker(warp.getName(), MapAssetManager.IconType.WARP, warp.getLocation(), null);
     }
 
     @Override
     public void addHome(@NotNull final Home home) {
-        addMarker(home.getName() + home.getOwner(), "home", home.getLocation(), home.getOwner());
+        addMarker(home.getName() + home.getOwner(), MapAssetManager.IconType.HOME, home.getLocation(), home.getOwner());
     }
 
     @Override
     public void addSpawn(@NotNull final Spawn spawn) {
-        addMarker(spawn.getName(), "spawn", spawn.getLocation(), null);
+        addMarker(spawn.getName(), MapAssetManager.IconType.SPAWN, spawn.getLocation(), null);
     }
 
     @Override
     public void removeWarp(@NotNull final Warp warp) {
-        removeMarker(warp.getName(), "warp", warp.getLocation().getWorld());
+        removeMarker(warp.getName(), MapAssetManager.IconType.WARP, warp.getLocation().getWorld());
     }
 
     @Override
     public void removeHome(@NotNull final Home home) {
-        removeMarker(home.getName() + home.getOwner(), "home", home.getLocation().getWorld());
+        removeMarker(home.getName() + home.getOwner(), MapAssetManager.IconType.HOME, home.getLocation().getWorld());
     }
 
     @Override
     public void removeSpawn(@NotNull final Spawn spawn) {
-        removeMarker(spawn.getName(), "spawn", spawn.getLocation().getWorld());
+        removeMarker(spawn.getName(), MapAssetManager.IconType.SPAWN, spawn.getLocation().getWorld());
     }
 
     @Override
     public void moveWarp(@NotNull final Warp warp) {
-        moveMarker(warp.getName(), "warp", warp.getLocation(), null);
+        moveMarker(warp.getName(), MapAssetManager.IconType.WARP, warp.getLocation(), null);
     }
 
     @Override
     public void moveHome(@NotNull final Home home) {
-        moveMarker(home.getName(), "home", home.getLocation(), home.getOwner());
+        moveMarker(home.getName(), MapAssetManager.IconType.HOME, home.getLocation(), home.getOwner());
     }
 
     @Override
     public void moveSpawn(@NotNull final Spawn spawn) {
-        moveMarker(spawn.getName(), "spawn", spawn.getLocation(), null);
+        moveMarker(spawn.getName(), MapAssetManager.IconType.SPAWN, spawn.getLocation(), null);
     }
 
     private void addMarker(
         @NotNull final String name,
-        @NotNull final String type,
+        @NotNull final MapAssetManager.IconType type,
         @NotNull final Location location,
         @Nullable final UUID owner
     ) {
@@ -134,33 +135,49 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
         provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
 
             // Get the key
-            final var layerKey = Key.of("advancedteleport_" + type + "s");
+            final var layerKey = Key.of("advancedteleport_" + type.name().toLowerCase() + "s");
 
             // Get the layer provider associated
             final var layer = (SimpleLayerProvider) mapWorld.layerRegistry().get(layerKey);
 
             // Create the icon key
-            final var key = Key.of("advancedteleport_" + type + "_" + name);
+            final var key = Key.of("advancedteleport_" + type.name().toLowerCase() + "_" + name);
 
             // Get the point
             final var point = Point.of(location.getX(), location.getZ());
 
             // Get the image associated with the icon
-            MapAssetManager.getImageKey(name, type, owner).thenAcceptAsync(result -> {
-                result = "advancedteleport_" + result;
-                if (!provider.iconRegistry().hasEntry(Key.of(result))) {
-                    CoreClass.getInstance().getLogger().severe("Key " + result + " is not registered.");
+            MapAssetManager.getIcon(name, type, owner).thenAcceptAsync(iconData -> {
+
+                if (iconData == null) return;
+                if (iconData.hidden()) return;
+
+                // Get the image key - if it isn't registered, send a warning
+                String imageKey = "advancedteleport_" + iconData.imageKey();
+                if (!provider.iconRegistry().hasEntry(Key.of(imageKey))) {
+                    CoreClass.getInstance().getLogger().severe("Key " + imageKey + " is not registered.");
                 }
-                Icon icon = Icon.icon(point, Key.of(result), 40);
+
+                // Create the icon
+                Icon icon = Icon.icon(point, Key.of(imageKey), iconData.size());
+
+                // Set the tooltips
+                MarkerOptions.Builder options = icon.markerOptions().asBuilder();
+                options.clickTooltip(iconData.clickTooltip().replace("{name}", name));
+                options.hoverTooltip(iconData.hoverTooltip().replace("{name}", name));
+                icon.markerOptions(options);
+
+                // Add the marker
                 layer.addMarker(key, icon);
                 CoreClass.getInstance().getLogger().info("Added the " + location + " for " + name + ".");
-            }, task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task));
+
+            }, CoreClass.sync);
         });
     }
 
     private void removeMarker(
         @NotNull final String name,
-        @NotNull final String type,
+        @NotNull final MapAssetManager.IconType type,
         @NotNull final World world
     ) {
         Objects.requireNonNull(world, "The world for " + name + " is not loaded.");
@@ -178,7 +195,7 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
 
     private void moveMarker(
         @NotNull final String name,
-        @NotNull final String type,
+        @NotNull final MapAssetManager.IconType type,
         @NotNull final Location location,
         @Nullable final UUID owner
     ) {
