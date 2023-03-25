@@ -77,6 +77,7 @@ public class CommandManager {
         subcommands.put("export", new ExportCommand());
         subcommands.put("purge", new PurgeCommand());
         subcommands.put("particles", new ParticlesCommand());
+        subcommands.put("map", new MapCommand());
     }
 
     private static void register(
@@ -115,10 +116,12 @@ public class CommandManager {
             for (String alias : aliases) {
                 commands.remove(alias);
                 commands.remove("advancedteleport:" + alias);
+
                 // Let another plugin take over
                 Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), () -> {
                     Iterator<String> commandIterator = commands.keySet().iterator();
                     HashMap<String, Command> pendingChanges = new HashMap<>();
+
                     // Ignore warning, can yield CME
                     while (commandIterator.hasNext()) {
                         String otherCmd = commandIterator.next();
