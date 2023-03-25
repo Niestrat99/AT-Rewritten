@@ -232,7 +232,6 @@ public class SpawnSQLManager extends SQLManager {
                 statement.setString(1, name);
                 ResultSet set = executeQuery(statement);
                 if (set.next()) {
-                    connection.close();
                     return set.getInt("id");
                 }
             } catch (SQLException throwables) {

@@ -14,8 +14,6 @@ import io.github.niestrat99.advancedteleport.managers.RTPManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
-import java.util.Optional;
-import java.util.function.Function;
 
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import io.papermc.lib.PaperLib;

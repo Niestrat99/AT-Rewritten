@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.api;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 /**
  * Represents a bedrock-connected player.

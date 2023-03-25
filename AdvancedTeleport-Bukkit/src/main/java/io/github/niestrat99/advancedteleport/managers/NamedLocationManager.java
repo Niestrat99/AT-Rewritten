@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
-import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -71,12 +70,6 @@ public class NamedLocationManager {
 
     public ImmutableMap<String, Warp> getWarps() {
         return ImmutableMap.copyOf(this.warps);
-    }
-
-    @Contract(pure = true)
-    public void createSpawn(@NotNull ConfigSection section) {
-
-        //
     }
 
     @Contract(pure = true)

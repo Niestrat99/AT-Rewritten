@@ -18,8 +18,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
-
 public final class TpCancel extends TeleportATCommand implements PlayerCommand {
 
     @Override
