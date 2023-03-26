@@ -143,6 +143,12 @@ public class CommandManager {
             command.register(map);
             commands.put(name, command);
             commands.put("advancedteleport:" + name, command);
+
+            // Re-add all aliases
+            for (String alias : aliases) {
+                commands.put(alias, command);
+                commands.put("advancedteleport:" + alias, command);
+            }
         }
 
         command.setExecutor(atCommand);
