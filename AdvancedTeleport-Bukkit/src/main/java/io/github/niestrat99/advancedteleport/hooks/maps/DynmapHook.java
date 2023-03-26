@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.hooks.maps;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.Home;
-import io.github.niestrat99.advancedteleport.api.NamedLocation;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
@@ -118,7 +117,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
 
             // If the icon is hidden or null, stop there
             if (iconData == null) return;
-            if (iconData.hidden()) return;
+            if (!iconData.shown()) return;
 
             // Create the marker
             set.createMarker(name, iconData.hoverTooltip().replace("{name}", name),
@@ -148,6 +147,37 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     ) {
         removeMarker(name, set);
         addMarker(name, type, owner, set, location);
+    }
+
+    public void updateIcon(
+            @NotNull String id,
+            @NotNull MapAssetManager.IconType type,
+            @Nullable UUID owner
+    ) {
+
+        MarkerSet set = (type == MapAssetManager.IconType.SPAWN ? spawnsMarker : (type == MapAssetManager.IconType.HOME ? homesMarker : warpsMarker));
+        String name = "advancedteleport_" + type.name().toLowerCase() + "_" + (type == MapAssetManager.IconType.HOME ? owner + "_" + id : id);
+
+        // Try to get the existing marker
+        Marker marker = set.findMarker(name);
+        if (marker == null) return;
+
+        // Remove the current marker
+        removeMarker(name, set);
+
+        //
+        MapAssetManager.getIcon(id, type, owner).thenAcceptAsync(iconData -> {
+
+            // If the icon is shown or null, stop there
+            if (iconData == null) return;
+            if (!iconData.shown()) return;
+
+            // Create the marker
+            set.createMarker(name, iconData.hoverTooltip().replace("{name}", id),
+                    marker.getWorld(), marker.getX(), marker.getY(), marker.getZ(),
+                    icons.get(iconData.imageKey()), false);
+
+        }, CoreClass.sync);
     }
 
     private @NotNull MarkerSet getSet(

@@ -1,6 +1,8 @@
 package io.github.niestrat99.advancedteleport.hooks.maps;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
@@ -21,6 +23,7 @@ import xyz.jpenilla.squaremap.api.Point;
 import xyz.jpenilla.squaremap.api.SimpleLayerProvider;
 import xyz.jpenilla.squaremap.api.Squaremap;
 import xyz.jpenilla.squaremap.api.marker.Icon;
+import xyz.jpenilla.squaremap.api.marker.Marker;
 import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
 
 import javax.imageio.ImageIO;
@@ -150,7 +153,7 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
             MapAssetManager.getIcon(name, type, owner).thenAcceptAsync(iconData -> {
 
                 if (iconData == null) return;
-                if (iconData.hidden()) return;
+                if (!iconData.shown()) return;
 
                 // Get the image key - if it isn't registered, send a warning
                 String imageKey = "advancedteleport_" + iconData.imageKey();
@@ -183,11 +186,11 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
         Objects.requireNonNull(world, "The world for " + name + " is not loaded.");
         provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
             // Get the key
-            Key layerKey = Key.of("advancedteleport_" + type + "s");
+            Key layerKey = Key.of("advancedteleport_" + type.name().toLowerCase() + "s");
             // Get the layer provider associated
             SimpleLayerProvider layer = (SimpleLayerProvider) mapWorld.layerRegistry().get(layerKey);
             // Get the icon key
-            Key key = Key.of("advancedteleport_" + type + "_" + name);
+            Key key = Key.of("advancedteleport_" + type.name().toLowerCase() + "_" + name);
             // Remove the icon
             layer.removeMarker(key);
         });
@@ -201,6 +204,90 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
     ) {
         removeMarker(name, type, location.getWorld());
         addMarker(name, type, location, owner);
+    }
+
+    public void updateIcon(
+            @NotNull String id,
+            @NotNull MapAssetManager.IconType type,
+            @Nullable UUID owner
+    ) {
+
+        // Go through each world
+        for (World world : Bukkit.getWorlds()) {
+            provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
+
+                // Get the layer needed
+                Key layerKey = Key.of("advancedteleport_" + type.name().toLowerCase() + "s");
+                SimpleLayerProvider layer = (SimpleLayerProvider) mapWorld.layerRegistry().get(layerKey);
+
+                // Get the icon key
+                Key key = Key.of("advancedteleport_" + type.name().toLowerCase() + "_" + id);
+
+                // Get the marker
+                Marker marker = layer.registeredMarkers().get(key);
+                Point point = null;
+
+                // If it doesn't exist, try getting the icon itself - we may be calling through /at map setvisible
+                if (!(marker instanceof Icon icon)) {
+
+                    switch (type) {
+                        case WARP -> {
+                            Warp warp = AdvancedTeleportAPI.getWarp(id);
+                            if (warp == null) return;
+                            point = Point.point(warp.getLocation().getX(), warp.getLocation().getZ());
+                        }
+                        case SPAWN -> {
+                            Spawn spawn = AdvancedTeleportAPI.getSpawn(id);
+                            if (spawn == null) return;
+                            point = Point.point(spawn.getLocation().getX(), spawn.getLocation().getZ());
+                        }
+                        case HOME -> {
+                            if (owner == null) return;
+                            ATPlayer player = ATPlayer.getPlayer(Bukkit.getOfflinePlayer(owner));
+                            Home home = player.getHome(id);
+                            if (home == null) return;
+                            point = Point.point(home.getLocation().getX(), home.getLocation().getZ());
+                        }
+                    }
+
+                    if (point == null) return;
+                } else {
+                    point = icon.point();
+                }
+
+                Point finalPoint = point;
+
+                // Get the image associated with the icon
+                MapAssetManager.getIcon(id, type, owner).thenAcceptAsync(iconData -> {
+
+                    if (iconData == null) return;
+                    if (!iconData.shown()) {
+                        layer.removeMarker(key);
+                        return;
+                    }
+
+                    // Get the image key - if it isn't registered, send a warning
+                    String imageKey = "advancedteleport_" + iconData.imageKey();
+                    if (!provider.iconRegistry().hasEntry(Key.of(imageKey))) {
+                        CoreClass.getInstance().getLogger().severe("Key " + imageKey + " is not registered.");
+                    }
+
+                    // Create the icon
+                    Icon newIcon = Icon.icon(finalPoint, Key.of(imageKey), iconData.size());
+
+                    // Set the tooltips
+                    MarkerOptions.Builder options = newIcon.markerOptions().asBuilder();
+                    options.clickTooltip(iconData.clickTooltip().replace("{name}", id));
+                    options.hoverTooltip(iconData.hoverTooltip().replace("{name}", id));
+                    newIcon.markerOptions(options);
+
+                    // Add the marker
+                    layer.removeMarker(key);
+                    layer.addMarker(key, newIcon);
+
+                }, CoreClass.sync);
+            });
+        }
     }
 
     private @NotNull LayerProvider createLayerProvider(@NotNull final MainConfig.MapOptions options) {

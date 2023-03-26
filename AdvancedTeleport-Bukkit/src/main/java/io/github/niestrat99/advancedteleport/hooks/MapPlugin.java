@@ -5,8 +5,12 @@ import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 
 import java.io.InputStream;
+import java.util.UUID;
+
+import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class MapPlugin<P extends Plugin, R> extends PluginHook<P, R> {
@@ -47,6 +51,12 @@ public abstract class MapPlugin<P extends Plugin, R> extends PluginHook<P, R> {
     public abstract void registerImage(
         String name,
         InputStream stream
+    );
+
+    public abstract void updateIcon(
+            @NotNull String id,
+            @NotNull MapAssetManager.IconType type,
+            @Nullable UUID owner
     );
 
     public enum TeleportPoint {

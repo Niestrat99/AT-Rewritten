@@ -3,6 +3,9 @@ package io.github.niestrat99.advancedteleport.commands.core.map;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
+import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
+import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -63,7 +66,12 @@ public class AbstractMapCommand extends SubATCommand {
             }
         }
 
-        completableFuture.thenAcceptAsync(result -> sender.sendMessage(String.valueOf(result)));
+        completableFuture.thenAcceptAsync(result -> {
+            sender.sendMessage(String.valueOf(result));
+
+            PluginHookManager.get().getPluginHooks(MapPlugin.class, true).forEach(mapPlugin ->
+                    mapPlugin.updateIcon(args[1], MapAssetManager.IconType.valueOf(args[0].toUpperCase()), null));
+        });
         return true;
     }
 
