@@ -78,14 +78,23 @@ public class MetadataSQLManager extends SQLManager {
     }
 
     public CompletableFuture<Boolean> addWarpMetadata(
+            String warpName,
+            String key,
+            String value
+    ) {
+        return addWarpMetadata(warpName, key, value, true);
+    }
+
+    public CompletableFuture<Boolean> addWarpMetadata(
         String warpName,
         String key,
-        String value
+        String value,
+        boolean single
     ) {
         return WarpSQLManager.get().getWarpId(warpName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;
-                return addMetadata(connection, String.valueOf(id), "WARP", key, value);
+                return addMetadata(connection, String.valueOf(id), "WARP", key, value, single);
             } catch (SQLException throwables) {
                 throw new RuntimeException(throwables);
             }
@@ -97,8 +106,12 @@ public class MetadataSQLManager extends SQLManager {
         String dataId,
         String type,
         String key,
-        String value
+        String value,
+        boolean single
     ) throws SQLException {
+
+        if (single) deleteMetadata(connection, dataId, type, key);
+
         PreparedStatement statement = prepareStatement(
             connection,
             "INSERT INTO " + tablePrefix + "_metadata (data_id, type, key, value) VALUES (?, ?, ?, ?);"
@@ -112,15 +125,25 @@ public class MetadataSQLManager extends SQLManager {
     }
 
     public CompletableFuture<Boolean> addHomeMetadata(
+            String homeName,
+            UUID owner,
+            String key,
+            String value
+    ) {
+        return addHomeMetadata(homeName, owner, key, value, true);
+    }
+
+    public CompletableFuture<Boolean> addHomeMetadata(
         String homeName,
         UUID owner,
         String key,
-        String value
+        String value,
+        boolean single
     ) {
         return HomeSQLManager.get().getHomeId(homeName, owner).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
                 if (id == -1) return false;
-                return addMetadata(connection, String.valueOf(id), "HOME", key, value);
+                return addMetadata(connection, String.valueOf(id), "HOME", key, value, single);
             } catch (SQLException throwables) {
                 throw new RuntimeException(throwables);
             }
@@ -128,13 +151,22 @@ public class MetadataSQLManager extends SQLManager {
     }
 
     public CompletableFuture<Boolean> addSpawnMetadata(
+            String spawnName,
+            String key,
+            String value
+    ) {
+        return addSpawnMetadata(spawnName, key, value, true);
+    }
+
+    public CompletableFuture<Boolean> addSpawnMetadata(
         String spawnName,
         String key,
-        String value
+        String value,
+        boolean single
     ) {
         return SpawnSQLManager.get().getSpawnId(spawnName).thenApplyAsync(id -> {
             try (Connection connection = implementConnection()) {
-                return addMetadata(connection, String.valueOf(id), "SPAWN", key, value);
+                return addMetadata(connection, String.valueOf(id), "SPAWN", key, value, single);
             } catch (SQLException throwables) {
                 throw new RuntimeException(throwables);
             }

@@ -128,7 +128,7 @@ public class SpawnSQLManager extends SQLManager {
             double z,
             float yaw,
             float pitch) {
-        return CompletableFuture.runAsync(() -> {
+        return removeSpawn(name).thenAcceptAsync(result -> {
             try (Connection connection = implementConnection()) {
 
                 PreparedStatement statement = prepareStatement(connection, "INSERT INTO " + tablePrefix + "_spawns " +
@@ -165,7 +165,7 @@ public class SpawnSQLManager extends SQLManager {
             } catch (SQLException exception) {
                 throw new RuntimeException(exception);
             }
-        });
+        }, CoreClass.async);
     }
 
     public CompletableFuture<Void> moveSpawn(Spawn spawn) {
@@ -183,7 +183,7 @@ public class SpawnSQLManager extends SQLManager {
             } catch (SQLException exception) {
                 throw new RuntimeException(exception);
             }
-        });
+        }, CoreClass.async);
     }
 
     public CompletableFuture<List<Spawn>> getSpawns() {
