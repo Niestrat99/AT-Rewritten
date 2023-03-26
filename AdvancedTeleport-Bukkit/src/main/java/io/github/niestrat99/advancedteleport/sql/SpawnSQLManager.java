@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -59,6 +60,8 @@ public class SpawnSQLManager extends SQLManager {
                 exception.printStackTrace();
             }
             transferOldData();
+
+            NamedLocationManager.get().loadSpawnData();
         });
     }
 
