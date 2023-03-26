@@ -88,7 +88,7 @@ public class MapAssetManager {
         return idFetcher.thenApplyAsync(id -> IconInfo.fromSQL(id, type), CoreClass.async);
     }
 
-    public record IconInfo(String imageKey, int size, boolean hidden, String clickTooltip, String hoverTooltip) {
+    public record IconInfo(String imageKey, int size, boolean shown, String clickTooltip, String hoverTooltip) {
 
         public static @Nullable IconInfo fromSQL(int id, IconType type) {
 
@@ -100,11 +100,11 @@ public class MapAssetManager {
 
                 String imageKey = sql.get("map_icon", type.section.getDefaultIcon().replace('-', '_'));
                 String size = sql.get("map_icon_size", String.valueOf(type.section.getIconSize()));
-                String hidden = sql.get("map_visibility", String.valueOf(!type.section.isShownByDefault()));
+                String shown = sql.get("map_visibility", String.valueOf(type.section.isEnabled()));
                 String clickTooltip = sql.get("map_click_tooltip", type.section.getClickTooltip());
                 String hoverTooltip = sql.get("map_hover_tooltip", type.section.getHoverTooltip());
 
-                return new IconInfo(imageKey, Integer.parseInt(size), Boolean.getBoolean(hidden), clickTooltip, hoverTooltip);
+                return new IconInfo(imageKey, Integer.parseInt(size), Boolean.parseBoolean(shown), clickTooltip, hoverTooltip);
 
             } catch (SQLException exception) {
                 exception.printStackTrace();

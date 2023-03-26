@@ -22,9 +22,9 @@ public final class MapCommand extends SubATCommand {
         subMapCommands = new HashMap<>();
         subMapCommands.put("seticon", new SetIconCommand());
         subMapCommands.put("setclicktooltip", new SetClickTooltipCommand());
-        subMapCommands.put("sethidden", new SetHiddenCommand());
         subMapCommands.put("sethovertooltip", new SetHoverTooltipCommand());
         subMapCommands.put("setsize", new SetSizeCommand());
+        subMapCommands.put("setvisible", new SetVisibleCommand());
     }
 
     @Override

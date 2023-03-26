@@ -1,8 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.core.map;
 
-public class SetHiddenCommand extends AbstractMapCommand {
+public class SetVisibleCommand extends AbstractMapCommand {
 
-    public SetHiddenCommand() {
+    public SetVisibleCommand() {
         super("map_visibility", "true", "false");
     }
 }
