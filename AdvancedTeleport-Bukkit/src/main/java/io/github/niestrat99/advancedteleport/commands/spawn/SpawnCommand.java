@@ -30,7 +30,7 @@ public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
-        Spawn spawn = NamedLocationManager.get().getSpawn(player.getWorld(), player);
+        Spawn spawn = AdvancedTeleportAPI.getDestinationSpawn(player.getWorld(), player);
         if (args.length > 0 &&
             (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
             if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
