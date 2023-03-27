@@ -1,8 +1,10 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,8 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -56,23 +57,21 @@ public class MetadataSQLManager extends SQLManager {
     public void transferOldData() {
     }
 
-    public List<String> getAllValues(
+    public HashMap<String, String> getAllValues(
         Connection connection,
-        String dataId,
         String type,
         String key
     ) throws SQLException {
-        List<String> results = new ArrayList<>();
+        HashMap<String, String> results = new HashMap<>();
         PreparedStatement statement = prepareStatement(
             connection,
-            "SELECT value FROM " + tablePrefix + "_metadata WHERE data_id = ? AND type = ? AND key = ?;"
+            "SELECT data_id, value FROM " + tablePrefix + "_metadata WHERE type = ? AND key = ?;"
         );
-        statement.setString(1, dataId);
-        statement.setString(2, type);
-        statement.setString(3, key);
+        statement.setString(1, type);
+        statement.setString(2, key);
         ResultSet set = executeQuery(statement);
         while (set.next()) {
-            results.add(set.getString("value"));
+            results.put(set.getString("data_id"), set.getString("value"));
         }
         return results;
     }
@@ -296,32 +295,104 @@ public class MetadataSQLManager extends SQLManager {
         }, CoreClass.async);
     }
 
-    public CompletableFuture<Boolean> mirrorSpawn(@NotNull Spawn source, @Nullable Spawn mirror) {
-        return SpawnSQLManager.get().getSpawnId(source.getName()).thenApplyAsync(id -> {
+    public CompletableFuture<Boolean> mirrorSpawn(@NotNull String source, @Nullable String mirror) {
+        return SpawnSQLManager.get().getSpawnId(source).thenApplyAsync(id -> {
 
             try (Connection connection = implementConnection()) {
 
-                if (id == -1) return false;
+                // Get the raw spawn
+                String idRaw = String.valueOf(id);
+                if (idRaw.equals("-1")) idRaw = source;
 
-                // If the mirror is null, remove the mirror altogether
-                if (mirror == null) {
-                    PreparedStatement statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_metadata " +
-                            "WHERE type = 'SPAWN' AND key = 'mirror' AND data_id = ?");
-                    statement.setInt(1, id);
-                    executeUpdate(statement);
-                    return true;
-                }
+                // Remove any existing mirrors
+                PreparedStatement deleteStatement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_metadata " +
+                        "WHERE type = 'SPAWN' AND key = 'mirror' AND data_id = ?");
+                deleteStatement.setString(1, idRaw);
+                executeUpdate(deleteStatement);
+
+                // If the mirror is null, stop there
+                if (mirror == null) return false;
 
                 // Get the mirror ID
-                int mirrorId = SpawnSQLManager.get().getSpawnId(mirror.getName()).join(); // TODO - will cause a lock
+                int mirrorId = SpawnSQLManager.get().getSpawnIdSync(connection, mirror);
+                String rawMirrorId = String.valueOf(mirrorId);
+                if (rawMirrorId.equals("-1")) rawMirrorId = mirror;
 
                 // Set up the statement
-                PreparedStatement statement = prepareStatement(connection, "");
-
-                return true;
+                return addMetadata(connection, idRaw, "SPAWN", "mirror_spawn", rawMirrorId, true);
             } catch (SQLException exception) {
                 throw new RuntimeException(exception);
             }
-        });
+        }, CoreClass.async);
+    }
+
+    private Spawn getSpawnFromId(Connection connection, String id) throws SQLException {
+
+        // If it's not a numeric ID, just get the destination ID
+        if (!id.matches("^[0-9]+$")) {
+            World world = Bukkit.getWorld(id);
+            if (world == null) return null;
+            return AdvancedTeleportAPI.getDestinationSpawn(world, null);
+        }
+
+        // Otherwise, fetch the spawn by its ID
+        PreparedStatement statement = prepareStatement(connection, "SELECT spawn FROM " + tablePrefix + "_spawns WHERE id = ?;");
+        statement.setInt(1, Integer.parseInt(id));
+        ResultSet set = statement.executeQuery();
+
+        // If there's a result, grab it
+        if (set.next()) return AdvancedTeleportAPI.getSpawn(set.getString("spawn"));
+
+        // Return nothing
+        return null;
+    }
+
+    public CompletableFuture<Void> loadMirroredSpawns() {
+        return CompletableFuture.runAsync(() -> {
+
+            try (Connection connection = implementConnection()) {
+
+                // Get all spawn IDs and mirror IDs
+                HashMap<String, String> ids = getAllValues(connection, "SPAWN", "mirror_spawn");
+
+                for (String dataId : ids.keySet()) {
+                    String mirrorId = ids.get(dataId);
+
+                    // Get the spawns
+                    Spawn main = getSpawnFromId(connection, dataId);
+                    Spawn mirror = getSpawnFromId(connection, mirrorId);
+
+                    // If the main is not null, then mirror it
+                    if (main != null) {
+                        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> main.setMirroringSpawn(mirror, null));
+                    }
+                }
+
+            } catch (SQLException exception) {
+                throw new RuntimeException(exception);
+            }
+
+        }, CoreClass.async);
+    }
+
+    public CompletableFuture<@Nullable Spawn> loadMainSpawn() {
+        return CompletableFuture.supplyAsync(() -> {
+
+            try (Connection connection = implementConnection()) {
+
+                PreparedStatement statement = prepareStatement(connection,
+                        "SELECT spawn FROM " + tablePrefix + "_spawns " +
+                                "JOIN " + tablePrefix + "_metadata ON " + tablePrefix + "_spawns.id = " + tablePrefix + "_metadata.data_id " +
+                                "AND " + tablePrefix + "_metadata.key = 'main_spawn' AND " + tablePrefix + "_metadata.value = 'true';");
+
+                ResultSet set = statement.executeQuery();
+
+                if (set.next()) return AdvancedTeleportAPI.getSpawn(set.getString("spawn"));
+
+                return null;
+            } catch (SQLException exception) {
+                throw new RuntimeException(exception);
+            }
+        }, CoreClass.async);
     }
 }

@@ -118,8 +118,11 @@ public class Spawn implements NamedLocation {
             this.mirroringSpawn = event.getDestinationSpawn();
             this.updatedTime = System.currentTimeMillis();
 
+            // If we're not in the spawns cache, add ourselves
+            NamedLocationManager.get().addMirroredSpawn(getName(), this.mirroringSpawn);
+
             // Update it in the database
-            return MetadataSQLManager.get().mirrorSpawn(this, event.getDestinationSpawn())
+            return MetadataSQLManager.get().mirrorSpawn(this.getName(), event.getDestinationSpawn() == null ? null : event.getDestinationSpawn().getName())
                     .thenApplyAsync(result -> event.getDestinationSpawn());
         });
     }

@@ -211,7 +211,7 @@ public class SpawnSQLManager extends SQLManager {
                         long timestampCreated = result.getLong("timestamp_created");
                         long timestampUpdated = result.getLong("timestamp_updated");
 
-                        Spawn spawn = new Spawn(name, loc, null, UUID.fromString(uuid), timestampCreated, timestampUpdated);
+                        Spawn spawn = new Spawn(name, loc, null, uuid == null ? null : UUID.fromString(uuid), timestampCreated, timestampUpdated);
 
                         spawns.add(spawn);
                     } catch (UnloadedWorldException e) {
@@ -227,16 +227,21 @@ public class SpawnSQLManager extends SQLManager {
         }, CoreClass.async);
     }
 
+    public int getSpawnIdSync(Connection connection, String name) throws SQLException {
+        PreparedStatement statement = prepareStatement(connection,
+                "SELECT id FROM " + tablePrefix + "_spawns WHERE spawn = ?;");
+        statement.setString(1, name);
+        ResultSet set = executeQuery(statement);
+        if (set.next()) {
+            return set.getInt("id");
+        }
+        return -1;
+    }
+
     public CompletableFuture<Integer> getSpawnId(String name) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection,
-                        "SELECT id FROM " + tablePrefix + "_spawns WHERE spawn = ?;");
-                statement.setString(1, name);
-                ResultSet set = executeQuery(statement);
-                if (set.next()) {
-                    return set.getInt("id");
-                }
+                return getSpawnIdSync(connection, name);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }

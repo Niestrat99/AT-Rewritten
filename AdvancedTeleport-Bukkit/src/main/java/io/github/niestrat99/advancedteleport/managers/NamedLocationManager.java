@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -26,6 +27,7 @@ public class NamedLocationManager {
 
     @NotNull private final HashMap<String, Warp> warps;
     @NotNull private final HashMap<String, Spawn> spawns;
+    @NotNull private final HashMap<String, Spawn> worldMirrors;
     @Nullable private Spawn mainSpawn;
     private static NamedLocationManager instance;
 
@@ -34,6 +36,8 @@ public class NamedLocationManager {
 
         this.warps = new HashMap<>();
         this.spawns = new HashMap<>();
+        this.worldMirrors = new HashMap<>();
+
         CoreClass.debug("Set up the NamedLocationManager. Ready to accept warps and spawnpoints.");
     }
 
@@ -47,9 +51,20 @@ public class NamedLocationManager {
         SpawnSQLManager.get().getSpawns().thenAcceptAsync(spawns -> {
 
             // Add to the spawns list
-            spawns.forEach(spawn -> this.spawns.put(spawn.getName(), spawn));
+            spawns.forEach(this::registerSpawn);
 
-            
+            // Then load mirrored spawns
+            MetadataSQLManager.get().loadMirroredSpawns();
+
+            // Get the main spawn
+            MetadataSQLManager.get().loadMainSpawn().whenComplete((result, err) -> {
+                this.mainSpawn = result;
+
+                if (err != null) {
+                    CoreClass.getInstance().getLogger().warning("Failed to get the main spawn!");
+                    err.printStackTrace();
+                }
+            });
         }, CoreClass.sync);
     }
 
@@ -75,6 +90,7 @@ public class NamedLocationManager {
     @Contract(pure = true)
     public void registerSpawn(@NotNull Spawn spawn) {
         this.spawns.put(spawn.getName(), spawn);
+        CoreClass.debug("Registered spawn " + spawn.getName());
     }
 
     @Contract(pure = true)
@@ -116,18 +132,18 @@ public class NamedLocationManager {
     ) {
 
         // If there's no spawns registered under the world's name, try using the main spawn.
-        if (!this.spawns.containsKey(world.getName())) {
+        if (!this.spawns.containsKey(world.getName()) && !this.worldMirrors.containsKey(world.getName())) {
             return getUndeclaredSpawn(world);
         }
 
         // Get the destination spawn
-        Spawn spawn = this.spawns.get(world.getName());
+        Spawn spawn = this.spawns.getOrDefault(world.getName(), this.worldMirrors.get(world.getName()));
 
         // If there's no player, just throw this spawn
         if (teleportingPlayer == null) return spawn;
 
         // While the player can't access the spawn, go to the next spawn
-        while (!spawn.canAccess(teleportingPlayer) && spawn.getMirroringSpawn() != null) {
+        while (!spawn.canAccess(teleportingPlayer) && spawn.getMirroringSpawn() != null && spawn.getMirroringSpawn() != spawn) {
             spawn = spawn.getMirroringSpawn();
         }
 
@@ -160,11 +176,21 @@ public class NamedLocationManager {
                 return new Spawn(world.getName(), world.getSpawnLocation());
 
             // Otherwise, teleport to the overworld
-            return new Spawn(overworld.getName(), overworld.getSpawnLocation());
+            return this.spawns.getOrDefault(overworld.getName(), new Spawn(overworld.getName(), overworld.getSpawnLocation()));
         } else {
 
             // Return a new spawn object, but don't register it for now
             return new Spawn(world.getName(), world.getSpawnLocation());
+        }
+    }
+
+    @Contract
+    public void addMirroredSpawn(@NotNull String from, @Nullable Spawn spawn) {
+        if (spawn != null) {
+            this.worldMirrors.put(from, spawn);
+            CoreClass.debug("Added world mirror " + from + " to redirect to " + spawn.getName() + ".");
+        } else {
+            this.worldMirrors.remove(from);
         }
     }
 

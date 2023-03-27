@@ -317,6 +317,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.mapIconUpdateIcon", "<prefix> <gray>Updated the icon for <type> <aqua><name></aqua>! The map should update shortly.");
         addDefault("Info.mapIconUpdateSize", "<prefix> <gray>Updated the icon size for <type> <aqua><name></aqua>! The map should update shortly.");
         addDefault("Info.mapIconUpdateVisibility", "<prefix> <gray>Updated the icon visibility for <type> <aqua><name></aqua>! The map should update shortly.");
+        addDefault("Info.mirrorSpawnSame", "<prefix> <gray>The spawns for <aqua><from></aqua> and <aqua><spawn></aqua> already to go the same place! Don't worry :)");
 
         addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: <aqua><home>");
         addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: <aqua><warp>");

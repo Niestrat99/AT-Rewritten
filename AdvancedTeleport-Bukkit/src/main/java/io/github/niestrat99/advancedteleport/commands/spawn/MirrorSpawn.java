@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
@@ -11,6 +12,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class MirrorSpawn extends SpawnATCommand {
 
@@ -49,12 +54,19 @@ public final class MirrorSpawn extends SpawnATCommand {
             toSpawn = getSpawn(args[1]);
         }
 
-        fromSpawn.setMirroringSpawn(toSpawn, sender).whenComplete((v, e) ->
-                handleCommandFeedback(e, sender, "Info.mirroredSpawn", "Error.noSpawn",
+        // See if the from and to spawns match up
+        if (fromSpawn == toSpawn) {
+            CustomMessages.sendMessage(sender, "Info.mirrorSpawnSame",
+                    Placeholder.unparsed("spawn", args[0]),
+                    Placeholder.unparsed("from", (args.length == 1 ? ((Player) sender).getWorld().getName() : args[1])));
+            return true;
+        }
+
+        fromSpawn.setMirroringSpawn(toSpawn, sender).whenCompleteAsync((v, e) ->
+                handleCommandFeedback(e, sender, "Info.mirroredSpawn", "Error.mirrorSpawnFail",
                         Placeholder.unparsed("spawn", v.getMirroringSpawn().getName()),
                         Placeholder.unparsed("from", fromSpawn.getName())
-                )
-        );
+                ), CoreClass.sync);
         return true;
     }
 
