@@ -3,10 +3,12 @@ package io.github.niestrat99.advancedteleport.commands.core.map;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -22,14 +24,24 @@ public class AbstractMapCommand extends SubATCommand {
 
     private final @NotNull String key;
     private final @NotNull Collection<String> completions;
+    private final @NotNull String successKey;
 
-    public AbstractMapCommand(@NotNull String key, @NotNull Collection<String> completions) {
+    public AbstractMapCommand(
+            @NotNull String key,
+            @NotNull String successKey,
+            @NotNull Collection<String> completions
+    ) {
         this.key = key;
+        this.successKey = successKey;
         this.completions = completions;
     }
 
-    public AbstractMapCommand(@NotNull String key, @NotNull String... completions) {
-        this(key, new ArrayList<>(Arrays.asList(completions)));
+    public AbstractMapCommand(
+            @NotNull String key,
+            @NotNull String successKey,
+            @NotNull String... completions
+    ) {
+        this(key, successKey, new ArrayList<>(Arrays.asList(completions)));
     }
 
     @Override
@@ -40,10 +52,14 @@ public class AbstractMapCommand extends SubATCommand {
             @NotNull final String s,
             @NotNull final String[] args
     ) {
+
+        // If not enough arguments are specified, let the player know
         if (args.length < 3) {
+            CustomMessages.sendMessage(sender, "Error.notEnoughArgs");
             return true;
         }
 
+        // Squish together the input
         String input = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 
         CompletableFuture<Boolean> completableFuture;
@@ -51,23 +67,37 @@ public class AbstractMapCommand extends SubATCommand {
             case "warp" -> completableFuture = MetadataSQLManager.get().addWarpMetadata(args[1], key, input);
             case "spawn" -> completableFuture = MetadataSQLManager.get().addSpawnMetadata(args[1], key, input);
             case "home" -> {
-                if (args.length < 4) return true;
+                if (args.length < 4) {
+                    CustomMessages.sendMessage(sender, "Error.notEnoughArgs");
+                    return true;
+                }
 
                 input = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
                 String finalInput = input;
 
-                AdvancedTeleportAPI.getOfflinePlayer(args[1]).whenComplete((player, err) ->
-                        MetadataSQLManager.get().addHomeMetadata(args[2], player.getUniqueId(), key, finalInput));
+                AdvancedTeleportAPI.getOfflinePlayer(args[1]).whenComplete((player, err) -> {
+                    if (err != null) {
+                        CustomMessages.sendMessage(sender, "Error.failedMapIconUpdate");
+                        err.printStackTrace();
+                        return;
+                    }
+
+                    MetadataSQLManager.get().addHomeMetadata(args[2], player.getUniqueId(), key, finalInput).whenComplete((result, err2) ->
+                            CustomMessages.failable(sender, successKey, "Error.failedMapIconUpdate", err2,
+                            Placeholder.unparsed("type", args[0]), Placeholder.unparsed("name", args[2])));
+                });
 
                 return true;
             }
             default -> {
+                CustomMessages.sendMessage(sender, "Error.invalidArgs");
                 return false;
             }
         }
 
-        completableFuture.thenAcceptAsync(result -> {
-            sender.sendMessage(String.valueOf(result));
+        completableFuture.whenComplete((result, err) -> {
+            CustomMessages.failable(sender, successKey, "Error.failedMapIconUpdate", err,
+                    Placeholder.unparsed("type", args[0]), Placeholder.unparsed("name", args[1]));
 
             PluginHookManager.get().getPluginHooks(MapPlugin.class, true).forEach(mapPlugin ->
                     mapPlugin.updateIcon(args[1], MapAssetManager.IconType.valueOf(args[0].toUpperCase()), null));

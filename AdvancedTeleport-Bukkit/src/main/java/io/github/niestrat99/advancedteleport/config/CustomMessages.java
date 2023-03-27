@@ -216,6 +216,8 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.blockFail", "<prefix> <gray>Failed to save the block against <aqua><player></aqua>!");
         addDefault("Error.unblockFail", "<prefix> <gray>Failed to save the block removal against <aqua><player></aqua>!");
         addDefault("Error.noParticlePlugins", "<prefix> <gray>There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
+        addDefault("Error.notEnoughArgs", "<prefix> <gray>You haven't specified enough arguments to run this command!");
+        addDefault("Error.failedMapIconUpdate", "<prefix> <gray>Failed to update the map icon! Please check the console for more information.");
 
         addDefault("Error.setWarpFail", "<prefix> <gray>Failed to set the warp <warp>!");
         addDefault("Error.teleportFailed", "<prefix> <gray>Sorry, we couldn't teleport you :(");
@@ -310,6 +312,11 @@ public final class CustomMessages extends ATConfig {
             <aqua>Title <dark_gray>» <gray><title>'><click:open_url:'https://www.spigotmc.org/resources/advancedteleport.64139/'><gray>AdvancedTeleport has an update available! Click/hover over this text for more information.</click></hover>""".trim());
         addDefault("Info.defaultParticlesUpdated", "<prefix> <gray>The default waiting particles have been set to your current particle setup!");
         addDefault("Info.specificParticlesUpdated", "<prefix> <gray>The waiting particles settings for <aqua><type></aqua>have been set to your current particle setup!");
+        addDefault("Info.mapIconUpdateClickTooltip", "<prefix> <gray>Updated click tooltip for <type> <aqua><name></aqua>! The map should update shortly.");
+        addDefault("Info.mapIconUpdateHoverTooltip", "<prefix> <gray>Updated hover tooltip for <type> <aqua><name></aqua>! The map should update shortly.");
+        addDefault("Info.mapIconUpdateIcon", "<prefix> <gray>Updated the icon for <type> <aqua><name></aqua>! The map should update shortly.");
+        addDefault("Info.mapIconUpdateSize", "<prefix> <gray>Updated the icon size for <type> <aqua><name></aqua>! The map should update shortly.");
+        addDefault("Info.mapIconUpdateVisibility", "<prefix> <gray>Updated the icon visibility for <type> <aqua><name></aqua>! The map should update shortly.");
 
         addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: <aqua><home>");
         addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: <aqua><warp>");
@@ -326,6 +333,11 @@ public final class CustomMessages extends ATConfig {
         addDefault("Descriptions.Subcommands.export", "Exports data within AT to another plugin.");
         addDefault("Descriptions.Subcommands.reload", "Reloads the plugin's configuration.");
         addDefault("Descriptions.Subcommands.clearcache", "Clears the RTP cache.");
+        addDefault("Descriptions.Subcommands.map.setclicktooltip", "Sets the tooltip of an AT icon in a map plugin when it is clicked (excluding Dynmap).");
+        addDefault("Descriptions.Subcommands.map.sethovertooltip", "Sets the tooltip of an AT icon in a map plugin when it is hovered over.");
+        addDefault("Descriptions.Subcommands.map.seticon", "Sets the image of an AT icon in a map plugin.");
+        addDefault("Descriptions.Subcommands.map.setsize", "Sets the size of an AT icon in a map plugin (excluding Dynmap).");
+        addDefault("Descriptions.Subcommands.map.setvisible", "Sets the visibility of an AT icon in a map plugin when it is clicked.");
         addDefault("Descriptions.at", "The core command for AT.");
         addDefault("Descriptions.tpa", "Sends a request to teleport to the player.");
         addDefault("Descriptions.tpahere", "Sends a request to the player to teleport to you.");
@@ -373,6 +385,11 @@ public final class CustomMessages extends ATConfig {
         addDefault("Usages.Subcommands.reload", "/at reload");
         addDefault("Usages.Subcommands.clearcache", "/at clearcache [World]");
         addDefault("Usages.Subcommands.particles", "/at particles [Tpa|Tpahere|Home|Tpr|Warp|Spawn|Back]");
+        addDefault("Usages.Subcommands.map.setclicktooltip", "/at map setclicktooltip <Home|Warp|Spawn> [Home Owner] <Tooltip>");
+        addDefault("Usages.Subcommands.map.sethovertooltip", "/at map sethovertooltip <Home|Warp|Spawn> [Home Owner] <Tooltip>");
+        addDefault("Usages.Subcommands.map.seticon", "/at map seticon <Home|Warp|Spawn> [Home Owner] <Image Name>");
+        addDefault("Usages.Subcommands.map.setsize", "/at map setsize <Home|Warp|Spawn> [Home Owner] <Image Size>");
+        addDefault("Usages.Subcommands.map.setvisible", "/at map setvisible <Home|Warp|Spawn> [Home Owner] <true|false>");
         addDefault("Usages.at", "/at <Command>");
         addDefault("Usages.tpa", "/tpa <Player>");
         addDefault("Usages.tpahere", "/tpahere <Player>");
