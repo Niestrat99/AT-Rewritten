@@ -914,6 +914,9 @@ public final class CustomMessages extends ATConfig {
             startCommandPointer = -1;
         }
 
+        // If we're building but at the end of the string, add everything remaining
+        if (building) result.append(format.substring(startTextPointer - 1));
+
         return result.toString();
     }
 
