@@ -23,10 +23,10 @@ public final class HelpCommand extends SubATCommand {
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command cmd,
-        @NotNull final String s,
-        @NotNull String[] args
+            @NotNull final CommandSender sender,
+            @NotNull final Command cmd,
+            @NotNull final String s,
+            @NotNull String[] args
     ) {
 
         // Form the list of commands and subcommands to gather.
@@ -39,75 +39,87 @@ public final class HelpCommand extends SubATCommand {
         if (args.length > 0) {
             switch (args[0].toLowerCase()) {
 
-            // Warps
-            case "warps" -> {
-                commands.add("warp");
-                commands.add("warps");
-                commands.add("movewarp");
-                commands.add("setwarp");
-                commands.add("delwarp");
-            }
-
-            // Teleportation
-            case "teleporting" -> {
-                commands.add("back");
-                commands.add("toggletp");
-                commands.add("tpa");
-                commands.add("tpahere");
-                commands.add("tpall");
-                commands.add("tpalist");
-                commands.add("tpblock");
-                commands.add("tpcancel");
-                commands.add("tploc");
-                commands.add("tpno");
-                commands.add("tpo");
-                commands.add("tpoff");
-                commands.add("tpoffline");
-                commands.add("tpofflinehere");
-                commands.add("tpohere");
-                commands.add("tpon");
-                commands.add("tpr");
-                commands.add("tpunblock");
-                commands.add("tpyes");
-            }
-
-            // Core commands
-            case "core" -> {
-                subcommands.add("import");
-                subcommands.add("help");
-                subcommands.add("export");
-                subcommands.add("info");
-                subcommands.add("reload");
-                subcommands.add("purge");
-            }
-
-            // Home commands
-            case "homes" -> {
-                commands.add("delhome");
-                commands.add("home");
-                commands.add("homes");
-                commands.add("movehome");
-                commands.add("sethome");
-                commands.add("setmainhome");
-            }
-
-            // Spawn commands
-            case "spawns" -> {
-                commands.add("mirrorspawn");
-                commands.add("removespawn");
-                commands.add("setmainspawn");
-                commands.add("setspawn");
-                commands.add("spawn");
-            }
-
-            // Anything that just isn't what we expect, such as a number
-            default -> {
-                if (args[0].matches("^\\d+$")) {
-                    page = Integer.parseInt(args[0]);
+                // Warps
+                case "warps" -> {
+                    commands.add("warp");
+                    commands.add("warps");
+                    commands.add("movewarp");
+                    commands.add("setwarp");
+                    commands.add("delwarp");
                 }
-                commands.addAll(CommandManager.registeredCommands.keySet());
-                subcommands.addAll(CommandManager.subcommands.keySet());
-            }
+
+                // Teleportation
+                case "teleporting" -> {
+                    commands.add("back");
+                    commands.add("toggletp");
+                    commands.add("tpa");
+                    commands.add("tpahere");
+                    commands.add("tpall");
+                    commands.add("tpalist");
+                    commands.add("tpblock");
+                    commands.add("tpcancel");
+                    commands.add("tploc");
+                    commands.add("tpno");
+                    commands.add("tpo");
+                    commands.add("tpoff");
+                    commands.add("tpoffline");
+                    commands.add("tpofflinehere");
+                    commands.add("tpohere");
+                    commands.add("tpon");
+                    commands.add("tpr");
+                    commands.add("tpunblock");
+                    commands.add("tpyes");
+                }
+
+                // Core commands
+                case "core" -> {
+                    subcommands.add("import");
+                    subcommands.add("help");
+                    subcommands.add("export");
+                    subcommands.add("info");
+                    subcommands.add("reload");
+                    subcommands.add("purge");
+                }
+
+                // Home commands
+                case "homes" -> {
+                    commands.add("delhome");
+                    commands.add("home");
+                    commands.add("homes");
+                    commands.add("movehome");
+                    commands.add("sethome");
+                    commands.add("setmainhome");
+                }
+
+                // Spawn commands
+                case "spawns" -> {
+                    commands.add("mirrorspawn");
+                    commands.add("removespawn");
+                    commands.add("setmainspawn");
+                    commands.add("setspawn");
+                    commands.add("spawn");
+                }
+
+                // Map commands
+                case "map" -> {
+                    subcommands.add("map.setclicktooltip");
+                    subcommands.add("map.sethovertooltip");
+                    subcommands.add("map.seticon");
+                    subcommands.add("map.setsize");
+                    subcommands.add("map.setvisible");
+                }
+
+                // Anything that just isn't what we expect, such as a number
+                default -> {
+                    if (args[0].matches("^\\d+$")) {
+                        page = Integer.parseInt(args[0]);
+                    }
+
+                    // Add everything
+                    commands.addAll(CommandManager.registeredCommands.keySet());
+                    subcommands.addAll(CommandManager.subcommands.keySet());
+                    MapCommand.getSubMapCommands().keySet().forEach(mapCommand -> subcommands.add("map." + mapCommand));
+                }
             }
 
             // If there's a section specified and the second argument is a number, treat it as a page.
@@ -119,6 +131,7 @@ public final class HelpCommand extends SubATCommand {
             // If no arguments were specified, add everything.
             commands.addAll(CommandManager.registeredCommands.keySet());
             subcommands.addAll(CommandManager.subcommands.keySet());
+            MapCommand.getSubMapCommands().keySet().forEach(mapCommand -> subcommands.add("map." + mapCommand));
         }
 
         // Pick out ones the user has permission to.
@@ -148,11 +161,11 @@ public final class HelpCommand extends SubATCommand {
 
         final var audience = CustomMessages.asAudience(sender);
         final var helpHeader = MiniMessage.miniMessage().deserialize(
-            "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・", // TODO: Allow customizing this in lang?
-            TagResolver.builder()
-                .tag("current_page", Tag.preProcessParsed(String.valueOf(page)))
-                .tag("total_pages", Tag.preProcessParsed(String.valueOf(commandList.getTotalPages())))
-                .build()
+                "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・", // TODO: Allow customizing this in lang?
+                TagResolver.builder()
+                        .tag("current_page", Tag.preProcessParsed(String.valueOf(page)))
+                        .tag("total_pages", Tag.preProcessParsed(String.valueOf(commandList.getTotalPages())))
+                        .build()
         );
 
         audience.sendMessage(helpHeader);
@@ -168,11 +181,11 @@ public final class HelpCommand extends SubATCommand {
             final var description = CustomMessages.getComponent("Descriptions." + command);
             // TODO: Make configurable and use suppliers instead of computing above.
             final var finalMessage = MiniMessage.miniMessage().deserialize(
-                "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>",
-                TagResolver.builder()
-                    .tag("usage", Tag.selfClosingInserting(commandUsage))
-                    .tag("description", Tag.selfClosingInserting(description))
-                    .build()
+                    "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>",
+                    TagResolver.builder()
+                            .tag("usage", Tag.selfClosingInserting(commandUsage))
+                            .tag("description", Tag.selfClosingInserting(description))
+                            .build()
             );
 
             audience.sendMessage(finalMessage);
@@ -184,13 +197,13 @@ public final class HelpCommand extends SubATCommand {
     @Override
     @Contract(pure = true)
     public @NotNull List<String> onTabComplete(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args
     ) {
         if (args.length != 1) return List.of();
 
-        return StringUtil.copyPartialMatches(args[0], Arrays.asList("core", "homes", "spawns", "teleporting", "warps"), new ArrayList<>());
+        return StringUtil.copyPartialMatches(args[0], Arrays.asList("core", "homes", "map", "spawns", "teleporting", "warps"), new ArrayList<>());
     }
 }

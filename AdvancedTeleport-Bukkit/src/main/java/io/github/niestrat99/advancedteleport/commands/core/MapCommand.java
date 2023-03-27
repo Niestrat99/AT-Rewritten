@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.commands.core.map.*;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -16,10 +17,9 @@ import java.util.List;
 
 public final class MapCommand extends SubATCommand {
 
-    private final HashMap<String, SubATCommand> subMapCommands;
+    private static final HashMap<String, SubATCommand> subMapCommands = new HashMap<>();
 
     public MapCommand() {
-        subMapCommands = new HashMap<>();
         subMapCommands.put("seticon", new SetIconCommand());
         subMapCommands.put("setclicktooltip", new SetClickTooltipCommand());
         subMapCommands.put("sethovertooltip", new SetHoverTooltipCommand());
@@ -37,12 +37,15 @@ public final class MapCommand extends SubATCommand {
     ) {
 
         // If there's no arguments, stop there
-        if (args.length == 0) return false;
+        if (args.length == 0) {
+            Bukkit.dispatchCommand(sender, "at help map");
+            return false;
+        }
 
         // Get the subcommand in question
-        SubATCommand subATCommand = this.subMapCommands.get(args[0].toLowerCase());
+        SubATCommand subATCommand = subMapCommands.get(args[0].toLowerCase());
         if (subATCommand == null) {
-
+            Bukkit.dispatchCommand(sender, "at help map");
             return false;
         }
 
@@ -55,14 +58,18 @@ public final class MapCommand extends SubATCommand {
 
         List<String> results = new ArrayList<>();
         if (args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], this.subMapCommands.keySet(), results);
+            StringUtil.copyPartialMatches(args[0], subMapCommands.keySet(), results);
             return results;
         }
 
         // Get the command completion from the subcommand
-        SubATCommand subATCommand = this.subMapCommands.get(args[0].toLowerCase());
+        SubATCommand subATCommand = subMapCommands.get(args[0].toLowerCase());
         if (subATCommand == null) return results;
 
         return subATCommand.onTabComplete(sender, command, s, Arrays.copyOfRange(args, 1, args.length));
+    }
+
+    public static HashMap<String, SubATCommand> getSubMapCommands() {
+        return subMapCommands;
     }
 }

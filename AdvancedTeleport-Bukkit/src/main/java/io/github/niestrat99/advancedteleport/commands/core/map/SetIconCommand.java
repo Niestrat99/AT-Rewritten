@@ -5,6 +5,6 @@ import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
 public final class SetIconCommand extends AbstractMapCommand {
 
     public SetIconCommand() {
-        super("map_icon", MapAssetManager.getImageNames());
+        super("map_icon", "Info.mapIconUpdateIcon", MapAssetManager.getImageNames());
     }
 }
