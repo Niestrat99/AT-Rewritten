@@ -80,18 +80,22 @@ public class SpawnSQLManager extends SQLManager {
         // Get the main spawn
         String mainSpawn = spawnsFile.getString("main-spawn");
 
-        // For each player found...
+        // For each spawnpoint found...
         for (String spawnName : spawns.getKeys(false)) {
 
-            // Get the config section representing their homes.
+            // Get the config section representing the spawn.
             ConfigurationSection spawnSection = spawns.getConfigurationSection(spawnName);
             if (spawnSection == null) continue;
 
-            // Get the world the home is in - but if it doesn't exist, ignore it
+            // See if they have a mirror_spawn option.
+            if (spawnSection.contains("mirror"))
+                MetadataSQLManager.get().mirrorSpawn(spawnName, spawnSection.getString("mirror"));
+
+            // Get the world the spawn is in - but if it doesn't exist, ignore it
             String world = spawnSection.getString("world");
             if (world == null) continue;
 
-            // Add the home to the database
+            // Add the spawn to the database.
             addSpawn(spawnName,
                     world,
                     null,
