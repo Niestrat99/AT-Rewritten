@@ -181,7 +181,6 @@ public final class MainConfig extends ATConfig {
         addDefault("per-command-warm-ups.spawn", "default", "Warm-up timer for /spawn");
         addDefault("per-command-warm-ups.home", "default", "Warm-up timer for /home");
         addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
-        makeSectionLenient("custom-warm-ups");
         addComment("Use this section to create custom warm-ups per-group.\n" +
             "Use the following format:\n" +
             "custom-warm-ups:\n" +
@@ -191,6 +190,7 @@ public final class MainConfig extends ATConfig {
             "You can also add at.member.timer.3, but this is more efficient if you find permissions lag." +
             "To make it per-command, use at.member.timer.<command>.vip-warm-up. To make it per-world, use at.member.timer.<world>.vip-warm-up.\n" +
             "To combine the two, you can use at.member.timer.<command>.<world>.vip-warm-up.");
+        makeSectionLenient("custom-warm-ups");
 
         addDefault("blindness-on-warmup", false, "Gives the teleporting player a blindness effect whilst waiting to " +
             "teleport.");
