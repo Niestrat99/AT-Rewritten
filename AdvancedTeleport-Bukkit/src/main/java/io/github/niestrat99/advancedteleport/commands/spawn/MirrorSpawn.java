@@ -64,7 +64,7 @@ public final class MirrorSpawn extends SpawnATCommand {
 
         fromSpawn.setMirroringSpawn(toSpawn, sender).whenCompleteAsync((v, e) ->
                 handleCommandFeedback(e, sender, "Info.mirroredSpawn", "Error.mirrorSpawnFail",
-                        Placeholder.unparsed("spawn", v.getMirroringSpawn().getName()),
+                        Placeholder.unparsed("spawn", v == null ? "[None]" : v.getName()),
                         Placeholder.unparsed("from", fromSpawn.getName())
                 ), CoreClass.sync);
         return true;
