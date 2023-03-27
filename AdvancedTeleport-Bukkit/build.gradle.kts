@@ -141,7 +141,7 @@ tasks {
         // Wait for slimJar to go through first
         dependsOn(slimJar)
 
-        // Set the version to 1.19.3
+        // Set the version to 1.19.4
         minecraftVersion("1.19.4")
 
         // Get the dev server folder
