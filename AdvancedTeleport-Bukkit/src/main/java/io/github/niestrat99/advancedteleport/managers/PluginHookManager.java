@@ -19,7 +19,6 @@ import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 import java.util.stream.Stream;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.hooks.particles.PlayerParticlesHook;
@@ -141,8 +140,13 @@ public final class PluginHookManager {
     }
 
     @Contract(pure = true)
-    public boolean floodgateEnabled() { // TODO - update to new recommended check
-        return Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate");
+    public boolean floodgateEnabled() {
+        try {
+            Class.forName("org.geysermc.floodgate.api.FloodgateApi");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     private <T> void addIcons(
