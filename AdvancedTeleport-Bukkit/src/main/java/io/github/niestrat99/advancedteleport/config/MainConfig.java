@@ -131,43 +131,40 @@ public final class MainConfig extends ATConfig {
         instance = this;
 
         addComment("Another comment at the very top for all you lads :)");
-        addDefault("use-basic-teleport-features", true, "Features", "Whether basic teleportation features should be " +
-                "enabled or not." +
-                "\nThis includes /tpa, /tpahere, /tpblock, /tpunblock and /back." +
-                "\nThis does not disable the command for other plugins - if you want other plugins to use the " +
-                "provided commands, use Bukkit's commands.yml file." +
-                "\nPlease refer to https://bukkit.gamepedia.com/Commands.yml for this!");
+        addDefault("use-basic-teleport-features", true, "Features", """
+                Whether basic teleportation features should be enabled or not.
+                This includes /tpa, /tpahere, /tpblock, /tpunblock and /back.
+                This does not disable the command for other plugins - if you want other plugins to use the provided commands, use Bukkit's commands.yml file.
+                Please refer to https://bukkit.gamepedia.com/Commands.yml for this!""");
 
         addDefault("use-warps", true, "Whether warps should be enabled in the plugin.");
         addDefault("use-spawn", true, "Whether the plugin should modify spawn/spawn properties.");
         addDefault("use-randomtp", true, "Whether the plugin should allow random teleportation.");
         addDefault("use-homes", true, "Whether homes should be enabled in the plugin.");
-        addDefault("disabled-commands", new ArrayList<>(), "The commands that AT should not register upon starting up" +
-                ".\n" +
-                "In other words, this gives up the command for other plugins to use.\n" +
-                "NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for anything to change.\n" +
-                "To use this section, use the following format:\n" +
-                "disabled-commands:\n" +
-                "- back");
+        addDefault("disabled-commands", new ArrayList<>(), """
+                The commands that AT should not register upon starting up.
+                In other words, this gives up the command for other plugins to use.
+                NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for anything to change.
+                To use this section, use the following format:
+                disabled-commands:
+                - back""");
 
         addSection("Teleport Requesting");
         addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
-        addDefault("allow-multiple-requests", true, "Whether or not the plugin should enable the use of multiple " +
-                "requests.\n" +
-                "When enabled, user 1 may get TPA requests from user 2 and 3, but user 1 is prompted to select a " +
-                "specific request.\n" +
-                "When this is disabled and user 1 receives requests from user 2 and then 3, they will only have user " +
-                "3's request to respond to.");
+        addDefault("allow-multiple-requests", true, """
+                Whether or not the plugin should enable the use of multiple requests.
+                When enabled, user 1 may get TPA requests from user 2 and 3, but user 1 is prompted to select a specific request.
+                When this is disabled and user 1 receives requests from user 2 and then 3, they will only have user 3's request to respond to.""");
         addDefault("notify-on-expire", true, "Let the player know when their request has timed out or been displaced " +
                 "by another user's request.\n" +
                 "Displacement only occurs when allow-multiple-requests is disabled.");
         // addDefault("tpa-restrict-movement-on", "requester");
         // addDefault("tpahere-restrict-movement-on", "requester");
 
-        addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", "The number of seconds it takes for the " +
-                "teleportation to take place following confirmation.\n" +
-                "(i.e. \"You will teleport in 3 seconds!\")\n" +
-                "This acts as the default option for the per-command warm-ups.");
+        addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", """
+                The number of seconds it takes for the teleportation to take place following confirmation.
+                (i.e. "You will teleport in 3 seconds!")
+                This acts as the default option for the per-command warm-ups.""");
         addDefault("cancel-warm-up-on-rotation", true, "Whether or not teleportation should be cancelled if the " +
                 "player rotates or moves.");
         addDefault("cancel-warm-up-on-movement", true, "Whether or not teleportation should be cancelled upon " +
@@ -181,43 +178,40 @@ public final class MainConfig extends ATConfig {
         addDefault("per-command-warm-ups.spawn", "default", "Warm-up timer for /spawn");
         addDefault("per-command-warm-ups.home", "default", "Warm-up timer for /home");
         addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
-        addComment("Use this section to create custom warm-ups per-group.\n" +
-            "Use the following format:\n" +
-            "custom-warm-ups:\n" +
-            "  vip-warm-up: 3\n" +
-            "Giving a group, such as VIP, the permission at.member.timer.vip-warm-up will have a warm-up of 3.\n" +
-            "The key (vip-warm-up) and group name (VIP) do not have to be different, this is just an example.\n" +
-            "You can also add at.member.timer.3, but this is more efficient if you find permissions lag." +
-            "To make it per-command, use at.member.timer.<command>.vip-warm-up. To make it per-world, use at.member.timer.<world>.vip-warm-up.\n" +
-            "To combine the two, you can use at.member.timer.<command>.<world>.vip-warm-up.");
+        addComment("""
+                Use this section to create custom warm-ups per-group.
+                Use the following format:
+                custom-warm-ups:
+                  vip-warm-up: 3
+                Giving a group, such as VIP, the permission at.member.timer.vip-warm-up will have a warm-up of 3.
+                The key (vip-warm-up) and group name (VIP) do not have to be different, this is just an example.
+                You can also add at.member.timer.3, but this is more efficient if you find permissions lag.To make it per-command, use at.member.timer.<command>.vip-warm-up. To make it per-world, use at.member.timer.<world>.vip-warm-up.
+                To combine the two, you can use at.member.timer.<command>.<world>.vip-warm-up.""");
         makeSectionLenient("custom-warm-ups");
 
         addDefault("blindness-on-warmup", false, "Gives the teleporting player a blindness effect whilst waiting to " +
             "teleport.");
 
-        addDefault("cooldown-duration", 5, "Cooldowns", "How long before the user can use a command again.\n" +
-            "This stops users spamming commands repeatedly.\n" +
-            "This is also the default cooldown period for all commands.");
+        addDefault("cooldown-duration", 5, "Cooldowns", """
+                How long before the user can use a command again.
+                This stops users spamming commands repeatedly.
+                This is also the default cooldown period for all commands.""");
         addDefault("add-cooldown-duration-to-warm-up", true, "Adds the warm-up duration to the cooldown duration.\n" +
             "For example, if the cooldown duration was 5 seconds but the warm-up was 3, the cooldown becomes 8 " +
             "seconds long.");
-        addDefault("apply-cooldown-to-all-commands", false, "Whether or not the cooldown of one command will stop a " +
-            "user from using all commands.\n" +
-            "For example, if a player used /tpa with a cooldown of 10 seconds but then used /tpahere with a " +
-            "cooldown of 5, the 10-second cooldown would still apply.\n" +
-            "On the other hand, if a player used /tpahere, the cooldown of 5 seconds would apply to /tpa and " +
-            "other commands.");
-        addDefault("apply-cooldown-after", "request", "When to apply the cooldown\n" +
-                "Options include:\n" +
-                "- request - Cooldown starts as soon as any teleport command is made and still applies even if no " +
-                "teleport takes place (i.e. cancelled by movement or not accepted).\n" +
-                "- accept - Cooldown starts only when the teleport request is accepted (with /tpyes) and still " +
-                "applies even if no teleport takes place (i.e. cancelled by movement).\n" +
-                "- teleport - Cooldown starts only when the teleport actually happens.\n" +
-                "Note:\n" +
-                "'request' and 'accept' behave the same for /rtp, /back, /spawn, /warp, and /home\n" +
-                "cooldown for /tpall always starts when the command is ran, regardless if any player accepts or " +
-                "teleports");
+        addDefault("apply-cooldown-to-all-commands", false, """
+                Whether or not the cooldown of one command will stop a user from using all commands.
+                For example, if a player used /tpa with a cooldown of 10 seconds but then used /tpahere with a cooldown of 5, the 10-second cooldown would still apply.
+                On the other hand, if a player used /tpahere, the cooldown of 5 seconds would apply to /tpa and other commands.""");
+        addDefault("apply-cooldown-after", "request", """
+                When to apply the cooldown
+                Options include:
+                - request - Cooldown starts as soon as any teleport command is made and still applies even if no teleport takes place (i.e. cancelled by movement or not accepted).
+                - accept - Cooldown starts only when the teleport request is accepted (with /tpyes) and still applies even if no teleport takes place (i.e. cancelled by movement).
+                - teleport - Cooldown starts only when the teleport actually happens.
+                Note:
+                'request' and 'accept' behave the same for /rtp, /back, /spawn, /warp, and /home
+                cooldown for /tpall always starts when the command is ran, regardless if any player accepts or teleports""");
 
         addComment("per-command-cooldowns", "Command-specific cooldowns.");
         addDefault("per-command-cooldowns.tpa", "default", "Cooldown for /tpa.");
@@ -230,28 +224,28 @@ public final class MainConfig extends ATConfig {
         // addDefault("per-command-cooldowns.sethome", "default", "Cooldown for /sethome");
         // addDefault("per-command-cooldowns.setwarp", "default", "Cooldown for /setwarp");
         makeSectionLenient("custom-cooldowns");
-        addComment("custom-cooldowns", "Use this section to create custom cooldowns per-group.\n" +
-                "Use the following format:\n" +
-                "custom-cooldowns:\n" +
-                "  vip-cooldown: 3\n" +
-                "Giving a group, such as VIP, the permission at.member.cooldown.vip-cooldown will have a cooldown of 3.\n" +
-                "The key (vip-cooldown) and group name (VIP) do not have to be different, this is just an example.\n" +
-                "You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag." +
-                "To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldren.\n" +
-                "To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.");
+        addComment("custom-cooldowns", """
+                Use this section to create custom cooldowns per-group.
+                Use the following format:
+                custom-cooldowns:
+                  vip-cooldown: 3
+                Giving a group, such as VIP, the permission at.member.cooldown.vip-cooldown will have a cooldown of 3.
+                The key (vip-cooldown) and group name (VIP) do not have to be different, this is just an example.
+                You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag.To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldren.
+                To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.""");
 
-        addDefault("cost-amount", 100.0, "Teleportation Costs", "The amount it costs to teleport somewhere." +
-                "\nIf you want to use Vault Economy, use 100.0 to charge $100." +
-                "\nIf you have multiple plugins hooking into Vault, enter the plugin name in front separated by a colon, e.g. Essentials:100.50" +
-                "\nDo note some plugins require Vault support to be toggled on manually." +
-                "\nIf you want to use Minecraft EXP points, use 10EXP for 10 EXP Points." +
-                "\nIf you want to use Minecraft EXP levels, use 5LVL for 5 levels." +
-                "\nIf you want to use items, use the format MATERIAL:AMOUNT or MATERIAL:AMOUNT:BYTE." +
-                "\nFor example, on 1.13+, ORANGE_WOOL:3 for 3 orange wool, but on versions before 1.13, WOOL:3:1." +
-                "\nIf you're on a legacy version and unsure on what byte to use, see https://minecraftitemids" +
-                ".com/types" +
-                "\nTo use multiple methods of charging, use a ; - e.g. '100.0;10LVL' for $100 and 10 EXP levels." +
-                "\nTo disable, just put an empty string, i.e. ''");
+        addDefault("cost-amount", 100.0, "Teleportation Costs", """
+                The amount it costs to teleport somewhere.
+                If you want to use Vault Economy, use 100.0 to charge $100.
+                If you have multiple plugins hooking into Vault, enter the plugin name in front separated by a colon, e.g. Essentials:100.50
+                Do note some plugins require Vault support to be toggled on manually.
+                If you want to use Minecraft EXP points, use 10EXP for 10 EXP Points.
+                If you want to use Minecraft EXP levels, use 5LVL for 5 levels.
+                If you want to use items, use the format MATERIAL:AMOUNT or MATERIAL:AMOUNT:BYTE.
+                For example, on 1.13+, ORANGE_WOOL:3 for 3 orange wool, but on versions before 1.13, WOOL:3:1.
+                If you're on a legacy version and unsure on what byte to use, see https://minecraftitemids.com/types
+                To use multiple methods of charging, use a ; - e.g. '100.0;10LVL' for $100 and 10 EXP levels.
+                To disable, just put an empty string, i.e. ''""");
 
         addComment("per-command-cost", "Command-specific costs.");
         addDefault("per-command-cost.tpa", "default", "Cost for /tpa.");
@@ -264,12 +258,13 @@ public final class MainConfig extends ATConfig {
         //addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
         //addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
         makeSectionLenient("custom-costs");
-        addComment("custom-costs", "Use this section to create custom costs per-group.\n" +
-                "Use the following format:\n" +
-                "custom-costs:\n" +
-                "  vip-cost: Essentials:100\n" +
-                "Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.\n" +
-                "To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.");
+        addComment("custom-costs", """
+                Use this section to create custom costs per-group.
+                Use the following format:
+                custom-costs:
+                  vip-cost: Essentials:100
+                Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.
+                To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.""");
 
         addDefault("use-particles", true, "Particles", "Whether particles should be used in the plugin.\n" +
                 "Some standalone implementation is used, but otherwise, PlayerParticles is used.");
@@ -330,10 +325,10 @@ public final class MainConfig extends ATConfig {
 
         addSection("Teleportation Limitations");
 
-        addComment("WARNING: A lot of the options below are considered advanced and use special syntax that is not " +
-                "often accepted in YAML.\n" +
-                "When using such options, wrap them in quotes: ''\n" +
-                "As an example, 'stop-teleportation-out:world,world_nether'");
+        addComment("""
+                WARNING: A lot of the options below are considered advanced and use special syntax that is not often accepted in YAML.
+                When using such options, wrap them in quotes: ''
+                As an example, 'stop-teleportation-out:world,world_nether'""");
 
         addDefault("enable-teleport-limitations", false,
                 "Enables teleport limitations. This means cross-world or even world teleportation can be limited " +
@@ -341,20 +336,15 @@ public final class MainConfig extends ATConfig {
         addDefault("monitor-all-teleports-limitations", false, "Whether or not all teleportation - not just AT's - " +
                 "should be checked to see if teleportation is allowed.");
 
-        addComment("world-rules", "The teleportation rules defined for each world.\n" +
-                "Rules include:\n" +
-                "- stop-teleportation-out - Stops players teleporting to another world when they are in this world.\n" +
-                "- stop-teleportation-within - Stops players teleporting within the world.\n" +
-                "- stop-teleportation-into - Stops players teleporting into this world.\n" +
-                "To combine multiple rules, use a ; - e.g. stop-teleportation-out;stop-teleportation-within\n" +
-                "For out and into rules, you can make it so that rules only initiate when in or going to a specific " +
-                "world using :, e.g. stop-teleportation-out:world stops players teleporting to \"world\" in the world" +
-                " they're currently in.\n" +
-                "To do the opposite (i.e. initiates the rule when users are not in the specified world), use !, e.g. " +
-                "stop-teleportation-into!world stops teleportation into a specific world if they are not in \"world\"" +
-                ". If ! and : are used in the same rule, then : is given top priority." +
-                "To make this rule work with multiple worlds, use a comma (,), e.g. stop-teleportation-into:world," +
-                "world_nether");
+        addComment("world-rules", """
+                The teleportation rules defined for each world.
+                Rules include:
+                - stop-teleportation-out - Stops players teleporting to another world when they are in this world.
+                - stop-teleportation-within - Stops players teleporting within the world.
+                - stop-teleportation-into - Stops players teleporting into this world.
+                To combine multiple rules, use a ; - e.g. stop-teleportation-out;stop-teleportation-within
+                For out and into rules, you can make it so that rules only initiate when in or going to a specific world using :, e.g. stop-teleportation-out:world stops players teleporting to "world" in the world they're currently in.
+                To do the opposite (i.e. initiates the rule when users are not in the specified world), use !, e.g. stop-teleportation-into!world stops teleportation into a specific world if they are not in "world". If ! and : are used in the same rule, then : is given top priority.To make this rule work with multiple worlds, use a comma (,), e.g. stop-teleportation-into:world,world_nether""");
 
         makeSectionLenient("world-rules");
         addDefault("world-rules.default", "stop-teleportation-within");
@@ -362,22 +352,18 @@ public final class MainConfig extends ATConfig {
         addExample("world-rules.world_nether", "stop-teleportation-into!world" /*, "Stops people teleporting into the
          Nether if they're not coming from \"world\"" */);
 
-        addComment("command-rules", "The teleportation rules defined for each AT command.\n" +
-                "Rules include:\n" +
-                "- override - The command will override world rules and run regardless.\n" +
-                "- ignore - The command will refuse to run regardless of world rules.\n" +
-                "To combine multiple rules, use a ;.\n" +
-                "To make rules behave differently in different worlds, use : to initiate the rule in a specific world" +
-                " (e.g. override:world to make the command override \"world\"'s rules.)\n" +
-                "To initiate rules outside of a specific world, use ! (e.g. override!world to make the command " +
-                "override world rules everywhere but in world)\n" +
-                "To use multiple worlds, use a comma (,).\n" +
-                "By default, all commands will comply with the world rules. If no rules are specified, they will " +
-                "comply.\n" +
-                "All worlds specified will be considered the world in which the player is currently in. For worlds " +
-                "being teleported to, add > to the start of the world name.\n" +
-                "For example, ignore:world,>world_nether will not run if the player is in \"world\" or if the player " +
-                "is going into the Nether.");
+        addComment("command-rules", """
+                The teleportation rules defined for each AT command.
+                Rules include:
+                - override - The command will override world rules and run regardless.
+                - ignore - The command will refuse to run regardless of world rules.
+                To combine multiple rules, use a ;.
+                To make rules behave differently in different worlds, use : to initiate the rule in a specific world (e.g. override:world to make the command override "world"'s rules.)
+                To initiate rules outside of a specific world, use ! (e.g. override!world to make the command override world rules everywhere but in world)
+                To use multiple worlds, use a comma (,).
+                By default, all commands will comply with the world rules. If no rules are specified, they will comply.
+                All worlds specified will be considered the world in which the player is currently in. For worlds being teleported to, add > to the start of the world name.
+                For example, ignore:world,>world_nether will not run if the player is in "world" or if the player is going into the Nether.""");
         addDefault("command-rules.tpa", "");
         addDefault("command-rules.tpahere", "");
         addDefault("command-rules.tpr", "");
@@ -391,18 +377,22 @@ public final class MainConfig extends ATConfig {
         addDefault("x.default", "5000;-5000");
         addExample("x.world_the_end", "10000;-10000");
         addComment("x",
-                "Defines the range of X coordinates that players can teleport to.\n" +
-                        "Using a value for example 5000 would automatically set the minimum to -5000.\n" +
-                        "These are able to be defined for each world by name.\n" +
-                        "Split the values with a semicolon (;).\n" +
-                        "If a world is defined here but not in the z section, the x values will be reused for the z coords.\n"
+                """
+                        Defines the range of X coordinates that players can teleport to.
+                        Using a value for example 5000 would automatically set the minimum to -5000.
+                        These are able to be defined for each world by name.
+                        Split the values with a semicolon (;).
+                        If a world is defined here but not in the z section, the x values will be reused for the z coords.
+                        """
         );
         addComment("z",
-                "Defines the range of z coordinates that players can teleport to.\n" +
-                        "Using a value for example 5000 would automatically set the minimum to -5000.\n" +
-                        "These are able to be defined for each world by name.\n" +
-                        "Split the values with a semicolon (;).\n" +
-                        "If a world is defined here but not in the x section, the z values will be reused for the x coords.\n"
+                """
+                        Defines the range of z coordinates that players can teleport to.
+                        Using a value for example 5000 would automatically set the minimum to -5000.
+                        These are able to be defined for each world by name.
+                        Split the values with a semicolon (;).
+                        If a world is defined here but not in the x section, the z values will be reused for the x coords.
+                        """
         );
         makeSectionLenient("z");
         addDefault("z.default", "5000;-5000");
@@ -411,13 +401,11 @@ public final class MainConfig extends ATConfig {
         addDefault("maximum-z", 5000, "Deprecated\n # The maximum Z coordinate to go up to when selecting a random location.");
         addDefault("minimum-x", -5000, "Deprecated\n # The minimum X coordinate to go down to when selecting a random location.");
         addDefault("minimum-z", -5000, "Deprecated\n # The minimum Z coordinate to go down to when selecting a random location.");
-        addDefault("use-rapid-response", true, "Use the new rapid response system for RTP.\n" +
-                "This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, " +
-                "meaning they are ready for use and can instantly TP a player.\n" +
-                "This feature allows you to use the \"tpr\" death option in the death management section further down" +
-                ".\n" +
-                "IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not " +
-                "considered safe to use on Spigot or Bukkit.");
+        addDefault("use-rapid-response", true, """
+                Use the new rapid response system for RTP.
+                This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.
+                This feature allows you to use the "tpr" death option in the death management section further down.
+                IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.""");
         addDefault("use-vanilla-border", false, "Whether the plugin should use the Vanilla world border as a viable " +
                 "option for managing /tpr boundaries.");
         addDefault("use-plugin-borders", true, "Whether the plugin should use plugin world borders for managing /tpr " +
@@ -536,19 +524,15 @@ public final class MainConfig extends ATConfig {
                 "Whether the player should be teleported to the spawnpoint every time they join.");
         addDefault("use-overworld", true, "If no main spawn has been set and the world being checked is in the Nether or End, use the Overworld spawn instead (if applicable).");
 
-        addComment("death-management", "Determines how and where players teleport when they die.\n" +
-                "Options include:\n" +
-                "- spawn - Teleports the player to the spawnpoint of either the world or specified by the plugin.\n" +
-                "- bed - Teleports to the player's bed.\n" +
-                "- anchor - 1.16+ only, teleports to the player's respawn anchor. However, due to limitations with " +
-                "Spigot's API, it may or may not always work. (add Player#getRespawnAnchor pls)\n" +
-                "- warp:Warp Name - Teleports the player to a specified warp. For example, if you want to teleport to" +
-                " Hub, you'd type warp:Hub\n" +
-                "- tpr - Teleports the player to a random location. Can only be used when the rapid response system " +
-                "is enabled." +
-                "- default - Uses the default respawn option, which is spawn unless set differently.\n" +
-                "If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set " +
-                "respawn-listener-priority in EssX's config.yml file to lowest.");
+        addComment("death-management", """
+                Determines how and where players teleport when they die.
+                Options include:
+                - spawn - Teleports the player to the spawnpoint of either the world or specified by the plugin.
+                - bed - Teleports to the player's bed.
+                - anchor - 1.16+ only, teleports to the player's respawn anchor. However, due to limitations with Spigot's API, it may or may not always work. (add Player#getRespawnAnchor pls)
+                - warp:Warp Name - Teleports the player to a specified warp. For example, if you want to teleport to Hub, you'd type warp:Hub
+                - tpr - Teleports the player to a random location. Can only be used when the rapid response system is enabled.- default - Uses the default respawn option, which is spawn unless set differently.
+                If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.""");
 
         makeSectionLenient("death-management");
         addDefault("death-management.default", "bed;spawn");
@@ -822,6 +806,7 @@ public final class MainConfig extends ATConfig {
         } else {
             for (String permission : defaults) {
                 Permission permObject = Bukkit.getPluginManager().getPermission(permission);
+                if (permObject == null) continue;
                 permObject.setDefault(PermissionDefault.OP);
             }
         }
@@ -899,13 +884,13 @@ public final class MainConfig extends ATConfig {
 
     public static class PerCommandOption<T> {
 
-        public ConfigOption<T> TPA;
-        public ConfigOption<T> TPAHERE;
-        public ConfigOption<T> TPR;
-        public ConfigOption<T> WARP;
-        public ConfigOption<T> SPAWN;
-        public ConfigOption<T> HOME;
-        public ConfigOption<T> BACK;
+        public final ConfigOption<T> TPA;
+        public final ConfigOption<T> TPAHERE;
+        public final ConfigOption<T> TPR;
+        public final ConfigOption<T> WARP;
+        public final ConfigOption<T> SPAWN;
+        public final ConfigOption<T> HOME;
+        public final ConfigOption<T> BACK;
 
         public PerCommandOption(
             String path,

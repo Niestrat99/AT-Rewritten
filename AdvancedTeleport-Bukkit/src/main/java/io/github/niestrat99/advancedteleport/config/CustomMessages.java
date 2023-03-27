@@ -797,8 +797,8 @@ public final class CustomMessages extends ATConfig {
     /**
      * Used to translate the legacy markdown format in pre-v6 versions.
      *
-     * @param format
-     * @return
+     * @param format the message to be translated.
+     * @return the message in MiniMessage format.
      */
     @ApiStatus.Internal
     private static @NotNull String translateMarkdown(String format) {

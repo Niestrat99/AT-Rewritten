@@ -100,7 +100,7 @@ public class MovementManager implements Listener {
             }
         };
         movement.put(uuid, movementtimer);
-        movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20);
+        movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20L);
         if (MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() || MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
             CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTP", Placeholder.unparsed("countdown", String.valueOf(warmUp)));
         } else {

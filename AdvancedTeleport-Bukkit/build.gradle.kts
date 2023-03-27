@@ -153,6 +153,7 @@ tasks {
         pluginJars(pluginsFolder.resolve("Spoofer.jar"))
         pluginJars(pluginsFolder.resolve("squaremap.jar"))
         pluginJars(pluginsFolder.resolve("PlayerParticles.jar"))
+        pluginJars(pluginsFolder.resolve("dynmap.jar"))
         pluginJars(getJarFile())
 
     }

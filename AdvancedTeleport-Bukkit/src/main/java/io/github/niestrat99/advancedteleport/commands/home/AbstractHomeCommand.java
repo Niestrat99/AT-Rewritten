@@ -28,8 +28,8 @@ public abstract class AbstractHomeCommand extends ATCommand {
         if (!(sender instanceof Player player)) return Collections.emptyList();
 
         if (player.hasPermission(getPermission()) && !args[0].isEmpty() && args.length == 2) {
-            if (!ATPlayer.isPlayerCached(args[0])) return Collections.emptyList();
             final var atTarget = ATPlayer.getPlayer(args[0]);
+            if (atTarget == null) return Collections.emptyList();
             return StringUtil.copyPartialMatches(args[1], atTarget.getHomes().keySet(), new ArrayList<>());
         }
 

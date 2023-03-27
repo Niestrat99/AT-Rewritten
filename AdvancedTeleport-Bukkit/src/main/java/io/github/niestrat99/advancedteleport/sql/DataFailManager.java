@@ -157,7 +157,7 @@ public class DataFailManager {
                     StringBuilder builder = new StringBuilder();
                     builder.append(fail.operation.name());
                     for (String data : fail.data) {
-                        builder.append(",").append(data.replaceAll(",", "\\,"));
+                        builder.append(",").append(data.replaceAll(",", "\\\\,"));
                     }
                     writer.write(builder.toString());
                     writer.write("\n");

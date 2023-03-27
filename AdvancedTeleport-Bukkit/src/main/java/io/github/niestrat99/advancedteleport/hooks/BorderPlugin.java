@@ -16,9 +16,9 @@ public abstract class BorderPlugin<P extends Plugin, R> extends PluginHook<P, R>
     @Contract(pure = true)
     protected BorderPlugin(
         @Nullable final String pluginName,
-        @Nullable final Class<?> provider
+        @Nullable final Class<R> provider
     ) {
-        super(pluginName);
+        super(pluginName, provider);
     }
 
     @Contract(pure = true)

@@ -13,7 +13,7 @@ import java.util.List;
  */
 public abstract class CommandRule {
 
-    protected @NotNull List<String> worlds;
+    protected final @NotNull List<String> worlds;
     protected boolean inclusive;
 
     protected CommandRule(@NotNull String commandRule) {

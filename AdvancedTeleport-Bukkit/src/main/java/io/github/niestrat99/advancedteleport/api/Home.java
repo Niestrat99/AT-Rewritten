@@ -91,7 +91,7 @@ public final class Home implements NamedLocation {
      * Sets the location of the house to a different location. This also updates the last updated timestamp.
      *
      * @param location The new location that the home will be set to.
-     * @return true if the move succeeded, false if it failed.
+     * @return a completable void of the task.
      */
     public @NotNull CompletableFuture<Void> move(
             @NotNull final Location location,

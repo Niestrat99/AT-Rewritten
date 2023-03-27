@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.hooks.claims;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
-import me.angeschossen.lands.api.integration.LandsIntegration;
+import me.angeschossen.lands.api.LandsIntegration;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
@@ -25,17 +25,17 @@ public final class LandsClaimHook extends ClaimPlugin<Plugin, Void> { // Stupid 
 
         // Get the lands integration
         if (lands == null) {
-            lands = new LandsIntegration(CoreClass.getInstance());
+            lands = LandsIntegration.of(CoreClass.getInstance());
         }
 
         // Returns true if the lands is active in the world.
-        return lands.getLandWorld(world) != null;
+        return true;
     }
 
     @Override
     @Contract(pure = true)
     public boolean isClaimed(@NotNull final Location location) {
         final var chunk = location.getChunk();
-        return lands.isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
+        return lands.getLandByChunk(chunk.getWorld(), chunk.getX(), chunk.getZ()) != null;
     }
 }

@@ -21,6 +21,8 @@ public class CoreCommand extends ATCommand {
         @NotNull final String s,
         @NotNull final String[] args
     ) {
+
+        // Grab the help subcommand in case we need it
         SubATCommand help = CommandManager.subcommands.get("help");
         if (!sender.hasPermission("at.member.core")) {
             CustomMessages.sendMessage(sender, "Error.noPermission");

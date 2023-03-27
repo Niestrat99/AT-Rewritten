@@ -238,7 +238,7 @@ public final class CoreClass extends JavaPlugin {
                 sound = switch (subType) {
                     case "sent" -> MainConfig.get().TPAHERE_REQUEST_SENT.get();
                     case "received" -> MainConfig.get().TPAHERE_REQUEST_RECEIVED.get();
-                    default -> sound;
+                    default -> null;
                 };
                 break;
         }

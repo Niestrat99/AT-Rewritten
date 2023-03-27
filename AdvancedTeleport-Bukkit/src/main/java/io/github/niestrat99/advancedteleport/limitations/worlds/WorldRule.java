@@ -10,7 +10,7 @@ import java.util.List;
 
 public abstract class WorldRule {
 
-    protected List<String> worlds;
+    protected final List<String> worlds;
     protected boolean inclusive = false;
 
     protected WorldRule(@NotNull String worldRule) {
