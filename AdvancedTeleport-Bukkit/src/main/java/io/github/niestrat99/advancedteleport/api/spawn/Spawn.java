@@ -123,7 +123,7 @@ public class Spawn implements NamedLocation {
 
             // Update it in the database
             return MetadataSQLManager.get().mirrorSpawn(this.getName(), event.getDestinationSpawn() == null ? null : event.getDestinationSpawn().getName())
-                    .thenApplyAsync(result -> event.getDestinationSpawn());
+                    .thenApplyAsync(result -> this.mirroringSpawn);
         });
     }
 
