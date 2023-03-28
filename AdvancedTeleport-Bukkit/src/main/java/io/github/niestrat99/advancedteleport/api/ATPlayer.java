@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -54,7 +55,9 @@ import java.util.function.BiFunction;
 public class ATPlayer {
 
     private static final @NotNull HashMap<String, ATPlayer> players = new HashMap<>();
+    protected @NotNull WeakReference<OfflinePlayer> player;
     protected @NotNull UUID uuid;
+    protected @NotNull String name;
     private final @NotNull PendingData<LinkedHashMap<String, @NotNull Home>> homes;
     private final @NotNull PendingData<HashMap<UUID, @NotNull BlockInfo>> blockedUsers;
     private final @NotNull PendingData<Boolean> isTeleportationEnabled;
@@ -65,7 +68,7 @@ public class ATPlayer {
      * Internal use only.
      */
     public ATPlayer(@NotNull Player player) {
-        this(player.getUniqueId(), player.getName());
+        this(player, player.getName(), player.getUniqueId());
     }
 
     /**
@@ -73,10 +76,13 @@ public class ATPlayer {
      */
     @ApiStatus.Internal
     public ATPlayer(
-        @NotNull final UUID uuid,
-        @NotNull final String name
+            @NotNull final OfflinePlayer player,
+            @NotNull final String name,
+            @NotNull final UUID uuid
     ) {
+        this.player = new WeakReference<>(player);
         this.uuid = uuid;
+        this.name = name;
 
         // Set up homes data
         this.homes = new PendingData<>(CompletableFuture.supplyAsync(() -> HomeSQLManager.get().getHomes(uuid.toString()), CoreClass.async)
@@ -121,7 +127,7 @@ public class ATPlayer {
      */
     @Contract(pure = true)
     public @NotNull OfflinePlayer getOfflinePlayer() {
-        return Bukkit.getOfflinePlayer(uuid);
+        return Objects.requireNonNullElseGet(player.get(), () -> Bukkit.getOfflinePlayer(uuid));
     }
 
     /*
@@ -205,7 +211,9 @@ public class ATPlayer {
      */
     @Contract(pure = true)
     public @Nullable Player getPlayer() {
-        return Bukkit.getPlayer(uuid);
+        OfflinePlayer offlinePlayer = player.get();
+        if (offlinePlayer == null) return Bukkit.getPlayer(uuid);
+        return offlinePlayer.getPlayer();
     }
 
     /**
@@ -849,7 +857,10 @@ public class ATPlayer {
     public static @NotNull ATPlayer getPlayer(@NotNull final Player player) {
 
         // If the player is cached, return the cached player
-        if (players.containsKey(player.getName().toLowerCase())) return players.get(player.getName().toLowerCase());
+        if (players.containsKey(player.getName().toLowerCase())) {
+
+            return players.get(player.getName().toLowerCase());
+        }
 
         // If floodgate is on the server, see if they're a Bedrock player - if so, initiate them as a Floodgate player
         if (PluginHookManager.get().floodgateEnabled()) {
@@ -879,7 +890,7 @@ public class ATPlayer {
 
         // If the player is cached, get the cached object, otherwise create a new one.
         return players.containsKey(name.toLowerCase()) ? players.get(name.toLowerCase()) :
-                new ATPlayer(player.getUniqueId(), name);
+                new ATPlayer(player, name, player.getUniqueId());
     }
 
     /**
@@ -896,7 +907,7 @@ public class ATPlayer {
         }
 
         // Create the player object on an alternative thread
-        AdvancedTeleportAPI.getOfflinePlayer(name).whenComplete((player, err) -> new ATPlayer(player.getUniqueId(), name));
+        AdvancedTeleportAPI.getOfflinePlayer(name).whenComplete((player, err) -> new ATPlayer(player, name, player.getUniqueId()));
 
         return null;
     }
@@ -916,7 +927,11 @@ public class ATPlayer {
         }
 
         // Create the player object on an alternative thread
-        return AdvancedTeleportAPI.getOfflinePlayer(name).thenApplyAsync(player -> new ATPlayer(player.getUniqueId(), name), CoreClass.sync);
+        return AdvancedTeleportAPI.getOfflinePlayer(name).thenApplyAsync(player -> new ATPlayer(player, name, player.getUniqueId()), CoreClass.sync);
+    }
+
+    public static void relog(Player player) {
+        
     }
 
     /**
