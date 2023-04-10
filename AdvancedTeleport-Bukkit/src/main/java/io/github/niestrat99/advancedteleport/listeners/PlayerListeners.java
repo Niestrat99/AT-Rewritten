@@ -24,8 +24,8 @@ public final class PlayerListeners implements Listener {
         // Don't track if the player is an NPC
         if (event.getPlayer().hasMetadata("NPC")) return;
 
-        // This will load the associated player data
-        ATPlayer.getPlayer(event.getPlayer());
+        // This will load/relog the associated player data
+        ATPlayer.relog(event.getPlayer());
 
         // Update their username if it has been changed
         PlayerSQLManager.get().updatePlayerData(event.getPlayer());
