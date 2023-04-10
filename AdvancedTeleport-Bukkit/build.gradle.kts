@@ -186,12 +186,6 @@ tasks {
         dependsOn(jar)
         dependsOn(inspectClassesForKotlinIC)
     }
-
-    create("tryChangelog") {
-        doFirst {
-            println(getCogChangelog())
-        }
-    }
 }
 
 // Lead development use only.
@@ -539,7 +533,9 @@ fun getCogChangelog(): String {
         .map { process ->
             if (process.exitValue() != 0) ""
             else process.inputStream.bufferedReader().use(BufferedReader::readText)
-        }.getOrDefault("")
+        }
+        .onFailure { "" }
+        .getOrDefault("")
 }
 
 // Lead development use only.
