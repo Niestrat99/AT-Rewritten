@@ -930,8 +930,16 @@ public class ATPlayer {
         return AdvancedTeleportAPI.getOfflinePlayer(name).thenApplyAsync(player -> new ATPlayer(player, name, player.getUniqueId()), CoreClass.sync);
     }
 
-    public static void relog(Player player) {
-        
+    public static void relog(@NotNull Player player) {
+
+        // If the player is cached, just return it
+        if (players.containsKey(player.getName())) {
+            players.get(player.getName()).player = new WeakReference<>(player);
+            return;
+        }
+
+        // Create a new player
+        new ATPlayer(player);
     }
 
     /**
