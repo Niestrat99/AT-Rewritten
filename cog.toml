@@ -1,5 +1,5 @@
 post_bump_hooks = [
-    "bash -c \"scripts/post-bump.sh {{version}}\"",
+    "scripts/post-bump.sh {{version}}",
     "./gradlew AdvancedTeleport-Bukkit:modrinth"
 ]
 
