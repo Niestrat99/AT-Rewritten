@@ -2,6 +2,20 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v6.0.0-beta.2](https://github.com/Niestrat99/AT-Rewritten/compare/v6.0.0-beta.1..v6.0.0-beta.2) - 2023-04-11
+#### Bug Fixes
+- change repo owner to Niestrat99 - ([4eca7a2](https://github.com/Niestrat99/AT-Rewritten/commit/4eca7a284e5c5de98f1ed9ba545d39d34a9c1129)) - Thatsmusic99
+- u wanna work? - ([6333a89](https://github.com/Niestrat99/AT-Rewritten/commit/6333a89d75627b3126679728feb1b04b0cda2d93)) - Thatsmusic99
+- Weak player referencing (#102) - ([bace4d2](https://github.com/Niestrat99/AT-Rewritten/commit/bace4d2647728451a6febf77ead4a23ea065f8f5)) - TM (Holly)
+#### Development/Build Changes
+- remove pre-bump hooks temporarily - ([ec3081c](https://github.com/Niestrat99/AT-Rewritten/commit/ec3081cd70fcff02ca88dfd2bdc28c1806048e58)) - Thatsmusic99
+- apparently not - ([300bbb5](https://github.com/Niestrat99/AT-Rewritten/commit/300bbb54841ffb6b1d1c1c83ac3a8fb5dd59edfe)) - Thatsmusic99
+- make internal tweaks - ([34e7d52](https://github.com/Niestrat99/AT-Rewritten/commit/34e7d5258e8ea36221f78baa86eeed4ae795d9b6)) - Thatsmusic99
+- remove changelog task - ([ea71504](https://github.com/Niestrat99/AT-Rewritten/commit/ea71504361b85eaa1701262b7610bd69ba950de4)) - Thatsmusic99
+- add codeql to github repo (#103) - ([da0950b](https://github.com/Niestrat99/AT-Rewritten/commit/da0950bb1c830355e037e0e50670f28db0bad830)) - TM (Holly)
+
+- - -
+
 ## [v6.0.0-alpha.1](https://github.com/Thatsmusic99/AT-Rewritten/compare/v6.0.0-alpha.9..v6.0.0-alpha.1) - 2022-12-27
 #### Bug Fixes
 - wrong directory being ignored - ([76d8243](https://github.com/Thatsmusic99/AT-Rewritten/commit/76d8243641790d5821be0d9f1b32399617f58b97)) - Thatsmusic99
