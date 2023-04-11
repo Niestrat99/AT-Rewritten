@@ -1,5 +1,4 @@
 pre_bump_hooks = [
-    "echo hello?",
     "./gradlew AdvancedTeleport-Bukkit:slimJar",
     "bash -c \"scripts/pre-bump.sh {{latest}} {{version}}\""
 ]
