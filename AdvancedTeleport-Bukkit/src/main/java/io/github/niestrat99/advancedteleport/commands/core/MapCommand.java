@@ -49,6 +49,12 @@ public final class MapCommand extends SubATCommand {
             return false;
         }
 
+        // Check permissions
+        if (!sender.hasPermission("at.member.core.map." + args[0].toLowerCase())) {
+            Bukkit.dispatchCommand(sender, "at help map");
+            return false;
+        }
+
         // Execute
         return subATCommand.onCommand(sender, command, s, Arrays.copyOfRange(args, 1, args.length));
     }
@@ -58,7 +64,7 @@ public final class MapCommand extends SubATCommand {
 
         List<String> results = new ArrayList<>();
         if (args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], subMapCommands.keySet(), results);
+            StringUtil.copyPartialMatches(args[0], subMapCommands.keySet().stream().filter(key -> sender.hasPermission("at.member.core.map." + key)).toList(), results);
             return results;
         }
 

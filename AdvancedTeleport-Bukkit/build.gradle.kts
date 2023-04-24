@@ -432,6 +432,33 @@ bukkit {
 
     permissions {
 
+        register(("at.member.core.map.*")) {
+            default = BukkitPluginDescription.Permission.Default.OP
+            childrenMap = mapOf(
+                "at.member.core.map.setclicktooltip" to true,
+                "at.member.core.map.sethovertooltip" to true,
+                "at.member.core.map.seticon" to true,
+                "at.member.core.map.setsize" to true,
+                "at.member.core.map.setvisible" to true
+            )
+        }
+
+        register("at.member.core.*") {
+            default = BukkitPluginDescription.Permission.Default.OP
+            childrenMap = mapOf(
+                "at.member.core.clearcache" to true,
+                "at.member.core.export" to true,
+                "at.member.core.help" to true,
+                "at.member.core.import" to true,
+                "at.member.core.info" to true,
+                "at.member.core.map" to true,
+                "at.member.core.particles" to true,
+                "at.member.core.purge" to true,
+                "at.member.core.reload" to true,
+                "at.member.core.map.*" to true
+            )
+        }
+
         register("at.member.warp.*") {
             default = BukkitPluginDescription.Permission.Default.OP
         }
