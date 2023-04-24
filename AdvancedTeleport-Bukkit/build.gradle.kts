@@ -577,6 +577,6 @@ fun getReleaseType(): String {
 fun getJarFile(): File {
 
     // Get the jar file
-    val fileName = project.name + "-" + project.version.toString() + ".jar"
+    val fileName = project.name + "-" + project.version.toString() + "-all.jar"
     return tasks.slimJar.get().buildDirectory.resolve("libs").resolve(fileName)
 }
