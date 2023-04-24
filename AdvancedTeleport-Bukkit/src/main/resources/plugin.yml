@@ -153,6 +153,16 @@ commands:
     usage: /tpofflinehere <Player>
     aliases: [tpofflh, tpofflhere]
 permissions:
+  at.member.core.*:
+    default: op
+    children:
+      at.member.core.clearcache: true
+      at.member.core.export: true
+      at.member.core.help: true
+      at.member.core.import: true
+      at.member.core.info: true
+      at.member.core.purge: true
+      at.member.core.reload: true
   at.member.warp.*:
     default: op
   at.member.spawn:
