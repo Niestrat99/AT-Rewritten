@@ -540,7 +540,7 @@ public final class MainConfig extends ATConfig {
         addExample("death-management.special-world", "warp:Special");
         addExample("death-management.another-world", "bed");
 
-        addDefault("default-permissions", new ArrayList<>(Arrays.asList("at.member.*", "at.member.warp.*", "at.member.warp.sign.*")),
+        addDefault("default-permissions", new ArrayList<>(Arrays.asList("at.member.*", "at.member.warp.*", "at.member.warp.sign.*", "at.member.core.help", "at.member.core.info")),
                 "Permissions",
                 """
                         The default permissions given to users without OP.
