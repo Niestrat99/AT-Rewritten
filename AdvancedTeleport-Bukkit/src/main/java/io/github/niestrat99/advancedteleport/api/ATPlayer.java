@@ -863,7 +863,7 @@ public class ATPlayer {
         }
 
         // If floodgate is on the server, see if they're a Bedrock player - if so, initiate them as a Floodgate player
-        if (PluginHookManager.get().floodgateEnabled()) {
+        if (MainConfig.get().USE_FLOODGATE_FORMS.get() && PluginHookManager.get().floodgateEnabled()) {
             org.geysermc.floodgate.api.FloodgateApi api = org.geysermc.floodgate.api.FloodgateApi.getInstance();
             if (api == null) {
                 CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
