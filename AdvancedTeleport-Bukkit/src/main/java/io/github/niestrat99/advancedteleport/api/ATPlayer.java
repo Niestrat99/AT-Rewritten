@@ -107,16 +107,6 @@ public class ATPlayer {
         this.previousLoc = new PendingData<>(CompletableFuture.supplyAsync(() -> PlayerSQLManager.get().getPreviousLocation(name), CoreClass.async));
         this.isTeleportationEnabled = new PendingData<>(CompletableFuture.supplyAsync(() -> PlayerSQLManager.get().isTeleportationOn(uuid), CoreClass.async));
 
-        if (PluginHookManager.get().floodgateEnabled()) {
-            org.geysermc.floodgate.api.FloodgateApi api = org.geysermc.floodgate.api.FloodgateApi.getInstance();
-            if (api == null) {
-                CoreClass.getInstance().getLogger().severe("Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
-                return;
-            }
-            if (api.isFloodgateId(uuid)) this.uuid = api.getPlayer(uuid).getCorrectUniqueId();
-        }
-
-
         players.put(name.toLowerCase(), this);
     }
 
