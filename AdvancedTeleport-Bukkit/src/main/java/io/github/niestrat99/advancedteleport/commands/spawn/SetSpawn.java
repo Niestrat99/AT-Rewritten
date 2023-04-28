@@ -1,19 +1,20 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.config.Spawn;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class SetSpawn implements AsyncATCommand {
+public class SetSpawn implements ATCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, String[] args) {
 
         if (!(sender instanceof Player)) {
             CustomMessages.sendMessage(sender, "Error.notAPlayer");

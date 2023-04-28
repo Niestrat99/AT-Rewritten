@@ -4,7 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
+public class HomeCommand extends AbstractHomeCommand implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -54,7 +54,7 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
 
             if (NewConfig.get().SHOW_HOMES_WITH_NO_INPUT.get() &&
                     !(atPlayer.hasMainHome() && NewConfig.get().PRIORITISE_MAIN_HOME.get())) {
-                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes"));
+                Bukkit.dispatchCommand(sender, "advancedteleport:homes");
             } else if (atPlayer.hasMainHome()) {
                 teleport(player, atPlayer.getMainHome());
             } else if (homes.size() == 1) {
@@ -84,7 +84,7 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
             return true;
         }
         if (args.length > 1 && sender.hasPermission("at.admin.home")) {
-            ATPlayer.getPlayerFuture(args[0]).thenAccept(target -> {
+            ATPlayer.getPlayerFuture(args[0]).thenAcceptAsync(target -> {
                 HashMap<String, Home> homesOther = target.getHomes();
                 Home home;
                 switch (args[1].toLowerCase()) {
@@ -105,7 +105,7 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                         }
                         break;
                     case "list":
-                        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+                        Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]);
                         return;
                     default:
                         if (homesOther.containsKey(args[1])) {
@@ -115,11 +115,10 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                             return;
                         }
                 }
-                Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
-                    PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
-                });
-            });
+
+                PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther", "{player}", args[0], "{home}", args[1]);
+            }, CoreClass.sync);
         }
 
         Home home;
@@ -132,7 +131,7 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
                 return true;
             }
         } else if (args[0].equalsIgnoreCase("list")) {
-            Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+            Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]);
             return true;
         } else if (NewConfig.get().SHOW_HOMES_WITH_NO_INPUT.get()) {
             player.performCommand("advancedteleport:homes");
@@ -151,15 +150,13 @@ public class HomeCommand extends AbstractHomeCommand implements AsyncATCommand {
     }
 
     public static void teleport(Player player, Home home) {
-        Bukkit.getScheduler().runTask(CoreClass.getInstance(), () -> {
-            ATTeleportEvent event = new ATTeleportEvent(
-                    player,
-                    home.getLocation(),
-                    player.getLocation(),
-                    home.getName(),
-                    ATTeleportEvent.TeleportType.HOME
-            );
-            ATPlayer.getPlayer(player).teleport(event, "home", "Teleport.teleportingToHome", NewConfig.get().WARM_UPS.HOME.get());
-        });
+        ATTeleportEvent event = new ATTeleportEvent(
+                player,
+                home.getLocation(),
+                player.getLocation(),
+                home.getName(),
+                ATTeleportEvent.TeleportType.HOME
+        );
+        ATPlayer.getPlayer(player).teleport(event, "home", "Teleport.teleportingToHome", NewConfig.get().WARM_UPS.HOME.get());
     }
 }

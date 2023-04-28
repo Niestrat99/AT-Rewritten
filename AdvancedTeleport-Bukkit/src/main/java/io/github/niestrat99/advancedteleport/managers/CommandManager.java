@@ -137,14 +137,7 @@ public class CommandManager {
             commands.put("advancedteleport:" + name, command);
         }
 
-        if (atCommand instanceof AsyncATCommand) {
-            command.setExecutor((sender, cmd, label, args) -> {
-                Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> atCommand.onCommand(sender, cmd, label, args));
-                return true;
-            });
-        } else {
-            command.setExecutor(atCommand);
-        }
+        command.setExecutor(atCommand);
         command.setTabCompleter(atCommand);
         registeredCommands.put(name, command);
     }

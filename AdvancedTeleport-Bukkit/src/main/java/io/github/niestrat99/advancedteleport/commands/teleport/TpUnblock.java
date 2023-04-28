@@ -2,7 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
@@ -13,7 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class TpUnblock implements AsyncATCommand {
+public class TpUnblock implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {

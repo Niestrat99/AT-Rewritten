@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.NewConfig;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TpList implements AsyncATCommand {
+public class TpList implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {

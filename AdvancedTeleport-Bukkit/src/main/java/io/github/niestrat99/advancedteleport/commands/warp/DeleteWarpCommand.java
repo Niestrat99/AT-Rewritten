@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.commands.AsyncATCommand;
+import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import org.bukkit.command.Command;
@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class DeleteWarpCommand extends AbstractWarpCommand implements AsyncATCommand {
+public class DeleteWarpCommand extends AbstractWarpCommand implements ATCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String s, @NotNull String[] args) {
