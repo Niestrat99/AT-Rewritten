@@ -151,8 +151,11 @@ public class CommandManager {
             }
         }
 
-        command.setExecutor(atCommand);
-        command.setTabCompleter(atCommand);
+        if (command.getExecutor() != atCommand) {
+            command.setExecutor(atCommand);
+            command.setTabCompleter(atCommand);
+        }
+
         registeredCommands.put(name, command);
     }
 
