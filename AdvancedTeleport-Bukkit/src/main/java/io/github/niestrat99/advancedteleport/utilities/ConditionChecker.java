@@ -87,7 +87,7 @@ public class ConditionChecker {
         if (MainConfig.get().ENABLE_TELEPORT_LIMITATIONS.get()
                 && !teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
             CoreClass.debug("Teleportation limits are enabled and the player is not bypassing them.");
-            if (!MainConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return "";
+            if (!MainConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return null;
             if (!LimitationsManager.canTeleport(teleportingPlayer, toLoc, command)) {
                 return "Error.cantTPToWorldLim";
             }
