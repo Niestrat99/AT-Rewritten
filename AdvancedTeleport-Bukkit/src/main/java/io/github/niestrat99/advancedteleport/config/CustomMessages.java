@@ -3,6 +3,8 @@ package io.github.niestrat99.advancedteleport.config;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -361,12 +363,13 @@ public class CustomMessages extends ATConfig {
 
     public static void sendMessage(CommandSender sender, String path, String... placeholders) {
         if (config == null) return;
-        if (supportsTitles() && sender instanceof Player) {
+        if (sender instanceof Player) {
             Player player = (Player) sender;
 
             ConfigSection titles = config.getConfigSection(path + "_title");
             ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
-            if (titles != null || subtitles != null) {
+            ConfigSection actionBars = config.getConfigSection(path + "_actionbar");
+            if (titles != null || subtitles != null || actionBars != null) {
 
                 // Fade in, stay, out
                 int[] titleInfo = new int[]{0, 0, 0};
@@ -382,6 +385,7 @@ public class CustomMessages extends ATConfig {
                     private int current = 0;
                     private String previousTitle = null;
                     private String previousSubtitle = null;
+                    private String previousActionBar = null;
 
                     @Override
                     public void run() {
@@ -391,18 +395,21 @@ public class CustomMessages extends ATConfig {
                         }
                         String title = null;
                         String subtitle = null;
-                        if (titles != null) {
-                            title = titles.getString(String.valueOf(current));
-                        }
-                        if (subtitles != null) {
-                            subtitle = subtitles.getString(String.valueOf(current));
-                        }
+                        String actionBar = null;
 
-                        player.sendTitle(title == null ? previousTitle : (previousTitle = translateString(title, placeholders)),
-                                subtitle == null ? previousSubtitle : (previousSubtitle = translateString(subtitle, placeholders)),
+                        if (titles != null) title = titles.getString(String.valueOf(current));
+                        if (subtitles != null) subtitle = subtitles.getString(String.valueOf(current));
+                        if (actionBars != null) actionBar = actionBars.getString(String.valueOf(current));
+
+                        sendTitle(player,
+                                title == null ? previousTitle : (previousTitle = title),
+                                subtitle == null ? previousSubtitle : (previousSubtitle = subtitle),
                                 titleInfo[0],
                                 titleInfo[1] - current,
-                                titleInfo[2]);
+                                titleInfo[2],
+                                placeholders);
+
+                        sendActionBar(player, actionBar == null ? previousActionBar : (previousActionBar = actionBar), placeholders);
 
                         current++;
                     }
@@ -411,26 +418,41 @@ public class CustomMessages extends ATConfig {
                 runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
         }
+
         if (config.get(path) instanceof List) {
             List<String> messages = config.getStringList(path);
             for (int i = 0; i < messages.size(); i++) {
+                if (messages.get(i).isEmpty()) continue;
                 getFancyMessage(translateString(messages.get(i), placeholders)).sendProposal(sender, i);
             }
         } else {
             String[] messages = translateString(config.getString(path), placeholders).split("\n");
             for (int i = 0; i < messages.length; i++) {
+                if (messages[i].isEmpty()) continue;
                 getFancyMessage(messages[i]).sendProposal(sender, i);
             }
         }
         FancyMessage.send(sender);
     }
 
-    private static boolean supportsTitles() {
+    private static void sendTitle(Player player, String title, String subtitle, int fadeIn, int length, int fadeOut, String... placeholders) {
         try {
-            Player.class.getDeclaredMethod("sendTitle", String.class, String.class, int.class, int.class, int.class);
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
+            player.sendTitle(translateString(title, placeholders), translateString(subtitle, placeholders), fadeIn, length, fadeOut);
+        } catch (NoSuchMethodError e) {
+            try {
+                player.sendTitle(title, subtitle);
+            } catch (NoSuchMethodError ignored) {
+            }
+        }
+    }
+
+    private static void sendActionBar(Player player, String text, String... placeholders) {
+        try {
+            // chad paper
+            player.sendActionBar(translateString(text, placeholders));
+        } catch (NoSuchMethodError e) {
+            // virgin spigot
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(translateString(text, placeholders)));
         }
     }
 
