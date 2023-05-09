@@ -17,6 +17,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -513,10 +514,11 @@ public final class CustomMessages extends ATConfig {
         @Nullable final TagResolver... placeholders
     ) {
         if (config == null) return;
-        if (supportsTitles() && sender instanceof Player player) {
+        if (sender instanceof Player player) {
             ConfigSection titles = config.getConfigSection(path + "_title");
             ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
-            if (titles != null || subtitles != null) {
+            ConfigSection actionBars = config.getConfigSection(path + "_actionbar");
+            if (titles != null || subtitles != null || actionBars != null) {
 
                 // Fade in, stay, out
                 int[] titleInfo = new int[]{0, 0, 0};
@@ -532,6 +534,7 @@ public final class CustomMessages extends ATConfig {
                     private int current = 0;
                     @Nullable private Component previousTitle = null;
                     @Nullable private Component previousSubtitle = null;
+                    @Nullable private Component previousActionBar = null;
 
                     @Override
                     public void run() {
@@ -542,14 +545,12 @@ public final class CustomMessages extends ATConfig {
 
                         String title = null;
                         String subtitle = null;
+                        String actionbar = null;
 
-                        if (titles != null) {
-                            title = titles.getString(String.valueOf(current));
-                        }
+                        if (titles != null) title = titles.getPath() + "." + current;
+                        if (subtitles != null) subtitle = subtitles.getPath() + "." + current;
+                        if (actionBars != null) actionbar = actionBars.getPath() + "." + current;
 
-                        if (subtitles != null) {
-                            subtitle = subtitles.getString(String.valueOf(current));
-                        }
 
                         asAudience(player).showTitle(
                                 Title.title(
@@ -563,6 +564,8 @@ public final class CustomMessages extends ATConfig {
                                 )
                         );
 
+                        asAudience(player).sendActionBar(actionbar == null ? (previousActionBar == null ? Component.empty() : previousActionBar) : (previousActionBar = get(actionbar, placeholders)));
+
                         current++;
                     }
                 };
@@ -571,12 +574,29 @@ public final class CustomMessages extends ATConfig {
             }
         }
 
-        final var component = Component.text();
+        var component = Component.text();
         if (config.get(path) instanceof List) {
-            config.getStringList(path).forEach(line -> component.append(get(preProcess.apply(line), placeholders)));
-        } else component.append(get(path, placeholders));
 
+            // TODO - broken
+            config.getStringList(path).forEach(line -> appendNonEmpty(component, preProcess, line, placeholders));
+        } else appendNonEmpty(component, preProcess, path, placeholders);
+
+        if (component.content().isEmpty() && component.children().size() == 0) return;
         asAudience(sender).sendMessage(component);
+    }
+
+    private static void appendNonEmpty(
+            @NotNull final TextComponent.Builder base,
+            @NotNull final Function<String, String> preProcess,
+            @NotNull final String line,
+            @Nullable final TagResolver... placeholders
+    ) {
+        if (line.isEmpty()) return;
+        Component component = get(preProcess.apply(line), placeholders);
+        base.append(component);
+
+        var component2 = Component.text();
+        component2.append(component);
     }
 
     public static void sendMessage(
@@ -701,16 +721,6 @@ public final class CustomMessages extends ATConfig {
             JoinConfiguration.newlines(),
             pages.getContentsInPage(page).stream().map(componentSupplier).toList() // TODO: Ensure order is correct
         );
-    }
-
-
-    private static boolean supportsTitles() {
-        try {
-            Player.class.getDeclaredMethod("sendTitle", String.class, String.class, int.class, int.class, int.class);
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
     }
 
     private void addFormsDefault(String command, String title, String description) {
