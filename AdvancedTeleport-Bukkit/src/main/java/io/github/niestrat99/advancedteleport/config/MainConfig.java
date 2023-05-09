@@ -231,7 +231,7 @@ public final class MainConfig extends ATConfig {
                   vip-cooldown: 3
                 Giving a group, such as VIP, the permission at.member.cooldown.vip-cooldown will have a cooldown of 3.
                 The key (vip-cooldown) and group name (VIP) do not have to be different, this is just an example.
-                You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag.To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldren.
+                You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag.To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldown.
                 To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.""");
 
         addDefault("cost-amount", 100.0, "Teleportation Costs", """
@@ -311,7 +311,7 @@ public final class MainConfig extends ATConfig {
                         "This is only applied when people are teleporting in the same world.");
         addDefault("maximum-teleport-distance", 1000, "The maximum distance that a player can teleport.\n" +
                 "This is the default distance applied to all commands when specified.");
-        addDefault("monitor-all-teleports-distance", false, "Whether or not all teleportations - not just AT's - " +
+        addDefault("monitor-all-teleports-distance", false, "Whether or not all teleports - not just AT's - " +
                 "should be checked for distance.");
 
         addComment("per-command-distance-limitations", "Determines the distance limit for each command.");
@@ -322,6 +322,17 @@ public final class MainConfig extends ATConfig {
         addDefault("per-command-distance-limitations.spawn", "default", "Distance limit for /spawn");
         addDefault("per-command-distance-limitations.home", "default", "Distance limit for /home");
         addDefault("per-command-distance-limitations.back", "default", "Distance limit for /back");
+
+        makeSectionLenient("custom-distance-limitations");
+        addComment("custom-distance-limitations", """
+                Use this section to create custom distance limitations per-group.
+                Use the following format:
+                custom-distance-limitations:
+                  vip-distance: 300000
+                Giving a group, such as VIP, the permission at.member.distance.vip-distance will have a maximum distance of 300000.
+                The key (vip-distance) and group name (VIP) do not have to be different, this is just an example.
+                You can also add at.member.distance.300000, but this is more efficient if you find permissions lag. To make it per-command, use at.member.distance.<command>.vip-distance. To make it per-world, use at.member.distance.<world>.vip-distance.
+                To combine the two, you can use at.member.distance.<command>.<world>.vip-distance.""");
 
         addSection("Teleportation Limitations");
 
@@ -740,6 +751,7 @@ public final class MainConfig extends ATConfig {
         MAXIMUM_TELEPORT_DISTANCE = new ConfigOption<>("maximum-teleport-distance");
         MONITOR_ALL_TELEPORTS = new ConfigOption<>("monitor-all-teleports-distance");
         DISTANCE_LIMITS = new PerCommandOption<>("per-command-distance-limitations", "maximum-teleport-distance");
+        CUSTOM_DISTANCE_LIMITS = new ConfigOption<>("custom-distance-limitations");
 
         ENABLE_TELEPORT_LIMITATIONS = new ConfigOption<>("enable-teleport-limitations");
         MONITOR_ALL_TELEPORTS_LIMITS = new ConfigOption<>("monitor-all-teleports-limitations");
