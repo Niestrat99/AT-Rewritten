@@ -422,13 +422,13 @@ public class CustomMessages extends ATConfig {
         if (config.get(path) instanceof List) {
             List<String> messages = config.getStringList(path);
             for (int i = 0; i < messages.size(); i++) {
-                if (messages.get(i).isEmpty()) continue;
                 getFancyMessage(translateString(messages.get(i), placeholders)).sendProposal(sender, i);
             }
         } else {
-            String[] messages = translateString(config.getString(path), placeholders).split("\n");
+            String rawMessage = translateString(config.getString(path), placeholders);
+            if (rawMessage.isEmpty()) return;
+            String[] messages = rawMessage.split("\n");
             for (int i = 0; i < messages.length; i++) {
-                if (messages[i].isEmpty()) continue;
                 getFancyMessage(messages[i]).sendProposal(sender, i);
             }
         }
