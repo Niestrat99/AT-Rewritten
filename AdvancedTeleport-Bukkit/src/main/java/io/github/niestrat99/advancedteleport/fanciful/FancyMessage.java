@@ -475,7 +475,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		if (messages == null) {
 			messages = new ArrayList<>();
 		}
-		messages.add(order, this);
+		messages.add(Math.min(order, messages.size()), this);
 		messageOrder.put(sender, messages);
 	}
 
