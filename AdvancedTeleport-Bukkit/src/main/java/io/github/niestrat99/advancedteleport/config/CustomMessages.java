@@ -371,6 +371,9 @@ public class CustomMessages extends ATConfig {
             ConfigSection actionBars = config.getConfigSection(path + "_actionbar");
             if (titles != null || subtitles != null || actionBars != null) {
 
+                // Debug
+                CoreClass.debug("Found special message format - titles: " + titles + ", subtitles: " + subtitles + ", action bar: " + actionBars);
+
                 // Fade in, stay, out
                 int[] titleInfo = new int[]{0, 0, 0};
 
@@ -437,9 +440,11 @@ public class CustomMessages extends ATConfig {
 
     private static void sendTitle(Player player, String title, String subtitle, int fadeIn, int length, int fadeOut, String... placeholders) {
         try {
+            CoreClass.debug("Attempting modern title sending: " + title + ", " + subtitle);
             player.sendTitle(translateString(title, placeholders), translateString(subtitle, placeholders), fadeIn, length, fadeOut);
         } catch (NoSuchMethodError e) {
             try {
+                CoreClass.debug("Attempting old title sending: " + title + ", " + subtitle);
                 player.sendTitle(title, subtitle);
             } catch (NoSuchMethodError ignored) {
             }
@@ -449,9 +454,11 @@ public class CustomMessages extends ATConfig {
     private static void sendActionBar(Player player, String text, String... placeholders) {
         try {
             // chad paper
+            CoreClass.debug("Attempting Paper-based action bar sending: " + text);
             player.sendActionBar(translateString(text, placeholders));
         } catch (NoSuchMethodError e) {
             // virgin spigot
+            CoreClass.debug("Attempting Spigot-based action bar sending: " + text);
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(translateString(text, placeholders)));
         }
     }
