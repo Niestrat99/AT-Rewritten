@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
@@ -368,9 +369,9 @@ public class CustomMessages extends ATConfig {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            ConfigSection titles = config.getConfigSection(path + "_title");
-            ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
-            ConfigSection actionBars = config.getConfigSection(path + "_actionbar");
+            @Nullable ConfigSection titles = config.getConfigSection(path + "_title");
+            @Nullable ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
+            @Nullable ConfigSection actionBars = config.getConfigSection(path + "_actionbar");
             if (titles != null || subtitles != null || actionBars != null) {
 
                 // Debug
@@ -419,9 +420,11 @@ public class CustomMessages extends ATConfig {
                 titleManager.put(player, titleRunnable);
                 titleRunnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
 
+                // If action bars are null, stop there
+                if (actionBars == null) return;
                 BukkitRunnable actionBarRunnable = new BukkitRunnable() {
 
-                    private Queue<String> times = new ArrayDeque<>(actionBars.getKeys(false));
+                    private final Queue<String> times = new ArrayDeque<>(actionBars.getKeys(false));
                     private int current = 0;
 
                     @Override
