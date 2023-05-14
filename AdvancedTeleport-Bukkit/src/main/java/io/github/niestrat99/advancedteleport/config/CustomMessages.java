@@ -515,9 +515,10 @@ public final class CustomMessages extends ATConfig {
     ) {
         if (config == null) return;
         if (sender instanceof Player player) {
-            ConfigSection titles = config.getConfigSection(path + "_title");
-            ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
-            ConfigSection actionBars = config.getConfigSection(path + "_actionbar");
+
+            @Nullable ConfigSection titles = config.getConfigSection(path + "_title");
+            @Nullable ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
+            @Nullable ConfigSection actionBars = config.getConfigSection(path + "_actionbar");
             if (titles != null || subtitles != null || actionBars != null) {
 
                 // Fade in, stay, out
@@ -576,10 +577,8 @@ public final class CustomMessages extends ATConfig {
 
         var component = Component.text();
         if (config.get(path) instanceof List) {
-
-            // TODO - broken
-            config.getStringList(path).forEach(line -> appendNonEmpty(component, preProcess, line, placeholders));
-        } else appendNonEmpty(component, preProcess, path, placeholders);
+            config.getStringList(path).forEach(line -> component.append(get(preProcess.apply(line), placeholders)));
+        } else if (config.getString(path) != null) appendNonEmpty(component, preProcess, config.getString(path), placeholders);
 
         if (component.content().isEmpty() && component.children().size() == 0) return;
         asAudience(sender).sendMessage(component);
