@@ -17,11 +17,13 @@ public class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
+    private static HashMap<CommandSender, BukkitRunnable> actionBarManager;
 
     public CustomMessages() throws IOException {
         super("custom-messages.yml");
         config = this;
         titleManager = new HashMap<>();
+        actionBarManager = new HashMap<>();
     }
 
     public void loadDefaults() {
@@ -383,12 +385,12 @@ public class CustomMessages extends ATConfig {
                     titleInfo[2] = titles.getInteger("fade-out");
                 }
 
-                BukkitRunnable runnable = new BukkitRunnable() {
+                // Handle t
+                BukkitRunnable titleRunnable = new BukkitRunnable() {
 
                     private int current = 0;
                     private String previousTitle = null;
                     private String previousSubtitle = null;
-                    private String previousActionBar = null;
 
                     @Override
                     public void run() {
@@ -398,11 +400,9 @@ public class CustomMessages extends ATConfig {
                         }
                         String title = null;
                         String subtitle = null;
-                        String actionBar = null;
 
                         if (titles != null) title = titles.getString(String.valueOf(current));
                         if (subtitles != null) subtitle = subtitles.getString(String.valueOf(current));
-                        if (actionBars != null) actionBar = actionBars.getString(String.valueOf(current));
 
                         sendTitle(player,
                                 title == null ? previousTitle : (previousTitle = title),
@@ -412,13 +412,38 @@ public class CustomMessages extends ATConfig {
                                 titleInfo[2],
                                 placeholders);
 
-                        sendActionBar(player, actionBar == null ? previousActionBar : (previousActionBar = actionBar), placeholders);
-
                         current++;
                     }
                 };
-                titleManager.put(player, runnable);
-                runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
+
+                titleManager.put(player, titleRunnable);
+                titleRunnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
+
+                BukkitRunnable actionBarRunnable = new BukkitRunnable() {
+
+                    private Queue<String> times = new ArrayDeque<>(actionBars.getKeys(false));
+                    private int current = 0;
+
+                    @Override
+                    public void run() {
+
+                        // If the times queue is empty stop there
+                        if (times.isEmpty() || actionBarManager.get(player) != this) {
+                            cancel();
+                            return;
+                        }
+
+                        // If the next element is equal to the current timer, use that
+                        if (!String.valueOf(current++).equals(times.peek())) return;
+
+                        // Get the message to be sent and send it
+                        String actionBar = actionBars.getString(times.poll());
+                        sendActionBar(player, actionBar, placeholders);
+                    }
+                };
+
+                actionBarManager.put(player, actionBarRunnable);
+                actionBarRunnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
         }
 
