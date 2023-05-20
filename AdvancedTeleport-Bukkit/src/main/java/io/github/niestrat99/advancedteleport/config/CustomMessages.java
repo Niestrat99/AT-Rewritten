@@ -26,6 +26,8 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.OfflinePlayer;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -39,6 +41,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,16 +50,19 @@ public final class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
-
+    private static HashMap<CommandSender, BukkitRunnable> actionBarManager;
+    private static HashMap<CommandSender, BukkitRunnable> soundManager;
     @NotNull private static ImmutableMap<String, PartialComponent> messageCache = ImmutableMap.of();
     @NotNull private static ImmutableSortedSet<String> prefixes = ImmutableSortedSet.of();
-
     @Nullable private static BukkitAudiences audience;
 
     public CustomMessages() throws IOException {
         super("custom-messages.yml");
         config = this;
         titleManager = new HashMap<>();
+        actionBarManager = new HashMap<>();
+        soundManager = new HashMap<>();
+
         populate();
 
         if (!PaperLib.isPaper()) {
@@ -498,6 +504,13 @@ public final class CustomMessages extends ATConfig {
         return get(path, placeholders);
     }
 
+    public static @NotNull Component translate(
+            @NotNull final String text,
+            @NotNull final TagResolver... placeholders
+    ) {
+        return MiniMessage.miniMessage().deserialize(text, placeholders);
+    }
+
     public static @NotNull String asString(
         @NotNull final String path,
         @Nullable final TagResolver... placeholders
@@ -511,15 +524,20 @@ public final class CustomMessages extends ATConfig {
         @NotNull final CommandSender sender,
         @NotNull final String path,
         @NotNull final Function<String, String> preProcess,
-        @Nullable final TagResolver... placeholders
+        @NotNull final TagResolver... placeholders
     ) {
         if (config == null) return;
         if (sender instanceof Player player) {
 
+            handleSpecialMessage(player, path + "_actionbar", (content -> asAudience(player).sendActionBar(translate(content, placeholders))), actionBarManager);
+            handleSpecialMessage(player, path + "_sound", (sound -> sendSound(player, sound, path)), soundManager);
+
             @Nullable ConfigSection titles = config.getConfigSection(path + "_title");
             @Nullable ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
-            @Nullable ConfigSection actionBars = config.getConfigSection(path + "_actionbar");
-            if (titles != null || subtitles != null || actionBars != null) {
+            if (titles != null || subtitles != null) {
+
+                // Debug
+                CoreClass.debug("Found special message format - titles: " + titles + ", subtitles: " + subtitles);
 
                 // Fade in, stay, out
                 int[] titleInfo = new int[]{0, 0, 0};
@@ -530,12 +548,12 @@ public final class CustomMessages extends ATConfig {
                     titleInfo[2] = titles.getInteger("fade-out");
                 }
 
-                BukkitRunnable runnable = new BukkitRunnable() {
+                // Handle t
+                BukkitRunnable titleRunnable = new BukkitRunnable() {
 
                     private int current = 0;
-                    @Nullable private Component previousTitle = null;
-                    @Nullable private Component previousSubtitle = null;
-                    @Nullable private Component previousActionBar = null;
+                    private @Nullable Component previousTitle = null;
+                    private @Nullable Component previousSubtitle = null;
 
                     @Override
                     public void run() {
@@ -546,12 +564,9 @@ public final class CustomMessages extends ATConfig {
 
                         String title = null;
                         String subtitle = null;
-                        String actionbar = null;
 
-                        if (titles != null) title = titles.getPath() + "." + current;
-                        if (subtitles != null) subtitle = subtitles.getPath() + "." + current;
-                        if (actionBars != null) actionbar = actionBars.getPath() + "." + current;
-
+                        if (titles != null) title = titles.getString(String.valueOf(current));
+                        if (subtitles != null) subtitle = subtitles.getString(String.valueOf(current));
 
                         asAudience(player).showTitle(
                                 Title.title(
@@ -565,33 +580,33 @@ public final class CustomMessages extends ATConfig {
                                 )
                         );
 
-                        asAudience(player).sendActionBar(actionbar == null ? (previousActionBar == null ? Component.empty() : previousActionBar) : (previousActionBar = get(actionbar, placeholders)));
-
                         current++;
                     }
                 };
-                titleManager.put(player, runnable);
-                runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
+
+                titleManager.put(player, titleRunnable);
+                titleRunnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
         }
 
         var component = Component.text();
         if (config.get(path) instanceof List) {
-            config.getStringList(path).forEach(line -> component.append(get(preProcess.apply(line), placeholders)));
+            config.getStringList(path).forEach(line -> component.append(translate(preProcess.apply(line), placeholders)));
         } else if (config.getString(path) != null) appendNonEmpty(component, preProcess, config.getString(path), placeholders);
 
         if (component.content().isEmpty() && component.children().size() == 0) return;
         asAudience(sender).sendMessage(component);
     }
 
+    @Contract(pure = true)
     private static void appendNonEmpty(
             @NotNull final TextComponent.Builder base,
             @NotNull final Function<String, String> preProcess,
             @NotNull final String line,
-            @Nullable final TagResolver... placeholders
+            @NotNull final TagResolver... placeholders
     ) {
         if (line.isEmpty()) return;
-        Component component = get(preProcess.apply(line), placeholders);
+        Component component = translate(preProcess.apply(line), placeholders);
         base.append(component);
 
         var component2 = Component.text();
@@ -601,7 +616,7 @@ public final class CustomMessages extends ATConfig {
     public static void sendMessage(
         @NotNull final CommandSender sender,
         @NotNull final String path,
-        @Nullable final TagResolver... placeholders
+        @NotNull final TagResolver... placeholders
     ) {
         sendMessage(sender, path, Function.identity(), placeholders);
     }
@@ -763,8 +778,8 @@ public final class CustomMessages extends ATConfig {
             final var rootKey = queue.pop();
             if (getConfigSection(rootKey) instanceof CMConfigSection configSection) {
                 configSection.getKeys(false).stream()
-                    .map(key -> rootKey + "." + key)
-                    .forEach(queue::addFirst);
+                        .map(key -> rootKey + "." + key)
+                        .forEach(queue::addFirst);
             } else keys.add(rootKey);
         }
 
@@ -776,6 +791,92 @@ public final class CustomMessages extends ATConfig {
         });
 
         messageCache = cacheBuilder.build();
+    }
+
+    @Contract(pure = true)
+    private static void handleSpecialMessage(
+            @NotNull Player player,
+            @NotNull String id,
+            @NotNull Consumer<String> consumer,
+            @NotNull HashMap<CommandSender, BukkitRunnable> runnableTracker
+    ) {
+
+        // If the section does not exist, stop there
+        if (!config.contains(id)) return;
+
+        // If it's just a string, then consume that
+        if (config.get(id) instanceof String) {
+            consumer.accept(config.getString(id));
+            return;
+        }
+
+        // If it's not a section though, then stop there
+        if (config.getConfigSection(id) == null) return;
+        ConfigSection section = config.getConfigSection(id);
+
+        // Create the BukkitRunnable
+        BukkitRunnable runnable = new BukkitRunnable() {
+
+            private final Queue<String> times = new ArrayDeque<>(section.getKeys(false));
+            private int current = 0;
+
+            @Override
+            public void run() {
+
+                // If the times queue is empty stop there
+                if (times.isEmpty() || runnableTracker.get(player) != this) {
+                    cancel();
+                    return;
+                }
+
+                // If the next element is equal to the current timer, use that
+                if (!String.valueOf(current++).equals(times.peek())) return;
+
+                // Get the message to be sent and send it
+                String content = section.getString(times.poll());
+                if (content == null) return;
+                consumer.accept(content);
+            }
+        };
+
+        // Add it to the hashmap and run it
+        runnableTracker.put(player, runnable);
+        runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
+    }
+
+    @Contract(pure = true)
+    private static void sendSound(
+            @NotNull final Player player,
+            @NotNull final String sound,
+            @NotNull final String id
+    ) {
+
+        // Set default variables
+        float volume = 1.0f;
+        float pitch = 1.0f;
+
+        // Check the formatting of the sound
+        String[] rawSound = sound.split(";");
+        if (rawSound.length == 0) return;
+
+        // Set the volume and pitch
+        if (rawSound.length == 2) volume = Float.parseFloat(rawSound[1]);
+        if (rawSound.length >= 3) pitch = Float.parseFloat(rawSound[2]);
+
+        // Get the sound type
+        if (rawSound[0].matches("([a-z0-9_\\-.]+:)?[a-z0-9_\\-./]+")) {
+            try {
+                player.playSound(Sound.sound(Key.key(rawSound[0]), Sound.Source.NEUTRAL, volume, pitch));
+            } catch (NoSuchMethodError | NoClassDefFoundError ignored) {
+                CoreClass.getInstance().getLogger().warning("Sound for " + id + " (" + rawSound[0] + ") could not be played: namespaces are not supported on your platform.");
+            }
+        } else {
+            try {
+                player.playSound(player, org.bukkit.Sound.valueOf(rawSound[0]), volume, pitch);
+            } catch (IllegalArgumentException ex) {
+                CoreClass.getInstance().getLogger().warning("Sound for " + id + " (" + rawSound[0] + ") could not be played: sound does not exist.");
+            }
+        }
     }
 
     /**
@@ -811,8 +912,6 @@ public final class CustomMessages extends ATConfig {
      */
     @ApiStatus.Internal
     private static @NotNull String translateMarkdown(String format) {
-
-        // Text [] pointers
         int startTextPointer = -1;
         int endTextPointer = -1;
 
