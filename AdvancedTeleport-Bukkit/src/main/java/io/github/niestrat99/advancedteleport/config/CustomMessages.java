@@ -3,28 +3,34 @@ package io.github.niestrat99.advancedteleport.config;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.fanciful.FancyMessage;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
     private static HashMap<CommandSender, BukkitRunnable> actionBarManager;
+    private static HashMap<CommandSender, BukkitRunnable> soundManager;
 
     public CustomMessages() throws IOException {
         super("custom-messages.yml");
         config = this;
         titleManager = new HashMap<>();
         actionBarManager = new HashMap<>();
+        soundManager = new HashMap<>();
     }
 
     public void loadDefaults() {
@@ -369,13 +375,15 @@ public class CustomMessages extends ATConfig {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
+            handleSpecialMessage(player, path + "_actionbar", (content -> sendActionBar(player, content, placeholders)), actionBarManager);
+            handleSpecialMessage(player, path + "_sound", (sound -> sendSound(player, sound, path)), soundManager);
+
             @Nullable ConfigSection titles = config.getConfigSection(path + "_title");
             @Nullable ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
-            @Nullable ConfigSection actionBars = config.getConfigSection(path + "_actionbar");
-            if (titles != null || subtitles != null || actionBars != null) {
+            if (titles != null || subtitles != null) {
 
                 // Debug
-                CoreClass.debug("Found special message format - titles: " + titles + ", subtitles: " + subtitles + ", action bar: " + actionBars);
+                CoreClass.debug("Found special message format - titles: " + titles + ", subtitles: " + subtitles);
 
                 // Fade in, stay, out
                 int[] titleInfo = new int[]{0, 0, 0};
@@ -419,34 +427,6 @@ public class CustomMessages extends ATConfig {
 
                 titleManager.put(player, titleRunnable);
                 titleRunnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
-
-                // If action bars are null, stop there
-                if (actionBars == null) return;
-                BukkitRunnable actionBarRunnable = new BukkitRunnable() {
-
-                    private final Queue<String> times = new ArrayDeque<>(actionBars.getKeys(false));
-                    private int current = 0;
-
-                    @Override
-                    public void run() {
-
-                        // If the times queue is empty stop there
-                        if (times.isEmpty() || actionBarManager.get(player) != this) {
-                            cancel();
-                            return;
-                        }
-
-                        // If the next element is equal to the current timer, use that
-                        if (!String.valueOf(current++).equals(times.peek())) return;
-
-                        // Get the message to be sent and send it
-                        String actionBar = actionBars.getString(times.poll());
-                        sendActionBar(player, actionBar, placeholders);
-                    }
-                };
-
-                actionBarManager.put(player, actionBarRunnable);
-                actionBarRunnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
         }
 
@@ -479,6 +459,55 @@ public class CustomMessages extends ATConfig {
         }
     }
 
+    private static void handleSpecialMessage(
+            @NotNull Player player,
+            @NotNull String id,
+            @NotNull Consumer<String> consumer,
+            @NotNull HashMap<CommandSender, BukkitRunnable> runnableTracker
+    ) {
+
+        // If the section does not exist, stop there
+        if (!config.contains(id)) return;
+
+        // If it's just a string, then consume that
+        if (config.get(id) instanceof String) {
+            consumer.accept(config.getString(id));
+            return;
+        }
+
+        // If it's not a section though, then stop there
+        if (config.getConfigSection(id) == null) return;
+        ConfigSection section = config.getConfigSection(id);
+
+        // Create the BukkitRunnable
+        BukkitRunnable runnable = new BukkitRunnable() {
+
+            private final Queue<String> times = new ArrayDeque<>(section.getKeys(false));
+            private int current = 0;
+
+            @Override
+            public void run() {
+
+                // If the times queue is empty stop there
+                if (times.isEmpty() || runnableTracker.get(player) != this) {
+                    cancel();
+                    return;
+                }
+
+                // If the next element is equal to the current timer, use that
+                if (!String.valueOf(current++).equals(times.peek())) return;
+
+                // Get the message to be sent and send it
+                String content = section.getString(times.poll());
+                consumer.accept(content);
+            }
+        };
+
+        // Add it to the hashmap and run it
+        runnableTracker.put(player, runnable);
+        runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
+    }
+
     private static void sendActionBar(Player player, String text, String... placeholders) {
         try {
             // chad paper
@@ -488,6 +517,36 @@ public class CustomMessages extends ATConfig {
             // virgin spigot
             CoreClass.debug("Attempting Spigot-based action bar sending: " + text);
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(translateString(text, placeholders)));
+        }
+    }
+
+    private static void sendSound(Player player, String sound, String id) {
+
+        // Set default variables
+        float volume = 1.0f;
+        float pitch = 1.0f;
+
+        // Check the formatting of the sound
+        String[] rawSound = sound.split(";");
+        if (rawSound.length == 0) return;
+
+        // Set the volume and pitch
+        if (rawSound.length == 2) volume = Float.parseFloat(rawSound[1]);
+        if (rawSound.length >= 3) pitch = Float.parseFloat(rawSound[2]);
+
+        // Get the sound type
+        if (rawSound[0].matches("([a-z0-9_\\-.]+:)?[a-z0-9_\\-./]+")) {
+            try {
+                player.playSound(Sound.sound(Key.key(rawSound[0]), Sound.Source.NEUTRAL, volume, pitch));
+            } catch (NoSuchMethodError | NoClassDefFoundError ignored) {
+                CoreClass.getInstance().getLogger().warning("Sound for " + id + " (" + rawSound[0] + ") could not be played: namespaces are not supported on your platform.");
+            }
+        } else {
+            try {
+                player.playSound(player, org.bukkit.Sound.valueOf(rawSound[0]), volume, pitch);
+            } catch (IllegalArgumentException ex) {
+                CoreClass.getInstance().getLogger().warning("Sound for " + id + " (" + rawSound[0] + ") could not be played: sound does not exist.");
+            }
         }
     }
 
