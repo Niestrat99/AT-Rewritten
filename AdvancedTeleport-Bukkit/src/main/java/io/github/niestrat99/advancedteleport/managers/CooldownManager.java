@@ -1,13 +1,10 @@
 package io.github.niestrat99.advancedteleport.managers;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +58,7 @@ public class CooldownManager {
         }
     }
 
-    public static class ATRunnable extends BukkitRunnable {
+    public static class ATRunnable implements Runnable {
         private final UUID uuid;
         private final long startingTime;
         private final String command;
@@ -75,11 +72,7 @@ public class CooldownManager {
             }
             this.command = getKey(command);
             startingTime = System.currentTimeMillis();
-            runTaskLater(CoreClass.getInstance());
-        }
-
-        public synchronized BukkitTask runTaskLater(Plugin plugin) throws IllegalArgumentException, IllegalStateException {
-            return super.runTaskLater(plugin, ms * 20);
+            RunnableManager.setupRunnerDelayed(t -> this.run(), ms * 20);
         }
 
         @Override

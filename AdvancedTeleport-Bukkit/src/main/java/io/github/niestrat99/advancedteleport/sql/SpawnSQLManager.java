@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -36,7 +37,7 @@ public class SpawnSQLManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+        RunnableManager.setupRunnerAsync(() -> {
 
             CoreClass.debug("Creating table data for the spawns manager if it is not already set up.");
 

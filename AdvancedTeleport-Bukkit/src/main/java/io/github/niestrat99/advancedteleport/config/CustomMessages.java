@@ -8,6 +8,8 @@ import io.github.niestrat99.advancedteleport.api.NamedLocation;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.data.PartialComponent;
 import io.github.niestrat99.advancedteleport.extensions.ExPermission;
+import io.github.niestrat99.advancedteleport.folia.CancellableRunnable;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
@@ -30,7 +32,6 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -40,8 +41,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,9 +50,9 @@ import java.util.regex.Pattern;
 public final class CustomMessages extends ATConfig {
 
     public static CustomMessages config;
-    private static HashMap<CommandSender, BukkitRunnable> titleManager;
-    private static HashMap<CommandSender, BukkitRunnable> actionBarManager;
-    private static HashMap<CommandSender, BukkitRunnable> soundManager;
+    private static HashMap<CommandSender, CancellableRunnable> titleManager;
+    private static HashMap<CommandSender, CancellableRunnable> actionBarManager;
+    private static HashMap<CommandSender, CancellableRunnable> soundManager;
     @NotNull private static ImmutableMap<String, PartialComponent> messageCache = ImmutableMap.of();
     @NotNull private static ImmutableSortedSet<String> prefixes = ImmutableSortedSet.of();
     @Nullable private static BukkitAudiences audience;
@@ -551,17 +552,17 @@ public final class CustomMessages extends ATConfig {
                     titleInfo[2] = titles.getInteger("fade-out");
                 }
 
-                // Handle t
-                BukkitRunnable titleRunnable = new BukkitRunnable() {
+                Consumer<CancellableRunnable> runnable = new Consumer<>() {
 
                     private int current = 0;
                     private @Nullable Component previousTitle = null;
+
                     private @Nullable Component previousSubtitle = null;
 
                     @Override
-                    public void run() {
-                        if (current == titleInfo[1] || titleManager.get(player) != this) {
-                            cancel();
+                    public void accept(CancellableRunnable runnable) {
+                        if (current == titleInfo[1] || titleManager.get(player) != runnable) {
+                            runnable.cancel();
                             return;
                         }
 
@@ -586,9 +587,7 @@ public final class CustomMessages extends ATConfig {
                         current++;
                     }
                 };
-
-                titleManager.put(player, titleRunnable);
-                titleRunnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
+                titleManager.put(player, RunnableManager.setupRunnerPeriod(player, runnable, () -> {}, 1, 1));
             }
         } else {
             String raw = config.getString(path);
@@ -804,7 +803,7 @@ public final class CustomMessages extends ATConfig {
             @NotNull Player player,
             @NotNull String id,
             @NotNull Consumer<String> consumer,
-            @NotNull HashMap<CommandSender, BukkitRunnable> runnableTracker
+            @NotNull HashMap<CommandSender, CancellableRunnable> runnableTracker
     ) {
 
         // If the section does not exist, stop there
@@ -821,17 +820,17 @@ public final class CustomMessages extends ATConfig {
         ConfigSection section = config.getConfigSection(id);
 
         // Create the BukkitRunnable
-        BukkitRunnable runnable = new BukkitRunnable() {
+        Consumer<CancellableRunnable> runnable = new Consumer<>() {
 
             private final Queue<String> times = new ArrayDeque<>(section.getKeys(false));
             private int current = 0;
 
             @Override
-            public void run() {
+            public void accept(CancellableRunnable cancellableRunnable) {
 
                 // If the times queue is empty stop there
-                if (times.isEmpty() || runnableTracker.get(player) != this) {
-                    cancel();
+                if (times.isEmpty() || runnableTracker.get(player) != cancellableRunnable) {
+                    cancellableRunnable.cancel();
                     return;
                 }
 
@@ -846,8 +845,7 @@ public final class CustomMessages extends ATConfig {
         };
 
         // Add it to the hashmap and run it
-        runnableTracker.put(player, runnable);
-        runnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
+        runnableTracker.put(player, RunnableManager.setupRunnerPeriod(player, runnable, () -> {}, 1, 1));
     }
 
     @Contract(pure = true)
