@@ -74,7 +74,7 @@ public final class AdvancedTeleportAPI {
 
             // Add the warp
             NamedLocationManager.get().registerWarp(warp);
-            return CompletableFuture.runAsync(() -> WarpSQLManager.get().addWarp(warp)).thenApplyAsync(ignored -> {
+            return CompletableFuture.runAsync(() -> WarpSQLManager.get().addWarp(warp), CoreClass.async).thenApplyAsync(ignored -> {
 
                 // Call the event
                 final WarpPostCreateEvent postCreateEvent = new WarpPostCreateEvent(warp);

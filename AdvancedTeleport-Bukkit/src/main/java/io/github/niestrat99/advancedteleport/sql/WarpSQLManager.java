@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -35,7 +36,7 @@ public class WarpSQLManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+        RunnableManager.setupRunnerAsync(() -> {
             try (Connection connection = implementConnection()) {
 
                 CoreClass.debug("Creating table data for the warps manager if it is not already set up.");

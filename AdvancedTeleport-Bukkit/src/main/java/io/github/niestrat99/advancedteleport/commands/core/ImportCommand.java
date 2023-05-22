@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.core;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.hooks.PluginHook;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
@@ -40,7 +41,7 @@ public final class ImportCommand extends SubATCommand {
 
         final var arg = args.length == 1 ? "all" : args[1].toLowerCase();
         CustomMessages.sendMessage(sender, "Info.importStarted", Placeholder.unparsed("plugin", args[0]));
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+        RunnableManager.setupRunnerAsync(() -> {
             switch (arg) {
                 case "homes" -> pluginHook.importHomes();
                 case "warps" -> pluginHook.importWarps();

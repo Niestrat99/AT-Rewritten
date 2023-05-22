@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
@@ -832,7 +833,7 @@ public final class MainConfig extends ATConfig {
             }
         }
 
-        Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), () -> {
+        RunnableManager.setupRunnerDelayed((run) -> {
             boolean warned = false;
             for (String permission : permissions) {
                 if (!permission.startsWith("at")) continue;
