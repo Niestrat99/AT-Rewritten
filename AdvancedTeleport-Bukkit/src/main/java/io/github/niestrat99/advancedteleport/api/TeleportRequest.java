@@ -20,8 +20,7 @@ public record TeleportRequest(
     @NotNull Player requester,
     @NotNull Player responder,
     @NotNull CancellableRunnable timer,
-    @NotNull TeleportRequestType type
-) {
+    @NotNull TeleportRequestType type) {
 
     private static final List<TeleportRequest> requestList = new ArrayList<>();
 

@@ -41,37 +41,37 @@ public class PlayerSQLManager extends SQLManager {
 
             CoreClass.debug("Creating table data for the players manager if it is not already set up.");
 
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_players "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "uuid VARCHAR(256) NOT NULL, "
-                                                        + "name VARCHAR(256) NOT NULL,"
-                                                        + "timestamp_last_joined BIGINT NOT NULL,"
-                                                        + "main_home VARCHAR(256),"
-                                                        + "teleportation_on BIT DEFAULT 1 NOT NULL, "
-                                                        + "x DOUBLE, "
-                                                        + "y DOUBLE, "
-                                                        + "z DOUBLE, "
-                                                        + "yaw FLOAT, "
-                                                        + "pitch FLOAT, "
-                                                        + "world VARCHAR(256))");
+                    try (Connection connection = implementConnection()) {
+                        PreparedStatement createTable =
+                                prepareStatement(
+                                        connection,
+                                        "CREATE TABLE IF NOT EXISTS "
+                                                + tablePrefix
+                                                + "_players "
+                                                + "(id INTEGER PRIMARY KEY "
+                                                + getStupidAutoIncrementThing()
+                                                + ", "
+                                                + "uuid VARCHAR(256) NOT NULL, "
+                                                + "name VARCHAR(256) NOT NULL,"
+                                                + "timestamp_last_joined BIGINT NOT NULL,"
+                                                + "main_home VARCHAR(256),"
+                                                + "teleportation_on BIT DEFAULT 1 NOT NULL, "
+                                                + "x DOUBLE, "
+                                                + "y DOUBLE, "
+                                                + "z DOUBLE, "
+                                                + "yaw FLOAT, "
+                                                + "pitch FLOAT, "
+                                                + "world VARCHAR(256))");
 
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .severe("Failed to create the players table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
-                        });
+                        executeUpdate(createTable);
+                    } catch (SQLException exception) {
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .severe("Failed to create the players table.");
+                        exception.printStackTrace();
+                    }
+                    transferOldData();
+                });
     }
 
     @Override

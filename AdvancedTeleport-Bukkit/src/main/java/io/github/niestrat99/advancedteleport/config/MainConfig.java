@@ -1168,8 +1168,7 @@ public final class MainConfig extends ATConfig {
                                                 + "the ones specified, please enable the check in the configuration.");
                     }
                     warned = true;
-                }
-                if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
+                } if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
                     CoreClass.getInstance()
                             .getLogger()
                             .info("Allowed default access to " + permission);

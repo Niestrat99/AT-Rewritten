@@ -39,38 +39,38 @@ public class WarpSQLManager extends SQLManager {
         RunnableManager.setupRunnerAsync(() -> {
             try (Connection connection = implementConnection()) {
 
-                                CoreClass.debug(
-                                        "Creating table data for the warps manager if it is not already set up.");
+                        CoreClass.debug(
+                                "Creating table data for the warps manager if it is not already set up.");
 
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_warps "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "warp VARCHAR(256) NOT NULL,"
-                                                        + "uuid_creator VARCHAR(256), "
-                                                        + "x DOUBLE NOT NULL,"
-                                                        + "y DOUBLE NOT NULL,"
-                                                        + "z DOUBLE NOT NULL,"
-                                                        + "yaw FLOAT NOT NULL,"
-                                                        + "pitch FLOAT NOT NULL,"
-                                                        + "world VARCHAR(256) NOT NULL,"
-                                                        + "price VARCHAR(256),"
-                                                        + "timestamp_created BIGINT NOT NULL,"
-                                                        + "timestamp_updated BIGINT NOT NULL)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .severe("Failed to create the warps table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
-                        });
+                        PreparedStatement createTable =
+                                prepareStatement(
+                                        connection,
+                                        "CREATE TABLE IF NOT EXISTS "
+                                                + tablePrefix
+                                                + "_warps "
+                                                + "(id INTEGER PRIMARY KEY "
+                                                + getStupidAutoIncrementThing()
+                                                + ", "
+                                                + "warp VARCHAR(256) NOT NULL,"
+                                                + "uuid_creator VARCHAR(256), "
+                                                + "x DOUBLE NOT NULL,"
+                                                + "y DOUBLE NOT NULL,"
+                                                + "z DOUBLE NOT NULL,"
+                                                + "yaw FLOAT NOT NULL,"
+                                                + "pitch FLOAT NOT NULL,"
+                                                + "world VARCHAR(256) NOT NULL,"
+                                                + "price VARCHAR(256),"
+                                                + "timestamp_created BIGINT NOT NULL,"
+                                                + "timestamp_updated BIGINT NOT NULL)");
+                        executeUpdate(createTable);
+                    } catch (SQLException exception) {
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .severe("Failed to create the warps table.");
+                        exception.printStackTrace();
+                    }
+                    transferOldData();
+                });
     }
 
     @Override

@@ -253,9 +253,14 @@ public class RTPManager {
 
     public static void loadWorldData(World world) {
         if (locQueue == null) return;
-        if (MainConfig.get().WHITELIST_WORLD.get() && !MainConfig.get().ALLOWED_WORLDS.get().contains(world.getName()))
+        if (MainConfig.get().WHITELIST_WORLD.get()
+                && !MainConfig.get().ALLOWED_WORLDS.get().contains(world.getName()))
             return;
-        if (world.getGenerator() != null && MainConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName()))
+        if (world.getGenerator() != null
+                && MainConfig.get()
+                .IGNORE_WORLD_GENS
+                .get()
+                .contains(world.getGenerator().getClass().getName()))
             return;
         int size = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>()).size();
 

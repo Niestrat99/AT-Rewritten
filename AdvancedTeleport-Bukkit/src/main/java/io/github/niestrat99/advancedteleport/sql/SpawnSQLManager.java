@@ -41,34 +41,26 @@ public class SpawnSQLManager extends SQLManager {
 
             CoreClass.debug("Creating table data for the spawns manager if it is not already set up.");
 
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_spawns "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "spawn VARCHAR(256) NOT NULL, "
-                                                        + "uuid_creator VARCHAR(256), "
-                                                        + "x DOUBLE NOT NULL, "
-                                                        + "y DOUBLE NOT NULL, "
-                                                        + "z DOUBLE NOT NULL, "
-                                                        + "yaw FLOAT NOT NULL, "
-                                                        + "pitch FLOAT NOT NULL, "
-                                                        + "world VARCHAR(256) NOT NULL, "
-                                                        + "timestamp_created BIGINT NOT NULL, "
-                                                        + "timestamp_updated BIGINT NOT NULL)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .severe("Failed to create the spawns table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
+            try (Connection connection = implementConnection()) {
+                PreparedStatement createTable = prepareStatement(connection,
+                        "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_spawns " +
+                                "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
+                                "spawn VARCHAR(256) NOT NULL, " +
+                                "uuid_creator VARCHAR(256), " +
+                                "x DOUBLE NOT NULL, " +
+                                "y DOUBLE NOT NULL, " +
+                                "z DOUBLE NOT NULL, " +
+                                "yaw FLOAT NOT NULL, " +
+                                "pitch FLOAT NOT NULL, " +
+                                "world VARCHAR(256) NOT NULL, " +
+                                "timestamp_created BIGINT NOT NULL, " +
+                                "timestamp_updated BIGINT NOT NULL)");
+                executeUpdate(createTable);
+            } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the spawns table.");
+                exception.printStackTrace();
+            }
+            transferOldData();
 
                             NamedLocationManager.get().loadSpawnData();
                         });

@@ -86,11 +86,12 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                                                             }
                                                         }
 
-                // If we're requesting a list, just throw it
-                if (args[1].equalsIgnoreCase("list")) {
-                    RunnableManager.setupRunner(() -> Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
-                    return;
-                }
+                                                        // If we're requesting a list, just throw it
+                                                        if (args[1].equalsIgnoreCase("list")) {
+                                                            RunnableManager.setupRunner(() ->
+                                                                    Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+                                                            return;
+                                                        }
 
                                                         // Tell the player there is no such home
                                                         CustomMessages.sendMessage(

@@ -519,7 +519,7 @@ bukkit {
         }
 
         register("at.member.spawn") {
-            default = BukkitPluginDescription.Permission.Default.TRUE
+            default = BukkitPluginDescription.Permission.Default.OP
             childrenMap = mapOf(
                 "at.member.spawn.*" to false
             )

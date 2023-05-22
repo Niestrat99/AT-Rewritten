@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.hooks.PluginHook;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
@@ -60,22 +59,22 @@ public final class ImportCommand extends SubATCommand {
 
         final var arg = args.length == 1 ? "all" : args[1].toLowerCase();
         CustomMessages.sendMessage(sender, "Info.importStarted", Placeholder.unparsed("plugin", args[0]));
-        RunnableManager.setupRunnerAsync(() -> {
-            switch (arg) {
-                case "homes" -> pluginHook.importHomes();
-                case "warps" -> pluginHook.importWarps();
-                case "lastlocs" -> pluginHook.importLastLocations();
-                case "spawns" -> pluginHook.importSpawn();
-                case "players" -> pluginHook.importPlayerInformation();
-                case "all" -> pluginHook.importAll();
-                default -> {
-                    CustomMessages.sendMessage(sender, "Error.invalidOption");
-                    return;
-                }
+        switch (arg) {
+            case "homes" -> pluginHook.importHomes();
+            case "warps" -> pluginHook.importWarps();
+            case "lastlocs" -> pluginHook.importLastLocations();
+            case "spawns" -> pluginHook.importSpawn();
+            case "players" -> pluginHook.importPlayerInformation();
+            case "all" -> pluginHook.importAll();
+            default -> {
+                CustomMessages.sendMessage(sender, "Error.invalidOption");
+                return false;
             }
-            CustomMessages.sendMessage(sender, "Info.importFinished", Placeholder.unparsed("plugin", args[0]));
-        });
-
+        }
+        CustomMessages.sendMessage(
+                sender,
+                "Info.importFinished",
+                Placeholder.unparsed("plugin", args[0]));
         return true;
     }
 
