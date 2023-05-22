@@ -1,8 +1,7 @@
 package io.github.niestrat99.advancedteleport.utilities.nbt;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import net.kyori.adventure.nbt.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -20,29 +19,20 @@ import java.util.UUID;
 public class NBTReader {
 
     public static void getLocation(String name, NBTCallback<Location> callback) {
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
-                            try {
-                                Location location = getLocation(player);
-                                if (location == null) {
-                                    callback.onFail(
-                                            CustomMessages.getComponent(
-                                                    "Error.noOfflineLocation",
-                                                    Placeholder.unparsed("player", name)));
-                                    return;
-                                }
-                                callback.onSuccess(location);
-                            } catch (IOException e) {
-                                callback.onFail(
-                                        CustomMessages.getComponent(
-                                                "Error.failedOfflineTeleport",
-                                                Placeholder.unparsed("player", name)));
-                                e.printStackTrace();
-                            }
-                        });
+        RunnableManager.setupRunnerAsync(() -> {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
+            try {
+                Location location = getLocation(player);
+                if (location == null) {
+                    callback.onFail(CustomMessages.getComponent("Error.noOfflineLocation", Placeholder.unparsed("player", name)));
+                    return;
+                }
+                callback.onSuccess(location);
+            } catch (IOException e) {
+                callback.onFail(CustomMessages.getComponent("Error.failedOfflineTeleport", Placeholder.unparsed("player", name)));
+                e.printStackTrace();
+            }
+        });
     }
 
     private static Location getLocation(OfflinePlayer player) throws IOException {
@@ -92,22 +82,16 @@ public class NBTReader {
     }
 
     public static void setLocation(String name, Location newLoc, NBTCallback<Boolean> callback) {
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
-                            try {
-                                setLocation(player, newLoc);
-                                callback.onSuccess(true);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                callback.onFail(
-                                        CustomMessages.getComponent(
-                                                "Error.failedOfflineTeleportHere",
-                                                Placeholder.unparsed("player", name)));
-                            }
-                        });
+        RunnableManager.setupRunnerAsync(() -> {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(name);
+            try {
+                setLocation(player, newLoc);
+                callback.onSuccess(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+                callback.onFail(CustomMessages.getComponent("Error.failedOfflineTeleportHere", Placeholder.unparsed("player", name)));
+            }
+        });
     }
 
     private static void setLocation(OfflinePlayer player, Location location) throws IOException {

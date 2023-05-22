@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 
 import io.github.niestrat99.advancedteleport.utilities.Pair;
@@ -91,7 +92,7 @@ public final class TpLoc extends TeleportATCommand {
             if (allowFlight
                     && target.getAllowFlight()
                     && target.hasPermission("at.admin.tploc.safe-teleport")
-                    && blockBelow.getBlock().getType() == Material.AIR) {
+                    && (RunnableManager.isFolia() || blockBelow.getBlock().getType() == Material.AIR)) {
                 target.setFlying(true);
             }
             ATPlayer.teleportWithOptions(

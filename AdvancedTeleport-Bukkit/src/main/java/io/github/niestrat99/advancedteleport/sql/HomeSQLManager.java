@@ -4,6 +4,8 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -36,43 +38,41 @@ public class HomeSQLManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            CoreClass.debug(
-                                    "Creating table data for the home manager if it is not already set up.");
+        RunnableManager.setupRunnerAsync(
+                () -> {
+                    CoreClass.debug(
+                            "Creating table data for the home manager if it is not already set up.");
 
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_homes "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "uuid_owner VARCHAR(256) NOT NULL, "
-                                                        + "home VARCHAR(256) NOT NULL,"
-                                                        + "x DOUBLE NOT NULL,"
-                                                        + "y DOUBLE NOT NULL,"
-                                                        + "z DOUBLE NOT NULL,"
-                                                        + "yaw FLOAT NOT NULL,"
-                                                        + "pitch FLOAT NOT NULL,"
-                                                        + "world VARCHAR(256) NOT NULL,"
-                                                        + "icon VARCHAR(256) DEFAULT 'GRASS_BLOCK' NOT NULL,"
-                                                        + "timestamp_created BIGINT NOT NULL,"
-                                                        + "timestamp_updated BIGINT NOT NULL)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .severe("Failed to create the homes table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
-                        });
+                    try (Connection connection = implementConnection()) {
+                        PreparedStatement createTable =
+                                prepareStatement(
+                                        connection,
+                                        "CREATE TABLE IF NOT EXISTS "
+                                                + tablePrefix
+                                                + "_homes "
+                                                + "(id INTEGER PRIMARY KEY "
+                                                + getStupidAutoIncrementThing()
+                                                + ", "
+                                                + "uuid_owner VARCHAR(256) NOT NULL, "
+                                                + "home VARCHAR(256) NOT NULL,"
+                                                + "x DOUBLE NOT NULL,"
+                                                + "y DOUBLE NOT NULL,"
+                                                + "z DOUBLE NOT NULL,"
+                                                + "yaw FLOAT NOT NULL,"
+                                                + "pitch FLOAT NOT NULL,"
+                                                + "world VARCHAR(256) NOT NULL,"
+                                                + "icon VARCHAR(256) DEFAULT 'GRASS_BLOCK' NOT NULL,"
+                                                + "timestamp_created BIGINT NOT NULL,"
+                                                + "timestamp_updated BIGINT NOT NULL)");
+                        executeUpdate(createTable);
+                    } catch (SQLException exception) {
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .severe("Failed to create the homes table.");
+                        exception.printStackTrace();
+                    }
+                    transferOldData();
+                });
     }
 
     @Override
@@ -128,9 +128,7 @@ public class HomeSQLManager extends SQLManager {
 
     public void addHome(Location location, UUID owner, String name, boolean async) {
         if (async) {
-            Bukkit.getScheduler()
-                    .runTaskAsynchronously(
-                            CoreClass.getInstance(), () -> addHomePrivate(location, owner, name));
+            RunnableManager.setupRunnerAsync(() -> addHomePrivate(location, owner, name));
         } else {
             addHomePrivate(location, owner, name);
         }
@@ -225,10 +223,7 @@ public class HomeSQLManager extends SQLManager {
 
     public void moveHome(Location newLocation, UUID owner, String name, boolean async) {
         if (async) {
-            Bukkit.getScheduler()
-                    .runTaskAsynchronously(
-                            CoreClass.getInstance(),
-                            () -> moveHomePrivate(newLocation, owner, name));
+            RunnableManager.setupRunnerAsync(() -> moveHomePrivate(newLocation, owner, name));
         } else {
             moveHomePrivate(newLocation, owner, name);
         }

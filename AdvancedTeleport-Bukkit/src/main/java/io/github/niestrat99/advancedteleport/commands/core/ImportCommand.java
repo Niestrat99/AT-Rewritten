@@ -75,8 +75,8 @@ public final class ImportCommand extends SubATCommand {
                 sender,
                 "Info.importFinished",
                 Placeholder.unparsed("plugin", args[0]));
-
         return true;
+
     }
 
     @Override

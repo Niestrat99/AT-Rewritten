@@ -11,6 +11,7 @@ import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
@@ -96,7 +97,7 @@ public class CommandManager {
         CommandMap map = getMap();
         if (map == null) return;
 
-        HashMap<String, Command> commands = getCommands(map);
+        Map<String, Command> commands = getCommands(map);
         if (commands == null) return;
 
         List<String> aliases = new ArrayList<>(command.getAliases());
@@ -122,28 +123,24 @@ public class CommandManager {
                 CoreClass.debug("Removed " + alias + ".");
 
                 // Let another plugin take over
-                Bukkit.getScheduler()
-                        .runTaskLater(
-                                CoreClass.getInstance(),
-                                () -> {
-                                    Iterator<String> commandIterator = commands.keySet().iterator();
-                                    HashMap<String, Command> pendingChanges = new HashMap<>();
+                RunnableManager.setupRunnerDelayed((run) -> {
+                    Iterator<String> commandIterator = commands.keySet().iterator();
+                    HashMap<String, Command> pendingChanges = new HashMap<>();
 
-                                    // Ignore warning, can yield CME
-                                    while (commandIterator.hasNext()) {
-                                        String otherCmd = commandIterator.next();
-                                        String[] parts = otherCmd.split(":");
-                                        if (parts.length < 2) continue;
-                                        if (parts[1].equals(alias)) {
-                                            if (parts[0].equals("advancedteleport")) continue;
-                                            CoreClass.debug("Letting " + parts[0] + "'s " + alias + " take over...");
-                                            pendingChanges.put(alias, commands.get(otherCmd));
-                                            break;
-                                        }
-                                    }
-                                    commands.putAll(pendingChanges);
-                                },
-                                100);
+                    // Ignore warning, can yield CME
+                    while (commandIterator.hasNext()) {
+                        String otherCmd = commandIterator.next();
+                        String[] parts = otherCmd.split(":");
+                        if (parts.length < 2) continue;
+                        if (parts[1].equals(alias)) {
+                            if (parts[0].equals("advancedteleport")) continue;
+                            CoreClass.debug("Letting " + parts[0] + "'s " + alias + " take over...");
+                            pendingChanges.put(alias, commands.get(otherCmd));
+                            break;
+                        }
+                    }
+                    commands.putAll(pendingChanges);
+                }, 100);
             }
             return;
         }
@@ -188,11 +185,15 @@ public class CommandManager {
         return null;
     }
 
-    private static HashMap<String, Command> getCommands(CommandMap map) {
+    private static Map<String, Command> getCommands(CommandMap map) {
+        try {
+            return map.getKnownCommands();
+        } catch (NoSuchMethodError ignored) {
+        }
         try {
             Field commands = SimpleCommandMap.class.getDeclaredField("knownCommands");
             commands.setAccessible(true);
-            return (HashMap<String, Command>) commands.get(map);
+            return (Map<String, Command>) commands.get(map);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
