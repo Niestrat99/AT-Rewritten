@@ -11,8 +11,8 @@ plugins {
     id("com.modrinth.minotaur")
     alias(libMinix.plugins.kotlin.jvm)
     alias(libMinix.plugins.shadow)
-    alias(libMinix.plugins.minecraft.pluginYML)
-    alias(libMinix.plugins.minecraft.runPaper)
+    alias(libs.plugins.pluginYML)
+    alias(libs.plugins.runPaper)
     alias(libMinix.plugins.slimjar)
 }
 
@@ -87,6 +87,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
+    compileOnly(libs.folia)
 
     implementation(libMinix.slimjar)
 
@@ -125,6 +126,8 @@ dependencies {
     }
 }
 
+runPaper.folia.registerTask()
+
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])
@@ -136,7 +139,7 @@ tasks {
         options.encoding = "UTF-8"
     }
 
-    runServer {
+    withType<xyz.jpenilla.runpaper.task.RunServer> {
 
         // Wait for slimJar to go through first
         dependsOn(slimJar)
@@ -155,7 +158,6 @@ tasks {
         pluginJars(pluginsFolder.resolve("PlayerParticles.jar"))
         pluginJars(pluginsFolder.resolve("dynmap.jar"))
         pluginJars(getJarFile())
-
     }
 
     withType<ProcessResources> {
@@ -209,6 +211,8 @@ bukkit {
     apiVersion = "1.16"
     main = "io.github.niestrat99.advancedteleport.CoreClass"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
+
+    foliaSupported = true
 
     softDepend = listOf("Vault", "Ultimate_Economy", "ConfigurationMaster", "WorldBorder", "ChunkyBorder", "floodgate", "Lands", "WorldGuard", "GriefProtection", "dynmap", "squaremap", "PlayerParticles")
     loadBefore = listOf("Essentials", "EssentialsSpawn")

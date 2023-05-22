@@ -3,12 +3,10 @@ package io.github.niestrat99.advancedteleport.managers;
 import com.google.common.collect.Sets;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +22,8 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 public class RTPManager {
 
@@ -115,7 +115,7 @@ public class RTPManager {
         return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
 
             // If we're in the Nether, do a binary jump, otherwise get the highest block.
-            Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : world.getHighestBlockAt(coords[0], coords[1]);
+            Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : getHighestBlock(world, coords[0], coords[1]);
 
             // If it's a valid location, return it. If not, try again unless the plugin has exhausted its attempts.
             if (isValidLocation(block)) {
@@ -126,6 +126,17 @@ public class RTPManager {
                 return null;
             }
         }, CoreClass.async).thenApplyAsync(loc -> loc, CoreClass.sync);
+    }
+
+    private static Block getHighestBlock(World world, int x, int z) {
+
+        // If we're on Folia, then hop onto the region thread briefly
+        if (RunnableManager.isFolia()) {
+            return CompletableFuture.supplyAsync(() -> world.getHighestBlockAt(x, z),
+                    task -> Bukkit.getGlobalRegionScheduler().execute(CoreClass.getInstance(), task)).join();
+        }
+
+        return world.getHighestBlockAt(x, z);
     }
 
     private static Block doBinaryJump(

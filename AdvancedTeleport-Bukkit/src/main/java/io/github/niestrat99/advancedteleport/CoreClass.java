@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.config.ATConfig;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUIConfig;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
 import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
@@ -38,8 +39,8 @@ import java.util.concurrent.Executor;
 public final class CoreClass extends JavaPlugin {
 
     private static CoreClass instance;
-    public static final Executor async = task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
-    public static final Executor sync = task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
+    public static final Executor async = RunnableManager::setupRunnerAsync;
+    public static final Executor sync = RunnableManager::setupRunner;
     private static Permission perms;
     private Object[] updateInfo;
     private int version;
@@ -123,7 +124,7 @@ public final class CoreClass extends JavaPlugin {
         RandomTPAlgorithms.init();
 
         new Metrics(this, 5146);
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+        RunnableManager.setupRunnerAsync(() -> {
             RTPManager.init();
             if (MainConfig.get().CHECK_FOR_UPDATES.get()) {
                 updateInfo = UpdateChecker.getUpdate();
@@ -178,6 +179,7 @@ public final class CoreClass extends JavaPlugin {
      */
     private void hackTheMainFrame() throws NoSuchFieldException, IllegalAccessException {
         if (!PaperLib.isPaper()) return;
+        if (RunnableManager.isFolia()) return;
 
         final var scheduler = Bukkit.getScheduler();
 

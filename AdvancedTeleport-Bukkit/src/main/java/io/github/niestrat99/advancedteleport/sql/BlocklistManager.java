@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.BlockInfo;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -32,7 +33,7 @@ public class BlocklistManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+        RunnableManager.setupRunnerAsync(() -> {
 
             CoreClass.debug("Creating table data for the block list manager if it is not already set up.");
 

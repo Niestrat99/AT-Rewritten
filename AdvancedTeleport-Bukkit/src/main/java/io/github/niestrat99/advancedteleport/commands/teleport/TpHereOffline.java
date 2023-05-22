@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -35,7 +36,7 @@ public final class TpHereOffline extends TeleportATCommand implements PlayerComm
             NBTReader.setLocation(args[0], player.getLocation(), new NBTReader.NBTCallback<>() {
                 @Override
                 public void onSuccess(Boolean data) {
-                    Bukkit.getScheduler().runTask(CoreClass.getInstance(), () ->
+                    RunnableManager.setupRunner(() ->
                         CustomMessages.sendMessage(sender, "Teleport.teleportedOfflinePlayerHere",
                                 Placeholder.unparsed("player", args[0])));
                 }

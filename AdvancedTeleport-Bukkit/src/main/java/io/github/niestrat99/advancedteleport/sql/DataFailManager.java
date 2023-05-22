@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -50,7 +51,7 @@ public class DataFailManager {
 
         }
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreClass.getInstance(), () -> {
+        RunnableManager.setupRunnerPeriodAsync(() -> {
             for (Fail fail : pendingFails.keySet()) {
                 CoreClass.getInstance().getLogger().warning("Handling failure " + fail.operation.name() + ".");
                 handleFailure(fail);

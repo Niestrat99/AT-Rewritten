@@ -10,6 +10,7 @@ import io.github.niestrat99.advancedteleport.commands.spawn.*;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -118,7 +119,7 @@ public class CommandManager {
                 commands.remove("advancedteleport:" + alias);
 
                 // Let another plugin take over
-                Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), () -> {
+                RunnableManager.setupRunnerDelayed((run) -> {
                     Iterator<String> commandIterator = commands.keySet().iterator();
                     HashMap<String, Command> pendingChanges = new HashMap<>();
 

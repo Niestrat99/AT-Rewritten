@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -35,7 +36,7 @@ public class PlayerSQLManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+        RunnableManager.setupRunnerAsync(() -> {
 
             CoreClass.debug("Creating table data for the players manager if it is not already set up.");
 

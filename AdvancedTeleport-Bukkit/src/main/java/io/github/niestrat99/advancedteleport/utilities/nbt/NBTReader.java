@@ -1,13 +1,8 @@
 package io.github.niestrat99.advancedteleport.utilities.nbt;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import net.kyori.adventure.nbt.BinaryTag;
-import net.kyori.adventure.nbt.BinaryTagIO;
-import net.kyori.adventure.nbt.CompoundBinaryTag;
-import net.kyori.adventure.nbt.DoubleBinaryTag;
-import net.kyori.adventure.nbt.FloatBinaryTag;
-import net.kyori.adventure.nbt.ListBinaryTag;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
+import net.kyori.adventure.nbt.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
@@ -26,7 +21,7 @@ public class NBTReader {
         String name,
         NBTCallback<Location> callback
     ) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+        RunnableManager.setupRunnerAsync(() -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
             try {
                 Location location = getLocation(player);
@@ -91,7 +86,7 @@ public class NBTReader {
         Location newLoc,
         NBTCallback<Boolean> callback
     ) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
+        RunnableManager.setupRunnerAsync(() -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
             try {
                 setLocation(player, newLoc);

@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
@@ -60,7 +61,7 @@ public class TeleportTrackingManager implements Listener {
     }
 
     private void spawn(Player player, Spawn spawn) {
-        Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), () ->
+        RunnableManager.setupRunnerDelayed(t ->
                 PaperLib.teleportAsync(player, spawn.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN)
                         .whenComplete((result, err) -> {
                             if (!result)
