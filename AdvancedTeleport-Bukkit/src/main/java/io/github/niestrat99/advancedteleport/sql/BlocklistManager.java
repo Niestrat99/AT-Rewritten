@@ -4,7 +4,6 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.BlockInfo;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -38,32 +37,27 @@ public class BlocklistManager extends SQLManager {
 
             CoreClass.debug("Creating table data for the block list manager if it is not already set up.");
 
-                            // Attempt to create the table.
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_blocklist "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "uuid_receiver VARCHAR(256) NOT NULL, "
-                                                        + "uuid_blocked VARCHAR(256) NOT NULL,"
-                                                        + "timestamp BIGINT NOT NULL,"
-                                                        + "reason TEXT)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .severe("Failed to create the blocklist table.");
-                                exception.printStackTrace();
-                            }
+            // Attempt to create the table.
+            try (Connection connection = implementConnection()) {
+                PreparedStatement createTable = prepareStatement(
+                    connection,
+                    "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_blocklist " +
+                        "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
+                        "uuid_receiver VARCHAR(256) NOT NULL, " +
+                        "uuid_blocked VARCHAR(256) NOT NULL," +
+                        "timestamp BIGINT NOT NULL," +
+                        "reason TEXT)"
+                );
+                executeUpdate(createTable);
+            } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the blocklist table.");
+                exception.printStackTrace();
+            }
 
-                            // Transfer old data.
-                            transferOldData();
-                        });
+            // Transfer old data.
+            transferOldData();
+        });
+
     }
 
     @Override
@@ -97,13 +91,8 @@ public class BlocklistManager extends SQLManager {
         }
 
         // See if renaming was successful.
-        boolean renameResult =
-                blocklistFile.renameTo(
-                        new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
-        CoreClass.debug(
-                renameResult
-                        ? "Successfully renamed the blocklist file."
-                        : "Failed to rename the blocklist file.");
+        boolean renameResult = blocklistFile.renameTo(new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
+        CoreClass.debug(renameResult ? "Successfully renamed the blocklist file." : "Failed to rename the blocklist file.");
     }
 
     public void blockUser(
@@ -133,9 +122,7 @@ public class BlocklistManager extends SQLManager {
             statement.setLong(3, System.currentTimeMillis());
             executeUpdate(statement);
         } catch (SQLException exception) {
-            DataFailManager.get()
-                    .addFailure(
-                            DataFailManager.Operation.ADD_BLOCK, receiverUUID, blockedUUID, reason);
+            DataFailManager.get().addFailure(DataFailManager.Operation.ADD_BLOCK, receiverUUID, blockedUUID, reason);
             throw new RuntimeException(exception);
         }
     }
@@ -152,8 +139,7 @@ public class BlocklistManager extends SQLManager {
             statement.setString(2, blockedUUID);
             executeUpdate(statement);
         } catch (SQLException exception) {
-            DataFailManager.get()
-                    .addFailure(DataFailManager.Operation.UNBLOCK, receiverUUID, blockedUUID);
+            DataFailManager.get().addFailure(DataFailManager.Operation.UNBLOCK, receiverUUID, blockedUUID);
             throw new RuntimeException(exception);
         }
     }

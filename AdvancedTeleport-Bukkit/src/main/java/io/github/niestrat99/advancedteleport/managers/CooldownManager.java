@@ -37,9 +37,7 @@ public class CooldownManager {
     public static void addToCooldown(String command, Player player, World toWorld) {
         List<ATRunnable> list = cooldown.get(getKey(command));
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-        list.add(
-                new ATRunnable(
-                        player.getUniqueId(), atPlayer.getCooldown(command, toWorld), command));
+        list.add(new ATRunnable(player.getUniqueId(), atPlayer.getCooldown(command), command));
         cooldown.put(getKey(command), list);
     }
 
@@ -52,8 +50,7 @@ public class CooldownManager {
         if (MainConfig.get().APPLY_COOLDOWN_TO_ALL_COMMANDS.get()) {
             cooldown.put("all", new ArrayList<>());
         } else {
-            for (String command :
-                    Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+            for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
                 cooldown.put(command, new ArrayList<>());
             }
         }

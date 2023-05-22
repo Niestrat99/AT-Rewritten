@@ -8,7 +8,6 @@ import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;

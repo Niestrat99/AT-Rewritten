@@ -1,6 +1,5 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;

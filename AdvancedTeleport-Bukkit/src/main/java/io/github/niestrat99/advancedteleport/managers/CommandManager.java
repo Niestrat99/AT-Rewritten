@@ -27,8 +27,7 @@ public class CommandManager {
 
     private static final LinkedHashMap<String, PluginCommand> atCommands = new LinkedHashMap<>();
     public static final LinkedHashMap<String, SubATCommand> subcommands = new LinkedHashMap<>();
-    public static final LinkedHashMap<String, PluginCommand> registeredCommands =
-            new LinkedHashMap<>();
+    public static final LinkedHashMap<String, PluginCommand> registeredCommands = new LinkedHashMap<>();
 
     public static void registerCommands() {
         register("at", new CoreCommand());
@@ -128,21 +127,20 @@ public class CommandManager {
                     Iterator<String> commandIterator = commands.keySet().iterator();
                     HashMap<String, Command> pendingChanges = new HashMap<>();
 
-                                    // Ignore warning, can yield CME
-                                    while (commandIterator.hasNext()) {
-                                        String otherCmd = commandIterator.next();
-                                        String[] parts = otherCmd.split(":");
-                                        if (parts.length < 2) continue;
-                                        if (parts[1].equals(alias)) {
-                                            if (parts[0].equals("advancedteleport")) continue;
-                                            CoreClass.debug("Letting " + parts[0] + "'s " + alias + " take over...");
-                                            pendingChanges.put(alias, commands.get(otherCmd));
-                                            break;
-                                        }
-                                    }
-                                    commands.putAll(pendingChanges);
-                                },
-                                100);
+                    // Ignore warning, can yield CME
+                    while (commandIterator.hasNext()) {
+                        String otherCmd = commandIterator.next();
+                        String[] parts = otherCmd.split(":");
+                        if (parts.length < 2) continue;
+                        if (parts[1].equals(alias)) {
+                            if (parts[0].equals("advancedteleport")) continue;
+                            CoreClass.debug("Letting " + parts[0] + "'s " + alias + " take over...");
+                            pendingChanges.put(alias, commands.get(otherCmd));
+                            break;
+                        }
+                    }
+                    commands.putAll(pendingChanges);
+                }, 100);
             }
             return;
         }
