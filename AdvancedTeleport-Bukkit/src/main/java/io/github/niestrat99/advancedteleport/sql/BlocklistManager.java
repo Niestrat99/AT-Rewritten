@@ -2,8 +2,8 @@ package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.BlockInfo;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -33,39 +33,30 @@ public class BlocklistManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            CoreClass.debug(
-                                    "Creating table data for the block list manager if it is not already set up.");
+        RunnableManager.setupRunnerAsync(() -> {
 
-                            // Attempt to create the table.
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_blocklist "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "uuid_receiver VARCHAR(256) NOT NULL, "
-                                                        + "uuid_blocked VARCHAR(256) NOT NULL,"
-                                                        + "timestamp BIGINT NOT NULL,"
-                                                        + "reason TEXT)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .severe("Failed to create the blocklist table.");
-                                exception.printStackTrace();
-                            }
+            CoreClass.debug("Creating table data for the block list manager if it is not already set up.");
 
-                            // Transfer old data.
-                            transferOldData();
-                        });
+            // Attempt to create the table.
+            try (Connection connection = implementConnection()) {
+                PreparedStatement createTable = prepareStatement(
+                    connection,
+                    "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_blocklist " +
+                        "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
+                        "uuid_receiver VARCHAR(256) NOT NULL, " +
+                        "uuid_blocked VARCHAR(256) NOT NULL," +
+                        "timestamp BIGINT NOT NULL," +
+                        "reason TEXT)"
+                );
+                executeUpdate(createTable);
+            } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the blocklist table.");
+                exception.printStackTrace();
+            }
+
+            // Transfer old data.
+            transferOldData();
+        });
     }
 
     @Override

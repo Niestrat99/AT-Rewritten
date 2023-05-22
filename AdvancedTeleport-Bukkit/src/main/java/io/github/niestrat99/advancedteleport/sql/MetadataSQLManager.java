@@ -3,6 +3,8 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -31,33 +33,26 @@ public class MetadataSQLManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            CoreClass.debug(
-                                    "Creating table data for the metadata manager if it is not already set up.");
+        RunnableManager.setupRunnerAsync(() -> {
 
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_metadata "
-                                                        + "(data_id VARCHAR(256) NOT NULL, "
-                                                        + "type VARCHAR(256) NOT NULL,"
-                                                        + "`key` VARCHAR(256) NOT NULL, "
-                                                        + "value TEXT NOT NULL)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .severe("Failed to create the metadata table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
-                        });
+            CoreClass.debug("Creating table data for the metadata manager if it is not already set up.");
+
+            try (Connection connection = implementConnection()) {
+                PreparedStatement createTable = prepareStatement(
+                    connection,
+                    "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_metadata " +
+                        "(data_id VARCHAR(256) NOT NULL, " +
+                        "type VARCHAR(256) NOT NULL," +
+                        "key VARCHAR(256) NOT NULL, " +
+                        "value TEXT NOT NULL)"
+                );
+                executeUpdate(createTable);
+            } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the metadata table.");
+                exception.printStackTrace();
+            }
+            transferOldData();
+        });
     }
 
     @Override
@@ -383,14 +378,11 @@ public class MetadataSQLManager extends SQLManager {
                             Spawn main = getSpawnFromId(connection, dataId);
                             Spawn mirror = getSpawnFromId(connection, mirrorId);
 
-                            // If the main is not null, then mirror it
-                            if (main != null) {
-                                Bukkit.getScheduler()
-                                        .runTask(
-                                                CoreClass.getInstance(),
-                                                () -> main.setMirroringSpawn(mirror, null));
-                            }
-                        }
+                    // If the main is not null, then mirror it
+                    if (main != null) {
+                        RunnableManager.setupRunnerAsync(() -> main.setMirroringSpawn(mirror, null));
+                    }
+                }
 
                     } catch (SQLException exception) {
                         throw new RuntimeException(exception);

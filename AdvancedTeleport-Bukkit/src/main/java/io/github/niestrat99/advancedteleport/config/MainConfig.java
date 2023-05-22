@@ -1148,10 +1148,10 @@ public final class MainConfig extends ATConfig {
             if (!permission.startsWith("at")) continue;
             if (permission.startsWith("at.admin")) {
                 if (!warned) {
-                    CoreClass.getInstance()
-                            .getLogger()
-                            .warning(
-                                    "WARNING: You've given an admin permission by default to all users.");
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .warning(
+                                        "WARNING: You've given an admin permission by default to all users.");
                     if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
                         CoreClass.getInstance()
                                 .getLogger()
@@ -1171,9 +1171,8 @@ public final class MainConfig extends ATConfig {
                     } else {
                         CoreClass.getInstance()
                                 .getLogger()
-                                .warning(
-                                        "This can potentially be destructive, so if this "
-                                                + "is not your doing, please check your configuration.");
+                                .warning("This can potentially be destructive, so if this "
+                                        + "is not your doing, please check your configuration.");
                         CoreClass.getInstance()
                                 .getLogger()
                                 .warning(

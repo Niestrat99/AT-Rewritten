@@ -18,6 +18,9 @@ worldguard = "7.0.7"
 squaremap = "1.1.3"
 dynmap = "3.4"
 playerParticles = "8.3"
+pluginyml = "0.6.0"
+folia = "1.20.4-R0.1-SNAPSHOT"
+run-paper = "2.1.0"
 hangar = "0.0.5"
 slimjar = "1.6.1"
 
@@ -40,8 +43,11 @@ playerparticles = { module = "dev.esophose:playerparticles", version.ref = "play
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
 dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
+folia = { module = "dev.folia:folia-api", version.ref = "folia" }
 slimjar = { module = "dev.racci.slimjar:slimjar", version.ref = "slimjar" }
 
 [plugins]
+pluginYML = { id = "net.minecrell.plugin-yml.bukkit", version.ref = "pluginyml" }
+runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "run-paper" }
 hangar = { id = "io.papermc.hangar-publish-plugin", version.ref = "hangar" }
 slimjar = { id = "dev.racci.slimjar", version.ref = "slimjar" }

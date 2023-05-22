@@ -1,12 +1,13 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.CancellableRunnable;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 
@@ -16,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,17 +55,10 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
                     Placeholder.unparsed("player", sender.getName()),
                     Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)));
 
-            BukkitRunnable run =
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            TeleportRequest.removeRequest(
-                                    TeleportRequest.getRequestByReqAndResponder(target, player));
-                        }
-                    };
-            run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
-            TeleportRequest request =
-                    new TeleportRequest(player, target, run, TeleportRequestType.TPAHERE);
+            CancellableRunnable run = RunnableManager.setupRunnerDelayed(() ->
+                    TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target, player)), requestLifetime * 20L);
+
+            TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPAHERE);
             // Creates a new teleport request.
             TeleportRequest.addRequest(request);
             // Cooldown for tpall is always applied after request

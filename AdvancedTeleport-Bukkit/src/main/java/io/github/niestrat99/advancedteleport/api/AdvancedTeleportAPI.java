@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.api.events.spawn.*;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
 import io.github.niestrat99.advancedteleport.managers.SignManager;
@@ -184,8 +185,7 @@ public final class AdvancedTeleportAPI {
 
                     // If there is no main spawn yet, make it this one too
                     if (NamedLocationManager.get().getMainSpawn() == null) {
-                        Bukkit.getScheduler().runTask(CoreClass.getInstance(),
-                                () -> AdvancedTeleportAPI.setMainSpawn(spawn, sender));
+                        RunnableManager.setupRunner(() -> AdvancedTeleportAPI.setMainSpawn(spawn, sender));
                     }
 
                     // Add it to the database.

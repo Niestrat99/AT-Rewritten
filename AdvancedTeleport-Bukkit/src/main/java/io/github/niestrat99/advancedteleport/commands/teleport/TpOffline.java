@@ -1,9 +1,9 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
 
@@ -35,28 +35,20 @@ public final class TpOffline extends TeleportATCommand implements PlayerCommand 
             Bukkit.getServer().dispatchCommand(sender, "tpo " + args[0]);
             return true;
         }
-        NBTReader.getLocation(
-                args[0],
-                new NBTReader.NBTCallback<>() {
-                    @Override
-                    public void onSuccess(Location data) {
-                        Bukkit.getScheduler()
-                                .runTask(
-                                        CoreClass.getInstance(),
-                                        () -> {
-                                            PaperLib.teleportAsync((Player) sender, data);
-                                            CustomMessages.sendMessage(
-                                                    sender,
-                                                    "Teleport.teleportedToOfflinePlayer",
-                                                    Placeholder.unparsed("player", args[0]));
-                                        });
-                    }
-
-                    @Override
-                    public void onFail(@NotNull final Component message) {
-                        CustomMessages.sendMessage(sender, message);
-                    }
+        NBTReader.getLocation(args[0], new NBTReader.NBTCallback<>() {
+            @Override
+            public void onSuccess(Location data) {
+                RunnableManager.setupRunner(() -> {
+                    PaperLib.teleportAsync((Player) sender, data);
+                    CustomMessages.sendMessage(sender, "Teleport.teleportedToOfflinePlayer", Placeholder.unparsed("player", args[0]));
                 });
+            }
+
+            @Override
+            public void onFail(@NotNull final Component message) {
+                CustomMessages.sendMessage(sender, message);
+            }
+        });
         return true;
     }
 

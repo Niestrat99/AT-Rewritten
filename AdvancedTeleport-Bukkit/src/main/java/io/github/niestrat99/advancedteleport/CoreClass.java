@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.config.ATConfig;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUIConfig;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.listeners.*;
 import io.github.niestrat99.advancedteleport.listeners.paper.PaperLegacySignListener;
 import io.github.niestrat99.advancedteleport.listeners.paper.PaperSignChangeListener;
@@ -44,10 +45,8 @@ import java.util.concurrent.Executor;
 public final class CoreClass extends JavaPlugin {
 
     private static CoreClass instance;
-    public static final Executor async =
-            task -> Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), task);
-    public static final Executor sync =
-            task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
+    public static final Executor async = RunnableManager::setupRunnerAsync;
+    public static final Executor sync = RunnableManager::setupRunner;
     private static Permission perms;
     private Object[] updateInfo;
 
@@ -144,23 +143,22 @@ public final class CoreClass extends JavaPlugin {
         RandomTPAlgorithms.init();
 
         new Metrics(this, 5146);
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        this,
-                        () -> {
-                            RTPManager.init();
-                            if (MainConfig.get().CHECK_FOR_UPDATES.get()) {
-                                updateInfo = UpdateChecker.getUpdate();
-                                if (updateInfo != null) {
-                                    getLogger().info("A new version is available!");
-                                    getLogger().info("Current version you're using: " + getDescription().getVersion());
-                                    getLogger().info("Latest version available: " + updateInfo[0]);
-                                    getLogger().info("Download link: https://www.spigotmc.org/resources/advancedteleport.64139/");
-                                } else {
-                                    getLogger().info("Plugin is up to date!");
-                                }
-                            }
-                        });
+        RunnableManager.setupRunnerAsync(() -> {
+            if (RunnableManager.isFolia()) {
+                RunnableManager.setupRunnerDelayedAsync(task -> RTPManager.init(), 60);
+            }
+            if (MainConfig.get().CHECK_FOR_UPDATES.get()) {
+                updateInfo = UpdateChecker.getUpdate();
+                if (updateInfo != null) {
+                    getLogger().info("A new version is available!");
+                    getLogger().info("Current version you're using: " + getDescription().getVersion());
+                    getLogger().info("Latest version available: " + updateInfo[0]);
+                    getLogger().info("Download link: https://www.spigotmc.org/resources/advancedteleport.64139/");
+                } else {
+                    getLogger().info("Plugin is up to date!");
+                }
+            }
+        });
     }
 
     private void checkVersion() {
@@ -226,6 +224,7 @@ public final class CoreClass extends JavaPlugin {
      */
     private void hackTheMainFrame() throws NoSuchFieldException, IllegalAccessException {
         if (!PaperLib.isPaper()) return;
+        if (RunnableManager.isFolia()) return;
 
         final var scheduler = Bukkit.getScheduler();
 
