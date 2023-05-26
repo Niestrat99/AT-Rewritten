@@ -28,9 +28,4 @@ public class NormalBukkitRunnable extends CancellableRunnable {
     public void cancel() {
         if (task != null) this.task.cancel();
     }
-
-    @Override
-    public void run() {
-
-    }
 }
