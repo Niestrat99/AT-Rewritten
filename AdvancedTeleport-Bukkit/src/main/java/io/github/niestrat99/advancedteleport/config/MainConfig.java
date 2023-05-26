@@ -106,6 +106,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> NOTIFY_ADMINS;
     public ConfigOption<Boolean> DEBUG;
     public ConfigOption<Boolean> USE_FLOODGATE_FORMS;
+    public ConfigOption<Boolean> SEND_ACTIONBAR_TO_CONSOLE;
 
     /**
      *
@@ -572,6 +573,8 @@ public final class MainConfig extends ATConfig {
                 Whether to use Cumulus forms for Bedrock players.
                 These work by having a Bedrock player type in the command itself (such as /warp, /tpa, /setwarp), then fill in the rest of the commands through a form.
                 This only works when Geyser and Floodgate are used on the server. This improves accessibility for mobile or console players.""");
+        addDefault("send-actionbar-to-console", true, "If you are just using action bars for messages and have empty base messages, the console will not receive them." +
+                "\nIf you have this option set to true, then the console will receive the message that the action bar uses.");
 
     }
 
@@ -806,6 +809,7 @@ public final class MainConfig extends ATConfig {
         NOTIFY_ADMINS = new ConfigOption<>("notify-admins-on-update");
         DEBUG = new ConfigOption<>("debug");
         USE_FLOODGATE_FORMS = new ConfigOption<>("use-floodgate-forms");
+        SEND_ACTIONBAR_TO_CONSOLE = new ConfigOption<>("send-actionbar-to-console");
 
         new PaymentManager();
         LimitationsManager.init();

@@ -523,15 +523,17 @@ public final class CustomMessages extends ATConfig {
 
     public static void sendMessage(
         @NotNull final CommandSender sender,
-        @NotNull final String path,
+        @NotNull String path,
         @NotNull final Function<String, String> preProcess,
         @NotNull final TagResolver... placeholders
     ) {
         if (config == null) return;
         if (sender instanceof Player player) {
 
+            final String mainPath = path;
+
             handleSpecialMessage(player, path + "_actionbar", (content -> asAudience(player).sendActionBar(translate(content, placeholders))), actionBarManager);
-            handleSpecialMessage(player, path + "_sound", (sound -> sendSound(player, sound, path)), soundManager);
+            handleSpecialMessage(player, path + "_sound", (sound -> sendSound(player, sound, mainPath)), soundManager);
 
             @Nullable ConfigSection titles = config.getConfigSection(path + "_title");
             @Nullable ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
@@ -588,6 +590,9 @@ public final class CustomMessages extends ATConfig {
                 titleManager.put(player, titleRunnable);
                 titleRunnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
+        } else {
+            String raw = config.getString(path);
+            if (MainConfig.get().SEND_ACTIONBAR_TO_CONSOLE.get() && (raw == null || raw.isEmpty())) path += "_actionbar";
         }
 
         var component = Component.text();
