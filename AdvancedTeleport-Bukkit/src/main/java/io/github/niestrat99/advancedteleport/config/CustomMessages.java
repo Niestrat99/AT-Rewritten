@@ -151,6 +151,7 @@ public class CustomMessages extends ATConfig {
         addDefault("Error.setMainSpawnFail", "&b↑ &8» &7Failed to set the main spawnpoint &b{spawn}&7!");
         addDefault("Error.rtpManagerNotUsed", "&b↑ &8» &7The feature required for this command is not enabled!");
 
+        makeSectionLenient("Info");
         addDefault("Info.tpOff", "&b↑ &8» &7Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "&b↑ &8» &7Successfully enabled teleport requests!");
         addDefault("Info.tpAdminOff", "&b↑ &8» &7Successfully disabled teleport requests for &b{player}&7!");
