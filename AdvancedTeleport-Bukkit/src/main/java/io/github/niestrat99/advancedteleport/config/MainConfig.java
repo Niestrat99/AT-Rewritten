@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
@@ -834,46 +833,45 @@ public final class MainConfig extends ATConfig {
             }
         }
 
-        RunnableManager.setupRunnerDelayed((run) -> {
-            boolean warned = false;
-            for (String permission : permissions) {
-                if (!permission.startsWith("at")) continue;
-                if (permission.startsWith("at.admin")) {
-                    if (!warned) {
-                        CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default" +
-                                " to all users.");
-                        if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
-                            CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so we're " +
-                                    "not adding it right now.");
-                            CoreClass.getInstance().getLogger().warning("To allow people to use admin permissions such as" +
-                                    " the ones specified, please disable the check in the configuration.");
-                            CoreClass.getInstance().getLogger().warning("If you have a permissions plugin hooked into " +
-                                    "Vault too, you cannot make admin permissions default permissions.");
-                        } else {
-                            CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so if this " +
-                                    "is not your doing, please check your configuration.");
-                            CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as " +
-                                    "the ones specified, please enable the check in the configuration.");
-                        }
-                        warned = true;
+        boolean warned = false;
+        for (String permission : permissions) {
+            if (!permission.startsWith("at")) continue;
+            if (permission.startsWith("at.admin")) {
+                if (!warned) {
+                    CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default" +
+                            " to all users.");
+                    if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
+                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so we're " +
+                                "not adding it right now.");
+                        CoreClass.getInstance().getLogger().warning("To allow people to use admin permissions such as" +
+                                " the ones specified, please disable the check in the configuration.");
+                        CoreClass.getInstance().getLogger().warning("If you have a permissions plugin hooked into " +
+                                "Vault too, you cannot make admin permissions default permissions.");
+                    } else {
+                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so if this " +
+                                "is not your doing, please check your configuration.");
+                        CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as " +
+                                "the ones specified, please enable the check in the configuration.");
                     }
-                }
-                if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
-                    CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
-                } else {
-                    CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
-                    continue;
-                }
+                    warned = true;
 
-                Permission permObject = Bukkit.getPluginManager().getPermission(permission);
-                if (permObject == null) {
-                    permObject = new Permission(permission);
-                    Bukkit.getPluginManager().addPermission(permObject);
                 }
-                permObject.setDefault(PermissionDefault.TRUE);
-                defaults.add(permission);
             }
-        }, 100);
+            if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
+                CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
+            } else {
+                CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
+                continue;
+            }
+
+            Permission permObject = Bukkit.getPluginManager().getPermission(permission);
+            if (permObject == null) {
+                permObject = new Permission(permission);
+                Bukkit.getPluginManager().addPermission(permObject);
+            }
+            permObject.setDefault(PermissionDefault.TRUE);
+            defaults.add(permission);
+        }
     }
 
     public static class ConfigOption<T> {

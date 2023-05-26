@@ -165,13 +165,6 @@ public class RTPManager {
     }
 
     private static Block getHighestBlock(World world, int x, int z) {
-
-        // If we're on Folia, then hop onto the region thread briefly
-        if (RunnableManager.isFolia()) {
-            return CompletableFuture.supplyAsync(() -> world.getHighestBlockAt(x, z),
-                    task -> Bukkit.getGlobalRegionScheduler().execute(CoreClass.getInstance(), task)).join();
-        }
-
         return world.getHighestBlockAt(x, z);
     }
 
