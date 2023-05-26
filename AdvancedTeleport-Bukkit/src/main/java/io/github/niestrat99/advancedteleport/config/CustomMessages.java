@@ -376,8 +376,10 @@ public class CustomMessages extends ATConfig {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
+            final String mainPath = path;
+
             handleSpecialMessage(player, path + "_actionbar", (content -> sendActionBar(player, content, placeholders)), actionBarManager);
-            handleSpecialMessage(player, path + "_sound", (sound -> sendSound(player, sound, path)), soundManager);
+            handleSpecialMessage(player, path + "_sound", (sound -> sendSound(player, sound, mainPath)), soundManager);
 
             @Nullable ConfigSection titles = config.getConfigSection(path + "_title");
             @Nullable ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
@@ -429,6 +431,9 @@ public class CustomMessages extends ATConfig {
                 titleManager.put(player, titleRunnable);
                 titleRunnable.runTaskTimer(CoreClass.getInstance(), 1, 1);
             }
+        } else {
+            String raw = config.getString(path);
+            if (NewConfig.get().SEND_ACTIONBAR_TO_CONSOLE.get() && (raw == null || raw.isEmpty())) path += "_actionbar";
         }
 
         if (config.get(path) instanceof List) {

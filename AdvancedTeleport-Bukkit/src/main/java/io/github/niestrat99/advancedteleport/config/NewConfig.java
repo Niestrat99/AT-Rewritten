@@ -107,6 +107,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> CHECK_FOR_UPDATES;
     public ConfigOption<Boolean> NOTIFY_ADMINS;
     public ConfigOption<Boolean> DEBUG;
+    public ConfigOption<Boolean> SEND_ACTIONBAR_TO_CONSOLE;
 
     private static NewConfig instance;
     private static List<String> defaults;
@@ -486,6 +487,8 @@ public class NewConfig extends ATConfig {
         addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
                 "Anyone with the permission at.admin.notify will receive this notification.");
         addDefault("debug", false, "Used for debugging purposes.");
+        addDefault("send-actionbar-to-console", true, "If you are just using action bars for messages and have empty base messages, the console will not receive them." +
+                "\nIf you have this option set to true, then the console will receive the message that the action bar uses.");
 
     }
 
@@ -707,6 +710,7 @@ public class NewConfig extends ATConfig {
         CHECK_FOR_UPDATES = new ConfigOption<>("check-for-updates");
         NOTIFY_ADMINS = new ConfigOption<>("notify-admins-on-update");
         DEBUG = new ConfigOption<>("debug");
+        SEND_ACTIONBAR_TO_CONSOLE = new ConfigOption<>("send-actionbar-to-console");
 
         new PaymentManager();
         LimitationsManager.init();
