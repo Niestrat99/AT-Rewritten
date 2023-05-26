@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
@@ -1180,16 +1179,15 @@ public final class MainConfig extends ATConfig {
                             .info("Denied default access to " + permission);
                     continue;
                 }
-
-                Permission permObject = Bukkit.getPluginManager().getPermission(permission);
-                if (permObject == null) {
-                    permObject = new Permission(permission);
-                    Bukkit.getPluginManager().addPermission(permObject);
-                }
-                permObject.setDefault(PermissionDefault.TRUE);
-                defaults.add(permission);
             }
-        }, 100);
+            Permission permObject = Bukkit.getPluginManager().getPermission(permission);
+            if (permObject == null) {
+                permObject = new Permission(permission);
+                Bukkit.getPluginManager().addPermission(permObject);
+            }
+            permObject.setDefault(PermissionDefault.TRUE);
+            defaults.add(permission);
+        }
     }
 
     public static class ConfigOption<T> {
