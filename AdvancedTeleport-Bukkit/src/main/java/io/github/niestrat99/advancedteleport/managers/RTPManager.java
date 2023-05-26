@@ -23,7 +23,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 
 public class RTPManager {
 
@@ -52,15 +51,33 @@ public class RTPManager {
         return locQueue != null;
     }
 
+    /**
+     * Used to fetch the next available random location in the world.
+     *
+     * @param world the world to check.
+     * @return
+     */
     public static CompletableFuture<Location> getNextAvailableLocation(World world) {
+
+        // Fetch from the queue.
         final Queue<Location> queue = locQueue.get(world.getUID());
-        addLocation(world, false, 0).thenAccept(location -> {
+
+        // Proactively add a location to the queue in case we remove the location.
+        addLocation(world, false).whenComplete((location, err) -> {
+            if (err != null) {
+                err.printStackTrace();
+                return;
+            }
+
+            // If a location was not found due to being exhausted, stop there.
             if (location == null) return;
             queue.add(location);
             locQueue.put(world.getUID(), queue);
         });
+
+        // If there's nothing found, then fetch the location directly and mark it as urgent, otherwise just fetch it from the queue
         if (queue == null || queue.isEmpty()) {
-            return addLocation(world, true, 0);
+            return addLocation(world, true);
         } else {
             return CompletableFuture.completedFuture(queue.poll());
         }
@@ -68,7 +85,11 @@ public class RTPManager {
 
     public static Location getLocationUrgently(World world) {
         Queue<Location> queue = locQueue.get(world.getUID());
-        addLocation(world, false, 0).thenAccept(location -> {
+        addLocation(world, false).whenComplete((location, err) -> {
+            if (err != null) {
+                err.printStackTrace();
+                return;
+            }
             if (location == null) return;
             queue.add(location);
             locQueue.put(world.getUID(), queue);
@@ -82,15 +103,11 @@ public class RTPManager {
 
     public static CompletableFuture<@Nullable Location> addLocation(
             final World world,
-            final boolean urgent,
-            int tries
+            final boolean urgent
     ) {
 
         // If it's not a Paper server, stop there.
         if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
-
-        // Increment the number of attempts so we don't exhaust the server.
-        tries++;
 
         // If there are too many locations for a world, just return the first one and remove it from the queue.
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > MainConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
@@ -100,7 +117,6 @@ public class RTPManager {
             }
         }
 
-
         // Generate the coordinates.
         Location location = RandomCoords.generateCoords(world);
 
@@ -109,39 +125,55 @@ public class RTPManager {
         }
 
         int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};
-        int finalTries = tries;
 
-        // Attempt to fetch the chunk to be loaded.
-        return PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).thenApplyAsync(chunk -> {
+        // Alright baby let's go
+        return CompletableFuture.supplyAsync(() -> {
 
-            // If we're in the Nether, do a binary jump, otherwise get the highest block.
-            Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : getHighestBlock(world, coords[0], coords[1]);
+            // Declare initial variables
+            int tries = 0;
 
-            // If it's a valid location, return it. If not, try again unless the plugin has exhausted its attempts.
-            if (isValidLocation(block)) {
-                return block.getLocation().add(0.5, 1, 0.5);
-            } else if (finalTries < 5 || urgent) {
-                return addLocation(world, urgent, finalTries).join();
-            } else {
-                return null;
+            // Wait for the chunk to load
+            while (tries < 5 || urgent) {
+                try {
+                    tries++;
+
+                    // If we're on Folia, then do some tomfoolery and handle chunk-related tasks on the scheduler for the chunk
+                    if (RunnableManager.isFolia()) {
+
+                        // Fetch the chunk now
+                        PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).get();
+
+                        // Let it do what it needs to do and wait on it.
+                        return CompletableFuture.supplyAsync(() -> {
+
+                            // Get the block
+                            Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : world.getHighestBlockAt(coords[0], coords[1]);
+
+                            // If it's valid, then return it
+                            return isValidLocation(block) ? block.getLocation().add(0.5, 1, 0.5) : null;
+
+                        }, task -> Bukkit.getRegionScheduler().execute(CoreClass.getInstance(), world, coords[0] >> 4, coords[1] >> 4, task)).get();
+                    }
+
+                    Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : world.getHighestBlockAt(coords[0], coords[1]);
+                    if (isValidLocation(block)) return block.getLocation().add(0.5, 1, 0.5);
+
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
-        }, CoreClass.async).thenApplyAsync(loc -> loc, CoreClass.sync);
+
+            return null;
+        }, CoreClass.async);
     }
 
     private static Block getHighestBlock(World world, int x, int z) {
-
-        // If we're on Folia, then hop onto the region thread briefly
-        if (RunnableManager.isFolia()) {
-            return CompletableFuture.supplyAsync(() -> world.getHighestBlockAt(x, z),
-                    task -> Bukkit.getGlobalRegionScheduler().execute(CoreClass.getInstance(), task)).join();
-        }
-
         return world.getHighestBlockAt(x, z);
     }
 
     private static Block doBinaryJump(
-        World world,
-        int[] coords
+            World world,
+            int[] coords
     ) {
         Location location = new Location(world, coords[0], 128, coords[1]);
 
@@ -194,7 +226,7 @@ public class RTPManager {
 
             if (currentMat != Material.AIR) {
                 if (subTempLocation.add(0, 1, 0).getBlock().getType() == Material.AIR
-                    && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
+                        && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
                     return subTempLocation.add(0.5, -1, 0.5).getBlock();
                 } else {
                     up = true;
@@ -213,12 +245,18 @@ public class RTPManager {
 
     public static void loadWorldData(World world) {
         if (locQueue == null) return;
-        if (MainConfig.get().WHITELIST_WORLD.get() && !MainConfig.get().ALLOWED_WORLDS.get().contains(world.getName())) return;
-        if (world.getGenerator() != null && MainConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName())) return;
+        if (MainConfig.get().WHITELIST_WORLD.get() && !MainConfig.get().ALLOWED_WORLDS.get().contains(world.getName()))
+            return;
+        if (world.getGenerator() != null && MainConfig.get().IGNORE_WORLD_GENS.get().contains(world.getGenerator().getClass().getName()))
+            return;
         int size = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>()).size();
 
         for (int i = size; i < MainConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
-            addLocation(world, false, 0).thenAccept(location -> {
+            addLocation(world, false).whenComplete((location, err) -> {
+                if (err != null) {
+                    err.printStackTrace();
+                    return;
+                }
                 Queue<Location> queue = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>());
                 queue.add(location);
                 locQueue.put(world.getUID(), queue);
@@ -264,7 +302,7 @@ public class RTPManager {
             while (locations.peek() != null) {
                 Location loc = locations.poll();
                 String locLine = worldUUID.toString() +
-                    "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
+                        "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
                 writer.write(locLine);
                 writer.write("\n");
             }

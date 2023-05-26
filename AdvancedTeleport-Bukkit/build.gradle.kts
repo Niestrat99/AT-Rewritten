@@ -151,12 +151,12 @@ tasks {
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
         val pluginsFolder = devServer.resolve("plugins")
         runDirectory.set(rootDir.resolve(".run"))
-        pluginJars(pluginsFolder.resolve("Vault.jar"))
-        pluginJars(pluginsFolder.resolve("Spark.jar"))
-        pluginJars(pluginsFolder.resolve("Spoofer.jar"))
-        pluginJars(pluginsFolder.resolve("squaremap.jar"))
-        pluginJars(pluginsFolder.resolve("PlayerParticles.jar"))
-        pluginJars(pluginsFolder.resolve("dynmap.jar"))
+        // pluginJars(pluginsFolder.resolve("Vault.jar"))
+        // pluginJars(pluginsFolder.resolve("Spark.jar"))
+        // pluginJars(pluginsFolder.resolve("Spoofer.jar"))
+        // pluginJars(pluginsFolder.resolve("squaremap.jar"))
+        // pluginJars(pluginsFolder.resolve("PlayerParticles.jar"))
+        // pluginJars(pluginsFolder.resolve("dynmap.jar"))
         pluginJars(getJarFile())
     }
 
@@ -490,7 +490,7 @@ bukkit {
         }
 
         register("at.member.*") {
-            default = BukkitPluginDescription.Permission.Default.OP
+            default = BukkitPluginDescription.Permission.Default.TRUE
             description = "Allows access to member-based commands of the plugin."
             childrenMap = mapOf(
                 "at.member.tpr" to true,
