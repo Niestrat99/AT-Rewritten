@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
@@ -834,12 +833,11 @@ public final class MainConfig extends ATConfig {
             }
         }
 
-        RunnableManager.setupRunnerDelayed((run) -> {
-            boolean warned = false;
-            for (String permission : permissions) {
-                if (!permission.startsWith("at")) continue;
-                if (permission.startsWith("at.admin")) {
-                    if (!warned) {
+        boolean warned = false;
+        for (String permission : permissions) {
+            if (!permission.startsWith("at")) continue;
+            if (permission.startsWith("at.admin")) {
+                if (!warned) {
                         CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default" +
                             " to all users.");
                         if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
@@ -857,22 +855,21 @@ public final class MainConfig extends ATConfig {
                         }
                         warned = true;
                     }
-                    if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
-                        CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
-                    } else {
-                        CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
-                        continue;
-                    }
+                if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
+                    CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
+                } else {
+                    CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
+                    continue;
                 }
-                Permission permObject = Bukkit.getPluginManager().getPermission(permission);
-                if (permObject == null) {
-                    permObject = new Permission(permission);
-                    Bukkit.getPluginManager().addPermission(permObject);
-                }
-                permObject.setDefault(PermissionDefault.TRUE);
-                defaults.add(permission);
             }
-        }, 20);
+            Permission permObject = Bukkit.getPluginManager().getPermission(permission);
+            if (permObject == null) {
+                permObject = new Permission(permission);
+                Bukkit.getPluginManager().addPermission(permObject);
+            }
+            permObject.setDefault(PermissionDefault.TRUE);
+            defaults.add(permission);
+        }
     }
 
     public static class ConfigOption<T> {
