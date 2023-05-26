@@ -173,19 +173,12 @@ public class RTPManager {
     }
 
     private static Block getHighestBlock(World world, int x, int z) {
-
-        // If we're on Folia, then hop onto the region thread briefly
-        if (RunnableManager.isFolia()) {
-            return CompletableFuture.supplyAsync(() -> world.getHighestBlockAt(x, z),
-                    task -> Bukkit.getGlobalRegionScheduler().execute(CoreClass.getInstance(), task)).join();
-        }
-
         return world.getHighestBlockAt(x, z);
     }
 
     private static Block doBinaryJump(
-        World world,
-        int[] coords
+            World world,
+            int[] coords
     ) {
         Location location = new Location(world, coords[0], 128, coords[1]);
 
