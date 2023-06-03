@@ -5,11 +5,14 @@ import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.bukkit.util.NumberConversions.square;
 
 public class Spawn extends ATConfig {
 
@@ -98,11 +101,21 @@ public class Spawn extends ATConfig {
     }
 
     public Location getSpawn(String name) {
-        return getSpawn(name, null, false);
+        return getSpawn(name, null, false, true);
     }
 
-    public Location getSpawn(String name, Player player, boolean bypassPermission) {
-        // if (get("spawns." + name) == null) return getProperMainSpawn();
+    public Location getSpawn(
+            @NotNull String name,
+            @Nullable Player player,
+            boolean bypassPermission,
+            boolean forced
+    ) {
+
+        // If we're going to the nearest spawnpoint instead, look around
+        if (player != null && NewConfig.get().TELEPORT_TO_NEAREST_SPAWN.get() && !forced) {
+            return getNearestLocation(player);
+        }
+
         ConfigSection spawns = getConfigSection("spawns");
         ConfigSection toSection = spawns.getConfigSection(name);
         while (true) {
@@ -147,6 +160,51 @@ public class Spawn extends ATConfig {
             }
         }
         return mainSpawn;
+    }
+
+    private Location getNearestLocation(@NotNull Player player) {
+
+        final Location loc = player.getLocation();
+
+        // Set the initial values
+        @Nullable String chosenSpawn = null;
+        double max = 0;
+
+        ConfigSection spawns = getConfigSection("spawns");
+        for (String spawnName : getSpawns()) {
+            ConfigSection spawn = spawns.getConfigSection(spawnName);
+
+            // Same world?
+            if (!player.getWorld().getName().equals(spawn.getString("world"))) continue;
+
+            // Not a mirror?
+            boolean hasCoords = spawn.contains("x")
+                    && spawn.contains("y")
+                    && spawn.contains("z")
+                    && spawn.contains("yaw")
+                    && spawn.contains("pitch")
+                    && spawn.contains("world");
+            if (!hasCoords) continue;
+
+            // Has permission?
+            boolean requiresPermission = spawn.getBoolean("requires-permission", true);
+            if (requiresPermission && !player.hasPermission("at.member.spawn." + spawnName.toLowerCase())) continue;
+
+            // Check the distance
+            double x = spawn.getDouble("x");
+            double y = spawn.getDouble("y");
+            double z = spawn.getDouble("z");
+            double distance = square(x - loc.getX()) + square(y - loc.getY()) + square(z - loc.getZ());
+            if (chosenSpawn != null && distance >= max) continue;
+
+            // If it works out, set it!
+            chosenSpawn = spawnName;
+            max = distance;
+        }
+
+        // If no spawn was chosen, use the main spawn
+        if (chosenSpawn == null) return mainSpawn;
+        return getSpawn(chosenSpawn);
     }
 
     public String setMainSpawn(String id, Location location) {

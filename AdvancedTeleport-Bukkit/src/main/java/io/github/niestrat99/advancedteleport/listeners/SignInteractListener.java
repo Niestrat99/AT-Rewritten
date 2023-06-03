@@ -110,10 +110,12 @@ public class SignInteractListener implements Listener {
             @Override
             public void onInteract(Sign sign, Player player) {
                 String world = player.getWorld().getName();
+                boolean specific = false;
                 if (!sign.getLine(1).isEmpty()) {
                     world = sign.getLine(1);
+                    specific = true;
                 }
-                SpawnCommand.spawn(player, world);
+                SpawnCommand.spawn(player, world, specific);
             }
 
             @Override

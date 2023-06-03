@@ -98,6 +98,7 @@ public class NewConfig extends ATConfig {
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
+    public ConfigOption<Boolean> TELEPORT_TO_NEAREST_SPAWN;
 
     public ConfigOption<ConfigSection> DEATH_MANAGEMENT;
 
@@ -442,6 +443,9 @@ public class NewConfig extends ATConfig {
                 "If it is blank, then it will take the main spawnpoint.");
         addDefault("teleport-to-spawn-on-every-join", false,
                 "Whether the player should be teleported to the spawnpoint every time they join.");
+        addDefault("teleport-to-nearest-spawnpoint", false, "Whether using /spawn, joining or respawning should send the user to the closest spawnpoint they have access to.\n" +
+                "If the user doesn't have permission to the specified spawnpoint, then they are not sent to it." +
+                "Only spawns in the same dimension/world are considered. If no spawnpoint is set in the same dimension, then the normal main spawn is used.");
 
         addComment("death-management", "Determines how and where players teleport when they die.\n" +
                 "Options include:\n" +
@@ -701,6 +705,7 @@ public class NewConfig extends ATConfig {
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
+        TELEPORT_TO_NEAREST_SPAWN = new ConfigOption<>("teleport-to-nearest-spawnpoint");
 
         DEATH_MANAGEMENT = new ConfigOption<>("death-management");
 

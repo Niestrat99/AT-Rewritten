@@ -37,9 +37,9 @@ public class TeleportTrackingManager implements Listener {
         if (!player.hasPermission("at.admin.bypass.teleport-on-join")) {
             Location loc = null;
             if (!player.hasPlayedBefore() && NewConfig.get().TELEPORT_TO_SPAWN_FIRST.get()) {
-                loc = Spawn.get().getSpawn(NewConfig.get().FIRST_SPAWN_POINT.get(), player, true);
+                loc = Spawn.get().getSpawn(NewConfig.get().FIRST_SPAWN_POINT.get(), player, true, false);
             } else if (NewConfig.get().TELEPORT_TO_SPAWN_EVERY.get()) {
-                loc = Spawn.get().getSpawn(e.getPlayer().getWorld().getName(), player, false);
+                loc = Spawn.get().getSpawn(e.getPlayer().getWorld().getName(), player, false, false);
                 if (loc == null) loc = player.getWorld().getSpawnLocation();
             }
             if (loc == null) return;
@@ -136,7 +136,7 @@ public class TeleportTrackingManager implements Listener {
 
         switch (spawnCommand) {
             case "spawn":
-                Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName(), e.getPlayer(), false);
+                Location spawn = Spawn.get().getSpawn(e.getPlayer().getWorld().getName(), e.getPlayer(), false, false);
                 if (spawn != null) {
                     CoreClass.debug("Spawn found at " + spawn.getX() + ", " + spawn.getY() + ", " + spawn.getZ());
                     e.setRespawnLocation(spawn);

@@ -47,19 +47,21 @@ public class SpawnCommand implements ATCommand {
             return true;
         }
         String location = player.getWorld().getName();
+        boolean specific = false;
         if (args.length > 0 &&
                 (player.hasPermission("at.admin.spawn") || player.hasPermission("at.member.spawn." + args[0].toLowerCase()))) {
             if (args[0].matches("^[0-9A-Za-z\\-_]+$")) {
                 location = args[0];
+                specific = true;
             }
         }
-        spawn(player, location);
+        spawn(player, location, specific);
         return true;
     }
 
-    public static void spawn(Player player, String name) {
+    public static void spawn(Player player, String name, boolean specific) {
         Location spawn;
-        spawn = Spawn.get().getSpawn(name, player, false);
+        spawn = Spawn.get().getSpawn(name, player, false, specific);
         if (spawn == null) {
             spawn = player.getWorld().getSpawnLocation();
         }
