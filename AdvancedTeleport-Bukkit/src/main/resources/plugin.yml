@@ -12,6 +12,7 @@ commands:
   at:
     description: The core AT command.
     permission: at.member.core
+    aliases: [atp, adtp]
   warps:
     description: Gives you a list of warps.
     permission: at.member.warps
