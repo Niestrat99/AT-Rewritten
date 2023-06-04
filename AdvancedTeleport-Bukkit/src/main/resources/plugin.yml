@@ -156,13 +156,21 @@ permissions:
   at.member.core.*:
     default: op
     children:
-      at.member.core.clearcache: true
-      at.member.core.export: true
       at.member.core.help: true
-      at.member.core.import: true
       at.member.core.info: true
-      at.member.core.purge: true
-      at.member.core.reload: true
+      at.member.core.clearcache: false
+      at.member.core.export: false
+      at.member.core.import: false
+      at.member.core.purge: false
+      at.member.core.reload: false
+  at.admin.core.*:
+    default: op
+    children:
+      at.admin.core.clearcache: true
+      at.admin.core.export: true
+      at.admin.core.import: true
+      at.admin.core.purge: true
+      at.admin.core.reload: true
   at.member.warp.*:
     default: op
   at.member.spawn:
@@ -207,7 +215,7 @@ permissions:
       at.member.warps.location: true
       at.member.homes.location: true
       at.member.spawn.*: false
-      at.member.core.*: false
+      at.member.core.*: true
   at.admin.*:
     default: op
     description: Allows access to admin-based commands of the plugin.

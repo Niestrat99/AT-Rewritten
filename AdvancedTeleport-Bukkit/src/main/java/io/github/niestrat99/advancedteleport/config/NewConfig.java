@@ -468,7 +468,7 @@ public class NewConfig extends ATConfig {
         addExample("death-management.another-world", "bed");
 
         addDefault("default-permissions", new ArrayList<>(Arrays.asList(
-                "at.member.*",
+                        "at.member.*",
                         "at.member.warp.*",
                         "at.member.warp.sign.*",
                         "at.member.core.help",
@@ -719,9 +719,12 @@ public class NewConfig extends ATConfig {
 
         new PaymentManager();
         LimitationsManager.init();
+        handlePermissions();
+    }
+
+    private void handlePermissions() {
 
         // HANDLING DEFAULT PERMISSIONS
-
         List<String> permissions = DEFAULT_PERMISSIONS.get() == null ? new ArrayList<>() : DEFAULT_PERMISSIONS.get();
         if (defaults == null) {
             defaults = new ArrayList<>();
@@ -771,7 +774,7 @@ public class NewConfig extends ATConfig {
                 permObject.setDefault(PermissionDefault.TRUE);
                 defaults.add(permission);
             }
-        }, 200);
+        }, 20);
     }
 
     public static class ConfigOption<T> {

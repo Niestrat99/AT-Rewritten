@@ -30,7 +30,7 @@ public class CoreCommand implements ATCommand {
             help.onCommand(sender, cmd, s, args);
             return true;
         }
-        if (sender.hasPermission("at.member.core." + command)) {
+        if (sender.hasPermission("at.member.core." + command) || sender.hasPermission("at.admin.core." + command)) {
             CommandManager.subcommands.get(command).onCommand(sender, cmd, s, Arrays.copyOfRange(args, 1, args.length));
         } else {
             CustomMessages.sendMessage(sender, "Error.noPermission");
