@@ -91,15 +91,12 @@ public class TeleportTrackingManager implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRespawn(PlayerRespawnEvent e) {
         if (e.getPlayer().hasMetadata("NPC")) return;
-        CoreClass.debug("Respawn event triggered for " + e.getPlayer().getName() + ".");
-        ATPlayer atPlayer = ATPlayer.getPlayer(e.getPlayer());
+        Location location = e.getPlayer().getLocation();
+        CoreClass.debug("Respawn event triggered for " + e.getPlayer().getName() + ". Location: " + location);
         if (NewConfig.get().USE_SPAWN.get()) {
             CoreClass.debug("Spawning feature is enabled.");
-            if (atPlayer.getPreviousLocation() == null) return;
-            if (atPlayer.getPreviousLocation().getWorld() == null) return;
-            CoreClass.debug("Player has a previous location to go back to.");
             ConfigSection deathManagement = NewConfig.get().DEATH_MANAGEMENT.get();
-            String spawnCommand = deathManagement.getString(atPlayer.getPreviousLocation().getWorld().getName());
+            String spawnCommand = deathManagement.getString(location.getWorld().getName());
             if (spawnCommand == null || spawnCommand.equals("{default}")) {
                 spawnCommand = deathManagement.getString("default");
                 if (spawnCommand == null) return;
