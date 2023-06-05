@@ -88,7 +88,7 @@ public class TeleportTrackingManager implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onRespawn(PlayerRespawnEvent e) {
         if (e.getPlayer().hasMetadata("NPC")) return;
         CoreClass.debug("Respawn event triggered for " + e.getPlayer().getName() + ".");
