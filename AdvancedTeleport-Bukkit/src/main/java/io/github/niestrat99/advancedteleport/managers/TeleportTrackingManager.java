@@ -117,7 +117,7 @@ public class TeleportTrackingManager implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onRespawn(PlayerRespawnEvent e) {
 
         // How many times do we need to go over this?
