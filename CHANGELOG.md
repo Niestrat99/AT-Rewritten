@@ -2,6 +2,27 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v6.0.0-beta.5](https://github.com/Niestrat99/AT-Rewritten/compare/v6.0.0-beta.4..v6.0.0-beta.5) - 2023-06-06
+#### Bug Fixes
+- legacy codes not being translated in messages - ([e8a1b31](https://github.com/Niestrat99/AT-Rewritten/commit/e8a1b31c4a42403b11eaea8e0c37d3174e545127)) - Thatsmusic99
+- at.member.core not considered a default member permission - ([b44036a](https://github.com/Niestrat99/AT-Rewritten/commit/b44036ab93926551605575db9126823421d38e5d)) - Thatsmusic99
+- use current location rather than previous location when respawning - ([94be286](https://github.com/Niestrat99/AT-Rewritten/commit/94be2869108cdad96159afd8273184439bbfc377)) - Thatsmusic99
+- set respawn priority to HIGHEST, *hopefully* beating down other plugins - ([ec0efcb](https://github.com/Niestrat99/AT-Rewritten/commit/ec0efcb6f09b429a6e482ea75c60a9951cf97b5e)) - Thatsmusic99
+- change admin core permissions to at.admin.core.command - ([334d8b4](https://github.com/Niestrat99/AT-Rewritten/commit/334d8b4417ab9ee14274fb07e492e47c6c8d868d)) - Thatsmusic99
+- make info section lenient - ([853a915](https://github.com/Niestrat99/AT-Rewritten/commit/853a91507a47c43b77ab19fddf834a5cfff6ad46)) - Thatsmusic99
+- NPE without action bars - ([fd2dc55](https://github.com/Niestrat99/AT-Rewritten/commit/fd2dc55fba3f1c264981335ba297c9dcdfaa3b5e)) - Thatsmusic99
+#### Features
+- add /atp and /adtp as aliases - ([584980a](https://github.com/Niestrat99/AT-Rewritten/commit/584980a6a7f400ff43dafcbdf8c1fe4f905ef158)) - Thatsmusic99
+- add teleportation to the nearest spawnpoint - ([6bda7cf](https://github.com/Niestrat99/AT-Rewritten/commit/6bda7cf676aef1cf1727217724cc60c811ed64ad)) - Thatsmusic99
+- allow blank messages to be replaced with actionbar messages in the console - ([62e1f34](https://github.com/Niestrat99/AT-Rewritten/commit/62e1f34cf2aaaecf75f4cc9699bd718521232a91)) - Thatsmusic99
+- add sounds to messages - ([206e41d](https://github.com/Niestrat99/AT-Rewritten/commit/206e41d4d9e2d1d40bc17528b8e4014814f7551d)) - Thatsmusic99
+- add action bar and improve title support - ([14992b4](https://github.com/Niestrat99/AT-Rewritten/commit/14992b475829bf58ffce0ed3e738d8b51a03999c)) - Thatsmusic99
+#### Miscellaneous Chores
+- **(version)** bump - ([93f0250](https://github.com/Niestrat99/AT-Rewritten/commit/93f025025b6fcf295e8866cd4fe7d68c17d3b558)) - Thatsmusic99
+- remove target folder - ([65c54c8](https://github.com/Niestrat99/AT-Rewritten/commit/65c54c868701e075dd32bf625412aada7ca5ac95)) - Thatsmusic99
+
+- - -
+
 ## [v6.0.0-beta.2](https://github.com/Niestrat99/AT-Rewritten/compare/v6.0.0-beta.1..v6.0.0-beta.2) - 2023-04-11
 #### Bug Fixes
 - change repo owner to Niestrat99 - ([4eca7a2](https://github.com/Niestrat99/AT-Rewritten/commit/4eca7a284e5c5de98f1ed9ba545d39d34a9c1129)) - Thatsmusic99
