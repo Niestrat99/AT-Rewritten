@@ -123,9 +123,6 @@ public class TeleportTrackingManager implements Listener {
         // How many times do we need to go over this?
         if (e.getPlayer().hasMetadata("NPC")) return;
 
-        // Get the player in question being managed
-        final var atPlayer = ATPlayer.getPlayer(e.getPlayer());
-
         // If the spawn feature is disabled, stop there
         if (!MainConfig.get().USE_SPAWN.get()) return;
 
@@ -133,8 +130,7 @@ public class TeleportTrackingManager implements Listener {
         ConfigSection deathManagement = MainConfig.get().DEATH_MANAGEMENT.get();
 
         // Get the previous location of the world, or the default option
-        String spawnCommand =  deathManagement.getString(atPlayer.getPreviousLocation() == null ?
-                "default" : atPlayer.getPreviousLocation().getWorld().getName());
+        String spawnCommand =  deathManagement.getString(e.getPlayer().getWorld().getName());
 
         // If one of those don't work, try the default option again
         if (spawnCommand == null || spawnCommand.equals("default")) {
