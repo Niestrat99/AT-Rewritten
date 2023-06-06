@@ -52,7 +52,7 @@ public class CoreCommand implements ATCommand {
         List<String> availableCommands = new ArrayList<>();
         List<String> chosenCommands = new ArrayList<>();
         for (String command : CommandManager.subcommands.keySet()) {
-            if (sender.hasPermission("at.member.core." + command)) {
+            if (sender.hasPermission("at.member.core." + command) || sender.hasPermission("at.admin.core." + command)) {
                 availableCommands.add(command);
             }
         }
