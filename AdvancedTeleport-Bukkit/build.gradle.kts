@@ -521,7 +521,8 @@ bukkit {
                 "at.member.warps.location" to true,
                 "at.member.homes.location" to true,
                 "at.member.spawn.*" to false,
-                "at.member.core.*" to true
+                "at.member.core.*" to true,
+                "at.member.core" to true
             )
         }
 
