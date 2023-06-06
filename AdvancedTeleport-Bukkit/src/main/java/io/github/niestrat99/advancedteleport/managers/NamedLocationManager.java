@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
@@ -16,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+
+import static org.bukkit.util.NumberConversions.square;
 
 /**
  * Used to manage the internal registration of warps and spawns during runtime.
@@ -131,6 +134,11 @@ public class NamedLocationManager {
             @Nullable Player teleportingPlayer
     ) {
 
+        // If we're teleporting to the nearest spawnpoint, then use that
+        if (teleportingPlayer != null && MainConfig.get().TELEPORT_TO_NEAREST_SPAWN.get()) {
+            return getNearestSpawn(teleportingPlayer);
+        }
+
         // If there's no spawns registered under the world's name, try using the main spawn.
         if (!this.spawns.containsKey(world.getName()) && !this.worldMirrors.containsKey(world.getName())) {
             return getUndeclaredSpawn(world);
@@ -155,7 +163,7 @@ public class NamedLocationManager {
     }
 
     @Contract(pure = true)
-    private Spawn getUndeclaredSpawn(@NotNull World world) {
+    private @NotNull Spawn getUndeclaredSpawn(@NotNull World world) {
 
         // If there's a main spawn, just return it
         if (this.mainSpawn != null) return mainSpawn;
@@ -182,6 +190,39 @@ public class NamedLocationManager {
             // Return a new spawn object, but don't register it for now
             return new Spawn(world.getName(), world.getSpawnLocation());
         }
+    }
+
+    @Contract(pure = true)
+    private @NotNull Spawn getNearestSpawn(@NotNull Player player) {
+
+        final Location loc = player.getLocation();
+
+        // Set the initial values
+        @Nullable Spawn chosenSpawn = null;
+        double max = 0;
+
+        for (Spawn spawn : getSpawns().values()) {
+
+            // Same world?
+            if (spawn.getLocation().getWorld() != player.getWorld()) continue;
+
+            // Has permission?
+            if (!spawn.canAccess(player)) continue;
+
+            // Check the distance
+            double x = spawn.getLocation().getX();
+            double y = spawn.getLocation().getY();
+            double z = spawn.getLocation().getZ();
+            double distance = square(x - loc.getX()) + square(y - loc.getY()) + square(z - loc.getZ());
+            if (chosenSpawn != null && distance >= max) continue;
+
+            chosenSpawn = spawn;
+            max = distance;
+        }
+
+        // If no spawn was chosen, choose the undeclared spawn
+        if (chosenSpawn == null) return getUndeclaredSpawn(player.getWorld());
+        return chosenSpawn;
     }
 
     @Contract
