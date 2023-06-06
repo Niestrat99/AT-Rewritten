@@ -217,6 +217,7 @@ bukkit {
         register("at") {
             description = "The core AT command."
             permission = "at.member.core"
+            aliases = listOf("atp", "adtp")
         }
 
         register("warps") {
