@@ -870,7 +870,7 @@ public final class MainConfig extends ATConfig {
                 permObject.setDefault(PermissionDefault.TRUE);
                 defaults.add(permission);
             }
-        }, 200);
+        }, 20);
     }
 
     public static class ConfigOption<T> {

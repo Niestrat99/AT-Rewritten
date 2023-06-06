@@ -443,19 +443,33 @@ bukkit {
             )
         }
 
+        register("at.admin.core.*"){
+            default = BukkitPluginDescription.Permission.Default.OP
+            childrenMap = mapOf(
+                "at.admin.core.clearcache" to true,
+                "at.admin.core.export" to true,
+                "at.admin.core.import" to true,
+                "at.admin.core.map" to true,
+                "at.admin.core.particles" to true,
+                "at.admin.core.purge" to true,
+                "at.admin.core.reload" to true,
+                "at.admin.core.map.*" to true
+            )
+        }
+
         register("at.member.core.*") {
             default = BukkitPluginDescription.Permission.Default.OP
             childrenMap = mapOf(
-                "at.member.core.clearcache" to true,
-                "at.member.core.export" to true,
+                "at.member.core.clearcache" to false,
+                "at.member.core.export" to false,
                 "at.member.core.help" to true,
-                "at.member.core.import" to true,
+                "at.member.core.import" to false,
                 "at.member.core.info" to true,
-                "at.member.core.map" to true,
-                "at.member.core.particles" to true,
-                "at.member.core.purge" to true,
-                "at.member.core.reload" to true,
-                "at.member.core.map.*" to true
+                "at.member.core.map" to false,
+                "at.member.core.particles" to false,
+                "at.member.core.purge" to false,
+                "at.member.core.reload" to false,
+                "at.member.core.map.*" to false
             )
         }
 
@@ -506,7 +520,7 @@ bukkit {
                 "at.member.warps.location" to true,
                 "at.member.homes.location" to true,
                 "at.member.spawn.*" to false,
-                "at.member.core.*" to false
+                "at.member.core.*" to true
             )
         }
 
