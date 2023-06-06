@@ -230,6 +230,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.teleportFailed", "<prefix> <gray>Sorry, we couldn't teleport you :(");
         addDefault("Error.randomLocFailed", "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
 
+        makeSectionLenient("Info");
         addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "<prefix> <gray>Successfully enabled teleport requests!");
         addDefault("Info.tpAdminOff", "<prefix> <gray>Successfully disabled teleport requests for <aqua><player></aqua>!");
