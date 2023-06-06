@@ -509,7 +509,7 @@ public final class CustomMessages extends ATConfig {
             @NotNull final String text,
             @NotNull final TagResolver... placeholders
     ) {
-        return MiniMessage.miniMessage().deserialize(text, placeholders);
+        return MiniMessage.miniMessage().deserialize(translateLegacy(text), placeholders);
     }
 
     public static @NotNull String asString(
@@ -598,7 +598,7 @@ public final class CustomMessages extends ATConfig {
         var component = Component.text();
         if (config.get(path) instanceof List) {
             config.getStringList(path).forEach(line -> component.append(translate(preProcess.apply(line), placeholders)));
-        } else if (config.getString(path) != null) appendNonEmpty(component, preProcess, config.getString(path), placeholders);
+        } else if (config.getString(path) != null && !config.getString(path).isEmpty()) component.append(get(path, placeholders));
 
         if (component.content().isEmpty() && component.children().size() == 0) return;
         asAudience(sender).sendMessage(component);
