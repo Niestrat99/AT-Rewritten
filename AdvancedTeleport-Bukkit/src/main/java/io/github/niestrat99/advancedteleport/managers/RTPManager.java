@@ -117,14 +117,8 @@ public class RTPManager {
             }
         }
 
-        // Generate the coordinates.
-        Location location = RandomCoords.generateCoords(world);
-
-        if (location == null) {
-            return CompletableFuture.completedFuture(null);
-        }
-
-        int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};
+        // Generate initial coordinates for the world
+        RandomCoords.generateCoords(world);
 
         // Alright baby let's go
         return CompletableFuture.supplyAsync(() -> {
@@ -134,14 +128,17 @@ public class RTPManager {
 
             // Wait for the chunk to load
             while (tries < 5 || urgent) {
+
+                // Fetch location
+                Location location = RandomCoords.generateCoords(world);
+                if (location == null) return null;
+                int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};
+
                 try {
                     tries++;
 
                     // If we're on Folia, then do some tomfoolery and handle chunk-related tasks on the scheduler for the chunk
                     if (RunnableManager.isFolia()) {
-
-                        // Fetch the chunk now
-                        PaperLib.getChunkAtAsync(world, coords[0] >> 4, coords[1] >> 4, true, urgent).get();
 
                         // Let it do what it needs to do and wait on it.
                         return CompletableFuture.supplyAsync(() -> {
