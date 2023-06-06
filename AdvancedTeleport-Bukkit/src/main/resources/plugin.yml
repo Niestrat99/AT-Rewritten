@@ -217,6 +217,7 @@ permissions:
       at.member.homes.location: true
       at.member.spawn.*: false
       at.member.core.*: true
+      at.member.core: true
   at.admin.*:
     default: op
     description: Allows access to admin-based commands of the plugin.
