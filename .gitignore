@@ -8,6 +8,10 @@ build
 /libs
 .run
 
+# Ignore Maven output dirs
+/target
+/AdvancedTeleport-Bukkit/target
+
 # Ignore bogus files
 *.iml
 *.class
