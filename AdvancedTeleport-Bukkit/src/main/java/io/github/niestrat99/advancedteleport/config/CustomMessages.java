@@ -37,7 +37,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
@@ -56,7 +55,7 @@ public final class CustomMessages extends ATConfig {
     @NotNull private static ImmutableSortedSet<String> prefixes = ImmutableSortedSet.of();
     @Nullable private static BukkitAudiences audience;
 
-    public CustomMessages() throws IOException {
+    public CustomMessages() throws Exception {
         super("custom-messages.yml");
         config = this;
         titleManager = new HashMap<>();
@@ -71,13 +70,13 @@ public final class CustomMessages extends ATConfig {
     }
 
     @Override
-    public void reload() throws IOException {
+    public void reload() throws Exception {
         super.reload();
         populate();
     }
 
     @Override
-    public void loadDefaults() {
+    public void addDefaults() {
 
         // Add notice
         addComment("""

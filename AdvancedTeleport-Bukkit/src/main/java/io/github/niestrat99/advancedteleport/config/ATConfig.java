@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public abstract class ATConfig extends ConfigFile {
 
-    protected ATConfig(@NotNull final String name) throws IOException {
+    protected ATConfig(@NotNull final String name) throws Exception {
         super(getOrCreateFile(name));
         load();
     }
@@ -26,28 +26,5 @@ public abstract class ATConfig extends ConfigFile {
             e.printStackTrace();
         }
         return file;
-    }
-
-    public void load() throws IOException {
-        loadDefaults();
-        moveToNew();
-        save();
-        postSave();
-    }
-
-    public abstract void loadDefaults();
-
-    public void moveToNew() {
-    }
-
-    public void postSave() {
-    }
-
-    @Override
-    public void reload() throws IOException {
-        super.reload();
-        moveToNew();
-        save();
-        postSave();
     }
 }

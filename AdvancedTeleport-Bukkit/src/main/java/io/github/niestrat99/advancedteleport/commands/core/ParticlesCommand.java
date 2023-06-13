@@ -74,7 +74,7 @@ public final class ParticlesCommand extends SubATCommand {
         // Then save the config.
         try {
             MainConfig.get().save();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace(); // TODO - let's handle this more gracefully
         }
 

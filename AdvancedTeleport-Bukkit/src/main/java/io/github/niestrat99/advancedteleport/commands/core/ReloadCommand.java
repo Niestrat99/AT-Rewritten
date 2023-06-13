@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public final class ReloadCommand extends SubATCommand {
         for (ATConfig config : Arrays.asList(MainConfig.get(), CustomMessages.config, GUIConfig.get())) {
             try {
                 config.reload();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 CoreClass.getInstance().getLogger().warning("Failed to load " + config.getFile().getName() + ": " + ex.getMessage());
                 ex.printStackTrace();
             }

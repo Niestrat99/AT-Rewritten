@@ -86,7 +86,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
 
     implementation(libMinix.slimjar)
 
@@ -141,8 +141,8 @@ tasks {
         // Wait for slimJar to go through first
         dependsOn(slimJar)
 
-        // Set the version to 1.19.4
-        minecraftVersion("1.19.4")
+        // Set the version to 1.20
+        minecraftVersion("1.20")
 
         // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
@@ -195,7 +195,7 @@ modrinth {
     versionNumber.set(project.version.toString())
     versionType.set(getReleaseType())
     uploadFile.set(getJarFile())
-    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4"))
+    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"))
     loaders.addAll("paper", "spigot", "purpur")
     changelog.set(getCogChangelog())
 }

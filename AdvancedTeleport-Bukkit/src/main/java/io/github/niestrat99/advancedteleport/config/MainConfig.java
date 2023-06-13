@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -112,7 +111,7 @@ public final class MainConfig extends ATConfig {
     /**
      *
      */
-    public MainConfig() throws IOException {
+    public MainConfig() throws Exception {
         super("config.yml");
         setTitle(new Title().withWidth(100).addSolidLine()
             .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
@@ -129,7 +128,7 @@ public final class MainConfig extends ATConfig {
     }
 
     @Override
-    public void loadDefaults() {
+    public void addDefaults() {
         instance = this;
 
         addComment("Another comment at the very top for all you lads :)");

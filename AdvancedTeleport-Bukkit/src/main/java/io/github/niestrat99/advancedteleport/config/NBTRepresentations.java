@@ -1,15 +1,13 @@
 package io.github.niestrat99.advancedteleport.config;
 
-import java.io.IOException;
-
 public class NBTRepresentations extends ATConfig {
 
-    public NBTRepresentations() throws IOException {
+    public NBTRepresentations() throws Exception {
         super("item-nbt-data-types.yml");
     }
 
     @Override
-    public void loadDefaults() {
+    public void addDefaults() {
         addComment("This configuration is used to decide what data types are used for each specified NBT tag.\n" +
             "The Bukkit API forces you to use a specific data type when looking for a piece of data.\n" +
             "If you have a special tag, you can specify it in here, otherwise the plugin attempts to brute-force it.\n" +

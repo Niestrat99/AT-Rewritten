@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.config;
 
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -10,13 +9,13 @@ public final class GUIConfig extends ATConfig {
 
     private static GUIConfig instance;
 
-    public GUIConfig() throws IOException {
+    public GUIConfig() throws Exception {
         super("guis.yml");
         instance = this;
     }
 
     @Override
-    public void loadDefaults() {
+    public void addDefaults() {
         //Warps Menu
         addDefault("warps.slots", 27);
         addDefault("warps.gui-enabled", false);
