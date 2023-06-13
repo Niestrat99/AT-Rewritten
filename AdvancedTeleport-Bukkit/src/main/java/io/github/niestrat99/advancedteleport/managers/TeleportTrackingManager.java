@@ -146,6 +146,20 @@ public class TeleportTrackingManager implements Listener {
             case "anchor":
                 // Vanilla just handles that
                 break;
+            case "home":
+
+                // If there's a main home, use that
+                if (atPlayer.hasMainHome()) {
+                    e.setRespawnLocation(atPlayer.getMainHome().getLocation());
+                    return true;
+                }
+
+                // Get their first home
+                if (atPlayer.getHomes().size() > 0) {
+                    e.setRespawnLocation(atPlayer.getHomes().values().iterator().next().getLocation());
+                    return true;
+                }
+                break;
             default:
                 if (spawnCommand.startsWith("warp:")) {
                     try {

@@ -456,7 +456,8 @@ public class NewConfig extends ATConfig {
                 "- warp:Warp Name - Teleports the player to a specified warp. For example, if you want to teleport to" +
                 " Hub, you'd type warp:Hub\n" +
                 "- tpr - Teleports the player to a random location. Can only be used when the rapid response system " +
-                "is enabled." +
+                "is enabled.\n" +
+                "- home - Teleports the player to their main or first home.\n" +
                 "- {default} - Uses the default respawn option, which is spawn unless set differently.\n" +
                 "If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set " +
                 "respawn-listener-priority in EssX's config.yml file to lowest.");
