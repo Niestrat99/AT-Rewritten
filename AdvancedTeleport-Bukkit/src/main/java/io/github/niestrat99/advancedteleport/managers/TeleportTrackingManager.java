@@ -196,6 +196,22 @@ public class TeleportTrackingManager implements Listener {
             return true;
         }
 
+        // If home was specified, use that
+        if (spawnCommand.equals("home")) {
+
+            // If there's a main home, use that
+            if (atPlayer.hasMainHome()) {
+                e.setRespawnLocation(atPlayer.getMainHome().getLocation());
+                return true;
+            }
+
+            // Get their first home
+            if (atPlayer.getHomes().size() > 0) {
+                e.setRespawnLocation(atPlayer.getHomes().values().iterator().next().getLocation());
+                return true;
+            }
+        }
+
         // If a bed was specified, just use that
         if (spawnCommand.equals("bed")) return e.getPlayer().getBedSpawnLocation() != null;
 

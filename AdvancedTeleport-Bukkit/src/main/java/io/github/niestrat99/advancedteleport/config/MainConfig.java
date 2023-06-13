@@ -546,7 +546,9 @@ public final class MainConfig extends ATConfig {
                 - bed - Teleports to the player's bed.
                 - anchor - 1.16+ only, teleports to the player's respawn anchor. However, due to limitations with Spigot's API, it may or may not always work. (add Player#getRespawnAnchor pls)
                 - warp:Warp Name - Teleports the player to a specified warp. For example, if you want to teleport to Hub, you'd type warp:Hub
-                - tpr - Teleports the player to a random location. Can only be used when the rapid response system is enabled.- default - Uses the default respawn option, which is spawn unless set differently.
+                - tpr - Teleports the player to a random location. Can only be used when the rapid response system is enabled.
+                - home - Teleports the player to their main or first home.
+                - default - Uses the default respawn option, which is spawn unless set differently.
                 If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.""");
 
         makeSectionLenient("death-management");
