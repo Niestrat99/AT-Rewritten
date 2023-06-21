@@ -852,18 +852,16 @@ public final class MainConfig extends ATConfig {
                                 "is not your doing, please check your configuration.");
                         CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as " +
                                 "the ones specified, please enable the check in the configuration.");
+                        }
+                        warned = true;
                     }
-                    warned = true;
-
+                if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
+                    CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
+                } else {
+                    CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
+                    continue;
                 }
             }
-            if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
-                CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
-            } else {
-                CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
-                continue;
-            }
-
             Permission permObject = Bukkit.getPluginManager().getPermission(permission);
             if (permObject == null) {
                 permObject = new Permission(permission);

@@ -490,7 +490,7 @@ bukkit {
         }
 
         register("at.member.*") {
-            default = BukkitPluginDescription.Permission.Default.TRUE
+            default = BukkitPluginDescription.Permission.Default.OP
             description = "Allows access to member-based commands of the plugin."
             childrenMap = mapOf(
                 "at.member.tpr" to true,
