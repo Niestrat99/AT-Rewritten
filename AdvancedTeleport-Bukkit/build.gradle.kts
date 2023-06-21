@@ -86,7 +86,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly(libs.folia)
 
     implementation(libMinix.slimjar)
@@ -144,8 +144,8 @@ tasks {
         // Wait for slimJar to go through first
         dependsOn(slimJar)
 
-        // Set the version to 1.20
-        minecraftVersion("1.20")
+        // Set the version to 1.20.1
+        minecraftVersion("1.20.1")
 
         // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
