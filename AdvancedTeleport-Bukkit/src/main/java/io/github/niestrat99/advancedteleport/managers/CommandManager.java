@@ -98,7 +98,7 @@ public class CommandManager {
         CommandMap map = getMap();
         if (map == null) return;
 
-        HashMap<String, Command> commands = getCommands(map);
+        Map<String, Command> commands = getCommands(map);
         if (commands == null) return;
 
         List<String> aliases = new ArrayList<>(command.getAliases());
@@ -170,11 +170,15 @@ public class CommandManager {
         return null;
     }
 
-    private static HashMap<String, Command> getCommands(CommandMap map) {
+    private static Map<String, Command> getCommands(CommandMap map) {
+        try {
+            return map.getKnownCommands();
+        } catch (NoSuchMethodError ignored) {
+        }
         try {
             Field commands = SimpleCommandMap.class.getDeclaredField("knownCommands");
             commands.setAccessible(true);
-            return (HashMap<String, Command>) commands.get(map);
+            return (Map<String, Command>) commands.get(map);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
