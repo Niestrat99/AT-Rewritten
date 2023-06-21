@@ -25,7 +25,7 @@ public class CustomMessages extends ATConfig {
     private static HashMap<CommandSender, BukkitRunnable> actionBarManager;
     private static HashMap<CommandSender, BukkitRunnable> soundManager;
 
-    public CustomMessages() throws IOException {
+    public CustomMessages() throws Exception {
         super("custom-messages.yml");
         config = this;
         titleManager = new HashMap<>();
@@ -33,7 +33,7 @@ public class CustomMessages extends ATConfig {
         soundManager = new HashMap<>();
     }
 
-    public void loadDefaults() {
+    public void addDefaults() {
         makeSectionLenient("Teleport");
         addDefault("Teleport.eventBeforeTP" , "&b↑ &8» &7Teleporting in &b{countdown} seconds&7, please do not move!");
 

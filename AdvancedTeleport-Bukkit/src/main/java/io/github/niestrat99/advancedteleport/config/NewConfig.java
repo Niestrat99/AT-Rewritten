@@ -116,7 +116,7 @@ public class NewConfig extends ATConfig {
     /**
      *
      */
-    public NewConfig() throws IOException {
+    public NewConfig() throws Exception {
         super("config.yml");
         setTitle(new Title().withWidth(100).addSolidLine()
                 .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
@@ -133,7 +133,7 @@ public class NewConfig extends ATConfig {
     }
 
     @Override
-    public void loadDefaults() {
+    public void addDefaults() {
         instance = this;
 
         addComment("Another comment at the very top for all you lads :)");

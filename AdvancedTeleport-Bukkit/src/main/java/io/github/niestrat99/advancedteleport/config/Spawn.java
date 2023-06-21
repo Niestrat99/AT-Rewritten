@@ -19,13 +19,13 @@ public class Spawn extends ATConfig {
     private static Spawn instance;
     private Location mainSpawn;
 
-    public Spawn() throws IOException {
+    public Spawn() throws Exception {
         super("spawn.yml");
         instance = this;
     }
 
     @Override
-    public void loadDefaults() {
+    public void addDefaults() {
         addDefault("main-spawn", "");
         makeSectionLenient("spawns");
     }
@@ -57,7 +57,7 @@ public class Spawn extends ATConfig {
                 getFloat("spawns." + mainSpawn + ".pitch"));
     }
 
-    public void setSpawn(Location location, String name) throws IOException {
+    public void setSpawn(Location location, String name) throws Exception {
         set("spawns." + name + ".x", location.getX());
         set("spawns." + name + ".y", location.getY());
         set("spawns." + name + ".z", location.getZ());
@@ -91,7 +91,7 @@ public class Spawn extends ATConfig {
                 set("spawns." + from + ".requires-permission", false);
                 try {
                     save();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     CoreClass.getInstance().getLogger().severe("Failed to mirror spawn from " + from + " to " + to + ": " + e.getMessage());
                     return "Error.mirrorSpawnFail";
                 }
@@ -212,7 +212,7 @@ public class Spawn extends ATConfig {
         set("main-spawn", id);
         try {
             save();
-        } catch (IOException e) {
+        } catch (Exception e) {
             CoreClass.getInstance().getLogger().severe("Failed to set main spawnpoint " + id + ": " + e.getMessage());
             return "Error.setMainSpawnFail";
         }
@@ -227,7 +227,7 @@ public class Spawn extends ATConfig {
         set("spawns." + id, null);
         try {
             save();
-        } catch (IOException e) {
+        } catch (Exception e) {
             CoreClass.getInstance().getLogger().severe("Failed to remove spawnpoint " + id + ": " + e.getMessage());
             return "Error.removeSpawnFail";
         }

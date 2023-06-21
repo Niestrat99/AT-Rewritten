@@ -43,7 +43,7 @@ public class SetSpawn implements ATCommand {
         try {
             Spawn.get().setSpawn(player.getLocation(), name);
             CustomMessages.sendMessage(sender, message, "{spawn}", name);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return true;

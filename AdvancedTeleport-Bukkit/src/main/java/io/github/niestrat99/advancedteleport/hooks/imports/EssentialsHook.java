@@ -174,7 +174,7 @@ public class EssentialsHook extends ImportExportPlugin {
             Location loc = getLocationFromSection(spawnSection);
             try {
                 Spawn.get().setSpawn(loc, key);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 CoreClass.getInstance().getLogger().severe("Failed to set spawn " + key + ": " + e.getMessage());
                 e.printStackTrace();
                 continue;

@@ -23,7 +23,7 @@ public class ReloadCommand implements SubATCommand {
         for (ATConfig config : Arrays.asList(NewConfig.get(), CustomMessages.config, Spawn.get(), GUI.get())) {
             try {
                 config.reload();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 CoreClass.getInstance().getLogger().warning("Failed to load " + config.getFile().getName() + ": " + ex.getMessage());
                 ex.printStackTrace();
             }

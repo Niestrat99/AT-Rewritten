@@ -57,7 +57,7 @@ public class SetMainSpawn implements ATCommand {
                 loc = ((Player) sender).getLocation();
                 try {
                     Spawn.get().setSpawn(loc, id);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {

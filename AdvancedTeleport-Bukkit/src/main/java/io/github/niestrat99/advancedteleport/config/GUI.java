@@ -10,13 +10,13 @@ public class GUI extends ATConfig {
 
     private static GUI instance;
 
-    public GUI() throws IOException {
+    public GUI() throws Exception {
         super("guis.yml");
         instance = this;
     }
 
     @Override
-    public void loadDefaults() {
+    public void addDefaults() {
         //Warps Menu
         addDefault("warps.slots", 27);
         addDefault("warps.gui-enabled", false);

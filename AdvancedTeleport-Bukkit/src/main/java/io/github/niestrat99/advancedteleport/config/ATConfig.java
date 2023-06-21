@@ -9,32 +9,9 @@ import java.io.IOException;
 
 public abstract class ATConfig extends ConfigFile {
 
-    public ATConfig(@NotNull String name) throws IOException {
+    public ATConfig(@NotNull String name) throws Exception {
         super(getOrCreateFile(name));
         load();
-    }
-
-    public void load() throws IOException {
-        loadDefaults();
-        moveToNew();
-        save();
-        postSave();
-    }
-
-    public abstract void loadDefaults();
-
-    public void moveToNew() {
-    }
-
-    public void postSave() {
-    }
-
-    @Override
-    public void reload() throws IOException {
-        super.reload();
-        moveToNew();
-        save();
-        postSave();
     }
 
     protected static File getOrCreateFile(String name) {
