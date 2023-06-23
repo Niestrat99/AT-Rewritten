@@ -19,25 +19,6 @@ import java.util.List;
  */
 public abstract class ATCommand implements IATCommand {
 
-    /**
-     * Determines whether the command can continue after performing basic checks.<br>
-     * This will check if the feature for the command is enabled, and if the sender<br>
-     * has permission.
-     *
-     * @param sender the command sender running the command.
-     * @return true if the sender can run the command, false if not.
-     */
-    @Contract(pure = true)
-    public boolean canProceed(@NotNull final CommandSender sender) {
-        // Make sure the required feature is enabled
-        if (!getRequiredFeature()) {
-            CustomMessages.sendMessage(sender, "Error.featureDisabled");
-            return false;
-        }
-
-        // If it's enabled, check for permission
-        return sender.hasPermission(getPermission());
-    }
 
     public Void handleCommandFeedback(
         @Nullable final Throwable err,
