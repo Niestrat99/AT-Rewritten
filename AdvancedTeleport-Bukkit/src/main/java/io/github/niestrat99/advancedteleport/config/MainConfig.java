@@ -114,17 +114,17 @@ public final class MainConfig extends ATConfig {
     public MainConfig() throws Exception {
         super("config.yml");
         setTitle(new Title().withWidth(100).addSolidLine()
-            .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
-            .addLine("Made by Niestrat99 and Thatsmusic99", Title.Pos.CENTER)
-            .addLine("")
-            .addSolidLine('-')
-            .addLine("A rapidly growing teleportation plugin looking to break the boundaries of traditional " +
-                "teleport plugins.")
-            .addLine("")
-            .addLine("SpigotMC - https://www.spigotmc.org/resources/advanced-teleport.64139/")
-            .addLine("Wiki - https://github.com/Niestrat99/AT-Rewritten/wiki")
-            .addLine("Discord - https://discord.gg/mgWbbN4")
-            .addSolidLine());
+                .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
+                .addLine("Made by Niestrat99 and Thatsmusic99", Title.Pos.CENTER)
+                .addLine("")
+                .addSolidLine('-')
+                .addLine("A rapidly growing teleportation plugin looking to break the boundaries of traditional " +
+                        "teleport plugins.")
+                .addLine("")
+                .addLine("SpigotMC - https://www.spigotmc.org/resources/advanced-teleport.64139/")
+                .addLine("Wiki - https://github.com/Niestrat99/AT-Rewritten/wiki")
+                .addLine("Discord - https://discord.gg/mgWbbN4")
+                .addSolidLine());
     }
 
     @Override
@@ -191,15 +191,15 @@ public final class MainConfig extends ATConfig {
         makeSectionLenient("custom-warm-ups");
 
         addDefault("blindness-on-warmup", false, "Gives the teleporting player a blindness effect whilst waiting to " +
-            "teleport.");
+                "teleport.");
 
         addDefault("cooldown-duration", 5, "Cooldowns", """
                 How long before the user can use a command again.
                 This stops users spamming commands repeatedly.
                 This is also the default cooldown period for all commands.""");
         addDefault("add-cooldown-duration-to-warm-up", true, "Adds the warm-up duration to the cooldown duration.\n" +
-            "For example, if the cooldown duration was 5 seconds but the warm-up was 3, the cooldown becomes 8 " +
-            "seconds long.");
+                "For example, if the cooldown duration was 5 seconds but the warm-up was 3, the cooldown becomes 8 " +
+                "seconds long.");
         addDefault("apply-cooldown-to-all-commands", false, """
                 Whether or not the cooldown of one command will stop a user from using all commands.
                 For example, if a player used /tpa with a cooldown of 10 seconds but then used /tpahere with a cooldown of 5, the 10-second cooldown would still apply.
@@ -638,9 +638,9 @@ public final class MainConfig extends ATConfig {
                 Object vault = get("payments.vault." + command + ".price");
                 Object exp = get("payments.exp." + command + ".price");
                 boolean vaultOn = get("payments.vault." + command + ".enabled").equals("default")
-                                  ? defaultVault : getBoolean("payments.vault." + command + ".enabled");
+                        ? defaultVault : getBoolean("payments.vault." + command + ".enabled");
                 boolean expOn = get("payments.exp." + command + ".enabled").equals("default")
-                                ? defaultEXP : getBoolean("payments.exp." + command + ".enabled");
+                        ? defaultEXP : getBoolean("payments.exp." + command + ".enabled");
                 StringBuilder paymentCombination = new StringBuilder();
                 if (vaultOn) {
                     if (vault.equals("default")) {
@@ -833,45 +833,42 @@ public final class MainConfig extends ATConfig {
             }
         }
 
-        Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), () -> {
-            boolean warned = false;
-            for (String permission : permissions) {
-                if (!permission.startsWith("at")) continue;
-                if (permission.startsWith("at.admin")) {
-                    if (!warned) {
-                        CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default" +
-                            " to all users.");
-                        if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
-                            CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so we're " +
+        boolean warned = false;
+        for (String permission : permissions) {
+            if (!permission.startsWith("at")) continue;
+            if (permission.startsWith("at.admin")) {
+                if (!warned) {
+                    CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default to all users.");
+                    if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
+                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so we're " +
                                 "not adding it right now.");
-                            CoreClass.getInstance().getLogger().warning("To allow people to use admin permissions such as" +
+                        CoreClass.getInstance().getLogger().warning("To allow people to use admin permissions such as" +
                                 " the ones specified, please disable the check in the configuration.");
-                            CoreClass.getInstance().getLogger().warning("If you have a permissions plugin hooked into " +
+                        CoreClass.getInstance().getLogger().warning("If you have a permissions plugin hooked into " +
                                 "Vault too, you cannot make admin permissions default permissions.");
-                        } else {
-                            CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so if this " +
-                                "is not your doing, please check your configuration.");
-                            CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as " +
-                                "the ones specified, please enable the check in the configuration.");
-                        }
-                        warned = true;
-                    }
-                    if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
-                        CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
                     } else {
-                        CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
-                        continue;
+                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so if this " +
+                                "is not your doing, please check your configuration.");
+                        CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as " +
+                                "the ones specified, please enable the check in the configuration.");
                     }
+                    warned = true;
                 }
-                Permission permObject = Bukkit.getPluginManager().getPermission(permission);
-                if (permObject == null) {
-                    permObject = new Permission(permission);
-                    Bukkit.getPluginManager().addPermission(permObject);
+                if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
+                    CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
+                } else {
+                    CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
+                    continue;
                 }
-                permObject.setDefault(PermissionDefault.TRUE);
-                defaults.add(permission);
             }
-        }, 20);
+            Permission permObject = Bukkit.getPluginManager().getPermission(permission);
+            if (permObject == null) {
+                permObject = new Permission(permission);
+                Bukkit.getPluginManager().addPermission(permObject);
+            }
+            permObject.setDefault(PermissionDefault.TRUE);
+            defaults.add(permission);
+        }
     }
 
     public static class ConfigOption<T> {
@@ -884,8 +881,8 @@ public final class MainConfig extends ATConfig {
         }
 
         public ConfigOption(
-            String path,
-            String defaultPath
+                String path,
+                String defaultPath
         ) {
             this.path = path;
             this.defaultPath = defaultPath;
@@ -915,8 +912,8 @@ public final class MainConfig extends ATConfig {
         public final ConfigOption<T> BACK;
 
         public PerCommandOption(
-            String path,
-            String defaultPath
+                String path,
+                String defaultPath
         ) {
             TPA = new ConfigOption<>(path + ".tpa", defaultPath);
             TPAHERE = new ConfigOption<>(path + ".tpahere", defaultPath);

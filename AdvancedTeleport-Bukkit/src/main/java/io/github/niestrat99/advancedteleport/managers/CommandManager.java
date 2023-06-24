@@ -78,6 +78,8 @@ public class CommandManager {
         subcommands.put("purge", new PurgeCommand());
         subcommands.put("particles", new ParticlesCommand());
         subcommands.put("map", new MapCommand());
+
+        syncCommands();
     }
 
     private static void register(
@@ -178,5 +180,14 @@ public class CommandManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static void syncCommands() {
+
+        try {
+            Method method = Bukkit.getServer().getClass().getDeclaredMethod("syncCommands");
+            method.invoke(Bukkit.getServer());
+        } catch (Exception ignored) {
+        }
     }
 }
