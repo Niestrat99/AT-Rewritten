@@ -103,7 +103,7 @@ public class CommandManager {
         if (commands == null) return;
 
         List<String> aliases = new ArrayList<>(command.getAliases());
-        aliases.add(name);
+        aliases.add(command.getName());
         boolean removed = false;
         for (String alias : aliases) {
             if (MainConfig.get().DISABLED_COMMANDS.get().contains(alias) || removed || !atCommand.getRequiredFeature()) {
