@@ -39,7 +39,7 @@ import java.util.function.Function;
 public final class AdvancedTeleportAPI {
     private AdvancedTeleportAPI() { }
 
-    public static @NotNull CompletableFuture<OfflinePlayer> getOfflinePlayer(@NotNull final String name) {
+    public static @NotNull CompletableFuture<@NotNull OfflinePlayer> getOfflinePlayer(@NotNull final String name) {
         return CompletableFuture.supplyAsync(() -> Bukkit.getOfflinePlayer(name), CoreClass.async);
     }
 
