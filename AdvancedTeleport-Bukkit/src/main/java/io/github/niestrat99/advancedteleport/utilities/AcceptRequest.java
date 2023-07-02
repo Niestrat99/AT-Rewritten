@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.api.TeleportRequestType;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
@@ -8,7 +9,6 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
-import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -48,7 +48,7 @@ public class AcceptRequest {
             MovementManager.createMovementTimer(fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
             return;
         }
-        PaperLib.teleportAsync(fromPlayer, toLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
+        ATPlayer.teleportWithOptions(fromPlayer, toLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
         CustomMessages.sendMessage(fromPlayer, "Teleport.eventTeleport");
         PaymentManager.getInstance().withdraw(type, payingPlayer);
 

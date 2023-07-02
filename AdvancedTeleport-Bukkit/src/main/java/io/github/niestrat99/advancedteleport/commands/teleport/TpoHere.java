@@ -6,7 +6,6 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -48,7 +47,7 @@ public final class TpoHere extends TeleportATCommand implements PlayerCommand {
                 Placeholder.unparsed("player", target.getName()));
         CustomMessages.sendMessage(target, "Teleport.teleportingSelfToPlayer",
                 Placeholder.unparsed("player", sender.getName()));
-        PaperLib.teleportAsync(target, player.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+        ATPlayer.teleportWithOptions(target, player.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
         return true;
     }
 

@@ -107,6 +107,9 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> DEBUG;
     public ConfigOption<Boolean> USE_FLOODGATE_FORMS;
     public ConfigOption<Boolean> SEND_ACTIONBAR_TO_CONSOLE;
+    public ConfigOption<Boolean> RETAIN_PASSENGERS;
+    public ConfigOption<Boolean> RETAIN_VEHICLES;
+    public ConfigOption<Boolean> RETAIN_LIVING_ONLY;
 
     /**
      *
@@ -573,13 +576,22 @@ public final class MainConfig extends ATConfig {
         addDefault("check-for-updates", true, "Whether or not the plugin should check for updates.");
         addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
                 "Anyone with the permission at.admin.notify will receive this notification.");
-        addDefault("debug", false, "Used for debugging purposes.");
+        addDefault("debug", false, "Used for debugging purposes.", "Misceallaneous");
         addDefault("use-floodgate-forms", true, """
                 Whether to use Cumulus forms for Bedrock players.
                 These work by having a Bedrock player type in the command itself (such as /warp, /tpa, /setwarp), then fill in the rest of the commands through a form.
                 This only works when Geyser and Floodgate are used on the server. This improves accessibility for mobile or console players.""");
         addDefault("send-actionbar-to-console", true, "If you are just using action bars for messages and have empty base messages, the console will not receive them." +
                 "\nIf you have this option set to true, then the console will receive the message that the action bar uses.");
+        addDefault("retain-passengers", false, """
+                Keeps any entities riding teleporting players on their heads.
+                Only available to newer versions of Paper and uses experimental API - don't expect this to be set to true by default for a while!
+                Teleportation is also not async if this has to be used.""");
+        addDefault("retain-vehicle", false, """
+                Keeps any entities being riden by teleporting players.
+                Only available to newer versions of Paper and uses experimental API - don't expect this to be set to true by default for a while!
+                Teleportation is also not async if this has to be used.""");
+        addDefault("retain-living-vehicles-only", true, "If it's not a minecart or boat, take it with us. Requires the above option to be set to true.");
 
     }
 
@@ -816,6 +828,9 @@ public final class MainConfig extends ATConfig {
         DEBUG = new ConfigOption<>("debug");
         USE_FLOODGATE_FORMS = new ConfigOption<>("use-floodgate-forms");
         SEND_ACTIONBAR_TO_CONSOLE = new ConfigOption<>("send-actionbar-to-console");
+        RETAIN_PASSENGERS = new ConfigOption<>("retain-passengers");
+        RETAIN_VEHICLES = new ConfigOption<>("retain-vehicle");
+        RETAIN_LIVING_ONLY = new ConfigOption<>("retain-living-vehicles-only");
 
         new PaymentManager();
         LimitationsManager.init();
