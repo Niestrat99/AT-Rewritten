@@ -21,11 +21,14 @@ import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
+import io.papermc.paper.entity.TeleportFlag;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -165,7 +168,9 @@ public class ATPlayer {
             );
         } else {
             ParticleManager.onTeleport(player, command);
-            PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND).whenComplete((result, err) -> {
+
+            //
+            teleportWithOptions(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND).whenComplete((result, err) -> {
 
                 // If we didn't succeed, let the player know.
                 if (!result) {
@@ -181,6 +186,48 @@ public class ATPlayer {
                 PaymentManager.getInstance().withdraw(command, player);
             });
         }
+    }
+
+    @ApiStatus.Internal
+    public static CompletableFuture<Boolean> teleportWithOptions(
+            @NotNull Player player,
+            @NotNull Location location,
+            @NotNull PlayerTeleportEvent.TeleportCause cause
+    ) {
+
+        // The ultimate gotcha card
+        try {
+
+            // Build base list
+            final @NotNull List<TeleportFlag> flags = new ArrayList<>();
+
+            // If we should retain passengers and are able to do so
+            if (MainConfig.get().RETAIN_PASSENGERS.get() && player.getPassengers().size() > 0) {
+                flags.add(TeleportFlag.EntityState.RETAIN_PASSENGERS);
+            }
+
+            // If we should retain vehicles and are able to do so
+            if (MainConfig.get().RETAIN_VEHICLES.get() && player.getVehicle() != null) {
+
+                // If it must be an animal, check first
+                if (MainConfig.get().RETAIN_LIVING_ONLY.get()) {
+                    if (player.getVehicle() instanceof LivingEntity) {
+                        flags.add(TeleportFlag.EntityState.RETAIN_VEHICLE);
+                    }
+                } else {
+                    flags.add(TeleportFlag.EntityState.RETAIN_VEHICLE);
+                }
+            }
+
+            //
+            if (flags.size() > 0) {
+                return CompletableFuture.completedFuture(player.teleport(location, cause, flags.toArray(new TeleportFlag[0])));
+            }
+
+        } catch (NoSuchMethodError | NoClassDefFoundError ignored) {
+        }
+
+        return PaperLib.teleportAsync(player, location, cause);
     }
     
     /**

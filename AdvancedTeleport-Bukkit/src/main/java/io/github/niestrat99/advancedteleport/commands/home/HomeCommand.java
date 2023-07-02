@@ -39,7 +39,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                 // If the home has been set with the specific name, use that
                 Home home = homesOther.get(args[1]);
                 if (home != null) {
-                    PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                    ATPlayer.teleportWithOptions(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                     CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther",
                             Placeholder.unparsed("player", args[0]),
                             Placeholder.unparsed("home", args[1])
@@ -51,7 +51,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                 if (args[1].equalsIgnoreCase("bed") && MainConfig.get().ADD_BED_TO_HOMES.get()) {
                     home = target.getBedSpawn();
                     if (home != null) {
-                        PaperLib.teleportAsync(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+                        ATPlayer.teleportWithOptions(player, home.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                         CustomMessages.sendMessage(sender, "Teleport.teleportingToHomeOther",
                                 Placeholder.unparsed("player", args[0]),
                                 Placeholder.unparsed("home", args[1])

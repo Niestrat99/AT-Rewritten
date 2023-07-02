@@ -1,12 +1,12 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -126,7 +126,7 @@ public final class TpLoc extends TeleportATCommand implements PlayerCommand {
             if (allowFlight && target.getAllowFlight() && target.hasPermission("at.admin.tploc.safe-teleport") && blockBelow.getBlock().getType() == Material.AIR) {
                 target.setFlying(true);
             }
-            PaperLib.teleportAsync(target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
+            ATPlayer.teleportWithOptions(target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
             if (player != target) {
                 CustomMessages.sendMessage(player, "Info.teleportedToLocOther",
                         Placeholder.unparsed("x", String.valueOf(loc[0])),

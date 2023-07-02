@@ -1,10 +1,10 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
-import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Location;
@@ -89,7 +89,7 @@ public class MovementManager implements Listener {
                 // If the player can't pay for the
                 if (!PaymentManager.getInstance().canPay(command, payingPlayer)) return;
                 ParticleManager.onTeleport(teleportingPlayer, command);
-                PaperLib.teleportAsync(teleportingPlayer, location, PlayerTeleportEvent.TeleportCause.COMMAND);
+                ATPlayer.teleportWithOptions(teleportingPlayer, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                 movement.remove(uuid);
                 CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
                 PaymentManager.getInstance().withdraw(command, payingPlayer);
