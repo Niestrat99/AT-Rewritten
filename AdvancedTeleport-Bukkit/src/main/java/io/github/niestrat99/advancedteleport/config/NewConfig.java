@@ -118,6 +118,12 @@ public class NewConfig extends ATConfig {
      */
     public NewConfig() throws Exception {
         super("config.yml");
+    }
+
+    @Override
+    public void addDefaults() {
+        instance = this;
+
         setTitle(new Title().withWidth(100).addSolidLine()
                 .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
                 .addLine("Made by Niestrat99 and Thatsmusic99", Title.Pos.CENTER)
@@ -130,11 +136,6 @@ public class NewConfig extends ATConfig {
                 .addLine("Wiki - https://github.com/Niestrat99/AT-Rewritten/wiki")
                 .addLine("Discord - https://discord.gg/mgWbbN4")
                 .addSolidLine());
-    }
-
-    @Override
-    public void addDefaults() {
-        instance = this;
 
         addComment("Another comment at the very top for all you lads :)");
         addDefault("use-basic-teleport-features", true, "Features", "Whether basic teleportation features should be " +
