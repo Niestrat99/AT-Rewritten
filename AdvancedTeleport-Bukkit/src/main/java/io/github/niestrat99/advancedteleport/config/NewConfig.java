@@ -133,7 +133,7 @@ public class NewConfig extends ATConfig {
                         "teleport plugins.")
                 .addLine("")
                 .addLine("SpigotMC - https://www.spigotmc.org/resources/advanced-teleport.64139/")
-                .addLine("Wiki - https://github.com/Niestrat99/AT-Rewritten/wiki")
+                .addLine("Wiki - https://tm-holly.gitbook.io/advancedteleport/")
                 .addLine("Discord - https://discord.gg/mgWbbN4")
                 .addSolidLine());
 
