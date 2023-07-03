@@ -202,7 +202,7 @@ modrinth {
 }
 
 hangarPublish {
-    publications.register("AdvancedTeleport") {
+    publications.register("plugin") {
         version.set(project.version as String)
         namespace("Thatsmusic99", "AdvancedTeleport")
         channel.set("Release")
