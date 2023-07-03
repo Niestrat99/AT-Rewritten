@@ -23,13 +23,13 @@ public interface TimedATCommand extends PlayerCommand {
         int cooldown = CooldownManager.secondsLeftOnCooldown(getSection(), player);
         if (cooldown > 0) {
             CustomMessages.sendMessage(sender, "Error.onCooldown", Placeholder.unparsed("time", String.valueOf(cooldown)));
-            return true;
+            return false;
         }
 
         // If the player is on a movement timer, stop there
         if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
             CustomMessages.sendMessage(player, "Error.onCountdown");
-            return true;
+            return false;
         }
 
         return true;
