@@ -14,6 +14,7 @@ plugins {
     alias(libMinix.plugins.minecraft.pluginYML)
     alias(libMinix.plugins.minecraft.runPaper)
     alias(libMinix.plugins.slimjar)
+    alias(libs.plugins.hangar)
 }
 
 slimJar {
@@ -198,6 +199,37 @@ modrinth {
     gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"))
     loaders.addAll("paper", "spigot", "purpur")
     changelog.set(getCogChangelog())
+}
+
+hangarPublish {
+    publications.register("AdvancedTeleport") {
+        version.set(project.version as String)
+        namespace("Thatsmusic99", "AdvancedTeleport")
+        channel.set("Release")
+        changelog.set(getCogChangelog())
+        apiKey.set(System.getenv("HANGAR_TOKEN"))
+
+        platforms {
+            register(io.papermc.hangarpublishplugin.model.Platforms.PAPER) {
+                jar.set(getJarFile())
+                platformVersions.set(listOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"))
+                dependencies {
+                    url("Vault", "https://dev.bukkit.org/projects/vault") {
+                        required.set(false)
+                    }
+                    url("floodgate", "https://hangar.papermc.io/GeyserMC/Floodgate") {
+                        required.set(false)
+                    }
+                    url("WorldBorder", "https://www.spigotmc.org/resources/worldborder-1-15.80466/") {
+                        required.set(false)
+                    }
+                    url("ChunkyBorder", "https://www.spigotmc.org/resources/chunkyborder.84278/") {
+                        required.set(false)
+                    }
+                }
+            }
+        }
+    }
 }
 
 bukkit {
