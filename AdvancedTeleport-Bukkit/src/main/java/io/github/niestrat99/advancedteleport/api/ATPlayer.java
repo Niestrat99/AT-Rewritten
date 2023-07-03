@@ -1019,7 +1019,10 @@ public class ATPlayer {
             getOfflinePlayer(),
             previousLoc,
             this.previousLoc.data
-        ), event -> CompletableFuture.runAsync(() -> PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc)));
+        ), event -> {
+            this.previousLoc.data = event.getNewLocation();
+            return CompletableFuture.runAsync(() -> PlayerSQLManager.get().setPreviousLocation(getOfflinePlayer().getName(), previousLoc));
+        });
     }
 
     private static class PendingData<T> {
