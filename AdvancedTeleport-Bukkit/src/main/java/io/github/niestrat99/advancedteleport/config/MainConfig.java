@@ -116,6 +116,12 @@ public final class MainConfig extends ATConfig {
      */
     public MainConfig() throws Exception {
         super("config.yml");
+    }
+
+    @Override
+    public void addDefaults() {
+        instance = this;
+
         setTitle(new Title().withWidth(100).addSolidLine()
                 .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
                 .addLine("Made by Niestrat99 and Thatsmusic99", Title.Pos.CENTER)
@@ -125,14 +131,9 @@ public final class MainConfig extends ATConfig {
                         "teleport plugins.")
                 .addLine("")
                 .addLine("SpigotMC - https://www.spigotmc.org/resources/advanced-teleport.64139/")
-                .addLine("Wiki - https://github.com/Niestrat99/AT-Rewritten/wiki")
+                .addLine("Wiki - https://tm-holly.gitbook.io/advancedteleport/")
                 .addLine("Discord - https://discord.gg/mgWbbN4")
                 .addSolidLine());
-    }
-
-    @Override
-    public void addDefaults() {
-        instance = this;
 
         addComment("Another comment at the very top for all you lads :)");
         addDefault("use-basic-teleport-features", true, "Features", """
