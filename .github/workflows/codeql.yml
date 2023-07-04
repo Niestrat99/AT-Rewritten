@@ -21,8 +21,8 @@ on:
     - cron: '38 18 * * 1'
 
 jobs:
-  analyze:
-    name: Analyze
+  autobuild:
+    name: Autobuild
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -79,5 +79,5 @@ jobs:
       if: success()
       with:
         name: AdvancedTeleport
-        path: build/libs/*.jar
+        path: build/advancedteleport-bukkit/libs/*.jar
         if-no-files-found: error
