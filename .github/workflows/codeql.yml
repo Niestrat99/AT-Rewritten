@@ -79,5 +79,5 @@ jobs:
       if: success()
       with:
         name: AdvancedTeleport
-        path: build/advancedteleport-bukkit/libs/*.jar
+        path: build/advancedteleport-bukkit/libs/AdvancedTeleport-Bukkit-*-all.jar
         if-no-files-found: error
