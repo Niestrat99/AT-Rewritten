@@ -13,7 +13,7 @@ plugins {
     alias(libMinix.plugins.shadow)
     alias(libs.plugins.pluginYML)
     alias(libs.plugins.runPaper)
-    alias(libMinix.plugins.slimjar)
+    alias(libs.plugins.slimjar)
     alias(libs.plugins.hangar)
 }
 
@@ -90,7 +90,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly(libs.folia)
 
-    implementation(libMinix.slimjar)
+    implementation(libs.slimjar)
 
     slim(libMinix.bundles.kotlin)
     slim(libMinix.adventure.api)
