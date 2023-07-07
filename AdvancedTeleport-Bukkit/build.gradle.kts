@@ -167,16 +167,6 @@ tasks {
         filesMatching("update.properties") {
             expand(mutableMapOf("timestamp" to currentDate))
         }
-
-        doFirst {
-            val resources = project.tasks.slimJar.get().buildDirectory.resolve("resources")
-            resources.delete()
-        }
-
-        doLast {
-            val resources = project.tasks.slimJar.get().buildDirectory.resolve("resources")
-            resources.resolve("slimjar").copyRecursively(resources.resolve("main"))
-        }
     }
 
     build {
