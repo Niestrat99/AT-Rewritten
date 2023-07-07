@@ -21,8 +21,8 @@ on:
     - cron: '38 18 * * 1'
 
 jobs:
-  analyze:
-    name: Analyze
+  autobuild:
+    name: Autobuild
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -63,20 +63,24 @@ jobs:
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      
+    - name: Build with Gradle
+      run: ./gradlew slimJar
 
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-
-    #   If the Autobuild fails above, remove it and uncomment the following three lines.
-    #   modify them (or add more) to build your code if your project, please refer to the EXAMPLE below for guidance.
-
-    # - run: |
-    #     echo "Run, Build Application using script"
-    #     ./location_of_script_within_repo/buildscript.sh
+    - name: Force JSON files because life is tough and I am a programmer so naturally I work around everything that should be handled head-on
+      run: zip -r -D -j build/advancedteleport-bukkit/libs/AdvancedTeleport-Bukkit-*-all.jar build/advancedteleport-bukkit/resources/slimjar/*.json
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"
+        
+    - name: Archive Artifact
+      uses: actions/upload-artifact@v3
+      if: success()
+      with:
+        name: AdvancedTeleport
+        path: build/advancedteleport-bukkit/libs/AdvancedTeleport-Bukkit-*-all.jar
+        if-no-files-found: error
