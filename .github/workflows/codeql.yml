@@ -70,7 +70,7 @@ jobs:
       run: ./gradlew slimJar
 
     - name: Force JSON files because life is tough and I am a programmer so naturally I work around everything that should be handled head-on
-      run: zip -g build/advancedteleport-bukkit/libs/AdvancedTeleport-Bukkit-*-all.jar build/advancedteleport-bukkit/resources/*.json
+      run: zip -g build/advancedteleport-bukkit/libs/AdvancedTeleport-Bukkit-*-all.jar build/advancedteleport-bukkit/resources/slimjar/*.json
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
