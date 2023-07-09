@@ -43,7 +43,7 @@ public class AcceptRequest {
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
         ATPlayer atPlayer = ATPlayer.getPlayer(fromPlayer);
-        int warmUp = atPlayer.getWarmUp();
+        int warmUp = atPlayer.getWarmUp(type);
         Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
         if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
             MovementManager.createMovementTimer(fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
