@@ -157,10 +157,10 @@ public final class Tpr extends ATCommand implements TimedATCommand {
     public boolean canProceed(@NotNull CommandSender sender) {
 
         // Get the
-        boolean priorResult = TimedATCommand.super.canProceed(sender);
+        if (!(sender instanceof Player)) return true;
 
-        if (!priorResult && !(sender instanceof Player) && !sender.hasPermission("at.admin.tpr.other")) return false;
+        //if (!priorResult && !(sender instanceof Player) && !sender.hasPermission("at.admin.tpr.other")) return false;
 
-        return priorResult;
+        return TimedATCommand.super.canProceed(sender);
     }
 }
