@@ -511,7 +511,7 @@ public class ATPlayer {
                 throw new NullPointerException("Context [%s] | Message [%s]".formatted(sender, "Missing home: " + name));
 
             return home;
-        }, CoreClass.sync).thenAcceptAsync(home -> home.move(newLocation, sender));
+        }, CoreClass.sync).thenAcceptAsync(home -> home.move(newLocation, sender), CoreClass.sync);
     }
 
     /**
