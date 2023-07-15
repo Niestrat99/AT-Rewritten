@@ -106,7 +106,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
             return true;
         }
 
-        if (!PaymentManager.getInstance().canPay("tpr", player)) return false;
+        if (!PaymentManager.getInstance().canPay("tpr", player, world)) return false;
 
         CustomMessages.sendMessage(player, "Info.searching");
         searchingPlayers.add(player.getUniqueId());
