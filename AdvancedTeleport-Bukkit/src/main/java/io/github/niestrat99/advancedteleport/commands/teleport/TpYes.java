@@ -43,9 +43,9 @@ public final class TpYes extends TeleportATCommand implements PlayerCommand {
                     request.type() == TeleportRequestType.TPAHERE ? "tpahere" : "tpa",
                     request.requester(),
                     (request.type() == TeleportRequestType.TPAHERE
-                                    ? request.requester()
-                                    : request.responder())
-                            .getWorld());
+                            ? request.requester()
+                                : request.responder())
+                                .getWorld());
         }
         return true;
     }
