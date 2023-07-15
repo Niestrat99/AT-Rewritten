@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.payments.types.ItemsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.LevelsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -129,10 +130,11 @@ public class PaymentManager {
     // Method used to check if a player can pay for using a command
     public boolean canPay(
         String command,
-        Player player
+        Player player,
+        World toWorld
     ) {
         if (player.hasPermission("at.admin.bypass.payment")) return true;
-        for (Payment payment : getPayments(command, player).values()) {
+        for (Payment payment : getPayments(command, player, toWorld).values()) {
             if (!payment.canPay(player)) {
                 return false;
             }
@@ -143,10 +145,11 @@ public class PaymentManager {
     // Method used to manage payments
     public void withdraw(
             String command,
-            Player player
+            Player player,
+            World toWorld
     ) {
         if (!player.hasPermission("at.admin.bypass.payment")) {
-            for (Payment payment : getPayments(command, player).values()) {
+            for (Payment payment : getPayments(command, player, toWorld).values()) {
                 payment.withdraw(player);
             }
         }
@@ -154,12 +157,13 @@ public class PaymentManager {
 
     private HashMap<String, Payment> getPayments(
             String command,
-            Player player
+            Player player,
+            World toWorld
     ) {
         final var customCosts = MainConfig.get().CUSTOM_COSTS.get();
         var payments = new HashMap<String, Payment>();
         for (String key : customCosts.getKeys(false)) {
-            String worldName = player.getWorld().getName().toLowerCase(Locale.ROOT);
+            String worldName = toWorld.getName().toLowerCase(Locale.ROOT);
             if (!player.hasPermission("at.member.cost." + key)
                 && !player.hasPermission("at.member.cost." + command + "." + key)
                 && !player.hasPermission("at.member.cost." + worldName + "." + key)

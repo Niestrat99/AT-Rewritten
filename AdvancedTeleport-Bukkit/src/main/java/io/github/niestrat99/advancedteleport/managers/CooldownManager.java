@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -35,11 +36,12 @@ public class CooldownManager {
 
     public static void addToCooldown(
         String command,
-        Player player
+        Player player,
+        World toWorld
     ) {
         List<ATRunnable> list = cooldown.get(getKey(command));
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-        list.add(new ATRunnable(player.getUniqueId(), atPlayer.getCooldown(command), command));
+        list.add(new ATRunnable(player.getUniqueId(), atPlayer.getCooldown(command, toWorld), command));
         cooldown.put(getKey(command), list);
     }
 
