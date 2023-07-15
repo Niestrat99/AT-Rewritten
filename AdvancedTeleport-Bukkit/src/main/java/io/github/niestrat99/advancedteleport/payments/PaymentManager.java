@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.payments.types.ItemsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.LevelsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -78,6 +79,13 @@ public class PaymentManager {
             if (matcher.matches()) {
                 String plugin = matcher.group(1);
                 double payment = Double.parseDouble(matcher.group(2));
+
+                // If it's not a plugin and actually an item, lmao
+                if (plugin != null && Material.getMaterial(plugin) != null) {
+                    return ItemsPayment.getFromString(rawPayment);
+                }
+
+                // Otherwise, resort to that
                 return new VaultPayment(
                     payment,
                     plugin == null ? null : plugin.substring(0, plugin.length() - 1)
