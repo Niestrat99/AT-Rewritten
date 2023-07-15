@@ -37,7 +37,7 @@ public class CooldownManager {
     public static void addToCooldown(String command, Player player, World toWorld) {
         List<ATRunnable> list = cooldown.get(getKey(command));
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-        list.add(new ATRunnable(player.getUniqueId(), atPlayer.getCooldown(command), command));
+        list.add(new ATRunnable(player.getUniqueId(), atPlayer.getCooldown(command, toWorld), command));
         cooldown.put(getKey(command), list);
     }
 
