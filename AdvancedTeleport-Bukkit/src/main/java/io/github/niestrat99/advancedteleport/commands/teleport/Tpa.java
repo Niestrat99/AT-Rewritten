@@ -53,7 +53,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
             );
             return true;
         }
-        if (PaymentManager.getInstance().canPay("tpa", player)) {
+        if (PaymentManager.getInstance().canPay("tpa", player, target.getWorld())) {
             int requestLifetime = MainConfig.get().REQUEST_LIFETIME.get();
             TeleportRequestEvent event = new TeleportRequestEvent(target, player, TeleportRequestType.TPA);
             Bukkit.getPluginManager().callEvent(event);
@@ -103,7 +103,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
            TeleportRequest.addRequest(request);
            // If the cooldown is to be applied after request, apply it now
            if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
-               CooldownManager.addToCooldown("tpa", player);
+               CooldownManager.addToCooldown("tpa", player, target.getWorld());
            }
         }
         return true;

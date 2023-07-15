@@ -38,8 +38,8 @@ public final class TpYes extends TeleportATCommand implements PlayerCommand {
         AcceptRequest.acceptRequest(request);
         // If the cooldown is to be applied after the request is accepted, apply it now
         if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("accept")) {
-            CooldownManager.addToCooldown(request.type() == TeleportRequestType.TPAHERE ? "tpahere" :
-                                          "tpa", request.requester());
+            CooldownManager.addToCooldown(request.type() == TeleportRequestType.TPAHERE ? "tpahere" : "tpa", request.requester(),
+                    (request.type() == TeleportRequestType.TPAHERE ? request.requester() : request.responder()).getWorld());
         }
         return true;
     }

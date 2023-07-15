@@ -61,7 +61,7 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
             // Creates a new teleport request.
             TeleportRequest.addRequest(request);
             // Cooldown for tpall is always applied after request
-            CooldownManager.addToCooldown("tpahere", player);
+            CooldownManager.addToCooldown("tpahere", player, player.getWorld());
         }
         if (players > 0) {
             CustomMessages.sendMessage(player, "Info.tpallRequestSent", Placeholder.unparsed("amount", String.valueOf(players)));

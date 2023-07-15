@@ -22,8 +22,11 @@ public class AcceptRequest {
 
         CustomMessages.sendMessage(request.requester(), "Info.requestAcceptedResponder", Placeholder.unparsed("player", player.getName()));
         CustomMessages.sendMessage(player, "Info.requestAccepted");
+
+        Location toLoc = request.type() == TeleportRequestType.TPAHERE ? request.requester().getLocation() : request.responder().getLocation();
+
         // Check again
-        if (PaymentManager.getInstance().canPay(request.type().name().toLowerCase().replaceAll("_", ""), request.requester())) {
+        if (PaymentManager.getInstance().canPay(request.type().name().toLowerCase().replaceAll("_", ""), request.requester(), toLoc.getWorld())) {
             if (request.type() == TeleportRequestType.TPAHERE) {
                 teleport(request.requester(), player, "tpahere");
             } else {
@@ -43,7 +46,7 @@ public class AcceptRequest {
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
         ATPlayer atPlayer = ATPlayer.getPlayer(fromPlayer);
-        int warmUp = atPlayer.getWarmUp(type);
+        int warmUp = atPlayer.getWarmUp(type, toLocation.getWorld());
         Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
         if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
             MovementManager.createMovementTimer(fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
@@ -51,11 +54,11 @@ public class AcceptRequest {
         }
         ATPlayer.teleportWithOptions(fromPlayer, toLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
         CustomMessages.sendMessage(fromPlayer, "Teleport.eventTeleport");
-        PaymentManager.getInstance().withdraw(type, payingPlayer);
+        PaymentManager.getInstance().withdraw(type, payingPlayer, toLocation.getWorld());
 
         // If the cooldown is to be applied after only after a teleport takes place, apply it now
         if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
-            CooldownManager.addToCooldown(type, payingPlayer);
+            CooldownManager.addToCooldown(type, payingPlayer, toLocation.getWorld());
         }
     }
 }

@@ -51,7 +51,7 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
             );
             return true;
         }
-        if (PaymentManager.getInstance().canPay("tpahere", player)) {
+        if (PaymentManager.getInstance().canPay("tpahere", player, player.getWorld())) {
             int requestLifetime = MainConfig.get().REQUEST_LIFETIME.get();
             CustomMessages.sendMessage(sender, "Info.requestSent",
                     Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(target.getName())),
@@ -90,7 +90,7 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
             // If the cooldown is to be applied after request or accept (they are the same in the case of
             // /spawn), apply it now
             if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
-                CooldownManager.addToCooldown("tpahere", player);
+                CooldownManager.addToCooldown("tpahere", player, player.getWorld());
             }
         }
         return true;

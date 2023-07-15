@@ -87,15 +87,15 @@ public class MovementManager implements Listener {
             public void run() {
 
                 // If the player can't pay for the
-                if (!PaymentManager.getInstance().canPay(command, payingPlayer)) return;
+                if (!PaymentManager.getInstance().canPay(command, payingPlayer, location.getWorld())) return;
                 ParticleManager.onTeleport(teleportingPlayer, command);
                 ATPlayer.teleportWithOptions(teleportingPlayer, location, PlayerTeleportEvent.TeleportCause.COMMAND);
                 movement.remove(uuid);
                 CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
-                PaymentManager.getInstance().withdraw(command, payingPlayer);
+                PaymentManager.getInstance().withdraw(command, payingPlayer, location.getWorld());
                 // If the cooldown is to be applied after only after a teleport takes place, apply it now
                 if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
-                    CooldownManager.addToCooldown(command, payingPlayer);
+                    CooldownManager.addToCooldown(command, payingPlayer, location.getWorld());
                 }
             }
         };

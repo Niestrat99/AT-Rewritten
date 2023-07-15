@@ -26,8 +26,8 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -149,15 +149,15 @@ public class ATPlayer {
         @NotNull final String teleportMsg
     ) {
         Player player = event.getPlayer();
-        int warmUp = getWarmUp(command);
+        int warmUp = getWarmUp(command, event.getToLocation().getWorld());
         if (event.isCancelled()) return;
-        if (!PaymentManager.getInstance().canPay(command, player)) return;
+        if (!PaymentManager.getInstance().canPay(command, player, event.getToLocation().getWorld())) return;
 
         // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now
         String cooldownConfig = MainConfig.get().APPLY_COOLDOWN_AFTER.get();
 
         if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
-            CooldownManager.addToCooldown(command, player);
+            CooldownManager.addToCooldown(command, player, event.getToLocation().getWorld());
         }
 
         // If there's a movement timer, apply it - otherwise, teleport them immediately
@@ -183,7 +183,7 @@ public class ATPlayer {
                         Placeholder.unparsed("home", event.getLocName()),
                         Placeholder.unparsed("warp", event.getLocName())
                 );
-                PaymentManager.getInstance().withdraw(command, player);
+                PaymentManager.getInstance().withdraw(command, player, event.getToLocation().getWorld());
             });
         }
     }
@@ -723,21 +723,47 @@ public class ATPlayer {
 
     @Range(from = 0, to = Integer.MAX_VALUE)
     @Contract(pure = true)
-    public int getCooldown(@NotNull final String command) {
-        return getMin("at.member.cooldown", command, MainConfig.get().CUSTOM_COOLDOWNS.get(), MainConfig.get().COOLDOWNS.valueOf(command).get());
+    public int getCooldown(
+            @NotNull final String command,
+            @NotNull final World destinationWorld
+    ) {
+        return getMin("at.member.cooldown", command, MainConfig.get().CUSTOM_COOLDOWNS.get(), destinationWorld, MainConfig.get().COOLDOWNS.valueOf(command).get());
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
     @Contract(pure = true)
-    public int getWarmUp(@NotNull final String command) {
-        return getMin("at.member.timer", command, MainConfig.get().CUSTOM_WARM_UPS.get(), MainConfig.get().WARM_UPS.valueOf(command).get());
+    public @Deprecated int getCooldown(@NotNull final String command) {
+        return getCooldown(command, getPlayer().getWorld());
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
     @Contract(pure = true)
-    public int getDistanceLimitation(@Nullable final String command) {
+    public int getWarmUp(
+            @NotNull final String command,
+            @NotNull final World destinationWorld
+    ) {
+        return getMin("at.member.timer", command, MainConfig.get().CUSTOM_WARM_UPS.get(), destinationWorld, MainConfig.get().WARM_UPS.valueOf(command).get());
+    }
+
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    @Contract(pure = true)
+    public @Deprecated int getWarmUp(@NotNull final String command) {
+        return getWarmUp(command, getPlayer().getWorld());
+    }
+
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    @Contract(pure = true)
+    public int getDistanceLimitation(
+            @Nullable final String command,
+            @NotNull final World destinationWorld
+    ) {
         return determineValue("at.member.distance", command, command == null ? MainConfig.get().MAXIMUM_TELEPORT_DISTANCE.get()
-                : MainConfig.get().DISTANCE_LIMITS.valueOf(command).get(), MainConfig.get().CUSTOM_DISTANCE_LIMITS.get(), Math::max);
+                : MainConfig.get().DISTANCE_LIMITS.valueOf(command).get(), MainConfig.get().CUSTOM_DISTANCE_LIMITS.get(), destinationWorld, Math::max);
+    }
+
+    @Contract(pure = true)
+    public @Deprecated int getDistanceLimitation(@Nullable final String command) {
+        return getDistanceLimitation(command, getPlayer().getWorld());
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
@@ -746,9 +772,10 @@ public class ATPlayer {
         @NotNull final String permission,
         @Nullable final String command,
         @NotNull final ConfigSection customSection,
+        @NotNull final World world,
         final int defaultValue
     ) {
-        return determineValue(permission, command, defaultValue, customSection, Math::min);
+        return determineValue(permission, command, defaultValue, customSection, world, Math::min);
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
@@ -758,6 +785,7 @@ public class ATPlayer {
         @Nullable final String command,
         final int defaultValue,
         @NotNull final ConfigSection customSection,
+        @NotNull final World world,
         @NotNull final BiFunction<Integer, Integer, Integer> consumer
     ) {
         List<String> cooldowns = new ArrayList<>();
@@ -768,7 +796,7 @@ public class ATPlayer {
         // Get the custom section keys
         for (String key : customSection.getKeys(false)) {
             String value = customSection.getString(key);
-            String worldName = getPlayer().getWorld().getName().toLowerCase(Locale.ENGLISH);
+            String worldName = world.getName().toLowerCase(Locale.ENGLISH);
             if (!getPlayer().hasPermission(permission + "." + key)
                     && !getPlayer().hasPermission(permission + "." + command + "." + key)
                     && !getPlayer().hasPermission(permission + "." + worldName + "." + key)
