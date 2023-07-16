@@ -108,7 +108,7 @@ jobs:
         if-no-files-found: error
 
     - name: Discord Webhook Notification
-      uses: Thatsmusic99/actions-git-discord-webhook
+      uses: Thatsmusic99/actions-git-discord-webhook@main
       if: ${{ github.repository == 'Niestrat99/AT-Rewritten' }}
       with:
         webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
