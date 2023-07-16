@@ -52,6 +52,7 @@ jobs:
     name: Autobuild
     runs-on: ubuntu-latest
     needs: check
+    if: ${{ always() }}
     permissions:
       actions: read
       contents: read
