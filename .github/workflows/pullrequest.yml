@@ -40,7 +40,7 @@ jobs:
       - name: Check Google Java Format
         uses: axel-op/googlejavaformat-action@v3
         with:
-          args: "--replace"
+          args: "--replace --aosp"
           skip-commit: true
 
       - name: Print GVF diffs
