@@ -31,6 +31,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Tell Github Actions that Java 17 exists
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
       - name: Check Google Java Format
         uses: axel-op/googlejavaformat-action@v3
         with:
