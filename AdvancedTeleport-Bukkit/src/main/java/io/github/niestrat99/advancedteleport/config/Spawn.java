@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,6 +110,9 @@ public class Spawn extends ATConfig {
             boolean forced
     ) {
 
+        CoreClass.debug("Spawn being fetched for " + (player == null ? "N/A" : player.getName()) + " with spawn name requested " + name + " " +
+                "- forced? " + forced + " - bypassing perms? " + bypassPermission);
+
         // If we're going to the nearest spawnpoint instead, look around
         if (player != null && NewConfig.get().TELEPORT_TO_NEAREST_SPAWN.get() && !forced) {
             return getNearestLocation(player);
@@ -120,8 +122,13 @@ public class Spawn extends ATConfig {
         ConfigSection toSection = spawns.getConfigSection(name);
         while (true) {
             if (toSection != null) {
+
+                CoreClass.debug("Spawn for " + name + " was found in the file.");
+
+                // Try to find a mirror point and if it needs permission
                 String priorName = toSection.getString("mirror");
                 boolean requiresPermission = toSection.getBoolean("requires-permission", true);
+
                 // Just to note, "requires permission" indicates that the player can teleport to the spawn itself. Not the mirrored one.
                 boolean hasCoords = toSection.contains("x")
                         && toSection.contains("y")
@@ -129,15 +136,30 @@ public class Spawn extends ATConfig {
                         && toSection.contains("yaw")
                         && toSection.contains("pitch")
                         && toSection.contains("world");
+
+                // If there is a valid mirror to resort to
                 boolean hasMirror = priorName != null && !priorName.isEmpty() && !priorName.equals(name);
                 if (hasCoords) {
+
+                    CoreClass.debug(name + " has coordinates that can be teleported to.");
+
+                    // If there is no permission but it has a mirror, fall back to that
                     if (hasMirror && (requiresPermission
                             && !player.hasPermission("at.member.spawn." + name)
                             && !bypassPermission)) {
                         name = priorName;
                         toSection = spawns.getConfigSection(name);
                     } else {
-                        return new Location(Bukkit.getWorld(toSection.getString("world")),
+                        String worldName = toSection.getString("world");
+                        if (worldName == null || Bukkit.getWorld(worldName) == null) {
+                            CoreClass.getInstance().getLogger().warning("The world " + worldName + " has been returned as " +
+                                    "null for spawn " + name + "! Please make sure it's loaded. Falling back to the main spawn....");
+                            return mainSpawn;
+                        }
+
+                        CoreClass.debug("Spawn for " + name + " is okay to teleport to. Being returned now...");
+
+                        return new Location(Bukkit.getWorld(worldName),
                                 toSection.getDouble("x"),
                                 toSection.getDouble("y"),
                                 toSection.getDouble("z"),
@@ -153,18 +175,27 @@ public class Spawn extends ATConfig {
                     }
                 }
             } else {
+
+                //
+                CoreClass.debug("Spawn for " + name + " was not found, resorting to main spawn " + getString("main-spawn"));
+
+                // Get the main spawn
                 String mainSpawn = getString("main-spawn");
                 if (mainSpawn == null || mainSpawn.equals(name)) break;
                 toSection = spawns.getConfigSection(mainSpawn);
                 name = mainSpawn;
             }
         }
+
+        CoreClass.debug("Returning main spawn for " + (player == null ? "N/A" : player.getName()));
         return mainSpawn;
     }
 
     private Location getNearestLocation(@NotNull Player player) {
 
         final Location loc = player.getLocation();
+
+        CoreClass.debug("Searching nearest spawnpoints for " + player.getName() + "...");
 
         // Set the initial values
         @Nullable String chosenSpawn = null;
@@ -195,6 +226,8 @@ public class Spawn extends ATConfig {
             double y = spawn.getDouble("y");
             double z = spawn.getDouble("z");
             double distance = square(x - loc.getX()) + square(y - loc.getY()) + square(z - loc.getZ());
+
+            CoreClass.debug("Spawnpoint " + spawnName + " has distance " + distance + " from " + player.getName());
             if (chosenSpawn != null && distance >= max) continue;
 
             // If it works out, set it!
@@ -203,6 +236,7 @@ public class Spawn extends ATConfig {
         }
 
         // If no spawn was chosen, use the main spawn
+        CoreClass.debug("Chosen spawn for " + player.getName() + ": " + chosenSpawn);
         if (chosenSpawn == null) return mainSpawn;
         return getSpawn(chosenSpawn);
     }
