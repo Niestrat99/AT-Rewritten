@@ -633,7 +633,8 @@ public final class MainConfig extends ATConfig {
                 """
                 Whether or not players should be denied access to some of their homes if they exceed their homes limit.
                 The homes denied access to will end up being their most recently set homes.
-                For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.""");
+                For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.\
+                """);
         addDefault(
                 "hide-homes-if-denied",
                 false,
