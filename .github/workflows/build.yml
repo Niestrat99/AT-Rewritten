@@ -114,6 +114,17 @@ jobs:
         path: build/advancedteleport-bukkit/libs/AdvancedTeleport-Bukkit-*-all.jar
         if-no-files-found: error
 
+  notify:
+    name: Notify Discord
+    runs-on: ubuntu-latest
+    needs: autobuild
+    if: ${{ always() }}
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
     - name: Discord Webhook Notification
       uses: Thatsmusic99/actions-git-discord-webhook@main
       if: ${{ github.repository == 'Niestrat99/AT-Rewritten' }}
