@@ -26,7 +26,5 @@ public abstract class WorldRule {
     }
 
     public abstract boolean canTeleport(
-        @NotNull final Player player,
-        @NotNull final Location toLoc
-    );
+            @NotNull final Player player, @NotNull final Location toLoc);
 }

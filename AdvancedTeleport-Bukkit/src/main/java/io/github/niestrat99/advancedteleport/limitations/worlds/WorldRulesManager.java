@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopIntoRul
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopOutOfRule;
 import io.github.niestrat99.advancedteleport.limitations.worlds.list.StopWithinRule;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -24,17 +25,15 @@ public class WorldRulesManager {
         }
     }
 
-    private void addWorld(
-        String world,
-        String rulesRaw
-    ) {
+    private void addWorld(String world, String rulesRaw) {
         String[] rules = rulesRaw.split(";");
         List<WorldRule> ruleList = new ArrayList<>();
         for (String rule : rules) {
             if (rule.startsWith("stop-teleportation-out")) {
                 ruleList.add(new StopOutOfRule(rule.replaceFirst("stop-teleportation-out", "")));
             } else if (rule.startsWith("stop-teleportation-within")) {
-                ruleList.add(new StopWithinRule(rule.replaceFirst("stop-teleportation-within", "")));
+                ruleList.add(
+                        new StopWithinRule(rule.replaceFirst("stop-teleportation-within", "")));
             } else if (rule.startsWith("stop-teleportation-into")) {
                 ruleList.add(new StopIntoRule(rule.replaceFirst("stop-teleportation-into", "")));
             }
@@ -42,13 +41,11 @@ public class WorldRulesManager {
         this.rules.put(world, ruleList);
     }
 
-    public boolean canTeleport(
-        Player player,
-        Location toLoc
-    ) {
+    public boolean canTeleport(Player player, Location toLoc) {
         String world = player.getLocation().getWorld().getName();
         List<WorldRule> rulesFromWorld = this.rules.getOrDefault(world, this.rules.get("default"));
-        List<WorldRule> rulesToWorld = this.rules.getOrDefault(toLoc.getWorld().getName(), this.rules.get("default"));
+        List<WorldRule> rulesToWorld =
+                this.rules.getOrDefault(toLoc.getWorld().getName(), this.rules.get("default"));
 
         if (rulesFromWorld != null && !rulesFromWorld.isEmpty()) {
             for (WorldRule rule : rulesFromWorld) {

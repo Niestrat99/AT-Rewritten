@@ -9,9 +9,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when a warp is moved.
- */
+/** The event fired when a warp is moved. */
 public final class WarpMoveEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -20,10 +18,9 @@ public final class WarpMoveEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public WarpMoveEvent(
-        @NotNull final Warp warp,
-        @NotNull final Location location,
-        @Nullable final CommandSender sender
-    ) {
+            @NotNull final Warp warp,
+            @NotNull final Location location,
+            @Nullable final CommandSender sender) {
         super(sender);
         this.warp = warp;
         this.location = location;
@@ -53,12 +50,13 @@ public final class WarpMoveEvent extends TrackableATEvent {
      * Sets the location the warp is being moved to.
      *
      * @param location the location to be moved to.
-     * @throws NullPointerException  if the location is null.
+     * @throws NullPointerException if the location is null.
      * @throws IllegalStateException if the location's world is not loaded.
      */
     @Contract(pure = true)
     public void setLocation(@NotNull final Location location) throws IllegalStateException {
-        if (!location.isWorldLoaded()) throw new IllegalStateException("The new location's world is not loaded.");
+        if (!location.isWorldLoaded())
+            throw new IllegalStateException("The new location's world is not loaded.");
         this.location = location;
     }
 

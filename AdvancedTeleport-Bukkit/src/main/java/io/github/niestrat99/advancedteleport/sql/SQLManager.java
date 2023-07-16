@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,7 +23,12 @@ public abstract class SQLManager {
     public SQLManager() {
         tablePrefix = MainConfig.get().TABLE_PREFIX.get();
         if (!tablePrefix.matches("^[_A-Za-z0-9]+$")) {
-            CoreClass.getInstance().getLogger().warning("Table prefix " + tablePrefix + " is not alphanumeric. Using advancedtp...");
+            CoreClass.getInstance()
+                    .getLogger()
+                    .warning(
+                            "Table prefix "
+                                    + tablePrefix
+                                    + " is not alphanumeric. Using advancedtp...");
             tablePrefix = "advancedtp";
         }
         try (Connection ignored = implementConnection()) {
@@ -38,16 +44,20 @@ public abstract class SQLManager {
         if (MainConfig.get().USE_MYSQL.get()) {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                String url = String.format(
-                        "jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
-                        MainConfig.get().MYSQL_HOST.get(),
-                        MainConfig.get().MYSQL_PORT.get(),
-                        MainConfig.get().MYSQL_DATABASE.get(),
-                        MainConfig.get().USE_SSL.get(),
-                        MainConfig.get().AUTO_RECONNECT.get(),
-                        MainConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get()
-                );
-                connection = DriverManager.getConnection(url, MainConfig.get().USERNAME.get(), MainConfig.get().PASSWORD.get());
+                String url =
+                        String.format(
+                                "jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
+                                MainConfig.get().MYSQL_HOST.get(),
+                                MainConfig.get().MYSQL_PORT.get(),
+                                MainConfig.get().MYSQL_DATABASE.get(),
+                                MainConfig.get().USE_SSL.get(),
+                                MainConfig.get().AUTO_RECONNECT.get(),
+                                MainConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get());
+                connection =
+                        DriverManager.getConnection(
+                                url,
+                                MainConfig.get().USERNAME.get(),
+                                MainConfig.get().PASSWORD.get());
                 usingSqlite = false;
                 return connection;
             } catch (ClassNotFoundException | SQLException e) {
@@ -66,7 +76,9 @@ public abstract class SQLManager {
         // Load JDBC
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + CoreClass.getInstance().getDataFolder() + "/data.db");
+            Connection connection =
+                    DriverManager.getConnection(
+                            "jdbc:sqlite:" + CoreClass.getInstance().getDataFolder() + "/data.db");
             usingSqlite = true;
             return connection;
         } catch (ClassNotFoundException | SQLException e) {
@@ -97,14 +109,14 @@ public abstract class SQLManager {
         statement.executeUpdate();
     }
 
-    protected synchronized PreparedStatement prepareStatement(
-        Connection connection,
-        String sql
-    ) throws SQLException {
+    protected synchronized PreparedStatement prepareStatement(Connection connection, String sql)
+            throws SQLException {
         return connection.prepareStatement(sql);
     }
 
-    protected void prepareLocation(@NotNull Location location, int startingIndex, PreparedStatement statement) throws SQLException {
+    protected void prepareLocation(
+            @NotNull Location location, int startingIndex, PreparedStatement statement)
+            throws SQLException {
         statement.setDouble(startingIndex++, location.getX());
         statement.setDouble(startingIndex++, location.getY());
         statement.setDouble(startingIndex++, location.getZ());
@@ -113,7 +125,8 @@ public abstract class SQLManager {
         statement.setString(startingIndex, location.getWorld().getName());
     }
 
-    protected @NotNull Location getLocation(ResultSet set) throws SQLException, UnloadedWorldException {
+    protected @NotNull Location getLocation(ResultSet set)
+            throws SQLException, UnloadedWorldException {
 
         // Get base coordinates
         double x = set.getDouble("x");
@@ -128,7 +141,8 @@ public abstract class SQLManager {
         String worldName = set.getString("world");
         World world = Bukkit.getWorld(worldName);
         if (world == null)
-            throw new UnloadedWorldException(worldName, "Error getting location: world " + worldName + " is unloaded.");
+            throw new UnloadedWorldException(
+                    worldName, "Error getting location: world " + worldName + " is unloaded.");
 
         return new Location(world, x, y, z, yaw, pitch);
     }

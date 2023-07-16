@@ -6,9 +6,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * The event that gets the home object after it has been created and fully registered properly.
- */
+/** The event that gets the home object after it has been created and fully registered properly. */
 public final class HomePostCreateEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();

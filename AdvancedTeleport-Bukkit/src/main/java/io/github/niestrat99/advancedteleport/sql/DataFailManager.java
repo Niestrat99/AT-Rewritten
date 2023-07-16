@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -40,34 +41,40 @@ public class DataFailManager {
                         }
                         newData.add(wholeData.toString());
                     }
-                    addFailure(operation, newData.toArray(new String[]{}));
+                    addFailure(operation, newData.toArray(new String[] {}));
                 }
                 failCsv.delete();
             } catch (IOException e) {
-                CoreClass.getInstance().getLogger().severe("Failed to read the failure CSV file: " + e.getMessage());
+                CoreClass.getInstance()
+                        .getLogger()
+                        .severe("Failed to read the failure CSV file: " + e.getMessage());
                 e.printStackTrace();
             }
-
         }
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(CoreClass.getInstance(), () -> {
-            for (Fail fail : pendingFails.keySet()) {
-                CoreClass.getInstance().getLogger().warning("Handling failure " + fail.operation.name() + ".");
-                handleFailure(fail);
-            }
-        }, 1200, 1200);
+        Bukkit.getScheduler()
+                .runTaskTimerAsynchronously(
+                        CoreClass.getInstance(),
+                        () -> {
+                            for (Fail fail : pendingFails.keySet()) {
+                                CoreClass.getInstance()
+                                        .getLogger()
+                                        .warning("Handling failure " + fail.operation.name() + ".");
+                                handleFailure(fail);
+                            }
+                        },
+                        1200,
+                        1200);
     }
 
-    public void addFailure(
-        Operation operation,
-        String... data
-    ) {
+    public void addFailure(Operation operation, String... data) {
         Fail fail = new Fail(operation, data);
         if (!pendingFails.containsKey(fail)) {
-            CoreClass.getInstance().getLogger().warning("SQL failure added for operation " + operation.name() + ".");
+            CoreClass.getInstance()
+                    .getLogger()
+                    .warning("SQL failure added for operation " + operation.name() + ".");
             pendingFails.put(fail, 1);
         }
-
     }
 
     public void handleFailure(Fail fail) {
@@ -75,61 +82,99 @@ public class DataFailManager {
         Runnable run = null;
 
         switch (fail.operation) {
-            case ADD_HOME -> run = () -> HomeSQLManager.get().addHome(locFromStrings(fail.data),
-                    UUID.fromString(fail.data[7]),
-                    fail.data[6]);
-            case DELETE_HOME -> run = () -> HomeSQLManager.get().removeHome(UUID.fromString(fail.data[0]), fail.data[1]);
-            case MOVE_HOME -> run = () -> HomeSQLManager.get().moveHome(locFromStrings(fail.data),
-                    UUID.fromString(fail.data[7]),
-                    fail.data[6]);
+            case ADD_HOME -> run =
+                    () ->
+                            HomeSQLManager.get()
+                                    .addHome(
+                                            locFromStrings(fail.data),
+                                            UUID.fromString(fail.data[7]),
+                                            fail.data[6]);
+            case DELETE_HOME -> run =
+                    () ->
+                            HomeSQLManager.get()
+                                    .removeHome(UUID.fromString(fail.data[0]), fail.data[1]);
+            case MOVE_HOME -> run =
+                    () ->
+                            HomeSQLManager.get()
+                                    .moveHome(
+                                            locFromStrings(fail.data),
+                                            UUID.fromString(fail.data[7]),
+                                            fail.data[6]);
             case ADD_PLAYER -> {
                 // TODO - apply this where necessary for other checks that require a UUID check.
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0]));
+                OfflinePlayer offlinePlayer =
+                        Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0]));
                 if (offlinePlayer.getName() == null) {
-                    CoreClass.getInstance().getLogger().warning("Null name for " + fail.data[0] + ". Won't proceed with this.");
+                    CoreClass.getInstance()
+                            .getLogger()
+                            .warning(
+                                    "Null name for " + fail.data[0] + ". Won't proceed with this.");
                     pendingFails.remove(fail);
                     return;
                 }
                 run = () -> PlayerSQLManager.get().addPlayer(offlinePlayer);
             }
-            case UPDATE_PLAYER ->
-                    run = () -> PlayerSQLManager.get().updatePlayerInformation(Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])));
-            case CHANGE_TELEPORTATION ->
-                    run = () -> PlayerSQLManager.get().setTeleportationOn(UUID.fromString(fail.data[0]), Boolean.parseBoolean(fail.data[1]));
-            case SET_MAIN_HOME ->
-                    run = () -> PlayerSQLManager.get().setMainHome(UUID.fromString(fail.data[1]), fail.data[0]);
-            case ADD_BLOCK -> run = () -> BlocklistManager.get().blockUser(fail.data[0], fail.data[1], fail.data[2]);
-            case UNBLOCK -> run = () -> BlocklistManager.get().unblockUser(fail.data[0], fail.data[1]);
+            case UPDATE_PLAYER -> run =
+                    () ->
+                            PlayerSQLManager.get()
+                                    .updatePlayerInformation(
+                                            Bukkit.getOfflinePlayer(UUID.fromString(fail.data[0])));
+            case CHANGE_TELEPORTATION -> run =
+                    () ->
+                            PlayerSQLManager.get()
+                                    .setTeleportationOn(
+                                            UUID.fromString(fail.data[0]),
+                                            Boolean.parseBoolean(fail.data[1]));
+            case SET_MAIN_HOME -> run =
+                    () ->
+                            PlayerSQLManager.get()
+                                    .setMainHome(UUID.fromString(fail.data[1]), fail.data[0]);
+            case ADD_BLOCK -> run =
+                    () ->
+                            BlocklistManager.get()
+                                    .blockUser(fail.data[0], fail.data[1], fail.data[2]);
+            case UNBLOCK -> run =
+                    () -> BlocklistManager.get().unblockUser(fail.data[0], fail.data[1]);
             case ADD_WARP -> {
                 Warp warp;
                 if (AdvancedTeleportAPI.getWarps().get(fail.data[6]) != null) {
                     warp = AdvancedTeleportAPI.getWarps().get(fail.data[6]);
                 } else {
-                    warp = new Warp(UUID.fromString(fail.data[7]), fail.data[6], locFromStrings(fail.data), Long.parseLong(fail.data[8]), Long.parseLong(fail.data[9]));
+                    warp =
+                            new Warp(
+                                    UUID.fromString(fail.data[7]),
+                                    fail.data[6],
+                                    locFromStrings(fail.data),
+                                    Long.parseLong(fail.data[8]),
+                                    Long.parseLong(fail.data[9]));
                 }
                 if (warp == null) return;
                 run = () -> WarpSQLManager.get().addWarp(warp);
             }
-            case MOVE_WARP -> run = () -> WarpSQLManager.get().moveWarp(locFromStrings(fail.data), fail.data[6]);
+            case MOVE_WARP -> run =
+                    () -> WarpSQLManager.get().moveWarp(locFromStrings(fail.data), fail.data[6]);
             case DELETE_WARP -> run = () -> WarpSQLManager.get().removeWarp(fail.data[0]);
-            case UPDATE_LOCATION ->
-                    run = () -> PlayerSQLManager.get().setPreviousLocation(fail.data[6], locFromStrings(fail.data));
-
-
+            case UPDATE_LOCATION -> run =
+                    () ->
+                            PlayerSQLManager.get()
+                                    .setPreviousLocation(fail.data[6], locFromStrings(fail.data));
         }
 
-        CompletableFuture.runAsync(run, CoreClass.async).whenComplete((v, err) -> {
-            if (err != null) {
-                pendingFails.put(fail, pendingFails.get(fail) + 1);
-            } else {
-                pendingFails.remove(fail);
-            }
-        });
+        CompletableFuture.runAsync(run, CoreClass.async)
+                .whenComplete(
+                        (v, err) -> {
+                            if (err != null) {
+                                pendingFails.put(fail, pendingFails.get(fail) + 1);
+                            } else {
+                                pendingFails.remove(fail);
+                            }
+                        });
     }
 
     private Location locFromStrings(String... data) {
         if (data.length < 6) {
-            throw new IllegalArgumentException("Not enough arguments to get a location! " + Arrays.toString(data));
+            throw new IllegalArgumentException(
+                    "Not enough arguments to get a location! " + Arrays.toString(data));
         }
         String worldStr = data[0];
         World world = Bukkit.getWorld(worldStr);
@@ -167,10 +212,11 @@ public class DataFailManager {
                 failCsv.delete();
             }
         } catch (IOException e) {
-            CoreClass.getInstance().getLogger().severe("Failed to write to the failure CSV file: " + e.getMessage());
+            CoreClass.getInstance()
+                    .getLogger()
+                    .severe("Failed to write to the failure CSV file: " + e.getMessage());
             e.printStackTrace();
         }
-
     }
 
     public enum Operation {
@@ -194,10 +240,7 @@ public class DataFailManager {
         private final String[] data;
         private final Operation operation;
 
-        public Fail(
-            Operation operation,
-            String... data
-        ) {
+        public Fail(Operation operation, String... data) {
             this.data = data;
             this.operation = operation;
         }
@@ -214,8 +257,7 @@ public class DataFailManager {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Fail fail = (Fail) o;
-            return Arrays.equals(data, fail.data) &&
-                operation == fail.operation;
+            return Arrays.equals(data, fail.data) && operation == fail.operation;
         }
     }
 }

@@ -3,7 +3,9 @@ package io.github.niestrat99.advancedteleport.commands;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +24,10 @@ public interface TimedATCommand extends PlayerCommand {
         // If the player is on a cooldown, stop there
         int cooldown = CooldownManager.secondsLeftOnCooldown(getSection(), player);
         if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", Placeholder.unparsed("time", String.valueOf(cooldown)));
+            CustomMessages.sendMessage(
+                    sender,
+                    "Error.onCooldown",
+                    Placeholder.unparsed("time", String.valueOf(cooldown)));
             return false;
         }
 

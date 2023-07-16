@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.payments.types.ItemsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.LevelsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
+
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -34,10 +35,7 @@ public class PaymentManager {
         addCommand("back", MainConfig.get().COSTS.BACK.get());
     }
 
-    private void addCommand(
-        String command,
-        Object value
-    ) {
+    private void addCommand(String command, Object value) {
 
         // Generate a hashmap for each payment
         HashMap<String, Payment> payments = new HashMap<>();
@@ -53,7 +51,15 @@ public class PaymentManager {
                 if (payment == null) continue;
                 addPayment(payment.getId(), payment, payments);
             } catch (Exception | NoClassDefFoundError e) {
-                CoreClass.getInstance().getLogger().warning("Failed to parse payment " + rawPayment + " for command " + command + "! Error message: " + e.getMessage());
+                CoreClass.getInstance()
+                        .getLogger()
+                        .warning(
+                                "Failed to parse payment "
+                                        + rawPayment
+                                        + " for command "
+                                        + command
+                                        + "! Error message: "
+                                        + e.getMessage());
             }
         }
         teleportCosts.put(command, payments);
@@ -65,7 +71,8 @@ public class PaymentManager {
             if (matcher.matches()) {
                 String plugin = matcher.group(1);
                 double payment = Double.parseDouble(matcher.group(2));
-                return new VaultPayment(payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
+                return new VaultPayment(
+                        payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
             }
             return null;
         }
@@ -87,9 +94,7 @@ public class PaymentManager {
 
                 // Otherwise, resort to that
                 return new VaultPayment(
-                    payment,
-                    plugin == null ? null : plugin.substring(0, plugin.length() - 1)
-                );
+                        payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
             } else {
                 return ItemsPayment.getFromString(rawPayment);
             }
@@ -97,10 +102,7 @@ public class PaymentManager {
     }
 
     private void addPayment(
-        String type,
-        Payment payment,
-        HashMap<String, Payment> currentPayMethods
-    ) {
+            String type, Payment payment, HashMap<String, Payment> currentPayMethods) {
         if (type.equalsIgnoreCase("levels")) {
             if (currentPayMethods.containsKey("exp")) {
                 PointsPayment existingPayment = (PointsPayment) currentPayMethods.get("exp");
@@ -114,8 +116,11 @@ public class PaymentManager {
             if (payment == null) return;
             ItemsPayment itemsPayment = (ItemsPayment) payment;
             if (currentPayMethods.containsKey("item_" + itemsPayment.getMaterial().name())) {
-                ItemsPayment otherPayment = (ItemsPayment) currentPayMethods.get("item_" + itemsPayment.getMaterial().name());
-                otherPayment.setPaymentAmount(otherPayment.getPaymentAmount() + itemsPayment.getPaymentAmount());
+                ItemsPayment otherPayment =
+                        (ItemsPayment)
+                                currentPayMethods.get("item_" + itemsPayment.getMaterial().name());
+                otherPayment.setPaymentAmount(
+                        otherPayment.getPaymentAmount() + itemsPayment.getPaymentAmount());
                 currentPayMethods.put("item_" + itemsPayment.getMaterial().name(), otherPayment);
             } else {
                 currentPayMethods.put("item_" + itemsPayment.getMaterial().name(), itemsPayment);
@@ -123,12 +128,12 @@ public class PaymentManager {
         } else {
             if (currentPayMethods.containsKey(type)) {
                 Payment existingPayment = currentPayMethods.get(type);
-                existingPayment.setPaymentAmount(payment.getPaymentAmount() + existingPayment.getPaymentAmount());
+                existingPayment.setPaymentAmount(
+                        payment.getPaymentAmount() + existingPayment.getPaymentAmount());
             } else {
                 currentPayMethods.put(type, payment);
             }
         }
-
     }
 
     public static PaymentManager getInstance() {
@@ -136,11 +141,7 @@ public class PaymentManager {
     }
 
     // Method used to check if a player can pay for using a command
-    public boolean canPay(
-        String command,
-        Player player,
-        World toWorld
-    ) {
+    public boolean canPay(String command, Player player, World toWorld) {
         if (player.hasPermission("at.admin.bypass.payment")) return true;
         for (Payment payment : getPayments(command, player, toWorld).values()) {
             if (!payment.canPay(player)) {
@@ -151,11 +152,7 @@ public class PaymentManager {
     }
 
     // Method used to manage payments
-    public void withdraw(
-            String command,
-            Player player,
-            World toWorld
-    ) {
+    public void withdraw(String command, Player player, World toWorld) {
         if (!player.hasPermission("at.admin.bypass.payment")) {
             for (Payment payment : getPayments(command, player, toWorld).values()) {
                 payment.withdraw(player);
@@ -163,19 +160,16 @@ public class PaymentManager {
         }
     }
 
-    private HashMap<String, Payment> getPayments(
-            String command,
-            Player player,
-            World toWorld
-    ) {
+    private HashMap<String, Payment> getPayments(String command, Player player, World toWorld) {
         final var customCosts = MainConfig.get().CUSTOM_COSTS.get();
         var payments = new HashMap<String, Payment>();
         for (String key : customCosts.getKeys(false)) {
             String worldName = toWorld.getName().toLowerCase(Locale.ROOT);
             if (!player.hasPermission("at.member.cost." + key)
-                && !player.hasPermission("at.member.cost." + command + "." + key)
-                && !player.hasPermission("at.member.cost." + worldName + "." + key)
-                && !player.hasPermission("at.member.cost." + command + "." + worldName + "." + key)) continue;
+                    && !player.hasPermission("at.member.cost." + command + "." + key)
+                    && !player.hasPermission("at.member.cost." + worldName + "." + key)
+                    && !player.hasPermission(
+                            "at.member.cost." + command + "." + worldName + "." + key)) continue;
             String rawPayment = customCosts.getString(key);
             if (rawPayment == null) continue;
             Payment payment = parsePayment(rawPayment);

@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.hooks.borders;
 
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;

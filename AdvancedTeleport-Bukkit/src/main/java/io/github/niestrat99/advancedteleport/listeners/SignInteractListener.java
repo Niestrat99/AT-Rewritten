@@ -9,6 +9,7 @@ import io.github.niestrat99.advancedteleport.api.signs.SpawnSign;
 import io.github.niestrat99.advancedteleport.api.signs.WarpSign;
 import io.github.niestrat99.advancedteleport.api.signs.WarpsSign;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;

@@ -4,7 +4,9 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
@@ -27,10 +29,13 @@ public final class WorldGuardClaimHook extends ClaimPlugin<Plugin, WorldGuard> {
         if (!super.canUse(world)) return false;
 
         // Ensures the container is available in the world.
-        return this.provider().map(provider -> {
-            container = provider.getPlatform().getRegionContainer();
-            return container.get(BukkitAdapter.adapt(world)) != null;
-        }).orElse(false);
+        return this.provider()
+                .map(
+                        provider -> {
+                            container = provider.getPlatform().getRegionContainer();
+                            return container.get(BukkitAdapter.adapt(world)) != null;
+                        })
+                .orElse(false);
     }
 
     @Override

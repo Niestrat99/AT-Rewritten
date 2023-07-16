@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- *
  * @since v6.0.0
  */
 public class SpawnMoveEvent extends TrackableATEvent {
@@ -19,12 +18,8 @@ public class SpawnMoveEvent extends TrackableATEvent {
     private final @NotNull Spawn spawn;
     private @NotNull Location newLocation;
 
-
     public SpawnMoveEvent(
-            @NotNull Spawn spawn,
-            @NotNull Location newLocation,
-            @Nullable CommandSender sender
-    ) {
+            @NotNull Spawn spawn, @NotNull Location newLocation, @Nullable CommandSender sender) {
         super(sender);
         this.spawn = spawn;
         this.newLocation = newLocation;

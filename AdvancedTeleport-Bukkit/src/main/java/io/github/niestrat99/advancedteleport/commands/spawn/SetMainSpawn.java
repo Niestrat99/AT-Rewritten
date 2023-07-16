@@ -5,7 +5,9 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -21,11 +23,10 @@ public final class SetMainSpawn extends SpawnATCommand {
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
 
         // If the player can't proceed, stop there
         if (!canProceed(sender)) return true;
@@ -49,12 +50,13 @@ public final class SetMainSpawn extends SpawnATCommand {
         Spawn spawn = AdvancedTeleportAPI.getSpawn(id);
         if (spawn == null) {
             if (sender.hasPermission("at.admin.setspawn")
-                && (world || sender.hasPermission("at.admin.setspawn.other"))) {
+                    && (world || sender.hasPermission("at.admin.setspawn.other"))) {
 
                 // Set it
                 Location loc = ((Player) sender).getLocation();
-                AdvancedTeleportAPI.setSpawn(id, sender, loc).thenAcceptAsync(newSpawn ->
-                        setMainSpawn(newSpawn, sender), CoreClass.sync);
+                AdvancedTeleportAPI.setSpawn(id, sender, loc)
+                        .thenAcceptAsync(
+                                newSpawn -> setMainSpawn(newSpawn, sender), CoreClass.sync);
             } else {
 
                 // Otherwise, stop them
@@ -75,25 +77,30 @@ public final class SetMainSpawn extends SpawnATCommand {
 
     @Override
     public @Nullable List<String> onTabComplete(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
-        if (sender.hasPermission("at.admin.setmainspawn") && sender instanceof Player && args.length == 1) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
+        if (sender.hasPermission("at.admin.setmainspawn")
+                && sender instanceof Player
+                && args.length == 1) {
             List<String> spawns = new ArrayList<>();
-            StringUtil.copyPartialMatches(args[0], AdvancedTeleportAPI.getSpawns().keySet(), spawns);
+            StringUtil.copyPartialMatches(
+                    args[0], AdvancedTeleportAPI.getSpawns().keySet(), spawns);
             return spawns;
         }
         return null;
     }
 
     private void setMainSpawn(Spawn spawn, CommandSender sender) {
-        AdvancedTeleportAPI.setMainSpawn(spawn, sender).whenComplete((v, e) ->
-                CustomMessages.failable(sender,
-                        "Info.setMainSpawn",
-                        "Error.setMainSpawnFail",
-                        e,
-                        Placeholder.unparsed("spawn", spawn.getName())));
+        AdvancedTeleportAPI.setMainSpawn(spawn, sender)
+                .whenComplete(
+                        (v, e) ->
+                                CustomMessages.failable(
+                                        sender,
+                                        "Info.setMainSpawn",
+                                        "Error.setMainSpawnFail",
+                                        e,
+                                        Placeholder.unparsed("spawn", spawn.getName())));
     }
 }
