@@ -36,9 +36,9 @@ public class PointsPayment extends Payment {
     public double getPlayerAmount(Player player) {
 
         // Get the XP that the player is on according to their level
-        int xpLevels = getEXPBetweenLevels(player.getLevel());
+        int xpLevels = getTotalEXPFromLevel(player.getLevel());
         int totalXPinLevel = expInLevel(player.getLevel());
-        return xpLevels + totalXPinLevel - player.getExpToLevel();
+        return xpLevels + ((int) (player.getExp() * totalXPinLevel));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class PointsPayment extends Payment {
                 CustomMessages.sendMessage(player, "Error.notEnoughEXP", "{levels}", String.valueOf(levels.getPaymentAmount()));
                 return false;
             }
-            int expPoints = getEXPBetweenLevels(player.getLevel());
+            int expPoints = getEXPBetweenLevels(player.getLevel(), (int) levels.getPaymentAmount());
             requiredPoints += expPoints;
         }
         if (getPlayerAmount(player) >= requiredPoints) {
@@ -68,7 +68,7 @@ public class PointsPayment extends Payment {
 
     @Override
     public void setPlayerAmount(Player player) {
-        int expPoints = getEXPBetweenLevels(player.getLevel());
+        int expPoints = levels == null ? 0 : getEXPBetweenLevels(player.getLevel(), (int) levels.getPaymentAmount());
         player.giveExp(-points);
         player.giveExp(-expPoints);
         if (expPoints > 0) {
@@ -76,20 +76,35 @@ public class PointsPayment extends Payment {
                     "{amount}", String.valueOf(levels.getPaymentAmount()),
                     "{levels}", String.valueOf(player.getLevel()));
         }
+
+        if (points > 0) {
+            CustomMessages.sendMessage(player, "Info.paymentPoints",
+                    "{amount}", String.valueOf(points),
+                    "{points}", String.valueOf(getPlayerAmount(player))
+            );
+        }
     }
 
-    protected int getEXPBetweenLevels(int startingLevel) {
+    protected int getTotalEXPFromLevel(int maxLevel) {
+
         // Store the calculated points too.
         int expPoints = 0;
-        // If there's no levels though, return 0.
-        if (levels == null) return 0;
+
         // Next, we need to calculate the amount of EXP points to deduct.
         // Let's remove 1 off the current level each time.
-        for (int i = 0; i < levels.getPaymentAmount(); i++) {
-            expPoints += expInLevel(startingLevel - i - 1);
+        for (int i = 0; i < maxLevel; i++) {
+
+            // Get the resulting level.
+            expPoints += expInLevel(i);
         }
         return expPoints;
     }
+
+    protected int getEXPBetweenLevels(int maxLevel, int levels) {
+        int minLevel = maxLevel - levels;
+        return getTotalEXPFromLevel(maxLevel) - getTotalEXPFromLevel(minLevel);
+    }
+
 
     protected int expInLevel(int currentLevel) {
         if (currentLevel < 16) {
