@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.listeners.SpawnLoadListener;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -48,12 +49,27 @@ public class Spawn extends ATConfig {
         ConfigSection spawns = getConfigSection("spawns");
         if (spawns == null) return;
         if (!spawns.contains(mainSpawn) || mainSpawn.isEmpty()) return;
-        this.mainSpawn = new Location(Bukkit.getWorld(getString("spawns." + mainSpawn + ".world")),
+
+        // Check if the world for the main spawn is loaded yet
+        String worldName = getString("spawns." + mainSpawn + ".world");
+        if (worldName == null) return;
+
+        // Attempt to create the location for storing at most
+        Location loc = new Location(Bukkit.getWorld(worldName),
                 getDouble("spawns." + mainSpawn + ".x"),
                 getDouble("spawns." + mainSpawn + ".y"),
                 getDouble("spawns." + mainSpawn + ".z"),
                 getFloat("spawns." + mainSpawn + ".yaw"),
                 getFloat("spawns." + mainSpawn + ".pitch"));
+
+        // If the world does not exist, stop there
+        if (loc.getWorld() == null) {
+            CoreClass.getInstance().getLogger().info("World " + worldName + " has not loaded. Will wait for the world to load before registering the spawnpoint...");
+            Bukkit.getPluginManager().registerEvents(new SpawnLoadListener(loc, worldName, mainSpawn), CoreClass.getInstance());
+            return;
+        }
+
+        this.mainSpawn = loc;
     }
 
     public void setSpawn(Location location, String name) throws Exception {
@@ -145,6 +161,7 @@ public class Spawn extends ATConfig {
 
                     // If there is no permission but it has a mirror, fall back to that
                     if (hasMirror && (requiresPermission
+                            && player != null
                             && !player.hasPermission("at.member.spawn." + name)
                             && !bypassPermission)) {
                         name = priorName;
