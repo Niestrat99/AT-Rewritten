@@ -5,7 +5,7 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;

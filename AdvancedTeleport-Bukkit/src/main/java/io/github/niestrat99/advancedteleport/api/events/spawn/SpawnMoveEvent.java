@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.events.spawn;
 
 import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
-import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;

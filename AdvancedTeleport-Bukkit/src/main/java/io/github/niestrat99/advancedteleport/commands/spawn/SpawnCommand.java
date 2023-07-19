@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.spawn;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;

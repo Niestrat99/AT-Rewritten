@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
-import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;

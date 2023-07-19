@@ -1,6 +1,6 @@
 package io.github.niestrat99.advancedteleport.api.events.spawn;
 
-import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
