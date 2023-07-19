@@ -16,7 +16,10 @@ public class PlayerListeners implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (event.getPlayer().hasMetadata("NPC")) return;
-        ATPlayer.getPlayer(event.getPlayer());
+
+        // This will load/relog the associated player data
+        ATPlayer.relog(event.getPlayer());
+
         PlayerSQLManager.get().updatePlayerData(event.getPlayer());
         if (!NewConfig.get().NOTIFY_ADMINS.get()) return;
         if (!event.getPlayer().hasPermission("at.admin.notify")) return;

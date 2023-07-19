@@ -22,16 +22,17 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class ATPlayer {
 
-    private UUID uuid;
-    @NotNull
-    private LinkedHashMap<String, Home> homes;
-    @NotNull
-    private HashMap<UUID, BlockInfo> blockedUsers;
+    private @NotNull UUID uuid;
+    protected @NotNull String name;
+    protected @NotNull WeakReference<OfflinePlayer> player;
+    private @NotNull LinkedHashMap<String, Home> homes;
+    private @NotNull HashMap<UUID, BlockInfo> blockedUsers;
     private boolean isTeleportationEnabled;
     private String mainHome;
     private Location previousLoc;
@@ -43,15 +44,21 @@ public class ATPlayer {
      * @param player
      */
     public ATPlayer(Player player) {
-        this(player.getUniqueId(), player.getName());
+        this(player, player.getName(), player.getUniqueId());
     }
 
-    public ATPlayer(@Nullable UUID uuid, @Nullable String name) {
+    public ATPlayer(
+            @NotNull final OfflinePlayer player,
+            @NotNull final String name,
+            @NotNull final UUID uuid
+    ) {
+        this.player = new WeakReference<>(player);
+        this.uuid = uuid;
+        this.name = name;
+
         this.homes = new LinkedHashMap<>();
         this.blockedUsers = new HashMap<>();
-        if (uuid == null || name == null) return;
 
-        this.uuid = uuid;
         if (Bukkit.getServer().getPluginManager().getPlugin("floodgate")!=null && Bukkit.getServer().getPluginManager().isPluginEnabled("floodgate")) {
             FloodgateApi api = FloodgateApi.getInstance();
             if (api == null) {
@@ -84,11 +91,13 @@ public class ATPlayer {
 
     @Nullable
     public Player getPlayer() {
-        return Bukkit.getPlayer(uuid);
+        OfflinePlayer offlinePlayer = player.get();
+        if (offlinePlayer == null) return Bukkit.getPlayer(uuid);
+        return offlinePlayer.getPlayer();
     }
 
-    public OfflinePlayer getOfflinePlayer() {
-        return Bukkit.getOfflinePlayer(uuid);
+    public @NotNull OfflinePlayer getOfflinePlayer() {
+        return Objects.requireNonNullElseGet(player.get(), () -> Bukkit.getOfflinePlayer(uuid));
     }
 
     public void teleport(ATTeleportEvent event, String command, String teleportMsg, int warmUp) {
@@ -319,7 +328,7 @@ public class ATPlayer {
 
     @NotNull
     public static ATPlayer getPlayer(OfflinePlayer player) {
-        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) : new ATPlayer(player.getUniqueId(), player.getName());
+        return players.containsKey(player.getName().toLowerCase()) ? players.get(player.getName().toLowerCase()) : new ATPlayer(player, player.getName(), player.getUniqueId());
     }
 
     @Nullable
@@ -329,7 +338,7 @@ public class ATPlayer {
         }
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
-            new ATPlayer(player.getUniqueId(), player.getName());
+            new ATPlayer(player, name, player.getUniqueId());
         });
         return null;
     }
@@ -341,8 +350,20 @@ public class ATPlayer {
         }
         return CompletableFuture.supplyAsync(() -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
-            return new ATPlayer(player.getUniqueId(), player.getName());
+            return new ATPlayer(player, name, player.getUniqueId());
         }, CoreClass.async).thenApplyAsync(player -> player, CoreClass.sync);
+    }
+
+    public static void relog(@NotNull Player player) {
+
+        // If the player is cached, just return it
+        if (players.containsKey(player.getName())) {
+            players.get(player.getName()).player = new WeakReference<>(player);
+            return;
+        }
+
+        // Create a new player
+        new ATPlayer(player);
     }
 
     public static void removePlayer(Player player) {
