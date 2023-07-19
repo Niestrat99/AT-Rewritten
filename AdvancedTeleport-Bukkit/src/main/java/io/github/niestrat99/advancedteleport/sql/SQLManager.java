@@ -1,11 +1,11 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
 import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
@@ -126,10 +126,7 @@ public abstract class SQLManager {
 
         // Get the world name
         String worldName = set.getString("world");
-        World world = Bukkit.getWorld(worldName);
-        if (world == null)
-            throw new UnloadedWorldException(worldName, "Error getting location: world " + worldName + " is unloaded.");
 
-        return new Location(world, x, y, z, yaw, pitch);
+        return new WorldlessLocation(worldName, x, y, z, yaw, pitch);
     }
 }

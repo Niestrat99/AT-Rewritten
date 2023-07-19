@@ -151,6 +151,13 @@ public class ATPlayer {
         Player player = event.getPlayer();
         int warmUp = getWarmUp(command, event.getToLocation().getWorld());
         if (event.isCancelled()) return;
+
+        // Check if the destination is loaded
+        if (event.getToLocation().getWorld() == null) {
+            CustomMessages.sendMessage(player, "Error.worldUnloaded");
+            return;
+        }
+
         if (!PaymentManager.getInstance().canPay(command, player, event.getToLocation().getWorld())) return;
 
         // If the cooldown is to be applied after request or accept (they are the same in the case of /tpr), apply it now

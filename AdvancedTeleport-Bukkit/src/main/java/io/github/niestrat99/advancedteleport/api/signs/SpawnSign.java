@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.signs;
 
 import io.github.niestrat99.advancedteleport.api.ATSign;
-import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;

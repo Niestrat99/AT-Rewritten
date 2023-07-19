@@ -3,10 +3,10 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -88,15 +88,14 @@ public class WarpSQLManager extends SQLManager {
             // For each warp that appears...
             String world = warpSection.getString("world");
             if (world == null) continue;
-            if (Bukkit.getWorld(world) == null) continue;
-            Location location = new Location(
-                Bukkit.getWorld(world),
-                warpSection.getDouble("x"),
-                warpSection.getDouble("y"),
-                warpSection.getDouble("z"),
-                (float) warpSection.getDouble("yaw"),
-                (float) warpSection.getDouble("pitch")
-            );
+            Location location =
+                    new WorldlessLocation(
+                            world,
+                            warpSection.getDouble("x"),
+                            warpSection.getDouble("y"),
+                            warpSection.getDouble("z"),
+                            (float) warpSection.getDouble("yaw"),
+                            (float) warpSection.getDouble("pitch"));
             Warp warpObj = new Warp(null, warp, location, -1, -1);
             addWarp(warpObj);
             NamedLocationManager.get().registerWarp(warpObj);
@@ -112,25 +111,23 @@ public class WarpSQLManager extends SQLManager {
             ResultSet results = executeQuery(statement);
             // For each warp...
             while (results.next()) {
-                // Get the world.
-                World world = Bukkit.getWorld(results.getString("world"));
-                if (world == null) continue;
+
                 // Create the warp object and it'll register itself.
                 String creator = results.getString("uuid_creator");
-                NamedLocationManager.get().registerWarp(new Warp(
-                    creator == null ? null : UUID.fromString(creator),
-                    results.getString("warp"),
-                    new Location(
-                        world,
-                        results.getDouble("x"),
-                        results.getDouble("y"),
-                        results.getDouble("z"),
-                        results.getFloat("yaw"),
-                        results.getFloat("pitch")
-                    ),
-                    results.getLong("timestamp_created"),
-                    results.getLong("timestamp_updated")
-                ));
+                NamedLocationManager.get()
+                        .registerWarp(
+                                new Warp(
+                                        creator == null ? null : UUID.fromString(creator),
+                                        results.getString("warp"),
+                                        new WorldlessLocation(
+                                                results.getString("world"),
+                                                results.getDouble("x"),
+                                                results.getDouble("y"),
+                                                results.getDouble("z"),
+                                                results.getFloat("yaw"),
+                                                results.getFloat("pitch")),
+                                        results.getLong("timestamp_created"),
+                                        results.getLong("timestamp_updated")));
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -288,37 +285,38 @@ public class WarpSQLManager extends SQLManager {
     }
 
     public CompletableFuture<List<Warp>> getWarpsBulk() {
-        return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = implementConnection()) {
-                PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
-                ResultSet results = executeQuery(statement);
-                List<Warp> warps = new ArrayList<>();
-                // For each warp...
-                while (results.next()) {
-                    // Get the world.
-                    World world = Bukkit.getWorld(results.getString("world"));
-                    if (world == null) continue;
-                    // Create the warp object and it'll register itself.
-                    String creator = results.getString("uuid_creator");
-                    warps.add(new Warp(
-                        creator == null ? null : UUID.fromString(creator),
-                        results.getString("warp"),
-                        new Location(
-                            world,
-                            results.getDouble("x"),
-                            results.getDouble("y"),
-                            results.getDouble("z"),
-                            results.getFloat("yaw"),
-                            results.getFloat("pitch")
-                        ),
-                        results.getLong("timestamp_created"),
-                        results.getLong("timestamp_updated")
-                    ));
-                }
-                return warps;
-            } catch (SQLException exception) {
-                throw new RuntimeException(exception);
-            }
-        }, CoreClass.async);
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    try (Connection connection = implementConnection()) {
+                        PreparedStatement statement =
+                                prepareStatement(
+                                        connection, "SELECT * FROM " + tablePrefix + "_warps");
+                        ResultSet results = executeQuery(statement);
+                        List<Warp> warps = new ArrayList<>();
+                        // For each warp...
+                        while (results.next()) {
+
+                            // Create the warp object and it'll register itself.
+                            String creator = results.getString("uuid_creator");
+                            warps.add(
+                                    new Warp(
+                                            creator == null ? null : UUID.fromString(creator),
+                                            results.getString("warp"),
+                                            new WorldlessLocation(
+                                                    results.getString("world"),
+                                                    results.getDouble("x"),
+                                                    results.getDouble("y"),
+                                                    results.getDouble("z"),
+                                                    results.getFloat("yaw"),
+                                                    results.getFloat("pitch")),
+                                            results.getLong("timestamp_created"),
+                                            results.getLong("timestamp_updated")));
+                        }
+                        return warps;
+                    } catch (SQLException exception) {
+                        throw new RuntimeException(exception);
+                    }
+                },
+                CoreClass.async);
     }
 }

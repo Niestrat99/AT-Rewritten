@@ -3,10 +3,10 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
+import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -284,24 +284,21 @@ public class HomeSQLManager extends SQLManager {
             LinkedHashMap<String, Home> homes = new LinkedHashMap<>();
             // For each home...
             while (results.next()) {
-                // Get the world.
-                World world = Bukkit.getWorld(results.getString("world"));
-                if (world == null) continue;
+
                 // Create the home object
-                Home home = new Home(
-                    UUID.fromString(ownerUUID),
-                    results.getString("home"),
-                    new Location(
-                        world,
-                        results.getDouble("x"),
-                        results.getDouble("y"),
-                        results.getDouble("z"),
-                        results.getFloat("yaw"),
-                        results.getFloat("pitch")
-                    ),
-                    results.getLong("timestamp_created"),
-                    results.getLong("timestamp_updated")
-                );
+                Home home =
+                        new Home(
+                                UUID.fromString(ownerUUID),
+                                results.getString("home"),
+                                new WorldlessLocation(
+                                        results.getString("world"),
+                                        results.getDouble("x"),
+                                        results.getDouble("y"),
+                                        results.getDouble("z"),
+                                        results.getFloat("yaw"),
+                                        results.getFloat("pitch")),
+                                results.getLong("timestamp_created"),
+                                results.getLong("timestamp_updated"));
                 // Add it to the list.
                 homes.put(results.getString("home"), home);
             }
@@ -365,50 +362,55 @@ public class HomeSQLManager extends SQLManager {
     }
 
     public CompletableFuture<List<Home>> getHomesBulk() {
-        return CompletableFuture.supplyAsync(() -> {
-            try (Connection connection = implementConnection()) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    try (Connection connection = implementConnection()) {
 
-                // GOTTA CATCH 'EM ALL
-                PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_homes");
-                ResultSet set = executeQuery(statement);
+                        // GOTTA CATCH 'EM ALL
+                        PreparedStatement statement =
+                                prepareStatement(
+                                        connection, "SELECT * FROM " + tablePrefix + "_homes");
+                        ResultSet set = executeQuery(statement);
 
-                // Get the list of homes
-                List<Home> homes = new ArrayList<>();
-                while (set.next()) {
+                        // Get the list of homes
+                        List<Home> homes = new ArrayList<>();
+                        while (set.next()) {
 
-                    // UUID of the owner
-                    UUID owner = UUID.fromString(set.getString("uuid_owner"));
+                            // UUID of the owner
+                            UUID owner = UUID.fromString(set.getString("uuid_owner"));
 
-                    // Get the name of the home
-                    String name = set.getString("home");
+                            // Get the name of the home
+                            String name = set.getString("home");
 
-                    // Coordinates
-                    double x = set.getDouble("x");
-                    double y = set.getDouble("y");
-                    double z = set.getDouble("z");
-                    double yaw = set.getDouble("yaw");
-                    double pitch = set.getDouble("pitch");
+                            // Coordinates
+                            double x = set.getDouble("x");
+                            double y = set.getDouble("y");
+                            double z = set.getDouble("z");
+                            double yaw = set.getDouble("yaw");
+                            double pitch = set.getDouble("pitch");
 
-                    // The world name
-                    String worldStr = set.getString("world");
+                            // The world name
+                            String worldStr = set.getString("world");
 
-                    // Timestamps
-                    long createdTimestamp = set.getLong("timestamp_created");
-                    long updatedTimestamp = set.getLong("timestamp_updated");
+                            // Timestamps
+                            long createdTimestamp = set.getLong("timestamp_created");
+                            long updatedTimestamp = set.getLong("timestamp_updated");
 
-                    // Make sure the world is there
-                    World world = Bukkit.getWorld(worldStr);
-                    if (world == null) continue;
-
-                    // Add the world
-                    homes.add(new Home(owner, name, new Location(world, x, y, z, (float) yaw, (float) pitch),
-                        createdTimestamp, updatedTimestamp
-                    ));
-                }
-                return homes;
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-        }, CoreClass.async);
+                            // Add the world
+                            homes.add(
+                                    new Home(
+                                            owner,
+                                            name,
+                                            new WorldlessLocation(
+                                                    worldStr, x, y, z, (float) yaw, (float) pitch),
+                                            createdTimestamp,
+                                            updatedTimestamp));
+                        }
+                        return homes;
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                },
+                CoreClass.async);
     }
 }
