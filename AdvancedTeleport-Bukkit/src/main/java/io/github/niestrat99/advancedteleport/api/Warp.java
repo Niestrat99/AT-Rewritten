@@ -122,9 +122,7 @@ public class Warp implements NamedLocation {
                     this.updatedTimeFormatted = dateFormat.format(new Date(updatedTime));
 
                     return CompletableFuture.runAsync(
-                            () -> {
-                                WarpSQLManager.get().moveWarp(location, name);
-                            },
+                            () -> WarpSQLManager.get().moveWarp(location, name),
                             CoreClass.async);
                 });
     }
@@ -194,6 +192,12 @@ public class Warp implements NamedLocation {
 
                     // Removes the warp in cache.
                     NamedLocationManager.get().removeWarp(this);
+
+                    // If it has an alias too, remove that.
+                    for (String alias : AdvancedTeleportAPI.getWarpAliases().keySet()) {
+                        if (!AdvancedTeleportAPI.isAlias(alias, name)) continue;
+                        AdvancedTeleportAPI.removeWarpAlias(alias, this, sender);
+                    }
 
                     // Remove the warp in the database.
                     return CompletableFuture.runAsync(

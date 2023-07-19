@@ -140,6 +140,22 @@ public class WarpSQLManager extends SQLManager {
                                         results.getLong("timestamp_created"),
                                         results.getLong("timestamp_updated")));
             }
+
+            // Close results and check aliases
+            results.close();
+            statement = prepareStatement(connection, "SELECT " + tablePrefix + "_warps.warp," +
+                    " " + tablePrefix + "_metadata.value " +
+                    "FROM " + tablePrefix + "_metadata " +
+                    "JOIN " + tablePrefix + "_warps " +
+                    "ON " + tablePrefix + "_warps.id = " + tablePrefix + "_metadata.data_id " +
+                    "AND " + tablePrefix + "_metadata.`key` = 'alias';");
+            results = executeQuery(statement);
+
+            // Register all aliases
+            while (results.next()) {
+                NamedLocationManager.get().addWarpAlias(results.getString("value"), results.getString("warp"));
+            }
+
         } catch (SQLException exception) {
             exception.printStackTrace();
         }

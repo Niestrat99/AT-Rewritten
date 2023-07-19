@@ -9,13 +9,15 @@ import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class WarpCommand extends AbstractWarpCommand implements TimedATCommand {
 
@@ -44,34 +46,40 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
         }
 
         // If the warp exists and the player isn't already teleporting, may as well warp them
-        Warp warp = AdvancedTeleportAPI.getWarps().get(args[0]);
+        Warp warp = AdvancedTeleportAPI.fetchWarp(args[0], player, false);
         if (warp != null) {
-            warp(warp, player, false);
+            warp(warp, player);
         } else {
             CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
         return true;
     }
 
-    public static void warp(Warp warp, Player player, boolean useSign) {
-        String warpPrefix = "at.member.warp." + (useSign ? "sign." : "");
+    @Override
+    public @NotNull List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
-        boolean found = player.hasPermission(warpPrefix + "*");
-        if (player.isPermissionSet(warpPrefix + warp.getName().toLowerCase())) {
-            found = player.hasPermission(warpPrefix + warp.getName().toLowerCase());
+        // Set up the resulting tab completion options
+        List<String> results = super.onTabComplete(sender, command, s, args);
+        if (results == null) results = new ArrayList<>();
+
+        // Go through aliases
+        List<String> aliases = new ArrayList<>();
+        if (sender instanceof Player player) {
+            for (String alias : AdvancedTeleportAPI.getWarpAliases().keySet()) {
+                if (!AdvancedTeleportAPI.canAccessWarp(player, alias, false)) continue;
+                aliases.add(alias);
+            }
+        } else {
+            aliases.addAll(AdvancedTeleportAPI.getWarpAliases().keySet());
         }
-        if (!found) {
-            CustomMessages.sendMessage(
-                    player, "Error.noPermissionWarp", Placeholder.unparsed("warp", warp.getName()));
-            return;
-        }
-        ATTeleportEvent event =
-                new ATTeleportEvent(
-                        player,
-                        warp.getLocation(),
-                        player.getLocation(),
-                        warp.getName(),
-                        ATTeleportEvent.TeleportType.WARP);
+
+        // Copy partial matches over and return the results
+        StringUtil.copyPartialMatches(args[0], aliases, results);
+        return results;
+    }
+
+    public static void warp(Warp warp, Player player) {
+        ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);
         Bukkit.getPluginManager().callEvent(event);
         ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp");
     }

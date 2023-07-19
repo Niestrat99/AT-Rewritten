@@ -248,6 +248,21 @@ public class MetadataSQLManager extends SQLManager {
                         CoreClass.async);
     }
 
+    public CompletableFuture<Boolean> deleteWarpMetadata(String warpName, String key, String value) {
+        return WarpSQLManager.get()
+                .getWarpId(warpName)
+                .thenApplyAsync(
+                        id -> {
+                            try (Connection connection = implementConnection()) {
+                                if (id == -1) return false;
+                                return deleteMetadataSingle(connection, String.valueOf(id), "WARP", key, value);
+                            } catch (SQLException throwables) {
+                                throw new RuntimeException(throwables);
+                            }
+                        },
+                        CoreClass.async);
+    }
+
     public boolean deleteMetadata(Connection connection, String dataId, String type, String key)
             throws SQLException {
         PreparedStatement statement =
@@ -259,6 +274,22 @@ public class MetadataSQLManager extends SQLManager {
         statement.setString(1, dataId);
         statement.setString(2, type);
         statement.setString(3, key);
+        executeUpdate(statement);
+        return true;
+    }
+
+    public boolean deleteMetadataSingle(Connection connection, String dataId, String type, String key, String value)
+            throws SQLException {
+        PreparedStatement statement =
+                prepareStatement(
+                        connection,
+                        "DELETE FROM "
+                                + tablePrefix
+                                + "_metadata WHERE data_id = ? AND type = ? AND key = ? AND value = ?;");
+        statement.setString(1, dataId);
+        statement.setString(2, type);
+        statement.setString(3, key);
+        statement.setString(4, value);
         executeUpdate(statement);
         return true;
     }

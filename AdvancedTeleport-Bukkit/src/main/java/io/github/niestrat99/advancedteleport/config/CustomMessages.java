@@ -247,6 +247,7 @@ public final class CustomMessages extends ATConfig {
                 "Error.homeAlreadySet",
                 "<prefix> <gray>You already have a home called <aqua><home></aqua>!");
         addDefault("Error.noWarpInput", "<prefix> <gray>You have to include the warp's name!");
+        addDefault("Error.noWarpAliasInput", "<prefix> <gray>You have to include an alias for the warp!");
         addDefault("Error.noSuchWarp", "<prefix> <gray>That warp doesn't exist!");
         addDefault(
                 "Error.warpAlreadySet",
@@ -393,6 +394,17 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.randomLocFailed",
                 "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
+        addDefault(
+                "Error.addWarpAliasFailed",
+                "<prefix> <gray>Failed to add the warp alias <aqua><alias></aqua> for <aqua><warp></aqua>!");
+        addDefault(
+                "Error.alreadyAnAlias",
+                "<prefix> <gray><aqua><alias></aqua> is already an alias for <aqua><warp></aqua>!");
+        addDefault("Error.notAnAlias",
+                "<prefix> <gray><aqua><alias></aqua> is not an alias for <aqua><warp></aqua>!");
+        addDefault(
+                "Error.noAliasOrWarpInput",
+                "<prefix> <gray>You have to specify whether you are checking a warp or alias, and specify that warp/alias!");
 
         makeSectionLenient("Info");
         addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
@@ -597,6 +609,15 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Info.mirrorSpawnSame",
                 "<prefix> <gray>The spawns for <aqua><from></aqua> and <aqua><spawn></aqua> already to go the same place! Don't worry :)");
+        addDefault(
+                "Info.addedWarpAlias",
+                "<prefix> <gray>The warp alias <aqua><alias></aqua> now includes <aqua><warp></aqua>!");
+        addDefault(
+                "Info.noWarpAliases",
+                "<prefix> <gray>Warp <aqua><warp></aqua> does not have any aliases!");
+        addDefault(
+                "Info.noWarpsInAlias",
+                "<prefix> <gray>Alias <aqua><alias></aqua> does not redirect to any warps!");
 
         addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: <aqua><home>");
         addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: <aqua><warp>");
@@ -770,6 +791,13 @@ public final class CustomMessages extends ATConfig {
         addDefault("Usages-Admin.movehome", "/movehome <Home>|<Player> <Home>");
         addDefault("Usages-Admin.setmainhome", "/setmainhome <Home>|<Player> <Home>");
         addDefault("Usages-Admin.spawn", "/spawn <ID>");
+
+        addDefault(
+                "Menu.help",
+                "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・");
+        addDefault("Menu.warpAliases",
+                "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Warp Aliases</bold>: <name> (<type>) <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・");
+
 
         addFormsDefault(
                 "tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");

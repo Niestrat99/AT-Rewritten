@@ -9,6 +9,9 @@ import io.github.niestrat99.advancedteleport.commands.home.*;
 import io.github.niestrat99.advancedteleport.commands.spawn.*;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
+import io.github.niestrat99.advancedteleport.commands.warp.alias.RemoveWarpAliasCommand;
+import io.github.niestrat99.advancedteleport.commands.warp.alias.SetWarpAliasCommand;
+import io.github.niestrat99.advancedteleport.commands.warp.alias.WarpAliasesCommand;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 
 import org.bukkit.Bukkit;
@@ -64,6 +67,9 @@ public class CommandManager {
         register("delwarp", new DeleteWarpCommand());
         register("movewarp", new MoveWarpCommand());
         register("warps", new WarpsCommand());
+        register("warpaliases", new WarpAliasesCommand());
+        register("setwarpalias", new SetWarpAliasCommand());
+        register("removewarpalias", new RemoveWarpAliasCommand());
 
         register("spawn", new SpawnCommand());
         register("setspawn", new SetSpawn());
