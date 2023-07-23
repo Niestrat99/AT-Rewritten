@@ -49,7 +49,7 @@ public class Warp implements NamedLocation {
         if (name.isEmpty()) throw new IllegalArgumentException("The warp name must not be empty.");
 
         this.name = name;
-        this.location = location;
+        this.location = location instanceof WorldlessLocation ? location : new WorldlessLocation(location, location.getWorld().getName());
         this.creator = creator;
         this.createdTime = createdTime;
         this.updatedTime = updatedTime;

@@ -1,8 +1,6 @@
-package io.github.niestrat99.advancedteleport.api.spawn;
+package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
-import io.github.niestrat99.advancedteleport.api.NamedLocation;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnMirrorEvent;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnMoveEvent;
 import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
@@ -44,7 +42,7 @@ public class Spawn implements NamedLocation {
             final long createdTime,
             final long updatedTime) {
         this.name = name;
-        this.location = location;
+        this.location = location instanceof WorldlessLocation ? location : new WorldlessLocation(location, location.getWorld().getName());
         this.creator = creator;
         this.mirroringSpawn = mirroringSpawn;
 

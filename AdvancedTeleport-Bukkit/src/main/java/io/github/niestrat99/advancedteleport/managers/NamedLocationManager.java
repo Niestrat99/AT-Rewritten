@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;

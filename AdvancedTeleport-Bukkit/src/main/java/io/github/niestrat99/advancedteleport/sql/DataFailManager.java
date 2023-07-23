@@ -3,11 +3,10 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
-
+import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.*;
@@ -171,20 +170,18 @@ public class DataFailManager {
                         });
     }
 
-    private Location locFromStrings(String... data) {
+    private @NotNull WorldlessLocation locFromStrings(String... data) {
         if (data.length < 6) {
             throw new IllegalArgumentException(
                     "Not enough arguments to get a location! " + Arrays.toString(data));
         }
         String worldStr = data[0];
-        World world = Bukkit.getWorld(worldStr);
-        if (world == null) return null;
         double x = Double.parseDouble(data[1]);
         double y = Double.parseDouble(data[2]);
         double z = Double.parseDouble(data[3]);
         float yaw = Float.parseFloat(data[4]);
         float pitch = Float.parseFloat(data[5]);
-        return new Location(world, x, y, z, yaw, pitch);
+        return new WorldlessLocation(worldStr, x, y, z, yaw, pitch);
     }
 
     public static DataFailManager get() {

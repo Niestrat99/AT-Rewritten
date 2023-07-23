@@ -2,8 +2,7 @@ package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
-import io.github.niestrat99.advancedteleport.api.spawn.Spawn;
-
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;

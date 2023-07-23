@@ -46,7 +46,7 @@ public final class Home implements NamedLocation {
             final long updatedTime) {
         this.name = name;
         this.owner = owner;
-        this.location = location;
+        this.location = location instanceof WorldlessLocation ? location : new WorldlessLocation(location, location.getWorld().getName());
         this.createdTime = createdTime;
         this.updatedTime = updatedTime;
 

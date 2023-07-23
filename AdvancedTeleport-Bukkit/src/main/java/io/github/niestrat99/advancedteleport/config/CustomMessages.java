@@ -252,6 +252,8 @@ public final class CustomMessages extends ATConfig {
                 "Error.warpAlreadySet",
                 "<prefix> <gray>There is already a warp called <aqua><warp></aqua>!");
         addDefault("Error.noSuchWorld", "<prefix> <gray>That world doesn't exist!");
+        addDefault("Error.worldUnloaded",
+                "<prefix> <gray>Sorry, the destination world either doesn't exist or isn't loaded. Please tell a server admin!");
         addDefault(
                 "Error.noLocation",
                 "<prefix> <gray>You don't have any location to teleport back to!");

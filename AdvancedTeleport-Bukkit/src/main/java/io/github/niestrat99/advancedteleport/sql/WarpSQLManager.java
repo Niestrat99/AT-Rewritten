@@ -3,11 +3,11 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -99,10 +99,9 @@ public class WarpSQLManager extends SQLManager {
             // For each warp that appears...
             String world = warpSection.getString("world");
             if (world == null) continue;
-            if (Bukkit.getWorld(world) == null) continue;
             Location location =
-                    new Location(
-                            Bukkit.getWorld(world),
+                    new WorldlessLocation(
+                            world,
                             warpSection.getDouble("x"),
                             warpSection.getDouble("y"),
                             warpSection.getDouble("z"),
@@ -123,9 +122,7 @@ public class WarpSQLManager extends SQLManager {
             ResultSet results = executeQuery(statement);
             // For each warp...
             while (results.next()) {
-                // Get the world.
-                World world = Bukkit.getWorld(results.getString("world"));
-                if (world == null) continue;
+
                 // Create the warp object and it'll register itself.
                 String creator = results.getString("uuid_creator");
                 NamedLocationManager.get()
@@ -133,8 +130,8 @@ public class WarpSQLManager extends SQLManager {
                                 new Warp(
                                         creator == null ? null : UUID.fromString(creator),
                                         results.getString("warp"),
-                                        new Location(
-                                                world,
+                                        new WorldlessLocation(
+                                                results.getString("world"),
                                                 results.getDouble("x"),
                                                 results.getDouble("y"),
                                                 results.getDouble("z"),
@@ -319,17 +316,15 @@ public class WarpSQLManager extends SQLManager {
                         List<Warp> warps = new ArrayList<>();
                         // For each warp...
                         while (results.next()) {
-                            // Get the world.
-                            World world = Bukkit.getWorld(results.getString("world"));
-                            if (world == null) continue;
+
                             // Create the warp object and it'll register itself.
                             String creator = results.getString("uuid_creator");
                             warps.add(
                                     new Warp(
                                             creator == null ? null : UUID.fromString(creator),
                                             results.getString("warp"),
-                                            new Location(
-                                                    world,
+                                            new WorldlessLocation(
+                                                    results.getString("world"),
                                                     results.getDouble("x"),
                                                     results.getDouble("y"),
                                                     results.getDouble("z"),

@@ -3,11 +3,10 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
-
+import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -278,16 +277,14 @@ public class HomeSQLManager extends SQLManager {
             LinkedHashMap<String, Home> homes = new LinkedHashMap<>();
             // For each home...
             while (results.next()) {
-                // Get the world.
-                World world = Bukkit.getWorld(results.getString("world"));
-                if (world == null) continue;
+
                 // Create the home object
                 Home home =
                         new Home(
                                 UUID.fromString(ownerUUID),
                                 results.getString("home"),
-                                new Location(
-                                        world,
+                                new WorldlessLocation(
+                                        results.getString("world"),
                                         results.getDouble("x"),
                                         results.getDouble("y"),
                                         results.getDouble("z"),
@@ -404,17 +401,13 @@ public class HomeSQLManager extends SQLManager {
                             long createdTimestamp = set.getLong("timestamp_created");
                             long updatedTimestamp = set.getLong("timestamp_updated");
 
-                            // Make sure the world is there
-                            World world = Bukkit.getWorld(worldStr);
-                            if (world == null) continue;
-
                             // Add the world
                             homes.add(
                                     new Home(
                                             owner,
                                             name,
-                                            new Location(
-                                                    world, x, y, z, (float) yaw, (float) pitch),
+                                            new WorldlessLocation(
+                                                    worldStr, x, y, z, (float) yaw, (float) pitch),
                                             createdTimestamp,
                                             updatedTimestamp));
                         }
