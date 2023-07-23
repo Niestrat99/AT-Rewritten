@@ -20,7 +20,7 @@ import java.util.List;
 
 public class Back implements ATCommand {
 
-    private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR", "STATIONARY_WATER"));
+    private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR", "STATIONARY_WATER", "VOID_AIR"));
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, String s,
