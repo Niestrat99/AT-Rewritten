@@ -9,6 +9,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,10 +19,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 public final class Back extends TeleportATCommand implements TimedATCommand {
 
     private final List<String> airMaterials = new ArrayList<>(Arrays.asList("AIR", "WATER", "CAVE_AIR"));
+    private final Predicate<Material> IS_AIR_OR_WATER = mat -> mat.isAir() && mat == Material.WATER;
 
     @Override
     public boolean onCommand(
@@ -75,9 +78,11 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
                 for (int dy = -radius; dy <= radius; dy++) {
                     t.setY(originalY - dy);
                     if (!t.getBlock().getType().name().equals("LAVA")
-                        && !airMaterials.contains(t.getBlock().getType().name())
-                        && airMaterials.contains(t.clone().add(0.0, 1.0, 0.0).getBlock().getType().name())
-                        && airMaterials.contains(t.clone().add(0.0, 2.0, 0.0).getBlock().getType().name())) {
+                            && !IS_AIR_OR_WATER.test(t.getBlock().getType())
+                            && IS_AIR_OR_WATER.test(
+                                    t.clone().add(0.0, 1.0, 0.0).getBlock().getType())
+                            && IS_AIR_OR_WATER.test(
+                                    t.clone().add(0.0, 2.0, 0.0).getBlock().getType())) {
                         possiblelocs.add(new Location(
                             loc.getWorld(),
                             loc.getBlockX() - dx + 0.5,
@@ -100,7 +105,7 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
 
         // Check for bad blocks
         int lavablocks = 0;
-        while (!airMaterials.contains(loc.getBlock().getType().name()) && possiblelocs.isEmpty()) {
+        while (!IS_AIR_OR_WATER.test(loc.getBlock().getType()) && possiblelocs.isEmpty()) {
 
             // If we go beyond max height, stop and reset the Y value
             if (loc.getBlock().getType().name().equalsIgnoreCase("Lava")) ++lavablocks;
