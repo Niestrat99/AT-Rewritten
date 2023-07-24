@@ -7,9 +7,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * The event fired when a teleportation request is accepted.
- */
+/** The event fired when a teleportation request is accepted. */
 public final class TeleportAcceptEvent extends CancellableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -19,10 +17,9 @@ public final class TeleportAcceptEvent extends CancellableATEvent {
 
     @Contract(pure = true)
     public TeleportAcceptEvent(
-        @NotNull final Player receivingPlayer,
-        @NotNull final Player sendingPlayer,
-        @NotNull final TeleportRequestType requestType
-    ) {
+            @NotNull final Player receivingPlayer,
+            @NotNull final Player sendingPlayer,
+            @NotNull final TeleportRequestType requestType) {
         this.receivingPlayer = receivingPlayer;
         this.sendingPlayer = sendingPlayer;
         this.requestType = requestType;
@@ -51,7 +48,8 @@ public final class TeleportAcceptEvent extends CancellableATEvent {
     /**
      * Gets the type of request represented by the teleport request.
      *
-     * @return TPA if the request was created via /tpa, or TPAHERE if the request was created via /tpahere.
+     * @return TPA if the request was created via /tpa, or TPAHERE if the request was created via
+     *     /tpahere.
      */
     @Contract(pure = true)
     public @NotNull TeleportRequestType getRequestType() {

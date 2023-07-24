@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.api.Title;
+
 import org.bukkit.Bukkit;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -111,9 +112,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> RETAIN_VEHICLES;
     public ConfigOption<Boolean> RETAIN_LIVING_ONLY;
 
-    /**
-     *
-     */
+    /** */
     public MainConfig() throws Exception {
         super("config.yml");
     }
@@ -122,21 +121,30 @@ public final class MainConfig extends ATConfig {
     public void addDefaults() {
         instance = this;
 
-        setTitle(new Title().withWidth(100).addSolidLine()
-                .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
-                .addLine("Made by Niestrat99 and Thatsmusic99", Title.Pos.CENTER)
-                .addLine("")
-                .addSolidLine('-')
-                .addLine("A rapidly growing teleportation plugin looking to break the boundaries of traditional " +
-                        "teleport plugins.")
-                .addLine("")
-                .addLine("SpigotMC - https://www.spigotmc.org/resources/advanced-teleport.64139/")
-                .addLine("Wiki - https://tm-holly.gitbook.io/advancedteleport/")
-                .addLine("Discord - https://discord.gg/mgWbbN4")
-                .addSolidLine());
+        setTitle(
+                new Title()
+                        .withWidth(100)
+                        .addSolidLine()
+                        .addLine("-<( AdvancedTeleport )>-", Title.Pos.CENTER)
+                        .addLine("Made by Niestrat99 and Thatsmusic99", Title.Pos.CENTER)
+                        .addLine("")
+                        .addSolidLine('-')
+                        .addLine(
+                                "A rapidly growing teleportation plugin looking to break the boundaries of traditional "
+                                        + "teleport plugins.")
+                        .addLine("")
+                        .addLine(
+                                "SpigotMC - https://www.spigotmc.org/resources/advanced-teleport.64139/")
+                        .addLine("Wiki - https://tm-holly.gitbook.io/advancedteleport/")
+                        .addLine("Discord - https://discord.gg/mgWbbN4")
+                        .addSolidLine());
 
         addComment("Another comment at the very top for all you lads :)");
-        addDefault("use-basic-teleport-features", true, "Features", """
+        addDefault(
+                "use-basic-teleport-features",
+                true,
+                "Features",
+                """
                 Whether basic teleportation features should be enabled or not.
                 This includes /tpa, /tpahere, /tpblock, /tpunblock and /back.
                 This does not disable the command for other plugins - if you want other plugins to use the provided commands, use Bukkit's commands.yml file.
@@ -146,7 +154,10 @@ public final class MainConfig extends ATConfig {
         addDefault("use-spawn", true, "Whether the plugin should modify spawn/spawn properties.");
         addDefault("use-randomtp", true, "Whether the plugin should allow random teleportation.");
         addDefault("use-homes", true, "Whether homes should be enabled in the plugin.");
-        addDefault("disabled-commands", new ArrayList<>(), """
+        addDefault(
+                "disabled-commands",
+                new ArrayList<>(),
+                """
                 The commands that AT should not register upon starting up.
                 In other words, this gives up the command for other plugins to use.
                 NOTE: If you are using Essentials with AT and want AT to give up its commands to Essentials, Essentials does NOT go down without a fight. Jesus Christ. You'll need to restart the server for anything to change.
@@ -155,25 +166,42 @@ public final class MainConfig extends ATConfig {
                 - back""");
 
         addSection("Teleport Requesting");
-        addDefault("request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
-        addDefault("allow-multiple-requests", true, """
+        addDefault(
+                "request-lifetime", 60, "How long tpa and tpahere requests last before expiring.");
+        addDefault(
+                "allow-multiple-requests",
+                true,
+                """
                 Whether or not the plugin should enable the use of multiple requests.
                 When enabled, user 1 may get TPA requests from user 2 and 3, but user 1 is prompted to select a specific request.
-                When this is disabled and user 1 receives requests from user 2 and then 3, they will only have user 3's request to respond to.""");
-        addDefault("notify-on-expire", true, "Let the player know when their request has timed out or been displaced " +
-                "by another user's request.\n" +
-                "Displacement only occurs when allow-multiple-requests is disabled.");
+                When this is disabled and user 1 receives requests from user 2 and then 3, they will only have user 3's request to respond to.\
+                """);
+        addDefault(
+                "notify-on-expire",
+                true,
+                "Let the player know when their request has timed out or been displaced "
+                        + "by another user's request.\n"
+                        + "Displacement only occurs when allow-multiple-requests is disabled.");
         // addDefault("tpa-restrict-movement-on", "requester");
         // addDefault("tpahere-restrict-movement-on", "requester");
 
-        addDefault("warm-up-timer-duration", 3, "Warm-Up Timers", """
+        addDefault(
+                "warm-up-timer-duration",
+                3,
+                "Warm-Up Timers",
+                """
                 The number of seconds it takes for the teleportation to take place following confirmation.
                 (i.e. "You will teleport in 3 seconds!")
                 This acts as the default option for the per-command warm-ups.""");
-        addDefault("cancel-warm-up-on-rotation", true, "Whether or not teleportation should be cancelled if the " +
-                "player rotates or moves.");
-        addDefault("cancel-warm-up-on-movement", true, "Whether or not teleportation should be cancelled upon " +
-                "movement only.");
+        addDefault(
+                "cancel-warm-up-on-rotation",
+                true,
+                "Whether or not teleportation should be cancelled if the "
+                        + "player rotates or moves.");
+        addDefault(
+                "cancel-warm-up-on-movement",
+                true,
+                "Whether or not teleportation should be cancelled upon " + "movement only.");
 
         addComment("per-command-warm-ups", "Command-specific warm-ups.");
         addDefault("per-command-warm-ups.tpa", "default", "Warm-up timer for /tpa.");
@@ -183,7 +211,8 @@ public final class MainConfig extends ATConfig {
         addDefault("per-command-warm-ups.spawn", "default", "Warm-up timer for /spawn");
         addDefault("per-command-warm-ups.home", "default", "Warm-up timer for /home");
         addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
-        addComment("""
+        addComment(
+                """
                 Use this section to create custom warm-ups per-group.
                 Use the following format:
                 custom-warm-ups:
@@ -194,21 +223,37 @@ public final class MainConfig extends ATConfig {
                 To combine the two, you can use at.member.timer.<command>.<world>.vip-warm-up.""");
         makeSectionLenient("custom-warm-ups");
 
-        addDefault("blindness-on-warmup", false, "Gives the teleporting player a blindness effect whilst waiting to " +
-                "teleport.");
+        addDefault(
+                "blindness-on-warmup",
+                false,
+                "Gives the teleporting player a blindness effect whilst waiting to " + "teleport.");
 
-        addDefault("cooldown-duration", 5, "Cooldowns", """
+        addDefault(
+                "cooldown-duration",
+                5,
+                "Cooldowns",
+                """
                 How long before the user can use a command again.
                 This stops users spamming commands repeatedly.
                 This is also the default cooldown period for all commands.""");
-        addDefault("add-cooldown-duration-to-warm-up", true, "Adds the warm-up duration to the cooldown duration.\n" +
-                "For example, if the cooldown duration was 5 seconds but the warm-up was 3, the cooldown becomes 8 " +
-                "seconds long.");
-        addDefault("apply-cooldown-to-all-commands", false, """
+        addDefault(
+                "add-cooldown-duration-to-warm-up",
+                true,
+                "Adds the warm-up duration to the cooldown duration.\n"
+                        + "For example, if the cooldown duration was 5 seconds but the warm-up was 3, the cooldown becomes 8 "
+                        + "seconds long.");
+        addDefault(
+                "apply-cooldown-to-all-commands",
+                false,
+                """
                 Whether or not the cooldown of one command will stop a user from using all commands.
                 For example, if a player used /tpa with a cooldown of 10 seconds but then used /tpahere with a cooldown of 5, the 10-second cooldown would still apply.
-                On the other hand, if a player used /tpahere, the cooldown of 5 seconds would apply to /tpa and other commands.""");
-        addDefault("apply-cooldown-after", "request", """
+                On the other hand, if a player used /tpahere, the cooldown of 5 seconds would apply to /tpa and other commands.\
+                """);
+        addDefault(
+                "apply-cooldown-after",
+                "request",
+                """
                 When to apply the cooldown
                 Options include:
                 - request - Cooldown starts as soon as any teleport command is made and still applies even if no teleport takes place (i.e. cancelled by movement or not accepted).
@@ -216,7 +261,8 @@ public final class MainConfig extends ATConfig {
                 - teleport - Cooldown starts only when the teleport actually happens.
                 Note:
                 'request' and 'accept' behave the same for /rtp, /back, /spawn, /warp, and /home
-                cooldown for /tpall always starts when the command is ran, regardless if any player accepts or teleports""");
+                cooldown for /tpall always starts when the command is ran, regardless if any player accepts or teleports\
+                """);
 
         addComment("per-command-cooldowns", "Command-specific cooldowns.");
         addDefault("per-command-cooldowns.tpa", "default", "Cooldown for /tpa.");
@@ -229,7 +275,9 @@ public final class MainConfig extends ATConfig {
         // addDefault("per-command-cooldowns.sethome", "default", "Cooldown for /sethome");
         // addDefault("per-command-cooldowns.setwarp", "default", "Cooldown for /setwarp");
         makeSectionLenient("custom-cooldowns");
-        addComment("custom-cooldowns", """
+        addComment(
+                "custom-cooldowns",
+                """
                 Use this section to create custom cooldowns per-group.
                 Use the following format:
                 custom-cooldowns:
@@ -237,9 +285,14 @@ public final class MainConfig extends ATConfig {
                 Giving a group, such as VIP, the permission at.member.cooldown.vip-cooldown will have a cooldown of 3.
                 The key (vip-cooldown) and group name (VIP) do not have to be different, this is just an example.
                 You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag.To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldown.
-                To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.""");
+                To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.\
+                """);
 
-        addDefault("cost-amount", 100.0, "Teleportation Costs", """
+        addDefault(
+                "cost-amount",
+                100.0,
+                "Teleportation Costs",
+                """
                 The amount it costs to teleport somewhere.
                 If you want to use Vault Economy, use 100.0 to charge $100.
                 If you have multiple plugins hooking into Vault, enter the plugin name in front separated by a colon, e.g. Essentials:100.50
@@ -260,20 +313,30 @@ public final class MainConfig extends ATConfig {
         addDefault("per-command-cost.spawn", "default", "Cost for /spawn");
         addDefault("per-command-cost.home", "default", "Cost for /home");
         addDefault("per-command-cost.back", "default", "Cost for /back");
-        //addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
-        //addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
+        // addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
+        // addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
         makeSectionLenient("custom-costs");
-        addComment("custom-costs", """
+        addComment(
+                "custom-costs",
+                """
                 Use this section to create custom costs per-group.
                 Use the following format:
                 custom-costs:
                   vip-cost: Essentials:100
                 Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.
-                To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.""");
+                To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.\
+                """);
 
-        addDefault("use-particles", true, "Particles", "Whether particles should be used in the plugin.\n" +
-                "Some standalone implementation is used, but otherwise, PlayerParticles is used.");
-        addDefault("default-waiting-particles", "", "The default waiting particles during the warm-up period.");
+        addDefault(
+                "use-particles",
+                true,
+                "Particles",
+                "Whether particles should be used in the plugin.\n"
+                        + "Some standalone implementation is used, but otherwise, PlayerParticles is used.");
+        addDefault(
+                "default-waiting-particles",
+                "",
+                "The default waiting particles during the warm-up period.");
         addComment("waiting-particles", "Command-specific waiting particles.");
         addDefault("waiting-particles.tpa", "default");
         addDefault("waiting-particles.tpahere", "default");
@@ -283,8 +346,11 @@ public final class MainConfig extends ATConfig {
         addDefault("waiting-particles.home", "default");
         addDefault("waiting-particles.back", "default");
 
-        addDefault("default-teleporting-particles", "spark", "The default particles used as soon as the player teleports. \n" +
-                "At this time, only spark is supported. However, other recommendations are welcome with that.");
+        addDefault(
+                "default-teleporting-particles",
+                "spark",
+                "The default particles used as soon as the player teleports. \n"
+                        + "At this time, only spark is supported. However, other recommendations are welcome with that.");
         addComment("teleporting-particles", "Command-specific teleporting particles.");
         addDefault("teleporting-particles.tpa", "default");
         addDefault("teleporting-particles.tpahere", "default");
@@ -296,40 +362,69 @@ public final class MainConfig extends ATConfig {
 
         addSection("SQL Storage");
 
-        addDefault("use-mysql", false, "Whether the plugin should use SQL storage or not.\n" +
-                "By default, AT uses SQLite storage, which stores data in a .db file locally.");
+        addDefault(
+                "use-mysql",
+                false,
+                "Whether the plugin should use SQL storage or not.\n"
+                        + "By default, AT uses SQLite storage, which stores data in a .db file locally.");
         addDefault("mysql-host", "127.0.0.1", "The MySQL host to connect to.");
         addDefault("mysql-port", 3306, "The port to connect to.");
         addDefault("mysql-database", "database", "The database to connect to.");
         addDefault("mysql-username", "username", "The username to use when connecting.");
         addDefault("mysql-password", "password", "The password to use when connecting.");
-        addDefault("mysql-table-prefix", "advancedtp", "The prefix of all AT tables. \n" +
-                "If you're on Bungee, you may want to add your server's name to the end.");
+        addDefault(
+                "mysql-table-prefix",
+                "advancedtp",
+                "The prefix of all AT tables. \n"
+                        + "If you're on Bungee, you may want to add your server's name to the end.");
         addDefault("use-ssl", false, "Whether or not to connect to the MySQL server using SSL.");
-        addDefault("auto-reconnect", true, "Whether or not the plugin should reconnect to the MySQL server when a " +
-                "connection is closed.");
-        addDefault("allow-public-key-retrieval", false, "Whether or not to enable public key retrieval. \n" +
-                "Please do not enable it without being explicitly told by one of the developers.");
+        addDefault(
+                "auto-reconnect",
+                true,
+                "Whether or not the plugin should reconnect to the MySQL server when a "
+                        + "connection is closed.");
+        addDefault(
+                "allow-public-key-retrieval",
+                false,
+                "Whether or not to enable public key retrieval. \n"
+                        + "Please do not enable it without being explicitly told by one of the developers.");
 
-        addDefault("enable-distance-limitations", false, "Distance Limitations",
-                "Enables the distance limiter to stop players teleporting over a large distance.\n" +
-                        "This is only applied when people are teleporting in the same world.");
-        addDefault("maximum-teleport-distance", 1000, "The maximum distance that a player can teleport.\n" +
-                "This is the default distance applied to all commands when specified.");
-        addDefault("monitor-all-teleports-distance", false, "Whether or not all teleports - not just AT's - " +
-                "should be checked for distance.");
+        addDefault(
+                "enable-distance-limitations",
+                false,
+                "Distance Limitations",
+                "Enables the distance limiter to stop players teleporting over a large distance.\n"
+                        + "This is only applied when people are teleporting in the same world.");
+        addDefault(
+                "maximum-teleport-distance",
+                1000,
+                "The maximum distance that a player can teleport.\n"
+                        + "This is the default distance applied to all commands when specified.");
+        addDefault(
+                "monitor-all-teleports-distance",
+                false,
+                "Whether or not all teleports - not just AT's - "
+                        + "should be checked for distance.");
 
-        addComment("per-command-distance-limitations", "Determines the distance limit for each command.");
+        addComment(
+                "per-command-distance-limitations",
+                "Determines the distance limit for each command.");
         addDefault("per-command-distance-limitations.tpa", "default", "Distance limit for /tpa");
-        addDefault("per-command-distance-limitations.tpahere", "default", "Distance limit for /tpahere");
+        addDefault(
+                "per-command-distance-limitations.tpahere",
+                "default",
+                "Distance limit for /tpahere");
         addDefault("per-command-distance-limitations.tpr", "default", "Distance limit for /tpr");
         addDefault("per-command-distance-limitations.warp", "default", "Distance limit for /warp");
-        addDefault("per-command-distance-limitations.spawn", "default", "Distance limit for /spawn");
+        addDefault(
+                "per-command-distance-limitations.spawn", "default", "Distance limit for /spawn");
         addDefault("per-command-distance-limitations.home", "default", "Distance limit for /home");
         addDefault("per-command-distance-limitations.back", "default", "Distance limit for /back");
 
         makeSectionLenient("custom-distance-limitations");
-        addComment("custom-distance-limitations", """
+        addComment(
+                "custom-distance-limitations",
+                """
                 Use this section to create custom distance limitations per-group.
                 Use the following format:
                 custom-distance-limitations:
@@ -337,22 +432,31 @@ public final class MainConfig extends ATConfig {
                 Giving a group, such as VIP, the permission at.member.distance.vip-distance will have a maximum distance of 300000.
                 The key (vip-distance) and group name (VIP) do not have to be different, this is just an example.
                 You can also add at.member.distance.300000, but this is more efficient if you find permissions lag. To make it per-command, use at.member.distance.<command>.vip-distance. To make it per-world, use at.member.distance.<world>.vip-distance.
-                To combine the two, you can use at.member.distance.<command>.<world>.vip-distance.""");
+                To combine the two, you can use at.member.distance.<command>.<world>.vip-distance.\
+                """);
 
         addSection("Teleportation Limitations");
 
-        addComment("""
+        addComment(
+                """
                 WARNING: A lot of the options below are considered advanced and use special syntax that is not often accepted in YAML.
                 When using such options, wrap them in quotes: ''
                 As an example, 'stop-teleportation-out:world,world_nether'""");
 
-        addDefault("enable-teleport-limitations", false,
-                "Enables teleport limitations. This means cross-world or even world teleportation can be limited " +
-                        "within specific worlds.");
-        addDefault("monitor-all-teleports-limitations", false, "Whether or not all teleportation - not just AT's - " +
-                "should be checked to see if teleportation is allowed.");
+        addDefault(
+                "enable-teleport-limitations",
+                false,
+                "Enables teleport limitations. This means cross-world or even world teleportation can be limited "
+                        + "within specific worlds.");
+        addDefault(
+                "monitor-all-teleports-limitations",
+                false,
+                "Whether or not all teleportation - not just AT's - "
+                        + "should be checked to see if teleportation is allowed.");
 
-        addComment("world-rules", """
+        addComment(
+                "world-rules",
+                """
                 The teleportation rules defined for each world.
                 Rules include:
                 - stop-teleportation-out - Stops players teleporting to another world when they are in this world.
@@ -360,15 +464,20 @@ public final class MainConfig extends ATConfig {
                 - stop-teleportation-into - Stops players teleporting into this world.
                 To combine multiple rules, use a ; - e.g. stop-teleportation-out;stop-teleportation-within
                 For out and into rules, you can make it so that rules only initiate when in or going to a specific world using :, e.g. stop-teleportation-out:world stops players teleporting to "world" in the world they're currently in.
-                To do the opposite (i.e. initiates the rule when users are not in the specified world), use !, e.g. stop-teleportation-into!world stops teleportation into a specific world if they are not in "world". If ! and : are used in the same rule, then : is given top priority.To make this rule work with multiple worlds, use a comma (,), e.g. stop-teleportation-into:world,world_nether""");
+                To do the opposite (i.e. initiates the rule when users are not in the specified world), use !, e.g. stop-teleportation-into!world stops teleportation into a specific world if they are not in "world". If ! and : are used in the same rule, then : is given top priority.To make this rule work with multiple worlds, use a comma (,), e.g. stop-teleportation-into:world,world_nether\
+                """);
 
         makeSectionLenient("world-rules");
         addDefault("world-rules.default", "stop-teleportation-within");
         addExample("world-rules.world", "default");
-        addExample("world-rules.world_nether", "stop-teleportation-into!world" /*, "Stops people teleporting into the
-         Nether if they're not coming from \"world\"" */);
+        addExample(
+                "world-rules.world_nether",
+                "stop-teleportation-into!world" /*, "Stops people teleporting into the
+                                                Nether if they're not coming from \"world\"" */);
 
-        addComment("command-rules", """
+        addComment(
+                "command-rules",
+                """
                 The teleportation rules defined for each AT command.
                 Rules include:
                 - override - The command will override world rules and run regardless.
@@ -379,7 +488,8 @@ public final class MainConfig extends ATConfig {
                 To use multiple worlds, use a comma (,).
                 By default, all commands will comply with the world rules. If no rules are specified, they will comply.
                 All worlds specified will be considered the world in which the player is currently in. For worlds being teleported to, add > to the start of the world name.
-                For example, ignore:world,>world_nether will not run if the player is in "world" or if the player is going into the Nether.""");
+                For example, ignore:world,>world_nether will not run if the player is in "world" or if the player is going into the Nether.\
+                """);
         addDefault("command-rules.tpa", "");
         addDefault("command-rules.tpahere", "");
         addDefault("command-rules.tpr", "");
@@ -392,124 +502,205 @@ public final class MainConfig extends ATConfig {
         makeSectionLenient("x");
         addDefault("x.default", "5000;-5000");
         addExample("x.world_the_end", "10000;-10000");
-        addComment("x",
+        addComment(
+                "x",
                 """
                         Defines the range of X coordinates that players can teleport to.
                         Using a value for example 5000 would automatically set the minimum to -5000.
                         These are able to be defined for each world by name.
                         Split the values with a semicolon (;).
                         If a world is defined here but not in the z section, the x values will be reused for the z coords.
-                        """
-        );
-        addComment("z",
+                        """);
+        addComment(
+                "z",
                 """
                         Defines the range of z coordinates that players can teleport to.
                         Using a value for example 5000 would automatically set the minimum to -5000.
                         These are able to be defined for each world by name.
                         Split the values with a semicolon (;).
                         If a world is defined here but not in the x section, the z values will be reused for the x coords.
-                        """
-        );
+                        """);
         makeSectionLenient("z");
         addDefault("z.default", "5000;-5000");
         addExample("z.world_the_end", "10000;-10000");
-        addDefault("maximum-x", 5000, "Deprecated\n # The maximum X coordinate to go up to when selecting a random location.");
-        addDefault("maximum-z", 5000, "Deprecated\n # The maximum Z coordinate to go up to when selecting a random location.");
-        addDefault("minimum-x", -5000, "Deprecated\n # The minimum X coordinate to go down to when selecting a random location.");
-        addDefault("minimum-z", -5000, "Deprecated\n # The minimum Z coordinate to go down to when selecting a random location.");
-        addDefault("use-rapid-response", true, """
+        addDefault(
+                "maximum-x",
+                5000,
+                "Deprecated\n # The maximum X coordinate to go up to when selecting a random location.");
+        addDefault(
+                "maximum-z",
+                5000,
+                "Deprecated\n # The maximum Z coordinate to go up to when selecting a random location.");
+        addDefault(
+                "minimum-x",
+                -5000,
+                "Deprecated\n # The minimum X coordinate to go down to when selecting a random location.");
+        addDefault(
+                "minimum-z",
+                -5000,
+                "Deprecated\n # The minimum Z coordinate to go down to when selecting a random location.");
+        addDefault(
+                "use-rapid-response",
+                true,
+                """
                 Use the new rapid response system for RTP.
                 This means valid locations are prepared before a user chooses to use /tpr or interact with a sign, meaning they are ready for use and can instantly TP a player.
                 This feature allows you to use the "tpr" death option in the death management section further down.
-                IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.""");
-        addDefault("use-vanilla-border", false, "Whether the plugin should use the Vanilla world border as a viable " +
-                "option for managing /tpr boundaries.");
-        addDefault("use-plugin-borders", true, "Whether the plugin should use plugin world borders for managing /tpr " +
-                "boundaries.\n" +
-                "Currently supported plugins are WorldBorder and ChunkyBorder.");
-        addDefault("protect-claim-locations", true,
-                "If enabled checks if the player is in either an unclaimed area or that they have build permission in the area.\n" +
-                        "Supported plugins are Lands, WorldGuard, and GriefPrevention."
-        );
-        addDefault("prepared-locations-limit", 3, "How many locations can be prepared per world when using AT's Rapid" +
-                " Response system.\n" +
-                "These are immediately prepared upon startup and when a world is loaded.");
-        addDefault("ignore-world-generators", new ArrayList<>(Arrays.asList(
-                "us.talabrek.ultimateskyblock.world.SkyBlockChunkGenerator",
-                "us.talabrek.ultimateskyblock.world.SkyBlockNetherChunkGenerator",
-                "world.bentobox.bskyblock.generators.ChunkGeneratorWorld",
-                "world.bentobox.acidisland.world.ChunkGeneratorWorld",
-                "world.bentobox.oneblock.generators.ChunkGeneratorWorld",
-                "com.wasteofplastic.askyblock.generators.ChunkGeneratorWorld",
-                "com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld",
-                "b.a",
-                "com.chaseoes.voidworld.VoidWorld.VoidWorldGenerator",
-                "club.bastonbolado.voidgenerator.EmptyChunkGenerator",
-                "de.xtkq.voidgen.generator.interfaces.ChunkGen")), """
+                IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.\
+                """);
+        addDefault(
+                "use-vanilla-border",
+                false,
+                "Whether the plugin should use the Vanilla world border as a viable "
+                        + "option for managing /tpr boundaries.");
+        addDefault(
+                "use-plugin-borders",
+                true,
+                "Whether the plugin should use plugin world borders for managing /tpr "
+                        + "boundaries.\n"
+                        + "Currently supported plugins are WorldBorder and ChunkyBorder.");
+        addDefault(
+                "protect-claim-locations",
+                true,
+                "If enabled checks if the player is in either an unclaimed area or that they have build permission in the area.\n"
+                        + "Supported plugins are Lands, WorldGuard, and GriefPrevention.");
+        addDefault(
+                "prepared-locations-limit",
+                3,
+                "How many locations can be prepared per world when using AT's Rapid"
+                        + " Response system.\n"
+                        + "These are immediately prepared upon startup and when a world is loaded.");
+        addDefault(
+                "ignore-world-generators",
+                new ArrayList<>(
+                        Arrays.asList(
+                                "us.talabrek.ultimateskyblock.world.SkyBlockChunkGenerator",
+                                "us.talabrek.ultimateskyblock.world.SkyBlockNetherChunkGenerator",
+                                "world.bentobox.bskyblock.generators.ChunkGeneratorWorld",
+                                "world.bentobox.acidisland.world.ChunkGeneratorWorld",
+                                "world.bentobox.oneblock.generators.ChunkGeneratorWorld",
+                                "com.wasteofplastic.askyblock.generators.ChunkGeneratorWorld",
+                                "com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld",
+                                "b.a",
+                                "com.chaseoes.voidworld.VoidWorld.VoidWorldGenerator",
+                                "club.bastonbolado.voidgenerator.EmptyChunkGenerator",
+                                "de.xtkq.voidgen.generator.interfaces.ChunkGen")),
+                """
                 AT's Rapid Response system automatically loads locations for each world, but can be problematic on some worlds, mostly SkyBlock worlds.
                 In response, this list acts as pro-active protection and ignores worlds generated using the following generators.
-                This is provided as an option so you can have control over which worlds have locations load.""");
-        addDefault("avoid-blocks", new ArrayList<>(Arrays.asList("WATER", "LAVA", "STATIONARY_WATER",
-                        "STATIONARY_LAVA")),
+                This is provided as an option so you can have control over which worlds have locations load.\
+                """);
+        addDefault(
+                "avoid-blocks",
+                new ArrayList<>(
+                        Arrays.asList("WATER", "LAVA", "STATIONARY_WATER", "STATIONARY_LAVA")),
                 "Blocks that people must not be able to land in when using /tpr.");
-        addDefault("avoid-biomes", new ArrayList<>(Arrays.asList("OCEAN", "DEEP_OCEAN")), "Biomes that the plugin " +
-                "should avoid when searching for a location.");
-        addDefault("whitelist-worlds", false, "Whether or not /tpr should only be used in the worlds listed below.");
-        addDefault("redirect-to-whitelisted-worlds", true, "Whether or not players should be directed to a " +
-                "whitelisted world when using /tpr.\n" +
-                "When this option is disabled and the player tries to use /tpr in a non-whitelisted world, the " +
-                "command simply won't work.");
-        addDefault("allowed-worlds", new ArrayList<>(Arrays.asList("world", "world_nether")), """
+        addDefault(
+                "avoid-biomes",
+                new ArrayList<>(Arrays.asList("OCEAN", "DEEP_OCEAN")),
+                "Biomes that the plugin " + "should avoid when searching for a location.");
+        addDefault(
+                "whitelist-worlds",
+                false,
+                "Whether or not /tpr should only be used in the worlds listed below.");
+        addDefault(
+                "redirect-to-whitelisted-worlds",
+                true,
+                "Whether or not players should be directed to a "
+                        + "whitelisted world when using /tpr.\n"
+                        + "When this option is disabled and the player tries to use /tpr in a non-whitelisted world, the "
+                        + "command simply won't work.");
+        addDefault(
+                "allowed-worlds",
+                new ArrayList<>(Arrays.asList("world", "world_nether")),
+                """
                 Worlds you can use /tpr in.
                 If a player uses /tpr in a world that doesn't allow it, they will be teleported in the first world on the list instead.
                 To make this feature effective, turn on "whitelist-worlds" above.""");
 
-
-        addDefault("default-homes-limit", -1, "Homes", """
+        addDefault(
+                "default-homes-limit",
+                -1,
+                "Homes",
+                """
                 The default maximum of homes people can have.
                 This can be overridden by giving people permissions such as at.member.homes.10.
                 To disable this, use -1 as provided by default.""");
-        addDefault("add-bed-to-homes", true, "Whether or not the bed home should be added to /homes.");
-        addDefault("deny-homes-if-over-limit", false, """
+        addDefault(
+                "add-bed-to-homes", true, "Whether or not the bed home should be added to /homes.");
+        addDefault(
+                "deny-homes-if-over-limit",
+                false,
+                """
                 Whether or not players should be denied access to some of their homes if they exceed their homes limit.
                 The homes denied access to will end up being their most recently set homes.
-                For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.""");
-        addDefault("hide-homes-if-denied", false, "If homes should be hidden from /homes should they be denied access" +
-                ".\n" +
-                "If this is false, they will be greyed out in the /homes list.");
-        addDefault("overwrite-sethome", false, "When enabled, setting homes with a name that already exists in your " +
-                "list gets overwritten.");
-        addDefault("show-homes-with-no-input", false, "Shows a list of homes the player has when doing /home and nothing else.\n" +
-                "This overwrites /home when attempting to teleport to their main home, but if you're more used to what Essentials does, set this to true.");
-        addDefault("prioritise-main-home", true, "If the player has a main home set, then the option above is ignored. I gotta be flexible.");
+                For example, having homes A, B, C, D and E with a limit of 3 will deny access to D and E.\
+                """);
+        addDefault(
+                "hide-homes-if-denied",
+                false,
+                "If homes should be hidden from /homes should they be denied access"
+                        + ".\n"
+                        + "If this is false, they will be greyed out in the /homes list.");
+        addDefault(
+                "overwrite-sethome",
+                false,
+                "When enabled, setting homes with a name that already exists in your "
+                        + "list gets overwritten.");
+        addDefault(
+                "show-homes-with-no-input",
+                false,
+                "Shows a list of homes the player has when doing /home and nothing else.\n"
+                        + "This overwrites /home when attempting to teleport to their main home, but if you're more used to what Essentials does, set this to true.");
+        addDefault(
+                "prioritise-main-home",
+                true,
+                "If the player has a main home set, then the option above is ignored. I gotta be flexible.");
 
-        addDefault("tpa-request-received", "none", "Notifications/Sounds",
+        addDefault(
+                "tpa-request-received",
+                "none",
+                "Notifications/Sounds",
                 """
                         The sound played when a player receives a teleportation (tpa) request.
                         For 1.16+, check https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html for a list of sounds you can use
                         For 1.15 and below, check https://www.spigotmc.org/threads/sounds-spigot-1-7-1-14-4-sound-enums.340452/ for a list of sounds down to 1.7.
                         (Friendly reminder that 1.7.x is not supported though!)
                         Set to "none" if you want no sound playing.""");
-        addDefault("tpa-request-sent", "none", "The sound played when a player sends a teleportation (tpa) request.");
-        addDefault("tpahere-request-received", "none", "The sound played when a player receives a teleportation " +
-                "(tpahere) request.");
-        addDefault("tpahere-request-sent", "none", "The sound played when a player sends a teleportation (tpahere) " +
-                "request.");
+        addDefault(
+                "tpa-request-sent",
+                "none",
+                "The sound played when a player sends a teleportation (tpa) request.");
+        addDefault(
+                "tpahere-request-received",
+                "none",
+                "The sound played when a player receives a teleportation " + "(tpahere) request.");
+        addDefault(
+                "tpahere-request-sent",
+                "none",
+                "The sound played when a player sends a teleportation (tpahere) " + "request.");
 
-        addDefault("used-teleport-causes", new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")), "Back",
-                "The teleport causes that the plugin must listen to allow players to teleport back to the previous " +
-                        "location.\n" +
-                        "You can see a full list of these causes at https://hub.spigotmc" +
-                        ".org/javadocs/spigot/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html");
-        addDefault("back-search-radius", 5, """
+        addDefault(
+                "used-teleport-causes",
+                new ArrayList<>(Arrays.asList("COMMAND", "PLUGIN", "SPECTATE")),
+                "Back",
+                "The teleport causes that the plugin must listen to allow players to teleport back to the previous "
+                        + "location.\n"
+                        + "You can see a full list of these causes at https://hub.spigotmc"
+                        + ".org/javadocs/spigot/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html");
+        addDefault(
+                "back-search-radius",
+                5,
+                """
                 The cubic radius to search for a safe block when using /back.
                 If a player teleports from an unsafe location and uses /back to return to it, the plugin will search all blocks within this radius to see if it is a safe place for the player to be moved to.
                 It is recommend to avoid setting this option too high as this can have a worst case execution time of O(n^3) (e.g. run 27 times, 64, 125, 216 and so on).
                 To disable, either set to 0 or -1.""");
 
         addSection("Map Plugin Integration");
-        addComment("At this time, AdvancedTeleport supports dynmap and squaremap.\n" +
-                "If you are using dynmap, the plugin has extra icons you can use as placeholders.");
+        addComment(
+                "At this time, AdvancedTeleport supports dynmap and squaremap.\n"
+                        + "If you are using dynmap, the plugin has extra icons you can use as placeholders.");
         // Map options
         for (String type : Arrays.asList("homes", "warps", "spawns")) {
             // home, warp, spawn
@@ -517,33 +708,76 @@ public final class MainConfig extends ATConfig {
             // Homes, Warps, Spawns
             String capitalised = type.toUpperCase().charAt(0) + type.toLowerCase().substring(1);
             addComment(type, "Covers map options for " + type + ".");
-            addDefault(type + ".enabled", !type.equals("homes"), "Whether the icons for " + type + " will be added at all.");
-            addDefault(type + ".default-icon", singular + "-default", "The default icon for " + type + " in the map.");
-            addDefault(type + ".shown-by-default", true, "Whether the player viewing the map has to explicitly enable the layer to view " + type + " on the map.");
-            addDefault(type + ".hover-tooltip", "name", "The tooltip that will appear when someone hovers over the icon in the map." +
-                    "\nFor Dynmap, this supports HTML formatting.");
-            addDefault(type + ".click-tooltip", "name", "Squaremap only - the tooltip that will appear when someone clicks on the icon.");
-            addDefault(type + ".icon-size", "32", "The scale of the icon on the map.\n" +
-                    "With Dynmap, only 8, 16 and 32 are supported. With Squaremap, 2147483647 is your limit. But don't try it.");
-            addDefault(type + ".layer-name", capitalised, "The layer display name that appears on the map.");
+            addDefault(
+                    type + ".enabled",
+                    !type.equals("homes"),
+                    "Whether the icons for " + type + " will be added at all.");
+            addDefault(
+                    type + ".default-icon",
+                    singular + "-default",
+                    "The default icon for " + type + " in the map.");
+            addDefault(
+                    type + ".shown-by-default",
+                    true,
+                    "Whether the player viewing the map has to explicitly enable the layer to view "
+                            + type
+                            + " on the map.");
+            addDefault(
+                    type + ".hover-tooltip",
+                    "name",
+                    "The tooltip that will appear when someone hovers over the icon in the map."
+                            + "\nFor Dynmap, this supports HTML formatting.");
+            addDefault(
+                    type + ".click-tooltip",
+                    "name",
+                    "Squaremap only - the tooltip that will appear when someone clicks on the icon.");
+            addDefault(
+                    type + ".icon-size",
+                    "32",
+                    "The scale of the icon on the map.\n"
+                            + "With Dynmap, only 8, 16 and 32 are supported. With Squaremap, 2147483647 is your limit. But don't try it.");
+            addDefault(
+                    type + ".layer-name",
+                    capitalised,
+                    "The layer display name that appears on the map.");
         }
-        addDefault("add-spawns", true, "Whether to make spawnpoints visible for everyone on the map.");
+        addDefault(
+                "add-spawns", true, "Whether to make spawnpoints visible for everyone on the map.");
         addDefault("add-warps", true, "Whether to make warps visible for everyone on the map.");
-        addDefault("add-homes", false, "Whether to make all homes visible for everyone on the map.");
+        addDefault(
+                "add-homes", false, "Whether to make all homes visible for everyone on the map.");
         addDefault("default-icon-size", 40, "The default icon size for AT's icons on the map.");
 
-        addDefault("teleport-to-spawn-on-first-join", true, "Spawn Management",
+        addDefault(
+                "teleport-to-spawn-on-first-join",
+                true,
+                "Spawn Management",
                 "Whether the player should be teleported to the spawnpoint when they join for the first time.");
-        addDefault("first-spawn-point", "", "The name of the spawnpoint players will be first teleported to if they joined for the first time.\n" +
-                "If it is blank, then it will take the main spawnpoint.");
-        addDefault("teleport-to-spawn-on-every-join", false,
+        addDefault(
+                "first-spawn-point",
+                "",
+                "The name of the spawnpoint players will be first teleported to if they joined for the first time.\n"
+                        + "If it is blank, then it will take the main spawnpoint.");
+        addDefault(
+                "teleport-to-spawn-on-every-join",
+                false,
                 "Whether the player should be teleported to the spawnpoint every time they join.");
-        addDefault("teleport-to-nearest-spawnpoint", false, "Whether using /spawn, joining or respawning should send the user to the closest spawnpoint they have access to.\n" +
-                "If the user doesn't have permission to the specified spawnpoint, then they are not sent to it." +
-                "Only spawns in the same dimension/world are considered. If no spawnpoint is set in the same dimension, then the normal main spawn is used.");
-        addDefault("use-overworld", true, "If no main spawn has been set and the world being checked is in the Nether or End, use the Overworld spawn instead (if applicable).");
+        addDefault(
+                "teleport-to-nearest-spawnpoint",
+                false,
+                """
+                        Whether using /spawn, joining or respawning should send the user to the closest spawnpoint they have access to.
+                        If the user doesn't have permission to the specified spawnpoint, then they are not sent to it.
+                        Only spawns in the same dimension/world are considered. If no spawnpoint is set in the same dimension, then the normal main spawn is used.\
+                        """);
+        addDefault(
+                "use-overworld",
+                true,
+                "If no main spawn has been set and the world being checked is in the Nether or End, use the Overworld spawn instead (if applicable).");
 
-        addComment("death-management", """
+        addComment(
+                "death-management",
+                """
                 Determines how and where players teleport when they die.
                 Options include:
                 - spawn - Teleports the player to the spawnpoint of either the world or specified by the plugin.
@@ -553,7 +787,8 @@ public final class MainConfig extends ATConfig {
                 - tpr - Teleports the player to a random location. Can only be used when the rapid response system is enabled.
                 - home - Teleports the player to their main or first home.
                 - default - Uses the default respawn option, which is spawn unless set differently.
-                If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.""");
+                If you're using EssentialsX Spawn and want AT to take over respawn mechanics, set respawn-listener-priority in EssX's config.yml file to lowest.\
+                """);
 
         makeSectionLenient("death-management");
         addDefault("death-management.default", "bed;spawn");
@@ -561,39 +796,70 @@ public final class MainConfig extends ATConfig {
         addExample("death-management.special-world", "warp:Special");
         addExample("death-management.another-world", "bed");
 
-        addDefault("default-permissions", new ArrayList<>(Arrays.asList("at.member.*", "at.member.warp.*", "at.member.warp.sign.*", "at.member.core.help", "at.member.core.info")),
+        addDefault(
+                "default-permissions",
+                new ArrayList<>(
+                        Arrays.asList(
+                                "at.member.*",
+                                "at.member.warp.*",
+                                "at.member.warp.sign.*",
+                                "at.member.core.help",
+                                "at.member.core.info")),
                 "Permissions",
                 """
                         The default permissions given to users without OP.
                         By default, Advanced Teleport allows users without OP to use all member features.
                         This allows for permission management without a permissions plugin, especially if a user doesn't understand how such plugins work.
-                        However, if you have a permissions plugin and Vault installed, you cannot make admin permissions work by default.""");
-        addDefault("allow-admin-permissions-as-default-perms", false, """
+                        However, if you have a permissions plugin and Vault installed, you cannot make admin permissions work by default.\
+                        """);
+        addDefault(
+                "allow-admin-permissions-as-default-perms",
+                false,
+                """
                 Allows admin permissions to be allowed as default permissions by default.
                 If you want to use admin permissions, it's often recommended to use a permissions plugin such as LuckPerms.
                 Do not enable this if you are unsure of the risks this option proposes.""");
 
         addSection("Updates");
-        addDefault("check-for-updates", true, "Whether or not the plugin should check for updates.");
-        addDefault("notify-admins-on-update", true, "Whether or not to notify admins when an update is available.\n" +
-                "Anyone with the permission at.admin.notify will receive this notification.");
+        addDefault(
+                "check-for-updates", true, "Whether or not the plugin should check for updates.");
+        addDefault(
+                "notify-admins-on-update",
+                true,
+                "Whether or not to notify admins when an update is available.\n"
+                        + "Anyone with the permission at.admin.notify will receive this notification.");
         addDefault("debug", false, "Used for debugging purposes.", "Misceallaneous");
-        addDefault("use-floodgate-forms", true, """
+        addDefault(
+                "use-floodgate-forms",
+                true,
+                """
                 Whether to use Cumulus forms for Bedrock players.
                 These work by having a Bedrock player type in the command itself (such as /warp, /tpa, /setwarp), then fill in the rest of the commands through a form.
-                This only works when Geyser and Floodgate are used on the server. This improves accessibility for mobile or console players.""");
-        addDefault("send-actionbar-to-console", true, "If you are just using action bars for messages and have empty base messages, the console will not receive them." +
-                "\nIf you have this option set to true, then the console will receive the message that the action bar uses.");
-        addDefault("retain-passengers", false, """
+                This only works when Geyser and Floodgate are used on the server. This improves accessibility for mobile or console players.\
+                """);
+        addDefault(
+                "send-actionbar-to-console",
+                true,
+                "If you are just using action bars for messages and have empty base messages, the console will not receive them."
+                        + "\nIf you have this option set to true, then the console will receive the message that the action bar uses.");
+        addDefault(
+                "retain-passengers",
+                false,
+                """
                 Keeps any entities riding teleporting players on their heads.
                 Only available to newer versions of Paper and uses experimental API - don't expect this to be set to true by default for a while!
                 Teleportation is also not async if this has to be used.""");
-        addDefault("retain-vehicle", false, """
+        addDefault(
+                "retain-vehicle",
+                false,
+                """
                 Keeps any entities being riden by teleporting players.
                 Only available to newer versions of Paper and uses experimental API - don't expect this to be set to true by default for a while!
                 Teleportation is also not async if this has to be used.""");
-        addDefault("retain-living-vehicles-only", true, "If it's not a minecart or boat, take it with us. Requires the above option to be set to true.");
-
+        addDefault(
+                "retain-living-vehicles-only",
+                true,
+                "If it's not a minecart or boat, take it with us. Requires the above option to be set to true.");
     }
 
     public static MainConfig get() {
@@ -612,14 +878,16 @@ public final class MainConfig extends ATConfig {
         moveTo("timers.teleportTimer", "warm-up-timer-duration");
         moveTo("timers.cancel-on-rotate", "cancel-warm-up-on-rotation");
         moveTo("timers.cancel-on-movement", "cancel-warm-up-on-movement");
-        for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+        for (String command :
+                Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
             moveTo("timers.teleportTimers." + command, "per-command-warm-ups." + command);
         }
 
         moveTo("cooldowns.default", "cooldown-duration");
         moveTo("cooldowns.apply-globally", "apply-cooldown-to-all-commands");
         moveTo("cooldowns.add-to-timer", "add-cooldown-duration-to-warm-up");
-        for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+        for (String command :
+                Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
             moveTo("cooldowns." + command, "per-command-cooldowns." + command);
         }
 
@@ -646,14 +914,19 @@ public final class MainConfig extends ATConfig {
         if (builder.length() > 0) {
             set("cost-amount", builder.toString());
         }
-        for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+        for (String command :
+                Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
             try {
                 Object vault = get("payments.vault." + command + ".price");
                 Object exp = get("payments.exp." + command + ".price");
-                boolean vaultOn = get("payments.vault." + command + ".enabled").equals("default")
-                        ? defaultVault : getBoolean("payments.vault." + command + ".enabled");
-                boolean expOn = get("payments.exp." + command + ".enabled").equals("default")
-                        ? defaultEXP : getBoolean("payments.exp." + command + ".enabled");
+                boolean vaultOn =
+                        get("payments.vault." + command + ".enabled").equals("default")
+                                ? defaultVault
+                                : getBoolean("payments.vault." + command + ".enabled");
+                boolean expOn =
+                        get("payments.exp." + command + ".enabled").equals("default")
+                                ? defaultEXP
+                                : getBoolean("payments.exp." + command + ".enabled");
                 StringBuilder paymentCombination = new StringBuilder();
                 if (vaultOn) {
                     if (vault.equals("default")) {
@@ -680,7 +953,6 @@ public final class MainConfig extends ATConfig {
             } catch (Exception ignored) {
 
             }
-
         }
 
         moveTo("sounds.tpa.requestSent", "tpa-request-sent");
@@ -705,8 +977,9 @@ public final class MainConfig extends ATConfig {
         moveTo("spawn.join.teleport-on-every-join", "teleport-to-spawn-on-every-join");
 
         moveTo("permissions.default-permissions", "default-permissions");
-        moveTo("permissions.allow-admin-perms-as-defaults", "allow-admin-permissions-as-default-perms");
-
+        moveTo(
+                "permissions.allow-admin-perms-as-defaults",
+                "allow-admin-permissions-as-default-perms");
     }
 
     @Override
@@ -743,8 +1016,11 @@ public final class MainConfig extends ATConfig {
             case "teleport":
                 break;
             default:
-                CoreClass.getInstance().getLogger().warning("Bad input for apply-cooldown-after option! Using " +
-                        "\"request\" as the default option...");
+                CoreClass.getInstance()
+                        .getLogger()
+                        .warning(
+                                "Bad input for apply-cooldown-after option! Using "
+                                        + "\"request\" as the default option...");
                 set("apply-cooldown-after", "request");
         }
         COOLDOWNS = new PerCommandOption<>("per-command-cooldowns", "cooldown-duration");
@@ -754,8 +1030,10 @@ public final class MainConfig extends ATConfig {
         CUSTOM_COSTS = new ConfigOption<>("custom-costs");
 
         USE_PARTICLES = new ConfigOption<>("use-particles");
-        WAITING_PARTICLES = new PerCommandOption<>("waiting-particles", "default-waiting-particles");
-        TELEPORT_PARTICLES = new PerCommandOption<>("teleporting-particles", "default-teleporting-particles");
+        WAITING_PARTICLES =
+                new PerCommandOption<>("waiting-particles", "default-waiting-particles");
+        TELEPORT_PARTICLES =
+                new PerCommandOption<>("teleporting-particles", "default-teleporting-particles");
 
         USE_MYSQL = new ConfigOption<>("use-mysql");
         MYSQL_HOST = new ConfigOption<>("mysql-host");
@@ -771,7 +1049,9 @@ public final class MainConfig extends ATConfig {
         ENABLE_DISTANCE_LIMITATIONS = new ConfigOption<>("enable-distance-limitations");
         MAXIMUM_TELEPORT_DISTANCE = new ConfigOption<>("maximum-teleport-distance");
         MONITOR_ALL_TELEPORTS = new ConfigOption<>("monitor-all-teleports-distance");
-        DISTANCE_LIMITS = new PerCommandOption<>("per-command-distance-limitations", "maximum-teleport-distance");
+        DISTANCE_LIMITS =
+                new PerCommandOption<>(
+                        "per-command-distance-limitations", "maximum-teleport-distance");
         CUSTOM_DISTANCE_LIMITS = new ConfigOption<>("custom-distance-limitations");
 
         ENABLE_TELEPORT_LIMITATIONS = new ConfigOption<>("enable-teleport-limitations");
@@ -838,7 +1118,8 @@ public final class MainConfig extends ATConfig {
 
         // HANDLING DEFAULT PERMISSIONS
 
-        List<String> permissions = DEFAULT_PERMISSIONS.get() == null ? new ArrayList<>() : DEFAULT_PERMISSIONS.get();
+        List<String> permissions =
+                DEFAULT_PERMISSIONS.get() == null ? new ArrayList<>() : DEFAULT_PERMISSIONS.get();
         if (defaults == null) {
             defaults = new ArrayList<>();
         } else {
@@ -854,26 +1135,48 @@ public final class MainConfig extends ATConfig {
             if (!permission.startsWith("at")) continue;
             if (permission.startsWith("at.admin")) {
                 if (!warned) {
-                    CoreClass.getInstance().getLogger().warning("WARNING: You've given an admin permission by default to all users.");
+                    CoreClass.getInstance()
+                            .getLogger()
+                            .warning(
+                                    "WARNING: You've given an admin permission by default to all users.");
                     if (!ALLOW_ADMIN_PERMS.get() || CoreClass.getPerms() != null) {
-                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so we're " +
-                                "not adding it right now.");
-                        CoreClass.getInstance().getLogger().warning("To allow people to use admin permissions such as" +
-                                " the ones specified, please disable the check in the configuration.");
-                        CoreClass.getInstance().getLogger().warning("If you have a permissions plugin hooked into " +
-                                "Vault too, you cannot make admin permissions default permissions.");
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .warning(
+                                        "This can potentially be destructive, so we're "
+                                                + "not adding it right now.");
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .warning(
+                                        "To allow people to use admin permissions such as"
+                                                + " the ones specified, please disable the check in the configuration.");
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .warning(
+                                        "If you have a permissions plugin hooked into "
+                                                + "Vault too, you cannot make admin permissions default permissions.");
                     } else {
-                        CoreClass.getInstance().getLogger().warning("This can potentially be destructive, so if this " +
-                                "is not your doing, please check your configuration.");
-                        CoreClass.getInstance().getLogger().warning("To stop people to use admin permissions such as " +
-                                "the ones specified, please enable the check in the configuration.");
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .warning(
+                                        "This can potentially be destructive, so if this "
+                                                + "is not your doing, please check your configuration.");
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .warning(
+                                        "To stop people to use admin permissions such as "
+                                                + "the ones specified, please enable the check in the configuration.");
                     }
                     warned = true;
                 }
                 if (ALLOW_ADMIN_PERMS.get() && CoreClass.getPerms() == null) {
-                    CoreClass.getInstance().getLogger().info("Allowed default access to " + permission);
+                    CoreClass.getInstance()
+                            .getLogger()
+                            .info("Allowed default access to " + permission);
                 } else {
-                    CoreClass.getInstance().getLogger().info("Denied default access to " + permission);
+                    CoreClass.getInstance()
+                            .getLogger()
+                            .info("Denied default access to " + permission);
                     continue;
                 }
             }
@@ -896,10 +1199,7 @@ public final class MainConfig extends ATConfig {
             this.path = path;
         }
 
-        public ConfigOption(
-                String path,
-                String defaultPath
-        ) {
+        public ConfigOption(String path, String defaultPath) {
             this.path = path;
             this.defaultPath = defaultPath;
         }
@@ -927,10 +1227,7 @@ public final class MainConfig extends ATConfig {
         public final ConfigOption<T> HOME;
         public final ConfigOption<T> BACK;
 
-        public PerCommandOption(
-                String path,
-                String defaultPath
-        ) {
+        public PerCommandOption(String path, String defaultPath) {
             TPA = new ConfigOption<>(path + ".tpa", defaultPath);
             TPAHERE = new ConfigOption<>(path + ".tpahere", defaultPath);
             TPR = new ConfigOption<>(path + ".tpr", defaultPath);
@@ -954,7 +1251,8 @@ public final class MainConfig extends ATConfig {
         }
 
         public ConfigOption<T>[] values() {
-            return (ConfigOption<T>[]) new ConfigOption[]{TPA, TPAHERE, TPR, WARP, SPAWN, HOME, BACK};
+            return (ConfigOption<T>[])
+                    new ConfigOption[] {TPA, TPAHERE, TPR, WARP, SPAWN, HOME, BACK};
         }
     }
 

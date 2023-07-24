@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.commands.core.map.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,14 +28,17 @@ public final class MapCommand extends SubATCommand {
         subMapCommands.put("setvisible", new SetVisibleCommand());
     }
 
+    public static HashMap<String, SubATCommand> getSubMapCommands() {
+        return subMapCommands;
+    }
+
     @Override
     @Contract(value = "_, _, _, _ -> false", pure = true)
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
 
         // If there's no arguments, stop there
         if (args.length == 0) {
@@ -60,11 +64,20 @@ public final class MapCommand extends SubATCommand {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String s,
+            @NotNull String[] args) {
 
         List<String> results = new ArrayList<>();
         if (args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], subMapCommands.keySet().stream().filter(key -> sender.hasPermission("at.member.core.map." + key)).toList(), results);
+            StringUtil.copyPartialMatches(
+                    args[0],
+                    subMapCommands.keySet().stream()
+                            .filter(key -> sender.hasPermission("at.member.core.map." + key))
+                            .toList(),
+                    results);
             return results;
         }
 
@@ -72,10 +85,7 @@ public final class MapCommand extends SubATCommand {
         SubATCommand subATCommand = subMapCommands.get(args[0].toLowerCase());
         if (subATCommand == null) return results;
 
-        return subATCommand.onTabComplete(sender, command, s, Arrays.copyOfRange(args, 1, args.length));
-    }
-
-    public static HashMap<String, SubATCommand> getSubMapCommands() {
-        return subMapCommands;
+        return subATCommand.onTabComplete(
+                sender, command, s, Arrays.copyOfRange(args, 1, args.length));
     }
 }

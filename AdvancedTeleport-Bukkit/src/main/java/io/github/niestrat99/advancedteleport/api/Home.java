@@ -13,9 +13,7 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Represents a player's private teleportation point, known as a home.
- */
+/** Represents a player's private teleportation point, known as a home. */
 public final class Home implements NamedLocation {
 
     // The UUID of the home owner.
@@ -30,22 +28,22 @@ public final class Home implements NamedLocation {
     private long updatedTime;
 
     /**
-     * Creates a home object. Please note this does not add a home to the saved data; instead, use {@link ATPlayer#addHome(String, Location, org.bukkit.entity.Player)}.
+     * Creates a home object. Please note this does not add a home to the saved data; instead, use
+     * {@link ATPlayer#addHome(String, Location, org.bukkit.entity.Player)}.
      *
-     * @param owner       The owner of the house.
-     * @param name        The name of the house.
-     * @param location    Where the house is located.
+     * @param owner The owner of the house.
+     * @param name The name of the house.
+     * @param location Where the house is located.
      * @param createdTime When the house was created in milliseconds.
      * @param updatedTime When the house was last updated in milliseconds.
      */
     @Contract(pure = true)
     public Home(
-        @NotNull final UUID owner,
-        @NotNull final String name,
-        @NotNull final Location location,
-        final long createdTime,
-        final long updatedTime
-    ) {
+            @NotNull final UUID owner,
+            @NotNull final String name,
+            @NotNull final Location location,
+            final long createdTime,
+            final long updatedTime) {
         this.name = name;
         this.owner = owner;
         this.location = location instanceof WorldlessLocation ? location : new WorldlessLocation(location, location.getWorld().getName());
@@ -78,7 +76,8 @@ public final class Home implements NamedLocation {
     }
 
     /**
-     * Returns the UUID of the home's owner. The actual player object can be fetched using {@link org.bukkit.Bukkit#getPlayer(UUID)}.
+     * Returns the UUID of the home's owner. The actual player object can be fetched using {@link
+     * org.bukkit.Bukkit#getPlayer(UUID)}.
      *
      * @return the home's owner UUID.
      */
@@ -88,28 +87,27 @@ public final class Home implements NamedLocation {
     }
 
     /**
-     * Sets the location of the house to a different location. This also updates the last updated timestamp.
+     * Sets the location of the house to a different location. This also updates the last updated
+     * timestamp.
      *
      * @param location The new location that the home will be set to.
      * @return a completable void of the task.
      */
     public @NotNull CompletableFuture<Void> move(
-            @NotNull final Location location,
-            @Nullable final CommandSender sender
-    ) {
+            @NotNull final Location location, @Nullable final CommandSender sender) {
 
         // Validate the event
-        return AdvancedTeleportAPI.validateEvent(new HomeMoveEvent(this, location, sender), event -> {
+        return AdvancedTeleportAPI.validateEvent(
+                new HomeMoveEvent(this, location, sender),
+                event -> {
+                    this.location = event.getLocation();
 
-            this.location = event.getLocation();
+                    this.updatedTime = System.currentTimeMillis();
+                    this.updatedTimeFormatted = format.format(new Date(updatedTime));
 
-            this.updatedTime = System.currentTimeMillis();
-            this.updatedTimeFormatted = format.format(new Date(updatedTime));
-
-            HomeSQLManager.get().moveHome(location, owner, name, false);
-            return null;
-        });
-
+                    HomeSQLManager.get().moveHome(location, owner, name, false);
+                    return null;
+                });
     }
 
     /**
@@ -133,7 +131,8 @@ public final class Home implements NamedLocation {
     }
 
     /**
-     * Gets the formatted timestamp of when the home was created. This is formatted as dd MMM yyyy HH:mm:ss.
+     * Gets the formatted timestamp of when the home was created. This is formatted as dd MMM yyyy
+     * HH:mm:ss.
      *
      * @return the formatted timestamp of when the home was created.
      */
@@ -143,7 +142,8 @@ public final class Home implements NamedLocation {
     }
 
     /**
-     * Gets the formatted timestamp of when the home was last updated. This is formatted as dd MMM yyyy HH:mm:ss.
+     * Gets the formatted timestamp of when the home was last updated. This is formatted as dd MMM
+     * yyyy HH:mm:ss.
      *
      * @return the formatted timestamp of when the home was last update.
      */

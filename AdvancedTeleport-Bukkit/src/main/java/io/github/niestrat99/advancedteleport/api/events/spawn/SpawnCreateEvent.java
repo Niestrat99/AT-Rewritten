@@ -8,9 +8,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when a new spawnpoint is created.
- */
+/** The event fired when a new spawnpoint is created. */
 public final class SpawnCreateEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -19,16 +17,17 @@ public final class SpawnCreateEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public SpawnCreateEvent(
-        @NotNull final String name,
-        @Nullable final CommandSender sender,
-        @NotNull final Location location
-    ) throws IllegalArgumentException, IllegalStateException {
+            @NotNull final String name,
+            @Nullable final CommandSender sender,
+            @NotNull final Location location)
+            throws IllegalArgumentException, IllegalStateException {
         super(sender);
 
         // Name checks
         if (name.isEmpty()) throw new IllegalArgumentException("The spawn name must not be empty.");
         // Location checks
-        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded())
+            throw new IllegalStateException("The location's world is not loaded.");
 
         this.name = name;
         this.location = location;
@@ -48,7 +47,7 @@ public final class SpawnCreateEvent extends TrackableATEvent {
      * Sets the name of the spawn.
      *
      * @param name the name to be used.
-     * @throws NullPointerException     if the spawn name is null.
+     * @throws NullPointerException if the spawn name is null.
      * @throws IllegalArgumentException if the spawn name is empty.
      */
     @Contract(pure = true)
@@ -72,12 +71,13 @@ public final class SpawnCreateEvent extends TrackableATEvent {
      * Sets the location of the spawn.
      *
      * @param location the location to be used.
-     * @throws NullPointerException  if the location is null.
+     * @throws NullPointerException if the location is null.
      * @throws IllegalStateException if the location's world is unloaded.
      */
     @Contract(pure = true)
     public void setLocation(@NotNull final Location location) throws IllegalStateException {
-        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded())
+            throw new IllegalStateException("The location's world is not loaded.");
         this.location = location;
     }
 

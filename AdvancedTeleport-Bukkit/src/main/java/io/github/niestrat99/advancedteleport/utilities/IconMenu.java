@@ -7,7 +7,9 @@ package io.github.niestrat99.advancedteleport.utilities;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+
 import io.github.niestrat99.advancedteleport.CoreClass;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -47,17 +49,13 @@ public class IconMenu implements Listener, InventoryHolder {
     private OptionPage[] optionPages;
 
     private CoreClass core;
-    // Stores the UUID of the player, because if we store the player itself, we start having problems
+    // Stores the UUID of the player, because if we store the player itself, we start having
+    // problems
     private UUID player;
     // Stores the Inventory itself
     private Inventory inventory;
 
-    public IconMenu(
-        String title,
-        int size,
-        int pageCount,
-        CoreClass core
-    ) {
+    public IconMenu(String title, int size, int pageCount, CoreClass core) {
         this.title = title;
         this.size = size;
         this.core = core;
@@ -72,11 +70,7 @@ public class IconMenu implements Listener, InventoryHolder {
         core.getServer().getPluginManager().registerEvents(this, core);
     }
 
-    private static ItemStack setItemNameAndLore(
-        ItemStack item,
-        String name,
-        List<String> lore
-    ) {
+    private static ItemStack setItemNameAndLore(ItemStack item, String name, List<String> lore) {
         ItemMeta im = item.getItemMeta();
         im.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
         List<String> colLore = new ArrayList<>();
@@ -88,11 +82,7 @@ public class IconMenu implements Listener, InventoryHolder {
         return item;
     }
 
-    public IconMenu setIcon(
-        int page,
-        int position,
-        Icon icon
-    ) {
+    public IconMenu setIcon(int page, int position, Icon icon) {
         this.optionPages[page].optionIcons[position] = icon;
         return this;
     }
@@ -163,7 +153,8 @@ public class IconMenu implements Listener, InventoryHolder {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent event) {
-        // Checking if the holder is an instance of IconMenu to prevent potential conflict title comparison can cause.
+        // Checking if the holder is an instance of IconMenu to prevent potential conflict title
+        // comparison can cause.
         if (event.getInventory().getHolder() != this) return;
         // Cancel the event, stopping the player pick up the item.
         event.setCancelled(true);
@@ -184,7 +175,6 @@ public class IconMenu implements Listener, InventoryHolder {
                 destroy();
             }
         }
-
     }
 
     @Override
@@ -219,10 +209,7 @@ public class IconMenu implements Listener, InventoryHolder {
             return this;
         }
 
-        public Icon withNameAndLore(
-            String name,
-            List<String> lore
-        ) {
+        public Icon withNameAndLore(String name, List<String> lore) {
             setItemNameAndLore(item, name, lore);
             return this;
         }
@@ -231,23 +218,36 @@ public class IconMenu implements Listener, InventoryHolder {
             String typeName = item.getType().name();
             // Make sure it's an actual skull and the texture exists - otherwise, skip it all
             if (((typeName.equalsIgnoreCase("SKULL_ITEM") && item.getDurability() == 3)
-                || typeName.equalsIgnoreCase("PLAYER_HEAD"))
-                && texture != null
-                && !texture.isEmpty()) {
-                // Create the fake game profile - it needs a UUID, otherwise there would be a delay in setting the texture.
-                GameProfile profile = new GameProfile(UUID.nameUUIDFromBytes(texture.getBytes()), "AdvTPHead");
+                            || typeName.equalsIgnoreCase("PLAYER_HEAD"))
+                    && texture != null
+                    && !texture.isEmpty()) {
+                // Create the fake game profile - it needs a UUID, otherwise there would be a delay
+                // in setting the texture.
+                GameProfile profile =
+                        new GameProfile(UUID.nameUUIDFromBytes(texture.getBytes()), "AdvTPHead");
                 // The data which contains the texture.
                 byte[] data;
                 // If the texture provided is the URL:
                 if (texture.startsWith("http")) {
                     // Just stick it into the JSON format.
-                    data = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", texture).getBytes());
+                    data =
+                            Base64.getEncoder()
+                                    .encode(
+                                            String.format("{textures:{SKIN:{url:\"%s\"}}}", texture)
+                                                    .getBytes());
                     // However, if the hex pattern after the URL is used instead:
                 } else if (HEX_PATTERN.matcher(texture).matches()) {
                     // Just add the extra bit in front.
-                    data = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"http://textures.minecraft.net/texture/%s\"}}}", texture).getBytes());
+                    data =
+                            Base64.getEncoder()
+                                    .encode(
+                                            String.format(
+                                                            "{textures:{SKIN:{url:\"http://textures.minecraft.net/texture/%s\"}}}",
+                                                            texture)
+                                                    .getBytes());
                 } else {
-                    // But if it isn't the raw texture, it's likely to already be Base64 encoded. So don't worry about that too much.
+                    // But if it isn't the raw texture, it's likely to already be Base64 encoded. So
+                    // don't worry about that too much.
                     data = texture.getBytes();
                 }
                 // Set the texture
@@ -260,9 +260,15 @@ public class IconMenu implements Listener, InventoryHolder {
                     profileField.setAccessible(true);
                     profileField.set(skullMeta, profile);
                 } catch (NoSuchFieldException e) {
-                    CoreClass.getInstance().getLogger().severe("Failed to access the profile field building an icon menu, apparently it doesn't exist?");
+                    CoreClass.getInstance()
+                            .getLogger()
+                            .severe(
+                                    "Failed to access the profile field building an icon menu, apparently it doesn't exist?");
                 } catch (IllegalAccessException ex) {
-                    CoreClass.getInstance().getLogger().severe("Failed to access the profile field building an icon menu, apparently you don't have access to it. Holly, you idiot.");
+                    CoreClass.getInstance()
+                            .getLogger()
+                            .severe(
+                                    "Failed to access the profile field building an icon menu, apparently you don't have access to it. Holly, you idiot.");
                 }
                 item.setItemMeta(skullMeta);
             }
@@ -274,10 +280,7 @@ public class IconMenu implements Listener, InventoryHolder {
             return this;
         }
 
-        public void activate(
-            Player player,
-            OptionClickEvent event
-        ) {
+        public void activate(Player player, OptionClickEvent event) {
             if (commands != null) {
                 for (String command : commands) {
                     Bukkit.dispatchCommand(player, command);
@@ -300,11 +303,7 @@ public class IconMenu implements Listener, InventoryHolder {
         private boolean close;
         private boolean destroy;
 
-        public OptionClickEvent(
-            Player player,
-            int position,
-            Icon icon
-        ) {
+        public OptionClickEvent(Player player, int position, Icon icon) {
             this.player = player;
             this.position = position;
             this.icon = icon;
@@ -341,4 +340,3 @@ public class IconMenu implements Listener, InventoryHolder {
         }
     }
 }
-

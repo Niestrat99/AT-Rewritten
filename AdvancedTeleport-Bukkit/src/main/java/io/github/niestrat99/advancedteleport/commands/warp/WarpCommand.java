@@ -8,7 +8,9 @@ import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,11 +21,10 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
 
         // If the feature isn't enabled/no permission, stop there
         if (!canProceed(sender)) return true;
@@ -33,7 +34,8 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
         // If there's no arguments specified, see if the player is a Bedrock player and use a form
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
+            if (atPlayer instanceof ATFloodgatePlayer
+                    && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendWarpForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");
@@ -51,11 +53,7 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
         return true;
     }
 
-    public static void warp(
-        Warp warp,
-        Player player,
-        boolean useSign
-    ) {
+    public static void warp(Warp warp, Player player, boolean useSign) {
         String warpPrefix = "at.member.warp." + (useSign ? "sign." : "");
 
         boolean found = player.hasPermission(warpPrefix + "*");
@@ -63,10 +61,17 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
             found = player.hasPermission(warpPrefix + warp.getName().toLowerCase());
         }
         if (!found) {
-            CustomMessages.sendMessage(player, "Error.noPermissionWarp", Placeholder.unparsed("warp", warp.getName()));
+            CustomMessages.sendMessage(
+                    player, "Error.noPermissionWarp", Placeholder.unparsed("warp", warp.getName()));
             return;
         }
-        ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);
+        ATTeleportEvent event =
+                new ATTeleportEvent(
+                        player,
+                        warp.getLocation(),
+                        player.getLocation(),
+                        warp.getName(),
+                        ATTeleportEvent.TeleportType.WARP);
         Bukkit.getPluginManager().callEvent(event);
         ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp");
     }

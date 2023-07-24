@@ -9,6 +9,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Contract;
@@ -23,17 +24,23 @@ public final class ReloadCommand extends SubATCommand {
     @Override
     @Contract("_, _, _, _ -> true")
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
         CustomMessages.sendMessage(sender, "Info.reloadingConfig");
-        for (ATConfig config : Arrays.asList(MainConfig.get(), CustomMessages.config, GUIConfig.get())) {
+        for (ATConfig config :
+                Arrays.asList(MainConfig.get(), CustomMessages.config, GUIConfig.get())) {
             try {
                 config.reload();
             } catch (Exception ex) {
-                CoreClass.getInstance().getLogger().warning("Failed to load " + config.getFile().getName() + ": " + ex.getMessage());
+                CoreClass.getInstance()
+                        .getLogger()
+                        .warning(
+                                "Failed to load "
+                                        + config.getFile().getName()
+                                        + ": "
+                                        + ex.getMessage());
                 ex.printStackTrace();
             }
         }
@@ -47,11 +54,10 @@ public final class ReloadCommand extends SubATCommand {
     @Override
     @Contract(value = "_, _, _, _ -> null", pure = true)
     public @Nullable List<String> onTabComplete(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
         return null;
     }
 }

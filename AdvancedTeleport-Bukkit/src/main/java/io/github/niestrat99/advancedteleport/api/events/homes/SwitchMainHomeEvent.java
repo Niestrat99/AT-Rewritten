@@ -8,9 +8,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when the main home of a player switches home.
- */
+/** The event fired when the main home of a player switches home. */
 public final class SwitchMainHomeEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -19,10 +17,9 @@ public final class SwitchMainHomeEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public SwitchMainHomeEvent(
-        @Nullable final Home oldMainHome,
-        @NotNull final Home newMainHome,
-        @Nullable final CommandSender sender
-    ) {
+            @Nullable final Home oldMainHome,
+            @NotNull final Home newMainHome,
+            @Nullable final CommandSender sender) {
         super(sender);
         this.oldMainHome = oldMainHome;
         this.newMainHome = newMainHome;

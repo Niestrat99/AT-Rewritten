@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.limitations.worlds.list;
 
 import io.github.niestrat99.advancedteleport.limitations.worlds.WorldRule;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -12,10 +13,7 @@ public final class StopOutOfRule extends WorldRule {
     }
 
     @Override
-    public boolean canTeleport(
-        @NotNull final Player player,
-        @NotNull final Location toLoc
-    ) {
+    public boolean canTeleport(@NotNull final Player player, @NotNull final Location toLoc) {
         String toWorld = toLoc.getWorld().getName();
         // Applies to all worlds
         if (worlds.isEmpty()) {
@@ -26,6 +24,7 @@ public final class StopOutOfRule extends WorldRule {
         // If not inclusive (0) and contains world (0), deny
         // If not inclusive (0) and doesn't contain world (1), allow
         // If inclusive (1) and doesn't contain world (0), deny
-        return (inclusive ^ worlds.contains(toWorld)) || player.getWorld().getName().equals(toWorld);
+        return (inclusive ^ worlds.contains(toWorld))
+                || player.getWorld().getName().equals(toWorld);
     }
 }

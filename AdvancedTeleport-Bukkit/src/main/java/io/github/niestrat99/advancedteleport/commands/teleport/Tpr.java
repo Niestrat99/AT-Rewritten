@@ -10,7 +10,9 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -29,11 +31,10 @@ public final class Tpr extends ATCommand implements TimedATCommand {
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
         if (!canProceed(sender)) return true;
         Player player;
         if (args.length > 1 && sender.hasPermission("at.admin.tpr.other")) {
@@ -70,10 +71,14 @@ public final class Tpr extends ATCommand implements TimedATCommand {
     public static boolean randomTeleport(Player player, CommandSender sender, World world) {
         int cooldown = CooldownManager.secondsLeftOnCooldown("tpr", player);
         if (cooldown > 0) {
-            CustomMessages.sendMessage(sender, "Error.onCooldown", Placeholder.unparsed("time", String.valueOf(cooldown)));
+            CustomMessages.sendMessage(
+                    sender,
+                    "Error.onCooldown",
+                    Placeholder.unparsed("time", String.valueOf(cooldown)));
             return true;
         }
-        if (MainConfig.get().WHITELIST_WORLD.get() && !sender.hasPermission("at.admin.rtp.bypass-world")) {
+        if (MainConfig.get().WHITELIST_WORLD.get()
+                && !sender.hasPermission("at.admin.rtp.bypass-world")) {
             List<String> allowedWorlds = MainConfig.get().ALLOWED_WORLDS.get();
             if (!allowedWorlds.contains(world.getName())) {
                 if (allowedWorlds.isEmpty() || !MainConfig.get().REDIRECT_TO_WORLD.get()) {
@@ -82,8 +87,12 @@ public final class Tpr extends ATCommand implements TimedATCommand {
                 } else {
                     for (String worldName : allowedWorlds) {
                         world = Bukkit.getWorld(worldName);
-                        String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0,
-                                0, 0), new Location(world, 0, 0, 0), "tpr", player);
+                        String conditionResult =
+                                ConditionChecker.canTeleport(
+                                        new Location(player.getWorld(), 0, 0, 0),
+                                        new Location(world, 0, 0, 0),
+                                        "tpr",
+                                        player);
                         if (world != null && conditionResult == null) break;
                     }
                     if (world == null) {
@@ -99,10 +108,15 @@ public final class Tpr extends ATCommand implements TimedATCommand {
             return true;
         }
 
-        String conditionResult = ConditionChecker.canTeleport(new Location(player.getWorld(), 0, 0, 0),
-                new Location(world, 0, 0, 0), "tpr", player);
+        String conditionResult =
+                ConditionChecker.canTeleport(
+                        new Location(player.getWorld(), 0, 0, 0),
+                        new Location(world, 0, 0, 0),
+                        "tpr",
+                        player);
         if (conditionResult != null) {
-            CustomMessages.sendMessage(player, conditionResult, Placeholder.unparsed("world", world.getName()));
+            CustomMessages.sendMessage(
+                    player, conditionResult, Placeholder.unparsed("world", world.getName()));
             return true;
         }
 
@@ -112,28 +126,33 @@ public final class Tpr extends ATCommand implements TimedATCommand {
         searchingPlayers.add(player.getUniqueId());
 
         // Search for a random location
-        AdvancedTeleportAPI.getRandomLocation(world, player).whenComplete((result, err) -> {
+        AdvancedTeleportAPI.getRandomLocation(world, player)
+                .whenComplete(
+                        (result, err) -> {
 
-            // If there was an error, let the player know
-            if (err != null) {
-                CustomMessages.sendMessage(sender, "Error.randomLocFailed");
-                return;
-            }
+                            // If there was an error, let the player know
+                            if (err != null) {
+                                CustomMessages.sendMessage(sender, "Error.randomLocFailed");
+                                return;
+                            }
 
-            // Process the teleportation location
-            processLocation(player, result);
-        });
+                            // Process the teleportation location
+                            processLocation(player, result);
+                        });
 
         return true;
     }
 
-    private static void processLocation(
-        Player player,
-        Location location
-    ) {
+    private static void processLocation(Player player, Location location) {
         searchingPlayers.remove(player.getUniqueId());
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-        ATTeleportEvent event = new ATTeleportEvent(player, location, player.getLocation(), "", ATTeleportEvent.TeleportType.TPR);
+        ATTeleportEvent event =
+                new ATTeleportEvent(
+                        player,
+                        location,
+                        player.getLocation(),
+                        "",
+                        ATTeleportEvent.TeleportType.TPR);
         Bukkit.getPluginManager().callEvent(event);
         atPlayer.teleport(event, "tpr", "Teleport.teleportingToRandomPlace");
     }
@@ -159,7 +178,8 @@ public final class Tpr extends ATCommand implements TimedATCommand {
         // Get the
         if (!(sender instanceof Player)) return true;
 
-        //if (!priorResult && !(sender instanceof Player) && !sender.hasPermission("at.admin.tpr.other")) return false;
+        // if (!priorResult && !(sender instanceof Player) &&
+        // !sender.hasPermission("at.admin.tpr.other")) return false;
 
         return TimedATCommand.super.canProceed(sender);
     }

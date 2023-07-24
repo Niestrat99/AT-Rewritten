@@ -4,9 +4,7 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents a location that has a customisable name attached to it, such as a warp or home.
- */
+/** Represents a location that has a customisable name attached to it, such as a warp or home. */
 public interface NamedLocation {
 
     /**
@@ -15,7 +13,8 @@ public interface NamedLocation {
      * @return the name of the location.
      */
     @Contract(pure = true)
-    @NotNull String getName();
+    @NotNull
+    String getName();
 
     /**
      * Gets the Bukkit location of the named location.
@@ -23,5 +22,6 @@ public interface NamedLocation {
      * @return the Bukkit location.
      */
     @Contract(pure = true)
-    @NotNull Location getLocation();
+    @NotNull
+    Location getLocation();
 }

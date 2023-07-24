@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.managers;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -20,31 +21,28 @@ public class CooldownManager {
 
     private static final HashMap<String, List<ATRunnable>> cooldown = new HashMap<>();
 
-
-
-    public static int secondsLeftOnCooldown(
-            String command,
-            Player player
-    ) {
+    public static int secondsLeftOnCooldown(String command, Player player) {
         if (player.hasPermission("at.admin.bypass.cooldown")) return 0;
         List<ATRunnable> list = cooldown.get(getKey(command));
         for (ATRunnable runnable : list) {
             if (runnable.uuid.toString().equals(player.getUniqueId().toString())) {
-                return (int) Math.ceil((runnable.startingTime + runnable.ms * 1000 - System.currentTimeMillis()) / 1000.0);
+                return (int)
+                        Math.ceil(
+                                (runnable.startingTime
+                                                + runnable.ms * 1000
+                                                - System.currentTimeMillis())
+                                        / 1000.0);
             }
         }
         return 0;
     }
 
-
-    public static void addToCooldown(
-        String command,
-        Player player,
-        World toWorld
-    ) {
+    public static void addToCooldown(String command, Player player, World toWorld) {
         List<ATRunnable> list = cooldown.get(getKey(command));
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-        list.add(new ATRunnable(player.getUniqueId(), atPlayer.getCooldown(command, toWorld), command));
+        list.add(
+                new ATRunnable(
+                        player.getUniqueId(), atPlayer.getCooldown(command, toWorld), command));
         cooldown.put(getKey(command), list);
     }
 
@@ -57,7 +55,8 @@ public class CooldownManager {
         if (MainConfig.get().APPLY_COOLDOWN_TO_ALL_COMMANDS.get()) {
             cooldown.put("all", new ArrayList<>());
         } else {
-            for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+            for (String command :
+                    Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
                 cooldown.put(command, new ArrayList<>());
             }
         }
@@ -72,7 +71,8 @@ public class CooldownManager {
         public ATRunnable(UUID uuid, long waitingTime, String command) {
             this.uuid = uuid;
             ms = waitingTime;
-            if (MainConfig.get().ADD_COOLDOWN_DURATION_TO_WARM_UP.get() && !Bukkit.getPlayer(uuid).hasPermission("at.admin.bypass.timer")) {
+            if (MainConfig.get().ADD_COOLDOWN_DURATION_TO_WARM_UP.get()
+                    && !Bukkit.getPlayer(uuid).hasPermission("at.admin.bypass.timer")) {
                 ms += MainConfig.get().WARM_UPS.valueOf(command).get();
             }
             this.command = getKey(command);
@@ -80,7 +80,8 @@ public class CooldownManager {
             runTaskLater(CoreClass.getInstance());
         }
 
-        public synchronized BukkitTask runTaskLater(Plugin plugin) throws IllegalArgumentException, IllegalStateException {
+        public synchronized BukkitTask runTaskLater(Plugin plugin)
+                throws IllegalArgumentException, IllegalStateException {
             return super.runTaskLater(plugin, ms * 20);
         }
 

@@ -32,63 +32,72 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-/**
- * The class used for accessing common counterparts of the plugin.
- */
+/** The class used for accessing common counterparts of the plugin. */
 public final class AdvancedTeleportAPI {
-    private AdvancedTeleportAPI() { }
+    private AdvancedTeleportAPI() {}
 
-    public static @NotNull CompletableFuture<@NotNull OfflinePlayer> getOfflinePlayer(@NotNull final String name) {
+    public static @NotNull CompletableFuture<@NotNull OfflinePlayer> getOfflinePlayer(
+            @NotNull final String name) {
         return CompletableFuture.supplyAsync(() -> Bukkit.getOfflinePlayer(name), CoreClass.async);
     }
 
     /**
      * Sets a warp at a given location. This will call
      *
-     * @param name     The name of the warp.
-     * @param creator  The creator of the warp.
+     * @param name The name of the warp.
+     * @param creator The creator of the warp.
      * @param location The location of the warp.
      * @return a completable future action of the saved warp.
      * @throws IllegalArgumentException if the world of the warp is not loaded.
      */
     public static @NotNull CompletableFuture<Warp> setWarp(
-        @NotNull final String name,
-        @Nullable final CommandSender creator,
-        @NotNull final Location location
-    ) {
+            @NotNull final String name,
+            @Nullable final CommandSender creator,
+            @NotNull final Location location) {
 
         // Null checks
         Objects.requireNonNull(location, "The warp location must not be null.");
-        if (!location.isWorldLoaded()) return ATException.failedFuture("The world the warp is being set in must be loaded.");
+        if (!location.isWorldLoaded())
+            return ATException.failedFuture("The world the warp is being set in must be loaded.");
 
-        return validateEvent(new WarpCreateEvent(name, creator, location), event -> {
+        return validateEvent(
+                new WarpCreateEvent(name, creator, location),
+                event -> {
 
-            // Create the warp object
-            final Warp warp = new Warp(
-                maybePlayer(event.getSender()).map(Player::getUniqueId).orElse(null),
-                event.getName(),
-                event.getLocation(),
-                System.currentTimeMillis(), System.currentTimeMillis()
-            );
+                    // Create the warp object
+                    final Warp warp =
+                            new Warp(
+                                    maybePlayer(event.getSender())
+                                            .map(Player::getUniqueId)
+                                            .orElse(null),
+                                    event.getName(),
+                                    event.getLocation(),
+                                    System.currentTimeMillis(),
+                                    System.currentTimeMillis());
 
-            // Add the warp
-            NamedLocationManager.get().registerWarp(warp);
-            return CompletableFuture.runAsync(() -> WarpSQLManager.get().addWarp(warp)).thenApplyAsync(ignored -> {
+                    // Add the warp
+                    NamedLocationManager.get().registerWarp(warp);
+                    return CompletableFuture.runAsync(() -> WarpSQLManager.get().addWarp(warp))
+                            .thenApplyAsync(
+                                    ignored -> {
 
-                // Call the event
-                final WarpPostCreateEvent postCreateEvent = new WarpPostCreateEvent(warp);
-                Bukkit.getServer().getPluginManager().callEvent(postCreateEvent);
+                                        // Call the event
+                                        final WarpPostCreateEvent postCreateEvent =
+                                                new WarpPostCreateEvent(warp);
+                                        Bukkit.getServer()
+                                                .getPluginManager()
+                                                .callEvent(postCreateEvent);
 
-                return warp;
-            }, CoreClass.sync);
-        });
+                                        return warp;
+                                    },
+                                    CoreClass.sync);
+                });
     }
 
     @ApiStatus.Internal
     public static <T extends CancellableATEvent, R> @NotNull CompletableFuture<R> validateEvent(
-        @NotNull final T event,
-        @NotNull final Function<T, CompletableFuture<R>> validatedEvent
-    ) {
+            @NotNull final T event,
+            @NotNull final Function<T, CompletableFuture<R>> validatedEvent) {
         if (event.callEvent()) {
             return validatedEvent.apply(event);
         } else return ATException.failedFuture(event);
@@ -117,8 +126,8 @@ public final class AdvancedTeleportAPI {
     }
 
     /**
-     * Returns a hashmap of warps. The keys are the names of the warps, and the corresponding value is the warp objects.
-     * Cannot be directly modified.
+     * Returns a hashmap of warps. The keys are the names of the warps, and the corresponding value
+     * is the warp objects. Cannot be directly modified.
      *
      * @return a cloned hashmap of warps.
      */
@@ -139,35 +148,49 @@ public final class AdvancedTeleportAPI {
     /**
      * Sets a spawnpoint at a specific location.
      *
-     * @param name     the name/ID of the spawnpoint.
-     * @param sender   the creator of the spawnpoint.
+     * @param name the name/ID of the spawnpoint.
+     * @param sender the creator of the spawnpoint.
      * @param location the location of the warp.
      * @return a completable future action of the saved spawnpoint.
      */
     public static @NotNull CompletableFuture<Spawn> setSpawn(
             @NotNull final String name,
             @Nullable final CommandSender sender,
-            @NotNull final Location location
-    ) {
+            @NotNull final Location location) {
 
         // Null checks
         Objects.requireNonNull(location, "The spawn location must not be null.");
-        if (!location.isWorldLoaded()) return ATException.failedFuture(location.getWorld(), "The world the spawn is being set in must be loaded.");
+        if (!location.isWorldLoaded())
+            return ATException.failedFuture(
+                    location.getWorld(), "The world the spawn is being set in must be loaded.");
 
-        return validateEvent(new SpawnCreateEvent(name, sender, location), event -> {
+        return validateEvent(
+                new SpawnCreateEvent(name, sender, location),
+                event -> {
 
-            // Set up the spawn, register it, and send it off
-            Spawn spawn = new Spawn(name, location, maybePlayer(event.getSender()).map(Player::getUniqueId).orElse(null));
-            NamedLocationManager.get().registerSpawn(spawn);
+                    // Set up the spawn, register it, and send it off
+                    Spawn spawn =
+                            new Spawn(
+                                    name,
+                                    location,
+                                    maybePlayer(event.getSender())
+                                            .map(Player::getUniqueId)
+                                            .orElse(null));
+                    NamedLocationManager.get().registerSpawn(spawn);
 
-            // Add it to the database.
-            return SpawnSQLManager.get().addSpawn(spawn).thenApplyAsync(x -> {
+                    // Add it to the database.
+                    return SpawnSQLManager.get()
+                            .addSpawn(spawn)
+                            .thenApplyAsync(
+                                    x -> {
 
-                // Call the post-create event to indicate success
-                Bukkit.getPluginManager().callEvent(new SpawnPostCreateEvent(spawn));
-                return spawn;
-            }, CoreClass.sync);
-        });
+                                        // Call the post-create event to indicate success
+                                        Bukkit.getPluginManager()
+                                                .callEvent(new SpawnPostCreateEvent(spawn));
+                                        return spawn;
+                                    },
+                                    CoreClass.sync);
+                });
     }
 
     /**
@@ -178,21 +201,28 @@ public final class AdvancedTeleportAPI {
      * @return a completable future action of the new main spawn.
      */
     public static @NotNull CompletableFuture<Spawn> setMainSpawn(
-            @Nullable final Spawn newSpawn,
-            @Nullable final CommandSender sender
-    ) {
-        return validateEvent(new SwitchMainSpawnEvent(AdvancedTeleportAPI.getMainSpawn(), newSpawn, sender),
-                event -> CompletableFuture.supplyAsync(() -> {
+            @Nullable final Spawn newSpawn, @Nullable final CommandSender sender) {
+        return validateEvent(
+                new SwitchMainSpawnEvent(AdvancedTeleportAPI.getMainSpawn(), newSpawn, sender),
+                event ->
+                        CompletableFuture.supplyAsync(
+                                () -> {
 
-            // Set the main spawn
-            NamedLocationManager.get().setMainSpawn(event.getNewMainSpawn());
+                                    // Set the main spawn
+                                    NamedLocationManager.get()
+                                            .setMainSpawn(event.getNewMainSpawn());
 
-            // Update it internally
-            MetadataSQLManager.get().deleteMainSpawn().join();
-            if (event.getNewMainSpawn() != null) MetadataSQLManager.get().addSpawnMetadata(event.getNewMainSpawn().getName(), "main_spawn", "true");
+                                    // Update it internally
+                                    MetadataSQLManager.get().deleteMainSpawn().join();
+                                    if (event.getNewMainSpawn() != null)
+                                        MetadataSQLManager.get()
+                                                .addSpawnMetadata(
+                                                        event.getNewMainSpawn().getName(),
+                                                        "main_spawn",
+                                                        "true");
 
-            return event.getNewMainSpawn();
-        }));
+                                    return event.getNewMainSpawn();
+                                }));
     }
 
     public static @Nullable Spawn getSpawn(@NotNull String name) {
@@ -204,9 +234,7 @@ public final class AdvancedTeleportAPI {
     }
 
     public static @NotNull Spawn getDestinationSpawn(
-            @NotNull World world,
-            @Nullable Player player
-    ) {
+            @NotNull World world, @Nullable Player player) {
         return NamedLocationManager.get().getSpawn(world, player);
     }
 
@@ -219,9 +247,7 @@ public final class AdvancedTeleportAPI {
     }
 
     public static @NotNull CompletableFuture<@NotNull Location> getRandomLocation(
-            @NotNull World world,
-            @NotNull Player player
-    ) {
+            @NotNull World world, @NotNull Player player) {
 
         if (MainConfig.get().RAPID_RESPONSE.get() && PaperLib.isPaper()) {
 
@@ -234,7 +260,9 @@ public final class AdvancedTeleportAPI {
         } else {
 
             // Otherwise get it from the Random TP algorithms
-            return CompletableFuture.supplyAsync(() -> RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world), CoreClass.async);
+            return CompletableFuture.supplyAsync(
+                    () -> RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world),
+                    CoreClass.async);
         }
     }
 }

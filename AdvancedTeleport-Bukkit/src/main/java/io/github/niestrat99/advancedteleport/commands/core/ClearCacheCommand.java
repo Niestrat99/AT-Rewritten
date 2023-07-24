@@ -4,7 +4,9 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -19,7 +21,11 @@ import java.util.List;
 public class ClearCacheCommand extends SubATCommand {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String[] args) {
 
         // If the RTP manager isn't set up, stop there
         if (!RTPManager.isInitialised()) {
@@ -32,11 +38,14 @@ public class ClearCacheCommand extends SubATCommand {
             RTPManager.clearEverything();
 
             // Reload the data
-            Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> {
-                for (World world : Bukkit.getWorlds()) {
-                    RTPManager.loadWorldData(world);
-                }
-            });
+            Bukkit.getScheduler()
+                    .runTaskAsynchronously(
+                            CoreClass.getInstance(),
+                            () -> {
+                                for (World world : Bukkit.getWorlds()) {
+                                    RTPManager.loadWorldData(world);
+                                }
+                            });
 
             CustomMessages.sendMessage(sender, "Info.clearEverything");
             return true;
@@ -53,13 +62,20 @@ public class ClearCacheCommand extends SubATCommand {
 
         // Reset the data
         RTPManager.unloadWorldData(world);
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> RTPManager.loadWorldData(world));
-        CustomMessages.sendMessage(sender, "Info.clearWorld", Placeholder.unparsed("world", args[0]));
+        Bukkit.getScheduler()
+                .runTaskAsynchronously(
+                        CoreClass.getInstance(), () -> RTPManager.loadWorldData(world));
+        CustomMessages.sendMessage(
+                sender, "Info.clearWorld", Placeholder.unparsed("world", args[0]));
         return false;
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String s,
+            @NotNull String[] args) {
 
         // If we're on the first argument, set up a list of worlds
         List<String> results = new ArrayList<>();

@@ -2,14 +2,17 @@ package io.github.niestrat99.advancedteleport.hooks.claims;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
+
 import me.angeschossen.lands.api.LandsIntegration;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public final class LandsClaimHook extends ClaimPlugin<Plugin, Void> { // Stupid lands doesn't have a provider class
+public final class LandsClaimHook
+        extends ClaimPlugin<Plugin, Void> { // Stupid lands doesn't have a provider class
 
     private LandsIntegration lands;
 
