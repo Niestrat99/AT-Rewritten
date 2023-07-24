@@ -26,18 +26,11 @@ public class Spawn implements NamedLocation {
     private final long createdTime;
     private long updatedTime;
 
-    public Spawn(
-            @NotNull String name,
-            @NotNull Location location
-    ) {
+    public Spawn(@NotNull String name, @NotNull Location location) {
         this(name, location, null);
     }
 
-    public Spawn(
-            @NotNull String name,
-            @NotNull Location location,
-            @Nullable UUID creator
-    ) {
+    public Spawn(@NotNull String name, @NotNull Location location, @Nullable UUID creator) {
         this(name, location, null, creator, System.currentTimeMillis(), System.currentTimeMillis());
     }
 
@@ -47,8 +40,7 @@ public class Spawn implements NamedLocation {
             @Nullable Spawn mirroringSpawn,
             @Nullable UUID creator,
             final long createdTime,
-            final long updatedTime
-    ) {
+            final long updatedTime) {
         this.name = name;
         this.location = location instanceof WorldlessLocation ? location : new WorldlessLocation(location, location.getWorld().getName());
         this.creator = creator;
@@ -69,18 +61,23 @@ public class Spawn implements NamedLocation {
     }
 
     @Contract(pure = true)
-    public CompletableFuture<Location> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
+    public CompletableFuture<Location> setLocation(
+            @NotNull Location location, @Nullable CommandSender sender) {
 
         // If the event was cancelled, stop there
-        return AdvancedTeleportAPI.validateEvent(new SpawnMoveEvent(this, location, sender), event -> {
+        return AdvancedTeleportAPI.validateEvent(
+                new SpawnMoveEvent(this, location, sender),
+                event -> {
 
-            // Set the location
-            this.location = event.getNewLocation();
-            this.updatedTime = System.currentTimeMillis();
+                    // Set the location
+                    this.location = event.getNewLocation();
+                    this.updatedTime = System.currentTimeMillis();
 
-            // Update in the database
-            return SpawnSQLManager.get().moveSpawn(this).thenApplyAsync(result -> this.location);
-        });
+                    // Update in the database
+                    return SpawnSQLManager.get()
+                            .moveSpawn(this)
+                            .thenApplyAsync(result -> this.location);
+                });
     }
 
     @Contract(pure = true)
@@ -98,7 +95,6 @@ public class Spawn implements NamedLocation {
         return mirroringSpawn;
     }
 
-
     /**
      * Mirrors this spawnpoint to a different spawnpoint if this one cannot be accessed.
      *
@@ -107,42 +103,56 @@ public class Spawn implements NamedLocation {
      * @return a completable future action of the new main spawn.
      */
     @Contract(pure = true)
-    public CompletableFuture<Spawn> setMirroringSpawn(@Nullable Spawn mirroringSpawn, @Nullable CommandSender sender) {
+    public CompletableFuture<Spawn> setMirroringSpawn(
+            @Nullable Spawn mirroringSpawn, @Nullable CommandSender sender) {
 
         // See if the event passes first
-        return AdvancedTeleportAPI.validateEvent(new SpawnMirrorEvent(this, mirroringSpawn, sender), event -> {
+        return AdvancedTeleportAPI.validateEvent(
+                new SpawnMirrorEvent(this, mirroringSpawn, sender),
+                event -> {
 
-            // Set the mirroring spawn
-            this.mirroringSpawn = event.getDestinationSpawn();
-            this.updatedTime = System.currentTimeMillis();
+                    // Set the mirroring spawn
+                    this.mirroringSpawn = event.getDestinationSpawn();
+                    this.updatedTime = System.currentTimeMillis();
 
-            // If we're not in the spawns cache, add ourselves
-            NamedLocationManager.get().addMirroredSpawn(getName(), this.mirroringSpawn);
+                    // If we're not in the spawns cache, add ourselves
+                    NamedLocationManager.get().addMirroredSpawn(getName(), this.mirroringSpawn);
 
-            // Update it in the database
-            return MetadataSQLManager.get().mirrorSpawn(this.getName(), event.getDestinationSpawn() == null ? null : event.getDestinationSpawn().getName())
-                    .thenApplyAsync(result -> this.mirroringSpawn);
-        });
+                    // Update it in the database
+                    return MetadataSQLManager.get()
+                            .mirrorSpawn(
+                                    this.getName(),
+                                    event.getDestinationSpawn() == null
+                                            ? null
+                                            : event.getDestinationSpawn().getName())
+                            .thenApplyAsync(result -> this.mirroringSpawn);
+                });
     }
 
     @Contract(pure = true)
     public CompletableFuture<Void> delete(@Nullable CommandSender sender) {
 
         // See if the event passes first
-        return AdvancedTeleportAPI.validateEvent(new SpawnRemoveEvent(this, sender), event -> {
+        return AdvancedTeleportAPI.validateEvent(
+                new SpawnRemoveEvent(this, sender),
+                event -> {
 
-            // If this is the main spawn, then remove that too
-            if (AdvancedTeleportAPI.getMainSpawn() == this) {
-                return AdvancedTeleportAPI.setMainSpawn(null, sender).thenAcceptAsync(nullSpawn -> {
+                    // If this is the main spawn, then remove that too
+                    if (AdvancedTeleportAPI.getMainSpawn() == this) {
+                        return AdvancedTeleportAPI.setMainSpawn(null, sender)
+                                .thenAcceptAsync(
+                                        nullSpawn -> {
+                                            NamedLocationManager.get().removeSpawn(this);
+                                            SpawnSQLManager.get().removeSpawn(name).join();
+                                        },
+                                        CoreClass.async);
+                    }
+
+                    // Remove the spawn
                     NamedLocationManager.get().removeSpawn(this);
-                    SpawnSQLManager.get().removeSpawn(name).join();
-                }, CoreClass.async);
-            }
-
-            // Remove the spawn
-            NamedLocationManager.get().removeSpawn(this);
-            return CompletableFuture.runAsync(() -> SpawnSQLManager.get().removeSpawn(name), CoreClass.async);
-        });
+                    return CompletableFuture.runAsync(
+                            () -> SpawnSQLManager.get().removeSpawn(name), CoreClass.async);
+                });
     }
 
     @Contract(pure = true)

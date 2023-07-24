@@ -62,8 +62,8 @@ public class SpawnSQLManager extends SQLManager {
             }
             transferOldData();
 
-                            NamedLocationManager.get().loadSpawnData();
-                        });
+            NamedLocationManager.get().loadSpawnData();
+        });
     }
 
     @Override
