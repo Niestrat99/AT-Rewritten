@@ -48,7 +48,7 @@ public class CoreCommand extends ATCommand {
                 CustomMessages.sendMessage(sender, "Error.commandUse",
                         Placeholder.unparsed("usage", CustomMessages.asString("Usages.Subcommands." + command)));
             }
-            
+
         } else {
             CustomMessages.sendMessage(sender, "Error.noPermission");
         }
