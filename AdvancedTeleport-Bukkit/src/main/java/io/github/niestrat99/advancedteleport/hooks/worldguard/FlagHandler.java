@@ -1,8 +1,8 @@
 package io.github.niestrat99.advancedteleport.hooks.worldguard;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.StateFlag;
@@ -42,7 +42,6 @@ public class FlagHandler {
             DANGEROUS_AREA_MESSAGE = areaMessage;
         } catch (FlagConflictException ex) {
         }
-
         enabled = DANGEROUS_AREA_FLAG != null && DANGEROUS_AREA_MESSAGE != null;
     }
 
