@@ -48,6 +48,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
                 ((ATFloodgatePlayer) atPlayer).sendSetHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                return false;
             }
 
             return true;

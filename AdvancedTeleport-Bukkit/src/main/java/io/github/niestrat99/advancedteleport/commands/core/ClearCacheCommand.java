@@ -55,7 +55,7 @@ public class ClearCacheCommand extends SubATCommand {
         RTPManager.unloadWorldData(world);
         Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), () -> RTPManager.loadWorldData(world));
         CustomMessages.sendMessage(sender, "Info.clearWorld", Placeholder.unparsed("world", args[0]));
-        return false;
+        return true;
     }
 
     @Override

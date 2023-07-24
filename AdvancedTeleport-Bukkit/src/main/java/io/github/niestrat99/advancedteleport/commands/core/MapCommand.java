@@ -2,6 +2,8 @@ package io.github.niestrat99.advancedteleport.commands.core;
 
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.commands.core.map.*;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -39,24 +41,30 @@ public final class MapCommand extends SubATCommand {
         // If there's no arguments, stop there
         if (args.length == 0) {
             Bukkit.dispatchCommand(sender, "at help map");
-            return false;
+            return true;
         }
 
         // Get the subcommand in question
         SubATCommand subATCommand = subMapCommands.get(args[0].toLowerCase());
         if (subATCommand == null) {
             Bukkit.dispatchCommand(sender, "at help map");
-            return false;
+            return true;
         }
 
         // Check permissions
         if (!sender.hasPermission("at.member.core.map." + args[0].toLowerCase())) {
             Bukkit.dispatchCommand(sender, "at help map");
-            return false;
+            return true;
         }
 
         // Execute
-        return subATCommand.onCommand(sender, command, s, Arrays.copyOfRange(args, 1, args.length));
+        boolean result = subATCommand.onCommand(sender, command, s, Arrays.copyOfRange(args, 1, args.length));
+
+        if (!result) {
+            CustomMessages.sendMessage(sender, "Error.commandUse",
+                    Placeholder.unparsed("usage", CustomMessages.asString("Usages.Subcommands.map." + args[0].toLowerCase())));
+        }
+        return true;
     }
 
     @Override

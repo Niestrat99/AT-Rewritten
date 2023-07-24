@@ -37,7 +37,7 @@ public final class RemoveSpawn extends SpawnATCommand {
                 removingSpawn = player.getWorld().getName();
             } else {
                 CustomMessages.sendMessage(sender, "Error.removeSpawnNoArgs");
-                return true;
+                return false;
             }
         }
 

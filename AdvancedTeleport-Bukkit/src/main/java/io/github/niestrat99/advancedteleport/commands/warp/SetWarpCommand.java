@@ -35,6 +35,7 @@ public final class SetWarpCommand extends AbstractWarpCommand implements PlayerC
                 ((ATFloodgatePlayer) atPlayer).sendSetWarpForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");
+                return false;
             }
             return true;
         }

@@ -32,6 +32,7 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                 ((ATFloodgatePlayer) atPlayer).sendMoveHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                return false;
             }
             return true;
         }

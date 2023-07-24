@@ -9,12 +9,11 @@ import io.github.niestrat99.advancedteleport.commands.home.*;
 import io.github.niestrat99.advancedteleport.commands.spawn.*;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.command.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -154,7 +153,15 @@ public class CommandManager {
         }
 
         if (command.getExecutor() != atCommand) {
-            command.setExecutor(atCommand);
+            CommandExecutor usageExecutor = (sender, cmd, label, args) -> {
+                boolean result = atCommand.onCommand(sender, cmd, label, args);
+                if (!result) {
+                    CustomMessages.sendMessage(sender, "Error.commandUse",
+                            Placeholder.unparsed("usage", CustomMessages.asString("Usages." + name)));
+                }
+                return true;
+            };
+            command.setExecutor(usageExecutor);
             command.setTabCompleter(atCommand);
         }
 

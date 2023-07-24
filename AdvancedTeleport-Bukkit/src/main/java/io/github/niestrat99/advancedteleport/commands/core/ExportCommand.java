@@ -28,7 +28,7 @@ public final class ExportCommand extends SubATCommand {
         // If there's no arguments contained, stop there
         if (args.length == 0) {
             CustomMessages.sendMessage(sender, "Error.noPluginSpecified");
-            return true;
+            return false;
         }
 
         // Attempt to get the plugin

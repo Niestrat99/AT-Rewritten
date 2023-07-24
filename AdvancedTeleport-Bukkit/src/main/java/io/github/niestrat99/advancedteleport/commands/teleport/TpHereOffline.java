@@ -28,7 +28,7 @@ public final class TpHereOffline extends TeleportATCommand implements PlayerComm
 
         if (args.length == 0) {
             CustomMessages.sendMessage(sender, "Error.noPlayerInput");
-            return true;
+            return false;
         }
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {

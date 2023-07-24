@@ -35,6 +35,7 @@ public final class MoveWarpCommand extends AbstractWarpCommand {
                 ((ATFloodgatePlayer) atPlayer).sendMoveWarpForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");
+                return false;
             }
             return true;
         }

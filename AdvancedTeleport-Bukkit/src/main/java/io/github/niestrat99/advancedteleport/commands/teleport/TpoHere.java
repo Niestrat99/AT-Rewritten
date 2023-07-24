@@ -31,6 +31,7 @@ public final class TpoHere extends TeleportATCommand implements PlayerCommand {
                 ((ATFloodgatePlayer) atPlayer).sendTpoHereForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                return false;
             }
             return true;
         }

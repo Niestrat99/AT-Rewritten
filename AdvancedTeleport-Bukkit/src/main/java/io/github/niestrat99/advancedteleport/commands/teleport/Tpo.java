@@ -32,6 +32,7 @@ public final class Tpo extends TeleportATCommand implements PlayerCommand {
                 ((ATFloodgatePlayer) atPlayer).sendTpoForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                return false;
             }
             return true;
         }

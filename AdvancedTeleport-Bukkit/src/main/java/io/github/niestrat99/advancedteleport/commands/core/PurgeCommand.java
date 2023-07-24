@@ -93,7 +93,7 @@ public final class PurgeCommand extends SubATCommand {
             }, CoreClass.sync);
         }
 
-        return false;
+        return true;
     }
 
     @Override

@@ -47,7 +47,10 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
         // If the player is a floodgate player, send them the form to delete their home, otherwise, tell them player they need a home to delete
         if (PluginHookManager.get().floodgateEnabled() && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
             atFloodgatePlayer.sendDeleteHomeForm();
-        } else CustomMessages.sendMessage(sender, "Error.noHomeInput");
+        } else {
+            CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            return false;
+        }
 
         return true;
     }

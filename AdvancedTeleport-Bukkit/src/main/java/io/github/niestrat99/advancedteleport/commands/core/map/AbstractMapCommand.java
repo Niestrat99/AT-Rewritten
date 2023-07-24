@@ -56,7 +56,7 @@ public class AbstractMapCommand extends SubATCommand {
         // If not enough arguments are specified, let the player know
         if (args.length < 3) {
             CustomMessages.sendMessage(sender, "Error.notEnoughArgs");
-            return true;
+            return false;
         }
 
         // Squish together the input
@@ -69,7 +69,7 @@ public class AbstractMapCommand extends SubATCommand {
             case "home" -> {
                 if (args.length < 4) {
                     CustomMessages.sendMessage(sender, "Error.notEnoughArgs");
-                    return true;
+                    return false;
                 }
 
                 input = String.join(" ", Arrays.copyOfRange(args, 3, args.length));

@@ -13,6 +13,6 @@ public class ShowCommand extends SubATCommand {
         @NotNull final String s,
         @NotNull final String[] args
     ) {
-        return false;
+        return true;
     }
 }
