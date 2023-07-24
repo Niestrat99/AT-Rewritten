@@ -7,7 +7,10 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.Nullable;
 
@@ -311,8 +314,14 @@ public class RTPManager {
             Queue<Location> locations = locQueue.get(worldUUID);
             while (locations.peek() != null) {
                 Location loc = locations.poll();
-                String locLine = worldUUID.toString() +
-                        "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
+                String locLine =
+                        worldUUID.toString()
+                                + ","
+                                + loc.getX()
+                                + ","
+                                + loc.getY()
+                                + ","
+                                + loc.getZ();
                 writer.write(locLine);
                 writer.write("\n");
             }

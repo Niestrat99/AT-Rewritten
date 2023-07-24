@@ -92,17 +92,30 @@ public final class CoreClass extends JavaPlugin {
         setupPermissions();
 
         // Set up main configuration files.
-        for (Class<? extends ATConfig> config : Arrays.asList(MainConfig.class, CustomMessages.class, GUIConfig.class)) {
+        for (Class<? extends ATConfig> config :
+                Arrays.asList(MainConfig.class, CustomMessages.class, GUIConfig.class)) {
             try {
                 debug("Loading " + config.getSimpleName() + ".");
                 config.getDeclaredConstructor().newInstance();
                 debug("Finished loading " + config.getSimpleName() + ".");
             } catch (NoSuchMethodException ex) {
-                getLogger().severe(config.getSimpleName() + " is not properly formed, it shouldn't take any constructor arguments. Please inform the developer.");
+                getLogger()
+                        .severe(
+                                config.getSimpleName()
+                                        + " is not properly formed, it shouldn't take any constructor arguments. Please inform the developer.");
             } catch (InvocationTargetException | InstantiationException e) {
-                getLogger().severe("Failed to load " + config.getSimpleName() + ": " + e.getCause().getMessage());
+                getLogger()
+                        .severe(
+                                "Failed to load "
+                                        + config.getSimpleName()
+                                        + ": "
+                                        + e.getCause().getMessage());
             } catch (IllegalAccessException e) {
-                getLogger().severe("Failed to load " + config.getSimpleName() + ", why is the constructor not accessible? Please inform the developer.");
+                getLogger()
+                        .severe(
+                                "Failed to load "
+                                        + config.getSimpleName()
+                                        + ", why is the constructor not accessible? Please inform the developer.");
             }
         }
 
@@ -146,13 +159,23 @@ public final class CoreClass extends JavaPlugin {
 
         // Get the version in question.
         debug("Performing server version check.");
-        String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+        String bukkitVersion =
+                Bukkit.getServer()
+                        .getClass()
+                        .getPackage()
+                        .getName()
+                        .replace(".", ",")
+                        .split(",")[3];
         int number = Integer.parseInt(bukkitVersion.split("_")[1]);
         if (number < 17) {
             getLogger().severe("!!! YOU ARE USING ADVANCEDTELEPORT ON AN UNSUPPORTED VERSION. !!!");
             getLogger().severe("The plugin only receives mainstream support for 1.17.1 to 1.19.x");
-            getLogger().severe("If you experience an issue with the plugin, please confirm whether it occurs on newer versions as well.");
-            getLogger().severe("If you experience issues that only occur on your version, then we are not responsible for addressing it.");
+            getLogger()
+                    .severe(
+                            "If you experience an issue with the plugin, please confirm whether it occurs on newer versions as well.");
+            getLogger()
+                    .severe(
+                            "If you experience issues that only occur on your version, then we are not responsible for addressing it.");
             getLogger().severe("You have been warned.");
         }
         debug("Detected major version: " + number);
@@ -193,15 +216,17 @@ public final class CoreClass extends JavaPlugin {
 
         final var runnersField = scheduler.getClass().getDeclaredField("runners");
         runnersField.setAccessible(true);
-        final var runners = (ConcurrentHashMap<Integer, ? extends BukkitTask>) runnersField.get(asyncScheduler);
+        final var runners =
+                (ConcurrentHashMap<Integer, ? extends BukkitTask>) runnersField.get(asyncScheduler);
 
         runners.keySet().stream()
-            .map(runners::get)
-            .filter(runner -> runner.getOwner() == this)
-            .forEach(runner -> {
-                runner.cancel();
-                runners.remove(runner.getTaskId());
-            });
+                .map(runners::get)
+                .filter(runner -> runner.getOwner() == this)
+                .forEach(
+                        runner -> {
+                            runner.cancel();
+                            runners.remove(runner.getTaskId());
+                        });
 
         runnersField.set(scheduler, runners);
     }
@@ -227,7 +252,10 @@ public final class CoreClass extends JavaPlugin {
                 .map(RegisteredServiceProvider::getProvider)
                 .ifPresent(permission -> perms = permission);
 
-        debug(perms == null ? "No permissions hook for Vault found." : perms.getName() + " hooked into successfully.");
+        debug(
+                perms == null
+                        ? "No permissions hook for Vault found."
+                        : perms.getName() + " hooked into successfully.");
     }
 
     public static void playSound(String type, String subType, Player target) {
@@ -265,7 +293,14 @@ public final class CoreClass extends JavaPlugin {
 
         // Parse the major version of the server (e.g. 1.19)
         debug("Performing version checks.");
-        String bukkitVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].split("_")[1];
+        String bukkitVersion =
+                Bukkit.getServer()
+                        .getClass()
+                        .getPackage()
+                        .getName()
+                        .replace(".", ",")
+                        .split(",")[3]
+                        .split("_")[1];
         this.version = Integer.parseInt(bukkitVersion);
         debug("Parsed major version: " + this.version);
     }
@@ -281,7 +316,13 @@ public final class CoreClass extends JavaPlugin {
     }
 
     public static String getShortLocation(Location location) {
-        return location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ", " + location.getWorld();
+        return location.getBlockX()
+                + ", "
+                + location.getBlockY()
+                + ", "
+                + location.getBlockZ()
+                + ", "
+                + location.getWorld();
     }
 
     private void loadLibraries()
@@ -291,20 +332,18 @@ public final class CoreClass extends JavaPlugin {
                     NoSuchAlgorithmException,
                     InterruptedException {
         InjectingApplicationBuilder.createAppending("AT", getClassLoader())
-            .downloadDirectoryPath(getDataFolder().toPath().resolve(".libs"))
-            .logger(new ProcessLogger() {
-                @Override
-                public void log(
-                    String s,
-                    Object... objects
-                ) {
-                    getLogger().info(String.format(s, objects));
-                }
+                .downloadDirectoryPath(getDataFolder().toPath().resolve(".libs"))
+                .logger(
+                        new ProcessLogger() {
+                            @Override
+                            public void log(String s, Object... objects) {
+                                getLogger().info(String.format(s, objects));
+                            }
 
-                @Override
-                public void debug(String message, Object... args) {
-                }
-            }).build();
+                            @Override
+                            public void debug(String message, Object... args) {}
+                        })
+                .build();
     }
 
     public Object[] getUpdateInfo() {

@@ -91,8 +91,13 @@ public class BlocklistManager extends SQLManager {
         }
 
         // See if renaming was successful.
-        boolean renameResult = blocklistFile.renameTo(new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
-        CoreClass.debug(renameResult ? "Successfully renamed the blocklist file." : "Failed to rename the blocklist file.");
+        boolean renameResult =
+                blocklistFile.renameTo(
+                        new File(CoreClass.getInstance().getDataFolder(), "blocklist-backup.yml"));
+        CoreClass.debug(
+                renameResult
+                        ? "Successfully renamed the blocklist file."
+                        : "Failed to rename the blocklist file.");
     }
 
     public void blockUser(
@@ -122,7 +127,9 @@ public class BlocklistManager extends SQLManager {
             statement.setLong(3, System.currentTimeMillis());
             executeUpdate(statement);
         } catch (SQLException exception) {
-            DataFailManager.get().addFailure(DataFailManager.Operation.ADD_BLOCK, receiverUUID, blockedUUID, reason);
+            DataFailManager.get()
+                    .addFailure(
+                            DataFailManager.Operation.ADD_BLOCK, receiverUUID, blockedUUID, reason);
             throw new RuntimeException(exception);
         }
     }
@@ -139,7 +146,8 @@ public class BlocklistManager extends SQLManager {
             statement.setString(2, blockedUUID);
             executeUpdate(statement);
         } catch (SQLException exception) {
-            DataFailManager.get().addFailure(DataFailManager.Operation.UNBLOCK, receiverUUID, blockedUUID);
+            DataFailManager.get()
+                    .addFailure(DataFailManager.Operation.UNBLOCK, receiverUUID, blockedUUID);
             throw new RuntimeException(exception);
         }
     }
