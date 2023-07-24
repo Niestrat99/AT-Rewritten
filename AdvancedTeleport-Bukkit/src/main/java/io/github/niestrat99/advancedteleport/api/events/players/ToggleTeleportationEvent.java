@@ -8,9 +8,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when a player's teleportation status has been changed.
- */
+/** The event fired when a player's teleportation status has been changed. */
 public final class ToggleTeleportationEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -20,11 +18,10 @@ public final class ToggleTeleportationEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public ToggleTeleportationEvent(
-        @Nullable final CommandSender sender,
-        @NotNull final OfflinePlayer player,
-        final boolean enabled,
-        final boolean statusChanging
-    ) {
+            @Nullable final CommandSender sender,
+            @NotNull final OfflinePlayer player,
+            final boolean enabled,
+            final boolean statusChanging) {
         super(sender);
         this.player = player;
         this.enabled = enabled;
@@ -44,7 +41,8 @@ public final class ToggleTeleportationEvent extends TrackableATEvent {
     /**
      * Returns the status that the player's teleportation status is being set to.
      *
-     * @return true if the player's teleportation is going to be enabled, false if it is being disabled.
+     * @return true if the player's teleportation is going to be enabled, false if it is being
+     *     disabled.
      */
     @Contract(pure = true)
     public boolean isEnabled() {
@@ -65,7 +63,8 @@ public final class ToggleTeleportationEvent extends TrackableATEvent {
     /**
      * Returns whether the player's teleportation status is changing from what it currently is.
      *
-     * @return true if the status is changing (i.e. true to false, false to true) or false if it is not.
+     * @return true if the status is changing (i.e. true to false, false to true) or false if it is
+     *     not.
      */
     @Contract(pure = true)
     public boolean isStatusChanging() {

@@ -17,10 +17,7 @@ public class RandomTPSign extends ATSign {
     }
 
     @Override
-    public void onInteract(
-        @NotNull Sign sign,
-        @NotNull Player player
-    ) {
+    public void onInteract(@NotNull Sign sign, @NotNull Player player) {
         if (!sign.getLine(1).isEmpty()) {
             World otherWorld = Bukkit.getWorld(sign.getLine(1));
             if (otherWorld != null) {
@@ -34,10 +31,7 @@ public class RandomTPSign extends ATSign {
     }
 
     @Override
-    public boolean canCreate(
-        @NotNull Sign sign,
-        @NotNull Player player
-    ) {
+    public boolean canCreate(@NotNull Sign sign, @NotNull Player player) {
         if (!sign.getLine(1).isEmpty()) {
             World otherWorld = Bukkit.getWorld(sign.getLine(1));
             if (otherWorld == null) {

@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Represents a teleportation rule controlled by the command.
- */
+/** Represents a teleportation rule controlled by the command. */
 public abstract class CommandRule {
 
     protected final @NotNull List<String> worlds;
@@ -37,11 +35,9 @@ public abstract class CommandRule {
      * Determines whether the player can teleport to a location depending on the rule at hand.
      *
      * @param player the player being teleported.
-     * @param toLoc  the destination location.
+     * @param toLoc the destination location.
      * @return true if the player can teleport to the destination location, false if not.
      */
     public abstract boolean canTeleport(
-        @NotNull final Player player,
-        @NotNull final Location toLoc
-    );
+            @NotNull final Player player, @NotNull final Location toLoc);
 }

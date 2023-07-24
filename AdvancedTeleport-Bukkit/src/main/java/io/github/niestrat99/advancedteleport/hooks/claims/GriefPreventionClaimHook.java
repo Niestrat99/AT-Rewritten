@@ -1,7 +1,9 @@
 package io.github.niestrat99.advancedteleport.hooks.claims;
 
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
+
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
@@ -22,10 +24,13 @@ public final class GriefPreventionClaimHook extends ClaimPlugin<Plugin, GriefPre
         if (!super.canUse(world)) return false;
 
         // Ensures there's a world border set in the world
-        return this.provider().map(provider -> {
-            this.griefPrevention = provider;
-            return provider.claimsEnabledForWorld(world);
-        }).orElse(false);
+        return this.provider()
+                .map(
+                        provider -> {
+                            this.griefPrevention = provider;
+                            return provider.claimsEnabledForWorld(world);
+                        })
+                .orElse(false);
     }
 
     @Override

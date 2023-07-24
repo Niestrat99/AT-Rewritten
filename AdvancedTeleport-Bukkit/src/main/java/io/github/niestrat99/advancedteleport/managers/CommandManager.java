@@ -11,6 +11,7 @@ import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -26,7 +27,8 @@ public class CommandManager {
 
     private static final LinkedHashMap<String, PluginCommand> atCommands = new LinkedHashMap<>();
     public static final LinkedHashMap<String, SubATCommand> subcommands = new LinkedHashMap<>();
-    public static final LinkedHashMap<String, PluginCommand> registeredCommands = new LinkedHashMap<>();
+    public static final LinkedHashMap<String, PluginCommand> registeredCommands =
+            new LinkedHashMap<>();
 
     public static void registerCommands() {
         register("at", new CoreCommand());
@@ -83,10 +85,7 @@ public class CommandManager {
         syncCommands();
     }
 
-    private static void register(
-        String name,
-        ATCommand atCommand
-    ) {
+    private static void register(String name, ATCommand atCommand) {
         PluginCommand command = Bukkit.getPluginCommand("advancedteleport:" + name);
         if (command == null) command = atCommands.get(name);
         if (command == null) return;
@@ -107,7 +106,9 @@ public class CommandManager {
         aliases.add(command.getName());
         boolean removed = false;
         for (String alias : aliases) {
-            if (MainConfig.get().DISABLED_COMMANDS.get().contains(alias) || removed || !atCommand.getRequiredFeature()) {
+            if (MainConfig.get().DISABLED_COMMANDS.get().contains(alias)
+                    || removed
+                    || !atCommand.getRequiredFeature()) {
                 if (command.isRegistered()) {
                     removed = true;
                     command.unregister(map);
@@ -125,19 +126,20 @@ public class CommandManager {
                     Iterator<String> commandIterator = commands.keySet().iterator();
                     HashMap<String, Command> pendingChanges = new HashMap<>();
 
-                    // Ignore warning, can yield CME
-                    while (commandIterator.hasNext()) {
-                        String otherCmd = commandIterator.next();
-                        String[] parts = otherCmd.split(":");
-                        if (parts.length < 2) continue;
-                        if (parts[1].equals(alias)) {
-                            if (parts[0].equals("advancedteleport")) continue;
-                            pendingChanges.put(alias, commands.get(otherCmd));
-                            break;
-                        }
-                    }
-                    commands.putAll(pendingChanges);
-                }, 100);
+                                    // Ignore warning, can yield CME
+                                    while (commandIterator.hasNext()) {
+                                        String otherCmd = commandIterator.next();
+                                        String[] parts = otherCmd.split(":");
+                                        if (parts.length < 2) continue;
+                                        if (parts[1].equals(alias)) {
+                                            if (parts[0].equals("advancedteleport")) continue;
+                                            pendingChanges.put(alias, commands.get(otherCmd));
+                                            break;
+                                        }
+                                    }
+                                    commands.putAll(pendingChanges);
+                                },
+                                100);
             }
             return;
         }

@@ -9,7 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The event fired when a player's previous location changes, whether it is through /back or just teleporting.
+ * The event fired when a player's previous location changes, whether it is through /back or just
+ * teleporting.
  */
 public final class PreviousLocationChangeEvent extends CancellableATEvent {
 
@@ -20,11 +21,12 @@ public final class PreviousLocationChangeEvent extends CancellableATEvent {
 
     @Contract(pure = true)
     public PreviousLocationChangeEvent(
-        @NotNull final OfflinePlayer player,
-        @NotNull final Location newLocation,
-        @Nullable final Location oldLocation
-    ) throws IllegalArgumentException {
-        if (!newLocation.isWorldLoaded()) throw new IllegalStateException("The new location's world is not loaded.");
+            @NotNull final OfflinePlayer player,
+            @NotNull final Location newLocation,
+            @Nullable final Location oldLocation)
+            throws IllegalArgumentException {
+        if (!newLocation.isWorldLoaded())
+            throw new IllegalStateException("The new location's world is not loaded.");
         this.player = player;
         this.newLocation = newLocation;
         this.oldLocation = oldLocation;
@@ -52,7 +54,8 @@ public final class PreviousLocationChangeEvent extends CancellableATEvent {
     }
 
     /**
-     * Gets the new location that will become the player's previous location. This is not where the player currently is.
+     * Gets the new location that will become the player's previous location. This is not where the
+     * player currently is.
      *
      * @return the new location that is to be the previous location. Can be null if modified.
      */

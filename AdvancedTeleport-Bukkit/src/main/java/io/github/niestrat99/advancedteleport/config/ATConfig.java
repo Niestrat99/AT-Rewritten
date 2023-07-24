@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.thatsmusic99.configurationmaster.api.ConfigFile;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -16,7 +17,8 @@ public abstract class ATConfig extends ConfigFile {
 
     protected static File getOrCreateFile(@NotNull final String name) throws IllegalStateException {
         final var dataFolder = CoreClass.getInstance().getDataFolder();
-        if (!dataFolder.exists() && dataFolder.mkdirs()) throw new IllegalStateException("Could not create data folder");
+        if (!dataFolder.exists() && dataFolder.mkdirs())
+            throw new IllegalStateException("Could not create data folder");
         final var file = new File(dataFolder, name);
 
         try {

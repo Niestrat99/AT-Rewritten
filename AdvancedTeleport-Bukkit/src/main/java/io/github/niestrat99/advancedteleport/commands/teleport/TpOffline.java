@@ -7,8 +7,10 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -20,11 +22,10 @@ public final class TpOffline extends TeleportATCommand implements PlayerCommand 
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
         if (!canProceed(sender)) return true;
         if (args.length == 0) {
             CustomMessages.sendMessage(sender, "Error.noPlayerInput");
@@ -44,13 +45,12 @@ public final class TpOffline extends TeleportATCommand implements PlayerCommand 
                 });
             }
 
-            @Override
-            public void onFail(@NotNull final Component message) {
-                CustomMessages.asAudience(sender).sendMessage(message);
-            }
-        });
+                    @Override
+                    public void onFail(@NotNull final Component message) {
+                        CustomMessages.asAudience(sender).sendMessage(message);
+                    }
+                });
         return true;
-
     }
 
     @Override

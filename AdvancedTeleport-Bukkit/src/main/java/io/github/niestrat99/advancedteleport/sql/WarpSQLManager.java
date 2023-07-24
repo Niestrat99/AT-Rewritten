@@ -39,31 +39,38 @@ public class WarpSQLManager extends SQLManager {
         RunnableManager.setupRunnerAsync(() -> {
             try (Connection connection = implementConnection()) {
 
-                CoreClass.debug("Creating table data for the warps manager if it is not already set up.");
+                                CoreClass.debug(
+                                        "Creating table data for the warps manager if it is not already set up.");
 
-                PreparedStatement createTable = prepareStatement(
-                        connection,
-                        "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_warps " +
-                            "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
-                            "warp VARCHAR(256) NOT NULL," +
-                            "uuid_creator VARCHAR(256), " +
-                            "x DOUBLE NOT NULL," +
-                            "y DOUBLE NOT NULL," +
-                            "z DOUBLE NOT NULL," +
-                            "yaw FLOAT NOT NULL," +
-                            "pitch FLOAT NOT NULL," +
-                            "world VARCHAR(256) NOT NULL," +
-                            "price VARCHAR(256)," +
-                            "timestamp_created BIGINT NOT NULL," +
-                            "timestamp_updated BIGINT NOT NULL)"
-                );
-                executeUpdate(createTable);
-            } catch (SQLException exception) {
-                CoreClass.getInstance().getLogger().severe("Failed to create the warps table.");
-                exception.printStackTrace();
-            }
-            transferOldData();
-        });
+                                PreparedStatement createTable =
+                                        prepareStatement(
+                                                connection,
+                                                "CREATE TABLE IF NOT EXISTS "
+                                                        + tablePrefix
+                                                        + "_warps "
+                                                        + "(id INTEGER PRIMARY KEY "
+                                                        + getStupidAutoIncrementThing()
+                                                        + ", "
+                                                        + "warp VARCHAR(256) NOT NULL,"
+                                                        + "uuid_creator VARCHAR(256), "
+                                                        + "x DOUBLE NOT NULL,"
+                                                        + "y DOUBLE NOT NULL,"
+                                                        + "z DOUBLE NOT NULL,"
+                                                        + "yaw FLOAT NOT NULL,"
+                                                        + "pitch FLOAT NOT NULL,"
+                                                        + "world VARCHAR(256) NOT NULL,"
+                                                        + "price VARCHAR(256),"
+                                                        + "timestamp_created BIGINT NOT NULL,"
+                                                        + "timestamp_updated BIGINT NOT NULL)");
+                                executeUpdate(createTable);
+                            } catch (SQLException exception) {
+                                CoreClass.getInstance()
+                                        .getLogger()
+                                        .severe("Failed to create the warps table.");
+                                exception.printStackTrace();
+                            }
+                            transferOldData();
+                        });
     }
 
     @Override
@@ -103,12 +110,12 @@ public class WarpSQLManager extends SQLManager {
         }
 
         file.renameTo(new File(CoreClass.getInstance().getDataFolder(), "warps-backup.yml"));
-
     }
 
     private void addWarps() {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
+            PreparedStatement statement =
+                    prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
             ResultSet results = executeQuery(statement);
             // For each warp...
             while (results.next()) {
@@ -142,11 +149,13 @@ public class WarpSQLManager extends SQLManager {
         long created = warp.getCreatedTime();
         long updated = warp.getUpdatedTime();
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(
-                connection,
-                "INSERT INTO " + tablePrefix + "_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, " +
-                    "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            );
+            PreparedStatement statement =
+                    prepareStatement(
+                            connection,
+                            "INSERT INTO "
+                                    + tablePrefix
+                                    + "_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, "
+                                    + "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             statement.setString(1, name);
             statement.setString(2, creator == null ? null : creator.toString());
@@ -161,29 +170,28 @@ public class WarpSQLManager extends SQLManager {
             executeUpdate(statement);
 
         } catch (SQLException exception) {
-            DataFailManager.get().addFailure(
-                DataFailManager.Operation.ADD_WARP,
-                location.getWorld().getName(),
-                String.valueOf(location.getX()),
-                String.valueOf(location.getY()),
-                String.valueOf(location.getZ()),
-                String.valueOf(location.getYaw()),
-                String.valueOf(location.getPitch()),
-                name,
-                creator == null ? null : creator.toString(),
-                String.valueOf(created),
-                String.valueOf(updated)
-            );
+            DataFailManager.get()
+                    .addFailure(
+                            DataFailManager.Operation.ADD_WARP,
+                            location.getWorld().getName(),
+                            String.valueOf(location.getX()),
+                            String.valueOf(location.getY()),
+                            String.valueOf(location.getZ()),
+                            String.valueOf(location.getYaw()),
+                            String.valueOf(location.getPitch()),
+                            name,
+                            creator == null ? null : creator.toString(),
+                            String.valueOf(created),
+                            String.valueOf(updated));
             exception.printStackTrace();
         }
     }
 
     public void removeWarp(String name) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(
-                connection,
-                "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?"
-            );
+            PreparedStatement statement =
+                    prepareStatement(
+                            connection, "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
             statement.setString(1, name);
             executeUpdate(statement);
         } catch (SQLException exception) {
@@ -192,32 +200,31 @@ public class WarpSQLManager extends SQLManager {
         }
     }
 
-    public void moveWarp(
-        Location newLocation,
-        String name
-    ) {
+    public void moveWarp(Location newLocation, String name) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(
-                connection,
-                "UPDATE " + tablePrefix + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, " +
-                    "timestamp_updated = ? WHERE warp = ?"
-            );
+            PreparedStatement statement =
+                    prepareStatement(
+                            connection,
+                            "UPDATE "
+                                    + tablePrefix
+                                    + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, "
+                                    + "timestamp_updated = ? WHERE warp = ?");
 
             prepareLocation(newLocation, 1, statement);
             statement.setLong(7, System.currentTimeMillis());
             statement.setString(8, name);
             executeUpdate(statement);
         } catch (SQLException exception) {
-            DataFailManager.get().addFailure(
-                DataFailManager.Operation.MOVE_WARP,
-                newLocation.getWorld().getName(),
-                String.valueOf(newLocation.getX()),
-                String.valueOf(newLocation.getY()),
-                String.valueOf(newLocation.getZ()),
-                String.valueOf(newLocation.getYaw()),
-                String.valueOf(newLocation.getPitch()),
-                name
-            );
+            DataFailManager.get()
+                    .addFailure(
+                            DataFailManager.Operation.MOVE_WARP,
+                            newLocation.getWorld().getName(),
+                            String.valueOf(newLocation.getX()),
+                            String.valueOf(newLocation.getY()),
+                            String.valueOf(newLocation.getZ()),
+                            String.valueOf(newLocation.getYaw()),
+                            String.valueOf(newLocation.getPitch()),
+                            name);
             exception.printStackTrace();
         }
     }
@@ -228,10 +235,9 @@ public class WarpSQLManager extends SQLManager {
 
     public int getWarpIdSync(String name) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(
-                connection,
-                "SELECT id FROM " + tablePrefix + "_warps WHERE warp = ?;"
-            );
+            PreparedStatement statement =
+                    prepareStatement(
+                            connection, "SELECT id FROM " + tablePrefix + "_warps WHERE warp = ?;");
             statement.setString(1, name);
             ResultSet set = executeQuery(statement);
             if (set.next()) {
@@ -245,7 +251,10 @@ public class WarpSQLManager extends SQLManager {
 
     public void purgeWarps(String worldName) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE world = ?");
+            PreparedStatement statement =
+                    prepareStatement(
+                            connection,
+                            "SELECT warp FROM " + tablePrefix + "_warps WHERE world = ?");
             statement.setString(1, worldName);
 
             ResultSet set = statement.executeQuery();
@@ -255,7 +264,9 @@ public class WarpSQLManager extends SQLManager {
             }
             set.close();
 
-            statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE world = ?");
+            statement =
+                    prepareStatement(
+                            connection, "DELETE FROM " + tablePrefix + "_warps WHERE world = ?");
             statement.setString(1, worldName);
 
             executeUpdate(statement);
@@ -266,7 +277,10 @@ public class WarpSQLManager extends SQLManager {
 
     public void purgeWarps(UUID creatorID) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement = prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
+            PreparedStatement statement =
+                    prepareStatement(
+                            connection,
+                            "SELECT warp FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
             statement.setString(1, creatorID.toString());
 
             ResultSet set = statement.executeQuery();
@@ -276,7 +290,10 @@ public class WarpSQLManager extends SQLManager {
             }
             set.close();
 
-            statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
+            statement =
+                    prepareStatement(
+                            connection,
+                            "DELETE FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
             statement.setString(1, creatorID.toString());
 
             executeUpdate(statement);

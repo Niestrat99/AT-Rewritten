@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.limitations.commands.list;
 
 import io.github.niestrat99.advancedteleport.limitations.commands.CommandRule;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -15,10 +16,7 @@ public final class IgnoreRule extends CommandRule {
     }
 
     @Override
-    public boolean canTeleport(
-        @NotNull final Player player,
-        @NotNull final Location toLoc
-    ) {
+    public boolean canTeleport(@NotNull final Player player, @NotNull final Location toLoc) {
 
         // If the worlds aren't loaded, stop there
         if (player.getLocation().getWorld() == null) return false;

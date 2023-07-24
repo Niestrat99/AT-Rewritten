@@ -6,8 +6,10 @@ import io.github.niestrat99.advancedteleport.folia.CancellableRunnable;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.papermc.lib.PaperLib;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -53,30 +55,38 @@ public class MovementManager implements Listener {
     }
 
     public static void createMovementTimer(
-        Player teleportingPlayer,
-        Location location,
-        String command,
-        String message,
-        int warmUp,
-        TagResolver... placeholders
-    ) {
-        createMovementTimer(teleportingPlayer, location, command, message, warmUp, teleportingPlayer, placeholders);
+            Player teleportingPlayer,
+            Location location,
+            String command,
+            String message,
+            int warmUp,
+            TagResolver... placeholders) {
+        createMovementTimer(
+                teleportingPlayer,
+                location,
+                command,
+                message,
+                warmUp,
+                teleportingPlayer,
+                placeholders);
     }
 
     public static void createMovementTimer(
-        Player teleportingPlayer,
-        Location location,
-        String command,
-        String message,
-        int warmUp,
-        Player payingPlayer,
-        TagResolver... placeholders
-    ) {
+            Player teleportingPlayer,
+            Location location,
+            String command,
+            String message,
+            int warmUp,
+            Player payingPlayer,
+            TagResolver... placeholders) {
         UUID uuid = teleportingPlayer.getUniqueId();
 
-        // When this config is enabled the teleporting player will receive a blindness effect until it gets teleported.
+        // When this config is enabled the teleporting player will receive a blindness effect until
+        // it gets teleported.
         if (MainConfig.get().BLINDNESS_ON_WARMUP.get()) {
-            teleportingPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, warmUp * 20 + 20, 0, false, false));
+            teleportingPlayer.addPotionEffect(
+                    new PotionEffect(
+                            PotionEffectType.BLINDNESS, warmUp * 20 + 20, 0, false, false));
         }
 
         // Apply the plugin particles.
@@ -103,9 +113,11 @@ public class MovementManager implements Listener {
         if (MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() || MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
             CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTP", Placeholder.unparsed("countdown", String.valueOf(warmUp)));
         } else {
-            CustomMessages.sendMessage(teleportingPlayer, "Teleport.eventBeforeTPMovementAllowed", Placeholder.unparsed("countdown", String.valueOf(warmUp)));
+            CustomMessages.sendMessage(
+                    teleportingPlayer,
+                    "Teleport.eventBeforeTPMovementAllowed",
+                    Placeholder.unparsed("countdown", String.valueOf(warmUp)));
         }
-
     }
 
     public static class ImprovedRunnable {

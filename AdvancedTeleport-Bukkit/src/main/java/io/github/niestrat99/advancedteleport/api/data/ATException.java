@@ -18,11 +18,10 @@ public class ATException extends Exception {
     }
 
     @Contract(pure = true)
-    protected ATException(
-        @Nullable final CommandSender sender,
-        @Nullable final String message
-    ) {
-        super("Context [%s] | Message [%s]".formatted(sender == null ? "null" : sender.getName(), message));
+    protected ATException(@Nullable final CommandSender sender, @Nullable final String message) {
+        super(
+                "Context [%s] | Message [%s]"
+                        .formatted(sender == null ? "null" : sender.getName(), message));
         this.sender = sender;
     }
 
@@ -43,17 +42,13 @@ public class ATException extends Exception {
 
     @Contract(value = "_, _ -> new", pure = true)
     public static <T> @NotNull CompletableFuture<T> failedFuture(
-        @Nullable final CommandSender sender,
-        @NotNull final String message
-    ) {
+            @Nullable final CommandSender sender, @NotNull final String message) {
         return failed(sender, message).future();
     }
 
     @Contract(value = "_, _ -> new", pure = true)
     public static @NotNull ATException failed(
-            @Nullable final CommandSender sender,
-            @NotNull final String message
-    ) {
+            @Nullable final CommandSender sender, @NotNull final String message) {
         return new ATException(sender, message);
     }
 
@@ -64,9 +59,7 @@ public class ATException extends Exception {
 
     @Contract(value = "_, _ -> new", pure = true)
     public static <T> @NotNull CompletableFuture<T> failedFuture(
-        @NotNull final World world,
-        @NotNull final String message
-    ) {
+            @NotNull final World world, @NotNull final String message) {
         return new UnloadedWorldException(world, message).future();
     }
 

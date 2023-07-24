@@ -2,13 +2,12 @@ package io.github.niestrat99.advancedteleport.payments;
 
 import org.bukkit.entity.Player;
 
-/**
- * Used to represent a form of payment that may be made when the player teleports.
- */
+/** Used to represent a form of payment that may be made when the player teleports. */
 public abstract class Payment {
 
     /**
-     * The path in the custommessages.yml file to the error message that is returned if the player cannot pay for the teleportation.
+     * The path in the custommessages.yml file to the error message that is returned if the player
+     * cannot pay for the teleportation.
      *
      * @return the error message path in custommessages.yml.
      */
@@ -26,7 +25,8 @@ public abstract class Payment {
      * Withdraws the cost from the player.
      *
      * @param player the player paying.
-     * @return true if the payment was done successfully, false if it was not (e.g. if they couldn't afford to pay it).
+     * @return true if the payment was done successfully, false if it was not (e.g. if they couldn't
+     *     afford to pay it).
      */
     public boolean withdraw(Player player) {
         if (canPay(player)) {

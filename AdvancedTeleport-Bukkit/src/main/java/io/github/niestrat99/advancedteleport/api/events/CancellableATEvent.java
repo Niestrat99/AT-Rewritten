@@ -5,9 +5,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Contract;
 
-/**
- * Represents an AT event that can be cancelled.
- */
+/** Represents an AT event that can be cancelled. */
 public abstract class CancellableATEvent extends Event implements Cancellable {
 
     private boolean cancelled = false;

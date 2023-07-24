@@ -2,7 +2,9 @@ package io.github.niestrat99.advancedteleport.payments.types;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.payments.Payment;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -15,10 +17,7 @@ public class ItemsPayment extends Payment {
     private int amount;
 
     // DIAMOND#{Count:10,tag:{display:{Name:"&b&lSetwarp Token"}}}
-    public ItemsPayment(
-        Material material,
-        int amount
-    ) {
+    public ItemsPayment(Material material, int amount) {
         this.material = material;
         this.amount = amount;
     }
@@ -27,20 +26,20 @@ public class ItemsPayment extends Payment {
         String[] parts = str.split(":");
 
         switch (parts.length) {
-        case 0:
-            return null;
-        case 1:
-            Material material = Material.getMaterial(parts[0].toUpperCase());
-            if (material == null) return null;
-            return new ItemsPayment(material, 1);
-        default:
-            material = Material.getMaterial(parts[0].toUpperCase());
-            if (material == null) return null;
-            int amount = 1;
-            if (parts[1].matches("^[0-9]+$")) {
-                amount = Integer.parseInt(parts[1]);
-            }
-            return new ItemsPayment(material, amount);
+            case 0:
+                return null;
+            case 1:
+                Material material = Material.getMaterial(parts[0].toUpperCase());
+                if (material == null) return null;
+                return new ItemsPayment(material, 1);
+            default:
+                material = Material.getMaterial(parts[0].toUpperCase());
+                if (material == null) return null;
+                int amount = 1;
+                if (parts[1].matches("^[0-9]+$")) {
+                    amount = Integer.parseInt(parts[1]);
+                }
+                return new ItemsPayment(material, amount);
         }
     }
 
@@ -96,10 +95,11 @@ public class ItemsPayment extends Payment {
             }
         }
         if (amount > 0) {
-            CustomMessages.sendMessage(player, "Info.paymentItems",
+            CustomMessages.sendMessage(
+                    player,
+                    "Info.paymentItems",
                     Placeholder.unparsed("amount", String.valueOf(amount)),
-                    Placeholder.unparsed("type", name)
-            );
+                    Placeholder.unparsed("type", name));
         }
     }
 
@@ -114,10 +114,11 @@ public class ItemsPayment extends Payment {
             } else {
                 name = material.name();
             }
-            CustomMessages.sendMessage(player, "Error.notEnoughItems",
+            CustomMessages.sendMessage(
+                    player,
+                    "Error.notEnoughItems",
                     Placeholder.unparsed("amount", String.valueOf(amount)),
-                    Placeholder.unparsed("type", name)
-            );
+                    Placeholder.unparsed("type", name));
         }
         return result;
     }
@@ -130,12 +131,9 @@ public class ItemsPayment extends Payment {
     private boolean hasNBT(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return false;
-        for (NamespacedKey key : meta.getPersistentDataContainer().getKeys()) {
-        }
+        for (NamespacedKey key : meta.getPersistentDataContainer().getKeys()) {}
         return false;
     }
 
-    public static class NBTJSONRepresentation {
-
-    }
+    public static class NBTJSONRepresentation {}
 }

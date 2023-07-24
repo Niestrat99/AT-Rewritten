@@ -8,9 +8,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when a spawnpoint is mirrored to another world.
- */
+/** The event fired when a spawnpoint is mirrored to another world. */
 public final class SpawnMirrorEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -19,10 +17,10 @@ public final class SpawnMirrorEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public SpawnMirrorEvent(
-        @NotNull final Spawn fromSpawn,
-        @Nullable final Spawn toSpawn,
-        @Nullable final CommandSender sender
-    ) throws IllegalArgumentException {
+            @NotNull final Spawn fromSpawn,
+            @Nullable final Spawn toSpawn,
+            @Nullable final CommandSender sender)
+            throws IllegalArgumentException {
         super(sender);
 
         this.fromSpawn = fromSpawn;
@@ -53,7 +51,7 @@ public final class SpawnMirrorEvent extends TrackableATEvent {
      * Sets the world for the spawn to be mirrored from.
      *
      * @param fromSpawn the name of the world.
-     * @throws NullPointerException     if the spawn name is null.
+     * @throws NullPointerException if the spawn name is null.
      * @throws IllegalArgumentException if the spawn name is empty.
      */
     @Contract(pure = true)
@@ -66,12 +64,14 @@ public final class SpawnMirrorEvent extends TrackableATEvent {
      * Sets the world for the spawn to be mirrored to.
      *
      * @param toSpawn the name of the world.
-     * @throws NullPointerException     if the spawn name is null.
+     * @throws NullPointerException if the spawn name is null.
      * @throws IllegalArgumentException if the spawn name is empty.
      */
     @Contract(pure = true)
     public void setDestinationSpawn(@NotNull final Spawn toSpawn) throws IllegalArgumentException {
-        if (toSpawn == fromSpawn) throw new IllegalArgumentException("The source spawn and destination spawn must differ!");
+        if (toSpawn == fromSpawn)
+            throw new IllegalArgumentException(
+                    "The source spawn and destination spawn must differ!");
 
         this.toSpawn = toSpawn;
     }

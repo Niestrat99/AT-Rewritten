@@ -8,19 +8,14 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when a spawnpoint is removed.
- */
+/** The event fired when a spawnpoint is removed. */
 public final class SpawnRemoveEvent extends TrackableATEvent {
 
     @NotNull private static final HandlerList handlers = new HandlerList();
     @NotNull private final Spawn spawn;
 
     @Contract(pure = true)
-    public SpawnRemoveEvent(
-        @NotNull final Spawn spawn,
-        @Nullable final CommandSender sender
-    ) {
+    public SpawnRemoveEvent(@NotNull final Spawn spawn, @Nullable final CommandSender sender) {
         super(sender);
         this.spawn = spawn;
     }

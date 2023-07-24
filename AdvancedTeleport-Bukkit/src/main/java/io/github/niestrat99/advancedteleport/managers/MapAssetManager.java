@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.sql.*;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,12 +55,13 @@ public class MapAssetManager {
             try {
                 stream = new FileInputStream(file);
             } catch (FileNotFoundException e) {
-                CoreClass.getInstance().getLogger().warning("Failed to find the file " + fileName + "!");
+                CoreClass.getInstance()
+                        .getLogger()
+                        .warning("Failed to find the file " + fileName + "!");
                 continue;
             }
             String id = fileName.replace("-", "_").substring(0, fileName.lastIndexOf('.'));
             registerImage(id, stream);
-
         }
     }
 
@@ -69,26 +71,26 @@ public class MapAssetManager {
 
     public static void registerImage(String name, InputStream stream) {
         images.put(name, stream);
-        PluginHookManager.get().getPluginHooks(MapPlugin.class, true)
-            .forEach(mapPlugin -> mapPlugin.registerImage(name, stream));
+        PluginHookManager.get()
+                .getPluginHooks(MapPlugin.class, true)
+                .forEach(mapPlugin -> mapPlugin.registerImage(name, stream));
         CoreClass.getInstance().getLogger().info("Registered the image " + name + "!");
     }
 
     public static CompletableFuture<@Nullable IconInfo> getIcon(
-            @NotNull String name,
-            @NotNull IconType type,
-            @Nullable UUID owner
-    ) {
-        CompletableFuture<Integer> idFetcher = switch (type) {
-            case WARP -> WarpSQLManager.get().getWarpId(name);
-            case HOME -> HomeSQLManager.get().getHomeId(name, owner);
-            case SPAWN -> SpawnSQLManager.get().getSpawnId(name);
-        };
+            @NotNull String name, @NotNull IconType type, @Nullable UUID owner) {
+        CompletableFuture<Integer> idFetcher =
+                switch (type) {
+                    case WARP -> WarpSQLManager.get().getWarpId(name);
+                    case HOME -> HomeSQLManager.get().getHomeId(name, owner);
+                    case SPAWN -> SpawnSQLManager.get().getSpawnId(name);
+                };
 
         return idFetcher.thenApplyAsync(id -> IconInfo.fromSQL(id, type), CoreClass.async);
     }
 
-    public record IconInfo(String imageKey, int size, boolean shown, String clickTooltip, String hoverTooltip) {
+    public record IconInfo(
+            String imageKey, int size, boolean shown, String clickTooltip, String hoverTooltip) {
 
         public static @Nullable IconInfo fromSQL(int id, IconType type) {
 
@@ -98,13 +100,19 @@ public class MapAssetManager {
                 // Create an interface for managing SQL connections.
                 SQLInterface sql = new SQLInterface(connection, String.valueOf(id), type);
 
-                String imageKey = sql.get("map_icon", type.section.getDefaultIcon().replace('-', '_'));
+                String imageKey =
+                        sql.get("map_icon", type.section.getDefaultIcon().replace('-', '_'));
                 String size = sql.get("map_icon_size", String.valueOf(type.section.getIconSize()));
                 String shown = sql.get("map_visibility", String.valueOf(type.section.isEnabled()));
                 String clickTooltip = sql.get("map_click_tooltip", type.section.getClickTooltip());
                 String hoverTooltip = sql.get("map_hover_tooltip", type.section.getHoverTooltip());
 
-                return new IconInfo(imageKey, Integer.parseInt(size), Boolean.parseBoolean(shown), clickTooltip, hoverTooltip);
+                return new IconInfo(
+                        imageKey,
+                        Integer.parseInt(size),
+                        Boolean.parseBoolean(shown),
+                        clickTooltip,
+                        hoverTooltip);
 
             } catch (SQLException exception) {
                 exception.printStackTrace();
@@ -117,7 +125,9 @@ public class MapAssetManager {
     private record SQLInterface(Connection connection, String id, IconType type) {
 
         private @NotNull String get(String key, String defaultOpt) throws SQLException {
-            return Objects.requireNonNullElse(MetadataSQLManager.get().getValue(connection, id, type.name(), key), defaultOpt);
+            return Objects.requireNonNullElse(
+                    MetadataSQLManager.get().getValue(connection, id, type.name(), key),
+                    defaultOpt);
         }
     }
 

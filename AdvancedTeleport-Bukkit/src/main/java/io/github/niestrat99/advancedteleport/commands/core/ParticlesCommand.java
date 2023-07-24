@@ -6,7 +6,9 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,7 +16,6 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,15 +24,15 @@ import java.util.List;
 
 public final class ParticlesCommand extends SubATCommand {
 
-    private final HashSet<String> types = new HashSet<>(Arrays.asList("home", "tpa", "tpahere", "tpr", "warp", "spawn", "back"));
+    private final HashSet<String> types =
+            new HashSet<>(Arrays.asList("home", "tpa", "tpahere", "tpr", "warp", "spawn", "back"));
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
 
         // If particles aren't enabled, stop there.
         if (!MainConfig.get().USE_PARTICLES.get()) {
@@ -54,7 +55,8 @@ public final class ParticlesCommand extends SubATCommand {
         // Get the player's particle data.
         var data = ParticleManager.getData(player);
 
-        // If no arguments have been specified, get the player's current particles and set it to the default particles.
+        // If no arguments have been specified, get the player's current particles and set it to the
+        // default particles.
         if (args.length == 0) {
             if (data == null) data = "";
             MainConfig.get().set("default-waiting-particles", data);
@@ -68,7 +70,8 @@ public final class ParticlesCommand extends SubATCommand {
                 return false;
             }
             MainConfig.get().set("waiting-particles." + type, data);
-            CustomMessages.sendMessage(sender, "Info.specificParticlesUpdated", Placeholder.unparsed("type", type));
+            CustomMessages.sendMessage(
+                    sender, "Info.specificParticlesUpdated", Placeholder.unparsed("type", type));
         }
 
         // Then save the config.
@@ -84,14 +87,12 @@ public final class ParticlesCommand extends SubATCommand {
     @Override
     @Contract(pure = true)
     public @NotNull List<String> onTabComplete(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
         if (args.length != 1) return Collections.emptyList();
 
         return StringUtil.copyPartialMatches(args[0], types, new ArrayList<>());
     }
-
 }

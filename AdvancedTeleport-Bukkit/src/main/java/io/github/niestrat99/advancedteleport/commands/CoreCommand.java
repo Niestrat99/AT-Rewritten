@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -16,11 +17,10 @@ public class CoreCommand extends ATCommand {
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command cmd,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command cmd,
+            @NotNull final String s,
+            @NotNull final String[] args) {
 
         // Grab the help subcommand in case we need it
         SubATCommand help = CommandManager.subcommands.get("help");
@@ -37,8 +37,11 @@ public class CoreCommand extends ATCommand {
             help.onCommand(sender, cmd, s, args);
             return true;
         }
-        if (sender.hasPermission("at.member.core." + command) || sender.hasPermission("at.admin.core." + command)) {
-            CommandManager.subcommands.get(command).onCommand(sender, cmd, s, Arrays.copyOfRange(args, 1, args.length));
+        if (sender.hasPermission("at.member.core." + command)
+                || sender.hasPermission("at.admin.core." + command)) {
+            CommandManager.subcommands
+                    .get(command)
+                    .onCommand(sender, cmd, s, Arrays.copyOfRange(args, 1, args.length));
         } else {
             CustomMessages.sendMessage(sender, "Error.noPermission");
         }
@@ -58,22 +61,24 @@ public class CoreCommand extends ATCommand {
 
     @Override
     public @Nullable List<String> onTabComplete(
-        @NotNull final CommandSender sender,
-        @NotNull final Command cmd,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command cmd,
+            @NotNull final String s,
+            @NotNull final String[] args) {
         if (args.length > 1) {
             String command = args[0].toLowerCase();
             if (!CommandManager.subcommands.containsKey(command)) {
                 return null;
             }
-            return CommandManager.subcommands.get(command).onTabComplete(sender, cmd, s, Arrays.copyOfRange(args, 1, args.length));
+            return CommandManager.subcommands
+                    .get(command)
+                    .onTabComplete(sender, cmd, s, Arrays.copyOfRange(args, 1, args.length));
         }
         List<String> availableCommands = new ArrayList<>();
         List<String> chosenCommands = new ArrayList<>();
         for (String command : CommandManager.subcommands.keySet()) {
-            if (sender.hasPermission("at.member.core." + command) || sender.hasPermission("at.admin.core." + command)) {
+            if (sender.hasPermission("at.member.core." + command)
+                    || sender.hasPermission("at.admin.core." + command)) {
                 availableCommands.add(command);
             }
         }

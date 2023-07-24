@@ -7,9 +7,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * An event fired when a teleportation request expires.
- */
+/** An event fired when a teleportation request expires. */
 public final class TeleportDecayEvent extends CancellableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -19,10 +17,9 @@ public final class TeleportDecayEvent extends CancellableATEvent {
 
     @Contract(pure = true)
     public TeleportDecayEvent(
-        @NotNull final Player receivingPlayer,
-        @NotNull final Player sendingPlayer,
-        @NotNull final TeleportRequestType requestType
-    ) {
+            @NotNull final Player receivingPlayer,
+            @NotNull final Player sendingPlayer,
+            @NotNull final TeleportRequestType requestType) {
         this.receivingPlayer = receivingPlayer;
         this.sendingPlayer = sendingPlayer;
         this.requestType = requestType;
@@ -51,7 +48,8 @@ public final class TeleportDecayEvent extends CancellableATEvent {
     /**
      * Gets the type of request represented by the teleport request.
      *
-     * @return TPA if the request was created via /tpa, or TPAHERE if the request was created via /tpahere.
+     * @return TPA if the request was created via /tpa, or TPAHERE if the request was created via
+     *     /tpahere.
      */
     @Contract(pure = true)
     public @NotNull TeleportRequestType getRequestType() {

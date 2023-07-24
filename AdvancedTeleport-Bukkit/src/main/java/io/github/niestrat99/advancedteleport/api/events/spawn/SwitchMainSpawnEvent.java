@@ -8,9 +8,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when the main spawnpoint is switched.
- */
+/** The event fired when the main spawnpoint is switched. */
 public final class SwitchMainSpawnEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -19,10 +17,9 @@ public final class SwitchMainSpawnEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public SwitchMainSpawnEvent(
-        @Nullable final Spawn oldMainSpawn,
-        @Nullable final Spawn newMainSpawn,
-        @Nullable final CommandSender sender
-    ) {
+            @Nullable final Spawn oldMainSpawn,
+            @Nullable final Spawn newMainSpawn,
+            @Nullable final CommandSender sender) {
         super(sender);
         this.oldMainSpawn = oldMainSpawn;
         this.newMainSpawn = newMainSpawn;
@@ -54,7 +51,8 @@ public final class SwitchMainSpawnEvent extends TrackableATEvent {
      * @param newMainSpawn the new main spawn question.
      */
     @Contract(pure = true)
-    public void setNewMainSpawn(@Nullable final Spawn newMainSpawn) throws IllegalArgumentException {
+    public void setNewMainSpawn(@Nullable final Spawn newMainSpawn)
+            throws IllegalArgumentException {
         this.newMainSpawn = newMainSpawn;
     }
 

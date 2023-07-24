@@ -16,10 +16,7 @@ public class HomeSign extends ATSign {
     }
 
     @Override
-    public void onInteract(
-        @NotNull Sign sign,
-        @NotNull Player player
-    ) {
+    public void onInteract(@NotNull Sign sign, @NotNull Player player) {
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         Home mainHome = atPlayer.getMainHome();
@@ -32,10 +29,7 @@ public class HomeSign extends ATSign {
     }
 
     @Override
-    public boolean canCreate(
-        @NotNull Sign sign,
-        @NotNull Player player
-    ) {
+    public boolean canCreate(@NotNull Sign sign, @NotNull Player player) {
         return true;
     }
 }

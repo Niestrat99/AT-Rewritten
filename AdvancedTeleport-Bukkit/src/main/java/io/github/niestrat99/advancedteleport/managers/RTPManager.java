@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import com.google.common.collect.Sets;
+
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
@@ -34,13 +35,20 @@ public class RTPManager {
         if (!PaperLib.isPaper()) return;
         if (!MainConfig.get().RAPID_RESPONSE.get()) return;
 
-        CoreClass.getInstance().getLogger().info("Preparing random teleportation locations. " +
-                "If your server performance or memory suffers, please set `use-rapid-response` to false in the config.yml file.");
+        CoreClass.getInstance()
+                .getLogger()
+                .info(
+                        "Preparing random teleportation locations. "
+                                + "If your server performance or memory suffers, please set `use-rapid-response` to false in the config.yml file.");
 
         try {
             getPreviousLocations();
         } catch (IOException e) {
-            CoreClass.getInstance().getLogger().severe("Failed to load previous RTP locations, generating new ones: " + e.getMessage());
+            CoreClass.getInstance()
+                    .getLogger()
+                    .severe(
+                            "Failed to load previous RTP locations, generating new ones: "
+                                    + e.getMessage());
         }
         for (World loadedWorld : Bukkit.getWorlds()) {
             loadWorldData(loadedWorld);
@@ -279,7 +287,12 @@ public class RTPManager {
                 String[] data = currentLine.split(",");
                 UUID worldUUID = UUID.fromString(data[0]);
                 World world = Bukkit.getWorld(worldUUID);
-                double[] loc = new double[]{Double.parseDouble(data[1]), Double.parseDouble(data[2]), Double.parseDouble(data[3])};
+                double[] loc =
+                        new double[] {
+                            Double.parseDouble(data[1]),
+                            Double.parseDouble(data[2]),
+                            Double.parseDouble(data[3])
+                        };
                 Queue<Location> queue = locQueue.getOrDefault(worldUUID, new ArrayDeque<>());
                 queue.add(new Location(world, loc[0], loc[1], loc[2]));
                 locQueue.put(worldUUID, queue);

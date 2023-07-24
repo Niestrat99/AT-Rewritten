@@ -2,9 +2,16 @@ package io.github.niestrat99.advancedteleport.utilities.nbt;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
-import net.kyori.adventure.nbt.*;
+
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.BinaryTagIO;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.DoubleBinaryTag;
+import net.kyori.adventure.nbt.FloatBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -42,7 +49,8 @@ public class NBTReader {
         File dataFile = getPlayerFile(uuid);
 
         if (dataFile == null) return null;
-        CompoundBinaryTag tag = BinaryTagIO.unlimitedReader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
+        CompoundBinaryTag tag =
+                BinaryTagIO.unlimitedReader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
         ListBinaryTag posTag = tag.getList("Pos");
         ListBinaryTag rotTag = tag.getList("Rotation");
         long worldUUIDMost = tag.getLong("WorldUUIDMost");
@@ -50,9 +58,13 @@ public class NBTReader {
 
         World world = Bukkit.getWorld(new UUID(worldUUIDMost, worldUUIDLeast));
 
-        return new Location(world, posTag.getDouble(0), posTag.getDouble(1), posTag.getDouble(2),
-            rotTag.getFloat(0), rotTag.getFloat(1)
-        );
+        return new Location(
+                world,
+                posTag.getDouble(0),
+                posTag.getDouble(1),
+                posTag.getDouble(2),
+                rotTag.getFloat(0),
+                rotTag.getFloat(1));
     }
 
     private static File getPlayerFile(UUID uuid) {
@@ -69,10 +81,7 @@ public class NBTReader {
         return null;
     }
 
-    private static File getPlayerFile(
-        File playerDataFolder,
-        UUID uuid
-    ) {
+    private static File getPlayerFile(File playerDataFolder, UUID uuid) {
         File[] files = playerDataFolder.listFiles();
         if (files == null) return null;
         for (File file : files) {
@@ -98,15 +107,13 @@ public class NBTReader {
         });
     }
 
-    private static void setLocation(
-        OfflinePlayer player,
-        Location location
-    ) throws IOException {
+    private static void setLocation(OfflinePlayer player, Location location) throws IOException {
         UUID uuid = player.getUniqueId();
         File dataFile = getPlayerFile(uuid);
 
         if (dataFile == null) return;
-        CompoundBinaryTag rawTag = BinaryTagIO.unlimitedReader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
+        CompoundBinaryTag rawTag =
+                BinaryTagIO.unlimitedReader().read(dataFile.toPath(), BinaryTagIO.Compression.GZIP);
         CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder().put(rawTag);
 
         ListBinaryTag.Builder<BinaryTag> posTag = ListBinaryTag.builder();
@@ -121,13 +128,14 @@ public class NBTReader {
         builder.put("Pos", posTag.build());
         builder.put("Rotation", rotTag.build());
 
-        BinaryTagIO.writer().write(builder.build(), dataFile.toPath(), BinaryTagIO.Compression.GZIP);
+        BinaryTagIO.writer()
+                .write(builder.build(), dataFile.toPath(), BinaryTagIO.Compression.GZIP);
     }
 
     public interface NBTCallback<D> {
 
         void onSuccess(D data);
 
-        default void onFail(@NotNull final Component message) { }
+        default void onFail(@NotNull final Component message) {}
     }
 }

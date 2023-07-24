@@ -15,8 +15,10 @@ import java.util.Properties;
 
 public class UpdateChecker {
 
-    private final static String versionURL = "https://api.spiget.org/v2/resources/64139/versions/latest";
-    private final static String descriptionURL = "https://api.spiget.org/v2/resources/64139/updates/latest";
+    private static final String versionURL =
+            "https://api.spiget.org/v2/resources/64139/versions/latest";
+    private static final String descriptionURL =
+            "https://api.spiget.org/v2/resources/64139/updates/latest";
 
     public static Object[] getUpdate() {
         try {
@@ -24,18 +26,21 @@ public class UpdateChecker {
             if (latestVersionObj == null) return null;
             String newVersion = (String) latestVersionObj.get("name");
             // we are a little stupid
-            if (newVersion.equals(CoreClass.getInstance().getDescription().getVersion())) return null;
+            if (newVersion.equals(CoreClass.getInstance().getDescription().getVersion()))
+                return null;
             long latestTimestamp = (long) latestVersionObj.get("releaseDate") * 1000;
             if (latestTimestamp <= getInternalTimestamp()) return null;
             JSONObject updateDesc = getURLResults(descriptionURL);
             String updateName = (String) updateDesc.get("title");
-            return new Object[]{newVersion, updateName};
+            return new Object[] {newVersion, updateName};
         } catch (ParseException | java.text.ParseException e) {
             CoreClass.getInstance().getLogger().severe("Failed to parse update information.");
             e.printStackTrace();
             return null;
         } catch (IOException ex) {
-            CoreClass.getInstance().getLogger().severe("Failed to get plugin update information, is Spiget down?");
+            CoreClass.getInstance()
+                    .getLogger()
+                    .severe("Failed to get plugin update information, is Spiget down?");
             return null;
         }
     }

@@ -53,5 +53,7 @@ fun MiniMessage.cleanDeserialize(
 ): Component {
 
     //
-    return deserialize(input, *placeholders).replaceText(TextReplacementConfig.builder().match("</[a-zA-Z-_]+>").replacement("").build())
+    return deserialize(input, *placeholders).replaceText(
+        TextReplacementConfig.builder().match("</[a-zA-Z-_]+>").replacement("").build()
+    )
 }

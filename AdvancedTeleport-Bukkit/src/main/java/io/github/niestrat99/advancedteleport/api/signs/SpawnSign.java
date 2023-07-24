@@ -16,10 +16,7 @@ public class SpawnSign extends ATSign {
     }
 
     @Override
-    public void onInteract(
-            @NotNull Sign sign,
-            @NotNull Player player
-    ) {
+    public void onInteract(@NotNull Sign sign, @NotNull Player player) {
 
         // Get the ID of the proposed spawn
         String spawnName = player.getWorld().getName();
@@ -36,10 +33,7 @@ public class SpawnSign extends ATSign {
     }
 
     @Override
-    public boolean canCreate(
-        @NotNull Sign sign,
-        @NotNull Player player
-    ) {
+    public boolean canCreate(@NotNull Sign sign, @NotNull Player player) {
         return true;
     }
 }

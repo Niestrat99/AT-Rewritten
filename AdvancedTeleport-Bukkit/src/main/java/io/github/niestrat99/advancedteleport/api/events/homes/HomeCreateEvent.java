@@ -9,9 +9,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when a player - or admin - creates a new home.
- */
+/** The event fired when a player - or admin - creates a new home. */
 public final class HomeCreateEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
@@ -21,15 +19,16 @@ public final class HomeCreateEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public HomeCreateEvent(
-        @NotNull final OfflinePlayer player,
-        @NotNull final String name,
-        @NotNull final Location location,
-        @Nullable final Player creator
-    ) throws IllegalArgumentException, IllegalStateException {
+            @NotNull final OfflinePlayer player,
+            @NotNull final String name,
+            @NotNull final Location location,
+            @Nullable final Player creator)
+            throws IllegalArgumentException, IllegalStateException {
         super(creator);
 
         if (name.isEmpty()) throw new IllegalArgumentException("The home name must not be empty.");
-        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded())
+            throw new IllegalStateException("The location's world is not loaded.");
 
         this.player = player;
         this.name = name;
@@ -81,12 +80,13 @@ public final class HomeCreateEvent extends TrackableATEvent {
      * Sets the location of the home.
      *
      * @param location the new location of the home.
-     * @throws NullPointerException  if the location is null.
+     * @throws NullPointerException if the location is null.
      * @throws IllegalStateException if the location's world isn't loaded.
      */
     @Contract(pure = true)
     public void setLocation(@NotNull final Location location) throws IllegalStateException {
-        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded())
+            throw new IllegalStateException("The location's world is not loaded.");
         this.location = location;
     }
 
@@ -104,7 +104,7 @@ public final class HomeCreateEvent extends TrackableATEvent {
      * Sets the name of the home.
      *
      * @param name the new name to be used.
-     * @throws NullPointerException     if the name is null.
+     * @throws NullPointerException if the name is null.
      * @throws IllegalArgumentException if the name is empty.
      */
     @Contract(pure = true)

@@ -1,12 +1,16 @@
 package io.github.niestrat99.advancedteleport.managers;
 
+import static org.bukkit.util.NumberConversions.square;
+
 import com.google.common.collect.ImmutableMap;
+
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -18,12 +22,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
-import static org.bukkit.util.NumberConversions.square;
-
 /**
- * Used to manage the internal registration of warps and spawns during runtime.
- * <br>
- * Shouldn't be accessed to bypass the API, this behaviour can change spontaneously and does not reflect updates in the database.
+ * Used to manage the internal registration of warps and spawns during runtime. <br>
+ * Shouldn't be accessed to bypass the API, this behaviour can change spontaneously and does not
+ * reflect updates in the database.
  */
 @ApiStatus.Internal
 public class NamedLocationManager {
@@ -51,24 +53,34 @@ public class NamedLocationManager {
     public void loadSpawnData() {
 
         // Go through each registered spawn in the SQL database
-        SpawnSQLManager.get().getSpawns().thenAcceptAsync(spawns -> {
+        SpawnSQLManager.get()
+                .getSpawns()
+                .thenAcceptAsync(
+                        spawns -> {
 
-            // Add to the spawns list
-            spawns.forEach(this::registerSpawn);
+                            // Add to the spawns list
+                            spawns.forEach(this::registerSpawn);
 
-            // Then load mirrored spawns
-            MetadataSQLManager.get().loadMirroredSpawns();
+                            // Then load mirrored spawns
+                            MetadataSQLManager.get().loadMirroredSpawns();
 
-            // Get the main spawn
-            MetadataSQLManager.get().loadMainSpawn().whenComplete((result, err) -> {
-                this.mainSpawn = result;
+                            // Get the main spawn
+                            MetadataSQLManager.get()
+                                    .loadMainSpawn()
+                                    .whenComplete(
+                                            (result, err) -> {
+                                                this.mainSpawn = result;
 
-                if (err != null) {
-                    CoreClass.getInstance().getLogger().warning("Failed to get the main spawn!");
-                    err.printStackTrace();
-                }
-            });
-        }, CoreClass.sync);
+                                                if (err != null) {
+                                                    CoreClass.getInstance()
+                                                            .getLogger()
+                                                            .warning(
+                                                                    "Failed to get the main spawn!");
+                                                    err.printStackTrace();
+                                                }
+                                            });
+                        },
+                        CoreClass.sync);
     }
 
     @Contract(pure = true)
@@ -102,10 +114,7 @@ public class NamedLocationManager {
     }
 
     @Contract(pure = true)
-    public @Nullable Spawn getSpawn(
-            @NotNull String name,
-            @Nullable Player teleportingPlayer
-    ) {
+    public @Nullable Spawn getSpawn(@NotNull String name, @Nullable Player teleportingPlayer) {
 
         // If the spawn isn't registered by that name, return null
         if (!this.spawns.containsKey(name)) return null;
@@ -129,10 +138,7 @@ public class NamedLocationManager {
     }
 
     @Contract(pure = true)
-    public @NotNull Spawn getSpawn(
-            @NotNull World world,
-            @Nullable Player teleportingPlayer
-    ) {
+    public @NotNull Spawn getSpawn(@NotNull World world, @Nullable Player teleportingPlayer) {
 
         // If we're teleporting to the nearest spawnpoint, then use that
         if (teleportingPlayer != null && MainConfig.get().TELEPORT_TO_NEAREST_SPAWN.get()) {
@@ -140,18 +146,22 @@ public class NamedLocationManager {
         }
 
         // If there's no spawns registered under the world's name, try using the main spawn.
-        if (!this.spawns.containsKey(world.getName()) && !this.worldMirrors.containsKey(world.getName())) {
+        if (!this.spawns.containsKey(world.getName())
+                && !this.worldMirrors.containsKey(world.getName())) {
             return getUndeclaredSpawn(world);
         }
 
         // Get the destination spawn
-        Spawn spawn = this.spawns.getOrDefault(world.getName(), this.worldMirrors.get(world.getName()));
+        Spawn spawn =
+                this.spawns.getOrDefault(world.getName(), this.worldMirrors.get(world.getName()));
 
         // If there's no player, just throw this spawn
         if (teleportingPlayer == null) return spawn;
 
         // While the player can't access the spawn, go to the next spawn
-        while (!spawn.canAccess(teleportingPlayer) && spawn.getMirroringSpawn() != null && spawn.getMirroringSpawn() != spawn) {
+        while (!spawn.canAccess(teleportingPlayer)
+                && spawn.getMirroringSpawn() != null
+                && spawn.getMirroringSpawn() != spawn) {
             spawn = spawn.getMirroringSpawn();
         }
 
@@ -180,11 +190,12 @@ public class NamedLocationManager {
 
             // If the world isn't loaded/existent, just relocate to the original world's spawn
             World overworld = Bukkit.getWorld(overworldName);
-            if (overworld == null)
-                return new Spawn(world.getName(), world.getSpawnLocation());
+            if (overworld == null) return new Spawn(world.getName(), world.getSpawnLocation());
 
             // Otherwise, teleport to the overworld
-            return this.spawns.getOrDefault(overworld.getName(), new Spawn(overworld.getName(), overworld.getSpawnLocation()));
+            return this.spawns.getOrDefault(
+                    overworld.getName(),
+                    new Spawn(overworld.getName(), overworld.getSpawnLocation()));
         } else {
 
             // Return a new spawn object, but don't register it for now
@@ -213,7 +224,8 @@ public class NamedLocationManager {
             double x = spawn.getLocation().getX();
             double y = spawn.getLocation().getY();
             double z = spawn.getLocation().getZ();
-            double distance = square(x - loc.getX()) + square(y - loc.getY()) + square(z - loc.getZ());
+            double distance =
+                    square(x - loc.getX()) + square(y - loc.getY()) + square(z - loc.getZ());
             if (chosenSpawn != null && distance >= max) continue;
 
             chosenSpawn = spawn;
@@ -229,7 +241,8 @@ public class NamedLocationManager {
     public void addMirroredSpawn(@NotNull String from, @Nullable Spawn spawn) {
         if (spawn != null) {
             this.worldMirrors.put(from, spawn);
-            CoreClass.debug("Added world mirror " + from + " to redirect to " + spawn.getName() + ".");
+            CoreClass.debug(
+                    "Added world mirror " + from + " to redirect to " + spawn.getName() + ".");
         } else {
             this.worldMirrors.remove(from);
         }

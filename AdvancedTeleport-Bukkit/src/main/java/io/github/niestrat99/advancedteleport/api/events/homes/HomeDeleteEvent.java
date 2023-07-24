@@ -8,19 +8,14 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when a home is deleted.
- */
+/** The event fired when a home is deleted. */
 public final class HomeDeleteEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
     private final @NotNull Home home;
 
     @Contract(pure = true)
-    public HomeDeleteEvent(
-        @NotNull final Home home,
-        @Nullable final CommandSender sender
-    ) {
+    public HomeDeleteEvent(@NotNull final Home home, @Nullable final CommandSender sender) {
         super(sender);
         this.home = home;
     }

@@ -13,25 +13,16 @@ public abstract class ATSign {
     private final boolean enabled;
 
     @Contract(pure = true)
-    protected ATSign(
-        @NotNull final String name,
-        final boolean enabled
-    ) {
+    protected ATSign(@NotNull final String name, final boolean enabled) {
         this.requiredPermission = ("at.member." + name + ".use-sign").toLowerCase();
         this.adminPermission = ("at.admin.sign." + name + ".create").toLowerCase();
         this.name = name;
         this.enabled = enabled;
     }
 
-    public abstract void onInteract(
-        @NotNull Sign sign,
-        @NotNull Player player
-    );
+    public abstract void onInteract(@NotNull Sign sign, @NotNull Player player);
 
-    public abstract boolean canCreate(
-        @NotNull Sign sign,
-        @NotNull Player player
-    );
+    public abstract boolean canCreate(@NotNull Sign sign, @NotNull Player player);
 
     @Contract(pure = true)
     public boolean isEnabled() {

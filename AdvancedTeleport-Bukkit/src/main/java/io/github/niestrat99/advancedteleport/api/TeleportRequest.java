@@ -26,22 +26,21 @@ public record TeleportRequest(
     private static final List<TeleportRequest> requestList = new ArrayList<>();
 
     @Contract(pure = true)
-    public static @NotNull List<TeleportRequest> getRequestsByRequester(@NotNull final Player requester) {
+    public static @NotNull List<TeleportRequest> getRequestsByRequester(
+            @NotNull final Player requester) {
         return requestList.stream()
-            .filter(request -> request.requester().equals(requester))
-            .toList();
+                .filter(request -> request.requester().equals(requester))
+                .toList();
     }
 
     @Contract(pure = true)
     public static @Nullable TeleportRequest getRequestByReqAndResponder(
-        @NotNull final Player responder,
-        @NotNull final Player requester
-    ) {
+            @NotNull final Player responder, @NotNull final Player requester) {
         return requestList.stream()
-            .filter(request -> request.responder().equals(responder))
-            .filter(request -> request.requester().equals(requester))
-            .findFirst()
-            .orElse(null);
+                .filter(request -> request.responder().equals(responder))
+                .filter(request -> request.requester().equals(requester))
+                .findFirst()
+                .orElse(null);
     }
 
     @Contract(pure = true)
@@ -52,22 +51,24 @@ public record TeleportRequest(
         }
 
         final var shouldNotify = MainConfig.get().NOTIFY_ON_EXPIRE.get();
-        getRequests(request.responder()).forEach(otherRequest -> {
-            otherRequest.destroy();
-            if (!shouldNotify) return;
-            CustomMessages.sendMessage(
-                otherRequest.requester(),
-                "Error.requestDisplaced",
-                Placeholder.unparsed("player", otherRequest.responder().getName())
-            );
-        });
+        getRequests(request.responder())
+                .forEach(
+                        otherRequest -> {
+                            otherRequest.destroy();
+                            if (!shouldNotify) return;
+                            CustomMessages.sendMessage(
+                                    otherRequest.requester(),
+                                    "Error.requestDisplaced",
+                                    Placeholder.unparsed(
+                                            "player", otherRequest.responder().getName()));
+                        });
     }
 
     @Contract(pure = true)
     public static @NotNull List<TeleportRequest> getRequests(@NotNull final Player responder) {
         return requestList.stream()
-            .filter(request -> request.responder().equals(responder))
-            .toList();
+                .filter(request -> request.responder().equals(responder))
+                .toList();
     }
 
     @Contract(pure = true)
@@ -80,5 +81,4 @@ public record TeleportRequest(
     public static void removeRequest(@NotNull final TeleportRequest request) {
         requestList.remove(request);
     }
-
 }

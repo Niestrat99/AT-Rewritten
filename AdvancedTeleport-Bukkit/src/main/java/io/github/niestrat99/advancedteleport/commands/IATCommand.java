@@ -1,14 +1,13 @@
 package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents the base implementation for a command in AT.
- */
+/** Represents the base implementation for a command in AT. */
 public interface IATCommand extends TabExecutor {
 
     /**
@@ -35,5 +34,6 @@ public interface IATCommand extends TabExecutor {
     boolean getRequiredFeature();
 
     @Contract(pure = true)
-    @NotNull String getPermission();
+    @NotNull
+    String getPermission();
 }

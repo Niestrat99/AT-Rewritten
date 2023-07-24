@@ -10,9 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
-/**
- * Represents
- */
+/** Represents */
 public final class BlockInfo {
 
     private final @NotNull UUID receiverUUID;
@@ -23,11 +21,10 @@ public final class BlockInfo {
 
     @Contract(pure = true)
     public BlockInfo(
-        @NotNull final UUID receiver,
-        @NotNull final UUID blocked,
-        @Nullable final String reason,
-        final long time
-    ) {
+            @NotNull final UUID receiver,
+            @NotNull final UUID blocked,
+            @Nullable final String reason,
+            final long time) {
         this.receiverUUID = receiver;
         this.blockedUUID = blocked;
         this.reason = reason;

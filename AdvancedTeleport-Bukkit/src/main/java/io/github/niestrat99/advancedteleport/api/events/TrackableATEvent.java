@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * An event that has a trackable executor, such as an admin creating a warp, or a player setting a home for someone
- * else, etc.
+ * An event that has a trackable executor, such as an admin creating a warp, or a player setting a
+ * home for someone else, etc.
  */
 public abstract class TrackableATEvent extends CancellableATEvent {
 

@@ -2,17 +2,15 @@ package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class TeleportTests {
 
-    public static TeleportRequest teleportTests(
-        Player player,
-        String[] args,
-        String type
-    ) {
+    public static TeleportRequest teleportTests(Player player, String[] args, String type) {
 
         // Checks if any players have sent a request at all.
         if (TeleportRequest.getRequests(player).isEmpty()) {
@@ -45,19 +43,30 @@ public class TeleportTests {
             return request;
         } else {
 
-            // This utility helps in splitting lists into separate pages, like when you list your plots with PlotMe/PlotSquared.
-            PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequests(player), 8);
+            // This utility helps in splitting lists into separate pages, like when you list your
+            // plots with PlotMe/PlotSquared.
+            PagedLists<TeleportRequest> requests =
+                    new PagedLists<>(TeleportRequest.getRequests(player), 8);
             if (type.equalsIgnoreCase("tpayes")) {
                 CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
             } else {
                 CustomMessages.sendMessage(player, "Info.multipleRequestDeny");
             }
 
-            final var body = CustomMessages.getPagesComponent(1, requests, request -> CustomMessages.get(
-                "Info.multipleRequestsIndex",
-                    Placeholder.unparsed("command", type),
-                    Placeholder.unparsed("player", request.requester().getName()) // TODO: Try use player DisplayName
-            ));
+            final var body =
+                    CustomMessages.getPagesComponent(
+                            1,
+                            requests,
+                            request ->
+                                    CustomMessages.get(
+                                            "Info.multipleRequestsIndex",
+                                            Placeholder.unparsed("command", type),
+                                            Placeholder.unparsed(
+                                                    "player",
+                                                    request.requester()
+                                                            .getName()) // TODO: Try use player
+                                                                        // DisplayName
+                                            ));
 
             if (requests.getTotalPages() > 1) {
                 CustomMessages.sendMessage(player, "Info.multipleRequestsList");

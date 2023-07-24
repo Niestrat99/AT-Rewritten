@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.hooks.borders;
 
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
@@ -21,10 +22,13 @@ public final class ChunkyBorderHook extends BorderPlugin<ChunkyBorder, ChunkyBor
     public boolean canUse(@NotNull final World world) {
         if (super.canUse(world)) return false;
 
-        return this.provider().map(provider -> {
-            chunkyBorder = provider;
-            return provider.getBorders().containsKey(world.getName());
-        }).orElse(false);
+        return this.provider()
+                .map(
+                        provider -> {
+                            chunkyBorder = provider;
+                            return provider.getBorders().containsKey(world.getName());
+                        })
+                .orElse(false);
     }
 
     @Override
