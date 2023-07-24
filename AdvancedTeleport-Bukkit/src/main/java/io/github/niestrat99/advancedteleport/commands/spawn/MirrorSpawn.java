@@ -36,7 +36,7 @@ public final class MirrorSpawn extends SpawnATCommand {
         // If no argument has been specified, stop there
         if (args.length == 0) {
             CustomMessages.sendMessage(sender, "Error.mirrorSpawnNoArguments");
-            return true;
+            return false;
         }
 
         // If just one spawn has been specified, then use the first argument as the spawn to mirror

@@ -37,6 +37,7 @@ public final class TpoHere extends TeleportATCommand implements PlayerCommand {
                 }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                return false;
             }
             return true;
         }

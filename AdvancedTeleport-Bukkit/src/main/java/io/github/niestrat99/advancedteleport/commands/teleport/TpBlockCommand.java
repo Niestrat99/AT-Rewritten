@@ -38,6 +38,7 @@ public final class TpBlockCommand extends TeleportATCommand implements PlayerCom
                 }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                return false;
             }
             return true;
         }

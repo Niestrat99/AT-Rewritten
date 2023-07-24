@@ -43,7 +43,7 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
 
             // Otherwise, tell the player to enter a warp.
             CustomMessages.sendMessage(sender, "Error.noWarpInput");
-            return true;
+            return false;
         }
 
         // Get the warp to be deleted.
@@ -62,6 +62,7 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
                                             Placeholder.unparsed("warp", args[0])));
         } else {
             CustomMessages.sendMessage(sender, "Error.noWarpInput");
+            return false;
         }
         return true;
     }

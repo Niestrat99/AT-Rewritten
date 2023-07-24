@@ -47,6 +47,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
                 }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                return false;
             }
             return true;
         }

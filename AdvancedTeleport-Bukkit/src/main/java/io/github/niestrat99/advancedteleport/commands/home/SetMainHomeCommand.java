@@ -34,6 +34,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                 ((ATFloodgatePlayer) atPlayer).sendSetMainHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                return false;
             }
             return true;
         }

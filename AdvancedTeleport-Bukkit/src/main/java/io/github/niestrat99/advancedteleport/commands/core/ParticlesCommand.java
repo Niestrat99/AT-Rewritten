@@ -67,7 +67,7 @@ public final class ParticlesCommand extends SubATCommand {
             if (data == null) data = "default";
             String type = args[0];
             if (!types.contains(type)) {
-                return false;
+                return true;
             }
             MainConfig.get().set("waiting-particles." + type, data);
             CustomMessages.sendMessage(

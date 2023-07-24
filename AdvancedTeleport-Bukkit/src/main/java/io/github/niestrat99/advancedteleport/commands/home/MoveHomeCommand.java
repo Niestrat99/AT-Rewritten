@@ -38,6 +38,7 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
                 }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
+                return false;
             }
             return true;
         }
