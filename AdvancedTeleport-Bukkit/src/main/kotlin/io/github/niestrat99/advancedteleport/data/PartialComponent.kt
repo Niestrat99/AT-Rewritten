@@ -4,7 +4,7 @@ import io.github.niestrat99.advancedteleport.extensions.cleanDeserialize
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
-import java.util.SortedSet
+import java.util.*
 
 /**
  * A partial component is a wrapper around the MiniMessage format,

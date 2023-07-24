@@ -19,9 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Represents a bedrock-connected player.
- */
+/** Represents a bedrock-connected player. */
 public final class ATFloodgatePlayer extends ATPlayer {
 
     private final @NotNull UUID floodgateUuid;
@@ -33,7 +31,8 @@ public final class ATFloodgatePlayer extends ATPlayer {
             throw new IllegalStateException("Floodgate is not enabled.");
         }
 
-        floodgateUuid = FloodgateApi.getInstance().getPlayer(player.getUniqueId()).getCorrectUniqueId();
+        floodgateUuid =
+                FloodgateApi.getInstance().getPlayer(player.getUniqueId()).getCorrectUniqueId();
     }
 
     /**
@@ -49,10 +48,7 @@ public final class ATFloodgatePlayer extends ATPlayer {
         }
     }
 
-    private void sendDropdownForm(
-        @NotNull String command,
-        @NotNull Collection<String> inputs
-    ) {
+    private void sendDropdownForm(@NotNull String command, @NotNull Collection<String> inputs) {
 
         // Builds the items to be put in the dropdown
         String[] items = new String[inputs.size()];
@@ -62,26 +58,31 @@ public final class ATFloodgatePlayer extends ATPlayer {
         }
 
         // Builds the form
-        CustomForm form = CustomForm.builder()
-            .title(CustomMessages.asString("Forms." + command + "-title"))
-            .dropdown(CustomMessages.asString("Forms." + command + "-description"), items)
-            .build();
+        CustomForm form =
+                CustomForm.builder()
+                        .title(CustomMessages.asString("Forms." + command + "-title"))
+                        .dropdown(
+                                CustomMessages.asString("Forms." + command + "-description"), items)
+                        .build();
 
-        form.setResponseHandler(responseData -> {
+        form.setResponseHandler(
+                responseData -> {
 
-            // Gets the response
-            CustomFormResponse response = form.parseResponse(responseData);
-            if (getPlayer() == null) {
-                CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid + " is null, WHY?");
-                return;
-            }
+                    // Gets the response
+                    CustomFormResponse response = form.parseResponse(responseData);
+                    if (getPlayer() == null) {
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .warning("This player with the UUID " + uuid + " is null, WHY?");
+                        return;
+                    }
 
-            // Gets the chosen item
-            int i = response.getDropdown(0);
-            String result = items[i];
+                    // Gets the chosen item
+                    int i = response.getDropdown(0);
+                    String result = items[i];
 
-            getPlayer().performCommand("advancedteleport:" + command + " " + result);
-        });
+                    getPlayer().performCommand("advancedteleport:" + command + " " + result);
+                });
 
         // Sends the form
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
@@ -90,12 +91,16 @@ public final class ATFloodgatePlayer extends ATPlayer {
     @Contract(pure = true)
     private @NotNull List<String> getVisiblePlayerNames() {
         return Bukkit.getOnlinePlayers().stream()
-            .filter(player -> player != getPlayer())
-            .filter(player -> getPlayer().canSee(player))
-            .filter(player -> {
-                final var atPlayer = ATPlayer.getPlayer(player);
-                return !atPlayer.hasBlocked(getPlayer()) && this.hasBlocked(atPlayer.uuid());
-            }).map(Player::getName).toList();
+                .filter(player -> player != getPlayer())
+                .filter(player -> getPlayer().canSee(player))
+                .filter(
+                        player -> {
+                            final var atPlayer = ATPlayer.getPlayer(player);
+                            return !atPlayer.hasBlocked(getPlayer())
+                                    && this.hasBlocked(atPlayer.uuid());
+                        })
+                .map(Player::getName)
+                .toList();
     }
 
     @Override
@@ -111,29 +116,36 @@ public final class ATFloodgatePlayer extends ATPlayer {
     public void sendRequestFormTPA(@NotNull final Player sender) {
 
         // Set up the form
-        SimpleForm form = SimpleForm.builder()
-            .title(CustomMessages.asString("Forms.tpa-received-title"))
-            .content(CustomMessages.asString("Forms.tpa-received-description", Placeholder.unparsed("player", sender.getDisplayName())))
-            .button(CustomMessages.asString("Forms.tpa-received-accept"))
-            .button(CustomMessages.asString("Forms.tpa-received-deny"))
-            .build();
+        SimpleForm form =
+                SimpleForm.builder()
+                        .title(CustomMessages.asString("Forms.tpa-received-title"))
+                        .content(
+                                CustomMessages.asString(
+                                        "Forms.tpa-received-description",
+                                        Placeholder.unparsed("player", sender.getDisplayName())))
+                        .button(CustomMessages.asString("Forms.tpa-received-accept"))
+                        .button(CustomMessages.asString("Forms.tpa-received-deny"))
+                        .build();
 
         sendRequest(sender, form);
     }
 
-    private void sendRequest(
-        @NotNull Player sender,
-        SimpleForm form
-    ) {
-        form.setResponseHandler(responseData -> {
-            SimpleFormResponse response = form.parseResponse(responseData);
-            if (getPlayer() == null) {
-                CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid + " is null, WHY?");
-                return;
-            }
-            getPlayer().performCommand(response.getClickedButtonId() == 0 ? "advancedteleport:tpyes " + sender.getName()
-                                                                          : "advancedteleport:tpno " + sender.getName());
-        });
+    private void sendRequest(@NotNull Player sender, SimpleForm form) {
+        form.setResponseHandler(
+                responseData -> {
+                    SimpleFormResponse response = form.parseResponse(responseData);
+                    if (getPlayer() == null) {
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .warning("This player with the UUID " + uuid + " is null, WHY?");
+                        return;
+                    }
+                    getPlayer()
+                            .performCommand(
+                                    response.getClickedButtonId() == 0
+                                            ? "advancedteleport:tpyes " + sender.getName()
+                                            : "advancedteleport:tpno " + sender.getName());
+                });
 
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
@@ -146,27 +158,27 @@ public final class ATFloodgatePlayer extends ATPlayer {
     public void sendRequestFormTPAHere(@NotNull final Player sender) {
 
         // Set up the form
-        SimpleForm form = SimpleForm.builder()
-            .title(CustomMessages.asString("Forms.tpahere-received-title"))
-            .content(CustomMessages.asString("Forms.tpahere-received-description", Placeholder.unparsed("player", sender.getDisplayName())))
-            .button(CustomMessages.asString("Forms.tpahere-received-accept"))
-            .button(CustomMessages.asString("Forms.tpahere-received-deny"))
-            .build();
+        SimpleForm form =
+                SimpleForm.builder()
+                        .title(CustomMessages.asString("Forms.tpahere-received-title"))
+                        .content(
+                                CustomMessages.asString(
+                                        "Forms.tpahere-received-description",
+                                        Placeholder.unparsed("player", sender.getDisplayName())))
+                        .button(CustomMessages.asString("Forms.tpahere-received-accept"))
+                        .button(CustomMessages.asString("Forms.tpahere-received-deny"))
+                        .build();
 
         // Send the form
         sendRequest(sender, form);
     }
 
-    /**
-     * Sends the form for /home.
-     */
+    /** Sends the form for /home. */
     public void sendHomeForm() {
         sendDropdownForm("home", getHomes().keySet());
     }
 
-    /**
-     * Sends the form for /sethome.
-     */
+    /** Sends the form for /sethome. */
     public void sendSetHomeForm() {
         sendInputForm("sethome");
     }
@@ -174,116 +186,97 @@ public final class ATFloodgatePlayer extends ATPlayer {
     private void sendInputForm(@NotNull String command) {
 
         // Builds the form
-        CustomForm form = CustomForm.builder()
-            .title(CustomMessages.asString("Forms." + command + "-title"))
-            .input(CustomMessages.asString("Forms." + command + "-description"))
-            .build();
+        CustomForm form =
+                CustomForm.builder()
+                        .title(CustomMessages.asString("Forms." + command + "-title"))
+                        .input(CustomMessages.asString("Forms." + command + "-description"))
+                        .build();
 
-        form.setResponseHandler(responseData -> {
+        form.setResponseHandler(
+                responseData -> {
 
-            // Gets the response
-            CustomFormResponse response = form.parseResponse(responseData);
-            if (getPlayer() == null) {
-                CoreClass.getInstance().getLogger().warning("This player with the UUID " + uuid + " is null, WHY?");
-                return;
-            }
+                    // Gets the response
+                    CustomFormResponse response = form.parseResponse(responseData);
+                    if (getPlayer() == null) {
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .warning("This player with the UUID " + uuid + " is null, WHY?");
+                        return;
+                    }
 
-            // Gets the chosen button
-            String name = response.getInput(0);
-            getPlayer().performCommand("advancedteleport:" + command + " " + name);
-        });
+                    // Gets the chosen button
+                    String name = response.getInput(0);
+                    getPlayer().performCommand("advancedteleport:" + command + " " + name);
+                });
 
         // Sends the form
         FloodgateApi.getInstance().sendForm(floodgateUuid, form);
     }
 
-    /**
-     * Sends the form for /delhome.
-     */
+    /** Sends the form for /delhome. */
     public void sendDeleteHomeForm() {
         sendDropdownForm("delhome", getHomes().keySet());
     }
 
-    /**
-     * Sends the form for /setmainhome.
-     */
+    /** Sends the form for /setmainhome. */
     public void sendSetMainHomeForm() {
         sendInputForm("setmainhome");
     }
 
-    /**
-     * Sends the form for /movehome.
-     */
+    /** Sends the form for /movehome. */
     public void sendMoveHomeForm() {
         sendDropdownForm("movehome", getHomes().keySet());
     }
 
-    /**
-     * Sends the form for /warp.
-     */
+    /** Sends the form for /warp. */
     public void sendWarpForm() {
         sendDropdownForm("warp", AdvancedTeleportAPI.getWarps().keySet());
     }
 
-    /**
-     * Sends the form for /delwarp.
-     */
+    /** Sends the form for /delwarp. */
     public void sendDeleteWarpForm() {
         sendDropdownForm("delwarp", AdvancedTeleportAPI.getWarps().keySet());
     }
 
-    /**
-     * Sends the form for /setwarp.
-     */
+    /** Sends the form for /setwarp. */
     public void sendSetWarpForm() {
         sendInputForm("setwarp");
     }
 
-    /**
-     * Sends the form for /movewarp.
-     */
+    /** Sends the form for /movewarp. */
     public void sendMoveWarpForm() {
         sendDropdownForm("movewarp", AdvancedTeleportAPI.getWarps().keySet());
     }
 
-    /**
-     * Sends the form for /tpblock.
-     */
+    /** Sends the form for /tpblock. */
     public void sendBlockForm() {
         sendDropdownForm("tpblock", getVisiblePlayerNames());
     }
 
-    /**
-     * Sends the form for /tpunblock.
-     */
+    /** Sends the form for /tpunblock. */
     public void sendUnblockForm() {
         sendDropdownForm("tpunblock", getVisiblePlayerNames());
     }
 
-    /**
-     * Sends the form for /tpcancel.
-     */
+    /** Sends the form for /tpcancel. */
     public void sendCancelForm() {
 
         // Builds the list of teleport requests that can be cancelled
-        final var responders = TeleportRequest.getRequestsByRequester(getPlayer()).stream()
-            .map(request -> request.requester().getName())
-            .toList();
+        final var responders =
+                TeleportRequest.getRequestsByRequester(getPlayer()).stream()
+                        .map(request -> request.requester().getName())
+                        .toList();
 
         // Sends the dropdown menu form
         sendDropdownForm("tpcancel", responders);
     }
 
-    /**
-     * Sends the form for /tpo.
-     */
+    /** Sends the form for /tpo. */
     public void sendTpoForm() {
         sendDropdownForm("tpo", getVisiblePlayerNames());
     }
 
-    /**
-     * Sends the form for /tpohere.
-     */
+    /** Sends the form for /tpohere. */
     public void sendTpoHereForm() {
         sendDropdownForm("tpohere", getVisiblePlayerNames());
     }

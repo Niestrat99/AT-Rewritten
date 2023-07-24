@@ -6,7 +6,9 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -20,11 +22,10 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
         if (!canProceed(sender)) return true;
 
         // Specify player variables
@@ -43,8 +44,10 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
                 return true;
             }
 
-            // If the player is a floodgate player, send them a form, otherwise tell the player to enter some arguments
-            if (atPlayer instanceof ATFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
+            // If the player is a floodgate player, send them a form, otherwise tell the player to
+            // enter some arguments
+            if (atPlayer instanceof ATFloodgatePlayer
+                    && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendSetHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
@@ -54,18 +57,18 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
             return true;
         }
 
-
         // We'll just assume that the admin command overrides the homes limit.
         if (args.length > 1 && sender.hasPermission("at.admin.sethome")) {
 
             // Get the player to be targeted.
-            AdvancedTeleportAPI.getOfflinePlayer(args[0]).whenCompleteAsync((target, err) ->
-                    setHome(player, target, args[1], args[0]));
+            AdvancedTeleportAPI.getOfflinePlayer(args[0])
+                    .whenCompleteAsync((target, err) -> setHome(player, target, args[1], args[0]));
             return true;
         }
 
         // If the player can set more homes,
-        if (atPlayer.canSetMoreHomes() || (MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
+        if (atPlayer.canSetMoreHomes()
+                || (MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
             setHome(player, args[0]);
 
         } else {
@@ -81,31 +84,30 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
     // Separated this into a separate method so that the code is easier to read.
     // Player player - the player which is having the home set.
     // String name - the name of the home.
-    private void setHome(
-        Player sender,
-        OfflinePlayer target,
-        String homeName,
-        String playerName
-    ) {
+    private void setHome(Player sender, OfflinePlayer target, String homeName, String playerName) {
 
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
-        // If the home with that name already exists, and we can't overwrite homes, let the player know
+        // If the home with that name already exists, and we can't overwrite homes, let the player
+        // know
         if (!MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(homeName)) {
-            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", Placeholder.unparsed("home", homeName));
+            CustomMessages.sendMessage(
+                    sender, "Error.homeAlreadySet", Placeholder.unparsed("home", homeName));
             return;
         }
 
         // Attempt to add the home.
-        atPlayer.addHome(homeName, sender.getLocation(), sender).whenComplete((ignored, err) -> CustomMessages.failableContextualPath(
-                sender,
-                target,
-                "Info.setHome",
-                "Error.setHomeFail",
-                err,
-                Placeholder.unparsed("home", homeName),
-                Placeholder.unparsed("player", playerName)
-        ));
+        atPlayer.addHome(homeName, sender.getLocation(), sender)
+                .whenComplete(
+                        (ignored, err) ->
+                                CustomMessages.failableContextualPath(
+                                        sender,
+                                        target,
+                                        "Info.setHome",
+                                        "Error.setHomeFail",
+                                        err,
+                                        Placeholder.unparsed("home", homeName),
+                                        Placeholder.unparsed("player", playerName)));
     }
 
     @Override
@@ -120,11 +122,10 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
 
     @Override
     public @NotNull List<String> onTabComplete(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
         return new ArrayList<>();
     }
 }

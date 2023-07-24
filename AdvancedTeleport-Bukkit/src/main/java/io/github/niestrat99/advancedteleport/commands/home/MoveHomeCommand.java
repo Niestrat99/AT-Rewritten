@@ -6,7 +6,9 @@ import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,11 +18,10 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
 
         if (!canProceed(sender)) return true;
 
@@ -28,7 +29,8 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         if (args.length == 0) {
-            if (atPlayer instanceof ATFloodgatePlayer && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
+            if (atPlayer instanceof ATFloodgatePlayer
+                    && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
                 ((ATFloodgatePlayer) atPlayer).sendMoveHomeForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
@@ -39,23 +41,28 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
 
         if (sender.hasPermission("at.admin.movehome") && args.length > 1) {
             // We'll just assume that the admin command overrides the homes limit.
-            ATPlayer.getPlayerFuture(args[0]).thenAccept(atTarget -> {
+            ATPlayer.getPlayerFuture(args[0])
+                    .thenAccept(
+                            atTarget -> {
+                                if (!atTarget.getHomes().containsKey(args[1])) {
+                                    CustomMessages.sendMessage(sender, "Error.noSuchHome");
+                                    return;
+                                }
 
-                if (!atTarget.getHomes().containsKey(args[1])) {
-                    CustomMessages.sendMessage(sender, "Error.noSuchHome");
-                    return;
-                }
-
-                atTarget.moveHome(args[0], player.getLocation(), sender).whenCompleteAsync((ignored, err) -> CustomMessages.failableContextualPath(
-                    sender,
-                    atTarget,
-                    "Info.movedHome",
-                    "Error.moveHomeFail",
-                    err,
-                    Placeholder.unparsed("home", args[1]),
-                    Placeholder.unparsed("player", args[0])
-                ));
-            });
+                                atTarget.moveHome(args[0], player.getLocation(), sender)
+                                        .whenCompleteAsync(
+                                                (ignored, err) ->
+                                                        CustomMessages.failableContextualPath(
+                                                                sender,
+                                                                atTarget,
+                                                                "Info.movedHome",
+                                                                "Error.moveHomeFail",
+                                                                err,
+                                                                Placeholder.unparsed(
+                                                                        "home", args[1]),
+                                                                Placeholder.unparsed(
+                                                                        "player", args[0])));
+                            });
             return true;
         }
         Home home = atPlayer.getHome(args[0]);
@@ -65,14 +72,16 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
             return true;
         }
 
-        atPlayer.moveHome(args[0], player.getLocation(), sender).whenCompleteAsync((ignored, err) -> CustomMessages.failableContextualPath(
-                sender,
-                atPlayer,
-                "Info.movedHome",
-                "Error.moveHomeFail",
-                err,
-                Placeholder.unparsed("home", args[0])
-        ));
+        atPlayer.moveHome(args[0], player.getLocation(), sender)
+                .whenCompleteAsync(
+                        (ignored, err) ->
+                                CustomMessages.failableContextualPath(
+                                        sender,
+                                        atPlayer,
+                                        "Info.movedHome",
+                                        "Error.moveHomeFail",
+                                        err,
+                                        Placeholder.unparsed("home", args[0])));
 
         return true;
     }

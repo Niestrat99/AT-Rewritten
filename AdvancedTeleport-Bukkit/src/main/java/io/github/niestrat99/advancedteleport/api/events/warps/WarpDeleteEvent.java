@@ -8,19 +8,14 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The event fired when a warp is deleted.
- */
+/** The event fired when a warp is deleted. */
 public final class WarpDeleteEvent extends TrackableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
     private final @NotNull Warp warp;
 
     @Contract(pure = true)
-    public WarpDeleteEvent(
-        @NotNull final Warp warp,
-        @Nullable final CommandSender sender
-    ) {
+    public WarpDeleteEvent(@NotNull final Warp warp, @Nullable final CommandSender sender) {
         super(sender);
         this.warp = warp;
     }

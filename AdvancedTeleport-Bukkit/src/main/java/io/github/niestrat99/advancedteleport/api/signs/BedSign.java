@@ -15,20 +15,14 @@ public class BedSign extends ATSign {
     }
 
     @Override
-    public void onInteract(
-        @NotNull Sign sign,
-        @NotNull Player player
-    ) {
+    public void onInteract(@NotNull Sign sign, @NotNull Player player) {
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (atPlayer.getBedSpawn() == null) return;
         HomeCommand.teleport(player, atPlayer.getBedSpawn());
     }
 
     @Override
-    public boolean canCreate(
-        @NotNull Sign sign,
-        @NotNull Player player
-    ) {
+    public boolean canCreate(@NotNull Sign sign, @NotNull Player player) {
         return true;
     }
 }

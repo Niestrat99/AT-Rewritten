@@ -1,0 +1,30 @@
+name: "Format"
+
+on: workflow_dispatch
+
+jobs:
+  check:
+    name: Formatting
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Tell Github Actions that Java 17 exists
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      - name: Google Java Format
+        uses: axel-op/googlejavaformat-action@v3
+        with:
+          args: "--replace --aosp"

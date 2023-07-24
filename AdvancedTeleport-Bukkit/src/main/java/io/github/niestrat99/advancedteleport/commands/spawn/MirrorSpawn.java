@@ -5,7 +5,9 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -21,11 +23,10 @@ public final class MirrorSpawn extends SpawnATCommand {
 
     @Override
     public boolean onCommand(
-        @NotNull final CommandSender sender,
-        @NotNull final Command command,
-        @NotNull final String s,
-        @NotNull final String[] args
-    ) {
+            @NotNull final CommandSender sender,
+            @NotNull final Command command,
+            @NotNull final String s,
+            @NotNull final String[] args) {
         if (!canProceed(sender)) return true;
 
         // Declare the spawns to be used
@@ -38,7 +39,8 @@ public final class MirrorSpawn extends SpawnATCommand {
             return false;
         }
 
-        // If just one spawn has been specified, then use the first argument as the spawn to mirror to.
+        // If just one spawn has been specified, then use the first argument as the spawn to mirror
+        // to.
         if (args.length == 1) {
             toSpawn = getSpawn(args[0]);
 
@@ -56,22 +58,38 @@ public final class MirrorSpawn extends SpawnATCommand {
 
         // See if the from and to spawns match up
         if (fromSpawn == toSpawn) {
-            CustomMessages.sendMessage(sender, "Info.mirrorSpawnSame",
+            CustomMessages.sendMessage(
+                    sender,
+                    "Info.mirrorSpawnSame",
                     Placeholder.unparsed("spawn", args[0]),
-                    Placeholder.unparsed("from", (args.length == 1 ? ((Player) sender).getWorld().getName() : args[1])));
+                    Placeholder.unparsed(
+                            "from",
+                            (args.length == 1 ? ((Player) sender).getWorld().getName() : args[1])));
             return true;
         }
 
-        fromSpawn.setMirroringSpawn(toSpawn, sender).whenCompleteAsync((v, e) ->
-                handleCommandFeedback(e, sender, "Info.mirroredSpawn", "Error.mirrorSpawnFail",
-                        Placeholder.unparsed("spawn", v == null ? "[None]" : v.getName()),
-                        Placeholder.unparsed("from", fromSpawn.getName())
-                ), CoreClass.sync);
+        fromSpawn
+                .setMirroringSpawn(toSpawn, sender)
+                .whenCompleteAsync(
+                        (v, e) ->
+                                handleCommandFeedback(
+                                        e,
+                                        sender,
+                                        "Info.mirroredSpawn",
+                                        "Error.mirrorSpawnFail",
+                                        Placeholder.unparsed(
+                                                "spawn", v == null ? "[None]" : v.getName()),
+                                        Placeholder.unparsed("from", fromSpawn.getName())),
+                        CoreClass.sync);
         return true;
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    public @NotNull List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String s,
+            @NotNull String[] args) {
 
         List<String> results = new ArrayList<>();
 
@@ -80,7 +98,11 @@ public final class MirrorSpawn extends SpawnATCommand {
             // Set up a list of spawns
             List<String> spawns = new ArrayList<>();
             spawns.addAll(AdvancedTeleportAPI.getSpawns().keySet());
-            spawns.addAll(Bukkit.getWorlds().stream().map(World::getName).filter(world -> !spawns.contains(world)).toList());
+            spawns.addAll(
+                    Bukkit.getWorlds().stream()
+                            .map(World::getName)
+                            .filter(world -> !spawns.contains(world))
+                            .toList());
 
             StringUtil.copyPartialMatches(args[args.length - 1], spawns, results);
         }

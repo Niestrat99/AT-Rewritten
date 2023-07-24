@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.hooks;
 
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
@@ -8,16 +9,11 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * A plugin that sets up a border around a given world.
- */
+/** A plugin that sets up a border around a given world. */
 public abstract class BorderPlugin<P extends Plugin, R> extends PluginHook<P, R> {
 
     @Contract(pure = true)
-    protected BorderPlugin(
-        @Nullable final String pluginName,
-        @Nullable final Class<R> provider
-    ) {
+    protected BorderPlugin(@Nullable final String pluginName, @Nullable final Class<R> provider) {
         super(pluginName, provider);
     }
 

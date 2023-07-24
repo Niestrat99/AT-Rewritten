@@ -3,14 +3,10 @@ package io.github.niestrat99.advancedteleport.sql;
 public class AuditLogManager extends SQLManager {
 
     @Override
-    public void createTable() {
-
-    }
+    public void createTable() {}
 
     @Override
-    public void transferOldData() {
-
-    }
+    public void transferOldData() {}
 
     public enum Action {
         BACK,

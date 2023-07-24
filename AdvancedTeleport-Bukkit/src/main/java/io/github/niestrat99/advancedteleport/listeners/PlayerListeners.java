@@ -7,7 +7,9 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -49,11 +51,12 @@ public final class PlayerListeners implements Listener {
         String currentVersion = CoreClass.getInstance().getDescription().getVersion();
 
         // let 'em know :D
-        CustomMessages.sendMessage(event.getPlayer(), "Info.updateInfo",
+        CustomMessages.sendMessage(
+                event.getPlayer(),
+                "Info.updateInfo",
                 Placeholder.unparsed("version", currentVersion),
                 Placeholder.unparsed("new-version", newVersion),
-                Placeholder.unparsed("title", title)
-        );
+                Placeholder.unparsed("title", title));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -62,7 +65,8 @@ public final class PlayerListeners implements Listener {
         if (player.hasMetadata("NPC")) return;
         ATPlayer.removePlayer(player);
         if (MovementManager.getMovement().containsKey(player.getUniqueId())) {
-            MovementManager.ImprovedRunnable runnable = MovementManager.getMovement().get(player.getUniqueId());
+            MovementManager.ImprovedRunnable runnable =
+                    MovementManager.getMovement().get(player.getUniqueId());
             ParticleManager.removeParticles(event.getPlayer(), runnable.getCommand());
         }
     }
