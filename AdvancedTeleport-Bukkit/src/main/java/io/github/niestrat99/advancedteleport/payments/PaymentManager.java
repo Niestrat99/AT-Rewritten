@@ -73,7 +73,7 @@ public class PaymentManager {
                 double payment = Double.parseDouble(matcher.group(2));
 
                 CoreClass.debug("Split payment into two, part 1: " + plugin + ", part two: " + payment);
-                CoreClass.debug("Material: " + Material.getMaterial(plugin == null ? "" : plugin);
+                CoreClass.debug("Material: " + Material.getMaterial(plugin == null ? "" : plugin));
 
                 // If it's not a plugin and actually an item, lmao
                 if (plugin != null && Material.getMaterial(plugin) != null) {
@@ -96,7 +96,7 @@ public class PaymentManager {
                 double payment = Double.parseDouble(matcher.group(2));
 
                 CoreClass.debug("Split payment into two, part 1: " + plugin + ", part two: " + payment);
-                CoreClass.debug("Material: " + Material.getMaterial(plugin == null ? "" : plugin);
+                CoreClass.debug("Material: " + Material.getMaterial(plugin == null ? "" : plugin));
 
                 // If it's not a plugin and actually an item, lmao
                 if (plugin != null && Material.getMaterial(plugin) != null) {
