@@ -232,7 +232,7 @@ public class PlayerSQLManager extends SQLManager {
         } catch (SQLException exception) {
             throw new RuntimeException(exception);
         }
-        return false;
+        return true;
     }
 
     public void setTeleportationOn(UUID uuid, boolean enabled) {
