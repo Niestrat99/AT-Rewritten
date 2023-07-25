@@ -85,13 +85,12 @@ public class CommandManager {
 
     private static void register(String name, ATCommand atCommand) {
         PluginCommand command = Bukkit.getPluginCommand("advancedteleport:" + name);
+        CoreClass.debug("Fetching " + command + " - " + command);
         if (command == null) command = atCommands.get(name);
-        if (command == null) return;
-
-        if (command.getPlugin() != CoreClass.getInstance()) {
-            command = Bukkit.getPluginCommand("advancedteleport:" + name);
+        if (command == null) {
+            CoreClass.getInstance().getLogger().warning("Could not add command " + name + " - has it been set up properly?");
+            return;
         }
-        if (command == null) return;
 
         atCommands.put(name, command);
         CommandMap map = getMap();
@@ -107,6 +106,7 @@ public class CommandManager {
             if (MainConfig.get().DISABLED_COMMANDS.get().contains(alias)
                     || removed
                     || !atCommand.getRequiredFeature()) {
+                CoreClass.debug(alias + " has been marked for removal.");
                 if (command.isRegistered()) {
                     removed = true;
                     command.unregister(map);
@@ -118,6 +118,8 @@ public class CommandManager {
             for (String alias : aliases) {
                 commands.remove(alias);
                 commands.remove("advancedteleport:" + alias);
+
+                CoreClass.debug("Removed " + alias + ".");
 
                 // Let another plugin take over
                 Bukkit.getScheduler()
@@ -134,6 +136,7 @@ public class CommandManager {
                                         if (parts.length < 2) continue;
                                         if (parts[1].equals(alias)) {
                                             if (parts[0].equals("advancedteleport")) continue;
+                                            CoreClass.debug("Letting " + parts[0] + "'s " + alias + " take over...");
                                             pendingChanges.put(alias, commands.get(otherCmd));
                                             break;
                                         }
@@ -169,6 +172,8 @@ public class CommandManager {
             command.setExecutor(usageExecutor);
             command.setTabCompleter(atCommand);
         }
+
+        CoreClass.debug(aliases + " has " + (command.isRegistered() ? "" : "not ") + "been registed successfully.");
 
         registeredCommands.put(name, command);
     }
