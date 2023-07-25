@@ -71,6 +71,14 @@ public class PaymentManager {
             if (matcher.matches()) {
                 String plugin = matcher.group(1);
                 double payment = Double.parseDouble(matcher.group(2));
+
+                CoreClass.debug("Split payment into two, part 1: " + plugin + ", part two: " + payment);
+                CoreClass.debug("Material: " + Material.getMaterial(plugin == null ? "" : plugin);
+
+                // If it's not a plugin and actually an item, lmao
+                if (plugin != null && Material.getMaterial(plugin) != null) {
+                    return ItemsPayment.getFromString(rawPayment);
+                }
                 return new VaultPayment(
                         payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
             }
@@ -86,6 +94,9 @@ public class PaymentManager {
             if (matcher.matches()) {
                 String plugin = matcher.group(1);
                 double payment = Double.parseDouble(matcher.group(2));
+
+                CoreClass.debug("Split payment into two, part 1: " + plugin + ", part two: " + payment);
+                CoreClass.debug("Material: " + Material.getMaterial(plugin == null ? "" : plugin);
 
                 // If it's not a plugin and actually an item, lmao
                 if (plugin != null && Material.getMaterial(plugin) != null) {
