@@ -67,10 +67,10 @@ public class PaymentManager {
 
     private Payment parsePayment(String rawPayment) {
         if (rawPayment.length() - 3 <= 0) {
-            Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
+            Matcher matcher = Pattern.compile("^((.+):)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
             if (matcher.matches()) {
-                String plugin = matcher.group(1);
-                double payment = Double.parseDouble(matcher.group(2));
+                String plugin = matcher.group(2);
+                double payment = Double.parseDouble(matcher.group(3));
 
                 CoreClass.debug("Split payment into two, part 1: " + plugin + ", part two: " + payment);
                 CoreClass.debug("Material: " + Material.getMaterial(plugin == null ? "" : plugin));
@@ -90,10 +90,10 @@ public class PaymentManager {
         } else if (rawPayment.endsWith("EXP")) {
             return new PointsPayment(Integer.parseInt(points));
         } else {
-            Matcher matcher = Pattern.compile("^(.+:)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
+            Matcher matcher = Pattern.compile("^((.+):)?([0-9]+(\\.[0-9]+)?)").matcher(rawPayment);
             if (matcher.matches()) {
-                String plugin = matcher.group(1);
-                double payment = Double.parseDouble(matcher.group(2));
+                String plugin = matcher.group(2);
+                double payment = Double.parseDouble(matcher.group(3));
 
                 CoreClass.debug("Split payment into two, part 1: " + plugin + ", part two: " + payment);
                 CoreClass.debug("Material: " + Material.getMaterial(plugin == null ? "" : plugin));
