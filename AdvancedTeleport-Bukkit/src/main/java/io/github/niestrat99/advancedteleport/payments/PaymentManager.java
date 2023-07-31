@@ -176,10 +176,10 @@ public class PaymentManager {
         var payments = new HashMap<String, Payment>();
         for (String key : customCosts.getKeys(false)) {
             String worldName = toWorld.getName().toLowerCase(Locale.ROOT);
-            if (!player.hasPermission("at.member.cost." + key)
-                    && !player.hasPermission("at.member.cost." + command + "." + key)
-                    && !player.hasPermission("at.member.cost." + worldName + "." + key)
-                    && !player.hasPermission(
+            if (!hasPermission(player, "at.member.cost." + key)
+                    && !hasPermission(player, "at.member.cost." + command + "." + key)
+                    && !hasPermission(player, "at.member.cost." + worldName + "." + key)
+                    && !hasPermission(player,
                             "at.member.cost." + command + "." + worldName + "." + key)) continue;
             String rawPayment = customCosts.getString(key);
             if (rawPayment == null) continue;
@@ -189,5 +189,9 @@ public class PaymentManager {
         }
         if (payments.isEmpty()) payments = teleportCosts.get(command);
         return payments;
+    }
+
+    private boolean hasPermission(Player player, String permission) {
+        return player.isPermissionSet(permission) && player.hasPermission(permission);
     }
 }
