@@ -461,6 +461,12 @@ bukkit {
             usage = "/tpofflinehere <Player>"
             aliases = listOf("tpofflh", "tpofflhere")
         }
+
+        register("tpconfirm") {
+            description = "Confirms a teleportation to a dangerous zone."
+            permission = "at.member.confirm"
+            usage = "/tpconfirm"
+        }
     }
 
     permissions {

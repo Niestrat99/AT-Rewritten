@@ -393,6 +393,7 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.randomLocFailed",
                 "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
+        addDefault("Error.notAwaitingConfirmation", "<prefix> <gray>You don't need to confirm any teleportation! If you're headed towards a dangerous place, we'll let you know.");
 
         makeSectionLenient("Info");
         addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
@@ -597,6 +598,12 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Info.mirrorSpawnSame",
                 "<prefix> <gray>The spawns for <aqua><from></aqua> and <aqua><spawn></aqua> already to go the same place! Don't worry :)");
+
+        addDefault(
+                "Info.dangerousArea",
+                "<prefix> <gray>WARNING: the area you are teleporting to has been marked as potentially unsafe, meaning you could die or lose your items.<br>" +
+                        "If you are happy to teleport to the location, please run the command <aqua>/tpconfirm</aqua>.");
+        addDefault("Info.confirmedTeleportation", "<prefix> <gray>You've confirmed the teleportation! Good luck out there.");
 
         addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: <aqua><home>");
         addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: <aqua><warp>");
