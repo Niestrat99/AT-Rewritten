@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.commands.CoreCommand;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.commands.core.*;
 import io.github.niestrat99.advancedteleport.commands.home.*;
+import io.github.niestrat99.advancedteleport.commands.misc.TpConfirm;
 import io.github.niestrat99.advancedteleport.commands.spawn.*;
 import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
@@ -51,6 +52,8 @@ public class CommandManager {
         register("tpyes", new TpYes());
         register("tpoffline", new TpOffline());
         register("tpofflinehere", new TpHereOffline());
+
+        register("tpconfirm", new TpConfirm());
 
         register("home", new HomeCommand());
         register("sethome", new SetHomeCommand());
