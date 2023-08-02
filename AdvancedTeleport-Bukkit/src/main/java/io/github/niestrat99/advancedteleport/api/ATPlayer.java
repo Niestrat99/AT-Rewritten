@@ -208,6 +208,7 @@ public class ATPlayer {
                                 PaymentManager.getInstance()
                                         .withdraw(
                                                 command, player, event.getToLocation().getWorld());
+                                InvulnerabilityManager.createInvulnerability(player, getInvulnerability(command, event.getToLocation().getWorld()));
                                 if (MainConfig.get()
                                         .APPLY_COOLDOWN_AFTER
                                         .get()
@@ -605,7 +606,7 @@ public class ATPlayer {
 
                             if (home == null) return;
                             HomeSQLManager.get().removeHome(uuid, home.getName());
-                            
+
                 }, CoreClass.async);
     }
 
