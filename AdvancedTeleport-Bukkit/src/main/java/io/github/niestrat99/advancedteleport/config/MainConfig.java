@@ -42,6 +42,10 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
     public ConfigOption<ConfigSection> CUSTOM_COSTS;
+    public ConfigOption<Integer> INVULNERABILITY_DURATION;
+    public ConfigOption<List<String>> DAMAGE_BLACKLIST;
+    public PerCommandOption<Integer> DURATIONS;
+    public ConfigOption<ConfigSection> CUSTOM_DURATIONS;
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
     public PerCommandOption<String> WAITING_PARTICLES;
@@ -284,7 +288,7 @@ public final class MainConfig extends ATConfig {
                   vip-cooldown: 3
                 Giving a group, such as VIP, the permission at.member.cooldown.vip-cooldown will have a cooldown of 3.
                 The key (vip-cooldown) and group name (VIP) do not have to be different, this is just an example.
-                You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag.To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldown.
+                You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag. To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldown.
                 To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.\
                 """);
 
@@ -325,6 +329,32 @@ public final class MainConfig extends ATConfig {
                   vip-cost: Essentials:100
                 Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.
                 To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.\
+                """);
+
+        addDefault("invulnerability-duration", 0, "Invulnerability", "How long the invulnerability period lasts in seconds.");
+        addDefault("damage-blacklist", new ArrayList<>(), "All damage causes that are not cancelled by invulnerability.\n" +
+                "The full list is accessible here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html");
+
+        addComment("per-command-invulnerability", "Command-specific invulnerability durations.");
+        addDefault("per-command-invulnerability.tpa", "default", "Invulnerability duration for /tpa.");
+        addDefault("per-command-invulnerability.tpahere", "default", "Invulnerability duration for /tpahere.");
+        addDefault("per-command-invulnerability.tpr", "default", "Invulnerability duration for /tpr, or /rtp.");
+        addDefault("per-command-invulnerability.warp", "default", "Invulnerability duration for /warp");
+        addDefault("per-command-invulnerability.spawn", "default", "Invulnerability duration for /spawn");
+        addDefault("per-command-invulnerability.home", "default", "Invulnerability duration for /home");
+        addDefault("per-command-invulnerability.back", "default", "Invulnerability duration for /back");
+
+        makeSectionLenient("custom-invulnerability-periods");
+        addComment(
+                "custom-invulnerability-periods",
+                """
+                Use this section to create custom invulnerability periods per-group.
+                Use the following format:
+                custom-invulnerability-periods:
+                  vip: 5
+                Giving a group, such as VIP, the permission at.member.invulnerability.vip will have an invulnerable period of 5 seconds.
+                To make it per-command, add the permission at.member.invulnerability.tpa.vip (for tpa) instead.\
+                You can also add at.member.invulnerability.5, but this is more efficient if you find permissions lag.
                 """);
 
         addDefault(
@@ -1028,6 +1058,11 @@ public final class MainConfig extends ATConfig {
         COST_AMOUNT = new ConfigOption<>("cost-amount");
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
         CUSTOM_COSTS = new ConfigOption<>("custom-costs");
+
+        INVULNERABILITY_DURATION = new ConfigOption<>("invulnerability-duration");
+        DAMAGE_BLACKLIST = new ConfigOption<>("damage-blacklist");
+        DURATIONS = new PerCommandOption<>("per-command-invulnerability", "invulnerability-duration");
+        CUSTOM_DURATIONS = new ConfigOption<>("custom-invulnerability-periods");
 
         USE_PARTICLES = new ConfigOption<>("use-particles");
         WAITING_PARTICLES =

@@ -109,6 +109,10 @@ public class MovementManager implements Listener {
                         CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
                         PaymentManager.getInstance()
                                 .withdraw(command, payingPlayer, location.getWorld());
+                        InvulnerabilityManager.createInvulnerability(
+                                teleportingPlayer,
+                                ATPlayer.getPlayer(teleportingPlayer)
+                                        .getInvulnerability(command, location.getWorld()));
                         // If the cooldown is to be applied after only after a teleport takes place,
                         // apply it now
                         if (MainConfig.get()
