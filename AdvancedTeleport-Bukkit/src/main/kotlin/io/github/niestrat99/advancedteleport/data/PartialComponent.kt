@@ -49,8 +49,7 @@ class PartialComponent private constructor(private var raw: String) {
         }
 
         for ((placeholder, prefix) in actualPlaceholders) {
-            val index = tmp.indexOf(placeholder).takeIf { it != -1 } ?: continue
-            tmp = tmp.replaceRange(index, index + placeholder.length, prefix)
+            tmp = tmp.replace(placeholder, prefix)
 
             dirty = true
             cache = null
