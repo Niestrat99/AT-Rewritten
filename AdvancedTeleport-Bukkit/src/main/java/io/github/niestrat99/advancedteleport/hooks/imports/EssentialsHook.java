@@ -157,17 +157,16 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
 
         for (String warp : warps.getList()) {
             try {
-                if (AdvancedTeleportAPI.getWarps().containsKey(warp)) {
-                    AdvancedTeleportAPI.getWarps().get(warp).setLocation(warps.getWarp(warp));
+                Warp warpObj = AdvancedTeleportAPI.getWarp(warp);
+                if (warpObj != null) {
+                    Location loc = warps.getWarp(warp);
+                    Bukkit.getScheduler().runTask(CoreClass.getInstance(),
+                            () -> warpObj.setLocation(loc));
                 } else {
-                    WarpSQLManager.get()
-                            .addWarp(
-                                    new Warp(
-                                            warps.getLastOwner(warp),
-                                            warp,
-                                            warps.getWarp(warp),
-                                            System.currentTimeMillis(),
-                                            System.currentTimeMillis()));
+                    UUID uuid = warps.getLastOwner(warp);
+                    Location loc = warps.getWarp(warp);
+                    Bukkit.getScheduler().runTask(CoreClass.getInstance(),
+                            () -> AdvancedTeleportAPI.setWarp(warp, Bukkit.getPlayer(uuid), loc));
                 }
             } catch (WarpNotFoundException | InvalidWorldException e) {
                 e.printStackTrace();
