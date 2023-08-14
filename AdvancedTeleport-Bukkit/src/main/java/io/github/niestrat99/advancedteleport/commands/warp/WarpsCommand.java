@@ -15,6 +15,7 @@ import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -154,8 +155,8 @@ public final class WarpsCommand extends ATCommand {
                                             .toList());
 
             if (!body.content().isEmpty() || !body.children().isEmpty()) {
-                Component text = CustomMessages.getComponent("Info.warps");
-                CustomMessages.asAudience(sender).sendMessage(text.append(body));
+                String text = CustomMessages.config.getString("Info.warps") + "<warps>";
+                CustomMessages.asAudience(sender).sendMessage(CustomMessages.translate(text, Placeholder.component("warps", body)));
             } else CustomMessages.sendMessage(sender, "Error.noWarps");
         }
     }
