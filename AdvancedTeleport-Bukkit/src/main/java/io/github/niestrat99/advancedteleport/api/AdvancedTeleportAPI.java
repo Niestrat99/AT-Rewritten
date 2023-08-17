@@ -178,6 +178,12 @@ public final class AdvancedTeleportAPI {
                                             .orElse(null));
                     NamedLocationManager.get().registerSpawn(spawn);
 
+                    // If there is no main spawn yet, make it this one too
+                    if (NamedLocationManager.get().getMainSpawn() == null) {
+                        Bukkit.getScheduler().runTask(CoreClass.getInstance(),
+                                () -> AdvancedTeleportAPI.setMainSpawn(spawn, sender));
+                    }
+
                     // Add it to the database.
                     return SpawnSQLManager.get()
                             .addSpawn(spawn)
