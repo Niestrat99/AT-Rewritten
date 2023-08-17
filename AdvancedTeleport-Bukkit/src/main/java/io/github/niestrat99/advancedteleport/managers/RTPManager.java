@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

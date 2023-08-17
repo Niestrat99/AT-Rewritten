@@ -24,21 +24,24 @@ import java.util.UUID;
 
 public class NBTReader {
 
-    public static void getLocation(
-        String name,
-        NBTCallback<Location> callback
-    ) {
+    public static void getLocation(String name, NBTCallback<Location> callback) {
         RunnableManager.setupRunnerAsync(() -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
             try {
                 Location location = getLocation(player);
                 if (location == null) {
-                    callback.onFail(CustomMessages.getComponent("Error.noOfflineLocation", Placeholder.unparsed("player", name)));
+                    callback.onFail(
+                            CustomMessages.getComponent(
+                                    "Error.noOfflineLocation",
+                                    Placeholder.unparsed("player", name)));
                     return;
                 }
                 callback.onSuccess(location);
             } catch (IOException e) {
-                callback.onFail(CustomMessages.getComponent("Error.failedOfflineTeleport", Placeholder.unparsed("player", name)));
+                callback.onFail(
+                        CustomMessages.getComponent(
+                                "Error.failedOfflineTeleport",
+                                Placeholder.unparsed("player", name)));
                 e.printStackTrace();
             }
         });
@@ -90,11 +93,7 @@ public class NBTReader {
         return null;
     }
 
-    public static void setLocation(
-        String name,
-        Location newLoc,
-        NBTCallback<Boolean> callback
-    ) {
+    public static void setLocation(String name, Location newLoc, NBTCallback<Boolean> callback) {
         RunnableManager.setupRunnerAsync(() -> {
             OfflinePlayer player = Bukkit.getOfflinePlayer(name);
             try {
