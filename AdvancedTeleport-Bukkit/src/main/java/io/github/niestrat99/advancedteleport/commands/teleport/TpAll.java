@@ -45,7 +45,7 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
         int requestLifetime = MainConfig.get().REQUEST_LIFETIME.get();
         for (Player target : Bukkit.getOnlinePlayers()) {
             if (target == player) continue;
-            if (!ConditionChecker.canTeleport(player, target, "tpahere").isEmpty()) {
+            if (ConditionChecker.canTeleport(player, target, "tpahere") != null) {
                 continue;
             }
             players++;
