@@ -411,7 +411,7 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>They've got <aqua><lifetime></aqua> to respond!
             <prefix> <gray>To cancel the request use <aqua>/tpcancel</aqua> to cancel it.
 
-                                <click:run_command:'tpcancel <player>'><hover:show_text:'<red>Click here to cancel the request.'><gray><bold>[CANCEL]</hover></click>
+                                <click:run_command:'/tpcancel <player>'><hover:show_text:'<red>Click here to cancel the request.'><gray><bold>[CANCEL]</hover></click>
         """
                         .stripIndent());
         addDefault(
@@ -421,7 +421,7 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime></aqua> to respond to it!
 
-                                <click:run_command:'tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
+                                <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:'/tpano <player>'><hover:show_text:'<red>Click here to deny the request.'><red><bold>[DENY]</red></bold></hover></click>
         """
                         .stripIndent());
         addDefault(
@@ -431,7 +431,7 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime> seconds</aqua> to respond to it!
 
-                              <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
+                              <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:'/tpano <player>'><hover:show_text:'<red>Click here to deny the request.'><red><bold>[DENY]</red></bold></hover></click>
         """
                         .stripIndent());
         addDefault("Info.blockPlayer", "<prefix> <aqua><player> <gray>has been blocked.");
@@ -457,7 +457,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.requestDeclined", "<prefix> <gray>You've declined the teleport request!");
         addDefault(
                 "Info.requestDeclinedResponder",
-                "<prefix> <aqua><player></aqua> has declined your teleport request!");
+                "<prefix> <gray><aqua><player></aqua> has declined your teleport request!");
         addDefault(
                 "Info.requestDisplaced",
                 "<prefix> <gray>Your request has been cancelled because <aqua><player></aqua> got another request!");
@@ -503,7 +503,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.requestAccepted", "<prefix> <gray>You've accepted the teleport request!");
         addDefault(
                 "Info.requestAcceptedResponder",
-                "<prefix> <aqua><player></aqua> has accepted the teleport request!");
+                "<prefix> <gray><aqua><player></aqua> has accepted the teleport request!");
         addDefault(
                 "Info.paymentVault",
                 "<prefix> <gray>You have paid <aqua><amount></aqua> and now have <aqua><balance></aqua>!");
