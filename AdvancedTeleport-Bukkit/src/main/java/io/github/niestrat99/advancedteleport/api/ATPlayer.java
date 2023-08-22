@@ -19,6 +19,7 @@ import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
+import io.github.niestrat99.advancedteleport.utilities.NMSUtilities;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
 import io.papermc.paper.entity.TeleportFlag;
@@ -622,8 +623,8 @@ public class ATPlayer {
      */
     @Contract(pure = true)
     public @Nullable Home getBedSpawn() {
-        if (getOfflinePlayer().getBedSpawnLocation() != null) {
-            return new Home(uuid, "bed", getOfflinePlayer().getBedSpawnLocation(), -1, -1);
+        if (NMSUtilities.getRespawnLocation(getOfflinePlayer()) != null) {
+            return new Home(uuid, "bed", NMSUtilities.getRespawnLocation(getOfflinePlayer()), -1, -1);
         }
 
         return null;
