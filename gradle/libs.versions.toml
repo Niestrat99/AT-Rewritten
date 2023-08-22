@@ -22,7 +22,7 @@ pluginyml = "0.6.0"
 folia = "1.20.1-R0.1-SNAPSHOT"
 run-paper = "2.1.0"
 hangar = "0.0.5"
-slimjar = "1.5.4"
+slimjar = "1.6.1"
 
 [libraries]
 paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }

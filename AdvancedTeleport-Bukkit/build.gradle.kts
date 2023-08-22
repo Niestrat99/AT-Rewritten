@@ -146,7 +146,7 @@ tasks {
 
     withType<RunServer>().getByName("runFolia") {
         // Wait for slimJar to go through first
-        dependsOn(slimJar)
+        dependsOn(reobfJar)
 
         // Set the version to 1.20.1
         minecraftVersion("1.20.1")
@@ -157,7 +157,7 @@ tasks {
     runServer {
 
         // Wait for slimJar to go through first
-        dependsOn(slimJar)
+        dependsOn(reobfJar)
 
         // Set the version to 1.20.1
         minecraftVersion("1.20.1")
@@ -201,16 +201,6 @@ tasks {
             relocate("io.github.slimjar", "io.github.niestrat99.advancedteleport.libs.slimjar")
         }
     }
-
-    this.slimJar {
-        dependsOn(shadowJar)
-        dependsOn(jar)
-        dependsOn(inspectClassesForKotlinIC)
-    }
-}
-
-tasks.shadowJar {
-    from(tasks.slimJar.get().outputDirectory)
 }
 
 // Lead development use only.
