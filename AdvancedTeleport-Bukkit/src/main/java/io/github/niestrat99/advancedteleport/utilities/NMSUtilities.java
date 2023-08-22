@@ -6,7 +6,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.craftbukkit.v1_20_R1.CraftOfflinePlayer;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +19,7 @@ public class NMSUtilities {
             return player.getBedSpawnLocation();
         }
 
-        ServerPlayer serverPlayer = ((CraftPlayer) onlinePlayer).getHandle();
+        ServerPlayer serverPlayer = ((CraftPlayer) onlinePlayer).getHandleRaw();
 
         ServerLevel world = serverPlayer.server.getLevel(serverPlayer.getRespawnDimension());
         BlockPos pos = serverPlayer.getRespawnPosition();
