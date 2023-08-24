@@ -47,6 +47,11 @@ repositories {
         name = "ConfigurationMaster"
     }
 
+    maven("https://repo.racci.dev/releases") {
+        name = "RacciRepo"
+        mavenContent { releasesOnly() }
+    }
+
     maven("https://repo.essentialsx.net/releases/") {
         name = "Essentials"
     }
@@ -78,11 +83,6 @@ repositories {
     maven("https://repo.rosewooddev.io/repository/public/") {
         name = "PlayerParticles"
         content { includeGroup("dev.esophose") }
-    }
-
-    maven("https://repo.racci.dev/releases") {
-        name = "RacciRepo"
-        mavenContent { releasesOnly() }
     }
 }
 
