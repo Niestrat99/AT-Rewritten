@@ -183,14 +183,12 @@ tasks {
     }
 
     this.slimJar {
-        dependsOn(shadowJar)
-        dependsOn(jar)
         dependsOn(inspectClassesForKotlinIC)
     }
-}
 
-tasks.shadowJar {
-    from(tasks.slimJar.get().outputDirectory)
+    shadowJar {
+        dependsOn(slimJar)
+    }
 }
 
 // Lead development use only.

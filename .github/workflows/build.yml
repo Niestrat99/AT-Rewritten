@@ -97,10 +97,7 @@ jobs:
       uses: gradle/gradle-build-action@v2
       
     - name: Build with Gradle
-      run: ./gradlew slimJar
-
-    - name: Force JSON files because life is tough and I am a programmer so naturally I work around everything that should be handled head-on
-      run: zip -r -D -j build/advancedteleport-bukkit/libs/AdvancedTeleport-Bukkit-*-all.jar build/advancedteleport-bukkit/resources/slimjar/*.json
+      run: ./gradlew shadowJar
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
