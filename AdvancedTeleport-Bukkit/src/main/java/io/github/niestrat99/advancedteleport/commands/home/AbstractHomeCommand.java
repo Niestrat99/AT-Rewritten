@@ -55,16 +55,4 @@ public abstract class AbstractHomeCommand extends ATCommand {
     public boolean getRequiredFeature() {
         return MainConfig.get().USE_HOMES.get();
     }
-
-    @Override
-    public boolean canProceed(@NotNull final CommandSender sender) {
-        if (!super.canProceed(sender)) return false;
-
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return false;
-        }
-
-        return true;
-    }
 }
