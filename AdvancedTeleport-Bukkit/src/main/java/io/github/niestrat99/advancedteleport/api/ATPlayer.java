@@ -107,6 +107,11 @@ public class ATPlayer {
                     PaperLib.teleportAsync(player, event.getToLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
                     CustomMessages.sendMessage(player, teleportMsg, "{home}", event.getLocName(), "{warp}", event.getLocName());
                     PaymentManager.getInstance().withdraw(command, player);
+
+                    // If the cooldown is to be applied after only after a teleport takes place, apply it now
+                    if (NewConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+                        CooldownManager.addToCooldown(command, player);
+                    }
                 }
             }
 
