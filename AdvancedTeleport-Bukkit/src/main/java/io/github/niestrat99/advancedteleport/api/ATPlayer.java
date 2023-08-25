@@ -221,6 +221,13 @@ public class ATPlayer {
                                 PaymentManager.getInstance()
                                         .withdraw(
                                                 command, player, event.getToLocation().getWorld());
+                                if (MainConfig.get()
+                                        .APPLY_COOLDOWN_AFTER
+                                        .get()
+                                        .equalsIgnoreCase("teleport")) {
+                                    CooldownManager.addToCooldown(
+                                            command, player, event.getToLocation().getWorld());
+                                }
                             });
         }
     }
