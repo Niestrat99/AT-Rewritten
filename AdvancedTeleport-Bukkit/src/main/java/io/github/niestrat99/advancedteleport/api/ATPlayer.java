@@ -473,7 +473,7 @@ public class ATPlayer {
     public @NotNull CompletableFuture<Void> addHome(
             @NotNull final String name,
             @NotNull final Location location,
-            @NotNull final Player creator) {
+            @NotNull final CommandSender creator) {
         return addHome(name, location, creator, true);
     }
 
@@ -489,7 +489,7 @@ public class ATPlayer {
     public @NotNull CompletableFuture<Void> addHome(
             @NotNull final String name,
             @NotNull final Location location,
-            @Nullable final Player creator,
+            @Nullable final CommandSender creator,
             final boolean async) {
 
         // If the home exists, move it instead
