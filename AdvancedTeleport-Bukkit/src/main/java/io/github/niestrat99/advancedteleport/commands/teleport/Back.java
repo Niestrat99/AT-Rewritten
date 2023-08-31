@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 
 public final class Back extends TeleportATCommand implements TimedATCommand {
 
-    private final Predicate<Material> IS_AIR_OR_WATER = mat -> mat.isAir() && mat == Material.WATER;
+    private final Predicate<Material> IS_AIR_OR_WATER = mat -> mat.isAir() || mat == Material.WATER;
 
     @Override
     public boolean onCommand(
