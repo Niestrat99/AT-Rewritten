@@ -49,6 +49,11 @@ repositories {
         name = "ConfigurationMaster"
     }
 
+    maven("https://repo.racci.dev/releases") {
+        name = "RacciRepo"
+        mavenContent { releasesOnly() }
+    }
+
     maven("https://repo.essentialsx.net/releases/") {
         name = "Essentials"
     }
@@ -80,11 +85,6 @@ repositories {
     maven("https://repo.rosewooddev.io/repository/public/") {
         name = "PlayerParticles"
         content { includeGroup("dev.esophose") }
-    }
-
-    maven("https://repo.racci.dev/releases") {
-        name = "RacciRepo"
-        mavenContent { releasesOnly() }
     }
 }
 
@@ -201,6 +201,18 @@ tasks {
             relocate("io.github.slimjar", "io.github.niestrat99.advancedteleport.libs.slimjar")
         }
     }
+
+    this.slimJar {
+        dependsOn(inspectClassesForKotlinIC)
+    }
+
+    shadowJar {
+        dependsOn(slimJar)
+    }
+
+    this.modrinth {
+        dependsOn(shadowJar)
+    }
 }
 
 // Lead development use only.
@@ -209,7 +221,7 @@ modrinth {
     projectId.set("BQFzmxKU")
     versionNumber.set(project.version.toString())
     versionType.set(getReleaseType())
-    uploadFile.set(getJarFile())
+    uploadFile.set(tasks.shadowJar.get())
     gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"))
     loaders.addAll("paper", "spigot", "purpur")
     changelog.set(getCogChangelog())
@@ -642,5 +654,5 @@ fun getJarFile(): File {
 
     // Get the jar file
     val fileName = project.name + "-" + project.version.toString() + "-all.jar"
-    return tasks.slimJar.get().buildDirectory.resolve("libs").resolve(fileName)
+    return buildDir.resolve("libs").resolve(fileName)
 }

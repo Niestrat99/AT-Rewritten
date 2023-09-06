@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 
 public final class Back extends TeleportATCommand implements TimedATCommand {
 
-    private final Predicate<Material> IS_AIR_OR_WATER = mat -> mat.isAir() && mat == Material.WATER;
+    private final Predicate<Material> IS_AIR_OR_WATER = mat -> mat.isAir() || mat == Material.WATER;
 
     @Override
     public boolean onCommand(
@@ -75,8 +75,9 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
                 t.setZ(originalZ - dz);
                 for (int dy = -radius; dy <= radius; dy++) {
                     t.setY(originalY - dy);
-                    if (!t.getBlock().getType().name().equals("LAVA")
-                            && !IS_AIR_OR_WATER.test(t.getBlock().getType())
+                    Material material = t.getBlock().getType();
+                    if (!material.name().equals("LAVA")
+                            && !IS_AIR_OR_WATER.test(material)
                             && IS_AIR_OR_WATER.test(
                             t.clone().add(0.0, 1.0, 0.0).getBlock().getType())
                             && IS_AIR_OR_WATER.test(
@@ -105,10 +106,11 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
 
         // Check for bad blocks
         int lavablocks = 0;
-        while (!IS_AIR_OR_WATER.test(loc.getBlock().getType()) && possiblelocs.isEmpty()) {
+        Material material = loc.getBlock().getType();
+        while (!IS_AIR_OR_WATER.test(material) && possiblelocs.isEmpty()) {
 
             // If we go beyond max height, stop and reset the Y value
-            if (loc.getBlock().getType().name().equalsIgnoreCase("Lava")) ++lavablocks;
+            if (material.name().equalsIgnoreCase("Lava")) ++lavablocks;
             if (loc.getY() > loc.getWorld().getMaxHeight() || lavablocks > 5) {
                 loc.setY(originalY);
                 break;

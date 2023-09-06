@@ -56,6 +56,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     public void addWarp(@NotNull final Warp warp) {
         addMarker(
                 "advancedteleport_warp_" + warp.getName(),
+                warp.getName(),
                 MapAssetManager.IconType.WARP,
                 null,
                 warpsMarker,
@@ -66,6 +67,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     public void addHome(@NotNull final Home home) {
         addMarker(
                 "advancedteleport_home_" + home.getOwner() + "_" + home.getName(),
+                home.getName(),
                 MapAssetManager.IconType.HOME,
                 home.getOwner(),
                 homesMarker,
@@ -76,6 +78,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     public void addSpawn(@NotNull final Spawn spawn) {
         addMarker(
                 "advancedteleport_spawn_" + spawn.getName(),
+                spawn.getName(),
                 MapAssetManager.IconType.SPAWN,
                 null,
                 spawnsMarker,
@@ -102,6 +105,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     public void moveWarp(@NotNull final Warp warp) {
         moveMarker(
                 "advancedteleport_warp_" + warp.getName(),
+                warp.getName(),
                 warpsMarker,
                 MapAssetManager.IconType.WARP,
                 null,
@@ -112,6 +116,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     public void moveHome(@NotNull final Home home) {
         moveMarker(
                 "advancedteleport_home_" + home.getOwner() + "_" + home.getName(),
+                home.getName(),
                 homesMarker,
                 MapAssetManager.IconType.HOME,
                 home.getOwner(),
@@ -122,6 +127,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     public void moveSpawn(@NotNull final Spawn spawn) {
         moveMarker(
                 "advancedteleport_spawn_" + spawn.getName(),
+                spawn.getName(),
                 spawnsMarker,
                 MapAssetManager.IconType.SPAWN,
                 null,
@@ -136,6 +142,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
 
     private void addMarker(
             @NotNull final String name,
+            @NotNull final String displayName,
             @NotNull final MapAssetManager.IconType type,
             @Nullable final UUID owner,
             @NotNull final MarkerSet set,
@@ -152,7 +159,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
                             // Create the marker
                             set.createMarker(
                                     name,
-                                    iconData.hoverTooltip().replace("{name}", name),
+                                    iconData.hoverTooltip().replace("{name}", displayName),
                                     location.getWorld().getName(),
                                     location.getX(),
                                     location.getY(),
@@ -173,12 +180,13 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
 
     private void moveMarker(
             @NotNull final String name,
+            @NotNull final String displayName,
             @NotNull final MarkerSet set,
             @NotNull final MapAssetManager.IconType type,
             @Nullable final UUID owner,
             @NotNull final Location location) {
         removeMarker(name, set);
-        addMarker(name, type, owner, set, location);
+        addMarker(name, displayName, type, owner, set, location);
     }
 
     public void updateIcon(
