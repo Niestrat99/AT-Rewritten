@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.folia.schedulers.FoliaRunnable;
 import io.github.niestrat99.advancedteleport.folia.schedulers.NormalBukkitRunnable;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
@@ -81,11 +82,33 @@ public class RunnableManager {
         return setupRunner(task -> runnable.run());
     }
 
+    public static CancellableRunnable setupRunner(Location location, Runnable runnable) {
+        return setupRunner(location, task -> runnable.run());
+    }
+
+    public static CancellableRunnable setupRunner(Entity entity, Runnable runnable, Runnable retired) {
+        return setupRunner(entity, task -> runnable.run(), retired);
+    }
+
     public static CancellableRunnable setupRunner(Consumer<CancellableRunnable> runnable) {
 
         return run(runnable,
                 (run) -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), run::start),
                 (run) -> Bukkit.getGlobalRegionScheduler().run(CoreClass.getInstance(), run::start));
+    }
+
+    public static CancellableRunnable setupRunner(Location location, Consumer<CancellableRunnable> runnable) {
+
+        return run(runnable,
+                (run) -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), run::start),
+                (run) -> Bukkit.getRegionScheduler().execute(CoreClass.getInstance(), location, run));
+    }
+
+    public static CancellableRunnable setupRunner(Entity entity, Consumer<CancellableRunnable> runnable, Runnable retired) {
+
+        return run(runnable,
+                (run) -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), run::start),
+                (run) -> entity.getScheduler().run(CoreClass.getInstance(), run::start, retired));
     }
 
     private static CancellableRunnable run(
