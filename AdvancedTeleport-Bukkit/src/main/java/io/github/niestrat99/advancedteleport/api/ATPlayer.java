@@ -11,6 +11,7 @@ import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocation
 import io.github.niestrat99.advancedteleport.api.events.players.ToggleTeleportationEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
@@ -264,7 +265,7 @@ public class ATPlayer {
             }
 
             //
-            if (flags.size() > 0) {
+            if (flags.size() > 0 && !RunnableManager.isFolia()) {
                 return CompletableFuture.completedFuture(
                         player.teleport(location, cause, flags.toArray(new TeleportFlag[0])));
             }
