@@ -126,6 +126,13 @@ public class TeleportTrackingManager implements Listener {
                     Placeholder.unparsed("world", e.getToLocation().getWorld().getName()));
             e.setCancelled(true);
         }
+
+        // Temporary fix for Folia - set the previous location
+        if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
+                && MainConfig.get().BACK_TELEPORT_CAUSES.get().contains("COMMAND")
+                && RunnableManager.isFolia()) {
+            ATPlayer.getPlayer(e.getPlayer()).setPreviousLocation(e.getFromLocation());
+        }
     }
 
     @EventHandler
