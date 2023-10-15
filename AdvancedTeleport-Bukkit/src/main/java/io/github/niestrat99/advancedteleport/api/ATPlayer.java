@@ -67,10 +67,6 @@ public class ATPlayer {
                     setMainHome(result, null);
                 }
             });
-            // Add the bed spawn home
-            if (getBedSpawn() != null && NewConfig.get().ADD_BED_TO_HOMES.get()) {
-                homes.put("bed", getBedSpawn());
-            }
         });
 
         PlayerSQLManager.get().isTeleportationOn(uuid, result -> this.isTeleportationEnabled = result);
@@ -171,7 +167,12 @@ public class ATPlayer {
      */
 
     public HashMap<String, Home> getHomes() {
-        return homes;
+        final HashMap<String, Home> map = new HashMap<>(homes);
+        final Home bedSpawn = getBedSpawn();
+        if (bedSpawn != null && NewConfig.get().ADD_BED_TO_HOMES.get() && !map.containsKey("bed")) {
+            map.put("bed", bedSpawn);
+        }
+        return map;
     }
 
     public void addHome(String name, Location location, SQLManager.SQLCallback<Boolean> callback) {
