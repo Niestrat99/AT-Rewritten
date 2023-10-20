@@ -160,7 +160,7 @@ tasks {
         dependsOn(reobfJar)
 
         // Set the version to 1.20.1
-        minecraftVersion("1.20.1")
+        minecraftVersion("1.20.2")
 
         // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
