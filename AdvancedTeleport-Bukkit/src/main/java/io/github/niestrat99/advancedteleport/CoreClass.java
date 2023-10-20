@@ -140,7 +140,9 @@ public final class CoreClass extends JavaPlugin {
 
         new Metrics(this, 5146);
         RunnableManager.setupRunnerAsync(() -> {
-            RTPManager.init();
+            if (RunnableManager.isFolia()) {
+                RunnableManager.setupRunnerDelayedAsync(task -> RTPManager.init(), 60);
+            }
             if (MainConfig.get().CHECK_FOR_UPDATES.get()) {
                 updateInfo = UpdateChecker.getUpdate();
                 if (updateInfo != null) {
