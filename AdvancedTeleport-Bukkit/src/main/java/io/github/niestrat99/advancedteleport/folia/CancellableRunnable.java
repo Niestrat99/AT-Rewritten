@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 public class CancellableRunnable implements Runnable {
 
     private final @NotNull Consumer<CancellableRunnable> consumer;
+    protected boolean cancelled = false;
 
     public CancellableRunnable(final @NotNull Consumer<CancellableRunnable> consumer) {
         this.consumer = consumer;
@@ -17,7 +18,7 @@ public class CancellableRunnable implements Runnable {
     }
 
     public void cancel() {
-
+        cancelled = true;
     }
 
     @Override

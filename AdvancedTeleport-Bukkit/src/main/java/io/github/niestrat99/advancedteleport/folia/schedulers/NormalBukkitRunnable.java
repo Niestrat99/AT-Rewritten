@@ -21,11 +21,12 @@ public class NormalBukkitRunnable extends CancellableRunnable {
 
     public void start(@NotNull BukkitTask task) {
         this.task = task;
-        run();
+        if (!cancelled) run();
     }
 
     @Override
     public void cancel() {
+        super.cancel();
         if (task != null) this.task.cancel();
     }
 }
