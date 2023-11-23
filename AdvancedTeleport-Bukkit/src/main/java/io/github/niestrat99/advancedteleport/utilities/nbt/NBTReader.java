@@ -103,6 +103,9 @@ public class NBTReader {
         builder.put("Pos", posTag.build());
         builder.put("Rotation", rotTag.build());
 
+        builder.put("WorldUUIDMost", LongBinaryTag.of(location.getWorld().getUID().getMostSignificantBits()));
+        builder.put("WorldUUIDLeast", LongBinaryTag.of(location.getWorld().getUID().getLeastSignificantBits()));
+
         BinaryTagIO.writer().write(builder.build(), dataFile.toPath(), BinaryTagIO.Compression.GZIP);
     }
 
