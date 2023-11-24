@@ -47,6 +47,11 @@ repositories {
         name = "ConfigurationMaster"
     }
 
+    maven("https://repo.racci.dev/releases") {
+        name = "RacciRepo"
+        mavenContent { releasesOnly() }
+    }
+
     maven("https://repo.essentialsx.net/releases/") {
         name = "Essentials"
     }
@@ -79,15 +84,10 @@ repositories {
         name = "PlayerParticles"
         content { includeGroup("dev.esophose") }
     }
-
-    maven("https://repo.racci.dev/releases") {
-        name = "RacciRepo"
-        mavenContent { releasesOnly() }
-    }
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
 
     implementation(libs.slimjar)
 
@@ -143,7 +143,7 @@ tasks {
         dependsOn(slimJar)
 
         // Set the version to 1.20.1
-        minecraftVersion("1.20.1")
+        minecraftVersion("1.20.2")
 
         // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
@@ -183,9 +183,15 @@ tasks {
     }
 
     this.slimJar {
-        dependsOn(shadowJar)
-        dependsOn(jar)
         dependsOn(inspectClassesForKotlinIC)
+    }
+
+    shadowJar {
+        dependsOn(slimJar)
+    }
+
+    this.modrinth {
+        dependsOn(shadowJar)
     }
 }
 
@@ -199,7 +205,7 @@ modrinth {
     projectId.set("BQFzmxKU")
     versionNumber.set(project.version.toString())
     versionType.set(getReleaseType())
-    uploadFile.set(getJarFile())
+    uploadFile.set(tasks.shadowJar.get())
     gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"))
     loaders.addAll("paper", "spigot", "purpur")
     changelog.set(getCogChangelog())
@@ -636,5 +642,5 @@ fun getJarFile(): File {
 
     // Get the jar file
     val fileName = project.name + "-" + project.version.toString() + "-all.jar"
-    return tasks.slimJar.get().buildDirectory.resolve("libs").resolve(fileName)
+    return buildDir.resolve("libs").resolve(fileName)
 }

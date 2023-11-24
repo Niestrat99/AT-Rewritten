@@ -3,7 +3,6 @@ package io.github.niestrat99.advancedteleport.commands.home;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
-import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 
 import org.bukkit.command.Command;
@@ -27,7 +26,7 @@ public abstract class AbstractHomeCommand extends ATCommand {
             @NotNull final String[] args) {
         if (!(sender instanceof Player player)) return Collections.emptyList();
 
-        if (player.hasPermission(getPermission()) && !args[0].isEmpty() && args.length == 2) {
+        if (player.hasPermission(getAdminPermission()) && !args[0].isEmpty() && args.length == 2) {
             final var atTarget = ATPlayer.getPlayer(args[0]);
             if (atTarget == null) return Collections.emptyList();
             return StringUtil.copyPartialMatches(
@@ -56,15 +55,5 @@ public abstract class AbstractHomeCommand extends ATCommand {
         return MainConfig.get().USE_HOMES.get();
     }
 
-    @Override
-    public boolean canProceed(@NotNull final CommandSender sender) {
-        if (!super.canProceed(sender)) return false;
-
-        if (!(sender instanceof Player)) {
-            CustomMessages.sendMessage(sender, "Error.notAPlayer");
-            return false;
-        }
-
-        return true;
-    }
+    public abstract @NotNull String getAdminPermission();
 }

@@ -40,13 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
@@ -92,14 +86,7 @@ public class ATPlayer {
                                         () -> HomeSQLManager.get().getHomes(uuid.toString()),
                                         CoreClass.async)
                                 .thenApplyAsync(
-                                        list -> {
-                                            if (getBedSpawn() != null
-                                                    && MainConfig.get().ADD_BED_TO_HOMES.get()) {
-                                                list.put("bed", getBedSpawn());
-                                            }
-
-                                            return list;
-                                        },
+                                        list -> list,
                                         CoreClass.async));
 
         // Set up the main home data
@@ -244,6 +231,13 @@ public class ATPlayer {
                                 PaymentManager.getInstance()
                                         .withdraw(
                                                 command, player, event.getToLocation().getWorld());
+                                if (MainConfig.get()
+                                        .APPLY_COOLDOWN_AFTER
+                                        .get()
+                                        .equalsIgnoreCase("teleport")) {
+                                    CooldownManager.addToCooldown(
+                                            command, player, event.getToLocation().getWorld());
+                                }
                             });
         }
     }
@@ -481,7 +475,15 @@ public class ATPlayer {
      */
     @Contract(pure = true)
     public @NotNull ImmutableMap<String, Home> getHomes() {
-        return ImmutableMap.copyOf(homes.data == null ? new HashMap<>() : homes.data);
+        return getHomes(true);
+    }
+
+    @Contract(pure = true)
+    public @NotNull ImmutableMap<String, Home> getHomes(boolean withBed) {
+        final var map = homes.data == null ? new HashMap<String, Home>() : homes.data;
+        final var bedSpawn = getBedSpawn();
+        if (withBed && bedSpawn != null && MainConfig.get().ADD_BED_TO_HOMES.get()) map.put("bed", bedSpawn);
+        return ImmutableMap.copyOf(map);
     }
 
     @Contract(pure = true)

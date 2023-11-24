@@ -120,7 +120,12 @@ public class SpawnSQLManager extends SQLManager {
 
             // If the spawn name matches, add the metadata
             if (spawnName.equals(mainSpawn)) {
-                MetadataSQLManager.get().addSpawnMetadata(spawnName, "main_spawn", "true");
+                try (Connection connection = implementConnection()) {
+                    int id = getSpawnIdSync(connection, spawnName);
+                    MetadataSQLManager.get().addMetadata(connection, String.valueOf(id), "SPAWN", "main_spawn", "true", true);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
@@ -129,7 +134,7 @@ public class SpawnSQLManager extends SQLManager {
     }
 
     public CompletableFuture<Void> addSpawn(@NotNull Spawn spawn) {
-        return addSpawn(
+        return CompletableFuture.runAsync(() -> addSpawn(
                 spawn.getName(),
                 spawn.getLocation().getWorld().getName(),
                 spawn.getCreatorUUID(),
@@ -137,10 +142,10 @@ public class SpawnSQLManager extends SQLManager {
                 spawn.getLocation().getY(),
                 spawn.getLocation().getZ(),
                 spawn.getLocation().getYaw(),
-                spawn.getLocation().getPitch());
+                spawn.getLocation().getPitch()), CoreClass.async);
     }
 
-    public CompletableFuture<Void> addSpawn(
+    public void addSpawn(
             @NotNull String name,
             @NotNull String worldName,
             @Nullable UUID creator,
@@ -149,60 +154,59 @@ public class SpawnSQLManager extends SQLManager {
             double z,
             float yaw,
             float pitch) {
-        return removeSpawn(name)
-                .thenAcceptAsync(
-                        result -> {
-                            try (Connection connection = implementConnection()) {
 
-                                PreparedStatement statement =
-                                        prepareStatement(
-                                                connection,
-                                                "INSERT INTO "
-                                                        + tablePrefix
-                                                        + "_spawns "
-                                                        + "(spawn, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?,?,?,?,?,?,?,?,?,?)");
-                                statement.setString(1, name);
-                                statement.setString(
-                                        2, (creator == null ? null : creator.toString()));
-                                statement.setDouble(3, x);
-                                statement.setDouble(4, y);
-                                statement.setDouble(5, z);
-                                statement.setFloat(6, yaw);
-                                statement.setFloat(7, pitch);
-                                statement.setString(8, worldName);
-                                statement.setDouble(9, System.currentTimeMillis());
-                                statement.setDouble(10, System.currentTimeMillis());
+        // Remove internal mentions of the spawn first
+        removeSpawnSync(name);
 
-                                executeUpdate(statement);
+        try (Connection connection = implementConnection()) {
 
-                            } catch (SQLException exception) {
-                                throw new RuntimeException(exception);
-                            }
-                        },
-                        CoreClass.async);
+            PreparedStatement statement =
+                    prepareStatement(
+                            connection,
+                            "INSERT INTO "
+                                    + tablePrefix
+                                    + "_spawns "
+                                    + "(spawn, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?,?,?,?,?,?,?,?,?,?)");
+            statement.setString(1, name);
+            statement.setString(
+                    2, (creator == null ? null : creator.toString()));
+            statement.setDouble(3, x);
+            statement.setDouble(4, y);
+            statement.setDouble(5, z);
+            statement.setFloat(6, yaw);
+            statement.setFloat(7, pitch);
+            statement.setString(8, worldName);
+            statement.setDouble(9, System.currentTimeMillis());
+            statement.setDouble(10, System.currentTimeMillis());
+
+            executeUpdate(statement);
+
+        } catch (SQLException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     public CompletableFuture<Void> removeSpawn(String name) {
-        return CompletableFuture.runAsync(
-                () -> {
-                    try (Connection connection = implementConnection()) {
+        return CompletableFuture.runAsync(() -> removeSpawnSync(name), CoreClass.async);
+    }
 
-                        PreparedStatement statement =
-                                prepareStatement(
-                                        connection,
-                                        "DELETE FROM "
-                                                + tablePrefix
-                                                + "_spawns "
-                                                + "WHERE spawn = ?");
-                        statement.setString(1, name);
+    public void removeSpawnSync(String name) {
+        try (Connection connection = implementConnection()) {
 
-                        executeUpdate(statement);
+            PreparedStatement statement =
+                    prepareStatement(
+                            connection,
+                            "DELETE FROM "
+                                    + tablePrefix
+                                    + "_spawns "
+                                    + "WHERE spawn = ?");
+            statement.setString(1, name);
 
-                    } catch (SQLException exception) {
-                        throw new RuntimeException(exception);
-                    }
-                },
-                CoreClass.async);
+            executeUpdate(statement);
+
+        } catch (SQLException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     public CompletableFuture<Void> moveSpawn(Spawn spawn) {
