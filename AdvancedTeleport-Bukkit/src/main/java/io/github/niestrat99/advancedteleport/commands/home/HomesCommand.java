@@ -64,6 +64,11 @@ public final class HomesCommand extends AbstractHomeCommand {
     }
 
     @Override
+    public @NotNull String getAdminPermission() {
+        return "at.admin.homes";
+    }
+
+    @Override
     public boolean getRequiredFeature() {
         return MainConfig.get().USE_HOMES.get();
     }

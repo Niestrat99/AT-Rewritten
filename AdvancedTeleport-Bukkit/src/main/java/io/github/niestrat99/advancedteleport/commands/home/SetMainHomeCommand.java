@@ -39,7 +39,7 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
         }
 
         if (args.length > 1
-                && sender.hasPermission(getPermission())
+                && sender.hasPermission(getAdminPermission())
                 && !args[0].equalsIgnoreCase(sender.getName())) {
 
             AdvancedTeleportAPI.getOfflinePlayer(args[0])
@@ -117,6 +117,11 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
     @Override
     public @NotNull String getPermission() {
         return "at.member.setmainhome";
+    }
+
+    @Override
+    public @NotNull String getAdminPermission() {
+        return "at.admin.setmainhome";
     }
 
     private void addAndMaybeSetHome(

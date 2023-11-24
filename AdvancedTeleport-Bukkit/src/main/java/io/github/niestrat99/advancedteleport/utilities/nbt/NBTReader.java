@@ -3,12 +3,7 @@ package io.github.niestrat99.advancedteleport.utilities.nbt;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 
-import net.kyori.adventure.nbt.BinaryTag;
-import net.kyori.adventure.nbt.BinaryTagIO;
-import net.kyori.adventure.nbt.CompoundBinaryTag;
-import net.kyori.adventure.nbt.DoubleBinaryTag;
-import net.kyori.adventure.nbt.FloatBinaryTag;
-import net.kyori.adventure.nbt.ListBinaryTag;
+import net.kyori.adventure.nbt.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
@@ -126,6 +121,9 @@ public class NBTReader {
 
         builder.put("Pos", posTag.build());
         builder.put("Rotation", rotTag.build());
+
+        builder.put("WorldUUIDMost", LongBinaryTag.of(location.getWorld().getUID().getMostSignificantBits()));
+        builder.put("WorldUUIDLeast", LongBinaryTag.of(location.getWorld().getUID().getLeastSignificantBits()));
 
         BinaryTagIO.writer()
                 .write(builder.build(), dataFile.toPath(), BinaryTagIO.Compression.GZIP);

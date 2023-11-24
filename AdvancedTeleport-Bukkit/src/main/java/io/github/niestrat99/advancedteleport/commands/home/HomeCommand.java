@@ -34,7 +34,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
         final var homes = atPlayer.getHomes();
 
         // If more than one argument has been specified and the player is an admin...
-        if (args.length > 1 && sender.hasPermission("at.admin.home")) {
+        if (args.length > 1 && sender.hasPermission(getAdminPermission())) {
             ATPlayer.getPlayerFuture(args[0])
                     .thenAccept(
                             target ->
@@ -206,5 +206,10 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
     @Override
     public @NotNull String getSection() {
         return "home";
+    }
+
+    @Override
+    public @NotNull String getAdminPermission() {
+        return "at.admin.home";
     }
 }
