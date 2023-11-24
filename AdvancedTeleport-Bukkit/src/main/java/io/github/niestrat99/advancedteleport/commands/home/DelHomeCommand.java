@@ -33,7 +33,7 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
 
         // If they've specified a home, see if they are an admin and can delete others' homes
         if (args.length > 0) {
-            if (sender.hasPermission(getPermission()) && args.length > 1) {
+            if (sender.hasPermission(getAdminPermission()) && args.length > 1) {
                 AdvancedTeleportAPI.getOfflinePlayer(args[0])
                         .whenCompleteAsync(
                                 (target, err) -> delHome(target, player, args[1]), CoreClass.sync);
@@ -60,6 +60,11 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
     @Override
     public @NotNull String getPermission() {
         return "at.member.delhome";
+    }
+
+    @Override
+    public @NotNull String getAdminPermission() {
+        return "at.admin.delhome";
     }
 
     private void delHome(OfflinePlayer player, Player sender, String name) {
