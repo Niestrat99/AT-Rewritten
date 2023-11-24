@@ -1,6 +1,5 @@
 package io.github.niestrat99.advancedteleport.commands.core;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
@@ -9,7 +8,6 @@ import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -60,29 +58,23 @@ public final class ImportCommand extends SubATCommand {
         }
 
         final var arg = args.length == 1 ? "all" : args[1].toLowerCase();
+        CustomMessages.sendMessage(sender, "Info.importStarted", Placeholder.unparsed("plugin", args[0]));
+        switch (arg) {
+            case "homes" -> pluginHook.importHomes();
+            case "warps" -> pluginHook.importWarps();
+            case "lastlocs" -> pluginHook.importLastLocations();
+            case "spawns" -> pluginHook.importSpawn();
+            case "players" -> pluginHook.importPlayerInformation();
+            case "all" -> pluginHook.importAll();
+            default -> {
+                CustomMessages.sendMessage(sender, "Error.invalidOption");
+                return false;
+            }
+        }
         CustomMessages.sendMessage(
-                sender, "Info.importStarted", Placeholder.unparsed("plugin", args[0]));
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            switch (arg) {
-                                case "homes" -> pluginHook.importHomes();
-                                case "warps" -> pluginHook.importWarps();
-                                case "lastlocs" -> pluginHook.importLastLocations();
-                                case "spawns" -> pluginHook.importSpawn();
-                                case "players" -> pluginHook.importPlayerInformation();
-                                case "all" -> pluginHook.importAll();
-                                default -> {
-                                    CustomMessages.sendMessage(sender, "Error.invalidOption");
-                                    return;
-                                }
-                            }
-                            CustomMessages.sendMessage(
-                                    sender,
-                                    "Info.importFinished",
-                                    Placeholder.unparsed("plugin", args[0]));
-                        });
+                sender,
+                "Info.importFinished",
+                Placeholder.unparsed("plugin", args[0]));
 
         return true;
     }

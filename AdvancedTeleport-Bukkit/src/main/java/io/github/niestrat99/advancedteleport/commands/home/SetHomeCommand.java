@@ -58,7 +58,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
         }
 
         // We'll just assume that the admin command overrides the homes limit.
-        if (args.length > 1 && sender.hasPermission("at.admin.sethome")) {
+        if (args.length > 1 && sender.hasPermission(getAdminPermission())) {
 
             // Get the player to be targeted.
             AdvancedTeleportAPI.getOfflinePlayer(args[0])
@@ -118,6 +118,11 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
     @Override
     public @NotNull String getPermission() {
         return "at.member.sethome";
+    }
+
+    @Override
+    public @NotNull String getAdminPermission() {
+        return "at.admin.sethome";
     }
 
     @Override

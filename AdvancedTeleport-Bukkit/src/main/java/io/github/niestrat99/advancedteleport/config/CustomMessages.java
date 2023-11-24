@@ -209,14 +209,14 @@ public final class CustomMessages extends ATConfig {
                 "Error.notEnoughEXP",
                 """
             <prefix> <gray>You do not have enough EXP Levels to teleport there!
-            <prefix> <gray>You need at least <aqua><levels></aqua>EXP levels!
+            <prefix> <gray>You need at least <aqua><levels></aqua> EXP levels!
         """
                         .trim());
         addDefault(
                 "Error.notEnoughEXPPoints",
                 """
             <prefix> <gray>You do not have enough EXP Points to teleport there!
-            <prefix> <gray>You need at least <aqua><points></aqua>EXP points!
+            <prefix> <gray>You need at least <aqua><points></aqua> EXP points!
         """
                         .trim());
         addDefault(
@@ -414,7 +414,7 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>They've got <aqua><lifetime></aqua> to respond!
             <prefix> <gray>To cancel the request use <aqua>/tpcancel</aqua> to cancel it.
 
-                                <click:run_command:'tpcancel <player>'><hover:show_text:'<red>Click here to cancel the request.'><gray><bold>[CANCEL]</hover></click>
+                                <click:run_command:'/tpcancel <player>'><hover:show_text:'<red>Click here to cancel the request.'><gray><bold>[CANCEL]</hover></click>
         """
                         .stripIndent());
         addDefault(
@@ -424,7 +424,7 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime></aqua> to respond to it!
 
-                                <click:run_command:'tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
+                                <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:'/tpano <player>'><hover:show_text:'<red>Click here to deny the request.'><red><bold>[DENY]</red></bold></hover></click>
         """
                         .stripIndent());
         addDefault(
@@ -434,7 +434,7 @@ public final class CustomMessages extends ATConfig {
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime> seconds</aqua> to respond to it!
 
-                              <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:/tpano <player>><hover:show_text:'<red>Click here to deny the request.><red><bold>[DENY]</red></bold></hover></click>
+                              <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:'/tpano <player>'><hover:show_text:'<red>Click here to deny the request.'><red><bold>[DENY]</red></bold></hover></click>
         """
                         .stripIndent());
         addDefault("Info.blockPlayer", "<prefix> <aqua><player> <gray>has been blocked.");
@@ -460,7 +460,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.requestDeclined", "<prefix> <gray>You've declined the teleport request!");
         addDefault(
                 "Info.requestDeclinedResponder",
-                "<prefix> <aqua><player></aqua> has declined your teleport request!");
+                "<prefix> <gray><aqua><player></aqua> has declined your teleport request!");
         addDefault(
                 "Info.requestDisplaced",
                 "<prefix> <gray>Your request has been cancelled because <aqua><player></aqua> got another request!");
@@ -506,47 +506,47 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.requestAccepted", "<prefix> <gray>You've accepted the teleport request!");
         addDefault(
                 "Info.requestAcceptedResponder",
-                "<prefix> <aqua><player></aqua> has accepted the teleport request!");
+                "<prefix> <gray><aqua><player></aqua> has accepted the teleport request!");
         addDefault(
                 "Info.paymentVault",
                 "<prefix> <gray>You have paid <aqua><amount></aqua> and now have <aqua><balance></aqua>!");
         addDefault(
                 "Info.paymentEXP",
-                "<prefix> <gray>You have paid <aqua><amount> EXP Levels</aqua>and now have <aqua><levels></aqua>levels!");
+                "<prefix> <gray>You have paid <aqua><amount> EXP Levels</aqua> and now have <aqua><levels></aqua> levels!");
         addDefault(
                 "Info.paymentPoints",
-                "<prefix> <gray>You have paid <aqua><amount> EXP Points</aqua>and now have <aqua><points></aqua>points!");
+                "<prefix> <gray>You have paid <aqua><amount> EXP Points</aqua> and now have <aqua><points></aqua> points!");
         addDefault("Info.createdWarpSign", "<prefix> <gray>Successfully created the warp sign!");
         addDefault("Info.createdRTPSign", "<prefix> <gray>Successfully created the RandomTP sign!");
         addDefault("Info.createdSpawnSign", "<prefix> <gray>Successfully created the spawn sign!");
         addDefault(
                 "Info.tpallRequestSent",
-                "<prefix> <gray>Successfully sent a teleport request to <aqua><amount></aqua>player(s)!");
+                "<prefix> <gray>Successfully sent a teleport request to <aqua><amount></aqua> player(s)!");
         addDefault(
                 "Info.teleportedToLoc",
                 "<prefix> <gray>Successfully teleported you to <aqua><x></aqua>, <aqua><y></aqua>, <aqua><z></aqua>! (Yaw: <aqua><yaw></aqua>, Pitch: <aqua><pitch></aqua>, World: <aqua><world></aqua>)");
         addDefault(
                 "Info.teleportedToLocOther",
-                "<prefix> <gray>Successfully teleported <aqua><player></aqua>to <aqua><x></aqua>, <aqua><y></aqua>, <aqua><z></aqua>! (Yaw: <aqua><yaw></aqua>, Pitch: <aqua><pitch></aqua>, World: <aqua><world></aqua>)");
+                "<prefix> <gray>Successfully teleported <aqua><player></aqua> to <aqua><x></aqua>, <aqua><y></aqua>, <aqua><z></aqua>! (Yaw: <aqua><yaw></aqua>, Pitch: <aqua><pitch></aqua>, World: <aqua><world></aqua>)");
         addDefault(
                 "Info.movedWarp",
-                "<prefix> <gray>Moved <aqua><warp></aqua>to your current location!");
+                "<prefix> <gray>Moved <aqua><warp></aqua> to your current location!");
         addDefault(
                 "Info.movedHome",
-                "<prefix> <gray>Moved home <aqua><home></aqua>to your current location!");
+                "<prefix> <gray>Moved home <aqua><home></aqua> to your current location!");
         addDefault(
                 "Info.movedHomeOther",
-                "<prefix> <gray>Moved <aqua><player>'s </aqua> home <aqua><home></aqua>to your location!");
-        addDefault("Info.setMainHome", "<prefix> <gray>Made <aqua><home></aqua>your main home!");
+                "<prefix> <gray>Moved <aqua><player>'s </aqua> home <aqua><home></aqua> to your location!");
+        addDefault("Info.setMainHome", "<prefix> <gray>Made <aqua><home></aqua> your main home!");
         addDefault(
                 "Info.setAndMadeMainHome",
-                "<prefix> <gray>Set <aqua><home></aqua>at your current location and made it your main home!");
+                "<prefix> <gray>Set <aqua><home></aqua> at your current location and made it your main home!");
         addDefault(
                 "Info.setMainHomeOther",
                 "<prefix> <gray>Made <aqua><home> <player></aqua>'s main home!");
         addDefault(
                 "Info.setAndMadeMainHomeOther",
-                "<prefix> <gray>Set <aqua><home></aqua>for <aqua><player></aqua>at your current location and made it their main home!");
+                "<prefix> <gray>Set <aqua><home></aqua> for <aqua><player></aqua> at your current location and made it their main home!");
         addDefault(
                 "Info.mirroredSpawn",
                 "<prefix> <gray>Mirrored <aqua><from></aqua>'s spawnpoint to <aqua><spawn></aqua>!");
@@ -581,7 +581,7 @@ public final class CustomMessages extends ATConfig {
                 "<prefix> <gray>The default waiting particles have been set to your current particle setup!");
         addDefault(
                 "Info.specificParticlesUpdated",
-                "<prefix> <gray>The waiting particles settings for <aqua><type></aqua>have been set to your current particle setup!");
+                "<prefix> <gray>The waiting particles settings for <aqua><type></aqua> have been set to your current particle setup!");
         addDefault(
                 "Info.mapIconUpdateClickTooltip",
                 "<prefix> <gray>Updated click tooltip for <type> <aqua><name></aqua>! The map should update shortly.");

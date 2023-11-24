@@ -28,3 +28,4 @@ The Gradle command used to build the plugin is `gradle slimJar` and is done unde
 
 > NOTE: Due to a bug with SlimJar you should try building twice when updating dependencies or building for the first time, or necessary files will not be installed.
 
+
