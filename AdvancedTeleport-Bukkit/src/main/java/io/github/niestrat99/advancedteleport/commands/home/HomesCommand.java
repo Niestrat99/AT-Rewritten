@@ -64,6 +64,11 @@ public final class HomesCommand extends AbstractHomeCommand {
     }
 
     @Override
+    public @NotNull String getAdminPermission() {
+        return "at.admin.homes";
+    }
+
+    @Override
     public boolean getRequiredFeature() {
         return MainConfig.get().USE_HOMES.get();
     }
@@ -134,8 +139,8 @@ public final class HomesCommand extends AbstractHomeCommand {
                                         .toList());
 
         if (!body.content().isEmpty() || !body.children().isEmpty()) {
-            Component text = CustomMessages.getComponent("Info.homes");
-            CustomMessages.asAudience(sender).sendMessage(text.append(body));
+            String text = CustomMessages.config.getString("Info.homes") + "<homes>";
+            CustomMessages.asAudience(sender).sendMessage(CustomMessages.translate(text, Placeholder.component("homes", body)));
         } else
             CustomMessages.sendMessage(
                     sender,

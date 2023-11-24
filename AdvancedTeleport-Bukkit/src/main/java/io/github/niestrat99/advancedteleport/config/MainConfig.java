@@ -724,12 +724,12 @@ public final class MainConfig extends ATConfig {
                             + " on the map.");
             addDefault(
                     type + ".hover-tooltip",
-                    "name",
+                    "{name}",
                     "The tooltip that will appear when someone hovers over the icon in the map."
                             + "\nFor Dynmap, this supports HTML formatting.");
             addDefault(
                     type + ".click-tooltip",
-                    "name",
+                    "{name}",
                     "Squaremap only - the tooltip that will appear when someone clicks on the icon.");
             addDefault(
                     type + ".icon-size",

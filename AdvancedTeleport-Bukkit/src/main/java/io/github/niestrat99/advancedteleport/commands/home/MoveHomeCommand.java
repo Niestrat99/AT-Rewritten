@@ -38,7 +38,7 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
             return true;
         }
 
-        if (sender.hasPermission("at.admin.movehome") && args.length > 1) {
+        if (sender.hasPermission(getAdminPermission()) && args.length > 1) {
             // We'll just assume that the admin command overrides the homes limit.
             ATPlayer.getPlayerFuture(args[0])
                     .thenAccept(
@@ -88,5 +88,10 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
     @Override
     public @NotNull String getPermission() {
         return "at.member.movehome";
+    }
+
+    @Override
+    public @NotNull String getAdminPermission() {
+        return "at.admin.movehome";
     }
 }
