@@ -28,8 +28,8 @@ public class MovementManager implements Listener {
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
-        boolean cancelOnRotate = MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get();
-        boolean cancelOnMove = MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get();
+        boolean cancelOnRotate = MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get() && !event.getPlayer().hasPermission("at.admin.bypass.rotation");
+        boolean cancelOnMove = MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() && !event.getPlayer().hasPermission("at.admin.bypass.movement");
         if (!cancelOnRotate) {
             Location locTo = event.getTo();
             Location locFrom = event.getFrom();
@@ -39,6 +39,16 @@ public class MovementManager implements Listener {
                 return;
             }
         }
+        if (!cancelOnMove) {
+            Location locTo = event.getTo();
+            Location locFrom = event.getFrom();
+
+            if (locTo.getPitch() == locFrom.getPitch()
+                && locTo.getYaw() == locFrom.getYaw()) {
+                return;
+            }
+        }
+
         UUID uuid = event.getPlayer().getUniqueId();
         if ((cancelOnRotate || cancelOnMove) && movement.containsKey(uuid)) {
             ImprovedRunnable timer = movement.get(uuid);
@@ -122,8 +132,8 @@ public class MovementManager implements Listener {
                 };
         movement.put(uuid, movementtimer);
         movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20L);
-        if (MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get()
-                || MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
+        if ((MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() && !teleportingPlayer.hasPermission("at.admin.bypass.movement"))
+                || (MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get() && !teleportingPlayer.hasPermission("at.admin.bypass.rotation"))) {
             CustomMessages.sendMessage(
                     teleportingPlayer,
                     "Teleport.eventBeforeTP",
