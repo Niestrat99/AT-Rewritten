@@ -48,7 +48,7 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
         // If the warp exists and the player isn't already teleporting, may as well warp them
         Warp warp = AdvancedTeleportAPI.fetchWarp(args[0], player, false);
         if (warp != null) {
-            warp(warp, player);
+            warp(warp, args[0], player);
         } else {
             CustomMessages.sendMessage(sender, "Error.noSuchWarp");
         }
@@ -78,8 +78,8 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
         return results;
     }
 
-    public static void warp(Warp warp, Player player) {
-        ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), warp.getName(), ATTeleportEvent.TeleportType.WARP);
+    public static void warp(Warp warp, String name, Player player) {
+        ATTeleportEvent event = new ATTeleportEvent(player, warp.getLocation(), player.getLocation(), name, ATTeleportEvent.TeleportType.WARP);
         Bukkit.getPluginManager().callEvent(event);
         ATPlayer.getPlayer(player).teleport(event, "warp", "Teleport.teleportingToWarp");
     }

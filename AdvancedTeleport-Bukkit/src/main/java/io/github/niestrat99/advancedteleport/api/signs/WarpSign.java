@@ -24,7 +24,7 @@ public class WarpSign extends ATSign {
     ) {
         Warp warp = AdvancedTeleportAPI.fetchWarp(sign.getLine(1), player, true);
         if (warp == null) return;
-        WarpCommand.warp(warp, player);
+        WarpCommand.warp(warp, warp.getName(), player);
     }
 
     @Override
