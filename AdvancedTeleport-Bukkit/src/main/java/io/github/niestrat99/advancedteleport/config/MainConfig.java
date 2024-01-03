@@ -828,7 +828,7 @@ public final class MainConfig extends ATConfig {
                 true,
                 "Whether or not to notify admins when an update is available.\n"
                         + "Anyone with the permission at.admin.notify will receive this notification.");
-        addDefault("debug", false, "Used for debugging purposes.", "Misceallaneous");
+        addDefault("debug", false, "Misceallaneous", "Used for debugging purposes.");
         addDefault(
                 "use-floodgate-forms",
                 true,
