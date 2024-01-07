@@ -191,7 +191,7 @@ public final class SetHomeCommand extends AbstractHomeCommand {
             }
 
             // Coordinates
-            if (sender instanceof Player player && args.length <= 8) {
+            if (sender instanceof Player player && args.length <= 8 && args.length > 2) {
                 final Location location = player.getLocation();
                 double[] coords = new double[]{
                         location.getBlockX() + 0.5,
