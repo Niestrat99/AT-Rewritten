@@ -47,7 +47,7 @@ public class MetadataSQLManager extends SQLManager {
                                                         + "_metadata "
                                                         + "(data_id VARCHAR(256) NOT NULL, "
                                                         + "type VARCHAR(256) NOT NULL,"
-                                                        + "key VARCHAR(256) NOT NULL, "
+                                                        + "`key` VARCHAR(256) NOT NULL, "
                                                         + "value TEXT NOT NULL)");
                                 executeUpdate(createTable);
                             } catch (SQLException exception) {
@@ -71,7 +71,7 @@ public class MetadataSQLManager extends SQLManager {
                         connection,
                         "SELECT data_id, value FROM "
                                 + tablePrefix
-                                + "_metadata WHERE type = ? AND key = ?;");
+                                + "_metadata WHERE type = ? AND `key` = ?;");
         statement.setString(1, type);
         statement.setString(2, key);
         ResultSet set = executeQuery(statement);
@@ -118,7 +118,7 @@ public class MetadataSQLManager extends SQLManager {
                         connection,
                         "INSERT INTO "
                                 + tablePrefix
-                                + "_metadata (data_id, type, key, value) VALUES (?, ?, ?, ?);");
+                                + "_metadata (data_id, type, `key`, value) VALUES (?, ?, ?, ?);");
         statement.setString(1, dataId);
         statement.setString(2, type);
         statement.setString(3, key);
@@ -193,7 +193,7 @@ public class MetadataSQLManager extends SQLManager {
                         connection,
                         "SELECT value FROM "
                                 + tablePrefix
-                                + "_metadata WHERE data_id = ? AND type = ? AND key = ?;");
+                                + "_metadata WHERE data_id = ? AND type = ? AND `key` = ?;");
         statement.setString(1, dataId);
         statement.setString(2, type);
         statement.setString(3, key);
@@ -255,7 +255,7 @@ public class MetadataSQLManager extends SQLManager {
                         connection,
                         "DELETE FROM "
                                 + tablePrefix
-                                + "_metadata WHERE data_id = ? AND type = ? AND key = ?;");
+                                + "_metadata WHERE data_id = ? AND type = ? AND `key` = ?;");
         statement.setString(1, dataId);
         statement.setString(2, type);
         statement.setString(3, key);
@@ -288,7 +288,7 @@ public class MetadataSQLManager extends SQLManager {
                                         "DELETE FROM "
                                                 + tablePrefix
                                                 + "_metadata "
-                                                + "WHERE type = 'SPAWN' AND key = 'main_spawn'");
+                                                + "WHERE type = 'SPAWN' AND `key` = 'main_spawn'");
                         statement.executeUpdate();
                         return true;
                     } catch (SQLException exception) {
@@ -316,7 +316,7 @@ public class MetadataSQLManager extends SQLManager {
                                                 "DELETE FROM "
                                                         + tablePrefix
                                                         + "_metadata "
-                                                        + "WHERE type = 'SPAWN' AND key = 'mirror' AND data_id = ?");
+                                                        + "WHERE type = 'SPAWN' AND `key` = 'mirror' AND data_id = ?");
                                 deleteStatement.setString(1, idRaw);
                                 executeUpdate(deleteStatement);
 
@@ -419,7 +419,7 @@ public class MetadataSQLManager extends SQLManager {
                                                 + "_metadata.data_id "
                                                 + "AND "
                                                 + tablePrefix
-                                                + "_metadata.key = 'main_spawn' AND "
+                                                + "_metadata.`key` = 'main_spawn' AND "
                                                 + tablePrefix
                                                 + "_metadata.value = 'true';");
 
