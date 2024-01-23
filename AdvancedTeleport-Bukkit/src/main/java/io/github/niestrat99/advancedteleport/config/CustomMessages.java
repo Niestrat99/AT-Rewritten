@@ -275,6 +275,9 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.cantTPToWorldLim",
                 "<prefix> <gray>You can't teleport to <aqua><world></aqua>!");
+        addDefault(
+                "Error.cantTPToLoc",
+                "<prefix> <gray>You can't teleport to that location!");
         addDefault("Error.tooFewArguments", "<prefix> <gray>Too few arguments!");
         addDefault("Error.invalidArgs", "<prefix> <gray>Invalid arguments!");
         addDefault(
