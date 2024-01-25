@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.OfflinePlayer;
@@ -32,6 +33,13 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
         final var player = (Player) sender;
         final var atPlayer = ATPlayer.getPlayer(player);
 
+        // If the player can't set a home here, tell them
+        if (!PluginHookManager.get().canAccess(player, player.getLocation())
+                && !player.hasPermission("at.admin.sethome.bypass.location")) {
+            CustomMessages.sendMessage(sender, "Error.cantSetHomeLoc");
+            return true;
+        }
+
         // If no arguments have been specified, just use the information from that
         if (args.length == 0) {
 
@@ -39,7 +47,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
             final int limit = atPlayer.getHomesLimit();
 
             // If the homes list is empty, set a new home called "home".
-            if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
+            if (atPlayer.getHomes().isEmpty() && (limit > 0 || limit == -1)) {
                 setHome(player, "home");
                 return true;
             }
