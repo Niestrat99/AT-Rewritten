@@ -29,7 +29,7 @@ public class FactionsUUIDClaimHook extends ClaimPlugin<Plugin, FactionsPlugin> {
         final FLocation fLocation = new FLocation(location);
         final Faction faction = Board.getInstance().getFactionAt(fLocation);
         if (faction == null) return true;
-        if (faction.isWilderness()) return true;
+        if (faction.isWilderness() || faction.isSafeZone() || faction.isWarZone()) return true;
 
         // Check if the player has access
         final FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
