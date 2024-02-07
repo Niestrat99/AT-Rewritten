@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.hooks.claims;
 
 import com.massivecraft.factions.*;
+import com.massivecraft.factions.perms.Relation;
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -33,6 +34,8 @@ public class FactionsUUIDClaimHook extends ClaimPlugin<Plugin, FactionsPlugin> {
 
         // Check if the player has access
         final FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-        return faction.getFPlayers().contains(fPlayer);
+        final Relation relation = faction.getRelationTo(fPlayer);
+
+        return relation.isMember() || relation.isAlly() || relation.isTruce();
     }
 }
