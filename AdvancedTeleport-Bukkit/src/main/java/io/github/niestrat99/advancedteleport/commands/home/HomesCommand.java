@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.home;
 
 import com.google.common.collect.ImmutableCollection;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
@@ -34,16 +35,23 @@ public final class HomesCommand extends AbstractHomeCommand {
         if (!canProceed(sender)) return true;
 
         if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
-            ATPlayer.getPlayerFuture(args[0])
-                    .thenAccept(
-                            player ->
-                                    player.getHomesAsync()
-                                            .thenAcceptAsync(
-                                                    homes ->
-                                                            getHomes(
-                                                                    sender,
-                                                                    player.getOfflinePlayer(),
-                                                                    homes.values())));
+            ATPlayer.getPlayerFuture(args[0]).whenCompleteAsync((player, err) -> {
+
+                if (err != null) {
+                    err.printStackTrace();
+                    return;
+                }
+
+                player.getHomesAsync().whenCompleteAsync((homes, err2) -> {
+
+                    if (err2 != null) {
+                        err2.printStackTrace();
+                        return;
+                    }
+
+                    getHomes(sender, player.getOfflinePlayer(), homes.values());
+                });
+            }, CoreClass.sync);
             return true;
         }
 
@@ -53,8 +61,15 @@ public final class HomesCommand extends AbstractHomeCommand {
         }
 
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
+        atPlayer.getHomesAsync().whenCompleteAsync((homes, err) -> {
 
-        atPlayer.getHomesAsync().thenAcceptAsync(homes -> getHomes(sender, player, homes.values()));
+            if (err != null) {
+                err.printStackTrace();
+                return;
+            }
+
+            getHomes(sender, player, homes.values());
+        });
         return true;
     }
 
@@ -73,8 +88,7 @@ public final class HomesCommand extends AbstractHomeCommand {
         return MainConfig.get().USE_HOMES.get();
     }
 
-    private void getHomes(
-            CommandSender sender, OfflinePlayer target, ImmutableCollection<Home> homes) {
+    private void getHomes(CommandSender sender, OfflinePlayer target, ImmutableCollection<Home> homes) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
         if (sender == target
@@ -88,7 +102,7 @@ public final class HomesCommand extends AbstractHomeCommand {
                 (TextComponent)
                         Component.join(
                                 JoinConfiguration.commas(true),
-                                atPlayer.getHomes().values().stream()
+                                homes.stream()
                                         .map(
                                                 home ->
                                                         new Object[] {
