@@ -393,6 +393,9 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.randomLocFailed",
                 "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
+        addDefault(
+                "Error.invalidCoords",
+                "<prefix> <gray>You have to specify valid coordinates to set a player's home via location!");
 
         makeSectionLenient("Info");
         addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
