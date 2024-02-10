@@ -52,7 +52,10 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
                 && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                 && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
             atFloodgatePlayer.sendDeleteHomeForm();
-        } else CustomMessages.sendMessage(sender, "Error.noHomeInput");
+        } else {
+            CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            return false;
+        }
 
         return true;
     }

@@ -48,7 +48,7 @@ public final class ImportCommand extends SubATCommand {
             @NotNull final String[] args) {
         if (args.length == 0) {
             CustomMessages.sendMessage(sender, "Error.noPluginSpecified");
-            return true;
+            return false;
         }
 
         final var pluginHook = getImportExportPlugin(sender, args);

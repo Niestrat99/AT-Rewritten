@@ -394,6 +394,9 @@ public final class CustomMessages extends ATConfig {
                 "Error.randomLocFailed",
                 "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
 
+        addDefault("Error.commandUse", "<aqua>Usage: <gray><usage>");
+        addDefault("Error.rtpManagerNotUsed", "<prefix> <gray>The RTP-Cache is not being used on the server.");
+
         makeSectionLenient("Info");
         addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "<prefix> <gray>Successfully enabled teleport requests!");
@@ -597,6 +600,9 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Info.mirrorSpawnSame",
                 "<prefix> <gray>The spawns for <aqua><from></aqua> and <aqua><spawn></aqua> already to go the same place! Don't worry :)");
+
+        addDefault("Info.clearEverything", "<prefix> <gray>The RTP-Cache has been cleared.");
+        addDefault("Info.clearWorld", "<prefix> <gray>Cache for world <aqua><world></aqua> has been cleared.");
 
         addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: <aqua><home>");
         addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: <aqua><warp>");

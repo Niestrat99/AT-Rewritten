@@ -39,6 +39,7 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
                 ((ATFloodgatePlayer) atPlayer).sendWarpForm();
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");
+                return false;
             }
             return true;
         }

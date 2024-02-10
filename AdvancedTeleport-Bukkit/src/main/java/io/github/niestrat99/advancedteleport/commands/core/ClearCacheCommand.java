@@ -67,7 +67,7 @@ public class ClearCacheCommand extends SubATCommand {
                         CoreClass.getInstance(), () -> RTPManager.loadWorldData(world));
         CustomMessages.sendMessage(
                 sender, "Info.clearWorld", Placeholder.unparsed("world", args[0]));
-        return false;
+        return true;
     }
 
     @Override

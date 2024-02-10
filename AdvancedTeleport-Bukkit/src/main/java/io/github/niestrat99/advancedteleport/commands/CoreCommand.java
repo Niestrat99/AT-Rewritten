@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -39,9 +40,15 @@ public class CoreCommand extends ATCommand {
         }
         if (sender.hasPermission("at.member.core." + command)
                 || sender.hasPermission("at.admin.core." + command)) {
-            CommandManager.subcommands
+          boolean correctUse = CommandManager.subcommands
                     .get(command)
                     .onCommand(sender, cmd, s, Arrays.copyOfRange(args, 1, args.length));
+
+            if (!correctUse) {
+                CustomMessages.sendMessage(sender, "Error.commandUse",
+                        Placeholder.unparsed("usage", CustomMessages.asString("Usages.Subcommands." + command)));
+            }
+
         } else {
             CustomMessages.sendMessage(sender, "Error.noPermission");
         }
