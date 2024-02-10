@@ -78,9 +78,10 @@ public class ConditionChecker {
                         + command);
 
         // Check if the player can teleport to that location if it's claimed
-        if (!teleportingPlayer.hasPermission("at.admin.bypass.claims")
-                && !PluginHookManager.get().canAccess(teleportingPlayer, toLoc)) {
-            return "Error.cantTPToLoc";
+        if (!teleportingPlayer.hasPermission("at.admin.bypass.claims")) {
+            if (MainConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() || command != null) {
+                if (!PluginHookManager.get().canAccess(teleportingPlayer, toLoc)) return "Error.canTPToLoc";
+            }
         }
 
         // Check if the player is too far away
