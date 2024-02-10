@@ -246,11 +246,15 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.homeAlreadySet",
                 "<prefix> <gray>You already have a home called <aqua><home></aqua>!");
+        addDefault("Error.cantSetHomeLoc",
+                "<prefix> <gray>You can't set a home here!");
         addDefault("Error.noWarpInput", "<prefix> <gray>You have to include the warp's name!");
         addDefault("Error.noSuchWarp", "<prefix> <gray>That warp doesn't exist!");
         addDefault(
                 "Error.warpAlreadySet",
                 "<prefix> <gray>There is already a warp called <aqua><warp></aqua>!");
+        addDefault("Error.cantSetWarpLoc",
+                "<prefix> <gray>You can't set a warp here!");
         addDefault("Error.noSuchWorld", "<prefix> <gray>That world doesn't exist!");
         addDefault("Error.worldUnloaded",
                 "<prefix> <gray>Sorry, the destination world either doesn't exist or isn't loaded. Please tell a server admin!");
@@ -275,6 +279,9 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.cantTPToWorldLim",
                 "<prefix> <gray>You can't teleport to <aqua><world></aqua>!");
+        addDefault(
+                "Error.cantTPToLoc",
+                "<prefix> <gray>You can't teleport to that location!");
         addDefault("Error.tooFewArguments", "<prefix> <gray>Too few arguments!");
         addDefault("Error.invalidArgs", "<prefix> <gray>Invalid arguments!");
         addDefault(

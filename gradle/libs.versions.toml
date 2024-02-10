@@ -20,6 +20,7 @@ dynmap = "3.4"
 playerParticles = "8.3"
 hangar = "0.0.5"
 slimjar = "1.6.1"
+factionsuuid = "1.6.9.5-U0.6.33"
 
 [libraries]
 paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
@@ -41,6 +42,7 @@ worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = 
 squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
 dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
 slimjar = { module = "dev.racci.slimjar:slimjar", version.ref = "slimjar" }
+factionsuuid = { module = "com.massivecraft:Factions", version.ref = "factionsuuid" }
 
 [plugins]
 hangar = { id = "io.papermc.hangar-publish-plugin", version.ref = "hangar" }

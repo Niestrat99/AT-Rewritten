@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.hooks;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
