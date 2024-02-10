@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import com.google.common.collect.ImmutableMap;
+
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.CancelledEventException;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
@@ -22,7 +23,9 @@ import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
 import io.papermc.paper.entity.TeleportFlag;
+
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -589,10 +592,9 @@ public class ATPlayer {
     public @NotNull CompletableFuture<Void> removeHome(
             @NotNull final String name, @Nullable final CommandSender sender) {
         return homes.getData()
-                .thenAcceptAsync(
-                        list -> {
+                .thenApplyAsync(list -> {
                             Home home = list.get(name);
-                            if (home == null) return;
+                            if (home == null) return null;
 
                             HomeDeleteEvent event = new HomeDeleteEvent(home, sender);
                             if (!event.callEvent())
@@ -600,9 +602,13 @@ public class ATPlayer {
 
                             list.remove(event.getHome().getName());
                             homes.data = list;
-                            HomeSQLManager.get().removeHome(uuid, event.getHome().getName());
-                        },
-                        CoreClass.sync);
+                            return event.getHome();
+                }, CoreClass.sync).thenAcceptAsync(home -> {
+
+                            if (home == null) return;
+                            HomeSQLManager.get().removeHome(uuid, home.getName());
+                            
+                }, CoreClass.async);
     }
 
     /**
