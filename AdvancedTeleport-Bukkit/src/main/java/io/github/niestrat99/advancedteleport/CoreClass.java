@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.config.ATConfig;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUIConfig;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.hooks.worldguard.FlagHandler;
 import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
 import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
 import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
@@ -59,6 +60,12 @@ public final class CoreClass extends JavaPlugin {
             getLogger().severe("Failed to load libraries!");
             err.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(this);
+        }
+
+        // Wakey wakey
+        try {
+            FlagHandler.init();
+        } catch (NoClassDefFoundError ignored) {
         }
     }
 

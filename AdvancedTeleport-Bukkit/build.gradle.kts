@@ -195,6 +195,10 @@ tasks {
     }
 }
 
+tasks.shadowJar {
+    from(tasks.slimJar.get().outputDirectory)
+}
+
 // Lead development use only.
 modrinth {
     token.set(System.getenv("MODRINTH_TOKEN"))
@@ -466,6 +470,12 @@ bukkit {
             permission = "at.admin.tpofflinehere"
             usage = "/tpofflinehere <Player>"
             aliases = listOf("tpofflh", "tpofflhere")
+        }
+
+        register("tpconfirm") {
+            description = "Confirms a teleportation to a dangerous zone."
+            permission = "at.member.confirm"
+            usage = "/tpconfirm"
         }
     }
 

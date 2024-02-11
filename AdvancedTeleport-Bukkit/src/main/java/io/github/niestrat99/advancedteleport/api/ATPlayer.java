@@ -12,6 +12,7 @@ import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocation
 import io.github.niestrat99.advancedteleport.api.events.players.ToggleTeleportationEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.hooks.worldguard.FlagHandler;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
@@ -59,6 +60,7 @@ public class ATPlayer {
     protected @NotNull WeakReference<OfflinePlayer> player;
     protected @NotNull UUID uuid;
     protected @NotNull String name;
+    protected @Nullable Runnable confirmation;
     private final @NotNull PendingData<LinkedHashMap<String, @NotNull Home>> homes;
     private final @NotNull PendingData<HashMap<UUID, @NotNull BlockInfo>> blockedUsers;
     private final @NotNull PendingData<Boolean> isTeleportationEnabled;
@@ -119,6 +121,7 @@ public class ATPlayer {
                         CompletableFuture.supplyAsync(
                                 () -> PlayerSQLManager.get().isTeleportationOn(uuid),
                                 CoreClass.async));
+        this.confirmation = null;
 
         players.put(name.toLowerCase(), this);
     }
@@ -152,6 +155,15 @@ public class ATPlayer {
             @NotNull final ATTeleportEvent event,
             @NotNull final String command,
             @NotNull final String teleportMsg) {
+        this.teleport(event, command, teleportMsg, false);
+    }
+
+    @ApiStatus.Internal
+    public void teleport(
+            @NotNull final ATTeleportEvent event,
+            @NotNull final String command,
+            @NotNull final String teleportMsg,
+            boolean confirmed) {
         Player player = event.getPlayer();
         int warmUp = getWarmUp(command, event.getToLocation().getWorld());
         if (event.isCancelled()) return;
@@ -160,6 +172,17 @@ public class ATPlayer {
         if (event.getToLocation().getWorld() == null) {
             CustomMessages.sendMessage(player, "Error.worldUnloaded");
             return;
+        }
+
+        // If there's no confirmation, then check the area
+        if (!confirmed) {
+            try {
+                if (FlagHandler.isDangerous(event.getToLocation(), player)) {
+                    requestConfirmation(() -> teleport(event, command, teleportMsg, true));
+                    return;
+                }
+            } catch (NoClassDefFoundError ignored) {
+            }
         }
 
         if (!PaymentManager.getInstance().canPay(command, player, event.getToLocation().getWorld()))
@@ -429,6 +452,24 @@ public class ATPlayer {
                 () -> BlocklistManager.get().unblockUser(uuid.toString(), otherUUID.toString()),
                 CoreClass.async);
     }
+
+    @Contract(pure = true)
+    public boolean isAwaitingConfirmation() {
+        return this.confirmation != null;
+    }
+
+    @Contract(pure = true)
+    public void requestConfirmation(@NotNull Runnable confirmed) {
+        this.confirmation = confirmed;
+    }
+
+    @Contract(pure = true)
+    public void confirm() {
+        if (this.confirmation == null) return;
+        this.confirmation.run();
+        this.confirmation = null;
+    }
+
 
     /**
      * Returns a hashmap of homes, where the key is the home name, and the value is the home object.
