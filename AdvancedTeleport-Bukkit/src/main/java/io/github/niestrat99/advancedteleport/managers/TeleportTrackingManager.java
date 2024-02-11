@@ -233,7 +233,7 @@ public class TeleportTrackingManager implements Listener {
             }
 
             // Get their first home
-            if (atPlayer.getHomes().size() > 0) {
+            if (!atPlayer.getHomes().isEmpty()) {
                 e.setRespawnLocation(atPlayer.getHomes().values().iterator().next().getLocation());
                 return true;
             }

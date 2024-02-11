@@ -906,12 +906,12 @@ public final class MainConfig extends ATConfig {
         }
 
         if (defaultEXP) {
-            if (builder.length() > 0) {
+            if (!builder.isEmpty()) {
                 builder.append(";");
             }
             builder.append(defaultEXPAmount).append("LVL");
         }
-        if (builder.length() > 0) {
+        if (!builder.isEmpty()) {
             set("cost-amount", builder.toString());
         }
         for (String command :
@@ -945,7 +945,7 @@ public final class MainConfig extends ATConfig {
                     }
                 }
 
-                if (paymentCombination.length() == 0) {
+                if (paymentCombination.isEmpty()) {
                     paymentCombination.append("default");
                 }
                 set("per-command-cost." + command, paymentCombination.toString());

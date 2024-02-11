@@ -968,7 +968,7 @@ public final class CustomMessages extends ATConfig {
         } else if (config.getString(path) != null && !config.getString(path).isEmpty())
             component.append(get(path, placeholders));
 
-        if (component.content().isEmpty() && component.children().size() == 0) return;
+        if (component.content().isEmpty() && component.children().isEmpty()) return;
         asAudience(sender).sendMessage(component);
     }
 

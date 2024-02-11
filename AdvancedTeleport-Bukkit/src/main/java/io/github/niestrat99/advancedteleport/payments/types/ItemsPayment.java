@@ -24,12 +24,13 @@ public class ItemsPayment extends Payment {
 
     public static ItemsPayment getFromString(String str) {
         String[] parts = str.split(":");
+        final Material material;
 
         switch (parts.length) {
             case 0:
                 return null;
             case 1:
-                Material material = Material.getMaterial(parts[0].toUpperCase());
+                material = Material.getMaterial(parts[0].toUpperCase());
                 if (material == null) return null;
                 return new ItemsPayment(material, 1);
             default:

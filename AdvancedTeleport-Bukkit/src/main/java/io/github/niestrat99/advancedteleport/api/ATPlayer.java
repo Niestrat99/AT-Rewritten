@@ -235,7 +235,7 @@ public class ATPlayer {
             final @NotNull List<TeleportFlag> flags = new ArrayList<>();
 
             // If we should retain passengers and are able to do so
-            if (MainConfig.get().RETAIN_PASSENGERS.get() && player.getPassengers().size() > 0) {
+            if (MainConfig.get().RETAIN_PASSENGERS.get() && !player.getPassengers().isEmpty()) {
                 flags.add(TeleportFlag.EntityState.RETAIN_PASSENGERS);
             }
 
@@ -253,7 +253,7 @@ public class ATPlayer {
             }
 
             //
-            if (flags.size() > 0) {
+            if (!flags.isEmpty()) {
                 return CompletableFuture.completedFuture(
                         player.teleport(location, cause, flags.toArray(new TeleportFlag[0])));
             }

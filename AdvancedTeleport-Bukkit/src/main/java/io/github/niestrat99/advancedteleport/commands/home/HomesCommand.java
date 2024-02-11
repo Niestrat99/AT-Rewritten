@@ -83,11 +83,6 @@ public final class HomesCommand extends AbstractHomeCommand {
         return "at.admin.homes";
     }
 
-    @Override
-    public boolean getRequiredFeature() {
-        return MainConfig.get().USE_HOMES.get();
-    }
-
     private void getHomes(CommandSender sender, OfflinePlayer target, ImmutableCollection<Home> homes) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 

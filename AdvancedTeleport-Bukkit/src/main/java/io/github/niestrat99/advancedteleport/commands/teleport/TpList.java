@@ -88,11 +88,6 @@ public final class TpList extends TeleportATCommand implements PlayerCommand {
     }
 
     @Override
-    public boolean getRequiredFeature() {
-        return MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get();
-    }
-
-    @Override
     public @NotNull String getPermission() {
         return "at.member.list";
     }
