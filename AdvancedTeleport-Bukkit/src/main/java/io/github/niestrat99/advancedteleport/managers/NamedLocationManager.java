@@ -20,7 +20,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Used to manage the internal registration of warps and spawns during runtime. <br>
@@ -31,6 +33,7 @@ import java.util.HashMap;
 public class NamedLocationManager {
 
     @NotNull private final HashMap<String, Warp> warps;
+    @NotNull private final HashMap<String, List<String>> warpAliases;
     @NotNull private final HashMap<String, Spawn> spawns;
     @NotNull private final HashMap<String, Spawn> worldMirrors;
     @Nullable private Spawn mainSpawn;
@@ -40,6 +43,7 @@ public class NamedLocationManager {
         instance = this;
 
         this.warps = new HashMap<>();
+        this.warpAliases = new HashMap<>();
         this.spawns = new HashMap<>();
         this.worldMirrors = new HashMap<>();
 
@@ -100,6 +104,22 @@ public class NamedLocationManager {
 
     public ImmutableMap<String, Warp> getWarps() {
         return ImmutableMap.copyOf(this.warps);
+    }
+
+    public ImmutableMap<String, @NotNull List<String>> getWarpAliases() {
+        return ImmutableMap.copyOf(this.warpAliases);
+    }
+
+    public void addWarpAlias(@NotNull String name, @NotNull String warpName) {
+        List<String> aliases = this.warpAliases.getOrDefault(name, new ArrayList<>());
+        aliases.add(warpName);
+        this.warpAliases.put(name, aliases);
+    }
+
+    public void removeWarpAlias(@NotNull String name, @NotNull String warpName) {
+        List<String> aliases = this.warpAliases.getOrDefault(name, new ArrayList<>());
+        aliases.remove(warpName);
+        this.warpAliases.put(name, aliases);
     }
 
     @Contract(pure = true)

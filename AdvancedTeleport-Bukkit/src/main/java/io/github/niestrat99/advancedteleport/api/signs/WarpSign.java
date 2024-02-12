@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.api.signs;
 
 import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
@@ -17,9 +18,13 @@ public class WarpSign extends ATSign {
     }
 
     @Override
-    public void onInteract(@NotNull Sign sign, @NotNull Player player) {
-        if (!AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1))) return;
-        WarpCommand.warp(AdvancedTeleportAPI.getWarps().get(sign.getLine(1)), player, true);
+    public void onInteract(
+        @NotNull Sign sign,
+        @NotNull Player player
+    ) {
+        Warp warp = AdvancedTeleportAPI.fetchWarp(sign.getLine(1), player, true);
+        if (warp == null) return;
+        WarpCommand.warp(warp, warp.getName(), player);
     }
 
     @Override

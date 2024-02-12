@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.core;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
+import io.github.niestrat99.advancedteleport.utilities.MenuUtil;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
 
 import net.kyori.adventure.text.Component;
@@ -166,25 +167,7 @@ public final class HelpCommand extends SubATCommand {
             return true;
         }
 
-        final var audience = CustomMessages.asAudience(sender);
-        final var helpHeader =
-                MiniMessage.miniMessage()
-                        .deserialize(
-                                "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・", // TODO: Allow customizing this in lang?
-                                TagResolver.builder()
-                                        .tag(
-                                                "current_page",
-                                                Tag.preProcessParsed(String.valueOf(page)))
-                                        .tag(
-                                                "total_pages",
-                                                Tag.preProcessParsed(
-                                                        String.valueOf(
-                                                                commandList.getTotalPages())))
-                                        .build());
-
-        audience.sendMessage(helpHeader);
-
-        for (final String command : commandList.getContentsInPage(page)) {
+        MenuUtil.sendMenu(sender, "help", commandList, command -> {
             var commandUsage = CustomMessages.getComponent("Usages." + command);
 
             if (sender.hasPermission("at.admin." + command)
@@ -194,20 +177,17 @@ public final class HelpCommand extends SubATCommand {
             }
 
             final var description = CustomMessages.getComponent("Descriptions." + command);
-            // TODO: Make configurable and use suppliers instead of computing above.
-            final var finalMessage =
-                    MiniMessage.miniMessage()
-                            .deserialize(
-                                    "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>",
-                                    TagResolver.builder()
-                                            .tag("usage", Tag.selfClosingInserting(commandUsage))
-                                            .tag(
-                                                    "description",
-                                                    Tag.selfClosingInserting(description))
-                                            .build());
 
-            audience.sendMessage(finalMessage);
-        }
+            return MiniMessage.miniMessage()
+                    .deserialize(
+                            "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>",
+                            TagResolver.builder()
+                                    .tag("usage", Tag.selfClosingInserting(commandUsage))
+                                    .tag(
+                                            "description",
+                                            Tag.selfClosingInserting(description))
+                                    .build());
+        }, page);
 
         return true;
     }

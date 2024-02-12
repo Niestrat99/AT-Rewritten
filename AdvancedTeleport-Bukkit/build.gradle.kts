@@ -467,6 +467,27 @@ bukkit {
             usage = "/tpofflinehere <Player>"
             aliases = listOf("tpofflh", "tpofflhere")
         }
+
+        register("setwarpalias") {
+            description = "Sets a warp's alias."
+            permission = "at.admin.setwarpalias"
+            usage = "/setwarpalias <Warp> <Alias>"
+            aliases = listOf("setwarpa")
+        }
+
+        register("removewarpalias") {
+            description = "Removes a warp's alias."
+            permission = "at.admin.removewarpalias"
+            usage = "/removewarpalias <Warp> <Alias>"
+            aliases = listOf("removewarpa", "remwarpa")
+        }
+
+        register("warpaliases") {
+            description = "Lists the warps an alias has, or the aliases that a warp has."
+            permission = "at.admin.warpaliases"
+            usage = "/warpaliases <warp|alias> <Warp|Alias>"
+            aliases = listOf("warpa")
+        }
     }
 
     permissions {

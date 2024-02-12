@@ -5,8 +5,10 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.api.events.CancellableATEvent;
 import io.github.niestrat99.advancedteleport.api.events.spawn.*;
+import io.github.niestrat99.advancedteleport.api.events.warps.alias.WarpAliasAddEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
+import io.github.niestrat99.advancedteleport.api.events.warps.alias.WarpAliasRemoveEvent;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
@@ -27,8 +29,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -110,6 +111,115 @@ public final class AdvancedTeleportAPI {
     }
 
     /**
+     * Attempts to fetch a warp through standard means or through an alias whilst checking player permissions.
+     *
+     * @param name the name of the warp/alias.
+     * @param player the player to be teleported.
+     * @param usingSign true if the player is using a sign to teleport.
+     * @return a warp that the user can teleport to, null if the warp does not exist or the player does not have permissions.
+     */
+    @Contract(pure = true)
+    public static @Nullable Warp fetchWarp(@NotNull String name, @Nullable Player player, boolean usingSign) {
+
+        // Set up warp prefix
+        final String WARP_PREFIX = "at.member.warp." + (usingSign ? "sign." : "");
+
+        // See if there's a warp alias to go by
+        Map<String, List<String>> aliases = NamedLocationManager.get().getWarpAliases();
+        List<String> warps = aliases.getOrDefault(name, new ArrayList<>());
+        if (warps != null && !warps.isEmpty()) {
+
+            // Get all the aliases
+            Iterator<String> warpsIterator = warps.listIterator();
+            List<String> validWarps = new ArrayList<>();
+            while (warpsIterator.hasNext()) {
+
+                // Check permissions
+                String warpName = warpsIterator.next();
+
+                // No player? No problem
+                if (player == null) {
+                    validWarps.add(warpName);
+                    continue;
+                }
+
+                // If the player has the wildcard permission, automatically add
+                if (player.hasPermission(WARP_PREFIX + "*") || player.hasPermission(WARP_PREFIX + name.toLowerCase() + ".*")) {
+                    validWarps.add(warpName);
+                    continue;
+                }
+
+                // If the player has explicit permission to the warp, use that
+                String fullPermission = WARP_PREFIX + name.toLowerCase() + "." + warpName.toLowerCase();
+                if (player.isPermissionSet(fullPermission)) {
+                    if (player.hasPermission(fullPermission)) {
+                        validWarps.add(warpName);
+                    }
+                }
+            }
+
+            // Only continue if there is a valid random warp to pick from
+            while (!validWarps.isEmpty()) {
+
+                // IRS: tax time :)
+                // Me: How much?
+                // IRS: secret :3
+                // Me: why?
+                // IRS: just guess ;p
+                String warpName = validWarps.get(new Random().nextInt(validWarps.size()));
+                // Me: $600?
+                Warp warp = getWarp(warpName);
+
+                // IRS: jail :(
+                if (warp == null) {
+                    validWarps.remove(warpName);
+                    continue;
+                }
+
+                return warp;
+            }
+        }
+
+        // Otherwise, fetch the warp
+        Warp warp = getWarp(name);
+        if (player == null) return warp;
+
+        // Since the player exists, ensure they have permission
+        boolean found = player.hasPermission(WARP_PREFIX + "*");
+        if (player.isPermissionSet(WARP_PREFIX + name.toLowerCase())) {
+            found = player.hasPermission(WARP_PREFIX + name.toLowerCase());
+        }
+
+        // If they don't have permission, stop there
+        return found ? warp : null;
+    }
+
+    public static boolean canAccessWarp(@NotNull Player player, @NotNull String name, boolean usingSign) {
+
+        // Set up warp prefix
+        final String WARP_PREFIX = "at.member.warp." + (usingSign ? "sign." : "");
+
+        // If it's an alias, check individual warps
+        if (getWarpAliases().containsKey(name)) {
+            if (player.hasPermission(WARP_PREFIX + "*") || player.hasPermission(WARP_PREFIX + name.toLowerCase() + ".*"))
+                return true;
+
+            for (String warpName : getWarpAliases(name)) {
+                String fullPermission = WARP_PREFIX + name.toLowerCase() + "." + warpName.toLowerCase();
+                if (player.isPermissionSet(fullPermission) && player.hasPermission(fullPermission)) return true;
+            }
+        }
+
+        // If it's a normal warp, make sure it exists
+        Warp warp = getWarp(name);
+        if (warp == null) return false;
+
+        return player.hasPermission(WARP_PREFIX + "*") ||
+                (player.isPermissionSet(WARP_PREFIX + name.toLowerCase())
+                        && player.hasPermission(WARP_PREFIX + name.toLowerCase()));
+    }
+
+    /**
      * Returns a warp object by its name.
      *
      * @param name the name of the warp.
@@ -143,6 +253,62 @@ public final class AdvancedTeleportAPI {
 
         // Return the result
         return getWarps().containsKey(name);
+    }
+
+    @Contract(pure = true)
+    public static @NotNull Map<String, List<String>> getWarpAliases() {
+        return NamedLocationManager.get().getWarpAliases();
+    }
+
+    @Contract(pure = true)
+    public static @NotNull List<String> getWarpAliases(@NotNull String name) {
+        return getWarpAliases().getOrDefault(name, new ArrayList<>());
+    }
+
+    @Contract(pure = true)
+    public static boolean isAlias(@NotNull String alias, @NotNull String name) {
+        return getWarpAliases(alias).contains(name);
+    }
+
+    @Contract(pure = true)
+    public static CompletableFuture<Boolean> addWarpAlias(
+            @NotNull final String alias,
+            @NotNull final Warp warp,
+            @Nullable final CommandSender sender
+    ) {
+
+        // Make sure we don't dupe aliases
+        if (isAlias(alias, warp.getName()))
+            throw new IllegalStateException(warp.getName() + " is already an alias of " + alias + "!");
+
+        return validateEvent(new WarpAliasAddEvent(alias, warp, sender), event -> {
+
+            // Add the alias internally
+            NamedLocationManager.get().addWarpAlias(event.getName(), event.getWarp().getName());
+
+            // Update it in the metadata table
+            return MetadataSQLManager.get().addWarpMetadata(event.getWarp().getName(), "alias", event.getName(), false);
+        });
+    }
+
+    @Contract(pure = true)
+    public static CompletableFuture<Boolean> removeWarpAlias(
+            @NotNull final String alias,
+            @NotNull final Warp warp,
+            @Nullable final CommandSender sender
+    ) {
+
+        // Not an alias? Say something
+        if (isAlias(alias, warp.getName()))
+            throw new IllegalStateException(warp.getName() + " is not an alias of " + alias + "!");
+
+        return validateEvent(new WarpAliasRemoveEvent(alias, warp, sender), event -> {
+
+            // Remove the alias internally, so it doesn't appear in the plugin
+            NamedLocationManager.get().removeWarpAlias(event.getOldAlias(), event.getWarp().getName());
+
+            return MetadataSQLManager.get().deleteWarpMetadata(event.getWarp().getName(), "alias", event.getOldAlias());
+        });
     }
 
     /**
