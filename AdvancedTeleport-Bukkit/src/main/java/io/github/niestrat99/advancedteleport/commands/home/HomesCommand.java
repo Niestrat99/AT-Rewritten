@@ -10,6 +10,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 
+import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
@@ -18,6 +19,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -93,15 +95,9 @@ public final class HomesCommand extends AbstractHomeCommand {
             return;
         }
 
-        final TextComponent body =
-                (TextComponent)
-                        Component.join(
-                                JoinConfiguration.commas(true),
-                                homes.stream()
-                                        .map(
-                                                home ->
-                                                        new Object[] {
-                                                            home,
+        final TextComponent body = (TextComponent) Component.join(JoinConfiguration.commas(true),
+                                homes.stream().map(home ->
+                                                new Object[] {home,
                                                             atPlayer.canAccessHome(home)
                                                                     || ExPermission
                                                                             .hasPermissionOrStar(
@@ -149,7 +145,9 @@ public final class HomesCommand extends AbstractHomeCommand {
 
         if (!body.content().isEmpty() || !body.children().isEmpty()) {
             String text = CustomMessages.config.getString("Info.homes") + "<homes>";
-            CustomMessages.asAudience(sender).sendMessage(CustomMessages.translate(text, Placeholder.component("homes", body)));
+            final var component = CustomMessages.translate(text, Placeholder.component("homes", body));
+
+            CustomMessages.sendMessage(sender, component);
         } else
             CustomMessages.sendMessage(
                     sender,

@@ -109,7 +109,7 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                                 );
 
                 if (requests.getTotalPages() > 1) {
-                    CustomMessages.asAudience(player).sendMessage(component);
+                    CustomMessages.sendMessage(player, component);
                     CustomMessages.sendMessage(player, "Info.multipleRequestsList");
                 }
             } else {

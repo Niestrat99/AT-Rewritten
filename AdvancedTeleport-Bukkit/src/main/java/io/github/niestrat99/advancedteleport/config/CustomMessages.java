@@ -26,6 +26,7 @@ import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
@@ -67,9 +68,9 @@ public final class CustomMessages extends ATConfig {
 
         populate();
 
-        if (!PaperLib.isPaper()) {
+        //if (!PaperLib.isPaper()) {
             audience = BukkitAudiences.create(CoreClass.getInstance());
-        }
+        //}
     }
 
     @Override
@@ -969,7 +970,19 @@ public final class CustomMessages extends ATConfig {
             component.append(get(path, placeholders));
 
         if (component.content().isEmpty() && component.children().isEmpty()) return;
-        asAudience(sender).sendMessage(component);
+        sendMessage(sender, component.asComponent());
+    }
+
+    @Contract(pure = true)
+    public static void sendMessage(@NotNull final CommandSender sender,
+                                   @NotNull final Component component) {
+
+        if (PaperLib.isPaper()) {
+            asAudience(sender).sendMessage(component);
+        } else {
+            BungeeComponentSerializer serializer = BungeeComponentSerializer.get();
+            sender.spigot().sendMessage(serializer.serialize(component));
+        }
     }
 
     @Contract(pure = true)
@@ -1065,13 +1078,13 @@ public final class CustomMessages extends ATConfig {
     @ApiStatus.Internal // TODO: maybe cache this?
     @Contract(pure = true)
     public static @NotNull Audience asAudience(@NotNull final CommandSender sender) {
-        if (!PaperLib.isPaper()) {
+        //if (!PaperLib.isPaper()) {
             if (sender instanceof Player player) {
                 return audience.player(player);
             } else return audience.sender(sender);
-        }
+        //}
 
-        return sender; // Paper already implements Audience
+        //return sender; // Paper already implements Audience
     }
 
     @ApiStatus.Internal // TODO: I think this works, need to double check
