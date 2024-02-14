@@ -56,7 +56,7 @@ repositories {
         name = "Essentials"
     }
 
-    maven("https://repo.opencollab.dev/maven-snapshots/") {
+    maven("https://repo.opencollab.dev/main/") {
         name = "Geyser"
     }
 
