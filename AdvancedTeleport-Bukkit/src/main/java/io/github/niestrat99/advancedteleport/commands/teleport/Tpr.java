@@ -133,6 +133,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
                             // If there was an error, let the player know
                             if (err != null) {
                                 CustomMessages.sendMessage(sender, "Error.randomLocFailed");
+                                searchingPlayers.remove(player.getUniqueId());
                                 return;
                             }
 
