@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v6.1.1](https://github.com/Niestrat99/AT-Rewritten/compare/v6.1.0..v6.1.1) - 2024-03-11
+
+- - -
+
 ## [v6.1.0](https://github.com/Niestrat99/AT-Rewritten/compare/v6.0.0-rc.5..v6.1.0) - 2024-03-11
 #### Bug Fixes
 - **(README.md)** lmao discord doesn't have permanent storage anymore - ([a775558](https://github.com/Niestrat99/AT-Rewritten/commit/a775558ff238d6dfcb708f4ddcac3bc317f54ddf)) - Holly P
