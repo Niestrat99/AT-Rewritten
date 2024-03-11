@@ -101,6 +101,15 @@ public final class CustomMessages extends ATConfig {
             with each element after that being usable as <prefix:index> with index being the items index in the list.
             """
                         .trim());
+        addDefault("Common.timeFormat.full", "<days><hours><minutes><seconds>");
+        addDefault("Common.timeFormat.days.singular", "<days> Day, ");
+        addDefault("Common.timeFormat.days.plural", "<days> Days, ");
+        addDefault("Common.timeFormat.hours.singular", "<hours> Hour, ");
+        addDefault("Common.timeFormat.hours.plural", "<hours> Hours, ");
+        addDefault("Common.timeFormat.minutes.singular", "<minutes> Minute, ");
+        addDefault("Common.timeFormat.minutes.plural", "<minutes> Minutes, ");
+        addDefault("Common.timeFormat.seconds.singular", "<seconds> Second");
+        addDefault("Common.timeFormat.seconds.plural", "<seconds> Seconds");
 
         makeSectionLenient("Teleport");
         addDefault(
@@ -1078,13 +1087,13 @@ public final class CustomMessages extends ATConfig {
     @ApiStatus.Internal // TODO: maybe cache this?
     @Contract(pure = true)
     public static @NotNull Audience asAudience(@NotNull final CommandSender sender) {
-        //if (!PaperLib.isPaper()) {
+        if (!PaperLib.isPaper()) {
             if (sender instanceof Player player) {
                 return audience.player(player);
             } else return audience.sender(sender);
-        //}
+        }
 
-        //return sender; // Paper already implements Audience
+        return sender; // Paper already implements Audience
     }
 
     @ApiStatus.Internal // TODO: I think this works, need to double check
