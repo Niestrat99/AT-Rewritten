@@ -44,11 +44,14 @@ public record TeleportRequest(
 
     @Contract(pure = true)
     public static void addRequest(@NotNull final TeleportRequest request) {
+
+        // If multiple requests are allowed, then just add the request
         if (MainConfig.get().USE_MULTIPLE_REQUESTS.get()) {
             requestList.add(request);
             return;
         }
 
+        // Find the other request and displace it
         final var shouldNotify = MainConfig.get().NOTIFY_ON_EXPIRE.get();
         getRequests(request.responder())
                 .forEach(
@@ -61,6 +64,9 @@ public record TeleportRequest(
                                     Placeholder.unparsed(
                                             "player", otherRequest.responder().getName()));
                         });
+
+        // Add the request
+        requestList.add(request);
     }
 
     @Contract(pure = true)
