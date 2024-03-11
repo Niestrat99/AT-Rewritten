@@ -2,6 +2,29 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v6.1.0](https://github.com/Niestrat99/AT-Rewritten/compare/v6.0.0-rc.5..v6.1.0) - 2024-03-11
+#### Bug Fixes
+- **(README.md)** lmao discord doesn't have permanent storage anymore - ([a775558](https://github.com/Niestrat99/AT-Rewritten/commit/a775558ff238d6dfcb708f4ddcac3bc317f54ddf)) - Holly P
+- I did a stupid a few commits ago - ([c62fc35](https://github.com/Niestrat99/AT-Rewritten/commit/c62fc352970feff44cf81da185f09bcd65b1fb5f)) - Thatsmusic99
+- teleport requests not working with multiple requests disabled - ([59a28ed](https://github.com/Niestrat99/AT-Rewritten/commit/59a28ed9e464528f2c508799d7935ef93f7e16e8)) - Thatsmusic99
+- yeah, you mind removing searching players if they fail? - ([1c91cfd](https://github.com/Niestrat99/AT-Rewritten/commit/1c91cfd546de995065e711fd6bc4b863c3e8b5e5)) - Thatsmusic99
+- interactive messages on Spigot not working - ([2ff3cd6](https://github.com/Niestrat99/AT-Rewritten/commit/2ff3cd60ff4d7f0eff4e70e507d7fc19e68751f2)) - Thatsmusic99
+- home deletion in SQL running on the main thread!? - ([4699094](https://github.com/Niestrat99/AT-Rewritten/commit/4699094033b1ec9922b79adb505ac955dacafbcb)) - Thatsmusic99
+- check for errors in async /home and /homes - ([eaf57f9](https://github.com/Niestrat99/AT-Rewritten/commit/eaf57f945e0d6829bbff002bd8093b25376c1a20)) - Thatsmusic99
+- backtick key to fix database errors - ([f39f73c](https://github.com/Niestrat99/AT-Rewritten/commit/f39f73c73e0c0bf7787820d2e80af1935196ed81)) - Thatsmusic99
+- formatting error in config.yml - ([392833d](https://github.com/Niestrat99/AT-Rewritten/commit/392833da6a85f0ff41e976ff6290e428af8f9d0d)) - Thatsmusic99
+- compilation error - ([563d03d](https://github.com/Niestrat99/AT-Rewritten/commit/563d03deb4eff8fa159ac618818ba5b176aaf359)) - Thatsmusic99
+#### Miscellaneous Chores
+- **(deps)** update floodgate to 2.2.2-SNAPSHOT - ([bfb1c42](https://github.com/Niestrat99/AT-Rewritten/commit/bfb1c425febd51386764c2d6757ccdef44de5018)) - Thatsmusic99
+- **(deps)** update adventure to 4.15.0 - ([9fdc495](https://github.com/Niestrat99/AT-Rewritten/commit/9fdc49588dd131f4b50d099fb329ef5ea7a353af)) - Thatsmusic99
+- **(deps)** update Geyser repo - ([b010695](https://github.com/Niestrat99/AT-Rewritten/commit/b010695f1ca2706efe91359da2902fe17969cd3e)) - Thatsmusic99
+- **(deps)** bump ConfigurationMaster to v2.0.0-rc.2 - ([9deca34](https://github.com/Niestrat99/AT-Rewritten/commit/9deca346cc9c7f7a6cdc5f24814d102d2b2dfdb8)) - Thatsmusic99
+- **(version)** bump to 6.0.0 (yippee!!) - ([a54ce35](https://github.com/Niestrat99/AT-Rewritten/commit/a54ce35d8b2d54a3a65771f302f16669be1c7237)) - Thatsmusic99
+- removed urgent flag in invalid block checking + extra debugging - ([3ae9fb7](https://github.com/Niestrat99/AT-Rewritten/commit/3ae9fb7a3f146d437861275ee65753d56ed62731)) - Thatsmusic99
+- clean up code - ([19ed82a](https://github.com/Niestrat99/AT-Rewritten/commit/19ed82a262322815cdcded3919a87bdc44ab3adc)) - Thatsmusic99
+
+- - -
+
 ## [v6.0.0-beta.5](https://github.com/Niestrat99/AT-Rewritten/compare/v6.0.0-beta.4..v6.0.0-beta.5) - 2023-06-06
 #### Bug Fixes
 - legacy codes not being translated in messages - ([e8a1b31](https://github.com/Niestrat99/AT-Rewritten/commit/e8a1b31c4a42403b11eaea8e0c37d3174e545127)) - Thatsmusic99
