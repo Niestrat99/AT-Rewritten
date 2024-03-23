@@ -195,6 +195,10 @@ tasks {
     }
 }
 
+tasks.shadowJar {
+    from(tasks.slimJar.get().outputDirectory)
+}
+
 // Lead development use only.
 modrinth {
     token.set(System.getenv("MODRINTH_TOKEN"))
