@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
@@ -127,7 +128,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
 
         // Search for a random location
         AdvancedTeleportAPI.getRandomLocation(world, player)
-                .whenComplete(
+                .whenCompleteAsync(
                         (result, err) -> {
 
                             // If there was an error, let the player know
@@ -139,7 +140,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
 
                             // Process the teleportation location
                             processLocation(player, result);
-                        });
+                        }, CoreClass.sync);
 
         return true;
     }
