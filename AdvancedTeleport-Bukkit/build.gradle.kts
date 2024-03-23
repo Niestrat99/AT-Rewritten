@@ -143,7 +143,7 @@ tasks {
         dependsOn(slimJar)
 
         // Set the version to 1.20.1
-        minecraftVersion("1.20.2")
+        minecraftVersion("1.20.4")
 
         // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
