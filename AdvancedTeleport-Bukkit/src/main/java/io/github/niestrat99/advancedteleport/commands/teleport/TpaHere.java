@@ -63,7 +63,8 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
                     "Info.requestSent",
                     Placeholder.parsed(
                             "player", MiniMessage.miniMessage().escapeTags(target.getName())),
-                    Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)));
+                    Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
+                    Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
             CoreClass.playSound("tpahere", "sent", player);
             ATPlayer targetPlayer = ATPlayer.getPlayer(target);
 
@@ -76,7 +77,8 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
                         "Info.tpaRequestHere",
                         Placeholder.parsed(
                                 "player", MiniMessage.miniMessage().escapeTags(sender.getName())),
-                        Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)));
+                        Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
+                        Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
             }
             CoreClass.playSound("tpahere", "received", target);
 

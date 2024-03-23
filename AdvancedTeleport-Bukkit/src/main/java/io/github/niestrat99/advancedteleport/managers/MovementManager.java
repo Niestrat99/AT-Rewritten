@@ -127,12 +127,14 @@ public class MovementManager implements Listener {
             CustomMessages.sendMessage(
                     teleportingPlayer,
                     "Teleport.eventBeforeTP",
-                    Placeholder.unparsed("countdown", String.valueOf(warmUp)));
+                    Placeholder.unparsed("countdown", String.valueOf(warmUp)),
+                    Placeholder.component("countdown-formatted", CustomMessages.toTime(warmUp)));
         } else {
             CustomMessages.sendMessage(
                     teleportingPlayer,
                     "Teleport.eventBeforeTPMovementAllowed",
-                    Placeholder.unparsed("countdown", String.valueOf(warmUp)));
+                    Placeholder.unparsed("countdown", String.valueOf(warmUp)),
+                    Placeholder.component("countdown-formatted", CustomMessages.toTime(warmUp)));
         }
     }
 

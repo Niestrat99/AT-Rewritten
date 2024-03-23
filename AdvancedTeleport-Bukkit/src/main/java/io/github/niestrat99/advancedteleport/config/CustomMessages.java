@@ -102,19 +102,19 @@ public final class CustomMessages extends ATConfig {
             """
                         .trim());
         addDefault("Common.timeFormat.full", "<days><hours><minutes><seconds>");
-        addDefault("Common.timeFormat.days.singular", "<days> Day, ");
-        addDefault("Common.timeFormat.days.plural", "<days> Days, ");
-        addDefault("Common.timeFormat.hours.singular", "<hours> Hour, ");
-        addDefault("Common.timeFormat.hours.plural", "<hours> Hours, ");
-        addDefault("Common.timeFormat.minutes.singular", "<minutes> Minute, ");
-        addDefault("Common.timeFormat.minutes.plural", "<minutes> Minutes, ");
-        addDefault("Common.timeFormat.seconds.singular", "<seconds> Second");
-        addDefault("Common.timeFormat.seconds.plural", "<seconds> Seconds");
+        addDefault("Common.timeFormat.days.singular", "<days> day, ");
+        addDefault("Common.timeFormat.days.plural", "<days> days, ");
+        addDefault("Common.timeFormat.hours.singular", "<hours> hour, ");
+        addDefault("Common.timeFormat.hours.plural", "<hours> hours, ");
+        addDefault("Common.timeFormat.minutes.singular", "<minutes> minute, ");
+        addDefault("Common.timeFormat.minutes.plural", "<minutes> minutes, ");
+        addDefault("Common.timeFormat.seconds.singular", "<seconds> second");
+        addDefault("Common.timeFormat.seconds.plural", "<seconds> seconds");
 
         makeSectionLenient("Teleport");
         addDefault(
                 "Teleport.eventBeforeTP",
-                "<prefix> <gray>Teleporting in <aqua><countdown> seconds</aqua>, please do not move!");
+                "<prefix> <gray>Teleporting in <aqua><countdown-formatted></aqua>, please do not move!");
 
         addComment(
                 "Teleport.eventBeforeTP_title",
@@ -147,7 +147,7 @@ public final class CustomMessages extends ATConfig {
 
         addDefault(
                 "Teleport.eventBeforeTPMovementAllowed",
-                "<prefix> <gray>Teleporting in <aqua><countdown></aqua> seconds!");
+                "<prefix> <gray>Teleporting in <aqua><countdown-formatted></aqua>!");
         addDefault("Teleport.eventTeleport", "<prefix> <gray>Teleporting...");
         addDefault(
                 "Teleport.eventMovement",
@@ -206,7 +206,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.neverBlocked", "<prefix> <gray>This player was never blocked!");
         addDefault(
                 "Error.onCooldown",
-                "<prefix> <gray>Please wait another <aqua><time></aqua> seconds to use this command!");
+                "<prefix> <gray>Please wait another <aqua><time-formatted></aqua> to use this command!");
         addDefault(
                 "Error.requestSentToSelf", "<prefix> <gray>You can't send a request to yourself!");
         addDefault(
@@ -439,7 +439,7 @@ public final class CustomMessages extends ATConfig {
                 """
             <prefix> <gray>The player <aqua><player></aqua> wants to teleport you to them!
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
-            <prefix> <gray>You've got <aqua><lifetime> seconds</aqua> to respond to it!
+            <prefix> <gray>You've got <aqua><lifetime-formatted></aqua> to respond to it!
 
                               <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:'/tpano <player>'><hover:show_text:'<red>Click here to deny the request.'><red><bold>[DENY]</red></bold></hover></click>
         """
@@ -1296,6 +1296,41 @@ public final class CustomMessages extends ATConfig {
                                         + ") could not be played: sound does not exist.");
             }
         }
+    }
+
+    public static @NotNull Component toTime(final int seconds) {
+
+        // Calculate friendly time
+        final int days = seconds / (60 * 60 * 24);
+
+        final int totalHours = seconds % (60 * 60 * 24);
+        final int hours = totalHours / (60 * 60);
+
+        final int totalMinutes = totalHours % (60 * 60);
+        final int minutes = totalMinutes / 60;
+
+        final int secondsRemain = seconds % 60;
+
+        // Get individual placeholders
+        final var daysPart = getTimePart(days, "days");
+        final var hoursPart = getTimePart(hours, "hours");
+        final var minutesPart = getTimePart(minutes, "minutes");
+        final var secondsPart = getTimePart(secondsRemain, "seconds");
+
+        return getComponent("Common.timeFormat.full", Placeholder.component("days", daysPart),
+                Placeholder.component("hours", hoursPart),
+                Placeholder.component("minutes", minutesPart),
+                Placeholder.component("seconds", secondsPart));
+    }
+
+    @ApiStatus.Internal
+    private static @NotNull Component getTimePart(final int value, final @NotNull String type) {
+
+        final var placeholder = Placeholder.parsed(type, String.valueOf(value));
+
+        return value < 1 ? Component.empty() : value == 1 ?
+                getComponent("Common.timeFormat." + type + ".singular", placeholder)
+                : getComponent("Common.timeFormat." + type + ".plural", placeholder);
     }
 
     /**

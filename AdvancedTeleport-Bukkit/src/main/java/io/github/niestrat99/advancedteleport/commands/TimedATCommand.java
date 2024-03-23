@@ -27,7 +27,8 @@ public interface TimedATCommand extends PlayerCommand {
             CustomMessages.sendMessage(
                     sender,
                     "Error.onCooldown",
-                    Placeholder.unparsed("time", String.valueOf(cooldown)));
+                    Placeholder.unparsed("time", String.valueOf(cooldown)),
+                    Placeholder.component("time-formatted", CustomMessages.toTime(cooldown)));
             return false;
         }
 
