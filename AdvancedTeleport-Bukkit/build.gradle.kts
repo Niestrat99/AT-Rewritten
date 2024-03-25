@@ -89,9 +89,9 @@ repositories {
 }
 
 dependencies {
-    paperweight.foliaDevBundle("1.20.1-R0.1-SNAPSHOT")
+    paperweight.foliaDevBundle("1.20.4-R0.1-SNAPSHOT")
 
-    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly(libs.folia)
 
     implementation(libs.slimjar)
@@ -148,8 +148,8 @@ tasks {
         // Wait for slimJar to go through first
         dependsOn(reobfJar)
 
-        // Set the version to 1.20.1
-        minecraftVersion("1.20.1")
+        // Set the version to 1.20.4
+        minecraftVersion("1.20.4")
 
         runDirectory.set(rootDir.resolve(".run"))
     }
@@ -159,8 +159,8 @@ tasks {
         // Wait for slimJar to go through first
         dependsOn(reobfJar)
 
-        // Set the version to 1.20.1
-        minecraftVersion("1.20.2")
+        // Set the version to 1.20.4
+        minecraftVersion("1.20.4")
 
         // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
