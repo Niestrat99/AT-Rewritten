@@ -156,7 +156,7 @@ public final class WarpsCommand extends ATCommand {
 
             if (!body.content().isEmpty() || !body.children().isEmpty()) {
                 String text = CustomMessages.config.getString("Info.warps") + "<warps>";
-                CustomMessages.asAudience(sender).sendMessage(CustomMessages.translate(text, Placeholder.component("warps", body)));
+                CustomMessages.sendMessage(sender, CustomMessages.translate(text, Placeholder.component("warps", body)));
             } else CustomMessages.sendMessage(sender, "Error.noWarps");
         }
     }

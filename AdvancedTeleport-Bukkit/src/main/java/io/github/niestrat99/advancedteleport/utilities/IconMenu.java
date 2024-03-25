@@ -243,7 +243,7 @@ public class IconMenu implements Listener, InventoryHolder {
                             Base64.getEncoder()
                                     .encode(
                                             String.format(
-                                                            "{textures:{SKIN:{url:\"http://textures.minecraft.net/texture/%s\"}}}",
+                                                            "{textures:{SKIN:{url:\"https://textures.minecraft.net/texture/%s\"}}}",
                                                             texture)
                                                     .getBytes());
                 } else {

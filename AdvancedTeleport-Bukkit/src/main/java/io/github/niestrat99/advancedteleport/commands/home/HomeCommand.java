@@ -35,56 +35,61 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
 
         // If more than one argument has been specified and the player is an admin...
         if (args.length > 1 && sender.hasPermission(getAdminPermission())) {
-            ATPlayer.getPlayerFuture(args[0])
-                    .thenAccept(
-                            target ->
-                                    target.getHomesAsync()
-                                            .thenAcceptAsync(
-                                                    homesOther -> {
+            ATPlayer.getPlayerFuture(args[0]).whenCompleteAsync((target, err) -> {
 
-                                                        // If the home has been set with the
-                                                        // specific name, use that
-                                                        Home home = homesOther.get(args[1]);
-                                                        if (home != null) {
-                                                            ATPlayer.teleportWithOptions(
-                                                                    player,
-                                                                    home.getLocation(),
-                                                                    PlayerTeleportEvent
-                                                                            .TeleportCause.COMMAND);
-                                                            CustomMessages.sendMessage(
-                                                                    sender,
-                                                                    "Teleport.teleportingToHomeOther",
-                                                                    Placeholder.unparsed(
-                                                                            "player", args[0]),
-                                                                    Placeholder.unparsed(
-                                                                            "home", args[1]));
-                                                            return;
-                                                        }
+                if (err != null) {
+                    err.printStackTrace();
+                    return;
+                }
 
-                                                        // If we're using a bed, try getting the bed
-                                                        // spawn
-                                                        if (args[1].equalsIgnoreCase("bed")
-                                                                && MainConfig.get()
-                                                                        .ADD_BED_TO_HOMES
-                                                                        .get()) {
-                                                            home = target.getBedSpawn();
-                                                            if (home != null) {
-                                                                ATPlayer.teleportWithOptions(
-                                                                        player,
-                                                                        home.getLocation(),
-                                                                        PlayerTeleportEvent
-                                                                                .TeleportCause
-                                                                                .COMMAND);
-                                                                CustomMessages.sendMessage(
-                                                                        sender,
-                                                                        "Teleport.teleportingToHomeOther",
-                                                                        Placeholder.unparsed(
-                                                                                "player", args[0]),
-                                                                        Placeholder.unparsed(
-                                                                                "home", args[1]));
-                                                                return;
-                                                            }
-                                                        }
+                target.getHomesAsync().whenCompleteAsync((homesOther, err2) -> {
+
+                    if (err2 != null) {
+                        err2.printStackTrace();
+                        return;
+                    }
+
+                    // If the home has been set with the specific name, use that
+                    Home home = homesOther.get(args[1]);
+                    if (home != null) {
+                        ATPlayer.teleportWithOptions(
+                                player,
+                                home.getLocation(),
+                                PlayerTeleportEvent
+                                        .TeleportCause.COMMAND);
+                        CustomMessages.sendMessage(
+                                sender,
+                                "Teleport.teleportingToHomeOther",
+                                Placeholder.unparsed(
+                                        "player", args[0]),
+                                Placeholder.unparsed(
+                                        "home", args[1]));
+                        return;
+                    }
+
+                    // If we're using a bed, try getting the bed spawn
+                    if (args[1].equalsIgnoreCase("bed")
+                            && MainConfig.get()
+                            .ADD_BED_TO_HOMES
+                            .get()) {
+                        home = target.getBedSpawn();
+                        if (home != null) {
+                            ATPlayer.teleportWithOptions(
+                                    player,
+                                    home.getLocation(),
+                                    PlayerTeleportEvent
+                                            .TeleportCause
+                                            .COMMAND);
+                            CustomMessages.sendMessage(
+                                    sender,
+                                    "Teleport.teleportingToHomeOther",
+                                    Placeholder.unparsed(
+                                            "player", args[0]),
+                                    Placeholder.unparsed(
+                                            "home", args[1]));
+                            return;
+                        }
+                    }
 
                                                         // If we're requesting a list, just throw it
                                                         if (args[1].equalsIgnoreCase("list")) {
@@ -93,11 +98,10 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                                                             return;
                                                         }
 
-                                                        // Tell the player there is no such home
-                                                        CustomMessages.sendMessage(
-                                                                sender, "Error.noSuchHome");
-                                                    },
-                                                    CoreClass.sync));
+                    // Tell the player there is no such home
+                            CustomMessages.sendMessage(sender, "Error.noSuchHome");
+                }, CoreClass.sync);
+            }, CoreClass.sync);
 
             return true;
         }

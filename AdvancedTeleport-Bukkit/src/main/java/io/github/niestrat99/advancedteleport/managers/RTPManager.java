@@ -21,11 +21,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -36,8 +32,14 @@ public class RTPManager {
 
     public static void init() {
         locQueue = new HashMap<>();
-        if (!PaperLib.isPaper()) return;
-        if (!MainConfig.get().RAPID_RESPONSE.get()) return;
+        if (!PaperLib.isPaper()) {
+            CoreClass.debug("Server is not using Paper, cannot initialise RTPManager.");
+            return;
+        }
+        if (!MainConfig.get().RAPID_RESPONSE.get()) {
+            CoreClass.debug("Rapid response is not enabled, cannot initialise RTPManager.");
+            return;
+        }
 
         CoreClass.getInstance()
                 .getLogger()
@@ -118,6 +120,8 @@ public class RTPManager {
             final boolean urgent
     ) {
 
+        CoreClass.debug("Attempting to either add a location or return it for /rtp.");
+
         // If it's not a Paper server, stop there.
         if (!PaperLib.isPaper()) return CompletableFuture.completedFuture(null);
 
@@ -125,6 +129,7 @@ public class RTPManager {
         if (locQueue.get(world.getUID()) != null && locQueue.get(world.getUID()).size() > MainConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             Location loc = locQueue.get(world.getUID()).poll();
             if (!PluginHookManager.get().isClaimed(loc)) {
+                CoreClass.debug("Area is not claimed - returning as valid location");
                 return CompletableFuture.completedFuture(loc);
             }
         }
@@ -143,6 +148,7 @@ public class RTPManager {
 
                 // Fetch location
                 Location location = RandomCoords.generateCoords(world);
+
                 if (location == null) return null;
                 int[] coords = new int[]{location.getBlockX(), location.getBlockZ()};
 
@@ -294,8 +300,12 @@ public class RTPManager {
     }
 
     public static void getPreviousLocations() throws IOException {
+        CoreClass.debug("Loading previously discovered locations.");
         File rtpLocsFile = new File(CoreClass.getInstance().getDataFolder(), "rtp-locations.csv");
-        if (!rtpLocsFile.exists()) return;
+        if (!rtpLocsFile.exists()) {
+            CoreClass.debug("Not loading previous locations - rtp-locations.csv does not exist.");
+            return;
+        }
         BufferedReader reader = new BufferedReader(new FileReader(rtpLocsFile));
         String currentLine;
         while ((currentLine = reader.readLine()) != null) {
@@ -309,9 +319,12 @@ public class RTPManager {
                             Double.parseDouble(data[2]),
                             Double.parseDouble(data[3])
                         };
+                final Location location = new Location(world, loc[0], loc[1], loc[2]);
                 Queue<Location> queue = locQueue.getOrDefault(worldUUID, new ArrayDeque<>());
-                queue.add(new Location(world, loc[0], loc[1], loc[2]));
+                queue.add(location);
                 locQueue.put(worldUUID, queue);
+
+                CoreClass.debug("Added previous location " + location);
             } catch (Exception ignored) {
             }
         }

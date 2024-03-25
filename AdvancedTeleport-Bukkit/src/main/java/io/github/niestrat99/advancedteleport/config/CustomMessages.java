@@ -28,6 +28,7 @@ import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
@@ -68,9 +69,9 @@ public final class CustomMessages extends ATConfig {
 
         populate();
 
-        if (!PaperLib.isPaper()) {
+        //if (!PaperLib.isPaper()) {
             audience = BukkitAudiences.create(CoreClass.getInstance());
-        }
+        //}
     }
 
     @Override
@@ -101,6 +102,7 @@ public final class CustomMessages extends ATConfig {
             with each element after that being usable as <prefix:index> with index being the items index in the list.
             """
                         .trim());
+
 
         makeSectionLenient("Teleport");
         addDefault(
@@ -206,6 +208,11 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.alreadySentRequest",
                 "<prefix> <gray>You've already sent a request to <aqua><player></aqua>!");
+        addDefault("Error.notEnoughGeneral", """
+            <prefix> <gray>You cannot afford to teleport there!
+            <prefix> <gray>You need <aqua><cost></aqua>!
+        """);
+
         addDefault(
                 "Error.notEnoughEXP",
                 """
@@ -966,8 +973,20 @@ public final class CustomMessages extends ATConfig {
         } else if (config.getString(path) != null && !config.getString(path).isEmpty())
             component.append(get(path, placeholders));
 
-        if (component.content().isEmpty() && component.children().size() == 0) return;
-        asAudience(sender).sendMessage(component);
+        if (component.content().isEmpty() && component.children().isEmpty()) return;
+        sendMessage(sender, component.asComponent());
+    }
+
+    @Contract(pure = true)
+    public static void sendMessage(@NotNull final CommandSender sender,
+                                   @NotNull final Component component) {
+
+        if (PaperLib.isPaper()) {
+            asAudience(sender).sendMessage(component);
+        } else {
+            BungeeComponentSerializer serializer = BungeeComponentSerializer.get();
+            sender.spigot().sendMessage(serializer.serialize(component));
+        }
     }
 
     @Contract(pure = true)

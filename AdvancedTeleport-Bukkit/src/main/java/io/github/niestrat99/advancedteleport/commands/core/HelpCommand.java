@@ -166,7 +166,6 @@ public final class HelpCommand extends SubATCommand {
             return true;
         }
 
-        final var audience = CustomMessages.asAudience(sender);
         final var helpHeader =
                 MiniMessage.miniMessage()
                         .deserialize(
@@ -182,7 +181,7 @@ public final class HelpCommand extends SubATCommand {
                                                                 commandList.getTotalPages())))
                                         .build());
 
-        audience.sendMessage(helpHeader);
+        CustomMessages.sendMessage(sender, helpHeader);
 
         for (final String command : commandList.getContentsInPage(page)) {
             var commandUsage = CustomMessages.getComponent("Usages." + command);
@@ -206,7 +205,7 @@ public final class HelpCommand extends SubATCommand {
                                                     Tag.selfClosingInserting(description))
                                             .build());
 
-            audience.sendMessage(finalMessage);
+            CustomMessages.sendMessage(sender, finalMessage);
         }
 
         return true;

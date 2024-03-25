@@ -84,12 +84,7 @@ public final class TpList extends TeleportATCommand implements PlayerCommand {
                                         ));
 
         CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
-        CustomMessages.asAudience(player).sendMessage(body);
-    }
-
-    @Override
-    public boolean getRequiredFeature() {
-        return MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get();
+        CustomMessages.sendMessage(player, body);
     }
 
     @Override
