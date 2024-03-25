@@ -4,6 +4,8 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -36,12 +38,9 @@ public class HomeSQLManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            CoreClass.debug(
-                                    "Creating table data for the home manager if it is not already set up.");
+        RunnableManager.setupRunnerAsync(() -> {
+
+            CoreClass.debug("Creating table data for the home manager if it is not already set up.");
 
                             try (Connection connection = implementConnection()) {
                                 PreparedStatement createTable =
@@ -128,9 +127,7 @@ public class HomeSQLManager extends SQLManager {
 
     public void addHome(Location location, UUID owner, String name, boolean async) {
         if (async) {
-            Bukkit.getScheduler()
-                    .runTaskAsynchronously(
-                            CoreClass.getInstance(), () -> addHomePrivate(location, owner, name));
+            RunnableManager.setupRunnerAsync(() -> addHomePrivate(location, owner, name));
         } else {
             addHomePrivate(location, owner, name);
         }
@@ -225,10 +222,7 @@ public class HomeSQLManager extends SQLManager {
 
     public void moveHome(Location newLocation, UUID owner, String name, boolean async) {
         if (async) {
-            Bukkit.getScheduler()
-                    .runTaskAsynchronously(
-                            CoreClass.getInstance(),
-                            () -> moveHomePrivate(newLocation, owner, name));
+            RunnableManager.setupRunnerAsync(() -> moveHomePrivate(newLocation, owner, name));
         } else {
             moveHomePrivate(newLocation, owner, name);
         }

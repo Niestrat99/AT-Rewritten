@@ -1,8 +1,8 @@
 package io.github.niestrat99.advancedteleport.commands.core;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -38,14 +38,11 @@ public class ClearCacheCommand extends SubATCommand {
             RTPManager.clearEverything();
 
             // Reload the data
-            Bukkit.getScheduler()
-                    .runTaskAsynchronously(
-                            CoreClass.getInstance(),
-                            () -> {
-                                for (World world : Bukkit.getWorlds()) {
-                                    RTPManager.loadWorldData(world);
-                                }
-                            });
+            RunnableManager.setupRunnerAsync(task -> {
+                for (World world : Bukkit.getWorlds()) {
+                    RTPManager.loadWorldData(world);
+                }
+            });
 
             CustomMessages.sendMessage(sender, "Info.clearEverything");
             return true;
@@ -62,11 +59,8 @@ public class ClearCacheCommand extends SubATCommand {
 
         // Reset the data
         RTPManager.unloadWorldData(world);
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(), () -> RTPManager.loadWorldData(world));
-        CustomMessages.sendMessage(
-                sender, "Info.clearWorld", Placeholder.unparsed("world", args[0]));
+        RunnableManager.setupRunnerAsync(task -> RTPManager.loadWorldData(world));
+        CustomMessages.sendMessage(sender, "Info.clearWorld", Placeholder.unparsed("world", args[0]));
         return false;
     }
 

@@ -127,9 +127,7 @@ public final class Tpr extends ATCommand implements TimedATCommand {
         searchingPlayers.add(player.getUniqueId());
 
         // Search for a random location
-        AdvancedTeleportAPI.getRandomLocation(world, player)
-                .whenCompleteAsync(
-                        (result, err) -> {
+        AdvancedTeleportAPI.getRandomLocation(world, player).whenCompleteAsync((result, err) -> {
 
                             // If there was an error, let the player know
                             if (err != null) {
@@ -138,9 +136,9 @@ public final class Tpr extends ATCommand implements TimedATCommand {
                                 return;
                             }
 
-                            // Process the teleportation location
-                            processLocation(player, result);
-                        }, CoreClass.sync);
+            // Process the teleportation location
+            processLocation(player, result);
+        }, CoreClass.sync);
 
         return true;
     }

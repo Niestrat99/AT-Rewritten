@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
@@ -90,18 +91,12 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                         }
                     }
 
-                    // If we're requesting a list, just throw it
-                    if (args[1].equalsIgnoreCase("list")) {
-                        Bukkit.getScheduler()
-                                .runTask(
-                                        CoreClass.getInstance(),
-                                        () ->
-                                                Bukkit
-                                                        .dispatchCommand(
-                                                                sender,
-                                                                "advancedteleport:homes " + args[0]));
-                        return;
-                    }
+                                                        // If we're requesting a list, just throw it
+                                                        if (args[1].equalsIgnoreCase("list")) {
+                                                            RunnableManager.setupRunner(() ->
+                                                                    Bukkit.dispatchCommand(sender, "advancedteleport:homes " + args[0]));
+                                                            return;
+                                                        }
 
                     // Tell the player there is no such home
                             CustomMessages.sendMessage(sender, "Error.noSuchHome");
@@ -114,12 +109,9 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
         // If there's no arguments specified...
         if (args.length == 0) {
 
-            if (MainConfig.get().SHOW_HOMES_WITH_NO_INPUT.get()
-                    && !(atPlayer.hasMainHome() && MainConfig.get().PRIORITISE_MAIN_HOME.get())) {
-                Bukkit.getScheduler()
-                        .runTask(
-                                CoreClass.getInstance(),
-                                () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes"));
+            if (MainConfig.get().SHOW_HOMES_WITH_NO_INPUT.get() &&
+                    !(atPlayer.hasMainHome() && MainConfig.get().PRIORITISE_MAIN_HOME.get())) {
+                RunnableManager.setupRunner(() -> Bukkit.dispatchCommand(sender, "advancedteleport:homes"));
             }
 
             // Try getting the main home - if it exists, teleport there
@@ -179,12 +171,10 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
         }
 
         if (args[0].equalsIgnoreCase("list")) {
-            Bukkit.getScheduler()
-                    .runTask(
-                            CoreClass.getInstance(),
-                            () ->
-                                    Bukkit.dispatchCommand(
-                                            sender, "advancedteleport:homes " + args[0]));
+            RunnableManager.setupRunner(() -> Bukkit.dispatchCommand(
+                    sender,
+                    "advancedteleport:homes " + args[0]
+            ));
             return true;
         }
 

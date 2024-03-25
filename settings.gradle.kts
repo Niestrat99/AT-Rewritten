@@ -8,6 +8,7 @@ include(":AdvancedTP-Core")
 pluginManagement {
     repositories {
         mavenCentral()
+        mavenLocal()
         gradlePluginPortal()
         maven("https://papermc.io/repo/repository/maven-public/")
         maven("https://repo.racci.dev/releases") { mavenContent { releasesOnly() } }

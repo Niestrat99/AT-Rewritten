@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
 
 import org.bukkit.Bukkit;
@@ -55,6 +56,24 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
             CustomMessages.sendMessage(sender, "Error.noLocation");
             return true;
         }
+
+        // If we're on Folia, run through that location
+        if (RunnableManager.isFolia()) {
+            final Player finalPlayer = player;
+            final Location finalLoc = loc;
+            RunnableManager.setupRunner(loc, () -> processLocation(finalPlayer, finalLoc, sender));
+            return true;
+        } else {
+            return processLocation(player, loc, sender);
+        }
+    }
+
+    private boolean processLocation(@NotNull Player player,
+                                    @NotNull Location loc,
+                                    @NotNull CommandSender sender) {
+
+        // Get the ATPlayer object
+        ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         // Get the original previous location
         double originalY = loc.getY();
@@ -121,7 +140,7 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
 
         // If the distance limiter is in effect and it's too far, stop there
         if (!DistanceLimiter.canTeleport(
-                        player.getLocation(), loc, "back", ATPlayer.getPlayer(player))
+                player.getLocation(), loc, "back", ATPlayer.getPlayer(player))
                 && !player.hasPermission("at.admin.bypass.distance-limit")) {
             CustomMessages.sendMessage(player, "Error.tooFarAway");
             return true;
@@ -141,9 +160,11 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
         // Teleport the target player
         if (sender != player) {
             CustomMessages.sendMessage(player, "Teleport.teleportingToLastLoc");
-            player.teleport(loc);
+            final Location finalLoc = loc;
+            RunnableManager.setupRunner(player, () -> player.teleport(finalLoc), () -> {}) ;
         } else {
-            atPlayer.teleport(event, "back", "Teleport.teleportingToLastLoc");
+            RunnableManager.setupRunner(player, () ->
+                    atPlayer.teleport(event, "back", "Teleport.teleportingToLastLoc"), () -> {});
         }
         return true;
     }
