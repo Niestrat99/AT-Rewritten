@@ -230,7 +230,7 @@ public final class CustomMessages extends ATConfig {
                 "Error.notEnoughMoney",
                 """
             <prefix> <gray>You do not have enough money to teleport there!
-            <prefix> <gray>You need at least <aqua>amount</aqua>!
+            <prefix> <gray>You need at least <aqua><amount></aqua>!
         """
                         .trim());
         addDefault(
