@@ -21,7 +21,7 @@ public class HomeSign extends ATSign {
 
         Home mainHome = atPlayer.getMainHome();
         if (mainHome == null) {
-            if (atPlayer.getHomes().size() == 0) return;
+            if (atPlayer.getHomes().isEmpty()) return;
             mainHome = atPlayer.getHomes().values().iterator().next();
         }
 

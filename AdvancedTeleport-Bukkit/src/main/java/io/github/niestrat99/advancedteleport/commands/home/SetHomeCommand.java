@@ -39,7 +39,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
             final int limit = atPlayer.getHomesLimit();
 
             // If the homes list is empty, set a new home called "home".
-            if (atPlayer.getHomes().size() == 0 && (limit > 0 || limit == -1)) {
+            if (atPlayer.getHomes().isEmpty() && (limit > 0 || limit == -1)) {
                 setHome(player, "home");
                 return true;
             }
@@ -107,11 +107,6 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
                                         err,
                                         Placeholder.unparsed("home", homeName),
                                         Placeholder.unparsed("player", playerName)));
-    }
-
-    @Override
-    public boolean getRequiredFeature() {
-        return MainConfig.get().USE_HOMES.get();
     }
 
     @Override

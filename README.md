@@ -1,4 +1,4 @@
-![](https://media.discordapp.net/attachments/537669210520813568/777981743785181226/at_title.png?width=1443&height=468)
+![](https://i.imgur.com/5HC6ssG.png)
 # Advanced Teleport
 [![](https://img.shields.io/github/v/release/Niestrat99/AT-Rewritten.svg?label=github%20release)](https://github.com/Niestrat99/AT-Rewritten/releases)
 

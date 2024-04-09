@@ -148,10 +148,19 @@ public final class PluginHookManager {
 
     @Contract(pure = true)
     public boolean isClaimed(@NotNull final Location location) {
+
+        CoreClass.debug("Check initiated to see if " + location + " is claimed.");
+
         return getPluginHooks(ClaimPlugin.class, true)
                 .filter(plugin -> plugin.canUse(location.getWorld()))
-                .findFirst()
-                .map(hook -> hook.isClaimed(location))
+                .findFirst() // TODO - mustn't check a single plugin
+                .map(hook -> {
+
+                    boolean result = hook.isClaimed(location);
+                    CoreClass.debug("Claim result for " + hook.pluginName() + ": " + result);
+                    return result;
+
+                })
                 .orElse(false);
     }
 

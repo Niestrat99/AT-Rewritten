@@ -858,7 +858,7 @@ public final class MainConfig extends ATConfig {
                 true,
                 "Whether or not to notify admins when an update is available.\n"
                         + "Anyone with the permission at.admin.notify will receive this notification.");
-        addDefault("debug", false, "Used for debugging purposes.", "Misceallaneous");
+        addDefault("debug", false, "Misceallaneous", "Used for debugging purposes.");
         addDefault(
                 "use-floodgate-forms",
                 true,
@@ -936,12 +936,12 @@ public final class MainConfig extends ATConfig {
         }
 
         if (defaultEXP) {
-            if (builder.length() > 0) {
+            if (!builder.isEmpty()) {
                 builder.append(";");
             }
             builder.append(defaultEXPAmount).append("LVL");
         }
-        if (builder.length() > 0) {
+        if (!builder.isEmpty()) {
             set("cost-amount", builder.toString());
         }
         for (String command :
@@ -975,7 +975,7 @@ public final class MainConfig extends ATConfig {
                     }
                 }
 
-                if (paymentCombination.length() == 0) {
+                if (paymentCombination.isEmpty()) {
                     paymentCombination.append("default");
                 }
                 set("per-command-cost." + command, paymentCombination.toString());

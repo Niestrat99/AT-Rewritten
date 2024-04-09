@@ -70,7 +70,7 @@ public class TeleportTests {
 
             if (requests.getTotalPages() > 1) {
                 CustomMessages.sendMessage(player, "Info.multipleRequestsList");
-                CustomMessages.asAudience(player).sendMessage(body);
+                CustomMessages.sendMessage(player, body);
             }
         }
 
