@@ -617,6 +617,11 @@ public final class CustomMessages extends ATConfig {
             <aqua>World <dark_gray>» <gray><world>""");
 
         addDefault(
+                "Menu.Help.header",
+                "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・");
+        addDefault("Menu.Help.option", "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>");
+
+        addDefault(
                 "Descriptions.Subcommands.help",
                 "Sends the help menu, providing a full list of commands.");
         addDefault("Descriptions.Subcommands.info", "Sends information regarding the plugin.");
