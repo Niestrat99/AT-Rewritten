@@ -1,10 +1,10 @@
 package io.github.niestrat99.advancedteleport.managers;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +56,12 @@ public final class ParticleManager {
     }
 
     public static void doSpark(@NotNull final Location location) {
-        location.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, location, 50, 0, 0, 0, 0.5);
+        location.getWorld().spawnParticle(getSpark(), location, 50, 0, 0, 0, 0.5);
+    }
+
+    private static Particle getSpark() {
+        final var particle = Registry.PARTICLE_TYPE.get(NamespacedKey.fromString("minecraft:firework"));
+        if (particle == null) return Particle.valueOf("FIREWORKS_SPARK");
+        return particle;
     }
 }
