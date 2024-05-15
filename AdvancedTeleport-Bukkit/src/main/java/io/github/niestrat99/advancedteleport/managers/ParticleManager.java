@@ -67,8 +67,13 @@ public final class ParticleManager {
     }
 
     private static Particle getSpark() {
-        final var particle = Registry.PARTICLE_TYPE.get(NamespacedKey.fromString("minecraft:firework"));
-        if (particle == null) return Particle.valueOf("FIREWORKS_SPARK");
-        return particle;
+        try {
+
+            final var particle = Registry.PARTICLE_TYPE.get(NamespacedKey.fromString("minecraft:firework"));
+            if (particle == null) return Particle.valueOf("FIREWORKS_SPARK");
+            return particle;
+        } catch (NoSuchFieldError whyWouldYouDoThisSpigot) {
+            return Particle.valueOf("FIREWORKS_SPARK");
+        }
     }
 }
