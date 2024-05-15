@@ -585,6 +585,8 @@ bukkit {
                 "at.admin.bypass.distance-limit" to true,
                 "at.admin.sethome.bypass" to true,
                 "at.admin.bypass.teleport-on-join" to true,
+                "at.admin.bypass.movement" to true,
+                "at.admin.bypass.rotation" to true,
                 "at.admin.toggletp" to true,
                 "at.admin.bypass" to true,
                 "at.admin.tploc" to true,

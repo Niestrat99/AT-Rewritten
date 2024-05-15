@@ -28,25 +28,48 @@ public class MovementManager implements Listener {
 
     @EventHandler
     public void onMovement(PlayerMoveEvent event) {
-        boolean cancelOnRotate = MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get();
-        boolean cancelOnMove = MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get();
-        if (!cancelOnRotate) {
-            Location locTo = event.getTo();
-            Location locFrom = event.getFrom();
-            if (locTo.getBlockX() == locFrom.getBlockX() // If the player rotated instead of moved
-                    && locTo.getBlockY() == locFrom.getBlockY()
-                    && locTo.getBlockZ() == locFrom.getBlockZ()) {
-                return;
-            }
-        }
+
+        boolean cancelled = willCancelTimer(event);
+
         UUID uuid = event.getPlayer().getUniqueId();
-        if ((cancelOnRotate || cancelOnMove) && movement.containsKey(uuid)) {
+        if (cancelled && movement.containsKey(uuid)) {
             ImprovedRunnable timer = movement.get(uuid);
             timer.cancel();
             CustomMessages.sendMessage(event.getPlayer(), "Teleport.eventMovement");
             ParticleManager.removeParticles(event.getPlayer(), timer.command);
             movement.remove(uuid);
         }
+    }
+
+    private static boolean willCancelTimer(PlayerMoveEvent event) {
+        boolean cancelOnRotate = MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get() && !event.getPlayer().hasPermission("at.admin.bypass.rotation");
+        boolean cancelOnMove = MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() && !event.getPlayer().hasPermission("at.admin.bypass.movement");
+
+        boolean cancelled = false;
+
+        // If we have to perform position checks, compare blocks
+        if (cancelOnMove) {
+            Location locTo = event.getTo();
+            Location locFrom = event.getFrom();
+            if (locTo.getBlockX() != locFrom.getBlockX() // If the player moved
+                    || locTo.getBlockY() != locFrom.getBlockY()
+                    || locTo.getBlockZ() != locFrom.getBlockZ()) {
+                cancelled = true;
+            }
+        }
+
+        // If we have to perform rotation checks, compare
+        if (cancelOnRotate && !cancelled) {
+            Location locTo = event.getTo();
+            Location locFrom = event.getFrom();
+
+            if (locTo.getPitch() != locFrom.getPitch()
+                || locTo.getYaw() != locFrom.getYaw()) {
+                cancelled = true;
+            }
+        }
+
+        return cancelled;
     }
 
     public static HashMap<UUID, ImprovedRunnable> getMovement() {
@@ -122,8 +145,8 @@ public class MovementManager implements Listener {
                 };
         movement.put(uuid, movementtimer);
         movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20L);
-        if (MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get()
-                || MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()) {
+        if ((MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() && !teleportingPlayer.hasPermission("at.admin.bypass.movement"))
+                || (MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get() && !teleportingPlayer.hasPermission("at.admin.bypass.rotation"))) {
             CustomMessages.sendMessage(
                     teleportingPlayer,
                     "Teleport.eventBeforeTP",
