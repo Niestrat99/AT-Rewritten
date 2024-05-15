@@ -26,3 +26,4 @@ As of currently, Advanced Teleport uses Gradle to manage its dependencies.
 
 The Gradle command used to build the plugin is `gradle shadowJar` and is done under the AdvancedTeleport-Bukkit module.
 
+
