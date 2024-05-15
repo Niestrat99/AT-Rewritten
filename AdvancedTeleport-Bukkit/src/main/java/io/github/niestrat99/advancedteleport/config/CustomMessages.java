@@ -26,6 +26,7 @@ import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
@@ -67,9 +68,9 @@ public final class CustomMessages extends ATConfig {
 
         populate();
 
-        if (!PaperLib.isPaper()) {
+        //if (!PaperLib.isPaper()) {
             audience = BukkitAudiences.create(CoreClass.getInstance());
-        }
+        //}
     }
 
     @Override
@@ -100,6 +101,7 @@ public final class CustomMessages extends ATConfig {
             with each element after that being usable as <prefix:index> with index being the items index in the list.
             """
                         .trim());
+
 
         makeSectionLenient("Teleport");
         addDefault(
@@ -205,6 +207,11 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.alreadySentRequest",
                 "<prefix> <gray>You've already sent a request to <aqua><player></aqua>!");
+        addDefault("Error.notEnoughGeneral", """
+            <prefix> <gray>You cannot afford to teleport there!
+            <prefix> <gray>You need <aqua><cost></aqua>!
+        """);
+
         addDefault(
                 "Error.notEnoughEXP",
                 """
@@ -223,7 +230,7 @@ public final class CustomMessages extends ATConfig {
                 "Error.notEnoughMoney",
                 """
             <prefix> <gray>You do not have enough money to teleport there!
-            <prefix> <gray>You need at least <aqua>amount</aqua>!
+            <prefix> <gray>You need at least <aqua><amount></aqua>!
         """
                         .trim());
         addDefault(
@@ -610,6 +617,11 @@ public final class CustomMessages extends ATConfig {
             <aqua>World <dark_gray>» <gray><world>""");
 
         addDefault(
+                "Menu.Help.header",
+                "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・");
+        addDefault("Menu.Help.option", "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>");
+
+        addDefault(
                 "Descriptions.Subcommands.help",
                 "Sends the help menu, providing a full list of commands.");
         addDefault("Descriptions.Subcommands.info", "Sends information regarding the plugin.");
@@ -968,8 +980,20 @@ public final class CustomMessages extends ATConfig {
         } else if (config.getString(path) != null && !config.getString(path).isEmpty())
             component.append(get(path, placeholders));
 
-        if (component.content().isEmpty() && component.children().size() == 0) return;
-        asAudience(sender).sendMessage(component);
+        if (component.content().isEmpty() && component.children().isEmpty()) return;
+        sendMessage(sender, component.asComponent());
+    }
+
+    @Contract(pure = true)
+    public static void sendMessage(@NotNull final CommandSender sender,
+                                   @NotNull final Component component) {
+
+        if (PaperLib.isPaper()) {
+            asAudience(sender).sendMessage(component);
+        } else {
+            BungeeComponentSerializer serializer = BungeeComponentSerializer.get();
+            sender.spigot().sendMessage(serializer.serialize(component));
+        }
     }
 
     @Contract(pure = true)

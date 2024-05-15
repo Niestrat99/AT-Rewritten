@@ -87,8 +87,8 @@ public class VaultPayment extends Payment {
         CustomMessages.sendMessage(
                 player,
                 "Info.paymentVault",
-                Placeholder.unparsed("amount", economy.format(price)),
-                Placeholder.unparsed("balance", economy.format(getPlayerAmount(player))));
+                Placeholder.parsed("amount", economy.format(price)),
+                Placeholder.parsed("balance", economy.format(getPlayerAmount(player))));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class VaultPayment extends Payment {
             CustomMessages.sendMessage(
                     player,
                     "Error.notEnoughMoney",
-                    Placeholder.unparsed("amount", economy.format(price)));
+                    Placeholder.parsed("amount", economy.format(price)));
         }
         return result;
     }

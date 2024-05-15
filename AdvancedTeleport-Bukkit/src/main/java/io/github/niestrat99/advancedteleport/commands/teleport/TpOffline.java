@@ -54,7 +54,7 @@ public final class TpOffline extends TeleportATCommand implements PlayerCommand 
 
                     @Override
                     public void onFail(@NotNull final Component message) {
-                        CustomMessages.asAudience(sender).sendMessage(message);
+                        CustomMessages.sendMessage(sender, message);
                     }
                 });
         return true;

@@ -166,11 +166,10 @@ public final class HelpCommand extends SubATCommand {
             return true;
         }
 
-        final var audience = CustomMessages.asAudience(sender);
         final var helpHeader =
                 MiniMessage.miniMessage()
                         .deserialize(
-                                "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・", // TODO: Allow customizing this in lang?
+                                CustomMessages.config.getString("Menu.Help.header"), // TODO: Do this better
                                 TagResolver.builder()
                                         .tag(
                                                 "current_page",
@@ -182,7 +181,7 @@ public final class HelpCommand extends SubATCommand {
                                                                 commandList.getTotalPages())))
                                         .build());
 
-        audience.sendMessage(helpHeader);
+        CustomMessages.sendMessage(sender, helpHeader);
 
         for (final String command : commandList.getContentsInPage(page)) {
             var commandUsage = CustomMessages.getComponent("Usages." + command);
@@ -194,11 +193,11 @@ public final class HelpCommand extends SubATCommand {
             }
 
             final var description = CustomMessages.getComponent("Descriptions." + command);
-            // TODO: Make configurable and use suppliers instead of computing above.
+            // TODO: Use suppliers instead of computing above.
             final var finalMessage =
                     MiniMessage.miniMessage()
                             .deserialize(
-                                    "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>",
+                                    CustomMessages.config.getString("Menu.Help.option"),
                                     TagResolver.builder()
                                             .tag("usage", Tag.selfClosingInserting(commandUsage))
                                             .tag(
@@ -206,7 +205,7 @@ public final class HelpCommand extends SubATCommand {
                                                     Tag.selfClosingInserting(description))
                                             .build());
 
-            audience.sendMessage(finalMessage);
+            CustomMessages.sendMessage(sender, finalMessage);
         }
 
         return true;

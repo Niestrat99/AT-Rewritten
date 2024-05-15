@@ -8,14 +8,9 @@ import com.earth2me.essentials.commands.WarpNotFoundException;
 import com.earth2me.essentials.spawn.EssentialsSpawn;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
-import io.github.niestrat99.advancedteleport.api.ATPlayer;
-import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
-import io.github.niestrat99.advancedteleport.api.Warp;
-import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.api.*;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
-import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
-import io.github.niestrat99.advancedteleport.sql.SQLManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 
 import net.ess3.api.InvalidWorldException;
@@ -187,29 +182,35 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         // Go through each set spawnpoint in Essentials
         for (String key : spawns.getKeys(false)) {
 
-            // Get the config section for the spawnpoint
-            ConfigurationSection spawnSection = spawns.getConfigurationSection(key);
-            if (spawnSection == null) continue;
+            try {
 
-            // Get the location of the spawnpoint
-            Location loc = getLocationFromSection(spawnSection);
+                // Get the config section for the spawnpoint
+                ConfigurationSection spawnSection = spawns.getConfigurationSection(key);
+                if (spawnSection == null) continue;
 
-            // Set the spawnpoint
-            Spawn spawn1 = AdvancedTeleportAPI.setSpawn(key, null, loc).join();
-            debug("Set spawn for " + key);
+                // Get the location of the spawnpoint
+                WorldlessLocation loc = getLocationFromSection(spawnSection);
 
-            // If it's marked as the default spawn, then mark it as the main spawnpoint
-            if (key.equals("default")) {
-                setMainSpawn = true;
-                AdvancedTeleportAPI.setMainSpawn(spawn1, null);
-                debug("Set main spawn");
-            } else {
+                // Set the spawnpoint
+                Spawn spawn1 = AdvancedTeleportAPI.setSpawn(key, null, loc).join();
+                debug("Set spawn for " + key);
 
-                // Otherwise, if it's a group spawn, add the AT permission to the group
-                if (CoreClass.getPerms() != null && CoreClass.getPerms().hasGroupSupport()) {
-                    CoreClass.getPerms().groupAdd((String) null, key, "at.member.spawn." + key);
-                    debug("Added at.member.spawn." + key + " to group " + key);
+                // If it's marked as the default spawn, then mark it as the main spawnpoint
+                if (key.equals("default")) {
+                    setMainSpawn = true;
+                    AdvancedTeleportAPI.setMainSpawn(spawn1, null);
+                    debug("Set main spawn");
+                } else {
+
+                    // Otherwise, if it's a group spawn, add the AT permission to the group
+                    if (CoreClass.getPerms() != null && CoreClass.getPerms().hasGroupSupport()) {
+                        CoreClass.getPerms().groupAdd((String) null, key, "at.member.spawn." + key);
+                        debug("Added at.member.spawn." + key + " to group " + key);
+                    }
                 }
+            } catch (Exception ex) {
+                CoreClass.getInstance().getLogger().warning("Failed to import spawn " + key + "!");
+                CoreClass.getInstance().getLogger().throwing(EssentialsHook.class.getName(), "importSpawn", ex);
             }
         }
 
@@ -375,15 +376,13 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         }
     }
 
-    private static Location getLocationFromSection(ConfigurationSection section) {
-        World world =
-                Bukkit.getWorld(
-                        ConditionChecker.validate(section.getString("world"), "World is null"));
+    private static WorldlessLocation getLocationFromSection(ConfigurationSection section) {
+        String world = ConditionChecker.validate(section.getString("world"), "World is null");
         double x = section.getDouble("x");
         double y = section.getDouble("y");
         double z = section.getDouble("z");
         float yaw = (float) section.getDouble("yaw");
         float pitch = (float) section.getDouble("pitch");
-        return new Location(world, x, y, z, yaw, pitch);
+        return new WorldlessLocation(world, x, y, z, yaw, pitch);
     }
 }

@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.commands.home;
 
 import com.google.common.collect.ImmutableCollection;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
@@ -9,6 +10,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 
+import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
@@ -17,6 +19,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -34,16 +37,23 @@ public final class HomesCommand extends AbstractHomeCommand {
         if (!canProceed(sender)) return true;
 
         if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
-            ATPlayer.getPlayerFuture(args[0])
-                    .thenAccept(
-                            player ->
-                                    player.getHomesAsync()
-                                            .thenAcceptAsync(
-                                                    homes ->
-                                                            getHomes(
-                                                                    sender,
-                                                                    player.getOfflinePlayer(),
-                                                                    homes.values())));
+            ATPlayer.getPlayerFuture(args[0]).whenCompleteAsync((player, err) -> {
+
+                if (err != null) {
+                    err.printStackTrace();
+                    return;
+                }
+
+                player.getHomesAsync().whenCompleteAsync((homes, err2) -> {
+
+                    if (err2 != null) {
+                        err2.printStackTrace();
+                        return;
+                    }
+
+                    getHomes(sender, player.getOfflinePlayer(), homes.values());
+                });
+            }, CoreClass.sync);
             return true;
         }
 
@@ -53,8 +63,15 @@ public final class HomesCommand extends AbstractHomeCommand {
         }
 
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
+        atPlayer.getHomesAsync().whenCompleteAsync((homes, err) -> {
 
-        atPlayer.getHomesAsync().thenAcceptAsync(homes -> getHomes(sender, player, homes.values()));
+            if (err != null) {
+                err.printStackTrace();
+                return;
+            }
+
+            getHomes(sender, player, homes.values());
+        });
         return true;
     }
 
@@ -68,13 +85,7 @@ public final class HomesCommand extends AbstractHomeCommand {
         return "at.admin.homes";
     }
 
-    @Override
-    public boolean getRequiredFeature() {
-        return MainConfig.get().USE_HOMES.get();
-    }
-
-    private void getHomes(
-            CommandSender sender, OfflinePlayer target, ImmutableCollection<Home> homes) {
+    private void getHomes(CommandSender sender, OfflinePlayer target, ImmutableCollection<Home> homes) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
 
         if (sender == target
@@ -84,15 +95,9 @@ public final class HomesCommand extends AbstractHomeCommand {
             return;
         }
 
-        final TextComponent body =
-                (TextComponent)
-                        Component.join(
-                                JoinConfiguration.commas(true),
-                                atPlayer.getHomes().values().stream()
-                                        .map(
-                                                home ->
-                                                        new Object[] {
-                                                            home,
+        final TextComponent body = (TextComponent) Component.join(JoinConfiguration.commas(true),
+                                homes.stream().map(home ->
+                                                new Object[] {home,
                                                             atPlayer.canAccessHome(home)
                                                                     || ExPermission
                                                                             .hasPermissionOrStar(
@@ -140,7 +145,9 @@ public final class HomesCommand extends AbstractHomeCommand {
 
         if (!body.content().isEmpty() || !body.children().isEmpty()) {
             String text = CustomMessages.config.getString("Info.homes") + "<homes>";
-            CustomMessages.asAudience(sender).sendMessage(CustomMessages.translate(text, Placeholder.component("homes", body)));
+            final var component = CustomMessages.translate(text, Placeholder.component("homes", body));
+
+            CustomMessages.sendMessage(sender, component);
         } else
             CustomMessages.sendMessage(
                     sender,

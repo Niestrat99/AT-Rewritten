@@ -52,7 +52,7 @@ public final class TpHereOffline extends TeleportATCommand implements PlayerComm
 
                         @Override
                         public void onFail(@NotNull final Component message) {
-                            CustomMessages.asAudience(sender).sendMessage(message);
+                            CustomMessages.sendMessage(sender, message);
                         }
                     });
             return true;
