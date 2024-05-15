@@ -51,10 +51,18 @@ public class MovementManager implements Listener {
         if (cancelOnMove) {
             Location locTo = event.getTo();
             Location locFrom = event.getFrom();
-            if (locTo.getBlockX() != locFrom.getBlockX() // If the player moved
-                    || locTo.getBlockY() != locFrom.getBlockY()
-                    || locTo.getBlockZ() != locFrom.getBlockZ()) {
-                cancelled = true;
+            if (MainConfig.get().CHECK_EXACT_COORDINATES.get()) {
+                if (locTo.getX() != locFrom.getX() // If the player moved
+                        || locTo.getY() != locFrom.getY()
+                        || locTo.getZ() != locFrom.getZ()) {
+                    cancelled = true;
+                }
+            } else {
+                if (locTo.getBlockX() != locFrom.getBlockX() // If the player moved
+                        || locTo.getBlockY() != locFrom.getBlockY()
+                        || locTo.getBlockZ() != locFrom.getBlockZ()) {
+                    cancelled = true;
+                }
             }
         }
 
