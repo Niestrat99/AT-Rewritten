@@ -30,6 +30,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
+    public ConfigOption<Boolean> CHECK_EXACT_COORDINATES;
     public PerCommandOption<Integer> WARM_UPS;
     public ConfigOption<ConfigSection> CUSTOM_WARM_UPS;
     public ConfigOption<Boolean> BLINDNESS_ON_WARMUP;
@@ -201,7 +202,11 @@ public final class MainConfig extends ATConfig {
         addDefault(
                 "cancel-warm-up-on-movement",
                 true,
-                "Whether or not teleportation should be cancelled upon " + "movement only.");
+                "Whether or not teleportation should be cancelled upon movement only.");
+        addDefault("check-exact-coordinates",
+                false,
+                "Whether the plugin should check for change in exact X, Y and Z vs. block X, Y, Z.\n" +
+                        "By default, the player will have to cross into a new block (e.g. 60x 60y 60z -> 61x 60y 60z) to cancel the teleportation.");
 
         addComment("per-command-warm-ups", "Command-specific warm-ups.");
         addDefault("per-command-warm-ups.tpa", "default", "Warm-up timer for /tpa.");
@@ -999,6 +1004,7 @@ public final class MainConfig extends ATConfig {
         WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
+        CHECK_EXACT_COORDINATES = new ConfigOption<>("check-exact-coordinates");
         WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
         CUSTOM_WARM_UPS = new ConfigOption<>("custom-warm-ups");
 
