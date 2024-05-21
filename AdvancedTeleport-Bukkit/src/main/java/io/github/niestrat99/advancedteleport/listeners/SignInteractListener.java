@@ -10,6 +10,8 @@ import io.github.niestrat99.advancedteleport.api.signs.WarpSign;
 import io.github.niestrat99.advancedteleport.api.signs.WarpsSign;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 
+import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -53,8 +55,20 @@ public class SignInteractListener implements Listener {
         }
         if (!signRegistry.containsKey(command)) return;
         ATSign atSign = signRegistry.get(command);
+
+        // If the sign isn't enabled and the player doesn't have permission to use it
         if (!atSign.isEnabled()) return;
         if (!player.hasPermission(atSign.getRequiredPermission())) return;
+
+        // If there's a cooldown in place, then check that
+        int cooldown = CooldownManager.secondsLeftOnCooldown(atSign.getName().toLowerCase(), player);
+        if (cooldown > 0) {
+            CustomMessages.sendMessage(
+                    player,
+                    "Error.onCooldown",
+                    Placeholder.unparsed("time", String.valueOf(cooldown)));
+            return;
+        }
         atSign.onInteract(sign, player);
     }
 
