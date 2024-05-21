@@ -35,14 +35,12 @@ public abstract class AbstractHomeCommand extends ATCommand {
 
         if (args.length == 1) {
             final var atSender = ATPlayer.getPlayer(player);
-            final var accessibleHomes =
-                    atSender.getHomes().values().stream()
-                            .filter(
-                                    home ->
-                                            cmd.getName().equals("delHome")
-                                                    || atSender.canAccessHome(home))
-                            .map(Home::getName)
-                            .toList();
+            final List<String> accessibleHomes = new ArrayList<>();
+            for (final Home home : atSender.getHomes().values()) {
+                if (cmd.getName().equals("delhome") || atSender.canAccessHome(home)) {
+                    accessibleHomes.add(home.getName());
+                }
+            }
 
             return StringUtil.copyPartialMatches(args[0], accessibleHomes, new ArrayList<>());
         }
