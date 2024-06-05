@@ -162,7 +162,7 @@ public final class CoreClass extends JavaPlugin {
 
         // Get the version in question.
         debug("Performing server version check.");
-        int number = Integer.parseInt(Bukkit.getBukkitVersion().split("\\.")[1]);
+        int number = Integer.parseInt(Bukkit.getBukkitVersion().split("\\.|-")[1]);
         if (number < 17) {
             getLogger().severe("!!! YOU ARE USING ADVANCEDTELEPORT ON AN UNSUPPORTED VERSION. !!!");
             getLogger().severe("The plugin only receives mainstream support for 1.17.1 to 1.19.x");
