@@ -116,6 +116,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> RETAIN_PASSENGERS;
     public ConfigOption<Boolean> RETAIN_VEHICLES;
     public ConfigOption<Boolean> RETAIN_LIVING_ONLY;
+    public ConfigOption<Boolean> TELEPORT_ON_SIGN_SIDE;
 
     /** */
     public MainConfig() throws Exception {
@@ -888,13 +889,18 @@ public final class MainConfig extends ATConfig {
                 "retain-vehicle",
                 false,
                 """
-                Keeps any entities being riden by teleporting players.
+                Keeps any entities being ridden by teleporting players.
                 Only available to newer versions of Paper and uses experimental API - don't expect this to be set to true by default for a while!
                 Teleportation is also not async if this has to be used.""");
         addDefault(
                 "retain-living-vehicles-only",
                 true,
                 "If it's not a minecart or boat, take it with us. Requires the above option to be set to true.");
+        addDefault(
+                "teleport-on-sign-side",
+                false,
+                "Applies to 1.20+ servers - whether the player will have to click the front of the sign (or where teleportation text is) to activate a sign.\n" +
+                        "If a player clicks on a sign with different lines on either side, the plugin prioritises the clicked side.");
     }
 
     public static MainConfig get() {
@@ -1153,6 +1159,7 @@ public final class MainConfig extends ATConfig {
         RETAIN_PASSENGERS = new ConfigOption<>("retain-passengers");
         RETAIN_VEHICLES = new ConfigOption<>("retain-vehicle");
         RETAIN_LIVING_ONLY = new ConfigOption<>("retain-living-vehicles-only");
+        TELEPORT_ON_SIGN_SIDE = new ConfigOption<>("teleport-on-sign-side");
 
         new PaymentManager();
         LimitationsManager.init();

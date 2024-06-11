@@ -10,12 +10,16 @@ import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEven
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
+import io.github.niestrat99.advancedteleport.managers.SignManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -270,5 +274,55 @@ public final class AdvancedTeleportAPI {
                     () -> RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world),
                     CoreClass.async);
         }
+    }
+
+    /**
+     * Fetches a sign with a particular name.
+     *
+     * @param sign the name of the sign, e.g. "warps", "home".
+     * @return the sign associated with the specified name, or null if one does not exist.
+     */
+    public static @Nullable ATSign getSign(final @NotNull String sign) {
+        return SignManager.get().getSign(sign);
+    }
+
+    /**
+     * Fetches a sign by a component display name.
+     *
+     * @param component the component to check against.
+     * @return the sign associated with the display name.
+     */
+    public static @Nullable ATSign getSignByDisplayName(final @NotNull Component component) {
+        return SignManager.get().getSignByDisplayName(component);
+    }
+
+    /**
+     * Fetches a sign by a component display name, only comparing the component content and not styles.
+     *
+     * @param component the component to check against.
+     * @return the sign associated with the display name.
+     */
+    public static @Nullable ATSign getSignByFlatDisplayName(final @NotNull TextComponent component) {
+        return SignManager.get().getSignByFlatDisplayName(component);
+    }
+
+    /**
+     * Fetches a sign by its legacy-formatted name.
+     *
+     * @param string the legacy-formatted name to check against.
+     * @return the sign associated with the name.
+     */
+    public static @Nullable ATSign getSignByLegacyName(final @NotNull String string) {
+        return SignManager.get().getSignByDisplayName(LegacyComponentSerializer.legacySection().deserialize(string));
+    }
+
+    /**
+     * Registers a sign with a specified name.
+     *
+     * @param name the ID of the sign.
+     * @param sign the sign itself.
+     */
+    public static void registerSign(final @NotNull String name, final @NotNull ATSign sign) {
+        SignManager.get().register(name, sign);
     }
 }
