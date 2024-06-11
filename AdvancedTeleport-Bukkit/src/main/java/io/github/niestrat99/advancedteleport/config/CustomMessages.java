@@ -782,6 +782,13 @@ public final class CustomMessages extends ATConfig {
         addDefault("Usages-Admin.movehome", "/movehome <Home>|<Player> <Home>");
         addDefault("Usages-Admin.setmainhome", "/setmainhome <Home>|<Player> <Home>");
         addDefault("Usages-Admin.spawn", "/spawn <ID>");
+        addDefault("Signs.bed", "<blue><bold>[Bed]</bold></blue>");
+        addDefault("Signs.home", "<blue><bold>[Home]</bold></blue>");
+        addDefault("Signs.homes", "<blue><bold>[Homes]</bold></blue>");
+        addDefault("Signs.randomtp", "<blue><bold>[RandomTP]</bold></blue>");
+        addDefault("Signs.spawn", "<blue><bold>[Spawn]</bold></blue>");
+        addDefault("Signs.warp", "<blue><bold>[Warp]</bold></blue>");
+        addDefault("Signs.warps", "<blue><bold>[Warps]</bold></blue>");
 
         addFormsDefault(
                 "tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");

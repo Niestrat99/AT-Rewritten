@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import net.kyori.adventure.text.Component;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
@@ -10,12 +12,14 @@ public abstract class ATSign {
     private final @NotNull String requiredPermission;
     private final @NotNull String adminPermission;
     private final @NotNull String name;
+    private final @NotNull Component displayName;
     private final boolean enabled;
 
     @Contract(pure = true)
     protected ATSign(@NotNull final String name, final boolean enabled) {
         this.requiredPermission = ("at.member." + name + ".use-sign").toLowerCase();
         this.adminPermission = ("at.admin.sign." + name + ".create").toLowerCase();
+        this.displayName = CustomMessages.getComponent("Signs." + name.toLowerCase());
         this.name = name;
         this.enabled = enabled;
     }
@@ -42,5 +46,10 @@ public abstract class ATSign {
     @Contract(pure = true)
     public @NotNull String getName() {
         return name;
+    }
+
+    @Contract(pure = true)
+    public @NotNull Component getDisplayName() {
+        return displayName;
     }
 }
