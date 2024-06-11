@@ -235,27 +235,71 @@ public final class AdvancedTeleportAPI {
                                 }));
     }
 
+    /**
+     * Fetches a spawn with the specified name.
+     *
+     * @param name the name of the spawnpoint.
+     * @return the spawnpoint queried, or null if it does not exist.
+     */
     public static @Nullable Spawn getSpawn(@NotNull String name) {
         return NamedLocationManager.get().getSpawn(name);
     }
 
+    /**
+     * Fetches the spawn for a specified world, without a player impacting the results.
+     *
+     * @param world the world to fetch the spawnpoint for.
+     * @return the spawnpoint in question.
+     * @see #getDestinationSpawn(World, Player)
+     */
     public static @NotNull Spawn getSpawn(@NotNull World world) {
         return getDestinationSpawn(world, null);
     }
 
+    /**
+     * Fetches the spawn for a specified world and a player. The results on this can come down to multiple
+     * factors, but are not limited to:
+     * <ul>
+     *   <li>If the plugin is meant to teleport the player to the nearest spawnpoint,</li>
+     *   <li>If a world spawn doesn't exist, the player is redirected to the main spawn,</li>
+     *   <li>If the main spawn and world spawn don't exist, teleport the player to the overworld spawnpoint,</li>
+     *   <li>A differing spawn if the player doesn't have access to that specific spawn.</li>
+     * </ul>
+     * @param world the world to check in,
+     * @param player the player to check against,
+     * @return a spawnpoint for the player to teleport to.
+     */
     public static @NotNull Spawn getDestinationSpawn(
             @NotNull World world, @Nullable Player player) {
         return NamedLocationManager.get().getSpawn(world, player);
     }
 
+    /**
+     * Gets the main spawnpoint.
+     *
+     * @return the main spawnpoint - will return null if it doesn't exist.
+     */
     public static @Nullable Spawn getMainSpawn() {
         return NamedLocationManager.get().getMainSpawn();
     }
 
+    /**
+     * Contains all data about spawnpoints, including their keys and associated values.
+     *
+     * @return an immutable map of spawnpoints, with the key being the spawn names, and the values being the spawns
+     * themselves.
+     */
     public static @NotNull ImmutableMap<String, Spawn> getSpawns() {
         return NamedLocationManager.get().getSpawns();
     }
 
+    /**
+     * Fetches a random location for a player in the specified world.
+     *
+     * @param world the world a location is being searched for.
+     * @param player the player the location is being searched for to take teleportation limitations into account.
+     * @return the location of the spawnpoint
+     */
     public static @NotNull CompletableFuture<@NotNull Location> getRandomLocation(
             @NotNull World world, @NotNull Player player) {
 
@@ -281,6 +325,7 @@ public final class AdvancedTeleportAPI {
      *
      * @param sign the name of the sign, e.g. "warps", "home".
      * @return the sign associated with the specified name, or null if one does not exist.
+     * @since v6.1.0
      */
     public static @Nullable ATSign getSign(final @NotNull String sign) {
         return SignManager.get().getSign(sign);
@@ -291,6 +336,7 @@ public final class AdvancedTeleportAPI {
      *
      * @param component the component to check against.
      * @return the sign associated with the display name.
+     * @since v6.1.0
      */
     public static @Nullable ATSign getSignByDisplayName(final @NotNull Component component) {
         return SignManager.get().getSignByDisplayName(component);
@@ -301,6 +347,7 @@ public final class AdvancedTeleportAPI {
      *
      * @param component the component to check against.
      * @return the sign associated with the display name.
+     * @since v6.1.0
      */
     public static @Nullable ATSign getSignByFlatDisplayName(final @NotNull TextComponent component) {
         return SignManager.get().getSignByFlatDisplayName(component);
@@ -311,6 +358,7 @@ public final class AdvancedTeleportAPI {
      *
      * @param string the legacy-formatted name to check against.
      * @return the sign associated with the name.
+     * @since v6.1.0
      */
     public static @Nullable ATSign getSignByLegacyName(final @NotNull String string) {
         return SignManager.get().getSignByDisplayName(LegacyComponentSerializer.legacySection().deserialize(string));
@@ -321,6 +369,7 @@ public final class AdvancedTeleportAPI {
      *
      * @param name the ID of the sign.
      * @param sign the sign itself.
+     * @since v6.1.0
      */
     public static void registerSign(final @NotNull String name, final @NotNull ATSign sign) {
         SignManager.get().register(name, sign);
