@@ -5,11 +5,9 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUIConfig;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.listeners.*;
-import io.github.niestrat99.advancedteleport.listeners.paper.PaperBedListener;
 import io.github.niestrat99.advancedteleport.listeners.paper.PaperLegacySignListener;
 import io.github.niestrat99.advancedteleport.listeners.paper.PaperSignChangeListener;
 import io.github.niestrat99.advancedteleport.listeners.paper.PaperSignOpenListener;
-import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotBedListener;
 import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotLegacySignListener;
 import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotSignChangeListener;
 import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotSignOpenListener;
@@ -192,11 +190,9 @@ public final class CoreClass extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MapEventListeners(), this);
 
         if (PaperLib.isPaper()) {
-            registerSensitiveEvents(new PaperBedListener());
             registerOrElse(new PaperSignOpenListener(), new PaperLegacySignListener());
             getServer().getPluginManager().registerEvents(new PaperSignChangeListener(), this);
         } else {
-            registerSensitiveEvents(new SpigotBedListener());
             registerOrElse(new SpigotSignOpenListener(), new SpigotLegacySignListener());
             getServer().getPluginManager().registerEvents(new SpigotSignChangeListener(), this);
         }
