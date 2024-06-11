@@ -202,7 +202,8 @@ modrinth {
     versionNumber.set(project.version.toString())
     versionType.set(getReleaseType())
     uploadFile.set(tasks.shadowJar.get())
-    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"))
+    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20",
+        "1.20.1", "1.20.2", "1.20.3", "1.20.4", "1.20.5", "1.20.6"))
     loaders.addAll("paper", "spigot", "purpur")
     changelog.set(getCogChangelog())
 }
@@ -218,7 +219,8 @@ hangarPublish {
         platforms {
             register(io.papermc.hangarpublishplugin.model.Platforms.PAPER) {
                 jar.set(getJarFile())
-                platformVersions.set(listOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"))
+                platformVersions.set(listOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4",
+                    "1.20", "1.20.1", "1.20.2", "1.20.3", "1.20.4", "1.20.5", "1.20.6"))
                 dependencies {
                     url("Vault", "https://dev.bukkit.org/projects/vault") {
                         required.set(false)
