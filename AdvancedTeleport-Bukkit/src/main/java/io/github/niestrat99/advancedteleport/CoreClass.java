@@ -52,7 +52,6 @@ public final class CoreClass extends JavaPlugin {
             task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
     private static Permission perms;
     private Object[] updateInfo;
-    private int version;
 
     public static CoreClass getInstance() {
         return instance;
@@ -64,7 +63,7 @@ public final class CoreClass extends JavaPlugin {
             loadLibraries();
         } catch (final Exception err) {
             getLogger().severe("Failed to load libraries!");
-            err.printStackTrace();
+            getLogger().throwing(CoreClass.class.getName(), "onLoad", err);
             Bukkit.getPluginManager().disablePlugin(this);
         }
     }
@@ -77,7 +76,7 @@ public final class CoreClass extends JavaPlugin {
             hackTheMainFrame();
         } catch (NoSuchFieldException | IllegalAccessException e) {
             getLogger().warning("Failed to shut down async tasks.");
-            e.printStackTrace();
+            getLogger().throwing(CoreClass.class.getName(), "onDisable", e);
         }
 
         try {
@@ -312,26 +311,6 @@ public final class CoreClass extends JavaPlugin {
 
     public static Permission getPerms() {
         return perms;
-    }
-
-    private void setupVersion() {
-
-        // Parse the major version of the server (e.g. 1.19)
-        debug("Performing version checks.");
-        String bukkitVersion =
-                Bukkit.getServer()
-                        .getClass()
-                        .getPackage()
-                        .getName()
-                        .replace(".", ",")
-                        .split(",")[3]
-                        .split("_")[1];
-        this.version = Integer.parseInt(bukkitVersion);
-        debug("Parsed major version: " + this.version);
-    }
-
-    public int getVersion() {
-        return version;
     }
 
     public static void debug(String message) {
