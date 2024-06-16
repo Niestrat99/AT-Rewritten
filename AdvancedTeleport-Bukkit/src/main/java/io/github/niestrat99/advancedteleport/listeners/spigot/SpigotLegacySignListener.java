@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.CoreClass;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -29,7 +30,11 @@ public class SpigotLegacySignListener implements Listener {
 
         final String line = sign.getLine(0);
         final ATSign atSign = AdvancedTeleportAPI.getSignByLegacyName(line);
+	CoreClass.debug("Sign found from " + line + ": " + atSign);
         if (atSign == null) return;
+
+	CoreClass.debug("Is the sign enabled: " + atSign.isEnabled());
+	CoreClass.debug("Does the player have permission to use the sign: " + player.hasPermission(atSign.getRequiredPermission()));
 
         // If the sign isn't enabled and the player doesn't have permission to use it
         if (!atSign.isEnabled()) return;
