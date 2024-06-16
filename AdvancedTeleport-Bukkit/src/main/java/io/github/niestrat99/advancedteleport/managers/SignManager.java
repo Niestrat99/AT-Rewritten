@@ -45,7 +45,10 @@ public class SignManager {
         for (var sign : this.signs.values()) {
             CoreClass.debug("Display name for " + sign + ": " + sign.getDisplayName());
 	    CoreClass.debug("Display name for " + sign + " matches using equals: " + sign.getDisplayName().equals(component));
-	    CoreClass.debug("Display name for " + sign + " matches using content equals: " + sign.getDisplayName().content().equals(component.content()));
+	    
+	    if (sign.getDisplayName() instanceof TextComponent text) {
+	        CoreClass.debug("Display name for " + sign + " matches using content equals: " + text.content().equals(component.content()));
+	    }
 	    if (!sign.getDisplayName().equals(component)) continue;
             return sign;
         }
