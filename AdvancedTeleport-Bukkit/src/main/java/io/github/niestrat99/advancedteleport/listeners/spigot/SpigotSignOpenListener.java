@@ -5,6 +5,7 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.listeners.NewListener;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.CoreClass;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.block.sign.Side;
 import org.bukkit.event.EventHandler;
@@ -29,11 +30,21 @@ public class SpigotSignOpenListener implements NewListener {
     private boolean checkSide(final @NotNull Side side, final @NotNull PlayerSignOpenEvent event) {
 
         // Get the first line of the sign
+	CoreClass.debug("Checking side " + side.name());
         final var line = event.getSign().getSide(side).getLine(0);
 
         // Try and fetch the sign being clicked
         final var sign = AdvancedTeleportAPI.getSignByLegacyName(line);
+
+        CoreClass.debug("First line of the sign: " + line);
+	CoreClass.debug("Sign found: " + sign);
+
         if (sign == null) return false;
+
+	CoreClass.debug("Is sign enabled: " + sign.isEnabled());
+	CoreClass.debug("Can the player use the sign: " + event.getPlayer().hasPermission(sign.getRequiredPermission()));
+	CoreClass.debug("Is the player trying to edit the sign: " + event.getPlayer().isSneaking());
+	CoreClass.debug("Can the player edit the sign: " + event.getPlayer().hasPermission(sign.getAdminPermission()));
 
         // If the player can't use the sign, just ignore
         if (!sign.isEnabled()) return false;
