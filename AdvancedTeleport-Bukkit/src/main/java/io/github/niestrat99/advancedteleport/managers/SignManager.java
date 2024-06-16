@@ -20,6 +20,7 @@ public class SignManager {
         instance = this;
 
         this.signs = new HashMap<>();
+	CoreClass.debug("Sign manager initialised, registering signs...");
         AdvancedTeleportAPI.registerSign("warps", new WarpsSign());
         AdvancedTeleportAPI.registerSign("warp", new WarpSign());
         AdvancedTeleportAPI.registerSign("home", new HomeSign());
@@ -27,6 +28,7 @@ public class SignManager {
         AdvancedTeleportAPI.registerSign("bed", new BedSign());
         AdvancedTeleportAPI.registerSign("spawn", new SpawnSign());
         AdvancedTeleportAPI.registerSign("randomtp", new RandomTPSign());
+	CoreClass.debug("Registered " + this.signs.size() + " signs.");
     }
 
     public static SignManager get() {
@@ -35,6 +37,7 @@ public class SignManager {
 
     public void register(final @NotNull String name, final @NotNull ATSign sign) {
         this.signs.put(name, sign);
+	CoreClass.debug("Registered " + name + " sign under " + sign);
     }
 
     public @Nullable ATSign getSign(final @NotNull String name) {
@@ -42,6 +45,7 @@ public class SignManager {
     }
 
     public @Nullable ATSign getSignByFlatDisplayName(final @NotNull TextComponent component) {
+        CoreClass.debug("Flat display name check for " + component + " - signs to check: " + this.signs.size());
         for (var sign : this.signs.values()) {
             CoreClass.debug("Display name for " + sign + ": " + sign.getDisplayName());
 	    CoreClass.debug("Display name for " + sign + " matches using equals: " + sign.getDisplayName().equals(component));
@@ -57,7 +61,8 @@ public class SignManager {
     }
 
     public @Nullable ATSign getSignByDisplayName(final @NotNull Component component) {
-
+        CoreClass.debug("Full display name check for " + component + " - signs to check: " + this.signs.size());
+        
         // uggggghh
         for (var sign : this.signs.values()) {
             if (!hardEquals(sign.getDisplayName(), component)) continue;
