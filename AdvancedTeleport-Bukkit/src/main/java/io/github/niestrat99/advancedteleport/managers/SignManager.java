@@ -3,6 +3,7 @@ package io.github.niestrat99.advancedteleport.managers;
 import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.signs.*;
+import io.github.niestrat99.advancedteleport.CoreClass;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.jetbrains.annotations.NotNull;
