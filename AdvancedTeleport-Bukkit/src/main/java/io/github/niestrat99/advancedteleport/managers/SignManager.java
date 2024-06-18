@@ -49,7 +49,7 @@ public class SignManager {
         for (var sign : this.signs.values()) {
             
 	    CoreClass.debug("Display name for " + sign + ": " + sign.getDisplayName());
-	    if (!(sign.getDisplayName instanceof TextComponent text)) continue;
+	    if (!(sign.getDisplayName() instanceof TextComponent text)) continue;
 	    if (!text.content().equals(component.content())) continue;
             return sign;
         }
