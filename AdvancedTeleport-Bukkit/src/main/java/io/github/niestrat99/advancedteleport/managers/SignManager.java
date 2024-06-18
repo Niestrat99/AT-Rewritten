@@ -47,13 +47,10 @@ public class SignManager {
     public @Nullable ATSign getSignByFlatDisplayName(final @NotNull TextComponent component) {
         CoreClass.debug("Flat display name check for " + component + " - signs to check: " + this.signs.size());
         for (var sign : this.signs.values()) {
-            CoreClass.debug("Display name for " + sign + ": " + sign.getDisplayName());
-	    CoreClass.debug("Display name for " + sign + " matches using equals: " + sign.getDisplayName().equals(component));
-	    
-	    if (sign.getDisplayName() instanceof TextComponent text) {
-	        CoreClass.debug("Display name for " + sign + " matches using content equals: " + text.content().equals(component.content()));
-	    }
-	    if (!sign.getDisplayName().equals(component)) continue;
+            
+	    CoreClass.debug("Display name for " + sign + ": " + sign.getDisplayName());
+	    if (!(sign.getDisplayName instanceof TextComponent text)) continue;
+	    if (!text.content().equals(component.content())) continue;
             return sign;
         }
 
