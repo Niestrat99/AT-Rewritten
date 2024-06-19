@@ -13,12 +13,19 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public final class WorldGuardClaimHook extends ClaimPlugin<Plugin, WorldGuard> {
 
     private RegionContainer container;
 
     public WorldGuardClaimHook() {
         super("WorldGuard", WorldGuard.class);
+    }
+
+    @Override
+    protected @NotNull Optional<WorldGuard> provider() {
+        return Optional.of(WorldGuard.getInstance());
     }
 
     @Override
