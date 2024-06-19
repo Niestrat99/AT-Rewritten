@@ -153,15 +153,11 @@ public final class PluginHookManager {
 
         return getPluginHooks(ClaimPlugin.class, true)
                 .filter(plugin -> plugin.canUse(location.getWorld()))
-                .findFirst() // TODO - mustn't check a single plugin
-                .map(hook -> {
-
+                .anyMatch(hook -> {
                     boolean result = hook.isClaimed(location);
                     CoreClass.debug("Claim result for " + hook.pluginName() + ": " + result);
                     return result;
-
-                })
-                .orElse(false);
+                });
     }
 
     @Contract(pure = true)
