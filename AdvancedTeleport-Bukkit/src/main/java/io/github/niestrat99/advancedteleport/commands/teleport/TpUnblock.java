@@ -45,7 +45,7 @@ public final class TpUnblock extends TeleportATCommand implements PlayerCommand 
                 .whenComplete(
                         (target, err1) -> {
                             if (!atPlayer.hasBlocked(target)) {
-                                sender.sendMessage("Player never blocked");
+                                CustomMessages.sendMessage(sender, "Error.neverBlocked");
                                 return;
                             }
 
