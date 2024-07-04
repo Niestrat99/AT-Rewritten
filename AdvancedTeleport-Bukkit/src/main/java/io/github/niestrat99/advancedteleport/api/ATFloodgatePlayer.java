@@ -77,6 +77,8 @@ public final class ATFloodgatePlayer extends ATPlayer {
                         return;
                     }
 
+                    if (response == null) return;
+
                     // Gets the chosen item
                     int i = response.getDropdown(0);
                     String result = items[i];
