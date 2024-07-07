@@ -95,6 +95,24 @@ public final class HomesCommand extends AbstractHomeCommand {
 
     private void getHomes(CommandSender sender, OfflinePlayer target, ImmutableCollection<Home> homes) {
         ATPlayer atPlayer = ATPlayer.getPlayer(target);
+
+        if (sender == target
+                && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
+                && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
+            CoreClass.debug("Sender is being sent a homes form.");
+
+            if (!atFloodgatePlayer.getHomes().isEmpty()) {
+                atFloodgatePlayer.sendHomeForm();
+            } else {
+                CustomMessages.sendMessage(
+                        sender,
+                        CustomMessages.contextualPath(sender, target, "Error.noHomes"),
+                        Placeholder.unparsed("player", target.getName()) // TODO: DisplayName
+                );
+            }
+            return;
+        }
+
         final TextComponent body = (TextComponent) Component.join(JoinConfiguration.commas(true),
                 homes.stream().map(home ->
                                 new Object[] {home,
@@ -145,23 +163,6 @@ public final class HomesCommand extends AbstractHomeCommand {
                                 })
                         .toList());
         CoreClass.debug("Message text built.");
-
-        if (sender == target
-                && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
-                && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-            CoreClass.debug("Sender is being sent a homes form.");
-
-            if (!atFloodgatePlayer.getHomes().isEmpty()) {
-                atFloodgatePlayer.sendHomeForm();
-            } else {
-                CustomMessages.sendMessage(
-                        sender,
-                        CustomMessages.contextualPath(sender, target, "Error.noHomes"),
-                        Placeholder.unparsed("player", target.getName()) // TODO: DisplayName
-                );
-            }
-            return;
-        }
 
         if (!body.content().isEmpty() || !body.children().isEmpty()) {
             String text = CustomMessages.config.getString("Info.homes") + "<homes>";
