@@ -51,7 +51,11 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
         if (PluginHookManager.get().floodgateEnabled()
                 && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                 && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-            atFloodgatePlayer.sendDeleteHomeForm();
+            if (!atFloodgatePlayer.getHomes().isEmpty()) {
+                atFloodgatePlayer.sendDeleteHomeForm();
+            } else {
+                CustomMessages.sendMessage(sender, "Error.noHomes");
+            }
         } else CustomMessages.sendMessage(sender, "Error.noHomeInput");
 
         return true;

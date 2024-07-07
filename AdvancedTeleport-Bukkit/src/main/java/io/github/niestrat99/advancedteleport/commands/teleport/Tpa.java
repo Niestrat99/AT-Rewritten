@@ -40,7 +40,11 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
             if (atPlayer instanceof ATFloodgatePlayer
                     && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                ((ATFloodgatePlayer) atPlayer).sendTPAForm(false);
+                if (!((ATFloodgatePlayer) atPlayer).getVisiblePlayerNames().isEmpty()) {
+                    ((ATFloodgatePlayer) atPlayer).sendTPAForm(false);
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noOthersToTP");
+                }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
             }

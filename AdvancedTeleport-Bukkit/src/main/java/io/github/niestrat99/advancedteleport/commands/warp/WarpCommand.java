@@ -34,9 +34,13 @@ public final class WarpCommand extends AbstractWarpCommand implements TimedATCom
         // If there's no arguments specified, see if the player is a Bedrock player and use a form
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer
+            if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                     && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                ((ATFloodgatePlayer) atPlayer).sendWarpForm();
+                if (!AdvancedTeleportAPI.getWarps().isEmpty()) {
+                    atFloodgatePlayer.sendWarpForm();
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noWarps");
+                }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");
             }

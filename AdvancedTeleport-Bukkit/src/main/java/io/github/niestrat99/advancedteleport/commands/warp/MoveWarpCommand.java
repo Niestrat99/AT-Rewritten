@@ -33,9 +33,13 @@ public final class MoveWarpCommand extends AbstractWarpCommand {
         // continue
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer
+            if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                     && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                ((ATFloodgatePlayer) atPlayer).sendMoveWarpForm();
+                if (!AdvancedTeleportAPI.getWarps().isEmpty()) {
+                    atFloodgatePlayer.sendMoveWarpForm();
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noWarps");
+                }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noWarpInput");
             }
