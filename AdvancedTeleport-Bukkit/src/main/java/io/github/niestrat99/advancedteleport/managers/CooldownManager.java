@@ -24,6 +24,7 @@ public class CooldownManager {
     public static int secondsLeftOnCooldown(String command, Player player) {
         if (player.hasPermission("at.admin.bypass.cooldown")) return 0;
         List<ATRunnable> list = cooldown.get(getKey(command));
+        if (list == null) return 0;
         for (ATRunnable runnable : list) {
             if (runnable.uuid.toString().equals(player.getUniqueId().toString())) {
                 return (int)

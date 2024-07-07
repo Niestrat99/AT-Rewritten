@@ -143,7 +143,7 @@ tasks {
         dependsOn(slimJar)
 
         // Set the version to 1.20.1
-        minecraftVersion("1.20.2")
+        minecraftVersion("1.20.4")
 
         // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
@@ -202,7 +202,8 @@ modrinth {
     versionNumber.set(project.version.toString())
     versionType.set(getReleaseType())
     uploadFile.set(tasks.shadowJar.get())
-    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"))
+    gameVersions.addAll(arrayListOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20",
+        "1.20.1", "1.20.2", "1.20.3", "1.20.4", "1.20.5", "1.20.6"))
     loaders.addAll("paper", "spigot", "purpur")
     changelog.set(getCogChangelog())
 }
@@ -218,7 +219,8 @@ hangarPublish {
         platforms {
             register(io.papermc.hangarpublishplugin.model.Platforms.PAPER) {
                 jar.set(getJarFile())
-                platformVersions.set(listOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"))
+                platformVersions.set(listOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4",
+                    "1.20", "1.20.1", "1.20.2", "1.20.3", "1.20.4", "1.20.5", "1.20.6"))
                 dependencies {
                     url("Vault", "https://dev.bukkit.org/projects/vault") {
                         required.set(false)
@@ -585,6 +587,8 @@ bukkit {
                 "at.admin.bypass.distance-limit" to true,
                 "at.admin.sethome.bypass" to true,
                 "at.admin.bypass.teleport-on-join" to true,
+                "at.admin.bypass.movement" to true,
+                "at.admin.bypass.rotation" to true,
                 "at.admin.toggletp" to true,
                 "at.admin.bypass" to true,
                 "at.admin.tploc" to true,

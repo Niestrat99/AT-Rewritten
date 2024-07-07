@@ -1102,7 +1102,7 @@ public class ATPlayer {
         }
 
         // Create a new player
-        new ATPlayer(player);
+        ATPlayer.getPlayer(player);
     }
 
     /** Internal use only */

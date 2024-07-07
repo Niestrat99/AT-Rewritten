@@ -10,12 +10,16 @@ import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEven
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
+import io.github.niestrat99.advancedteleport.managers.SignManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -231,27 +235,71 @@ public final class AdvancedTeleportAPI {
                                 }));
     }
 
+    /**
+     * Fetches a spawn with the specified name.
+     *
+     * @param name the name of the spawnpoint.
+     * @return the spawnpoint queried, or null if it does not exist.
+     */
     public static @Nullable Spawn getSpawn(@NotNull String name) {
         return NamedLocationManager.get().getSpawn(name);
     }
 
+    /**
+     * Fetches the spawn for a specified world, without a player impacting the results.
+     *
+     * @param world the world to fetch the spawnpoint for.
+     * @return the spawnpoint in question.
+     * @see #getDestinationSpawn(World, Player)
+     */
     public static @NotNull Spawn getSpawn(@NotNull World world) {
         return getDestinationSpawn(world, null);
     }
 
+    /**
+     * Fetches the spawn for a specified world and a player. The results on this can come down to multiple
+     * factors, but are not limited to:
+     * <ul>
+     *   <li>If the plugin is meant to teleport the player to the nearest spawnpoint,</li>
+     *   <li>If a world spawn doesn't exist, the player is redirected to the main spawn,</li>
+     *   <li>If the main spawn and world spawn don't exist, teleport the player to the overworld spawnpoint,</li>
+     *   <li>A differing spawn if the player doesn't have access to that specific spawn.</li>
+     * </ul>
+     * @param world the world to check in,
+     * @param player the player to check against,
+     * @return a spawnpoint for the player to teleport to.
+     */
     public static @NotNull Spawn getDestinationSpawn(
             @NotNull World world, @Nullable Player player) {
         return NamedLocationManager.get().getSpawn(world, player);
     }
 
+    /**
+     * Gets the main spawnpoint.
+     *
+     * @return the main spawnpoint - will return null if it doesn't exist.
+     */
     public static @Nullable Spawn getMainSpawn() {
         return NamedLocationManager.get().getMainSpawn();
     }
 
+    /**
+     * Contains all data about spawnpoints, including their keys and associated values.
+     *
+     * @return an immutable map of spawnpoints, with the key being the spawn names, and the values being the spawns
+     * themselves.
+     */
     public static @NotNull ImmutableMap<String, Spawn> getSpawns() {
         return NamedLocationManager.get().getSpawns();
     }
 
+    /**
+     * Fetches a random location for a player in the specified world.
+     *
+     * @param world the world a location is being searched for.
+     * @param player the player the location is being searched for to take teleportation limitations into account.
+     * @return the location of the spawnpoint
+     */
     public static @NotNull CompletableFuture<@NotNull Location> getRandomLocation(
             @NotNull World world, @NotNull Player player) {
 
@@ -270,5 +318,60 @@ public final class AdvancedTeleportAPI {
                     () -> RandomTPAlgorithms.getAlgorithms().get("binary").fire(player, world),
                     CoreClass.async);
         }
+    }
+
+    /**
+     * Fetches a sign with a particular name.
+     *
+     * @param sign the name of the sign, e.g. "warps", "home".
+     * @return the sign associated with the specified name, or null if one does not exist.
+     * @since v6.1.0
+     */
+    public static @Nullable ATSign getSign(final @NotNull String sign) {
+        return SignManager.get().getSign(sign);
+    }
+
+    /**
+     * Fetches a sign by a component display name.
+     *
+     * @param component the component to check against.
+     * @return the sign associated with the display name.
+     * @since v6.1.0
+     */
+    public static @Nullable ATSign getSignByDisplayName(final @NotNull Component component) {
+        return SignManager.get().getSignByDisplayName(component);
+    }
+
+    /**
+     * Fetches a sign by a component display name, only comparing the component content and not styles.
+     *
+     * @param component the component to check against.
+     * @return the sign associated with the display name.
+     * @since v6.1.0
+     */
+    public static @Nullable ATSign getSignByFlatDisplayName(final @NotNull TextComponent component) {
+        return SignManager.get().getSignByFlatDisplayName(component);
+    }
+
+    /**
+     * Fetches a sign by its legacy-formatted name.
+     *
+     * @param string the legacy-formatted name to check against.
+     * @return the sign associated with the name.
+     * @since v6.1.0
+     */
+    public static @Nullable ATSign getSignByLegacyName(final @NotNull String string) {
+        return SignManager.get().getSignByDisplayName(LegacyComponentSerializer.legacySection().deserialize(string));
+    }
+
+    /**
+     * Registers a sign with a specified name.
+     *
+     * @param name the ID of the sign.
+     * @param sign the sign itself.
+     * @since v6.1.0
+     */
+    public static void registerSign(final @NotNull String name, final @NotNull ATSign sign) {
+        SignManager.get().register(name, sign);
     }
 }

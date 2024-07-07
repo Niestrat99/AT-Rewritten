@@ -4,10 +4,13 @@ import io.github.niestrat99.advancedteleport.config.ATConfig;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUIConfig;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.listeners.MapEventListeners;
-import io.github.niestrat99.advancedteleport.listeners.PlayerListeners;
-import io.github.niestrat99.advancedteleport.listeners.SignInteractListener;
-import io.github.niestrat99.advancedteleport.listeners.WorldLoadListener;
+import io.github.niestrat99.advancedteleport.listeners.*;
+import io.github.niestrat99.advancedteleport.listeners.paper.PaperLegacySignListener;
+import io.github.niestrat99.advancedteleport.listeners.paper.PaperSignChangeListener;
+import io.github.niestrat99.advancedteleport.listeners.paper.PaperSignOpenListener;
+import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotLegacySignListener;
+import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotSignChangeListener;
+import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotSignOpenListener;
 import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
@@ -22,10 +25,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -45,7 +50,6 @@ public final class CoreClass extends JavaPlugin {
             task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
     private static Permission perms;
     private Object[] updateInfo;
-    private int version;
 
     public static CoreClass getInstance() {
         return instance;
@@ -57,7 +61,7 @@ public final class CoreClass extends JavaPlugin {
             loadLibraries();
         } catch (final Exception err) {
             getLogger().severe("Failed to load libraries!");
-            err.printStackTrace();
+            getLogger().throwing(CoreClass.class.getName(), "onLoad", err);
             Bukkit.getPluginManager().disablePlugin(this);
         }
     }
@@ -70,7 +74,7 @@ public final class CoreClass extends JavaPlugin {
             hackTheMainFrame();
         } catch (NoSuchFieldException | IllegalAccessException e) {
             getLogger().warning("Failed to shut down async tasks.");
-            e.printStackTrace();
+            getLogger().throwing(CoreClass.class.getName(), "onDisable", e);
         }
 
         try {
@@ -121,6 +125,7 @@ public final class CoreClass extends JavaPlugin {
 
         // Initiate the named locations manager early
         new NamedLocationManager();
+        new SignManager();
 
         {
             new BlocklistManager();
@@ -162,7 +167,7 @@ public final class CoreClass extends JavaPlugin {
 
         // Get the version in question.
         debug("Performing server version check.");
-        int number = Integer.parseInt(Bukkit.getBukkitVersion().split("\\.")[1]);
+        int number = Integer.parseInt(Bukkit.getBukkitVersion().split("[.-]")[1]);
         if (number < 17) {
             getLogger().severe("!!! YOU ARE USING ADVANCEDTELEPORT ON AN UNSUPPORTED VERSION. !!!");
             getLogger().severe("The plugin only receives mainstream support for 1.17.1 to 1.19.x");
@@ -178,12 +183,32 @@ public final class CoreClass extends JavaPlugin {
     }
 
     private void registerEvents() {
-        getServer().getPluginManager().registerEvents(new SignInteractListener(), this);
         getServer().getPluginManager().registerEvents(new TeleportTrackingManager(), this);
         getServer().getPluginManager().registerEvents(new MovementManager(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
         getServer().getPluginManager().registerEvents(new WorldLoadListener(), this);
         getServer().getPluginManager().registerEvents(new MapEventListeners(), this);
+
+        if (PaperLib.isPaper()) {
+            registerOrElse(new PaperSignOpenListener(), new PaperLegacySignListener());
+            getServer().getPluginManager().registerEvents(new PaperSignChangeListener(), this);
+        } else {
+            registerOrElse(new SpigotSignOpenListener(), new SpigotLegacySignListener());
+            getServer().getPluginManager().registerEvents(new SpigotSignChangeListener(), this);
+        }
+    }
+
+    private void registerOrElse(final @NotNull NewListener listener1, final @NotNull Listener listener2) {
+        if (listener1.canRegister()) {
+            getServer().getPluginManager().registerEvents(listener1, this);
+        } else {
+            getServer().getPluginManager().registerEvents(listener2, this);
+        }
+    }
+
+    private void registerSensitiveEvents(final @NotNull NewListener listener) {
+        if (!listener.canRegister()) return;
+        getServer().getPluginManager().registerEvents(listener, this);
     }
 
     /**
@@ -282,26 +307,6 @@ public final class CoreClass extends JavaPlugin {
 
     public static Permission getPerms() {
         return perms;
-    }
-
-    private void setupVersion() {
-
-        // Parse the major version of the server (e.g. 1.19)
-        debug("Performing version checks.");
-        String bukkitVersion =
-                Bukkit.getServer()
-                        .getClass()
-                        .getPackage()
-                        .getName()
-                        .replace(".", ",")
-                        .split(",")[3]
-                        .split("_")[1];
-        this.version = Integer.parseInt(bukkitVersion);
-        debug("Parsed major version: " + this.version);
-    }
-
-    public int getVersion() {
-        return version;
     }
 
     public static void debug(String message) {

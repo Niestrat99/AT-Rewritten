@@ -215,6 +215,11 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.alreadySentRequest",
                 "<prefix> <gray>You've already sent a request to <aqua><player></aqua>!");
+        addDefault("Error.notEnoughGeneral", """
+            <prefix> <gray>You cannot afford to teleport there!
+            <prefix> <gray>You need <aqua><cost></aqua>!
+        """);
+
         addDefault(
                 "Error.notEnoughEXP",
                 """
@@ -233,7 +238,7 @@ public final class CustomMessages extends ATConfig {
                 "Error.notEnoughMoney",
                 """
             <prefix> <gray>You do not have enough money to teleport there!
-            <prefix> <gray>You need at least <aqua>amount</aqua>!
+            <prefix> <gray>You need at least <aqua><amount></aqua>!
         """
                         .trim());
         addDefault(
@@ -620,6 +625,11 @@ public final class CustomMessages extends ATConfig {
             <aqua>World <dark_gray>» <gray><world>""");
 
         addDefault(
+                "Menu.Help.header",
+                "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・");
+        addDefault("Menu.Help.option", "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>");
+
+        addDefault(
                 "Descriptions.Subcommands.help",
                 "Sends the help menu, providing a full list of commands.");
         addDefault("Descriptions.Subcommands.info", "Sends information regarding the plugin.");
@@ -780,6 +790,13 @@ public final class CustomMessages extends ATConfig {
         addDefault("Usages-Admin.movehome", "/movehome <Home>|<Player> <Home>");
         addDefault("Usages-Admin.setmainhome", "/setmainhome <Home>|<Player> <Home>");
         addDefault("Usages-Admin.spawn", "/spawn <ID>");
+        addDefault("Signs.bed", "<blue><bold>[Bed]</bold></blue>");
+        addDefault("Signs.home", "<blue><bold>[Home]</bold></blue>");
+        addDefault("Signs.homes", "<blue><bold>[Homes]</bold></blue>");
+        addDefault("Signs.randomtp", "<blue><bold>[RandomTP]</bold></blue>");
+        addDefault("Signs.spawn", "<blue><bold>[Spawn]</bold></blue>");
+        addDefault("Signs.warp", "<blue><bold>[Warp]</bold></blue>");
+        addDefault("Signs.warps", "<blue><bold>[Warps]</bold></blue>");
 
         addFormsDefault(
                 "tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");

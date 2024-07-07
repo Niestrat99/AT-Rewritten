@@ -30,6 +30,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
+    public ConfigOption<Boolean> CHECK_EXACT_COORDINATES;
     public PerCommandOption<Integer> WARM_UPS;
     public ConfigOption<ConfigSection> CUSTOM_WARM_UPS;
     public ConfigOption<Boolean> BLINDNESS_ON_WARMUP;
@@ -111,6 +112,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> RETAIN_PASSENGERS;
     public ConfigOption<Boolean> RETAIN_VEHICLES;
     public ConfigOption<Boolean> RETAIN_LIVING_ONLY;
+    public ConfigOption<Boolean> TELEPORT_ON_SIGN_SIDE;
 
     /** */
     public MainConfig() throws Exception {
@@ -201,7 +203,11 @@ public final class MainConfig extends ATConfig {
         addDefault(
                 "cancel-warm-up-on-movement",
                 true,
-                "Whether or not teleportation should be cancelled upon " + "movement only.");
+                "Whether or not teleportation should be cancelled upon movement only.");
+        addDefault("check-exact-coordinates",
+                false,
+                "Whether the plugin should check for change in exact X, Y and Z vs. block X, Y, Z.\n" +
+                        "By default, the player will have to cross into a new block (e.g. 60x 60y 60z -> 61x 60y 60z) to cancel the teleportation.");
 
         addComment("per-command-warm-ups", "Command-specific warm-ups.");
         addDefault("per-command-warm-ups.tpa", "default", "Warm-up timer for /tpa.");
@@ -828,7 +834,7 @@ public final class MainConfig extends ATConfig {
                 true,
                 "Whether or not to notify admins when an update is available.\n"
                         + "Anyone with the permission at.admin.notify will receive this notification.");
-        addDefault("debug", false, "Misceallaneous", "Used for debugging purposes.");
+        addDefault("debug", false, "Miscellaneous", "Used for debugging purposes.");
         addDefault(
                 "use-floodgate-forms",
                 true,
@@ -853,13 +859,18 @@ public final class MainConfig extends ATConfig {
                 "retain-vehicle",
                 false,
                 """
-                Keeps any entities being riden by teleporting players.
+                Keeps any entities being ridden by teleporting players.
                 Only available to newer versions of Paper and uses experimental API - don't expect this to be set to true by default for a while!
                 Teleportation is also not async if this has to be used.""");
         addDefault(
                 "retain-living-vehicles-only",
                 true,
                 "If it's not a minecart or boat, take it with us. Requires the above option to be set to true.");
+        addDefault(
+                "teleport-on-sign-side",
+                false,
+                "Applies to 1.20+ servers - whether the player will have to click the front of the sign (or where teleportation text is) to activate a sign.\n" +
+                        "If a player clicks on a sign with different lines on either side, the plugin prioritises the clicked side.");
     }
 
     public static MainConfig get() {
@@ -999,6 +1010,7 @@ public final class MainConfig extends ATConfig {
         WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
+        CHECK_EXACT_COORDINATES = new ConfigOption<>("check-exact-coordinates");
         WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
         CUSTOM_WARM_UPS = new ConfigOption<>("custom-warm-ups");
 
@@ -1112,6 +1124,7 @@ public final class MainConfig extends ATConfig {
         RETAIN_PASSENGERS = new ConfigOption<>("retain-passengers");
         RETAIN_VEHICLES = new ConfigOption<>("retain-vehicle");
         RETAIN_LIVING_ONLY = new ConfigOption<>("retain-living-vehicles-only");
+        TELEPORT_ON_SIGN_SIDE = new ConfigOption<>("teleport-on-sign-side");
 
         new PaymentManager();
         LimitationsManager.init();

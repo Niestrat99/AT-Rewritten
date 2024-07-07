@@ -10,7 +10,6 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 
-import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
@@ -19,7 +18,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -37,22 +35,32 @@ public final class HomesCommand extends AbstractHomeCommand {
         if (!canProceed(sender)) return true;
 
         if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
+            CoreClass.debug("Admin player has requested the homes of " + args[0] + " - fetching...");
             ATPlayer.getPlayerFuture(args[0]).whenCompleteAsync((player, err) -> {
 
+                CoreClass.debug("Player fetched.");
+
                 if (err != null) {
-                    err.printStackTrace();
+                    CoreClass.getInstance().getLogger().throwing(HomesCommand.class.getName(), "onCommand", err);
                     return;
                 }
 
+                CoreClass.debug("No errors after fetching.");
+
                 player.getHomesAsync().whenCompleteAsync((homes, err2) -> {
 
+                    CoreClass.debug("Homes of " + args[0] + " fetched.");
+
                     if (err2 != null) {
-                        err2.printStackTrace();
+                        CoreClass.getInstance().getLogger().throwing(HomesCommand.class.getName(),
+                                "onCommand", err2);
                         return;
                     }
 
+                    CoreClass.debug("No errors after fetching homes.");
+
                     getHomes(sender, player.getOfflinePlayer(), homes.values());
-                });
+                }, CoreClass.sync);
             }, CoreClass.sync);
             return true;
         }
@@ -71,7 +79,7 @@ public final class HomesCommand extends AbstractHomeCommand {
             }
 
             getHomes(sender, player, homes.values());
-        });
+        }, CoreClass.sync);
         return true;
     }
 
@@ -91,6 +99,7 @@ public final class HomesCommand extends AbstractHomeCommand {
         if (sender == target
                 && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                 && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
+            CoreClass.debug("Sender is being sent a homes form.");
             atFloodgatePlayer.sendHomeForm();
             return;
         }
@@ -118,6 +127,8 @@ public final class HomesCommand extends AbstractHomeCommand {
                                                                                             home,
                                                                                             "homes"));
 
+                                                    CoreClass.debug("Processing home: " + home.getName() + ", " + canAccess);
+
                                                     if (!canAccess) {
                                                         if (!MainConfig.get()
                                                                 .HIDE_HOMES_IF_DENIED
@@ -142,6 +153,8 @@ public final class HomesCommand extends AbstractHomeCommand {
                                                                             + home.getName()));
                                                 })
                                         .toList());
+
+        CoreClass.debug("Message text built.");
 
         if (!body.content().isEmpty() || !body.children().isEmpty()) {
             String text = CustomMessages.config.getString("Info.homes") + "<homes>";
