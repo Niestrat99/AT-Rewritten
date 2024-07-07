@@ -44,9 +44,9 @@ public final class MainConfig extends ATConfig {
     public PerCommandOption<Object> COSTS;
     public ConfigOption<ConfigSection> CUSTOM_COSTS;
     public ConfigOption<Integer> INVULNERABILITY_DURATION;
-    public ConfigOption<List<String>> DAMAGE_BLACKLIST;
-    public PerCommandOption<Integer> DURATIONS;
-    public ConfigOption<ConfigSection> CUSTOM_DURATIONS;
+    public ConfigOption<List<String>> INVULNERABILITY_DAMAGE_BLACKLIST;
+    public PerCommandOption<Integer> COMMAND_INVULNERABILITY_DURATIONS;
+    public ConfigOption<ConfigSection> CUSTOM_INVULNERABILITY_DURATIONS;
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
     public PerCommandOption<String> WAITING_PARTICLES;
@@ -1072,9 +1072,9 @@ public final class MainConfig extends ATConfig {
         CUSTOM_COSTS = new ConfigOption<>("custom-costs");
 
         INVULNERABILITY_DURATION = new ConfigOption<>("invulnerability-duration");
-        DAMAGE_BLACKLIST = new ConfigOption<>("damage-blacklist");
-        DURATIONS = new PerCommandOption<>("per-command-invulnerability", "invulnerability-duration");
-        CUSTOM_DURATIONS = new ConfigOption<>("custom-invulnerability-periods");
+        INVULNERABILITY_DAMAGE_BLACKLIST = new ConfigOption<>("damage-blacklist");
+        COMMAND_INVULNERABILITY_DURATIONS = new PerCommandOption<>("per-command-invulnerability", "invulnerability-duration");
+        CUSTOM_INVULNERABILITY_DURATIONS = new ConfigOption<>("custom-invulnerability-periods");
 
         USE_PARTICLES = new ConfigOption<>("use-particles");
         WAITING_PARTICLES =

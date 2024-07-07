@@ -813,8 +813,8 @@ public class ATPlayer {
     public int getInvulnerability(@NotNull final String command, @NotNull final World destinationWorld) {
         return determineValue("at.member.invulnerability",
                 command,
-                MainConfig.get().DURATIONS.valueOf(command).get(),
-                MainConfig.get().CUSTOM_DURATIONS.get(),
+                MainConfig.get().COMMAND_INVULNERABILITY_DURATIONS.valueOf(command).get(),
+                MainConfig.get().CUSTOM_INVULNERABILITY_DURATIONS.get(),
                 destinationWorld,
                 Math::max);
     }
