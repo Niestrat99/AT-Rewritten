@@ -29,10 +29,10 @@ public final class Tpo extends TeleportATCommand implements PlayerCommand {
 
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer
+            if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                     && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                if (!((ATFloodgatePlayer) atPlayer).getVisiblePlayerNames().isEmpty()) {
-                    ((ATFloodgatePlayer) atPlayer).sendTpoForm();
+                if (!atFloodgatePlayer.getVisiblePlayerNames().isEmpty()) {
+                    atFloodgatePlayer.sendTpoForm();
                 } else {
                     CustomMessages.sendMessage(sender, "Error.noOthersToTP");
                 }
