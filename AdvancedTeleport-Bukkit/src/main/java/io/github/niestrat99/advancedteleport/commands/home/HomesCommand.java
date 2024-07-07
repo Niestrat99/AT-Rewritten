@@ -151,7 +151,7 @@ public final class HomesCommand extends AbstractHomeCommand {
                 && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
             CoreClass.debug("Sender is being sent a homes form.");
 
-            if (!body.content().isEmpty() || !body.children().isEmpty()) {
+            if (!atFloodgatePlayer.getHomes().isEmpty()) {
                 atFloodgatePlayer.sendHomeForm();
             } else {
                 CustomMessages.sendMessage(
