@@ -30,6 +30,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
+    public ConfigOption<Boolean> CANCEL_WARM_UP_ON_DAMAGE;
     public ConfigOption<Boolean> CHECK_EXACT_COORDINATES;
     public PerCommandOption<Integer> WARM_UPS;
     public ConfigOption<ConfigSection> CUSTOM_WARM_UPS;
@@ -208,6 +209,12 @@ public final class MainConfig extends ATConfig {
                 "cancel-warm-up-on-movement",
                 true,
                 "Whether or not teleportation should be cancelled upon movement only.");
+        addDefault(
+                "cancel-warm-up-on-damage",
+                true,
+                "Whether or not teleportation should be cancelled when the player receives damage.\n" +
+                        "Best option to accompany the invulnerability system if your server has it enabled, so that " +
+                        "players can't cheese it. :thumbsup:");
         addDefault("check-exact-coordinates",
                 false,
                 "Whether the plugin should check for change in exact X, Y and Z vs. block X, Y, Z.\n" +
@@ -1040,6 +1047,7 @@ public final class MainConfig extends ATConfig {
         WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
+        CANCEL_WARM_UP_ON_DAMAGE = new ConfigOption<>("cancel-warm-up-on-damage");
         CHECK_EXACT_COORDINATES = new ConfigOption<>("check-exact-coordinates");
         WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
         CUSTOM_WARM_UPS = new ConfigOption<>("custom-warm-ups");

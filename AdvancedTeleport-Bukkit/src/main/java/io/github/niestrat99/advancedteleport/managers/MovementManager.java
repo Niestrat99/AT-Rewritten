@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
@@ -39,6 +40,24 @@ public class MovementManager implements Listener {
             ParticleManager.removeParticles(event.getPlayer(), timer.command);
             movement.remove(uuid);
         }
+    }
+
+    @EventHandler
+    public void onDamage(EntityDamageEvent event) {
+
+        // Make sure it's a player and someone on a timer
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!movement.containsKey(player.getUniqueId())) return;
+
+        // Verify that the option is enabled and the player is not bypassing the option
+        if (MainConfig.get().CANCEL_WARM_UP_ON_DAMAGE.get() && !player.hasPermission("at.admin.bypass.damage")) return;
+
+        // Cancel the timer
+        final var timer = movement.get(player.getUniqueId());
+        timer.cancel();
+        CustomMessages.sendMessage(player, "Teleport.eventDamage");
+        ParticleManager.removeParticles(player, timer.command);
+        movement.remove(player.getUniqueId());
     }
 
     private static boolean willCancelTimer(PlayerMoveEvent event) {
