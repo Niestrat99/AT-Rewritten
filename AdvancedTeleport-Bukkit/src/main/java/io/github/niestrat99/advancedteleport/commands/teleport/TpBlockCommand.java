@@ -29,9 +29,13 @@ public final class TpBlockCommand extends TeleportATCommand implements PlayerCom
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         if (args.length == 0) {
-            if (atPlayer instanceof ATFloodgatePlayer
+            if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                     && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                ((ATFloodgatePlayer) atPlayer).sendBlockForm();
+                if (!atFloodgatePlayer.getVisiblePlayerNames().isEmpty()) {
+                    atFloodgatePlayer.sendBlockForm();
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
             }

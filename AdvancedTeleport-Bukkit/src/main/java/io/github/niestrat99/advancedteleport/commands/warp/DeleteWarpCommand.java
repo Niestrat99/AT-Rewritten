@@ -30,9 +30,13 @@ public final class DeleteWarpCommand extends AbstractWarpCommand {
         if (args.length == 0) {
             if (sender instanceof Player player) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (atPlayer instanceof ATFloodgatePlayer
+                if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                         && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                    ((ATFloodgatePlayer) atPlayer).sendDeleteWarpForm();
+                    if (!AdvancedTeleportAPI.getWarps().isEmpty()) {
+                        atFloodgatePlayer.sendDeleteWarpForm();
+                    } else {
+                        CustomMessages.sendMessage(sender, "Error.noWarps");
+                    }
                     return true;
                 }
             }

@@ -100,59 +100,68 @@ public final class HomesCommand extends AbstractHomeCommand {
                 && atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                 && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
             CoreClass.debug("Sender is being sent a homes form.");
-            atFloodgatePlayer.sendHomeForm();
+
+            if (!atFloodgatePlayer.getHomes().isEmpty()) {
+                atFloodgatePlayer.sendHomeForm();
+            } else {
+                CustomMessages.sendMessage(
+                        sender,
+                        CustomMessages.contextualPath(sender, target, "Error.noHomes"),
+                        Placeholder.unparsed("player", target.getName()) // TODO: DisplayName
+                );
+            }
             return;
         }
 
         final TextComponent body = (TextComponent) Component.join(JoinConfiguration.commas(true),
-                                homes.stream().map(home ->
-                                                new Object[] {home,
-                                                            atPlayer.canAccessHome(home)
-                                                                    || ExPermission
-                                                                            .hasPermissionOrStar(
-                                                                                    sender,
-                                                                                    "at.admin.homes")
-                                                        }) // How the fuck do you associate a value
-                                                           // like a pair in java?
-                                        .map(
-                                                pair -> {
-                                                    final var home = (Home) pair[0];
-                                                    final var canAccess = (boolean) pair[1];
-                                                    final var baseComponent =
-                                                            Component.text(home.getName())
-                                                                    .hoverEvent(
-                                                                            CustomMessages
-                                                                                    .locationBasedTooltip(
-                                                                                            sender,
-                                                                                            home,
-                                                                                            "homes"));
+                homes.stream().map(home ->
+                                new Object[] {home,
+                                        atPlayer.canAccessHome(home)
+                                                || ExPermission
+                                                .hasPermissionOrStar(
+                                                        sender,
+                                                        "at.admin.homes")
+                                }) // How the fuck do you associate a value
+                        // like a pair in java?
+                        .map(
+                                pair -> {
+                                    final var home = (Home) pair[0];
+                                    final var canAccess = (boolean) pair[1];
+                                    final var baseComponent =
+                                            Component.text(home.getName())
+                                                    .hoverEvent(
+                                                            CustomMessages
+                                                                    .locationBasedTooltip(
+                                                                            sender,
+                                                                            home,
+                                                                            "homes"));
 
-                                                    CoreClass.debug("Processing home: " + home.getName() + ", " + canAccess);
+                                    CoreClass.debug("Processing home: " + home.getName() + ", " + canAccess);
 
-                                                    if (!canAccess) {
-                                                        if (!MainConfig.get()
-                                                                .HIDE_HOMES_IF_DENIED
-                                                                .get())
-                                                            return Component
-                                                                    .empty(); // TODO: Make sure
-                                                                              // this doesn't cause
-                                                                              // an extra comma.
-                                                        return baseComponent
-                                                                .color(NamedTextColor.GRAY)
-                                                                .decorate(TextDecoration.ITALIC);
-                                                    }
+                                    if (!canAccess) {
+                                        if (!MainConfig.get()
+                                                .HIDE_HOMES_IF_DENIED
+                                                .get())
+                                            return Component
+                                                    .empty(); // TODO: Make sure
+                                        // this doesn't cause
+                                        // an extra comma.
+                                        return baseComponent
+                                                .color(NamedTextColor.GRAY)
+                                                .decorate(TextDecoration.ITALIC);
+                                    }
 
-                                                    return baseComponent.clickEvent(
-                                                            ClickEvent.runCommand(
-                                                                    "/advancedteleport:home "
-                                                                            + (sender == target
-                                                                                    ? ""
-                                                                                    : target
-                                                                                                    .getName()
-                                                                                            + " ")
-                                                                            + home.getName()));
-                                                })
-                                        .toList());
+                                    return baseComponent.clickEvent(
+                                            ClickEvent.runCommand(
+                                                    "/advancedteleport:home "
+                                                            + (sender == target
+                                                            ? ""
+                                                            : target
+                                                            .getName()
+                                                            + " ")
+                                                            + home.getName()));
+                                })
+                        .toList());
 
         CoreClass.debug("Message text built.");
 
@@ -161,11 +170,12 @@ public final class HomesCommand extends AbstractHomeCommand {
             final var component = CustomMessages.translate(text, Placeholder.component("homes", body));
 
             CustomMessages.sendMessage(sender, component);
-        } else
+        } else {
             CustomMessages.sendMessage(
                     sender,
                     CustomMessages.contextualPath(sender, target, "Error.noHomes"),
                     Placeholder.unparsed("player", target.getName()) // TODO: DisplayName
-                    );
+            );
+        }
     }
 }

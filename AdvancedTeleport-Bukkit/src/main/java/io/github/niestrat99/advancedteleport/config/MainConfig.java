@@ -209,7 +209,6 @@ public final class MainConfig extends ATConfig {
                 "cancel-warm-up-on-movement",
                 true,
                 "Whether or not teleportation should be cancelled upon movement only.");
-        addDefault(
                 "cancel-warm-up-on-damage",
                 true,
                 "Whether or not teleportation should be cancelled when the player receives damage.\n" +

@@ -287,6 +287,7 @@ public final class CustomMessages extends ATConfig {
                 "<prefix> <gray>You can't teleport to <aqua><world></aqua>!");
         addDefault("Error.tooFewArguments", "<prefix> <gray>Too few arguments!");
         addDefault("Error.invalidArgs", "<prefix> <gray>Invalid arguments!");
+        addDefault("Error.noOthersToTP", "<prefix> <gray>There are no players for you to teleport!");
         addDefault(
                 "Error.cantTPToPlayer",
                 "<prefix> <gray>You can't request a teleportation to <aqua><player></aqua>!");
