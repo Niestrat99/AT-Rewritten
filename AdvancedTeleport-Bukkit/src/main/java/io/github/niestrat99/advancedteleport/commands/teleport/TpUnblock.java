@@ -29,9 +29,13 @@ public final class TpUnblock extends TeleportATCommand implements PlayerCommand 
         Player player = (Player) sender;
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         if (args.length == 0) {
-            if (atPlayer instanceof ATFloodgatePlayer
+            if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                     && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                ((ATFloodgatePlayer) atPlayer).sendUnblockForm();
+                if (!atFloodgatePlayer.getVisiblePlayerNames().isEmpty()) {
+                    atFloodgatePlayer.sendUnblockForm();
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noPlayerInput");
+                }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
             }

@@ -28,9 +28,13 @@ public final class TpoHere extends TeleportATCommand implements PlayerCommand {
         Player player = (Player) sender;
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);
-            if (atPlayer instanceof ATFloodgatePlayer
+            if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                     && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                ((ATFloodgatePlayer) atPlayer).sendTpoHereForm();
+                if (!atFloodgatePlayer.getVisiblePlayerNames().isEmpty()) {
+                    atFloodgatePlayer.sendTpoHereForm();
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noOthersToTP");
+                }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noPlayerInput");
             }

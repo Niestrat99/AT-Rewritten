@@ -89,7 +89,7 @@ public final class ATFloodgatePlayer extends ATPlayer {
     }
 
     @Contract(pure = true)
-    private @NotNull List<String> getVisiblePlayerNames() {
+    public @NotNull List<String> getVisiblePlayerNames() {
         return Bukkit.getOnlinePlayers().stream()
                 .filter(player -> player != getPlayer())
                 .filter(player -> getPlayer().canSee(player))
@@ -259,14 +259,7 @@ public final class ATFloodgatePlayer extends ATPlayer {
     }
 
     /** Sends the form for /tpcancel. */
-    public void sendCancelForm() {
-
-        // Builds the list of teleport requests that can be cancelled
-        final var responders =
-                TeleportRequest.getRequestsByRequester(getPlayer()).stream()
-                        .map(request -> request.requester().getName())
-                        .toList();
-
+    public void sendCancelForm(List<String> responders) {
         // Sends the dropdown menu form
         sendDropdownForm("tpcancel", responders);
     }

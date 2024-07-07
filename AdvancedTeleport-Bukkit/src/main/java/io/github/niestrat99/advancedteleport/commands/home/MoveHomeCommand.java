@@ -29,9 +29,13 @@ public final class MoveHomeCommand extends AbstractHomeCommand implements Player
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
 
         if (args.length == 0) {
-            if (atPlayer instanceof ATFloodgatePlayer
+            if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                     && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                ((ATFloodgatePlayer) atPlayer).sendMoveHomeForm();
+                if (!atFloodgatePlayer.getHomes().isEmpty()) {
+                    atFloodgatePlayer.sendMoveHomeForm();
+                } else {
+                    CustomMessages.sendMessage(sender, "Error.noHomes");
+                }
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomeInput");
             }

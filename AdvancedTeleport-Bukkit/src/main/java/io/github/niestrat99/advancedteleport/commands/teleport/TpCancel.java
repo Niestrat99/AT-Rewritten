@@ -75,9 +75,17 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                 }
 
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                if (atPlayer instanceof ATFloodgatePlayer
+                if (atPlayer instanceof ATFloodgatePlayer atFloodgatePlayer
                         && MainConfig.get().USE_FLOODGATE_FORMS.get()) {
-                    ((ATFloodgatePlayer) atPlayer).sendCancelForm();
+                    final var responders =
+                            TeleportRequest.getRequestsByRequester(atFloodgatePlayer.getPlayer()).stream()
+                                    .map(request -> request.requester().getName())
+                                    .toList();
+                    if (!responders.isEmpty()) {
+                        ((ATFloodgatePlayer) atPlayer).sendCancelForm(responders);
+                    } else {
+                        CustomMessages.sendMessage(sender, "Error.noRequests");
+                    }
                     return true;
                 }
 
