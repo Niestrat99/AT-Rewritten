@@ -161,11 +161,13 @@ public class TeleportTrackingManager implements Listener {
         // If one of those don't work, try the default option again
         if (spawnCommand == null || spawnCommand.equals("default")) {
             spawnCommand = deathManagement.getString("default");
+            CoreClass.debug("Default command: " + spawnCommand);
             if (spawnCommand == null) return;
         }
 
         // Go through each commands until you reach jackpot
         for (String command : spawnCommand.split(";")) {
+            CoreClass.debug("Handling respawn command: " + command);
             if (handleSpawn(e, command)) break;
         }
     }
@@ -218,8 +220,9 @@ public class TeleportTrackingManager implements Listener {
 
         // If spawn was specified, use that
         if (spawnCommand.equals("spawn")) {
-            Spawn spawn = AdvancedTeleportAPI.getDestinationSpawn(operatingWorld, e.getPlayer());
+            final Spawn spawn = AdvancedTeleportAPI.getDestinationSpawn(operatingWorld, e.getPlayer());
             e.setRespawnLocation(spawn.getLocation());
+            CoreClass.debug("Respawn location set to: " + CoreClass.getShortLocation(spawn.getLocation()));
             return true;
         }
 
@@ -227,20 +230,26 @@ public class TeleportTrackingManager implements Listener {
         if (spawnCommand.equals("home")) {
 
             // If there's a main home, use that
-            if (atPlayer.hasMainHome()) {
+            if (atPlayer.getMainHome() != null) {
                 e.setRespawnLocation(atPlayer.getMainHome().getLocation());
+                CoreClass.debug("Respawn location set to: " + CoreClass.getShortLocation(atPlayer.getMainHome().getLocation()));
                 return true;
             }
 
             // Get their first home
             if (!atPlayer.getHomes().isEmpty()) {
-                e.setRespawnLocation(atPlayer.getHomes().values().iterator().next().getLocation());
+                final var home = atPlayer.getHomes().values().iterator().next();
+                e.setRespawnLocation(home.getLocation());
+                CoreClass.debug("Respawn location set to: " + CoreClass.getShortLocation(home.getLocation()));
                 return true;
             }
         }
 
         // If a bed was specified, just use that
-        if (spawnCommand.equals("bed")) return e.getPlayer().getBedSpawnLocation() != null;
+        if (spawnCommand.equals("bed")) {
+            CoreClass.debug("Setting respawn point to " + e.getPlayer() + "'s bed.");
+            return e.getPlayer().getBedSpawnLocation() != null;
+        }
 
         // If we're using warps, then get the warp to be used
         if (spawnCommand.startsWith("warp:")) {
@@ -250,9 +259,12 @@ public class TeleportTrackingManager implements Listener {
                 final String warpName = spawnCommand.split(":")[1];
                 final Warp warp = AdvancedTeleportAPI.getWarp(warpName);
 
+                CoreClass.debug("Checking for warp " + warpName + " to respawn at.");
+
                 // If it exists, set it, otherwise, send a warning
                 if (warp != null) {
                     e.setRespawnLocation(warp.getLocation());
+                    CoreClass.debug("Respawn location set to: " + CoreClass.getShortLocation(warp.getLocation()));
                     return true;
                 } else {
                     CoreClass.getInstance()

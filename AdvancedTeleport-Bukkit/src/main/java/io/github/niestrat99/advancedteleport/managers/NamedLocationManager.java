@@ -142,18 +142,21 @@ public class NamedLocationManager {
 
         // If we're teleporting to the nearest spawnpoint, then use that
         if (teleportingPlayer != null && MainConfig.get().TELEPORT_TO_NEAREST_SPAWN.get()) {
+            CoreClass.debug("Teleport to nearest spawn activated - checking closest spawnpoints to " + teleportingPlayer.getName());
             return getNearestSpawn(teleportingPlayer);
         }
 
         // If there's no spawns registered under the world's name, try using the main spawn.
         if (!this.spawns.containsKey(world.getName())
                 && !this.worldMirrors.containsKey(world.getName())) {
+            CoreClass.debug("No spawnpoint registered under the name " + world.getName() + " - getting undeclared spawn");
             return getUndeclaredSpawn(world);
         }
 
         // Get the destination spawn
         Spawn spawn =
                 this.spawns.getOrDefault(world.getName(), this.worldMirrors.get(world.getName()));
+        CoreClass.debug("Spawn: " + spawn.getName());
 
         // If there's no player, just throw this spawn
         if (teleportingPlayer == null) return spawn;
@@ -162,10 +165,13 @@ public class NamedLocationManager {
         while (!spawn.canAccess(teleportingPlayer)
                 && spawn.getMirroringSpawn() != null
                 && spawn.getMirroringSpawn() != spawn) {
+            CoreClass.debug("Spawnpoint mirroring to " + spawn.getMirroringSpawn().getName());
             spawn = spawn.getMirroringSpawn();
         }
 
         // If the spawn cannot be reached, return the undeclared spawn
+        CoreClass.debug("Can " + teleportingPlayer.getName() + " access " + spawn.getName() +
+                ": " + spawn.canAccess(teleportingPlayer));
         if (!spawn.canAccess(teleportingPlayer)) return getUndeclaredSpawn(world);
 
         // Return the spawn
@@ -176,29 +182,42 @@ public class NamedLocationManager {
     private @NotNull Spawn getUndeclaredSpawn(@NotNull World world) {
 
         // If there's a main spawn, just return it
-        if (this.mainSpawn != null) return mainSpawn;
+        if (this.mainSpawn != null) {
+            CoreClass.debug("Main spawn exists - returning " + this.mainSpawn.getName() + ".");
+            return mainSpawn;
+        }
 
         // If the main spawn isn't there though, get the spawn location of the world
         if (MainConfig.get().USE_OVERWORLD.get()) {
 
+            CoreClass.debug("Overworld has been requested for usage.");
+
             // If the dimension is in the overworld, just send them there
-            if (world.getEnvironment() == World.Environment.NORMAL)
+            if (world.getEnvironment() == World.Environment.NORMAL) {
+                CoreClass.debug("Normal world environment, returning " + world.getName() + "'s spawnpoint.");
                 return new Spawn(world.getName(), world.getSpawnLocation());
+            }
 
             // Remove the end/nether suffix
             String overworldName = world.getName().replaceAll("(_nether|_the_end)$", "");
 
             // If the world isn't loaded/existent, just relocate to the original world's spawn
             World overworld = Bukkit.getWorld(overworldName);
-            if (overworld == null) return new Spawn(world.getName(), world.getSpawnLocation());
+            if (overworld == null) {
+                CoreClass.debug("Overworld for " + world.getName() + " (" + overworldName + ") was not found, returning "
+                        + world.getName() + "'s spawnpoint.");
+                return new Spawn(world.getName(), world.getSpawnLocation());
+            }
 
             // Otherwise, teleport to the overworld
+
             return this.spawns.getOrDefault(
                     overworld.getName(),
                     new Spawn(overworld.getName(), overworld.getSpawnLocation()));
         } else {
 
             // Return a new spawn object, but don't register it for now
+            CoreClass.debug("Returning " + world.getName() + "'s spawnpoint.");
             return new Spawn(world.getName(), world.getSpawnLocation());
         }
     }
