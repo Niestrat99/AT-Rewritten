@@ -63,6 +63,13 @@ public final class SetMainSpawn extends SpawnATCommand {
                 CustomMessages.sendMessage(sender, "Error.cannotSetMainSpawn");
             }
             return true;
+        } else if (world && sender.hasPermission("at.admin.setspawn")) {
+
+            // If the spawn exists, then verify that it's a world (i.e. no args) - otherwise, don't move the spawnpoint over
+            Location loc = ((Player) sender).getLocation();
+            AdvancedTeleportAPI.setSpawn(id, sender, loc)
+                    .thenAcceptAsync(newSpawn -> setMainSpawn(newSpawn, sender), CoreClass.sync);
+            return true;
         }
 
         // Set it
