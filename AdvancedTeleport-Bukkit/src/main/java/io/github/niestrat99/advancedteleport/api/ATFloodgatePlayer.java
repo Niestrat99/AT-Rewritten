@@ -97,7 +97,7 @@ public final class ATFloodgatePlayer extends ATPlayer {
                         player -> {
                             final var atPlayer = ATPlayer.getPlayer(player);
                             return !atPlayer.hasBlocked(getPlayer())
-                                    && this.hasBlocked(atPlayer.uuid());
+                                    && !this.hasBlocked(atPlayer.uuid());
                         })
                 .map(Player::getName)
                 .toList();
