@@ -176,6 +176,10 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Teleport.teleportedOfflinePlayerHere",
                 "<prefix> <gray>Teleported offline player <aqua><player></aqua> to your location!");
+        addDefault(
+                "Teleport.teleportingOneToAnother",
+                "<prefix> <gray>Teleporting <aqua><player1></aqua> to <aqua><player2></aqua>!"
+        );
 
         makeSectionLenient("Error");
         addDefault(
