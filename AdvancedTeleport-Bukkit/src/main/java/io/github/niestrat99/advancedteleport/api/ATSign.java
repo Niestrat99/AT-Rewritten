@@ -7,6 +7,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class ATSign {
 
     private final @NotNull String requiredPermission;
@@ -26,7 +29,15 @@ public abstract class ATSign {
 
     public abstract void onInteract(@NotNull Sign sign, @NotNull Player player);
 
-    public abstract boolean canCreate(@NotNull Sign sign, @NotNull Player player);
+    public abstract boolean canCreate(final @NotNull List<Component> lines, final @NotNull Player player);
+
+    public boolean canCreate(final @NotNull String[] lines, final @NotNull Player player) {
+        final List<Component> components = new ArrayList<>(lines.length);
+        for (String line : lines) {
+            components.add(Component.text(line));
+        }
+        return canCreate(components, player);
+    }
 
     @Contract(pure = true)
     public boolean isEnabled() {

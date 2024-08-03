@@ -6,10 +6,13 @@ import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.CoreClass;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class WarpSign extends ATSign {
 
@@ -28,15 +31,13 @@ public class WarpSign extends ATSign {
     }
 
     @Override
-    public boolean canCreate(@NotNull Sign sign, @NotNull Player player) {
-        if (sign.getLine(1).isEmpty()) {
+    public boolean canCreate(final @NotNull List<Component> lines, final @NotNull Player player) {
+        if (!(lines.get(1) instanceof TextComponent line)) return false;
+        if (line.content().isEmpty()) {
             CustomMessages.sendMessage(player, "Error.noWarpInput");
             return false;
         } else {
-            if (AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1))) {
-                String warpName = sign.getLine(1);
-                sign.setLine(0, ChatColor.BLUE + "" + ChatColor.BOLD + "[Warp]");
-                sign.setLine(1, warpName);
+            if (AdvancedTeleportAPI.getWarps().containsKey(line.content())) {
                 CustomMessages.sendMessage(player, "Info.createdWarpSign");
                 return true;
             } else {

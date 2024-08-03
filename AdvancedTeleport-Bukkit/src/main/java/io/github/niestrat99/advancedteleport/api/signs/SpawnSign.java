@@ -5,9 +5,12 @@ import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.commands.spawn.SpawnCommand;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class SpawnSign extends ATSign {
 
@@ -33,7 +36,7 @@ public class SpawnSign extends ATSign {
     }
 
     @Override
-    public boolean canCreate(@NotNull Sign sign, @NotNull Player player) {
+    public boolean canCreate(final @NotNull List<Component> lines, final @NotNull Player player) {
         return true;
     }
 }

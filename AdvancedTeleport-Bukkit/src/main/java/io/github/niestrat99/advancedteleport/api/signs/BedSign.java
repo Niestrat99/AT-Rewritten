@@ -4,9 +4,12 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.commands.home.HomeCommand;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import net.kyori.adventure.text.Component;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class BedSign extends ATSign {
 
@@ -22,7 +25,7 @@ public class BedSign extends ATSign {
     }
 
     @Override
-    public boolean canCreate(@NotNull Sign sign, @NotNull Player player) {
+    public boolean canCreate(final @NotNull List<Component> lines, final @NotNull Player player) {
         return true;
     }
 }
