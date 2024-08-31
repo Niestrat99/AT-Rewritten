@@ -573,6 +573,7 @@ bukkit {
                 "at.admin.tpohere" to true,
                 "at.admin.all" to true,
                 "at.admin.tpo" to true,
+                "at.admin.tpo.others" to true,
                 "at.admin.setwarp" to true,
                 "at.admin.delwarp" to true,
                 "at.admin.setspawn" to true,
