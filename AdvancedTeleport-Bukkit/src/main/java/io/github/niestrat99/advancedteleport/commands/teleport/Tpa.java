@@ -77,7 +77,8 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
                     "Info.requestSent",
                     Placeholder.parsed(
                             "player", MiniMessage.miniMessage().escapeTags(target.getName())),
-                    Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)));
+                    Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
+                    Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
 
             CoreClass.playSound("tpa", "sent", player);
 
@@ -92,7 +93,8 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
                         "Info.tpaRequestReceived",
                         Placeholder.parsed(
                                 "player", MiniMessage.miniMessage().escapeTags(sender.getName())),
-                        Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)));
+                        Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
+                        Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
             }
 
             CoreClass.playSound("tpa", "received", target);
