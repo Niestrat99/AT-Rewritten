@@ -19,11 +19,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class TeleportTrackingManager implements Listener {
 
@@ -135,11 +138,14 @@ public class TeleportTrackingManager implements Listener {
 
         // If it's an NPC, once again, couldn't care less
         if (e.getEntity().hasMetadata("NPC")) return;
-
+        EntityDamageEvent.DamageCause deathCause = Objects.requireNonNull(e.getPlayer().getLastDamageCause()).getCause();
+        CoreClass.debug(e.getEntity().getName() + " died by following cause: " + deathCause.name());
         // If the player can have their death location set, then set it
         if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
-                && e.getEntity().hasPermission("at.member.back.death")) {
-            ATPlayer.getPlayer(e.getEntity()).setPreviousLocation(e.getEntity().getLocation());
+                && e.getEntity().hasPermission("at.member.back.death")
+                && !MainConfig.get().DEATHCAUSE_BLACKLIST.get().contains(deathCause.name())) {
+                CoreClass.debug("Death cause is not blacklisted. Saving death location.");
+                ATPlayer.getPlayer(e.getEntity()).setPreviousLocation(e.getEntity().getLocation());
         }
     }
 
