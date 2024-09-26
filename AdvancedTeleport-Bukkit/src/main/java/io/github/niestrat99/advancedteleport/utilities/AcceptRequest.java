@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
+import io.github.niestrat99.advancedteleport.managers.InvulnerabilityManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 
@@ -71,6 +72,7 @@ public class AcceptRequest {
                 fromPlayer, toLocation, PlayerTeleportEvent.TeleportCause.COMMAND);
         CustomMessages.sendMessage(fromPlayer, "Teleport.eventTeleport");
         PaymentManager.getInstance().withdraw(type, payingPlayer, toLocation.getWorld());
+        InvulnerabilityManager.createInvulnerability(fromPlayer, atPlayer.getInvulnerability(type, event.getToLocation().getWorld()));
 
         // If the cooldown is to be applied after only after a teleport takes place, apply it now
         if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {

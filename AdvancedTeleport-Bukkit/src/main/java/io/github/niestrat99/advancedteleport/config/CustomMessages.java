@@ -144,6 +144,9 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Teleport.eventMovement",
                 "<prefix> <gray>Teleport has been cancelled due to movement.");
+        addDefault(
+                "Teleport.eventDamage",
+                "<prefix> <gray>Teleport has been cancelled due to damage being taken.");
         addDefault("Teleport.eventMovement_title.length", 60);
         addDefault("Teleport.eventMovement_title.fade-in", 0);
         addDefault("Teleport.eventMovement_title.fade-out", 10);

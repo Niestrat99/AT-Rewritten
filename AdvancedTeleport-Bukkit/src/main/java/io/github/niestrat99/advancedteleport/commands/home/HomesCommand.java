@@ -162,6 +162,7 @@ public final class HomesCommand extends AbstractHomeCommand {
                                                             + home.getName()));
                                 })
                         .toList());
+
         CoreClass.debug("Message text built.");
 
         if (!body.content().isEmpty() || !body.children().isEmpty()) {

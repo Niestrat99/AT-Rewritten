@@ -30,6 +30,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
+    public ConfigOption<Boolean> CANCEL_WARM_UP_ON_DAMAGE;
     public ConfigOption<Boolean> CHECK_EXACT_COORDINATES;
     public PerCommandOption<Integer> WARM_UPS;
     public ConfigOption<ConfigSection> CUSTOM_WARM_UPS;
@@ -43,6 +44,10 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
     public ConfigOption<ConfigSection> CUSTOM_COSTS;
+    public ConfigOption<Integer> INVULNERABILITY_DURATION;
+    public ConfigOption<List<String>> INVULNERABILITY_DAMAGE_BLACKLIST;
+    public PerCommandOption<Integer> COMMAND_INVULNERABILITY_DURATIONS;
+    public ConfigOption<ConfigSection> CUSTOM_INVULNERABILITY_DURATIONS;
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
     public PerCommandOption<String> WAITING_PARTICLES;
@@ -204,6 +209,12 @@ public final class MainConfig extends ATConfig {
                 "cancel-warm-up-on-movement",
                 true,
                 "Whether or not teleportation should be cancelled upon movement only.");
+        addDefault(
+                "cancel-warm-up-on-damage",
+                true,
+                "Whether or not teleportation should be cancelled when the player receives damage.\n" +
+                        "Best option to accompany the invulnerability system if your server has it enabled, so that " +
+                        "players can't cheese it. :thumbsup:");
         addDefault("check-exact-coordinates",
                 false,
                 "Whether the plugin should check for change in exact X, Y and Z vs. block X, Y, Z.\n" +
@@ -290,7 +301,7 @@ public final class MainConfig extends ATConfig {
                   vip-cooldown: 3
                 Giving a group, such as VIP, the permission at.member.cooldown.vip-cooldown will have a cooldown of 3.
                 The key (vip-cooldown) and group name (VIP) do not have to be different, this is just an example.
-                You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag.To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldown.
+                You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag. To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldown.
                 To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.\
                 """);
 
@@ -331,6 +342,32 @@ public final class MainConfig extends ATConfig {
                   vip-cost: Essentials:100
                 Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.
                 To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.\
+                """);
+
+        addDefault("invulnerability-duration", 0, "Invulnerability", "How long the invulnerability period lasts in seconds.");
+        addDefault("damage-blacklist", new ArrayList<>(), "All damage causes that are not cancelled by invulnerability.\n" +
+                "The full list is accessible here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html");
+
+        addComment("per-command-invulnerability", "Command-specific invulnerability durations.");
+        addDefault("per-command-invulnerability.tpa", "default", "Invulnerability duration for /tpa.");
+        addDefault("per-command-invulnerability.tpahere", "default", "Invulnerability duration for /tpahere.");
+        addDefault("per-command-invulnerability.tpr", "default", "Invulnerability duration for /tpr, or /rtp.");
+        addDefault("per-command-invulnerability.warp", "default", "Invulnerability duration for /warp");
+        addDefault("per-command-invulnerability.spawn", "default", "Invulnerability duration for /spawn");
+        addDefault("per-command-invulnerability.home", "default", "Invulnerability duration for /home");
+        addDefault("per-command-invulnerability.back", "default", "Invulnerability duration for /back");
+
+        makeSectionLenient("custom-invulnerability-periods");
+        addComment(
+                "custom-invulnerability-periods",
+                """
+                Use this section to create custom invulnerability periods per-group.
+                Use the following format:
+                custom-invulnerability-periods:
+                  vip: 5
+                Giving a group, such as VIP, the permission at.member.invulnerability.vip will have an invulnerable period of 5 seconds.
+                To make it per-command, add the permission at.member.invulnerability.tpa.vip (for tpa) instead.\
+                You can also add at.member.invulnerability.5, but this is more efficient if you find permissions lag.
                 """);
 
         addDefault(
@@ -1010,6 +1047,7 @@ public final class MainConfig extends ATConfig {
         WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
+        CANCEL_WARM_UP_ON_DAMAGE = new ConfigOption<>("cancel-warm-up-on-damage");
         CHECK_EXACT_COORDINATES = new ConfigOption<>("check-exact-coordinates");
         WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
         CUSTOM_WARM_UPS = new ConfigOption<>("custom-warm-ups");
@@ -1040,6 +1078,11 @@ public final class MainConfig extends ATConfig {
         COST_AMOUNT = new ConfigOption<>("cost-amount");
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
         CUSTOM_COSTS = new ConfigOption<>("custom-costs");
+
+        INVULNERABILITY_DURATION = new ConfigOption<>("invulnerability-duration");
+        INVULNERABILITY_DAMAGE_BLACKLIST = new ConfigOption<>("damage-blacklist");
+        COMMAND_INVULNERABILITY_DURATIONS = new PerCommandOption<>("per-command-invulnerability", "invulnerability-duration");
+        CUSTOM_INVULNERABILITY_DURATIONS = new ConfigOption<>("custom-invulnerability-periods");
 
         USE_PARTICLES = new ConfigOption<>("use-particles");
         WAITING_PARTICLES =
