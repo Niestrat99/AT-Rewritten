@@ -104,19 +104,19 @@ public class NBTReader {
         CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder().put(rawTag);
 
         ListBinaryTag.Builder<BinaryTag> posTag = ListBinaryTag.builder();
-        posTag.add(DoubleBinaryTag.of(location.getX()));
-        posTag.add(DoubleBinaryTag.of(location.getY()));
-        posTag.add(DoubleBinaryTag.of(location.getZ()));
+        posTag.add(DoubleBinaryTag.doubleBinaryTag(location.getX()));
+        posTag.add(DoubleBinaryTag.doubleBinaryTag(location.getY()));
+        posTag.add(DoubleBinaryTag.doubleBinaryTag(location.getZ()));
 
         ListBinaryTag.Builder<BinaryTag> rotTag = ListBinaryTag.builder();
-        rotTag.add(FloatBinaryTag.of(location.getYaw()));
-        rotTag.add(FloatBinaryTag.of(location.getPitch()));
+        rotTag.add(FloatBinaryTag.floatBinaryTag(location.getYaw()));
+        rotTag.add(FloatBinaryTag.floatBinaryTag(location.getPitch()));
 
         builder.put("Pos", posTag.build());
         builder.put("Rotation", rotTag.build());
 
-        builder.put("WorldUUIDMost", LongBinaryTag.of(location.getWorld().getUID().getMostSignificantBits()));
-        builder.put("WorldUUIDLeast", LongBinaryTag.of(location.getWorld().getUID().getLeastSignificantBits()));
+        builder.put("WorldUUIDMost", LongBinaryTag.longBinaryTag(location.getWorld().getUID().getMostSignificantBits()));
+        builder.put("WorldUUIDLeast", LongBinaryTag.longBinaryTag(location.getWorld().getUID().getLeastSignificantBits()));
 
         BinaryTagIO.writer()
                 .write(builder.build(), dataFile.toPath(), BinaryTagIO.Compression.GZIP);
