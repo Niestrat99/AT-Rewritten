@@ -3,9 +3,9 @@ package io.github.niestrat99.advancedteleport.sql;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -37,44 +37,33 @@ public class SpawnSQLManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            CoreClass.debug(
-                                    "Creating table data for the spawns manager if it is not already set up.");
+        RunnableManager.setupRunnerAsync(() -> {
 
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_spawns "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "spawn VARCHAR(256) NOT NULL, "
-                                                        + "uuid_creator VARCHAR(256), "
-                                                        + "x DOUBLE NOT NULL, "
-                                                        + "y DOUBLE NOT NULL, "
-                                                        + "z DOUBLE NOT NULL, "
-                                                        + "yaw FLOAT NOT NULL, "
-                                                        + "pitch FLOAT NOT NULL, "
-                                                        + "world VARCHAR(256) NOT NULL, "
-                                                        + "timestamp_created BIGINT NOT NULL, "
-                                                        + "timestamp_updated BIGINT NOT NULL)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .severe("Failed to create the spawns table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
+            CoreClass.debug("Creating table data for the spawns manager if it is not already set up.");
 
-                            NamedLocationManager.get().loadSpawnData();
-                        });
+            try (Connection connection = implementConnection()) {
+                PreparedStatement createTable = prepareStatement(connection,
+                        "CREATE TABLE IF NOT EXISTS " + tablePrefix + "_spawns " +
+                                "(id INTEGER PRIMARY KEY " + getStupidAutoIncrementThing() + ", " +
+                                "spawn VARCHAR(256) NOT NULL, " +
+                                "uuid_creator VARCHAR(256), " +
+                                "x DOUBLE NOT NULL, " +
+                                "y DOUBLE NOT NULL, " +
+                                "z DOUBLE NOT NULL, " +
+                                "yaw FLOAT NOT NULL, " +
+                                "pitch FLOAT NOT NULL, " +
+                                "world VARCHAR(256) NOT NULL, " +
+                                "timestamp_created BIGINT NOT NULL, " +
+                                "timestamp_updated BIGINT NOT NULL)");
+                executeUpdate(createTable);
+            } catch (SQLException exception) {
+                CoreClass.getInstance().getLogger().severe("Failed to create the spawns table.");
+                exception.printStackTrace();
+            }
+            transferOldData();
+
+            NamedLocationManager.get().loadSpawnData();
+        });
     }
 
     @Override

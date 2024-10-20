@@ -9,6 +9,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -169,7 +170,7 @@ public class IconMenu implements Listener, InventoryHolder {
             final Player p = (Player) event.getWhoClicked();
             icon.activate(p, e);
             if (e.willClose()) {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, p::closeInventory, 1);
+                RunnableManager.setupRunnerDelayed(() -> p.closeInventory(), 1);
             }
             if (e.willDestroy()) {
                 destroy();

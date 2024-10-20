@@ -22,9 +22,9 @@ public class WarpSign extends ATSign {
 
     @Override
     public void onInteract(@NotNull Sign sign, @NotNull Player player) {
-        
+
 	boolean contains = AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1));
-	CoreClass.debug("Warp " + sign.getLine(1) + " exists: " + contains); 
+	CoreClass.debug("Warp " + sign.getLine(1) + " exists: " + contains);
 
 	if (!contains) return;
         WarpCommand.warp(AdvancedTeleportAPI.getWarps().get(sign.getLine(1)), player, true);

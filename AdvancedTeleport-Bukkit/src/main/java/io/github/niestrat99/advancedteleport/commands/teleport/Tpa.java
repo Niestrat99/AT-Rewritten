@@ -10,6 +10,8 @@ import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.CancellableRunnable;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
@@ -21,7 +23,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 public final class Tpa extends TeleportATCommand implements TimedATCommand {
@@ -97,34 +98,25 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
 
             CoreClass.playSound("tpa", "received", target);
 
-            BukkitRunnable run =
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
+            CancellableRunnable run = RunnableManager.setupRunnerDelayed(() -> {
+                // Get the teleport request
+                TeleportRequest request = TeleportRequest.getRequestByReqAndResponder(target, player);
+                if (request == null) return;
 
-                            // Get the teleport request
-                            TeleportRequest request =
-                                    TeleportRequest.getRequestByReqAndResponder(target, player);
-                            if (request == null) return;
+                if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                    CustomMessages.sendMessage(sender, "Error.requestExpired",
+                            Placeholder.unparsed("player", target.getName()));
+                }
+                TeleportRequest.removeRequest(request);
+            }, requestLifetime * 20L);
 
-                            if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                                CustomMessages.sendMessage(
-                                        sender,
-                                        "Error.requestExpired",
-                                        Placeholder.unparsed("player", target.getName()));
-                            }
-                            TeleportRequest.removeRequest(request);
-                        }
-                    };
-            run.runTaskLater(CoreClass.getInstance(), requestLifetime * 20L); // 60 seconds
-            TeleportRequest request =
-                    new TeleportRequest(player, target, run, TeleportRequestType.TPA);
-            // Creates a new teleport request.
-            TeleportRequest.addRequest(request);
-            // If the cooldown is to be applied after request, apply it now
-            if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
-                CooldownManager.addToCooldown("tpa", player, target.getWorld());
-            }
+           TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPA);
+           // Creates a new teleport request.
+           TeleportRequest.addRequest(request);
+           // If the cooldown is to be applied after request, apply it now
+           if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("request")) {
+               CooldownManager.addToCooldown("tpa", player, target.getWorld());
+           }
         }
         return true;
     }

@@ -95,7 +95,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Build with Gradle
-        run: ./gradlew shadowJar
+        run: ./gradlew reobfJar
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
@@ -107,5 +107,5 @@ jobs:
         if: success()
         with:
           name: AdvancedTeleport
-          path: build/advancedteleport-bukkit/libs/AdvancedTeleport-Bukkit-*-all.jar
+          path: build/advancedteleport-bukkit/libs/AdvancedTeleport-Bukkit-*.jar
           if-no-files-found: error

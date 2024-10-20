@@ -12,6 +12,7 @@ import io.github.niestrat99.advancedteleport.api.events.players.PreviousLocation
 import io.github.niestrat99.advancedteleport.api.events.players.ToggleTeleportationEvent;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
@@ -20,6 +21,7 @@ import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
+import io.github.niestrat99.advancedteleport.utilities.NMSUtilities;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.papermc.lib.PaperLib;
 import io.papermc.paper.entity.TeleportFlag;
@@ -253,7 +255,7 @@ public class ATPlayer {
             }
 
             //
-            if (!flags.isEmpty()) {
+            if (!flags.isEmpty() && !RunnableManager.isFolia()) {
                 return CompletableFuture.completedFuture(
                         player.teleport(location, cause, flags.toArray(new TeleportFlag[0])));
             }
@@ -443,8 +445,12 @@ public class ATPlayer {
     @Contract(pure = true)
     public @NotNull ImmutableMap<String, Home> getHomes(boolean withBed) {
         final var map = homes.data == null ? new HashMap<String, Home>() : homes.data;
-        final var bedSpawn = getBedSpawn();
-        if (withBed && bedSpawn != null && MainConfig.get().ADD_BED_TO_HOMES.get()) map.put("bed", bedSpawn);
+
+        // Only include the bed if it's requested
+        if (withBed && MainConfig.get().ADD_BED_TO_HOMES.get()) {
+            final var bedSpawn = getBedSpawn();
+            if (bedSpawn != null) map.put("bed", getBedSpawn());
+        }
         return ImmutableMap.copyOf(map);
     }
 
@@ -607,7 +613,7 @@ public class ATPlayer {
 
                             if (home == null) return;
                             HomeSQLManager.get().removeHome(uuid, home.getName());
-                            
+
                 }, CoreClass.async);
     }
 
@@ -630,8 +636,8 @@ public class ATPlayer {
      */
     @Contract(pure = true)
     public @Nullable Home getBedSpawn() {
-        if (getOfflinePlayer().getBedSpawnLocation() != null) {
-            return new Home(uuid, "bed", getOfflinePlayer().getBedSpawnLocation(), -1, -1);
+        if (NMSUtilities.getRespawnLocation(getOfflinePlayer()) != null) {
+            return new Home(uuid, "bed", NMSUtilities.getRespawnLocation(getOfflinePlayer()), -1, -1);
         }
 
         return null;

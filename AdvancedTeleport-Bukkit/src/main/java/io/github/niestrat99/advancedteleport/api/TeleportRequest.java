@@ -2,9 +2,9 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.CancellableRunnable;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,10 +17,10 @@ import java.util.List;
  * @param responder The player receiving it.
  */
 public record TeleportRequest(
-        @NotNull Player requester,
-        @NotNull Player responder,
-        @NotNull BukkitRunnable timer,
-        @NotNull TeleportRequestType type) {
+    @NotNull Player requester,
+    @NotNull Player responder,
+    @NotNull CancellableRunnable timer,
+    @NotNull TeleportRequestType type) {
 
     private static final List<TeleportRequest> requestList = new ArrayList<>();
 

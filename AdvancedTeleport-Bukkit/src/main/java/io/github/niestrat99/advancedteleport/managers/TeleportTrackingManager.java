@@ -3,11 +3,12 @@ package io.github.niestrat99.advancedteleport.managers;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 
@@ -63,25 +64,22 @@ public class TeleportTrackingManager implements Listener {
     }
 
     private void spawn(Player player, Spawn spawn) {
-        Bukkit.getScheduler()
-                .runTaskLater(
-                        CoreClass.getInstance(),
-                        () ->
-                                ATPlayer.teleportWithOptions(
-                                                player,
-                                                spawn.getLocation(),
-                                                PlayerTeleportEvent.TeleportCause.PLUGIN)
-                                        .whenComplete(
-                                                (result, err) -> {
-                                                    if (!result)
-                                                        CoreClass.getInstance()
-                                                                .getLogger()
-                                                                .warning(
-                                                                        "Failed to teleport "
-                                                                                + player.getName()
-                                                                                + " on joining.");
-                                                }),
-                        10L);
+        RunnableManager.setupRunnerDelayed(t ->
+                        ATPlayer.teleportWithOptions(
+                                        player,
+                                        spawn.getLocation(),
+                                        PlayerTeleportEvent.TeleportCause.PLUGIN)
+                                .whenComplete(
+                                        (result, err) -> {
+                                            if (!result)
+                                                CoreClass.getInstance()
+                                                        .getLogger()
+                                                        .warning(
+                                                                "Failed to teleport "
+                                                                        + player.getName()
+                                                                        + " on joining.");
+                                        }),
+                10L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -127,6 +125,13 @@ public class TeleportTrackingManager implements Listener {
                     result,
                     Placeholder.unparsed("world", e.getToLocation().getWorld().getName()));
             e.setCancelled(true);
+        }
+
+        // Temporary fix for Folia - set the previous location
+        if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
+                && MainConfig.get().BACK_TELEPORT_CAUSES.get().contains("COMMAND")
+                && RunnableManager.isFolia()) {
+            ATPlayer.getPlayer(e.getPlayer()).setPreviousLocation(e.getFromLocation());
         }
     }
 

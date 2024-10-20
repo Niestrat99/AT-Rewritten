@@ -1,4 +1,5 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import xyz.jpenilla.runpaper.task.RunServer
 import java.io.BufferedReader
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -9,10 +10,11 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.modrinth.minotaur")
+    id("io.papermc.paperweight.userdev") version "1.5.5"
     alias(libMinix.plugins.kotlin.jvm)
     alias(libMinix.plugins.shadow)
-    alias(libMinix.plugins.minecraft.pluginYML)
-    alias(libMinix.plugins.minecraft.runPaper)
+    alias(libs.plugins.pluginYML)
+    alias(libs.plugins.runPaper)
     alias(libs.plugins.slimjar)
     alias(libs.plugins.hangar)
 }
@@ -87,7 +89,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
+    paperweight.foliaDevBundle("1.20.4-R0.1-SNAPSHOT")
+
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly(libs.folia)
 
     implementation(libs.slimjar)
 
@@ -126,6 +131,8 @@ dependencies {
     }
 }
 
+runPaper.folia.registerTask()
+
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])
@@ -137,26 +144,35 @@ tasks {
         options.encoding = "UTF-8"
     }
 
+    withType<RunServer>().getByName("runFolia") {
+        // Wait for slimJar to go through first
+        dependsOn(reobfJar)
+
+        // Set the version to 1.20.4
+        minecraftVersion("1.20.4")
+
+        runDirectory.set(rootDir.resolve(".run"))
+    }
+
     runServer {
 
         // Wait for slimJar to go through first
-        dependsOn(slimJar)
+        dependsOn(reobfJar)
 
-        // Set the version to 1.20.1
+        // Set the version to 1.20.4
         minecraftVersion("1.20.4")
 
         // Get the dev server folder
         val devServer = file(findProperty("devServer") ?: "${System.getProperty("user.home")}/Documents/Minecraft/Dev")
         val pluginsFolder = devServer.resolve("plugins")
         runDirectory.set(rootDir.resolve(".run"))
-        pluginJars(pluginsFolder.resolve("Vault.jar"))
-        pluginJars(pluginsFolder.resolve("Spark.jar"))
-        pluginJars(pluginsFolder.resolve("Spoofer.jar"))
-        pluginJars(pluginsFolder.resolve("squaremap.jar"))
-        pluginJars(pluginsFolder.resolve("PlayerParticles.jar"))
-        pluginJars(pluginsFolder.resolve("dynmap.jar"))
+        // pluginJars(pluginsFolder.resolve("Vault.jar"))
+        // pluginJars(pluginsFolder.resolve("Spark.jar"))
+        // pluginJars(pluginsFolder.resolve("Spoofer.jar"))
+        // pluginJars(pluginsFolder.resolve("squaremap.jar"))
+        // pluginJars(pluginsFolder.resolve("PlayerParticles.jar"))
+        // pluginJars(pluginsFolder.resolve("dynmap.jar"))
         pluginJars(getJarFile())
-
     }
 
     withType<ProcessResources> {
@@ -193,6 +209,10 @@ tasks {
     this.modrinth {
         dependsOn(shadowJar)
     }
+}
+
+tasks.shadowJar {
+    from(tasks.slimJar.get().outputDirectory)
 }
 
 // Lead development use only.
@@ -249,6 +269,8 @@ bukkit {
     apiVersion = "1.16"
     main = "io.github.niestrat99.advancedteleport.CoreClass"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
+
+    foliaSupported = true
 
     softDepend = listOf("Vault", "Ultimate_Economy", "ConfigurationMaster", "WorldBorder", "ChunkyBorder", "floodgate", "Lands", "WorldGuard", "GriefProtection", "dynmap", "squaremap", "PlayerParticles")
     loadBefore = listOf("Essentials", "EssentialsSpawn")
