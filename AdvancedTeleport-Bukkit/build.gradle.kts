@@ -9,10 +9,10 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.modrinth.minotaur")
-    alias(libMinix.plugins.kotlin.jvm)
-    alias(libMinix.plugins.shadow)
-    alias(libMinix.plugins.minecraft.pluginYML)
-    alias(libMinix.plugins.minecraft.runPaper)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.minecraft.pluginYML)
+    alias(libs.plugins.minecraft.runPaper)
     alias(libs.plugins.slimjar)
     alias(libs.plugins.hangar)
 }
@@ -26,6 +26,10 @@ slimJar {
 }
 
 repositories {
+
+    maven("https://repo.bsdevelopment.org/releases") {
+        name = "Slimjar"
+    }
 
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") {
         name = "Spigot"
@@ -45,11 +49,6 @@ repositories {
 
     maven("https://ci.pluginwiki.us/plugin/repository/everything/") {
         name = "ConfigurationMaster"
-    }
-
-    maven("https://repo.racci.dev/releases") {
-        name = "RacciRepo"
-        mavenContent { releasesOnly() }
     }
 
     maven("https://repo.essentialsx.net/releases/") {
@@ -89,37 +88,30 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
 
-    implementation(libs.slimjar)
+    implementation(libs.hook.slimjar)
 
-    slim(libMinix.bundles.kotlin)
-    slim(libMinix.adventure.api)
-    slim(libMinix.adventure.minimessage)
-    slim(libMinix.adventure.platform.bukkit)
-    slim(libMinix.minecraft.bstats.bukkit)
+    slim(libs.bundles.kotlin)
+    slim(libs.bundles.adventure)
+    slim(libs.adventure.platform.bukkit)
+    slim(libs.bstats.bukkit)
     slim(libs.paperlib)
-    slim(libs.kyori.nbt)
     slim(libs.kyori.examination)
     slim(libs.configuration)
 
-    slim(libs.paperlib)
-    slim(libs.kyori.nbt)
-    slim(libs.kyori.examination)
-    slim(libs.configuration)
-
-    compileOnly(libMinix.minecraft.authLib)
     compileOnly(libs.annotations)
-    compileOnly(libs.vault)
-    compileOnly(libs.essentials)
-    compileOnly(libs.essentials.spawn)
-    compileOnly(libs.worldborder)
-    compileOnly(libs.chunkyborder)
-    compileOnly(libs.floodgate)
-    compileOnly(libMinix.minecraft.api.landsAPI)
-    compileOnly(libs.griefprevention)
-    compileOnly(libs.playerparticles)
-    compileOnly(libs.worldguard)
-    compileOnly(libs.squaremap)
-    compileOnly(libs.dynmap) {
+    compileOnly(libs.hook.authlib)
+    compileOnly(libs.hook.vault)
+    compileOnly(libs.hook.essentials)
+    compileOnly(libs.hook.essentials.spawn)
+    compileOnly(libs.hook.worldborder)
+    compileOnly(libs.hook.chunkyborder)
+    compileOnly(libs.hook.floodgate)
+    compileOnly(libs.hook.lands)
+    compileOnly(libs.hook.griefprevention)
+    compileOnly(libs.hook.playerparticles)
+    compileOnly(libs.hook.worldguard)
+    compileOnly(libs.hook.squaremap)
+    compileOnly(libs.hook.dynmap) {
         artifact { // Uses wrong jar if not specified
             name = "dynmap-api"
         }
@@ -183,7 +175,7 @@ tasks {
     }
 
     this.slimJar {
-        dependsOn(inspectClassesForKotlinIC)
+        // dependsOn(inspectClassesForKotlinIC)
     }
 
     shadowJar {

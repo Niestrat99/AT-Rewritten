@@ -1,47 +1,72 @@
 [versions]
 paperlib = "1.0.7"
-kyori-adventure = "4.15.0"
-kyori-examination = "1.3.0"
+adventure = "4.15.0"
+adventure-platform = "4.2.0"
+examination = "1.3.0"
 configuration = "v2.0.0-rc.2"
 annotations = "23.0"
+authlib = "2.3.31"
+bstats = "3.0.0"
+kotlin = "2.0.20"
+
 vault = "1.7"
 essentials = "2.18.2"
 essentials-spawn = "2.16.1"
 worldborder = "v2.1.2"
 chunkyborder = "52034550ef"
-authlib = "2.3.31"
 floodgate = "2.2.2-SNAPSHOT"
-lands = "6.0.2"
+lands = "6.26.18"
 griefprevention = "16.18"
 playerparticles = "8.2"
 worldguard = "7.0.7"
 squaremap = "1.1.3"
 dynmap = "3.4"
-playerParticles = "8.3"
+
 hangar = "0.0.5"
-slimjar = "1.6.1"
+slimjar = "1.6.0"
+shadow = "7.1.2"
+pluginYML = "0.6.0"
 
 [libraries]
 paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
-kyori-nbt = { module = "net.kyori:adventure-nbt", version.ref = "kyori-adventure" }
-kyori-examination = { module = "net.kyori:examination-api", version.ref = "kyori-examination" }
 configuration = { module = "com.github.thatsmusic99:ConfigurationMaster-API", version.ref = "configuration" }
 annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
-vault = { module = "net.milkbowl.vault:VaultAPI", version.ref = "vault" }
-essentials = { module = "net.ess3:EssentialsX", version.ref = "essentials" }
-essentials-spawn = { module = "net.ess3:EssentialsXSpawn", version.ref = "essentials-spawn" }
-worldborder = { module = "com.github.PryPurity:WorldBorder", version.ref = "worldborder" }
-chunkyborder = { module = "com.github.pop4959:ChunkyBorder", version.ref = "chunkyborder" }
-authlib = { module = "com.mojang:authlib", version.ref = "authlib" }
-floodgate = { module = "org.geysermc.floodgate:api", version.ref = "floodgate" }
-lands = { module = "com.github.angeschossen:LandsAPI", version.ref = "lands" }
-griefprevention = { module = "com.github.TechFortress:GriefPrevention", version.ref = "griefprevention" }
-playerparticles = { module = "dev.esophose:playerparticles", version.ref = "playerparticles" }
-worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
-squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
-dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
-slimjar = { module = "dev.racci.slimjar:slimjar", version.ref = "slimjar" }
+
+adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+adventure-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+adventure-nbt = { module = "net.kyori:adventure-nbt", version.ref = "adventure" }
+adventure-platform-bukkit = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platform" }
+bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+kyori-examination = { module = "net.kyori:examination-api", version.ref = "examination" }
+
+hook-vault = { module = "net.milkbowl.vault:VaultAPI", version.ref = "vault" }
+hook-essentials = { module = "net.ess3:EssentialsX", version.ref = "essentials" }
+hook-essentials-spawn = { module = "net.ess3:EssentialsXSpawn", version.ref = "essentials-spawn" }
+hook-worldborder = { module = "com.github.PryPurity:WorldBorder", version.ref = "worldborder" }
+hook-chunkyborder = { module = "com.github.pop4959:ChunkyBorder", version.ref = "chunkyborder" }
+hook-authlib = { module = "com.mojang:authlib", version.ref = "authlib" }
+hook-floodgate = { module = "org.geysermc.floodgate:api", version.ref = "floodgate" }
+hook-lands = { module = "com.github.angeschossen:LandsAPI", version.ref = "lands" }
+hook-griefprevention = { module = "com.github.TechFortress:GriefPrevention", version.ref = "griefprevention" }
+hook-playerparticles = { module = "dev.esophose:playerparticles", version.ref = "playerparticles" }
+hook-worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
+hook-squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
+hook-dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
+hook-slimjar = { module = "dev.racci.slimjar:slimjar", version.ref = "slimjar" }
+
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 
 [plugins]
 hangar = { id = "io.papermc.hangar-publish-plugin", version.ref = "hangar" }
 slimjar = { id = "dev.racci.slimjar", version.ref = "slimjar" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+
+minecraft-pluginYML = { id = "net.minecrell.plugin-yml.bukkit", version.ref = "pluginYML" }
+minecraft-runPaper = "xyz.jpenilla.run-paper:2.1.0"
+
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+
+[bundles]
+adventure = ["adventure-api", "adventure-minimessage", "adventure-nbt"]
+kotlin = ["kotlin-stdlib", "kotlin-reflect"]
