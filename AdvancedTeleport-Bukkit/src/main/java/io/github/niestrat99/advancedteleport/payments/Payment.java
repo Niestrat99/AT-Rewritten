@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.payments;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import org.bukkit.entity.Player;
 
 /** Used to represent a form of payment that may be made when the player teleports. */
@@ -44,7 +45,11 @@ public abstract class Payment {
      */
     public boolean canPay(Player player) {
         if (getPaymentAmount() == 0) return true;
-        return getPlayerAmount(player) >= getPaymentAmount();
+        double paymentAmount = getPlayerAmount(player);
+        CoreClass.debug("Player " + player + " has payment amount of " + paymentAmount + " for "
+                + this.getClass().getSimpleName() + " - requires " + getPaymentAmount());
+
+        return paymentAmount >= getPaymentAmount();
     }
 
     /**

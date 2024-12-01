@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.payments.types;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.payments.Payment;
 

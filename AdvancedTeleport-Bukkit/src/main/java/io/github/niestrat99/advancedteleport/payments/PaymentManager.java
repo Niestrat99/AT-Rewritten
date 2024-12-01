@@ -157,9 +157,14 @@ public class PaymentManager {
 
     // Method used to check if a player can pay for using a command
     public boolean canPay(String command, Player player, World toWorld) {
-        if (player.hasPermission("at.admin.bypass.payment")) return true;
+        CoreClass.debug("Verifying that " + player.getName() + " can pay to run " + command + " into " + toWorld.getName());
+        if (player.hasPermission("at.admin.bypass.payment")) {
+            CoreClass.debug(player.getName() + " has at.admin.bypass.payment - not checking payments.");
+            return true;
+        }
         for (Payment payment : getPayments(command, player, toWorld).values()) {
             if (!payment.canPay(player)) {
+                CoreClass.debug(player.getName() + " failed to afford payment " + payment.getId() + ".");
                 return false;
             }
         }
