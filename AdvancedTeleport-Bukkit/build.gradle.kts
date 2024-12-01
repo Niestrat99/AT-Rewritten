@@ -175,7 +175,7 @@ tasks {
     }
 
     this.slimJar {
-        // dependsOn(inspectClassesForKotlinIC)
+        dependsOn(sourcesJar)
     }
 
     shadowJar {
