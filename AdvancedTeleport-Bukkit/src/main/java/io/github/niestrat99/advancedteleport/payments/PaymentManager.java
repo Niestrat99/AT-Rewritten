@@ -48,7 +48,11 @@ public class PaymentManager {
         for (String rawPayment : rawPayments) {
             try {
                 Payment payment = parsePayment(rawPayment);
-                if (payment == null) continue;
+                if (payment == null) {
+                    CoreClass.debug("Payment " + rawPayment + " did not have a payment formed.");
+                    continue;
+                }
+                CoreClass.debug("Payment " + rawPayment + " for " + command + " was parsed as a " + payment.getClass().getSimpleName());
                 addPayment(payment.getId(), payment, payments);
             } catch (Exception | NoClassDefFoundError e) {
                 CoreClass.getInstance()
