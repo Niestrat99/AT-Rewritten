@@ -6,8 +6,8 @@ import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUIConfig;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 import io.github.niestrat99.advancedteleport.utilities.IconMenu;
+import io.github.niestrat99.advancedteleport.utilities.PermissionUtil;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 
 import net.kyori.adventure.text.Component;
@@ -133,7 +133,7 @@ public final class WarpsCommand extends ATCommand {
                                     AdvancedTeleportAPI.getWarps().values().stream()
                                             .filter(
                                                     warp ->
-                                                            ExPermission.hasPermissionOrStar(
+                                                            PermissionUtil.hasPermissionOrStar(
                                                                     sender,
                                                                     "at.member.warp."
                                                                             + warp.getName()

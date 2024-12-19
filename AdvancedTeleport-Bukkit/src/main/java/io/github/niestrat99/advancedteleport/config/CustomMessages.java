@@ -7,10 +7,10 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.NamedLocation;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
-import io.github.niestrat99.advancedteleport.data.PartialComponent;
-import io.github.niestrat99.advancedteleport.extensions.ExPermission;
+import io.github.niestrat99.advancedteleport.utilities.minimessage.PartialComponent;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
+import io.github.niestrat99.advancedteleport.utilities.PermissionUtil;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.impl.CMConfigSection;
 import io.papermc.lib.PaperLib;
@@ -847,7 +847,7 @@ public final class CustomMessages extends ATConfig {
         if (partial == null) return Component.empty();
 
         if (placeholders == null || placeholders.length == 0) {
-            return partial.getValue();
+            return partial.get();
         }
 
         return partial.get(placeholders);
@@ -1120,7 +1120,7 @@ public final class CustomMessages extends ATConfig {
                                         Placeholder.unparsed("home", location.getName()),
                                         Placeholder.unparsed("warp", location.getName())));
 
-        if (ExPermission.hasPermissionOrStar(sender, "at.member." + path + ".location")) {
+        if (PermissionUtil.hasPermissionOrStar(sender, "at.member." + path + ".location")) {
             tooltipBuilder.append(
                     CustomMessages.get(
                             "Tooltip.location",

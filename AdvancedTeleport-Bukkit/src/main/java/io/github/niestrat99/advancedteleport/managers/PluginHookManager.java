@@ -2,7 +2,6 @@ package io.github.niestrat99.advancedteleport.managers;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.extensions.ExCast;
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
@@ -36,7 +35,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("rawtypes")
 public final class PluginHookManager {
-    private HashMap<String, ? extends PluginHook> activePluginHooks;
+    private HashMap<String, PluginHook> activePluginHooks;
     private static PluginHookManager instance;
 
     public PluginHookManager() {
@@ -113,15 +112,12 @@ public final class PluginHookManager {
         return clazz.cast(plugin);
     }
 
-    private <T extends PluginHook> void loadPlugin(
-            @NotNull final String name, @NotNull final Class<? extends T> clazz) {
+    private void loadPlugin(
+            @NotNull final String name, @NotNull final Class<? extends PluginHook> clazz) {
         try {
             activePluginHooks.put(
                     name,
-                    ExCast.cast(
-                            clazz.getConstructor()
-                                    .newInstance())); // Honestly couldn't be arsed to fight java on
-                                                      // this one.
+                    clazz.getConstructor().newInstance());
         } catch (NoSuchMethodException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException

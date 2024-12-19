@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.Nullable;
 
 public class Pair<S, T> {
@@ -12,6 +13,7 @@ public class Pair<S, T> {
         this.t = t;
     }
 
+    @Subst("")
     public S fst() {
         return this.s;
     }

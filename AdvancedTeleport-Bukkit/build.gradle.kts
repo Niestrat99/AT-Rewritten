@@ -9,7 +9,6 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.modrinth.minotaur")
-    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.shadow)
     alias(libs.plugins.minecraft.pluginYML)
     alias(libs.plugins.minecraft.runPaper)
@@ -90,7 +89,6 @@ dependencies {
 
     implementation(libs.hook.slimjar)
 
-    slim(libs.bundles.kotlin)
     slim(libs.bundles.adventure)
     slim(libs.adventure.platform.bukkit)
     slim(libs.bstats.bukkit)

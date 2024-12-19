@@ -7,7 +7,6 @@ configuration = "v2.0.0-rc.2"
 annotations = "23.0"
 authlib = "2.3.31"
 bstats = "3.0.0"
-kotlin = "2.0.20"
 
 vault = "1.7"
 essentials = "2.18.2"
@@ -54,9 +53,6 @@ hook-squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squarem
 hook-dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
 hook-slimjar = { module = "dev.racci.slimjar:slimjar", version.ref = "slimjar" }
 
-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-
 [plugins]
 hangar = { id = "io.papermc.hangar-publish-plugin", version.ref = "hangar" }
 slimjar = { id = "dev.racci.slimjar", version.ref = "slimjar" }
@@ -65,8 +61,5 @@ shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 minecraft-pluginYML = { id = "net.minecrell.plugin-yml.bukkit", version.ref = "pluginYML" }
 minecraft-runPaper = "xyz.jpenilla.run-paper:2.1.0"
 
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-
 [bundles]
 adventure = ["adventure-api", "adventure-minimessage", "adventure-nbt"]
-kotlin = ["kotlin-stdlib", "kotlin-reflect"]

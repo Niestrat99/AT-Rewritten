@@ -8,8 +8,8 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 
+import io.github.niestrat99.advancedteleport.utilities.PermissionUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
@@ -117,7 +117,7 @@ public final class HomesCommand extends AbstractHomeCommand {
                 homes.stream().map(home ->
                                 new Object[] {home,
                                         atPlayer.canAccessHome(home)
-                                                || ExPermission
+                                                || PermissionUtil
                                                 .hasPermissionOrStar(
                                                         sender,
                                                         "at.admin.homes")
