@@ -34,8 +34,8 @@ repositories {
         name = "Spigot"
     }
 
-    maven("https://papermc.io/repo/repository/maven-public/") {
-        name = "Paper and PaperLib"
+    maven("https://repo.papermc.io/repository/maven-public/") {
+        name = "Paper, PaperLib and Adventure"
     }
 
     maven("https://repo.codemc.io/repository/maven-public/") {
@@ -52,6 +52,9 @@ repositories {
 
     maven("https://repo.essentialsx.net/releases/") {
         name = "Essentials"
+        content {
+            includeGroup("net.ess3")
+        }
     }
 
     maven("https://repo.opencollab.dev/main/") {
@@ -62,12 +65,14 @@ repositories {
         name = "authlib maybe"
     }
 
-    maven("https://repo.maven.apache.org/maven2/") {
-        name = "Adventure"
-    }
-
     maven("https://maven.enginehub.org/repo/") {
         name = "Sk89q"
+        content {
+            includeGroup("com.sk89q.worldguard")
+            includeGroup("com.sk89q.worldedit")
+            includeGroup("com.sk89q.worldguard.worldguard-libs")
+            includeGroup("com.sk89q.worldedit.worldedit-libs")
+        }
     }
 
     maven("https://repo.jpenilla.xyz/snapshots/") {
