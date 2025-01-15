@@ -1096,8 +1096,10 @@ public class ATPlayer {
     public static void relog(@NotNull Player player) {
 
         // If the player is cached, just return it
-        if (players.containsKey(player.getName())) {
-            players.get(player.getName()).player = new WeakReference<>(player);
+        if (players.containsKey(player.getName().toLowerCase())) {
+            final ATPlayer currentPlayer = players.get(player.getName().toLowerCase());
+            currentPlayer.player = new WeakReference<>(player);
+            currentPlayer.uuid = player.getUniqueId();
             return;
         }
 
