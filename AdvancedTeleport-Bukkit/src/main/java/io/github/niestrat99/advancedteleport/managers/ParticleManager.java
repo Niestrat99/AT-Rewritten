@@ -29,7 +29,6 @@ public final class ParticleManager {
         final var particle = MainConfig.get().TELEPORT_PARTICLES.valueOf(command).get();
         if (particle.equals("spark")) {
             doSpark(player.getLocation());
-            return;
         }
 
         PluginHookManager.get()

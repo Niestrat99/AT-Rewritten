@@ -203,7 +203,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
                         () -> Material.getMaterial(data));
         OrdinaryColor ordinaryColor =
                 getNote(
-                        data,
+                        parts[2],
                         effect,
                         OrdinaryColor.RAINBOW,
                         OrdinaryColor.RANDOM,
@@ -215,7 +215,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
 
         NoteColor noteColor =
                 getNote(
-                        data,
+                        parts[2],
                         effect,
                         NoteColor.RAINBOW,
                         NoteColor.RANDOM,
@@ -248,6 +248,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
 
         PPlayer pPlayer = api.getPPlayer(player);
         if (pPlayer == null) return null;
+
         // Get the particle
         return new ParticlePair(
                 player.getUniqueId(),
@@ -263,7 +264,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
     }
 
     private <T> @Nullable T get(final boolean condition, @NotNull Supplier<T> supplier) {
-        if (condition) supplier.get();
+        if (condition) return supplier.get();
         return null;
     }
 
@@ -274,8 +275,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
             @NotNull final T random,
             @NotNull final Supplier<T> base) {
         return get(
-                effect.getDataType().equals(ParticleEffect.ParticleDataType.COLORABLE)
-                        && effect != ParticleEffect.NOTE,
+                effect.getDataType().equals(ParticleEffect.ParticleDataType.COLORABLE),
                 () ->
                         data.equals("rainbow")
                                 ? rainbow
