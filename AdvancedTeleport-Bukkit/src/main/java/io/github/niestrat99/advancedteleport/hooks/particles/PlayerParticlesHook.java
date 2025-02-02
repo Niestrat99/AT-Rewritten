@@ -128,7 +128,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
         if (pair.getEffect() == ParticleEffect.ITEM) return pair.getItemMaterial().name();
 
         // If the effect is colourable, get the colour of that
-        if (pair.getEffect().hasProperty(ParticleEffect.ParticleProperty.COLORABLE)) {
+        if (pair.getEffect().getDataType().equals(ParticleEffect.ParticleDataType.COLORABLE)) {
             if (pair.getEffect() == ParticleEffect.NOTE) {
                 return parseColour(
                         pair.getNoteColor(),
@@ -149,7 +149,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
         }
 
         // If the effect transitions between colours, get the values of that
-        if (pair.getEffect().hasProperty(ParticleEffect.ParticleProperty.COLORABLE_TRANSITION)) {
+        if (pair.getEffect().getDataType().equals(ParticleEffect.ParticleDataType.COLORABLE_TRANSITION)) {
             String start =
                     parseColour(
                             pair.getColorTransition().getStartColor(),
@@ -172,7 +172,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
                                     + pair.getColor().getBlue());
 
             return start + ">" + end;
-        } else if (pair.getEffect().hasProperty(ParticleEffect.ParticleProperty.VIBRATION)) {
+        } else if (pair.getEffect().getDataType().equals(ParticleEffect.ParticleDataType.VIBRATION)) {
             return String.valueOf(pair.getVibration().getDuration());
         } else {
             return "null";
@@ -223,11 +223,11 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
 
         Vibration vibration =
                 get(
-                        effect.hasProperty(ParticleEffect.ParticleProperty.VIBRATION),
+                        effect.getDataType().equals(ParticleEffect.ParticleDataType.VIBRATION),
                         () -> new Vibration(Integer.parseInt(data)));
         ColorTransition colorTransition =
                 get(
-                        effect.hasProperty(ParticleEffect.ParticleProperty.COLORABLE_TRANSITION),
+                        effect.getDataType().equals(ParticleEffect.ParticleDataType.COLORABLE_TRANSITION),
                         () -> {
                             String[] startAndEnd = data.split(">");
                             String[] startRaw = startAndEnd[0].split(" ");
@@ -274,7 +274,7 @@ public final class PlayerParticlesHook extends ParticlesPlugin<PlayerParticles, 
             @NotNull final T random,
             @NotNull final Supplier<T> base) {
         return get(
-                effect.hasProperty(ParticleEffect.ParticleProperty.COLORABLE)
+                effect.getDataType().equals(ParticleEffect.ParticleDataType.COLORABLE)
                         && effect != ParticleEffect.NOTE,
                 () ->
                         data.equals("rainbow")
