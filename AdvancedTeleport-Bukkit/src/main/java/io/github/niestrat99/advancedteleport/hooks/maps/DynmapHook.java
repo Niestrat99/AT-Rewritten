@@ -26,9 +26,9 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
 
     private MarkerAPI markerAPI;
 
-    private MarkerSet warpsMarker;
-    private MarkerSet homesMarker;
-    private MarkerSet spawnsMarker;
+    private @Nullable MarkerSet warpsMarker;
+    private @Nullable MarkerSet homesMarker;
+    private @Nullable MarkerSet spawnsMarker;
 
     private HashMap<String, MarkerIcon> icons;
 
@@ -181,10 +181,11 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     private void moveMarker(
             @NotNull final String name,
             @NotNull final String displayName,
-            @NotNull final MarkerSet set,
+            @Nullable final MarkerSet set,
             @NotNull final MapAssetManager.IconType type,
             @Nullable final UUID owner,
             @NotNull final Location location) {
+        if (set == null) return;
         removeMarker(name, set);
         addMarker(name, displayName, type, owner, set, location);
     }
@@ -201,6 +202,8 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
                         + type.name().toLowerCase()
                         + "_"
                         + (type == MapAssetManager.IconType.HOME ? owner + "_" + id : id);
+
+        if (set == null) return;
 
         // Try to get the existing marker
         Marker marker = set.findMarker(name);
