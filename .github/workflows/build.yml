@@ -105,7 +105,7 @@ jobs:
         category: "/language:${{matrix.language}}"
         
     - name: Archive Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: success()
       with:
         name: AdvancedTeleport
