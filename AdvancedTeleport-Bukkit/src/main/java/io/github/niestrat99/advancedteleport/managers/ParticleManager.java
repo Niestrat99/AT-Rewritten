@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.managers;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 
 import org.bukkit.*;
@@ -53,11 +53,11 @@ public final class ParticleManager {
         final var particle = particlesOption.valueOf(command).get();
         if (particle.equals("spark")) {
             doSpark(player.getLocation());
-            return;
         }
 
+        // TODO - fix teleporting particles on main branch
         applyParticles(player, command);
-        Bukkit.getServer().getScheduler().runTask(CoreClass.getInstance(), () -> removeParticles(player, command));
+        RunnableManager.setupRunner(player, () -> removeParticles(player, command), () -> {});
     }
 
     public static @Nullable String getData(@NotNull final Player player) {

@@ -188,7 +188,8 @@ public class ATPlayer {
                     Placeholder.unparsed("home", event.getLocName()),
                     Placeholder.unparsed("warp", event.getLocName()));
         } else {
-            ParticleManager.onPreTeleport(player, command);
+
+            RunnableManager.setupRunner(this.getPlayer(), () -> ParticleManager.onPreTeleport(player, command), () -> {});
 
             //
             teleportWithOptions(
