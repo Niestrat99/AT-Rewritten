@@ -58,7 +58,6 @@ hook-slimjar = { module = "dev.racci.slimjar:slimjar", version.ref = "slimjar" }
 
 folia = { module = "dev.folia:folia-api", version.ref = "folia" }
 
-
 [plugins]
 hangar = { id = "io.papermc.hangar-publish-plugin", version.ref = "hangar" }
 slimjar = { id = "dev.racci.slimjar", version.ref = "slimjar" }
