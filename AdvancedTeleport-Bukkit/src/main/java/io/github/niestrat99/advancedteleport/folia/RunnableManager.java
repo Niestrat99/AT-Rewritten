@@ -33,6 +33,7 @@ public class RunnableManager {
     }
 
     public static CancellableRunnable setupRunnerDelayed(Consumer<CancellableRunnable> runnable, long delay) {
+        if (delay == 0) return setupRunner(runnable);
 
         return run(runnable,
                 (run) -> Bukkit.getScheduler().runTaskLater(CoreClass.getInstance(), run::start, delay),
@@ -40,6 +41,7 @@ public class RunnableManager {
     }
 
     public static CancellableRunnable setupRunnerDelayedAsync(Consumer<CancellableRunnable> runnable, long delay) {
+        if (delay == 0) return setupRunnerAsync(runnable);
 
         return run(runnable,
                 (run) -> Bukkit.getScheduler().runTaskLaterAsynchronously(CoreClass.getInstance(), run::start, delay),
