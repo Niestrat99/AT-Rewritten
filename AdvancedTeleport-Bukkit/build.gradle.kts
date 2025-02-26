@@ -46,7 +46,7 @@ repositories {
         name = "WorldBorder and Chunky"
     }
 
-    maven("https://ci.pluginwiki.us/plugin/repository/everything/") {
+    maven("https://repo.bsdevelopment.org/releases/") {
         name = "ConfigurationMaster"
     }
 
