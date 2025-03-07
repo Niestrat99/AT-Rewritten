@@ -38,7 +38,8 @@ public final class LandsClaimHook
     @Override
     @Contract(pure = true)
     public boolean isClaimed(@NotNull final Location location) {
-        final var chunk = location.getChunk();
-        return lands.getLandByChunk(chunk.getWorld(), chunk.getX(), chunk.getZ()) != null;
+        return lands.getLandByChunk(location.getWorld(),
+                Math.floorDiv(location.getBlockX(), 16),
+                Math.floorDiv(location.getBlockZ(), 16)) != null;
     }
 }
