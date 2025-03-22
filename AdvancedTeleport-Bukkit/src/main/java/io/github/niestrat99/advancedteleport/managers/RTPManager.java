@@ -156,7 +156,7 @@ public class RTPManager {
                     if (RunnableManager.isFolia()) {
 
                         // Let it do what it needs to do and wait on it.
-                        return CompletableFuture.supplyAsync(() -> {
+                        Location loc = CompletableFuture.supplyAsync(() -> {
 
                             // Get the block
                             Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : world.getHighestBlockAt(coords[0], coords[1]);
@@ -165,11 +165,12 @@ public class RTPManager {
                             return isValidLocation(block) ? block.getLocation().add(0.5, 1, 0.5) : null;
 
                         }, task -> Bukkit.getRegionScheduler().execute(CoreClass.getInstance(), world, coords[0] >> 4, coords[1] >> 4, task)).get();
+
+                        if (loc != null) return loc;
+                    } else {
+                        Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : world.getHighestBlockAt(coords[0], coords[1]);
+                        if (isValidLocation(block)) return block.getLocation().add(0.5, 1, 0.5);
                     }
-
-                    Block block = world.getEnvironment().equals(World.Environment.NETHER) ? doBinaryJump(world, coords) : world.getHighestBlockAt(coords[0], coords[1]);
-                    if (isValidLocation(block)) return block.getLocation().add(0.5, 1, 0.5);
-
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
