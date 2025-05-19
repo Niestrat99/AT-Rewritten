@@ -14,8 +14,6 @@ name: "Build"
 on:
   push:
     branches: [ "v6" ]
-  schedule:
-    - cron: '38 18 * * 1'
 
 jobs:
   check:
