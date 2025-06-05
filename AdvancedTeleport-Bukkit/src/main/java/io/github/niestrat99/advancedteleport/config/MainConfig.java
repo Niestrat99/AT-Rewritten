@@ -113,6 +113,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> RETAIN_VEHICLES;
     public ConfigOption<Boolean> RETAIN_LIVING_ONLY;
     public ConfigOption<Boolean> TELEPORT_ON_SIGN_SIDE;
+    public ConfigOption<List<String>> DEATHCAUSE_BLACKLIST;
 
     /** */
     public MainConfig() throws Exception {
@@ -702,6 +703,15 @@ public final class MainConfig extends ATConfig {
                 If a player teleports from an unsafe location and uses /back to return to it, the plugin will search all blocks within this radius to see if it is a safe place for the player to be moved to.
                 It is recommend to avoid setting this option too high as this can have a worst case execution time of O(n^3) (e.g. run 27 times, 64, 125, 216 and so on).
                 To disable, either set to 0 or -1.""");
+        addDefault(
+                "deathcause-blacklist",
+                new ArrayList<>(),
+                """
+        If a player dies through a blacklisted death cause then it won't be able to teleport back to it's location of death.
+        Each death cause has to be written in all caps.
+        List of death causes: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html
+        """
+        );
 
         addSection("Map Plugin Integration");
         addComment(
@@ -1100,6 +1110,7 @@ public final class MainConfig extends ATConfig {
 
         BACK_TELEPORT_CAUSES = new ConfigOption<>("used-teleport-causes");
         BACK_SEARCH_RADIUS = new ConfigOption<>("back-search-radius");
+        DEATHCAUSE_BLACKLIST = new ConfigOption<>("deathcause-blacklist");
 
         MAP_HOMES = new MapOptions("homes");
         MAP_SPAWNS = new MapOptions("spawns");
