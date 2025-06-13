@@ -101,9 +101,13 @@ public class TeleportTrackingManager implements Listener {
             return;
         }
 
+        CoreClass.debug("Testing to see if " + e.getPlayer().getName() + " can have their location changed via a " + e.getCause().name() + " teleport...");
+
         // If the player can /back to this location, then set their previous location to it
         if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
                 && MainConfig.get().BACK_TELEPORT_CAUSES.get().contains(e.getCause().name())) {
+
+            CoreClass.debug(e.getPlayer().getName() + "'s back location has been updated to " + CoreClass.getShortLocation(e.getFrom()));
             ATPlayer.getPlayer(e.getPlayer()).setPreviousLocation(e.getFrom());
         }
     }
@@ -137,8 +141,13 @@ public class TeleportTrackingManager implements Listener {
         if (e.getEntity().hasMetadata("NPC")) return;
 
         // If the player can have their death location set, then set it
+
+        CoreClass.debug("Testing to see if " + e.getEntity().getName() + " can have their location changed via death...");
+
         if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
                 && e.getEntity().hasPermission("at.member.back.death")) {
+
+            CoreClass.debug(e.getEntity().getName() + "'s back (death) location has been updated to " + CoreClass.getShortLocation(e.getEntity().getLocation()));
             ATPlayer.getPlayer(e.getEntity()).setPreviousLocation(e.getEntity().getLocation());
         }
     }
