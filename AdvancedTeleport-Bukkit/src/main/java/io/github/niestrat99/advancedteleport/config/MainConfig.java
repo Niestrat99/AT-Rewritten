@@ -43,9 +43,16 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
     public ConfigOption<ConfigSection> CUSTOM_COSTS;
+
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
     public PerCommandOption<String> WAITING_PARTICLES;
+
+    public PerCommandOption<Object> COMMANDS_ON_WARM_UP;
+    public PerCommandOption<Object> COMMANDS_ON_TELEPORT;
+    public PerCommandOption<Object> COMMANDS_ON_COOLDOWN_EXPIRE;
+    public PerCommandOption<Object> COMMANDS_ON_CANCEL;
+
     public ConfigOption<Boolean> USE_MYSQL;
     public ConfigOption<String> MYSQL_HOST;
     public ConfigOption<Integer> MYSQL_PORT;
@@ -209,14 +216,8 @@ public final class MainConfig extends ATConfig {
                 "Whether the plugin should check for change in exact X, Y and Z vs. block X, Y, Z.\n" +
                         "By default, the player will have to cross into a new block (e.g. 60x 60y 60z -> 61x 60y 60z) to cancel the teleportation.");
 
-        addComment("per-command-warm-ups", "Command-specific warm-ups.");
-        addDefault("per-command-warm-ups.tpa", "default", "Warm-up timer for /tpa.");
-        addDefault("per-command-warm-ups.tpahere", "default", "Warm-up timer for /tpahere");
-        addDefault("per-command-warm-ups.tpr", "default", "Warm-up timer for /tpr, or /rtp.");
-        addDefault("per-command-warm-ups.warp", "default", "Warm-up timer for /warp");
-        addDefault("per-command-warm-ups.spawn", "default", "Warm-up timer for /spawn");
-        addDefault("per-command-warm-ups.home", "default", "Warm-up timer for /home");
-        addDefault("per-command-warm-ups.back", "default", "Warm-up timer for /back");
+        addCommandDefaults("per-command-warm-ups", "Command-specific warm-ups.");
+
         addComment(
                 """
                 Use this section to create custom warm-ups per-group.
@@ -270,14 +271,7 @@ public final class MainConfig extends ATConfig {
                 cooldown for /tpall always starts when the command is ran, regardless if any player accepts or teleports\
                 """);
 
-        addComment("per-command-cooldowns", "Command-specific cooldowns.");
-        addDefault("per-command-cooldowns.tpa", "default", "Cooldown for /tpa.");
-        addDefault("per-command-cooldowns.tpahere", "default", "Cooldown for /tpahere");
-        addDefault("per-command-cooldowns.tpr", "default", "Cooldown for /tpr, or /rtp.");
-        addDefault("per-command-cooldowns.warp", "default", "Cooldown for /warp");
-        addDefault("per-command-cooldowns.spawn", "default", "Cooldown for /spawn");
-        addDefault("per-command-cooldowns.home", "default", "Cooldown for /home");
-        addDefault("per-command-cooldowns.back", "default", "Cooldown for /back");
+        addCommandDefaults("per-command-cooldowns", "Command-specific cooldowns.");
         // addDefault("per-command-cooldowns.sethome", "default", "Cooldown for /sethome");
         // addDefault("per-command-cooldowns.setwarp", "default", "Cooldown for /setwarp");
         makeSectionLenient("custom-cooldowns");
@@ -311,16 +305,10 @@ public final class MainConfig extends ATConfig {
                 To use multiple methods of charging, use a ; - e.g. '100.0;10LVL' for $100 and 10 EXP levels.
                 To disable, just put an empty string, i.e. ''""");
 
-        addComment("per-command-cost", "Command-specific costs.");
-        addDefault("per-command-cost.tpa", "default", "Cost for /tpa.");
-        addDefault("per-command-cost.tpahere", "default", "Cost for /tpahere.");
-        addDefault("per-command-cost.tpr", "default", "Cost for /tpr, or /rtp.");
-        addDefault("per-command-cost.warp", "default", "Cost for /warp");
-        addDefault("per-command-cost.spawn", "default", "Cost for /spawn");
-        addDefault("per-command-cost.home", "default", "Cost for /home");
-        addDefault("per-command-cost.back", "default", "Cost for /back");
+        addCommandDefaults("per-command-cost", "Command-specific costs.");
         // addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
         // addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
+
         makeSectionLenient("custom-costs");
         addComment(
                 "custom-costs",
@@ -343,28 +331,93 @@ public final class MainConfig extends ATConfig {
                 "default-waiting-particles",
                 "",
                 "The default waiting particles during the warm-up period.");
-        addComment("waiting-particles", "Command-specific waiting particles.");
-        addDefault("waiting-particles.tpa", "default");
-        addDefault("waiting-particles.tpahere", "default");
-        addDefault("waiting-particles.tpr", "default");
-        addDefault("waiting-particles.warp", "default");
-        addDefault("waiting-particles.spawn", "default");
-        addDefault("waiting-particles.home", "default");
-        addDefault("waiting-particles.back", "default");
+        addCommandDefaults("waiting-particles", "Command-specific waiting particles.");
 
         addDefault(
                 "default-teleporting-particles",
                 "spark",
                 "The default particles used as soon as the player teleports. \n"
                         + "At this time, only spark is supported. However, other recommendations are welcome with that.");
-        addComment("teleporting-particles", "Command-specific teleporting particles.");
-        addDefault("teleporting-particles.tpa", "default");
-        addDefault("teleporting-particles.tpahere", "default");
-        addDefault("teleporting-particles.tpr", "default");
-        addDefault("teleporting-particles.warp", "default");
-        addDefault("teleporting-particles.spawn", "default");
-        addDefault("teleporting-particles.home", "default");
-        addDefault("teleporting-particles.back", "default");
+        addCommandDefaults("teleporting-particles", "Command-specific teleporting particles.");
+
+        addSection("Commands on Events");
+
+        addComment("""
+                This section outlines commands that can run on certain events.
+                One command can be written on a single line, or as a list to indicate multiple commands.
+                You can choose whether the player or server runs the commands, e.g.:
+                
+                default-commands-on-warm-up-start:
+                - player;say I am getting ready to teleport!
+                - server;spawnparticle
+                
+                By default, any specified command is run by the player who executed the command.
+                
+                The following placeholders are available for all commands:
+                - {player} - the player who ran the command.
+                - {command} - the command the player ran.
+                
+                And these placeholders are available depending on the commands being run:
+                - /warp - {warp} - the name of the warp being teleported to.
+                - /tpa - {target} - the player being teleported to.
+                - /tpahere - {target} - the player being teleported to the executor.
+                - /spawn - {spawn} - the name of the spawnpoint being teleported to.
+                - /home - {home} - the name of the home being teleported to.
+                
+                Any placeholders for the specific events will be specified in their respective sections.""");
+
+        // Have commands run when warm-ups begin
+        addDefault(
+                "default-commands-on-warm-up-start",
+                new ArrayList<>(),
+                """
+                The default commands to run when a player's teleport warm-up begins. The following placeholders are available:
+                - {duration} - the warm-up duration in seconds.
+                - {x} or {block_x} - the x coordinate the player is teleporting to (where block is a whole number).
+                - {y} or {block_y} - the y coordinate the player is teleporting to (where block is a whole number).
+                - {z} or {block_z} - the z coordinate the player is teleporting to (where block is a whole number).
+                - {yaw} - the yaw the player will be changed to after teleporting.
+                - {pitch} - the pitch the player will be changed to after teleporting.
+                - {world} - the world the player is teleporting to.
+                
+                For /tpahere, the {player} variable is not the one affected by the warm-up - but rather the {target}.
+                If a player skips the warm-up, then the commands will not be run.""");
+        addCommandDefaults("commands-on-warm-up-start",
+                "The individual commands run for each teleport command when their warm-ups initiate.");
+
+        // Have commands run when teleporting actually happens
+        addDefault(
+                "default-commands-on-teleport",
+                new ArrayList<>(),
+                """
+                The default commands to run immediately after a player teleports. The following placeholders are available:
+                - {x} or {block_x} - the x coordinate the player is teleporting to (where block is a whole number).
+                - {y} or {block_y} - the y coordinate the player is teleporting to (where block is a whole number).
+                - {z} or {block_z} - the z coordinate the player is teleporting to (where block is a whole number).
+                - {yaw} - the yaw the player will be changed to after teleporting.
+                - {pitch} - the pitch the player will be changed to after teleporting.
+                - {world} - the world the player is teleporting to.""");
+        addCommandDefaults("commands-on-teleport",
+                "The individual commands run for each teleport command when the player teleports.");
+
+        // Have commands run when cooldowns expire
+        addDefault(
+                "default-commands-on-cooldown-expire",
+                new ArrayList<>(),
+                """
+                The default commands to run when the cooldown on a command expires.""");
+        addCommandDefaults("commands-on-cooldown-expire",
+                "The individual commands run for each teleport command when their respective cooldown expires.");
+
+        // Have commands run when teleports are cancelled
+        addDefault(
+                "default-commands-on-cancel",
+                new ArrayList<>(),
+                """
+                The default commands to run when a teleportation is cancelled, e.g. due to movement. It is not for the
+                cancellation of teleportation requests using /tpcancel.""");
+        addCommandDefaults("commands-on-cancel",
+                "The individual commands run for each teleport command when their teleportation is cancelled.");
 
         addSection("SQL Storage");
 
@@ -1047,6 +1100,11 @@ public final class MainConfig extends ATConfig {
         TELEPORT_PARTICLES =
                 new PerCommandOption<>("teleporting-particles", "default-teleporting-particles");
 
+        COMMANDS_ON_WARM_UP = new PerCommandOption<>("commands-on-warm-up-start", "default-commands-on-warm-up-start");
+        COMMANDS_ON_TELEPORT = new PerCommandOption<>("commands-on-teleport", "default-commands-on-teleport");
+        COMMANDS_ON_COOLDOWN_EXPIRE = new PerCommandOption<>("commands-on-cooldown-expire", "default-commands-on-cooldown-expire");
+        COMMANDS_ON_CANCEL = new PerCommandOption<>("commands-on-cancel", "default-commands-on-cancel");
+
         USE_MYSQL = new ConfigOption<>("use-mysql");
         MYSQL_HOST = new ConfigOption<>("mysql-host");
         MYSQL_PORT = new ConfigOption<>("mysql-port");
@@ -1200,6 +1258,13 @@ public final class MainConfig extends ATConfig {
             }
             permObject.setDefault(PermissionDefault.TRUE);
             defaults.add(permission);
+        }
+    }
+
+    private void addCommandDefaults(String parentKey, String comment) {
+        addComment(parentKey, comment);
+        for (String command : new String[]{"tpa", "tpahere", "warp", "home", "back", "spawn", "tpr"}) {
+            addDefault(parentKey + "." + command, "default");
         }
     }
 

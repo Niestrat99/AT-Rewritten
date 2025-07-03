@@ -4,18 +4,15 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 
-import org.bukkit.Bukkit;
+import io.github.niestrat99.advancedteleport.utilities.CommandRunner;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.lang.ref.WeakReference;
+import java.util.*;
 
 public class CooldownManager {
 
@@ -30,7 +27,7 @@ public class CooldownManager {
                 return (int)
                         Math.ceil(
                                 (runnable.startingTime
-                                                + runnable.ms * 1000
+                                                + runnable.duration * 1000
                                                 - System.currentTimeMillis())
                                         / 1000.0);
             }
@@ -43,7 +40,7 @@ public class CooldownManager {
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
         list.add(
                 new ATRunnable(
-                        player.getUniqueId(), atPlayer.getCooldown(command, toWorld), command));
+                        player, atPlayer.getCooldown(command, toWorld), command));
         cooldown.put(getKey(command), list);
     }
 
@@ -64,32 +61,39 @@ public class CooldownManager {
     }
 
     public static class ATRunnable extends BukkitRunnable {
+        private final WeakReference<Player> player;
         private final UUID uuid;
         private final long startingTime;
         private final String command;
-        private long ms;
+        private long duration;
 
-        public ATRunnable(UUID uuid, long waitingTime, String command) {
-            this.uuid = uuid;
-            ms = waitingTime;
+        public ATRunnable(Player player, long waitingTime, String command) {
+            this.player = new WeakReference<>(player);
+            this.uuid = player.getUniqueId();
+            this.duration = waitingTime;
             if (MainConfig.get().ADD_COOLDOWN_DURATION_TO_WARM_UP.get()
-                    && !Bukkit.getPlayer(uuid).hasPermission("at.admin.bypass.timer")) {
-                ms += MainConfig.get().WARM_UPS.valueOf(command).get();
+                    && !player.hasPermission("at.admin.bypass.timer")) {
+                this.duration += MainConfig.get().WARM_UPS.valueOf(command).get();
             }
-            this.command = getKey(command);
+            this.command = command;
             startingTime = System.currentTimeMillis();
             runTaskLater(CoreClass.getInstance());
         }
 
         public synchronized BukkitTask runTaskLater(Plugin plugin)
                 throws IllegalArgumentException, IllegalStateException {
-            return super.runTaskLater(plugin, ms * 20);
+            return super.runTaskLater(plugin, duration * 20);
         }
 
         @Override
         public void run() {
-            List<ATRunnable> list = cooldown.get(command);
+            List<ATRunnable> list = cooldown.get(getKey(command));
             list.remove(this);
+
+            Player player = this.player.get();
+            if (player == null) return;
+            CommandRunner.runCommandsOnCooldownExpire(
+                    this.command, player, new CommandRunner.Placeholder("duration", this.duration));
         }
     }
 }

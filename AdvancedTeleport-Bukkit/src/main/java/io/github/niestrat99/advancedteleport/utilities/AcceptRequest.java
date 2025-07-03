@@ -64,7 +64,7 @@ public class AcceptRequest {
         Player payingPlayer = type.equalsIgnoreCase("tpahere") ? toPlayer : fromPlayer;
         if (warmUp > 0 && !fromPlayer.hasPermission("at.admin.bypass.timer")) {
             MovementManager.createMovementTimer(
-                    fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer);
+                    fromPlayer, toLocation, type, "Teleport.eventTeleport", warmUp, payingPlayer, toPlayer);
             return;
         }
         ATPlayer.teleportWithOptions(
@@ -76,5 +76,12 @@ public class AcceptRequest {
         if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
             CooldownManager.addToCooldown(type, payingPlayer, toLocation.getWorld());
         }
+
+        CommandRunner.runCommandsOnTeleport(
+                type,
+                toLocation,
+                payingPlayer,
+                new CommandRunner.Placeholder("target",
+                                type.equals("tpa") ? toPlayer.getName() : fromPlayer.getName()));
     }
 }
