@@ -156,9 +156,11 @@ public class RTPManager {
                 && locQueue.get(world.getUID()).size()
                         > MainConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             Location loc = locQueue.get(world.getUID()).poll();
-            if (!PluginHookManager.get().isClaimed(loc)) {
-                CoreClass.debug("Area is not claimed - returning as valid location");
-                return CompletableFuture.completedFuture(loc);
+            if (loc != null) {
+                if (!PluginHookManager.get().isClaimed(loc)) {
+                    CoreClass.debug("Area is not claimed - returning as valid location");
+                    return CompletableFuture.completedFuture(loc);
+                }
             }
         }
 
