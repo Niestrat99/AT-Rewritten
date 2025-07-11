@@ -1,7 +1,8 @@
-package io.github.niestrat99.advancedteleport.utilities;
+package io.github.niestrat99.advancedteleport.rtp;
 
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 
+import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -23,13 +24,13 @@ public class RandomTPAlgorithms {
                 (player, world) -> {
 
                     // Generate random coordinates
-                    Location location = RandomCoords.generateCoords(world);
+                    Location location = CoordinateGenerator.generateCoords(world);
 
                     // Whilst the location is too far away...
                     while (ConditionChecker.canTeleport(
                                     player.getLocation(), location, "tpr", player)
                             != null) {
-                        location = RandomCoords.generateCoords(world);
+                        location = CoordinateGenerator.generateCoords(world);
                     }
 
                     // Set the Y coordinate to 128
