@@ -77,7 +77,9 @@ public class RTPManager {
         if (queue == null || queue.isEmpty()) {
             return addLocation(world, true, 0);
         } else {
-            return CompletableFuture.completedFuture(queue.poll());
+            Location loc = queue.poll();
+            return isLocationInBorders(loc) ? CompletableFuture.completedFuture(queue.poll())
+                    : addLocation(world, true, 0);
         }
     }
 
@@ -135,7 +137,8 @@ public class RTPManager {
         if (queue == null || queue.isEmpty()) {
             return null;
         } else {
-            return queue.remove();
+            Location loc = queue.poll();
+            return isLocationInBorders(loc) ? loc : null;
         }
     }
 
