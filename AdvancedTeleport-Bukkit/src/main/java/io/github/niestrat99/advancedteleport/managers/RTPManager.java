@@ -79,6 +79,15 @@ public class RTPManager {
         }
     }
 
+    /**
+     * Used to check if certain coordinates still lay
+     */
+    public static void checkLocationsInBorder() {
+
+    }
+
+    private static
+
     public static Location getLocationUrgently(World world) {
         Queue<Location> queue = locQueue.get(world.getUID());
         addLocation(world, false, 0)

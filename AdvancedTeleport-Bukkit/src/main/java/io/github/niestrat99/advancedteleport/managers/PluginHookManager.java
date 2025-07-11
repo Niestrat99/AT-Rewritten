@@ -127,7 +127,7 @@ public final class PluginHookManager {
     }
 
     @Contract(pure = true)
-    public double[] getRandomCoords(@NotNull final World world) {
+    public double[] getBorders(@NotNull final World world) {
         return getPluginHooks(BorderPlugin.class, true)
                 .filter(plugin -> plugin.canUse(world))
                 .findFirst()
