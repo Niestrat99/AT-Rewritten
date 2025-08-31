@@ -45,6 +45,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<ConfigSection> CUSTOM_COSTS;
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
+    public PerCommandOption<String> POST_TELEPORT_PARTICLES;
     public PerCommandOption<String> WAITING_PARTICLES;
     public ConfigOption<Boolean> USE_MYSQL;
     public ConfigOption<String> MYSQL_HOST;
@@ -365,6 +366,20 @@ public final class MainConfig extends ATConfig {
         addDefault("teleporting-particles.spawn", "default");
         addDefault("teleporting-particles.home", "default");
         addDefault("teleporting-particles.back", "default");
+
+        addDefault(
+                "default-post-teleport-particles",
+                "spark",
+                "The default particles used immediately after the player teleports. \n"
+                        + "At this time, only spark is supported. However, other recommendations are welcome with that.");
+        addComment("post-teleport-particles", "Command-specific post-teleport particles.");
+        addDefault("post-teleport-particles.tpa", "default");
+        addDefault("post-teleport-particles.tpahere", "default");
+        addDefault("post-teleport-particles.tpr", "default");
+        addDefault("post-teleport-particles.warp", "default");
+        addDefault("post-teleport-particles.spawn", "default");
+        addDefault("post-teleport-particles.home", "default");
+        addDefault("post-teleport-particles.back", "default");
 
         addSection("SQL Storage");
 
@@ -1046,6 +1061,8 @@ public final class MainConfig extends ATConfig {
                 new PerCommandOption<>("waiting-particles", "default-waiting-particles");
         TELEPORT_PARTICLES =
                 new PerCommandOption<>("teleporting-particles", "default-teleporting-particles");
+        POST_TELEPORT_PARTICLES =
+                new PerCommandOption<>("default-post-teleport-particles", "post-teleport-particles");
 
         USE_MYSQL = new ConfigOption<>("use-mysql");
         MYSQL_HOST = new ConfigOption<>("mysql-host");

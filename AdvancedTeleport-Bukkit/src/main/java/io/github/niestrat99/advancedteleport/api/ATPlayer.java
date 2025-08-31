@@ -185,7 +185,7 @@ public class ATPlayer {
                     Placeholder.unparsed("home", event.getLocName()),
                     Placeholder.unparsed("warp", event.getLocName()));
         } else {
-            ParticleManager.onTeleport(player, command);
+            ParticleManager.onPreTeleport(player, command);
 
             //
             teleportWithOptions(
@@ -208,9 +208,9 @@ public class ATPlayer {
                                         teleportMsg,
                                         Placeholder.unparsed("home", event.getLocName()),
                                         Placeholder.unparsed("warp", event.getLocName()));
-                                PaymentManager.getInstance()
-                                        .withdraw(
-                                                command, player, event.getToLocation().getWorld());
+                                PaymentManager.getInstance().withdraw(command, player, event.getToLocation().getWorld());
+                                ParticleManager.onPostTeleport(player, command);
+
                                 if (MainConfig.get()
                                         .APPLY_COOLDOWN_AFTER
                                         .get()

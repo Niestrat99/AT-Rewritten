@@ -42,8 +42,12 @@ public class MovementManager implements Listener {
     }
 
     private static boolean willCancelTimer(PlayerMoveEvent event) {
-        boolean cancelOnRotate = MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get() && !event.getPlayer().hasPermission("at.admin.bypass.rotation");
-        boolean cancelOnMove = MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() && !event.getPlayer().hasPermission("at.admin.bypass.movement");
+        boolean cancelOnRotate =
+                MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()
+                        && !event.getPlayer().hasPermission("at.admin.bypass.rotation");
+        boolean cancelOnMove =
+                MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get()
+                        && !event.getPlayer().hasPermission("at.admin.bypass.movement");
 
         boolean cancelled = false;
 
@@ -71,8 +75,7 @@ public class MovementManager implements Listener {
             Location locTo = event.getTo();
             Location locFrom = event.getFrom();
 
-            if (locTo.getPitch() != locFrom.getPitch()
-                || locTo.getYaw() != locFrom.getYaw()) {
+            if (locTo.getPitch() != locFrom.getPitch() || locTo.getYaw() != locFrom.getYaw()) {
                 cancelled = true;
             }
         }
@@ -123,7 +126,7 @@ public class MovementManager implements Listener {
         ParticleManager.applyParticles(teleportingPlayer, command);
 
         // Starts the movement checker.
-        ImprovedRunnable movementtimer =
+        ImprovedRunnable movementTimer =
                 new ImprovedRunnable(command) {
                     @Override
                     public void run() {
@@ -131,30 +134,46 @@ public class MovementManager implements Listener {
                         // If the player can't pay for the
                         if (!PaymentManager.getInstance()
                                 .canPay(command, payingPlayer, location.getWorld())) return;
-                        ParticleManager.onTeleport(teleportingPlayer, command);
+                        ParticleManager.onPreTeleport(teleportingPlayer, command);
+
                         ATPlayer.teleportWithOptions(
-                                teleportingPlayer,
-                                location,
-                                PlayerTeleportEvent.TeleportCause.COMMAND);
+                                        teleportingPlayer,
+                                        location,
+                                        PlayerTeleportEvent.TeleportCause.COMMAND)
+                                .whenComplete((result, err) -> {
+
+                                    // If we didn't succeed, let the player know.
+                                    if (!result) {
+                                        CustomMessages.sendMessage(teleportingPlayer, "Error.teleportFailed");
+                                        return;
+                                    }
+
+
+                                    CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
+                                    PaymentManager.getInstance().withdraw(command, payingPlayer, location.getWorld());
+                                    ParticleManager.onPostTeleport(teleportingPlayer, command);
+
+                                    // If the cooldown is to be applied after only after a
+                                    // teleport takes place,
+                                    // apply it now
+                                    if (MainConfig.get()
+                                            .APPLY_COOLDOWN_AFTER
+                                            .get()
+                                            .equalsIgnoreCase("teleport")) {
+                                        CooldownManager.addToCooldown(
+                                                command, payingPlayer, location.getWorld());
+                                    }
+                                });
+
                         movement.remove(uuid);
-                        CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
-                        PaymentManager.getInstance()
-                                .withdraw(command, payingPlayer, location.getWorld());
-                        // If the cooldown is to be applied after only after a teleport takes place,
-                        // apply it now
-                        if (MainConfig.get()
-                                .APPLY_COOLDOWN_AFTER
-                                .get()
-                                .equalsIgnoreCase("teleport")) {
-                            CooldownManager.addToCooldown(
-                                    command, payingPlayer, location.getWorld());
-                        }
                     }
                 };
-        movement.put(uuid, movementtimer);
-        movementtimer.runTaskLater(CoreClass.getInstance(), warmUp * 20L);
-        if ((MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get() && !teleportingPlayer.hasPermission("at.admin.bypass.movement"))
-                || (MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get() && !teleportingPlayer.hasPermission("at.admin.bypass.rotation"))) {
+        movement.put(uuid, movementTimer);
+        movementTimer.runTaskLater(CoreClass.getInstance(), warmUp * 20L);
+        if ((MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get()
+                        && !teleportingPlayer.hasPermission("at.admin.bypass.movement"))
+                || (MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()
+                        && !teleportingPlayer.hasPermission("at.admin.bypass.rotation"))) {
             CustomMessages.sendMessage(
                     teleportingPlayer,
                     "Teleport.eventBeforeTP",

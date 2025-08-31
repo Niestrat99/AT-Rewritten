@@ -36,12 +36,21 @@ public final class ParticleManager {
                 .forEach(hook -> hook.removeParticles(player, command));
     }
 
-    public static void onTeleport(@NotNull final Player player, @NotNull final String command) {
+    public static void onPreTeleport(@NotNull final Player player, @NotNull final String command) {
+        onTeleport(player, command, MainConfig.get().TELEPORT_PARTICLES);
+    }
+
+    public static void onPostTeleport(@NotNull final Player player, @NotNull final String command) {
+        onTeleport(player, command, MainConfig.get().POST_TELEPORT_PARTICLES);
+    }
+
+    private static void onTeleport(@NotNull final Player player, @NotNull final String command,
+                                  @NotNull MainConfig.PerCommandOption<String> particlesOption) {
         if (!MainConfig.get().USE_PARTICLES.get()) return;
         removeParticles(player, command);
 
         // Check if using inbuilt particles
-        final var particle = MainConfig.get().TELEPORT_PARTICLES.valueOf(command).get();
+        final var particle = particlesOption.valueOf(command).get();
         if (particle.equals("spark")) {
             doSpark(player.getLocation());
             return;
