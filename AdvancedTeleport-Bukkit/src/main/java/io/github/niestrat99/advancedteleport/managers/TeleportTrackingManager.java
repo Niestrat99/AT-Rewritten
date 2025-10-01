@@ -49,10 +49,13 @@ public class TeleportTrackingManager implements Listener {
             if (spawn != null) {
                 spawn(player, spawn);
                 return;
+            } else if (name.isEmpty() && AdvancedTeleportAPI.getMainSpawn() != null) {
+                spawn(player, AdvancedTeleportAPI.getMainSpawn());
+            } else {
+                CoreClass.getInstance()
+                        .getLogger()
+                        .warning("First-join teleport point " + name + " does not exist.");
             }
-            CoreClass.getInstance()
-                    .getLogger()
-                    .warning("First-join teleport point " + name + " does not exist.");
         }
 
         // If the player has played before but needs to be sent to spawn every login, go there
