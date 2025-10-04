@@ -205,9 +205,7 @@ public class ATPlayer {
                                         teleportMsg,
                                         Placeholder.unparsed("home", event.getLocName()),
                                         Placeholder.unparsed("warp", event.getLocName()));
-                                PaymentManager.getInstance()
-                                        .withdraw(
-                                                command, player, event.getToLocation().getWorld());
+                                PaymentManager.getInstance().withdraw(command, player, event.getToLocation().getWorld());
                                 InvulnerabilityManager.createInvulnerability(player, getInvulnerability(command, event.getToLocation().getWorld()));
                                 ParticleManager.onPostTeleport(player, command);
 
@@ -218,7 +216,6 @@ public class ATPlayer {
                                     CooldownManager.addToCooldown(
                                             command, player, event.getToLocation().getWorld());
                                 }
-                                InvulnerabilityManager.createInvulnerability(player, getInvulnerability(command, event.getToLocation().getWorld()));
                             });
         }
     }
