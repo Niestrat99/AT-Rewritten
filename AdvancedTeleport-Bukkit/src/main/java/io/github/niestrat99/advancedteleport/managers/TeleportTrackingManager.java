@@ -15,6 +15,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -40,6 +41,7 @@ public class TeleportTrackingManager implements Listener {
         if (player.hasPermission("at.admin.bypass.teleport-on-join")) return;
 
         // If the player hasn't played before and needs teleporting, go there
+        boolean teleported = false;
         if (!player.hasPlayedBefore() && MainConfig.get().TELEPORT_TO_SPAWN_FIRST.get()) {
 
             final String name = MainConfig.get().FIRST_SPAWN_POINT.get();
@@ -47,10 +49,11 @@ public class TeleportTrackingManager implements Listener {
 
             // If the spawn exists, go there, otherwise alert the admins
             if (spawn != null) {
-                spawn(player, spawn);
-                return;
+                spawn(player, spawn.getLocation());
+                teleported = true;
             } else if (name.isEmpty() && AdvancedTeleportAPI.getMainSpawn() != null) {
-                spawn(player, AdvancedTeleportAPI.getMainSpawn());
+                spawn(player, AdvancedTeleportAPI.getMainSpawn().getLocation());
+                teleported = true;
             } else {
                 CoreClass.getInstance()
                         .getLogger()
@@ -58,21 +61,57 @@ public class TeleportTrackingManager implements Listener {
             }
         }
 
+        if (!player.hasPlayedBefore() && MainConfig.get().USE_RANDOM_LOCATION_FIRST_SPAWN_POINT.get()) {
+
+            String worldName = MainConfig.get().FIRST_RANDOM_LOCATION_WORLD_NAME.get();
+            if (worldName == null || worldName.isEmpty()) {
+                if (AdvancedTeleportAPI.getMainSpawn() != null) {
+                    worldName = AdvancedTeleportAPI.getMainSpawn().getName();
+                }
+            }
+
+            World targetWorld = worldName == null || worldName.isEmpty() ? player.getWorld() : Bukkit.getWorld(worldName);
+            if (targetWorld != null) {
+
+                teleported = true;
+                AdvancedTeleportAPI.getRandomLocation(targetWorld, player).whenCompleteAsync((result, err) -> {
+
+                    if (err != null) {
+                        CoreClass.getInstance().getLogger().warning("Failed to randomly teleport " + player.getName()
+                                + " on their first join! No location could be found.");
+                        return;
+                    }
+
+                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                    spawn(player, result);
+                    InvulnerabilityManager.createInvulnerability(player, atPlayer.getInvulnerability("tpr", result.getWorld()));
+                    ParticleManager.onPostTeleport(player, "tpr");
+
+                    if (MainConfig.get().USE_HOMES.get() && MainConfig.get().SET_RANDOM_FIRST_LOCATION_HOME.get()) {
+                        atPlayer.addHome("home", result);
+                    }
+                }, CoreClass.sync);
+            } else {
+                CoreClass.getInstance().getLogger().warning("Failed to randomly teleport " + player.getName()
+                        + " on their first join! The target world (" + worldName + ") either doesn't exist or wasn't specified.");
+            }
+        }
+
         // If the player has played before but needs to be sent to spawn every login, go there
-        if (MainConfig.get().TELEPORT_TO_SPAWN_EVERY.get()) {
+        if (!teleported && MainConfig.get().TELEPORT_TO_SPAWN_EVERY.get()) {
             final Spawn spawn = AdvancedTeleportAPI.getDestinationSpawn(player.getWorld(), player);
-            spawn(player, spawn);
+            spawn(player, spawn.getLocation());
         }
     }
 
-    private void spawn(Player player, Spawn spawn) {
+    private void spawn(Player player, Location spawn) {
         Bukkit.getScheduler()
                 .runTaskLater(
                         CoreClass.getInstance(),
                         () ->
                                 ATPlayer.teleportWithOptions(
                                                 player,
-                                                spawn.getLocation(),
+                                                spawn,
                                                 PlayerTeleportEvent.TeleportCause.PLUGIN)
                                         .whenComplete(
                                                 (result, err) -> {

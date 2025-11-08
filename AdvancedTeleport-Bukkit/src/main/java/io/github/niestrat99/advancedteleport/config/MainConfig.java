@@ -84,6 +84,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> WHITELIST_WORLD;
     public ConfigOption<Boolean> REDIRECT_TO_WORLD;
     public ConfigOption<List<String>> ALLOWED_WORLDS;
+
     public ConfigOption<Integer> DEFAULT_HOMES_LIMIT;
     public ConfigOption<Boolean> ADD_BED_TO_HOMES;
     public ConfigOption<Boolean> DENY_HOMES_IF_OVER_LIMIT;
@@ -103,6 +104,9 @@ public final class MainConfig extends ATConfig {
     public MapOptions MAP_SPAWNS;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
+    public ConfigOption<Boolean> USE_RANDOM_LOCATION_FIRST_SPAWN_POINT;
+    public ConfigOption<String> FIRST_RANDOM_LOCATION_WORLD_NAME;
+    public ConfigOption<Boolean> SET_RANDOM_FIRST_LOCATION_HOME;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
     public ConfigOption<Boolean> TELEPORT_TO_NEAREST_SPAWN;
     public ConfigOption<Boolean> USE_OVERWORLD;
@@ -817,6 +821,22 @@ public final class MainConfig extends ATConfig {
                 "The name of the spawnpoint players will be first teleported to if they joined for the first time.\n"
                         + "If it is blank, then it will take the main spawnpoint.");
         addDefault(
+                "use-random-location-for-first-spawn-point",
+                false,
+                "Teleports all new players to a random location when they join the server for the first time.");
+        addDefault(
+                "first-random-teleportation-world-name",
+                "",
+                """
+                        The world that the player will be randomly teleported into when they join for the first time.
+                        If left blank, the player will either teleport within the world of the main spawnpoint, or the
+                        world they first spawn in.""");
+        addDefault(
+                "set-first-random-location-as-home",
+                false,
+                "If players are teleported to a random location when they first join the server, this sets the\n" +
+                        "location as a home for those players called \"home\".");
+        addDefault(
                 "teleport-to-spawn-on-every-join",
                 false,
                 "Whether the player should be teleported to the spawnpoint every time they join.");
@@ -1167,6 +1187,9 @@ public final class MainConfig extends ATConfig {
 
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
+        USE_RANDOM_LOCATION_FIRST_SPAWN_POINT = new ConfigOption<>("use-random-location-for-first-spawn-point");
+        FIRST_RANDOM_LOCATION_WORLD_NAME = new ConfigOption<>("first-random-teleportation-world-name");
+        SET_RANDOM_FIRST_LOCATION_HOME = new ConfigOption<>("set-first-random-location-as-home");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
         TELEPORT_TO_NEAREST_SPAWN = new ConfigOption<>("teleport-to-nearest-spawnpoint");
         USE_OVERWORLD = new ConfigOption<>("use-overworld");
