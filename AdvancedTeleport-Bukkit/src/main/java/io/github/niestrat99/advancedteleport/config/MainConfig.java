@@ -1105,7 +1105,7 @@ public final class MainConfig extends ATConfig {
         TELEPORT_PARTICLES =
                 new PerCommandOption<>("teleporting-particles", "default-teleporting-particles");
         POST_TELEPORT_PARTICLES =
-                new PerCommandOption<>("default-post-teleport-particles", "post-teleport-particles");
+                new PerCommandOption<>("post-teleport-particles", "default-post-teleport-particles");
 
         USE_MYSQL = new ConfigOption<>("use-mysql");
         MYSQL_HOST = new ConfigOption<>("mysql-host");
