@@ -30,6 +30,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Integer> WARM_UP_TIMER_DURATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_ROTATION;
     public ConfigOption<Boolean> CANCEL_WARM_UP_ON_MOVEMENT;
+    public ConfigOption<Boolean> CANCEL_WARM_UP_ON_DAMAGE;
     public ConfigOption<Boolean> CHECK_EXACT_COORDINATES;
     public PerCommandOption<Integer> WARM_UPS;
     public ConfigOption<ConfigSection> CUSTOM_WARM_UPS;
@@ -43,6 +44,10 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Object> COST_AMOUNT;
     public PerCommandOption<Object> COSTS;
     public ConfigOption<ConfigSection> CUSTOM_COSTS;
+    public ConfigOption<Integer> INVULNERABILITY_DURATION;
+    public ConfigOption<List<String>> INVULNERABILITY_DAMAGE_BLACKLIST;
+    public PerCommandOption<Integer> COMMAND_INVULNERABILITY_DURATIONS;
+    public ConfigOption<ConfigSection> CUSTOM_INVULNERABILITY_DURATIONS;
     public ConfigOption<Boolean> USE_PARTICLES;
     public PerCommandOption<String> TELEPORT_PARTICLES;
     public PerCommandOption<String> POST_TELEPORT_PARTICLES;
@@ -79,6 +84,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> WHITELIST_WORLD;
     public ConfigOption<Boolean> REDIRECT_TO_WORLD;
     public ConfigOption<List<String>> ALLOWED_WORLDS;
+
     public ConfigOption<Integer> DEFAULT_HOMES_LIMIT;
     public ConfigOption<Boolean> ADD_BED_TO_HOMES;
     public ConfigOption<Boolean> DENY_HOMES_IF_OVER_LIMIT;
@@ -98,6 +104,9 @@ public final class MainConfig extends ATConfig {
     public MapOptions MAP_SPAWNS;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_FIRST;
     public ConfigOption<String> FIRST_SPAWN_POINT;
+    public ConfigOption<Boolean> USE_RANDOM_LOCATION_FIRST_SPAWN_POINT;
+    public ConfigOption<String> FIRST_RANDOM_LOCATION_WORLD_NAME;
+    public ConfigOption<Boolean> SET_RANDOM_FIRST_LOCATION_HOME;
     public ConfigOption<Boolean> TELEPORT_TO_SPAWN_EVERY;
     public ConfigOption<Boolean> TELEPORT_TO_NEAREST_SPAWN;
     public ConfigOption<Boolean> USE_OVERWORLD;
@@ -205,6 +214,12 @@ public final class MainConfig extends ATConfig {
                 "cancel-warm-up-on-movement",
                 true,
                 "Whether or not teleportation should be cancelled upon movement only.");
+        addDefault(
+                "cancel-warm-up-on-damage",
+                true,
+                "Whether or not teleportation should be cancelled when the player receives damage.\n" +
+                        "Best option to accompany the invulnerability system if your server has it enabled, so that " +
+                        "players can't cheese it. :thumbsup:");
         addDefault("check-exact-coordinates",
                 false,
                 "Whether the plugin should check for change in exact X, Y and Z vs. block X, Y, Z.\n" +
@@ -291,7 +306,7 @@ public final class MainConfig extends ATConfig {
                   vip-cooldown: 3
                 Giving a group, such as VIP, the permission at.member.cooldown.vip-cooldown will have a cooldown of 3.
                 The key (vip-cooldown) and group name (VIP) do not have to be different, this is just an example.
-                You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag.To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldown.
+                You can also add at.member.cooldown.3, but this is more efficient if you find permissions lag. To make it per-command, use at.member.cooldown.<command>.vip-cooldown. To make it per-world, use at.member.cooldown.<world>.vip-cooldown.
                 To combine the two, you can use at.member.cooldown.<command>.<world>.vip-cooldown.\
                 """);
 
@@ -332,6 +347,32 @@ public final class MainConfig extends ATConfig {
                   vip-cost: Essentials:100
                 Giving a group, such as VIP, the permission at.member.cost.vip-cost will have a cost of $100.
                 To make it per-command, add the permission at.member.cost.tpa.vip-cost (for tpa) instead.\
+                """);
+
+        addDefault("invulnerability-duration", 0, "Invulnerability", "How long the invulnerability period lasts in seconds.");
+        addDefault("damage-blacklist", new ArrayList<>(), "All damage causes that are not cancelled by invulnerability.\n" +
+                "The full list is accessible here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html");
+
+        addComment("per-command-invulnerability", "Command-specific invulnerability durations.");
+        addDefault("per-command-invulnerability.tpa", "default", "Invulnerability duration for /tpa.");
+        addDefault("per-command-invulnerability.tpahere", "default", "Invulnerability duration for /tpahere.");
+        addDefault("per-command-invulnerability.tpr", "default", "Invulnerability duration for /tpr, or /rtp.");
+        addDefault("per-command-invulnerability.warp", "default", "Invulnerability duration for /warp");
+        addDefault("per-command-invulnerability.spawn", "default", "Invulnerability duration for /spawn");
+        addDefault("per-command-invulnerability.home", "default", "Invulnerability duration for /home");
+        addDefault("per-command-invulnerability.back", "default", "Invulnerability duration for /back");
+
+        makeSectionLenient("custom-invulnerability-periods");
+        addComment(
+                "custom-invulnerability-periods",
+                """
+                Use this section to create custom invulnerability periods per-group.
+                Use the following format:
+                custom-invulnerability-periods:
+                  vip: 5
+                Giving a group, such as VIP, the permission at.member.invulnerability.vip will have an invulnerable period of 5 seconds.
+                To make it per-command, add the permission at.member.invulnerability.tpa.vip (for tpa) instead.\
+                You can also add at.member.invulnerability.5, but this is more efficient if you find permissions lag.
                 """);
 
         addDefault(
@@ -780,6 +821,22 @@ public final class MainConfig extends ATConfig {
                 "The name of the spawnpoint players will be first teleported to if they joined for the first time.\n"
                         + "If it is blank, then it will take the main spawnpoint.");
         addDefault(
+                "use-random-location-for-first-spawn-point",
+                false,
+                "Teleports all new players to a random location when they join the server for the first time.");
+        addDefault(
+                "first-random-teleportation-world-name",
+                "",
+                """
+                        The world that the player will be randomly teleported into when they join for the first time.
+                        If left blank, the player will either teleport within the world of the main spawnpoint, or the
+                        world they first spawn in.""");
+        addDefault(
+                "set-first-random-location-as-home",
+                false,
+                "If players are teleported to a random location when they first join the server, this sets the\n" +
+                        "location as a home for those players called \"home\".");
+        addDefault(
                 "teleport-to-spawn-on-every-join",
                 false,
                 "Whether the player should be teleported to the spawnpoint every time they join.");
@@ -1025,6 +1082,7 @@ public final class MainConfig extends ATConfig {
         WARM_UP_TIMER_DURATION = new ConfigOption<>("warm-up-timer-duration");
         CANCEL_WARM_UP_ON_ROTATION = new ConfigOption<>("cancel-warm-up-on-rotation");
         CANCEL_WARM_UP_ON_MOVEMENT = new ConfigOption<>("cancel-warm-up-on-movement");
+        CANCEL_WARM_UP_ON_DAMAGE = new ConfigOption<>("cancel-warm-up-on-damage");
         CHECK_EXACT_COORDINATES = new ConfigOption<>("check-exact-coordinates");
         WARM_UPS = new PerCommandOption<>("per-command-warm-ups", "warm-up-timer-duration");
         CUSTOM_WARM_UPS = new ConfigOption<>("custom-warm-ups");
@@ -1056,13 +1114,18 @@ public final class MainConfig extends ATConfig {
         COSTS = new PerCommandOption<>("per-command-cost", "cost-amount");
         CUSTOM_COSTS = new ConfigOption<>("custom-costs");
 
+        INVULNERABILITY_DURATION = new ConfigOption<>("invulnerability-duration");
+        INVULNERABILITY_DAMAGE_BLACKLIST = new ConfigOption<>("damage-blacklist");
+        COMMAND_INVULNERABILITY_DURATIONS = new PerCommandOption<>("per-command-invulnerability", "invulnerability-duration");
+        CUSTOM_INVULNERABILITY_DURATIONS = new ConfigOption<>("custom-invulnerability-periods");
+
         USE_PARTICLES = new ConfigOption<>("use-particles");
         WAITING_PARTICLES =
                 new PerCommandOption<>("waiting-particles", "default-waiting-particles");
         TELEPORT_PARTICLES =
                 new PerCommandOption<>("teleporting-particles", "default-teleporting-particles");
         POST_TELEPORT_PARTICLES =
-                new PerCommandOption<>("default-post-teleport-particles", "post-teleport-particles");
+                new PerCommandOption<>("post-teleport-particles", "default-post-teleport-particles");
 
         USE_MYSQL = new ConfigOption<>("use-mysql");
         MYSQL_HOST = new ConfigOption<>("mysql-host");
@@ -1124,6 +1187,9 @@ public final class MainConfig extends ATConfig {
 
         TELEPORT_TO_SPAWN_FIRST = new ConfigOption<>("teleport-to-spawn-on-first-join");
         FIRST_SPAWN_POINT = new ConfigOption<>("first-spawn-point");
+        USE_RANDOM_LOCATION_FIRST_SPAWN_POINT = new ConfigOption<>("use-random-location-for-first-spawn-point");
+        FIRST_RANDOM_LOCATION_WORLD_NAME = new ConfigOption<>("first-random-teleportation-world-name");
+        SET_RANDOM_FIRST_LOCATION_HOME = new ConfigOption<>("set-first-random-location-as-home");
         TELEPORT_TO_SPAWN_EVERY = new ConfigOption<>("teleport-to-spawn-on-every-join");
         TELEPORT_TO_NEAREST_SPAWN = new ConfigOption<>("teleport-to-nearest-spawnpoint");
         USE_OVERWORLD = new ConfigOption<>("use-overworld");

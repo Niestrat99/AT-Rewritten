@@ -56,7 +56,10 @@ public final class DelHomeCommand extends AbstractHomeCommand implements PlayerC
             } else {
                 CustomMessages.sendMessage(sender, "Error.noHomes");
             }
-        } else CustomMessages.sendMessage(sender, "Error.noHomeInput");
+        } else {
+            CustomMessages.sendMessage(sender, "Error.noHomeInput");
+            return false;
+        }
 
         return true;
     }

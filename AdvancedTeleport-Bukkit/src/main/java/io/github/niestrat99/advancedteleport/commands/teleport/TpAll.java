@@ -53,7 +53,8 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
                     target,
                     "Info.tpaRequestHere",
                     Placeholder.unparsed("player", sender.getName()),
-                    Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)));
+                    Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
+                    Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
 
             BukkitRunnable run =
                     new BukkitRunnable() {

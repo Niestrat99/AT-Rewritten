@@ -101,12 +101,20 @@ public final class CustomMessages extends ATConfig {
             with each element after that being usable as <prefix:index> with index being the items index in the list.
             """
                         .trim());
-
+        addDefault("Common.timeFormat.full", "<days><hours><minutes><seconds>");
+        addDefault("Common.timeFormat.days.singular", "<days> day, ");
+        addDefault("Common.timeFormat.days.plural", "<days> days, ");
+        addDefault("Common.timeFormat.hours.singular", "<hours> hour, ");
+        addDefault("Common.timeFormat.hours.plural", "<hours> hours, ");
+        addDefault("Common.timeFormat.minutes.singular", "<minutes> minute, ");
+        addDefault("Common.timeFormat.minutes.plural", "<minutes> minutes, ");
+        addDefault("Common.timeFormat.seconds.singular", "<seconds> second");
+        addDefault("Common.timeFormat.seconds.plural", "<seconds> seconds");
 
         makeSectionLenient("Teleport");
         addDefault(
                 "Teleport.eventBeforeTP",
-                "<prefix> <gray>Teleporting in <aqua><countdown> seconds</aqua>, please do not move!");
+                "<prefix> <gray>Teleporting in <aqua><countdown-formatted></aqua>, please do not move!");
 
         addComment(
                 "Teleport.eventBeforeTP_title",
@@ -139,11 +147,14 @@ public final class CustomMessages extends ATConfig {
 
         addDefault(
                 "Teleport.eventBeforeTPMovementAllowed",
-                "<prefix> <gray>Teleporting in <aqua><countdown></aqua> seconds!");
+                "<prefix> <gray>Teleporting in <aqua><countdown-formatted></aqua>!");
         addDefault("Teleport.eventTeleport", "<prefix> <gray>Teleporting...");
         addDefault(
                 "Teleport.eventMovement",
                 "<prefix> <gray>Teleport has been cancelled due to movement.");
+        addDefault(
+                "Teleport.eventDamage",
+                "<prefix> <gray>Teleport has been cancelled due to damage being taken.");
         addDefault("Teleport.eventMovement_title.length", 60);
         addDefault("Teleport.eventMovement_title.fade-in", 0);
         addDefault("Teleport.eventMovement_title.fade-out", 10);
@@ -198,7 +209,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.neverBlocked", "<prefix> <gray>This player was never blocked!");
         addDefault(
                 "Error.onCooldown",
-                "<prefix> <gray>Please wait another <aqua><time></aqua> seconds to use this command!");
+                "<prefix> <gray>Please wait another <aqua><time-formatted></aqua> to use this command!");
         addDefault(
                 "Error.requestSentToSelf", "<prefix> <gray>You can't send a request to yourself!");
         addDefault(
@@ -403,6 +414,9 @@ public final class CustomMessages extends ATConfig {
                 "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
         addDefault("Error.notAwaitingConfirmation", "<prefix> <gray>You don't need to confirm any teleportation! If you're headed towards a dangerous place, we'll let you know.");
 
+        addDefault("Error.commandUse", "<aqua>Usage: <gray><usage>");
+        addDefault("Error.rtpManagerNotUsed", "<prefix> <gray>The RTP-Cache is not being used on the server.");
+
         makeSectionLenient("Info");
         addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "<prefix> <gray>Successfully enabled teleport requests!");
@@ -438,7 +452,7 @@ public final class CustomMessages extends ATConfig {
                 """
             <prefix> <gray>The player <aqua><player></aqua> wants to teleport you to them!
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
-            <prefix> <gray>You've got <aqua><lifetime> seconds</aqua> to respond to it!
+            <prefix> <gray>You've got <aqua><lifetime-formatted></aqua> to respond to it!
 
                               <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:'/tpano <player>'><hover:show_text:'<red>Click here to deny the request.'><red><bold>[DENY]</red></bold></hover></click>
         """
@@ -606,12 +620,14 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Info.mirrorSpawnSame",
                 "<prefix> <gray>The spawns for <aqua><from></aqua> and <aqua><spawn></aqua> already to go the same place! Don't worry :)");
-
         addDefault(
                 "Info.dangerousArea",
                 "<prefix> <gray>WARNING: the area you are teleporting to has been marked as potentially unsafe, meaning you could die or lose your items.<br>" +
                         "If you are happy to teleport to the location, please run the command <aqua>/tpconfirm</aqua>.");
         addDefault("Info.confirmedTeleportation", "<prefix> <gray>You've confirmed the teleportation! Good luck out there.");
+        addDefault("Info.clearEverything", "<prefix> <gray>The RTP-Cache has been cleared.");
+        addDefault("Info.clearWorld", "<prefix> <gray>Cache for world <aqua><world></aqua> has been cleared.");
+
 
         addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: <aqua><home>");
         addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: <aqua><warp>");
@@ -1313,6 +1329,41 @@ public final class CustomMessages extends ATConfig {
                                         + ") could not be played: sound does not exist.");
             }
         }
+    }
+
+    public static @NotNull Component toTime(final int seconds) {
+
+        // Calculate friendly time
+        final int days = seconds / (60 * 60 * 24);
+
+        final int totalHours = seconds % (60 * 60 * 24);
+        final int hours = totalHours / (60 * 60);
+
+        final int totalMinutes = totalHours % (60 * 60);
+        final int minutes = totalMinutes / 60;
+
+        final int secondsRemain = seconds % 60;
+
+        // Get individual placeholders
+        final var daysPart = getTimePart(days, "days");
+        final var hoursPart = getTimePart(hours, "hours");
+        final var minutesPart = getTimePart(minutes, "minutes");
+        final var secondsPart = getTimePart(secondsRemain, "seconds");
+
+        return getComponent("Common.timeFormat.full", Placeholder.component("days", daysPart),
+                Placeholder.component("hours", hoursPart),
+                Placeholder.component("minutes", minutesPart),
+                Placeholder.component("seconds", secondsPart));
+    }
+
+    @ApiStatus.Internal
+    private static @NotNull Component getTimePart(final int value, final @NotNull String type) {
+
+        final var placeholder = Placeholder.parsed(type, String.valueOf(value));
+
+        return value < 1 ? Component.empty() : value == 1 ?
+                getComponent("Common.timeFormat." + type + ".singular", placeholder)
+                : getComponent("Common.timeFormat." + type + ".plural", placeholder);
     }
 
     /**

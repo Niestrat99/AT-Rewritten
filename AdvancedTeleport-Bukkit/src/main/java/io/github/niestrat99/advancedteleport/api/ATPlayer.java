@@ -13,10 +13,7 @@ import io.github.niestrat99.advancedteleport.api.events.players.ToggleTeleportat
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.worldguard.FlagHandler;
-import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.managers.MovementManager;
-import io.github.niestrat99.advancedteleport.managers.ParticleManager;
-import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
@@ -232,6 +229,7 @@ public class ATPlayer {
                                         Placeholder.unparsed("home", event.getLocName()),
                                         Placeholder.unparsed("warp", event.getLocName()));
                                 PaymentManager.getInstance().withdraw(command, player, event.getToLocation().getWorld());
+                                InvulnerabilityManager.createInvulnerability(player, getInvulnerability(command, event.getToLocation().getWorld()));
                                 ParticleManager.onPostTeleport(player, command);
 
                                 if (MainConfig.get()
@@ -648,7 +646,7 @@ public class ATPlayer {
 
                             if (home == null) return;
                             HomeSQLManager.get().removeHome(uuid, home.getName());
-                            
+
                 }, CoreClass.async);
     }
 
@@ -848,6 +846,17 @@ public class ATPlayer {
                 MainConfig.get().CUSTOM_COOLDOWNS.get(),
                 destinationWorld,
                 MainConfig.get().COOLDOWNS.valueOf(command).get());
+    }
+
+    @Range(from = 0, to = Integer.MAX_VALUE)
+    @Contract(pure = true)
+    public int getInvulnerability(@NotNull final String command, @NotNull final World destinationWorld) {
+        return determineValue("at.member.invulnerability",
+                command,
+                MainConfig.get().COMMAND_INVULNERABILITY_DURATIONS.valueOf(command).get(),
+                MainConfig.get().CUSTOM_INVULNERABILITY_DURATIONS.get(),
+                destinationWorld,
+                Math::max);
     }
 
     @Range(from = 0, to = Integer.MAX_VALUE)
