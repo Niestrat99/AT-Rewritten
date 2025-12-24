@@ -40,6 +40,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class CoreClass extends JavaPlugin {
 
@@ -50,6 +52,9 @@ public final class CoreClass extends JavaPlugin {
             task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
     private static Permission perms;
     private Object[] updateInfo;
+
+    private static final Pattern OLD_VERSION_PATTERN = Pattern.compile("\\d\\.(\\d+)(?:\\.\\d+)?");
+    private static final Pattern NEW_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.\\d+|-(?:snapshot|rc|pre)-\\d+)?");
 
     public static CoreClass getInstance() {
         return instance;
@@ -167,19 +172,26 @@ public final class CoreClass extends JavaPlugin {
 
         // Get the version in question.
         debug("Performing server version check.");
-        int number = Integer.parseInt(Bukkit.getBukkitVersion().split("[.-]")[1]);
-        if (number < 17) {
-            getLogger().severe("!!! YOU ARE USING ADVANCEDTELEPORT ON AN UNSUPPORTED VERSION. !!!");
-            getLogger().severe("The plugin only receives mainstream support for 1.17.1 to 1.19.x");
-            getLogger()
-                    .severe(
-                            "If you experience an issue with the plugin, please confirm whether it occurs on newer versions as well.");
-            getLogger()
-                    .severe(
-                            "If you experience issues that only occur on your version, then we are not responsible for addressing it.");
-            getLogger().severe("You have been warned.");
+        Matcher oldVersion = OLD_VERSION_PATTERN.matcher(Bukkit.getBukkitVersion());
+        Matcher newVersion = NEW_VERSION_PATTERN.matcher(Bukkit.getBukkitVersion());
+        if (oldVersion.find()) {
+            String bukkitVersion = oldVersion.group(1);
+            int number = Integer.parseInt(bukkitVersion);
+            if (number < 17) {
+                getLogger().severe("!!! YOU ARE USING ADVANCEDTELEPORT ON AN UNSUPPORTED VERSION. !!!");
+                getLogger().severe("The plugin only receives mainstream support for 1.17.1 to 1.19.x");
+                getLogger()
+                        .severe(
+                                "If you experience an issue with the plugin, please confirm whether it occurs on newer versions as well.");
+                getLogger()
+                        .severe(
+                                "If you experience issues that only occur on your version, then we are not responsible for addressing it.");
+                getLogger().severe("You have been warned.");
+            }
+            debug("Detected major version: " + number);
+        } else if (!newVersion.find()) {
+            getLogger().severe("Failed to parse version " + Bukkit.getBukkitVersion() + "!");
         }
-        debug("Detected major version: " + number);
     }
 
     private void registerEvents() {
