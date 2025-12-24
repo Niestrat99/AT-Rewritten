@@ -628,7 +628,6 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.clearEverything", "<prefix> <gray>The RTP-Cache has been cleared.");
         addDefault("Info.clearWorld", "<prefix> <gray>Cache for world <aqua><world></aqua> has been cleared.");
 
-
         addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: <aqua><home>");
         addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: <aqua><warp>");
         addDefault(
@@ -696,6 +695,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Descriptions.tploc", "Teleports you to a specific location.");
         addDefault("Descriptions.tpoffline", "Teleports you to an offline player.");
         addDefault("Descriptions.tpofflinehere", "Teleports an offline player to you.");
+        addDefault("Descriptions.tpconfirm", "Used to confirm if you wish to teleport to a dangerous zone.");
         addDefault("Descriptions.tpr", "Teleports you to a random location.");
         addDefault("Descriptions.warp", "Teleports you to a given warp point.");
         addDefault("Descriptions.warps", "Gives you a list of warps you can teleport to.");
@@ -780,6 +780,7 @@ public final class CustomMessages extends ATConfig {
                 "/tploc <x|~> <y|~> <z|~> [Yaw|~] [Pitch|~] [World|~] [Player] [precise|noflight]");
         addDefault("Usages.tpoffline", "/tpoffline <Player>");
         addDefault("Usages.tpofflinehere", "/tpofflinehere <Player>");
+        addDefault("Usages.tpconfirm", "/tpconfirm");
         addDefault("Usages.tpr", "/tpr [World]");
         addDefault("Usages.warp", "/warp <Warp>");
         addDefault("Usages.warps", "/warps");

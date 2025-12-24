@@ -51,6 +51,7 @@ public final class CoreClass extends JavaPlugin {
             task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
     private static Permission perms;
     private Object[] updateInfo;
+    private boolean isWorldGuardAvailable;
 
     public static CoreClass getInstance() {
         return instance;
@@ -69,7 +70,9 @@ public final class CoreClass extends JavaPlugin {
         // Wakey wakey
         try {
             FlagHandler.init();
+            this.isWorldGuardAvailable = true;
         } catch (NoClassDefFoundError ignored) {
+            this.isWorldGuardAvailable = false;
         }
     }
 
@@ -355,5 +358,9 @@ public final class CoreClass extends JavaPlugin {
 
     public Object[] getUpdateInfo() {
         return updateInfo;
+    }
+
+    public boolean isWorldGuardAvailable() {
+        return this.isWorldGuardAvailable;
     }
 }

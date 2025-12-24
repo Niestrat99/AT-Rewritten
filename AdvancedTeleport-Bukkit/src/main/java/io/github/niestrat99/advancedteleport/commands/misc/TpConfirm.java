@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.misc;
 
+import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
@@ -13,7 +14,7 @@ public class TpConfirm extends ATCommand implements PlayerCommand {
 
     @Override
     public boolean getRequiredFeature() {
-        return true;
+        return CoreClass.getInstance().isWorldGuardAvailable();
     }
 
     @Override
