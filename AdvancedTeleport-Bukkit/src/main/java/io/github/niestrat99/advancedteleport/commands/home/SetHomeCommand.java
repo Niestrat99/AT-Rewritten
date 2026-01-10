@@ -42,6 +42,9 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
             if (atPlayer.getHomes().isEmpty() && (limit > 0 || limit == -1)) {
                 setHome(player, "home");
                 return true;
+            } else if (!atPlayer.canSetMoreHomes()) { // If player has reached the homes limit already.
+                CustomMessages.sendMessage(sender, "Error.reachedHomeLimit");
+                return false;
             }
 
             // If the player is a floodgate player, send them a form, otherwise tell the player to
