@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.SimpleForm;
@@ -102,7 +103,9 @@ public final class ATFloodgatePlayer extends ATPlayer {
 
     @Override
     public @Nullable Player getPlayer() {
-        return Bukkit.getPlayer(floodgateUuid);
+        OfflinePlayer offlinePlayer = player.get();
+        if (offlinePlayer == null) return Bukkit.getPlayer(floodgateUuid);
+        return offlinePlayer.getPlayer();
     }
 
     /**
