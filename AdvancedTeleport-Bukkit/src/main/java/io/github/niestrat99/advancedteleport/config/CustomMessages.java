@@ -7,8 +7,6 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.NamedLocation;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
-import io.github.niestrat99.advancedteleport.data.PartialComponent;
-import io.github.niestrat99.advancedteleport.extensions.ExPermission;
 import io.github.niestrat99.advancedteleport.folia.CancellableRunnable;
 import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.utilities.minimessage.PartialComponent;

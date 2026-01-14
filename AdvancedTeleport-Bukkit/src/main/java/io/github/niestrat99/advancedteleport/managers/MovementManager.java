@@ -55,7 +55,7 @@ public class MovementManager implements Listener {
 
         // Cancel the timer
         final var timer = movement.get(player.getUniqueId());
-        timer.cancel();
+        timer.runnable.cancel();
         CustomMessages.sendMessage(player, "Teleport.eventDamage");
         ParticleManager.removeParticles(player, timer.command);
         movement.remove(player.getUniqueId());
