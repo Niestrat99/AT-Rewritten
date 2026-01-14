@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -51,19 +52,12 @@ public class DataFailManager {
             }
         }
 
-        Bukkit.getScheduler()
-                .runTaskTimerAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            for (Fail fail : pendingFails.keySet()) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .warning("Handling failure " + fail.operation.name() + ".");
-                                handleFailure(fail);
-                            }
-                        },
-                        1200,
-                        1200);
+        RunnableManager.setupRunnerPeriodAsync(() -> {
+            for (Fail fail : pendingFails.keySet()) {
+                CoreClass.getInstance().getLogger().warning("Handling failure " + fail.operation.name() + ".");
+                handleFailure(fail);
+            }
+        }, 1200, 1200);
     }
 
     public void addFailure(Operation operation, String... data) {

@@ -49,61 +49,24 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
         CoreClass.getInstance().getLogger().info("Found squaremap, hooking...");
 
         // Get the API provider
-        this.provider()
-                .ifPresent(
-                        squaremap -> {
-                            this.provider = squaremap;
-                            for (final var world : Bukkit.getWorlds()) {
-                                provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world))
-                                        .ifPresent(
-                                                mapWorld -> {
-                                                    final var key =
-                                                            Key.of("advancedteleport_warps");
-                                                    mapWorld.layerRegistry()
-                                                            .register(
-                                                                    key,
-                                                                    createLayerProvider(
-                                                                            MainConfig.get()
-                                                                                    .MAP_WARPS));
-                                                    CoreClass.getInstance()
-                                                            .getLogger()
-                                                            .info(
-                                                                    "Added the warp layer for "
-                                                                            + world.getName()
-                                                                            + ".");
+        this.provider().ifPresent(squaremap -> {
+            this.provider = squaremap;
+            for (final var world : Bukkit.getWorlds()) {
+                provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
+                    final var warpsKey = Key.of("advancedteleport_warps");
+                    mapWorld.layerRegistry().register(warpsKey, createLayerProvider(MainConfig.get().MAP_WARPS));
+                    CoreClass.getInstance().getLogger().info("Added the warp layer for " + world.getName() + ".");
 
-                                                    final var homesKey =
-                                                            Key.of("advancedteleport_homes");
-                                                    mapWorld.layerRegistry()
-                                                            .register(
-                                                                    homesKey,
-                                                                    createLayerProvider(
-                                                                            MainConfig.get()
-                                                                                    .MAP_HOMES));
-                                                    CoreClass.getInstance()
-                                                            .getLogger()
-                                                            .info(
-                                                                    "Added the homes layer for "
-                                                                            + world.getName()
-                                                                            + ".");
+                    final var homesKey = Key.of("advancedteleport_homes");
+                    mapWorld.layerRegistry().register(homesKey, createLayerProvider(MainConfig.get().MAP_HOMES));
+                    CoreClass.getInstance().getLogger().info("Added the homes layer for " + world.getName() + ".");
 
-                                                    final var spawnsKey =
-                                                            Key.of("advancedteleport_spawns");
-                                                    mapWorld.layerRegistry()
-                                                            .register(
-                                                                    spawnsKey,
-                                                                    createLayerProvider(
-                                                                            MainConfig.get()
-                                                                                    .MAP_SPAWNS));
-                                                    CoreClass.getInstance()
-                                                            .getLogger()
-                                                            .info(
-                                                                    "Added the spawns layer for "
-                                                                            + world.getName()
-                                                                            + ".");
-                                                });
-                            }
-                        });
+                    final var spawnsKey = Key.of("advancedteleport_spawns");
+                    mapWorld.layerRegistry().register(spawnsKey, createLayerProvider(MainConfig.get().MAP_SPAWNS));
+                    CoreClass.getInstance().getLogger().info("Added the spawns layer for " + world.getName() + ".");
+                });
+            }
+        });
     }
 
     @Override
@@ -264,25 +227,20 @@ public final class SquaremapHook extends MapPlugin<Plugin, Squaremap> {
             @NotNull final MapAssetManager.IconType type,
             @NotNull final World world) {
         Objects.requireNonNull(world, "The world for " + name + " is not loaded.");
-        provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world))
-                .ifPresent(
-                        mapWorld -> {
-                            // Get the key
-                            Key layerKey =
-                                    Key.of("advancedteleport_" + type.name().toLowerCase() + "s");
-                            // Get the layer provider associated
-                            SimpleLayerProvider layer =
-                                    (SimpleLayerProvider) mapWorld.layerRegistry().get(layerKey);
-                            // Get the icon key
-                            Key key =
-                                    Key.of(
-                                            "advancedteleport_"
-                                                    + type.name().toLowerCase()
-                                                    + "_"
-                                                    + name);
-                            // Remove the icon
-                            layer.removeMarker(key);
-                        });
+        provider.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
+
+            // Get the key
+            Key layerKey = Key.of("advancedteleport_" + type.name().toLowerCase() + "s");
+
+            // Get the layer provider associated
+            SimpleLayerProvider layer = (SimpleLayerProvider) mapWorld.layerRegistry().get(layerKey);
+
+            // Get the icon key
+            Key key = Key.of("advancedteleport_" + type.name().toLowerCase() + "_" + name);
+
+            // Remove the icon
+            layer.removeMarker(key);
+        });
     }
 
     private void moveMarker(

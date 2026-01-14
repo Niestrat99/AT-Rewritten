@@ -2,6 +2,7 @@ package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -36,44 +37,41 @@ public class PlayerSQLManager extends SQLManager {
 
     @Override
     public void createTable() {
-        Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreClass.getInstance(),
-                        () -> {
-                            CoreClass.debug(
-                                    "Creating table data for the players manager if it is not already set up.");
+        RunnableManager.setupRunnerAsync(() -> {
 
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_players "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "uuid VARCHAR(256) NOT NULL, "
-                                                        + "name VARCHAR(256) NOT NULL,"
-                                                        + "timestamp_last_joined BIGINT NOT NULL,"
-                                                        + "main_home VARCHAR(256),"
-                                                        + "teleportation_on BIT DEFAULT 1 NOT NULL, "
-                                                        + "x DOUBLE, "
-                                                        + "y DOUBLE, "
-                                                        + "z DOUBLE, "
-                                                        + "yaw FLOAT, "
-                                                        + "pitch FLOAT, "
-                                                        + "world VARCHAR(256))");
+            CoreClass.debug("Creating table data for the players manager if it is not already set up.");
 
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreClass.getInstance()
-                                        .getLogger()
-                                        .severe("Failed to create the players table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
-                        });
+                    try (Connection connection = implementConnection()) {
+                        PreparedStatement createTable =
+                                prepareStatement(
+                                        connection,
+                                        "CREATE TABLE IF NOT EXISTS "
+                                                + tablePrefix
+                                                + "_players "
+                                                + "(id INTEGER PRIMARY KEY "
+                                                + getStupidAutoIncrementThing()
+                                                + ", "
+                                                + "uuid VARCHAR(256) NOT NULL, "
+                                                + "name VARCHAR(256) NOT NULL,"
+                                                + "timestamp_last_joined BIGINT NOT NULL,"
+                                                + "main_home VARCHAR(256),"
+                                                + "teleportation_on BIT DEFAULT 1 NOT NULL, "
+                                                + "x DOUBLE, "
+                                                + "y DOUBLE, "
+                                                + "z DOUBLE, "
+                                                + "yaw FLOAT, "
+                                                + "pitch FLOAT, "
+                                                + "world VARCHAR(256))");
+
+                        executeUpdate(createTable);
+                    } catch (SQLException exception) {
+                        CoreClass.getInstance()
+                                .getLogger()
+                                .severe("Failed to create the players table.");
+                        exception.printStackTrace();
+                    }
+                    transferOldData();
+                });
     }
 
     @Override

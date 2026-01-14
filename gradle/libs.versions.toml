@@ -26,6 +26,8 @@ slimjar = "1.6.1"
 shadow = "7.1.2"
 pluginYML = "0.6.0"
 
+folia = "1.20.4-R0.1-SNAPSHOT"
+
 [libraries]
 paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
 configuration = { module = "com.github.thatsmusic99:ConfigurationMaster-API", version.ref = "configuration" }
@@ -53,6 +55,8 @@ hook-worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.r
 hook-squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
 hook-dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
 hook-slimjar = { module = "dev.racci.slimjar:slimjar", version.ref = "slimjar" }
+
+folia = { module = "dev.folia:folia-api", version.ref = "folia" }
 
 [plugins]
 hangar = { id = "io.papermc.hangar-publish-plugin", version.ref = "hangar" }

@@ -4,8 +4,8 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
 import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -88,7 +88,7 @@ public abstract class SQLManager {
     }
 
     public static void runAsync(Runnable runnable) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreClass.getInstance(), runnable);
+        RunnableManager.setupRunnerAsync(runnable);
     }
 
     public static String getTablePrefix() {

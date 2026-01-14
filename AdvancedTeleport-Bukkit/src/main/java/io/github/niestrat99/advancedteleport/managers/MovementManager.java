@@ -1,9 +1,10 @@
 package io.github.niestrat99.advancedteleport.managers;
 
-import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.folia.CancellableRunnable;
+import io.github.niestrat99.advancedteleport.folia.RunnableManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -18,7 +19,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -35,7 +36,7 @@ public class MovementManager implements Listener {
         UUID uuid = event.getPlayer().getUniqueId();
         if (cancelled && movement.containsKey(uuid)) {
             ImprovedRunnable timer = movement.get(uuid);
-            timer.cancel();
+            timer.runnable.cancel();
             CustomMessages.sendMessage(event.getPlayer(), "Teleport.eventMovement");
             ParticleManager.removeParticles(event.getPlayer(), timer.command);
             movement.remove(uuid);
@@ -54,7 +55,7 @@ public class MovementManager implements Listener {
 
         // Cancel the timer
         final var timer = movement.get(player.getUniqueId());
-        timer.cancel();
+        timer.runnable.cancel();
         CustomMessages.sendMessage(player, "Teleport.eventDamage");
         ParticleManager.removeParticles(player, timer.command);
         movement.remove(player.getUniqueId());
@@ -145,10 +146,8 @@ public class MovementManager implements Listener {
         ParticleManager.applyParticles(teleportingPlayer, command);
 
         // Starts the movement checker.
-        ImprovedRunnable movementTimer =
-                new ImprovedRunnable(command) {
-                    @Override
-                    public void run() {
+        ImprovedRunnable runnable = new ImprovedRunnable(command,
+                RunnableManager.setupRunnerDelayed(teleportingPlayer, task -> {
 
                         // If the player can't pay for the
                         if (!PaymentManager.getInstance()
@@ -164,6 +163,7 @@ public class MovementManager implements Listener {
                                     // If we didn't succeed, let the player know.
                                     if (!result) {
                                         CustomMessages.sendMessage(teleportingPlayer, "Error.teleportFailed");
+                                        movement.remove(uuid);
                                         return;
                                     }
 
@@ -189,10 +189,9 @@ public class MovementManager implements Listener {
                                 });
 
                         movement.remove(uuid);
-                    }
-                };
-        movement.put(uuid, movementTimer);
-        movementTimer.runTaskLater(CoreClass.getInstance(), warmUp * 20L);
+                    
+                }, () -> {}, warmUp * 20L));
+        movement.put(uuid, runnable);
         if ((MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get()
                         && !teleportingPlayer.hasPermission("at.admin.bypass.movement"))
                 || (MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()
@@ -211,12 +210,14 @@ public class MovementManager implements Listener {
         }
     }
 
-    public abstract static class ImprovedRunnable extends BukkitRunnable {
+    public static class ImprovedRunnable {
 
         private final String command;
+        private final @NotNull CancellableRunnable runnable;
 
-        ImprovedRunnable(String command) {
+        ImprovedRunnable(String command, @NotNull CancellableRunnable runnable) {
             this.command = command;
+            this.runnable = runnable;
         }
 
         public String getCommand() {
