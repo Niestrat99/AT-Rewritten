@@ -1,0 +1,336 @@
+package io.github.niestrat99.advancedteleport.managers;
+
+import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
+import io.github.niestrat99.advancedteleport.api.ATPlayer;
+import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.Warp;
+import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
+import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
+import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
+
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.jetbrains.annotations.NotNull;
+
+public class TeleportTrackingManager implements Listener {
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+
+        // If it's an NPC, we don't care
+        if (e.getPlayer().hasMetadata("NPC")) return;
+
+        // Get the player being used
+        final var player = e.getPlayer();
+
+        // If the player doesn't need to teleport to any spawnpoints, stop there
+        if (player.hasPermission("at.admin.bypass.teleport-on-join")) return;
+
+        // If the player hasn't played before and needs teleporting, go there
+        boolean teleported = false;
+        if (!player.hasPlayedBefore() && MainConfig.get().TELEPORT_TO_SPAWN_FIRST.get()) {
+
+            final String name = MainConfig.get().FIRST_SPAWN_POINT.get();
+            final Spawn spawn = AdvancedTeleportAPI.getSpawn(name);
+
+            // If the spawn exists, go there, otherwise alert the admins
+            if (spawn != null) {
+                spawn(player, spawn.getLocation());
+                teleported = true;
+            } else if (name.isEmpty() && AdvancedTeleportAPI.getMainSpawn() != null) {
+                spawn(player, AdvancedTeleportAPI.getMainSpawn().getLocation());
+                teleported = true;
+            } else {
+                CoreAdvancedTeleport.getInstance().getPlugin()
+                        .getLogger()
+                        .warning("First-join teleport point " + name + " does not exist.");
+            }
+        }
+
+        if (!player.hasPlayedBefore() && MainConfig.get().USE_RANDOM_LOCATION_FIRST_SPAWN_POINT.get()) {
+
+            String worldName = MainConfig.get().FIRST_RANDOM_LOCATION_WORLD_NAME.get();
+            if (worldName == null || worldName.isEmpty()) {
+                if (AdvancedTeleportAPI.getMainSpawn() != null) {
+                    worldName = AdvancedTeleportAPI.getMainSpawn().getName();
+                }
+            }
+
+            World targetWorld = worldName == null || worldName.isEmpty() ? player.getWorld() : Bukkit.getWorld(worldName);
+            if (targetWorld != null) {
+
+                teleported = true;
+                AdvancedTeleportAPI.getRandomLocation(targetWorld, player).whenCompleteAsync((result, err) -> {
+
+                    if (err != null) {
+                        CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Failed to randomly teleport " + player.getName()
+                                + " on their first join! No location could be found.");
+                        return;
+                    }
+
+                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                    spawn(player, result);
+                    InvulnerabilityManager.createInvulnerability(player, atPlayer.getInvulnerability("tpr", result.getWorld()));
+                    ParticleManager.onPostTeleport(player, "tpr");
+
+                    if (MainConfig.get().USE_HOMES.get() && MainConfig.get().SET_RANDOM_FIRST_LOCATION_HOME.get()) {
+                        atPlayer.addHome("home", result);
+                    }
+                }, CoreAdvancedTeleport.sync);
+            } else {
+                CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Failed to randomly teleport " + player.getName()
+                        + " on their first join! The target world (" + worldName + ") either doesn't exist or wasn't specified.");
+            }
+        }
+
+        // If the player has played before but needs to be sent to spawn every login, go there
+        if (!teleported && MainConfig.get().TELEPORT_TO_SPAWN_EVERY.get()) {
+            final Spawn spawn = AdvancedTeleportAPI.getDestinationSpawn(player.getWorld(), player);
+            spawn(player, spawn.getLocation());
+        }
+    }
+
+    private void spawn(Player player, Location spawn) {
+        Bukkit.getScheduler()
+                .runTaskLater(
+                        CoreAdvancedTeleport.getInstance().getPlugin(),
+                        () ->
+                                CoreAdvancedTeleport.getInstance().teleportWithOptions(
+                                                player,
+                                                spawn,
+                                                PlayerTeleportEvent.TeleportCause.PLUGIN)
+                                        .whenComplete(
+                                                (result, err) -> {
+                                                    if (!result)
+                                                        CoreAdvancedTeleport.getInstance().getPlugin()
+                                                                .getLogger()
+                                                                .warning(
+                                                                        "Failed to teleport "
+                                                                                + player.getName()
+                                                                                + " on joining.");
+                                                }),
+                        10L);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onTeleport(PlayerTeleportEvent e) {
+
+        // If it's an NPC, skip over them
+        if (e.getPlayer().hasMetadata("NPC")) return;
+
+        // Get the results from teleportation
+        String result = ConditionChecker.canTeleport(e.getFrom(), e.getTo(), null, e.getPlayer());
+        if (result != null) {
+            CustomMessages.sendMessage(
+                    e.getPlayer(),
+                    result,
+                    Placeholder.unparsed("world", e.getTo().getWorld().getName()));
+            e.setCancelled(true);
+            return;
+        }
+
+        CoreAdvancedTeleport.debug("Testing to see if " + e.getPlayer().getName() + " can have their location changed via a " + e.getCause().name() + " teleport...");
+
+        // If the player can /back to this location, then set their previous location to it
+        if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
+                && MainConfig.get().BACK_TELEPORT_CAUSES.get().contains(e.getCause().name())) {
+
+            CoreAdvancedTeleport.debug(e.getPlayer().getName() + "'s back location has been updated to " + CoreAdvancedTeleport.getShortLocation(e.getFrom()));
+            ATPlayer.getPlayer(e.getPlayer()).setPreviousLocation(e.getFrom());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onTeleport(ATTeleportEvent e) {
+
+        // If it's not bound by the condition checker, ignore it
+        if (!e.getType().isRestricted()) return;
+
+        // If the player can't teleport, stop there
+        String result =
+                ConditionChecker.canTeleport(
+                        e.getFromLocation(),
+                        e.getToLocation(),
+                        e.getType().getName(),
+                        e.getPlayer());
+        if (result != null) {
+            CustomMessages.sendMessage(
+                    e.getPlayer(),
+                    result,
+                    Placeholder.unparsed("world", e.getToLocation().getWorld().getName()));
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent e) {
+
+        // If it's an NPC, once again, couldn't care less
+        if (e.getEntity().hasMetadata("NPC")) return;
+
+        // If the player can have their death location set, then set it
+
+        CoreAdvancedTeleport.debug("Testing to see if " + e.getEntity().getName() + " can have their location changed via death...");
+
+        if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
+                && e.getEntity().hasPermission("at.member.back.death")) {
+
+            CoreAdvancedTeleport.debug(e.getEntity().getName() + "'s back (death) location has been updated to " + CoreAdvancedTeleport.getShortLocation(e.getEntity().getLocation()));
+            ATPlayer.getPlayer(e.getEntity()).setPreviousLocation(e.getEntity().getLocation());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onRespawn(PlayerRespawnEvent e) {
+
+        // How many times do we need to go over this?
+        if (e.getPlayer().hasMetadata("NPC")) return;
+
+        // If the spawn feature is disabled, stop there
+        if (!MainConfig.get().USE_SPAWN.get()) return;
+
+        // Get the configuration section for death management
+        ConfigSection deathManagement = MainConfig.get().DEATH_MANAGEMENT.get();
+
+        // Get the previous location of the world, or the default option
+        String spawnCommand = deathManagement.getString(e.getPlayer().getWorld().getName());
+
+        // If one of those don't work, try the default option again
+        if (spawnCommand == null || spawnCommand.equals("default")) {
+            spawnCommand = deathManagement.getString("default");
+            CoreAdvancedTeleport.debug("Default command: " + spawnCommand);
+            if (spawnCommand == null) return;
+        }
+
+        // Go through each commands until you reach jackpot
+        for (String command : spawnCommand.split(";")) {
+            CoreAdvancedTeleport.debug("Handling respawn command: " + command);
+            if (handleSpawn(e, command)) break;
+        }
+    }
+
+    private static boolean handleSpawn(
+            @NotNull PlayerRespawnEvent e, @NotNull String spawnCommand) {
+
+        // Get the base stuff
+        final var atPlayer = ATPlayer.getPlayer(e.getPlayer());
+        final var deathManagement = MainConfig.get().DEATH_MANAGEMENT.get();
+        final var operatingWorld =
+                (atPlayer.getPreviousLocation() == null
+                        ? (AdvancedTeleportAPI.getMainSpawn() == null
+                                ? Bukkit.getWorlds().get(0)
+                                : AdvancedTeleportAPI.getMainSpawn().getLocation().getWorld())
+                        : atPlayer.getPreviousLocation()
+                                .getWorld()); // this should really be tidier
+
+        // If the default option is being used, check there - if it's invalid or such, stop there
+        if (spawnCommand.equals("default")) {
+            spawnCommand = deathManagement.getString("default");
+            if (spawnCommand == null) return false;
+        }
+
+        // If rapid response is enabled and tpr is being used, use that
+        if (spawnCommand.startsWith("tpr") && MainConfig.get().RAPID_RESPONSE.get()) {
+
+            var world = operatingWorld;
+
+            // If a world has been specified, use that
+            if (spawnCommand.indexOf(':') != -1) {
+                String worldStr = spawnCommand.substring(spawnCommand.indexOf(':'));
+                if (!worldStr.isEmpty()) {
+
+                    // If the world doesn't exist, use the original operating one
+                    world = Bukkit.getWorld(worldStr);
+                    if (world == null) world = operatingWorld;
+                }
+            }
+
+            // Get an RTP location from the world urgently
+            Location loc = RTPManager.getLocationUrgently(world);
+
+            // If one was found, use that
+            if (loc != null) {
+                e.setRespawnLocation(loc);
+                return true;
+            }
+        }
+
+        // If spawn was specified, use that
+        if (spawnCommand.equals("spawn")) {
+            final Spawn spawn = AdvancedTeleportAPI.getDestinationSpawn(operatingWorld, e.getPlayer());
+            e.setRespawnLocation(spawn.getLocation());
+            CoreAdvancedTeleport.debug("Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(spawn.getLocation()));
+            return true;
+        }
+
+        // If home was specified, use that
+        if (spawnCommand.equals("home")) {
+
+            // If there's a main home, use that
+            if (atPlayer.getMainHome() != null) {
+                e.setRespawnLocation(atPlayer.getMainHome().getLocation());
+                CoreAdvancedTeleport.debug("Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(atPlayer.getMainHome().getLocation()));
+                return true;
+            }
+
+            // Get their first home
+            if (!atPlayer.getHomes().isEmpty()) {
+                final var home = atPlayer.getHomes().values().iterator().next();
+                e.setRespawnLocation(home.getLocation());
+                CoreAdvancedTeleport.debug("Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(home.getLocation()));
+                return true;
+            }
+        }
+
+        // If a bed was specified, just use that
+        if (spawnCommand.equals("bed")) {
+            CoreAdvancedTeleport.debug("Setting respawn point to " + e.getPlayer() + "'s bed.");
+            return e.getPlayer().getBedSpawnLocation() != null;
+        }
+
+        // If we're using warps, then get the warp to be used
+        if (spawnCommand.startsWith("warp:")) {
+            try {
+
+                // Get the warp name from the spawn command
+                final String warpName = spawnCommand.split(":")[1];
+                final Warp warp = AdvancedTeleportAPI.getWarp(warpName);
+
+                CoreAdvancedTeleport.debug("Checking for warp " + warpName + " to respawn at.");
+
+                // If it exists, set it, otherwise, send a warning
+                if (warp != null) {
+                    e.setRespawnLocation(warp.getLocation());
+                    CoreAdvancedTeleport.debug("Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(warp.getLocation()));
+                    return true;
+                } else {
+                    CoreAdvancedTeleport.getInstance().getPlugin()
+                            .getLogger()
+                            .warning(
+                                    "Unknown warp " + warpName + " for death in " + operatingWorld);
+                }
+            } catch (IndexOutOfBoundsException ex) {
+                CoreAdvancedTeleport.getInstance().getPlugin()
+                        .getLogger()
+                        .warning("Malformed warp name for death in " + operatingWorld);
+            }
+        }
+
+        // If it's an anchor... weh
+        return spawnCommand.equals("anchor");
+    }
+}

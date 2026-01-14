@@ -1,9 +1,6 @@
-enableFeaturePreview("VERSION_CATALOGS")
+// enableFeaturePreview("VERSION_CATALOGS")
 
 rootProject.name = "AdvancedTeleport"
-
-include(":AdvancedTeleport-Bukkit")
-include(":AdvancedTP-Core")
 
 pluginManagement {
     repositories {
@@ -13,3 +10,7 @@ pluginManagement {
         maven("https://repo.bsdevelopment.org/releases")
     }
 }
+include("AdvancedTeleport-Paper")
+include("AdvancedTeleport-Common")
+include("AdvancedTeleport-Spigot")
+include("AdvancedTeleport-Hybrid")
