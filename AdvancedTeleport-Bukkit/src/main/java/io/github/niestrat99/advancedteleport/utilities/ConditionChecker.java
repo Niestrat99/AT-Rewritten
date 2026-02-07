@@ -64,6 +64,12 @@ public class ConditionChecker {
 
     public static @Nullable String canTeleport(
             Location fromLoc, Location toLoc, String command, Player teleportingPlayer) {
+        return canTeleport(fromLoc, toLoc, command, teleportingPlayer, null);
+    }
+
+    public static @Nullable String canTeleport(
+            Location fromLoc, Location toLoc, String command, Player teleportingPlayer,
+            @Nullable String locName) {
 
         // Use debug print
         CoreClass.debug(
@@ -81,7 +87,7 @@ public class ConditionChecker {
                 && !teleportingPlayer.hasPermission("at.admin.bypass.distance-limit")
                 && fromLoc.getWorld() == toLoc.getWorld()
                 && !DistanceLimiter.canTeleport(
-                        toLoc, fromLoc, command, ATPlayer.getPlayer(teleportingPlayer))) {
+                        toLoc, fromLoc, command, ATPlayer.getPlayer(teleportingPlayer), locName)) {
             return "Error.tooFarAway";
         }
 

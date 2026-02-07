@@ -226,6 +226,13 @@ per-command-distance-limitations:
   # Distance limit for /back
   back: default
 
+# Per-warp distance overrides.
+# Set a specific distance limit for individual warps.
+# Use -1 to remove the distance limit entirely for that warp.
+# warp-distance-overrides:
+#   caverns: -1
+#   temple: 5000
+
 ###############################
 #  Teleportation Limitations  #
 ###############################
