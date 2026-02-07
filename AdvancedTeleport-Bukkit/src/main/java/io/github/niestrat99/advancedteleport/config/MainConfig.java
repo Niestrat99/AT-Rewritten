@@ -23,6 +23,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> USE_RANDOMTP;
     public ConfigOption<Boolean> USE_SPAWN;
     public ConfigOption<Boolean> USE_HOMES;
+    public ConfigOption<Boolean> USE_TOWNY;
     public ConfigOption<List<String>> DISABLED_COMMANDS;
     public ConfigOption<Integer> REQUEST_LIFETIME;
     public ConfigOption<Boolean> USE_MULTIPLE_REQUESTS;
@@ -166,6 +167,7 @@ public final class MainConfig extends ATConfig {
         addDefault("use-spawn", true, "Whether the plugin should modify spawn/spawn properties.");
         addDefault("use-randomtp", true, "Whether the plugin should allow random teleportation.");
         addDefault("use-homes", true, "Whether homes should be enabled in the plugin.");
+        addDefault("use-towny", false, "Whether Towny integration features (e.g. Town Spawn signs) should be enabled. Requires Towny to be installed.");
         addDefault(
                 "disabled-commands",
                 new ArrayList<>(),
@@ -1073,6 +1075,7 @@ public final class MainConfig extends ATConfig {
         USE_RANDOMTP = new ConfigOption<>("use-randomtp");
         USE_SPAWN = new ConfigOption<>("use-spawn");
         USE_HOMES = new ConfigOption<>("use-homes");
+        USE_TOWNY = new ConfigOption<>("use-towny");
         DISABLED_COMMANDS = new ConfigOption<>("disabled-commands");
 
         REQUEST_LIFETIME = new ConfigOption<>("request-lifetime");

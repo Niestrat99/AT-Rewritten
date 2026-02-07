@@ -807,6 +807,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Signs.spawn", "<blue><bold>[Spawn]</bold></blue>");
         addDefault("Signs.warp", "<blue><bold>[Warp]</bold></blue>");
         addDefault("Signs.warps", "<blue><bold>[Warps]</bold></blue>");
+        addDefault("Signs.townspawn", "<blue><bold>[Town Spawn]</bold></blue>");
 
         addFormsDefault(
                 "tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");

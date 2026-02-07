@@ -4,8 +4,10 @@ import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.signs.*;
 import io.github.niestrat99.advancedteleport.CoreClass;
+import io.github.niestrat99.advancedteleport.config.MainConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +30,15 @@ public class SignManager {
         AdvancedTeleportAPI.registerSign("bed", new BedSign());
         AdvancedTeleportAPI.registerSign("spawn", new SpawnSign());
         AdvancedTeleportAPI.registerSign("randomtp", new RandomTPSign());
+
+        if (MainConfig.get().USE_TOWNY.get()) {
+            if (Bukkit.getPluginManager().getPlugin("Towny") != null) {
+                AdvancedTeleportAPI.registerSign("townspawn", new TownSpawnSign());
+            } else {
+                CoreClass.getInstance().getLogger().warning("Towny integration is enabled in config but Towny is not installed. Town Spawn signs will not be available.");
+            }
+        }
+
 	CoreClass.debug("Registered " + this.signs.size() + " signs.");
     }
 
