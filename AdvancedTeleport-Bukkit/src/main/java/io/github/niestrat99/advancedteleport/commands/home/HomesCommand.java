@@ -165,9 +165,7 @@ public final class HomesCommand extends AbstractHomeCommand {
         CoreClass.debug("Message text built.");
 
         if (!body.content().isEmpty() || !body.children().isEmpty()) {
-            String text = CustomMessages.config.getString("Info.homes") + "<homes>";
-            final var component = CustomMessages.translate(text, Placeholder.component("homes", body));
-
+            final var component = CustomMessages.getComponent("Info.homes").append(body);
             CustomMessages.sendMessage(sender, component);
         } else {
             CustomMessages.sendMessage(
