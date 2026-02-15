@@ -120,6 +120,7 @@ public final class HomeCommand extends AbstractHomeCommand implements TimedATCom
                         .runTask(
                                 CoreClass.getInstance(),
                                 () -> Bukkit.dispatchCommand(sender, "advancedteleport:homes"));
+                return true;
             }
 
             // Try getting the main home - if it exists, teleport there
