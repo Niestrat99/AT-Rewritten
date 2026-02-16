@@ -246,7 +246,7 @@ bukkit {
     main = "io.github.niestrat99.advancedteleport.CoreClass"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
 
-    softDepend = listOf("Vault", "Ultimate_Economy", "ConfigurationMaster", "WorldBorder", "ChunkyBorder", "floodgate", "Lands", "WorldGuard", "GriefProtection", "dynmap", "squaremap", "PlayerParticles")
+    softDepend = listOf("Vault", "Ultimate_Economy", "ConfigurationMaster", "WorldBorder", "ChunkyBorder", "floodgate", "Lands", "WorldGuard", "GriefProtection", "dynmap", "squaremap", "PlayerParticles", "Towny")
     loadBefore = listOf("Essentials", "EssentialsSpawn")
 
     commands {
@@ -553,6 +553,7 @@ bukkit {
                 "at.member.warp.use-sign" to true,
                 "at.member.warps.use-sign" to true,
                 "at.member.bed.use-sign" to true,
+                "at.member.townspawn.use-sign" to true,
                 "at.member.back.death" to true,
                 "at.member.warps.location" to true,
                 "at.member.homes.location" to true,
@@ -597,6 +598,7 @@ bukkit {
                 "at.admin.sign.warp.create" to true,
                 "at.admin.sign.warps.create" to true,
                 "at.admin.sign.bed.create" to true,
+                "at.admin.sign.townspawn.create" to true,
                 "at.admin.tpoffline" to true,
                 "at.admin.tpofflinehere" to true,
                 "at.member.homes.unlimited" to true
