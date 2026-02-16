@@ -502,7 +502,6 @@ public final class MainConfig extends ATConfig {
         addComment(
                 "warp-distance-overrides",
                 """
-                Per-warp distance overrides.
                 Set a specific distance limit for individual warps.
                 Use -1 to remove the distance limit entirely for that warp.
                 Example:
