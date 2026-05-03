@@ -8,6 +8,8 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+
 public class TeleportTests {
 
     public static TeleportRequest teleportTests(Player player, String[] args, String type) {
@@ -58,14 +60,19 @@ public class TeleportTests {
                             1,
                             requests,
                             request ->
-                                    CustomMessages.get(
+                                    CustomMessages.getWithInstantReplace(
                                             "Info.multipleRequestsIndex",
-                                            Placeholder.unparsed("command", type),
-                                            Placeholder.unparsed(
-                                                    "player",
-                                                    request.requester()
-                                                            .getName()) // TODO: Try use player
-                                                                        // DisplayName
+                                            Arrays.asList(
+                                                    new Pair<>("player", request.requester().getName()),
+                                                    new Pair<>("command", type)
+                                            ),
+                                            Arrays.asList(
+                                                    Placeholder.unparsed("command", type),
+                                                    Placeholder.unparsed(
+                                                            "player",
+                                                            request.requester()
+                                                                    .getName()) // TODO: Try use player DisplayName
+                                            )
                                             ));
 
             if (requests.getTotalPages() > 1) {

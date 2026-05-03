@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.NamedLocation;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
+import io.github.niestrat99.advancedteleport.utilities.Pair;
 import io.github.niestrat99.advancedteleport.utilities.minimessage.PartialComponent;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
@@ -473,7 +474,7 @@ public final class CustomMessages extends ATConfig {
                 "<prefix> <gray>You have multiple teleport requests pending! Click one of the following to cancel:");
         addDefault(
                 "Info.multipleRequestsIndex",
-                "<prefix> <click:run_command:<command> <player>><player></click>");
+                "<prefix> <click:run_command:'{command} {player}'><player></click>");
         addDefault(
                 "Info.multipleRequestsList",
                 "<prefix> <gray>Do /tpalist <Page Number> To check other requests.");
@@ -865,16 +866,19 @@ public final class CustomMessages extends ATConfig {
     public static @NotNull Component get(
             @NotNull final String path, @Nullable final TagResolver... placeholders)
             throws IllegalArgumentException {
+        return getWithInstantReplace(path, new ArrayList<>(), Arrays.asList(placeholders));
+    }
+
+    public static @NotNull Component getWithInstantReplace(@NotNull final String path,
+                                                           @NotNull final List<Pair<String, String>> instantPlaceholders,
+                                                           @NotNull final List<TagResolver> placeholders) {
+
         if (config == null) throw new IllegalStateException("Config not initialized");
 
         final var partial = messageCache.get(path);
         if (partial == null) return Component.empty();
 
-        if (placeholders == null || placeholders.length == 0) {
-            return partial.get();
-        }
-
-        return partial.get(placeholders);
+        return partial.get(instantPlaceholders, placeholders);
     }
 
     // Can't be named “get” because it conflicts with the non-static method.

@@ -1,10 +1,12 @@
 package io.github.niestrat99.advancedteleport.utilities.minimessage;
 
+import io.github.niestrat99.advancedteleport.utilities.Pair;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.SortedSet;
 
 /**
@@ -31,12 +33,17 @@ public class PartialComponent {
         return new PartialComponent(value);
     }
 
-    public Component get(final TagResolver... placeholders) {
-        if (placeholders.length == 0) {
+    public Component get(final @NotNull List<Pair<String, String>> instantPlaceholders,
+                         final @NotNull List<TagResolver> placeholders) {
+        if (placeholders.isEmpty() && instantPlaceholders.isEmpty()) {
             if (this.cache == null) this.cache = AdventureUtils.cleanDeserialise(this.value);
             return this.cache;
         } else {
-            return AdventureUtils.cleanDeserialise(this.value, placeholders);
+            String semiRaw = this.value;
+            for (Pair<String, String> placeholder : instantPlaceholders) {
+                semiRaw = semiRaw.replace("{" + placeholder.fst() + "}", placeholder.snd());
+            }
+            return AdventureUtils.cleanDeserialise(semiRaw, placeholders.toArray(TagResolver[]::new));
         }
     }
 
