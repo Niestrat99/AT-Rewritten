@@ -1,5 +1,6 @@
-package io.github.niestrat99.advancedteleport;
+package io.github.niestrat99.advancedteleport.update;
 
+import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -9,18 +10,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Properties;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
-public class UpdateChecker {
+public class SpigetUpdateChecker implements UpdateChecker {
 
     private static final String versionURL =
             "https://api.spiget.org/v2/resources/64139/versions/latest";
-    private static final String descriptionURL =
-            "https://api.spiget.org/v2/resources/64139/updates/latest";
 
-    public static Object[] getUpdate() {
+    public AvailableUpdate getLatestVersion() {
         try {
             JSONObject latestVersionObj = getURLResults(versionURL);
             if (latestVersionObj == null) return null;
@@ -28,12 +27,9 @@ public class UpdateChecker {
             // we are a little stupid
             if (newVersion.equals(CoreAdvancedTeleport.getInstance().getPlugin().getDescription().getVersion()))
                 return null;
-            long latestTimestamp = (long) latestVersionObj.get("releaseDate") * 1000;
-            if (latestTimestamp <= getInternalTimestamp()) return null;
-            JSONObject updateDesc = getURLResults(descriptionURL);
-            String updateName = (String) updateDesc.get("title");
-            return new Object[] {newVersion, updateName};
-        } catch (ParseException | java.text.ParseException e) {
+            long latestTimestamp = (long) latestVersionObj.get("releaseDate");
+            return new AvailableUpdate(newVersion, ZonedDateTime.ofInstant(Instant.ofEpochSecond(latestTimestamp), ZoneId.of("UTC")));
+        } catch (ParseException e) {
             CoreAdvancedTeleport.getInstance().getPlugin().getLogger().severe("Failed to parse update information.");
             e.printStackTrace();
             return null;
@@ -48,18 +44,14 @@ public class UpdateChecker {
     private static JSONObject getURLResults(String urlStr) throws IOException, ParseException {
         URL url = new URL(urlStr);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.addRequestProperty("User-Agent", "AdvancedTeleportPA");
+        connection.addRequestProperty("User-Agent", "Niestrat99/AT-Rewritten/" + CoreAdvancedTeleport.getInstance().getPlugin().getDescription().getVersion());
         InputStream inputStream = connection.getInputStream();
         InputStreamReader reader = new InputStreamReader(inputStream);
         return (JSONObject) new JSONParser().parse(reader);
     }
 
-    private static long getInternalTimestamp() throws IOException, java.text.ParseException {
-        InputStream updateStream = CoreAdvancedTeleport.class.getResourceAsStream("/update.properties");
-        Properties updateProperties = new Properties();
-        updateProperties.load(updateStream);
-        String timestamp = (String) updateProperties.get("update-timestamp");
-        Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(timestamp);
-        return date.getTime();
+    @Override
+    public String getDownloadLink() {
+        return "https://www.spigotmc.org/resources/advancedteleport.64139/";
     }
 }

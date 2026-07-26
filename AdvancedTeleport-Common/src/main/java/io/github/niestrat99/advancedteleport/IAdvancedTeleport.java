@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport;
 
-import net.kyori.adventure.audience.Audience;
+import io.github.niestrat99.advancedteleport.update.AvailableUpdate;
+import io.github.niestrat99.advancedteleport.update.UpdateChecker;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
@@ -8,15 +9,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 public interface IAdvancedTeleport {
 
@@ -46,4 +44,10 @@ public interface IAdvancedTeleport {
     void sendActionBar(Player player, Component component);
 
     JavaPlugin getPlugin();
+
+    UpdateChecker getUpdateChecker();
+
+    @Nullable AvailableUpdate getAvailableUpdate();
+
+    Component getTranslatableItemComponent(ItemStack item);
 }

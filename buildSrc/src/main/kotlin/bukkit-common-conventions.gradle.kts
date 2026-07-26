@@ -1,22 +1,21 @@
-import io.github.slimjar.func.slimjar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import java.text.SimpleDateFormat
+import java.util.Date
 
 plugins {
     id("java-library")
     id("de.eldoria.plugin-yml.bukkit")
     alias(libs.plugins.shadow)
-    alias(libs.plugins.slimjar)
 }
 
 dependencies {
 
     implementation(libs.annotations)
-    implementation(slimjar("2.1.9"))
 
-    slim(libs.bstats.bukkit)
-    slim(libs.configuration)
-    slim(libs.json)
-    slim(libs.paperlib)
+    implementation(libs.bstats.bukkit)
+    implementation(libs.configuration)
+    implementation(libs.json)
+    implementation(libs.paperlib)
 
     compileOnly(libs.bundles.bukkit) {
         exclude(group = "com.google.code.json")
@@ -32,21 +31,31 @@ dependencies {
 }
 
 tasks {
-    this.slimJar {
-        dependsOn(jar, compileTestJava, processTestResources, test)
-    }
-
     shadowJar {
-        dependsOn(slimJar)
+        val baseRelocation = "io.github.niestrat99.advancedteleport.libs"
+
+        relocate("org.bstats", "$baseRelocation.bstats")
+        relocate("io.papermc.lib", "$baseRelocation.paperlib")
+        relocate("io.github.thatsmusic99.configurationmaster", "$baseRelocation.configurationmaster")
     }
-}
 
-slimJar {
-    val baseRelocation = "io.github.niestrat99.advancedteleport.libs"
+    withType<JavaCompile> {
+        options.encoding = "UTF-8"
+    }
 
-    relocate("org.bstats", "$baseRelocation.bstats")
-    relocate("io.papermc.lib", "$baseRelocation.paperlib")
-    relocate("io.github.thatsmusic99.configurationmaster", "$baseRelocation.configurationmaster")
+    withType<ProcessResources> {
+        val currentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date())
+        inputs.property("version", project.version)
+        inputs.property("timestamp", currentDate)
+
+        filesMatching("update.properties") {
+            expand(mutableMapOf("timestamp" to currentDate))
+        }
+    }
+
+    build {
+        dependsOn(shadowJar)
+    }
 }
 
 bukkit {

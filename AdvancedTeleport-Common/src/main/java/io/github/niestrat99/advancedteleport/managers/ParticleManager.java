@@ -28,7 +28,7 @@ public final class ParticleManager {
         // Check if using inbuilt particles
         final var particle = MainConfig.get().TELEPORT_PARTICLES.valueOf(command).get();
         if (particle.equals("spark")) {
-            doSpark(player.getLocation());
+            doSpark(player, player.getLocation());
         }
 
         PluginHookManager.get()
@@ -52,7 +52,7 @@ public final class ParticleManager {
         // Check if using inbuilt particles
         final var particle = particlesOption.valueOf(command).get();
         if (particle.equals("spark")) {
-            doSpark(player.getLocation());
+            doSpark(player, player.getLocation());
             return;
         }
 
@@ -70,8 +70,11 @@ public final class ParticleManager {
                 .orElse(null);
     }
 
-    public static void doSpark(@NotNull final Location location) {
-        location.getWorld().spawnParticle(getSpark(), location, 50, 0, 0, 0, 0.5);
+    public static void doSpark(@NotNull final Player teleportingPlayer, @NotNull final Location location) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!player.canSee(teleportingPlayer)) continue;
+            player.spawnParticle(getSpark(), location, 50, 0, 0, 0, 0.5);
+        }
     }
 
     private static Particle getSpark() {

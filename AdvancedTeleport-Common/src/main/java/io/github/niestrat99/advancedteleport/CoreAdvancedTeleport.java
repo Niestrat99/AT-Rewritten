@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.listeners.*;
 import io.github.niestrat99.advancedteleport.managers.*;
 import io.github.niestrat99.advancedteleport.sql.*;
+import io.github.niestrat99.advancedteleport.update.AvailableUpdate;
 import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
 
 import net.milkbowl.vault.permission.Permission;
@@ -16,17 +17,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.Executor;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class CoreAdvancedTeleport implements IAdvancedTeleport {
 
@@ -36,10 +40,8 @@ public abstract class CoreAdvancedTeleport implements IAdvancedTeleport {
     public static final Executor sync =
             task -> Bukkit.getScheduler().runTask(CoreAdvancedTeleport.getInstance().getPlugin(), task);
     private static Permission perms;
-    private Object[] updateInfo;
-
-    private static final Pattern OLD_VERSION_PATTERN = Pattern.compile("\\d\\.(\\d+)(?:\\.\\d+)?");
-    private static final Pattern NEW_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.\\d+|-(?:snapshot|rc|pre)-\\d+)?");
+    private @Nullable AvailableUpdate availableUpdate;
+    private static @Nullable ZonedDateTime buildTimestamp;
 
     public static IAdvancedTeleport getInstance() {
         return instance;
@@ -59,6 +61,12 @@ public abstract class CoreAdvancedTeleport implements IAdvancedTeleport {
     @Override
     public void onEnable() {
         instance = this;
+        try {
+            this.buildTimestamp = getInternalTimestamp();
+
+        } catch (IOException | ParseException ex) {
+
+        }
         this.getPlugin().getLogger().info("Advanced Teleport is now enabling...");
         setupPermissions();
         for (Class<? extends ATConfig> config :
@@ -115,15 +123,7 @@ public abstract class CoreAdvancedTeleport implements IAdvancedTeleport {
                         () -> {
                             RTPManager.init();
                             if (MainConfig.get().CHECK_FOR_UPDATES.get()) {
-                                updateInfo = UpdateChecker.getUpdate();
-                                if (updateInfo != null) {
-                                    this.getPlugin().getLogger().info("A new version is available!");
-                                    this.getPlugin().getLogger().info("Current version you're using: " + this.getPlugin().getDescription().getVersion());
-                                    this.getPlugin().getLogger().info("Latest version available: " + updateInfo[0]);
-                                    this.getPlugin().getLogger().info("Download link: https://www.spigotmc.org/resources/advancedteleport.64139/");
-                                } else {
-                                    this.getPlugin().getLogger().info("Plugin is up to date!");
-                                }
+                                this.checkForUpdate();
                             }
                         });
     }
@@ -215,7 +215,37 @@ public abstract class CoreAdvancedTeleport implements IAdvancedTeleport {
                 + location.getWorld();
     }
 
-    public Object[] getUpdateInfo() {
-        return updateInfo;
+    public static @Nullable ZonedDateTime getBuildTimestamp() {
+        return buildTimestamp;
+    }
+
+    @Override
+    public @Nullable AvailableUpdate getAvailableUpdate() {
+        return this.availableUpdate;
+    }
+
+    private @Nullable ZonedDateTime getInternalTimestamp() throws IOException, java.text.ParseException {
+        InputStream updateStream = CoreAdvancedTeleport.class.getResourceAsStream("/update.properties");
+        Properties updateProperties = new Properties();
+        updateProperties.load(updateStream);
+        String timestamp = (String) updateProperties.get("update-timestamp");
+        try {
+            return ZonedDateTime.parse(timestamp, DateTimeFormatter.ISO_DATE_TIME);
+        } catch (DateTimeParseException ex) {
+            getPlugin().getLogger().warning("Failed to parse internal build timestamp '" + timestamp + "' - update checking will not work.");
+            return null;
+        }
+    }
+
+    private void checkForUpdate() {
+        this.availableUpdate = getUpdateChecker().getLatestVersion();
+        if (this.availableUpdate != null && this.availableUpdate.isNewerThanCurrent()) {
+            this.getPlugin().getLogger().info("A new version is available!");
+            this.getPlugin().getLogger().info("Current version you're using: " + this.getPlugin().getDescription().getVersion());
+            this.getPlugin().getLogger().info("Latest version available: " + this.availableUpdate.versionTag());
+            this.getPlugin().getLogger().info("Download link: " + getUpdateChecker().getDownloadLink());
+        } else {
+            this.getPlugin().getLogger().info("Plugin is up to date!");
+        }
     }
 }

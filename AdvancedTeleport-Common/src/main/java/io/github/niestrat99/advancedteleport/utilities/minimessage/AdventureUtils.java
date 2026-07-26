@@ -47,7 +47,7 @@ public class AdventureUtils {
         );
     }
 
-    private record LazyStringReplacement(Supplier<?> supplier) implements Tag, PreProcess {
+    private record LazyStringReplacement(Supplier<?> supplier) implements PreProcess {
 
         @Override
         public @NotNull String value() {

@@ -101,18 +101,10 @@ tasks {
     }
 
     runServer {
-        dependsOn(slimJar)
+        dependsOn(shadowJar)
         minecraftVersion("26.2")
         runDirectory.set(rootDir.resolve(".run"))
         pluginJars(getJarFile())
-    }
-
-    this.slimJar {
-        dependsOn(sourcesJar, compileTestJava, processTestResources, test)
-    }
-
-    shadowJar {
-        dependsOn(slimJar)
     }
 }
 

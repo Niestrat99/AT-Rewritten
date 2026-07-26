@@ -22,41 +22,20 @@ public final class PlayerListeners implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerJoin(@NotNull final PlayerJoinEvent event) {
-
-        // Don't track if the player is an NPC
         if (event.getPlayer().hasMetadata("NPC")) return;
-
-        // This will load/relog the associated player data
         ATPlayer.relog(event.getPlayer());
-
-        // Update their username if it has been changed
         PlayerSQLManager.get().updatePlayerData(event.getPlayer());
-
-        // If we aren't notifying administrators about new updates
         if (!MainConfig.get().NOTIFY_ADMINS.get()) return;
-
-        // If the player doesn't have the permission to receive update notifications
         if (!event.getPlayer().hasPermission("at.admin.notify")) return;
-
-        // If there's no new update information
-        if (CoreAdvancedTeleport.getInstance().getPlugin().getUpdateInfo() == null) return;
-
-        // Get the update title
-        String title = (String) CoreAdvancedTeleport.getInstance().getPlugin().getUpdateInfo()[1];
-
-        // Get the new version
-        String newVersion = (String) CoreAdvancedTeleport.getInstance().getPlugin().getUpdateInfo()[0];
-
-        // Get the current version
+        if (CoreAdvancedTeleport.getInstance().getAvailableUpdate() == null && CoreAdvancedTeleport.getInstance().getAvailableUpdate().isNewerThanCurrent()) return;
+        String newVersion = CoreAdvancedTeleport.getInstance().getAvailableUpdate().versionTag();
         String currentVersion = CoreAdvancedTeleport.getInstance().getPlugin().getDescription().getVersion();
-
-        // let 'em know :D
         CustomMessages.sendMessage(
                 event.getPlayer(),
                 "Info.updateInfo",
                 Placeholder.unparsed("version", currentVersion),
                 Placeholder.unparsed("new-version", newVersion),
-                Placeholder.unparsed("title", title));
+                Placeholder.unparsed("title", "N/A"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

@@ -6,8 +6,8 @@ import com.google.gson.JsonParser;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.listeners.PaperSignChangeListener;
 import io.github.niestrat99.advancedteleport.listeners.PaperSignOpenListener;
-import io.github.slimjar.app.builder.ApplicationBuilder;
-import io.github.slimjar.logging.ProcessLogger;
+import io.github.niestrat99.advancedteleport.update.SpigetUpdateChecker;
+import io.github.niestrat99.advancedteleport.update.UpdateChecker;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 import net.kyori.adventure.sound.Sound;
@@ -28,13 +28,10 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -45,20 +42,15 @@ public class PaperWrapper extends CoreAdvancedTeleport {
 
     private static final Pattern HEX_PATTERN = Pattern.compile("^[0-9a-fA-F]+$");
     private final JavaPlugin plugin;
+    private final UpdateChecker updateChecker;
 
     public PaperWrapper(JavaPlugin plugin) {
         this.plugin = plugin;
+        this.updateChecker = new SpigetUpdateChecker();
     }
 
     @Override
     public void onLoad() {
-        try {
-            loadLibraries();
-        } catch (final Exception err) {
-            this.plugin.getLogger().severe("Failed to load libraries!");
-            this.plugin.getLogger().throwing(PaperWrapper.class.getName(), "onLoad", err);
-            Bukkit.getPluginManager().disablePlugin(this.plugin);
-        }
     }
 
     @Override
@@ -173,6 +165,16 @@ public class PaperWrapper extends CoreAdvancedTeleport {
         return this.plugin;
     }
 
+    @Override
+    public UpdateChecker getUpdateChecker() {
+        return this.updateChecker;
+    }
+
+    @Override
+    public Component getTranslatableItemComponent(ItemStack item) {
+        return Component.translatable(item.translationKey());
+    }
+
     /**
      * Nag author: 'Niestrat99' of 'AdvancedTeleport' about the following: This plugin is not
      * properly shutting down its async tasks when it is being shut down. This task may throw errors
@@ -209,26 +211,5 @@ public class PaperWrapper extends CoreAdvancedTeleport {
                         });
 
         runnersField.set(scheduler, runners);
-    }
-
-    private void loadLibraries()
-            throws ReflectiveOperationException,
-            IOException,
-            URISyntaxException,
-            NoSuchAlgorithmException,
-            InterruptedException {
-        ApplicationBuilder.appending("AdvancedTeleport")
-                .downloadDirectoryPath(this.plugin.getDataFolder().toPath().resolve(".libs"))
-                .logger(
-                        new ProcessLogger() {
-                            @Override
-                            public void info(String s, Object... objects) {
-                                PaperWrapper.this.plugin.getLogger().info(String.format(s, objects));
-                            }
-
-                            @Override
-                            public void debug(String message, Object... args) {}
-                        })
-                .build();
     }
 }
