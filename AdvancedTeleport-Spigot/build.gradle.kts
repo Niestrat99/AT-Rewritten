@@ -1,8 +1,8 @@
-import io.github.slimjar.func.slimjar
-
 plugins {
     id("java")
     id("bukkit-common-conventions")
+    id("slimjar-conventions")
+    id("spigot-conventions")
 }
 
 group = "io.github.niestrat99"
@@ -15,10 +15,6 @@ dependencies {
     implementation(project(":AdvancedTeleport-Common"))
 
     compileOnly(libs.spigot)
-
-    slim(libs.bundles.adventure)
-    slim(libs.adventure.platform.bukkit)
-    slim(libs.kyori.examination)
 }
 
 tasks.test {

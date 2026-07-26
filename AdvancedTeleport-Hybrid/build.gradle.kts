@@ -1,6 +1,8 @@
 plugins {
     id("java")
     id("bukkit-common-conventions")
+    id("slimjar-conventions")
+    id("spigot-conventions")
 }
 
 group = "io.github.niestrat99"
@@ -11,10 +13,6 @@ repositories {
 
     maven("https://repo.papermc.io/repository/maven-public/") {
         name = "Paper, PaperLib and Adventure"
-    }
-
-    maven("https://repo.bsdevelopment.org/releases") {
-        name = "Slimjar"
     }
 }
 
@@ -32,8 +30,10 @@ dependencies {
     implementation(project(":AdvancedTeleport-Common"))
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks{
+    test {
+        useJUnitPlatform()
+    }
 }
 
 configurations.configureEach {
