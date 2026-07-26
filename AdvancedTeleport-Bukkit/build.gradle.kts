@@ -118,7 +118,7 @@ dependencies {
     compileOnly(libs.hook.playerparticles)
     compileOnly(libs.hook.worldguard)
     compileOnly(libs.hook.squaremap)
-    compileOnly(libs.factionsuuid)
+    compileOnly(libs.hook.factionsuuid)
     compileOnly(libs.hook.dynmap) {
         artifact { // Uses wrong jar if not specified
             name = "dynmap-api"

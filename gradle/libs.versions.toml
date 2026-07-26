@@ -25,7 +25,7 @@ hangar = "0.0.5"
 slimjar = "1.6.1"
 shadow = "7.1.2"
 pluginYML = "0.6.0"
-factionsuuid = "1.6.9.5-U0.6.33"
+factionsuuid = "1.6.9.5-U0.6.40"
 
 [libraries]
 paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
