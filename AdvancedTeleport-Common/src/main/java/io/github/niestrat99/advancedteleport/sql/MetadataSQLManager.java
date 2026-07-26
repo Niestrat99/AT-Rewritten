@@ -387,7 +387,7 @@ public class MetadataSQLManager extends SQLManager {
                             if (main != null) {
                                 Bukkit.getScheduler()
                                         .runTask(
-                                                CoreAdvancedTeleport.getInstance(),
+                                                CoreAdvancedTeleport.getInstance().getPlugin(),
                                                 () -> main.setMirroringSpawn(mirror, null));
                             }
                         }

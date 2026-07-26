@@ -22,7 +22,6 @@ dependencies {
 
     compileOnly(libs.annotations)
     compileOnly(libs.bundles.adventure)
-    compileOnly(libs.adventure.platform.bukkit)
     compileOnly(libs.bstats.bukkit)
 }
 
@@ -47,40 +46,6 @@ publishing {
     }
 }
 
-tasks {
-    withType<JavaCompile> {
-        options.encoding = "UTF-8"
-    }
-
-    withType<ProcessResources> {
-        val currentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date())
-        inputs.property("version", project.version)
-        inputs.property("timestamp", currentDate)
-
-        filesMatching("update.properties") {
-            expand(mutableMapOf("timestamp" to currentDate))
-        }
-    }
-
-    build {
-        dependsOn(shadowJar)
-    }
-
-    shadowJar {
-        dependencies {
-            project.configurations.implementation.get().dependencies.forEach {
-                include(dependency(it))
-            }
-            relocate("io.github.slimjar", "io.github.niestrat99.advancedteleport.libs.slimjar")
-        }
-    }
-
-    this.slimJar {
-        dependsOn(sourcesJar)
-    }
-
-    shadowJar {
-        dependsOn(slimJar)
-    }
+tasks.test {
+    useJUnitPlatform()
 }
-

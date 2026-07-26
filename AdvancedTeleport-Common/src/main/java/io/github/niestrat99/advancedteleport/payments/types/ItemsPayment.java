@@ -1,15 +1,15 @@
 package io.github.niestrat99.advancedteleport.payments.types;
 
+import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.payments.Payment;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemsPayment extends Payment {
 
@@ -76,13 +76,7 @@ public class ItemsPayment extends Payment {
     @Override
     public void setPlayerAmount(Player player) {
         int remaining = amount;
-        ItemMeta meta = new ItemStack(material).getItemMeta();
-        String name;
-        if (meta != null && meta.hasLocalizedName()) {
-            name = meta.getLocalizedName();
-        } else {
-            name = material.name();
-        }
+        Component name = CoreAdvancedTeleport.getInstance().getTranslatableItemComponent(new ItemStack(material));
         for (int slot : player.getInventory().all(material).keySet()) {
             if (remaining == 0) break;
             ItemStack item = player.getInventory().getItem(slot);
@@ -100,7 +94,7 @@ public class ItemsPayment extends Payment {
                     player,
                     "Info.paymentItems",
                     Placeholder.unparsed("amount", String.valueOf(amount)),
-                    Placeholder.unparsed("type", name));
+                    Placeholder.component("type", name));
         }
     }
 
@@ -108,18 +102,12 @@ public class ItemsPayment extends Payment {
     public boolean canPay(Player player) {
         boolean result = super.canPay(player);
         if (!result) {
-            ItemMeta meta = new ItemStack(material).getItemMeta();
-            String name;
-            if (meta != null && meta.hasLocalizedName()) {
-                name = meta.getLocalizedName();
-            } else {
-                name = material.name();
-            }
+            Component name = CoreAdvancedTeleport.getInstance().getTranslatableItemComponent(new ItemStack(material));
             CustomMessages.sendMessage(
                     player,
                     "Error.notEnoughItems",
                     Placeholder.unparsed("amount", String.valueOf(amount)),
-                    Placeholder.unparsed("type", name));
+                    Placeholder.component("type", name));
         }
         return result;
     }
@@ -127,14 +115,4 @@ public class ItemsPayment extends Payment {
     public Material getMaterial() {
         return material;
     }
-
-    // TODO: Implement NBT
-    private boolean hasNBT(ItemStack item) {
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return false;
-        for (NamespacedKey key : meta.getPersistentDataContainer().getKeys()) {}
-        return false;
-    }
-
-    public static class NBTJSONRepresentation {}
 }

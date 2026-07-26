@@ -369,7 +369,7 @@ public class PlayerSQLManager extends SQLManager {
             try {
                 lastLocations.save(lastLocFile);
             } catch (IOException e) {
-                CoreAdvancedTeleport.getInstance()
+                CoreAdvancedTeleport.getInstance().getPlugin()
                         .getLogger()
                         .severe(
                                 "Failed to remove the last location of "
