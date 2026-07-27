@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.api.events.homes;
 import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ public final class HomeCreateEvent extends TrackableATEvent {
             @NotNull final OfflinePlayer player,
             @NotNull final String name,
             @NotNull final Location location,
-            @Nullable final Player creator)
+            @Nullable final CommandSender creator)
             throws IllegalArgumentException, IllegalStateException {
         super(creator);
 

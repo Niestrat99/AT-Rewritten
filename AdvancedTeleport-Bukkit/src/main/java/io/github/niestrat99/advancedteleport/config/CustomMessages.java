@@ -419,6 +419,9 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.randomLocFailed",
                 "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
+        addDefault(
+                "Error.invalidCoords",
+                "<prefix> <gray>You have to specify valid coordinates to set a player's home via location!");
 
         addDefault("Error.commandUse", "<aqua>Usage: <gray><usage>");
         addDefault("Error.rtpManagerNotUsed", "<prefix> <gray>The RTP-Cache is not being used on the server.");
