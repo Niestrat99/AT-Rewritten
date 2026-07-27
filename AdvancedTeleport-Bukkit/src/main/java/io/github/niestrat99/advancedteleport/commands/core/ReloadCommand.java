@@ -8,7 +8,7 @@ import io.github.niestrat99.advancedteleport.config.GUIConfig;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
-import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
+import io.github.niestrat99.advancedteleport.rtp.RTPManager;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -44,9 +44,9 @@ public final class ReloadCommand extends SubATCommand {
                 ex.printStackTrace();
             }
         }
-        RandomCoords.reload();
         CooldownManager.init();
         CommandManager.registerCommands();
+        RTPManager.checkLocationsInBorder();
         CustomMessages.sendMessage(sender, "Info.reloadedConfig");
         return true;
     }

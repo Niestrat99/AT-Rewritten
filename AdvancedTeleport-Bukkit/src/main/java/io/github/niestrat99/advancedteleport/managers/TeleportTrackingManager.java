@@ -8,6 +8,7 @@ import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.rtp.RTPManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 

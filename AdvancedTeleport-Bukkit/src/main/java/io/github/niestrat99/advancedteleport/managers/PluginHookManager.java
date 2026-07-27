@@ -7,7 +7,6 @@ import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.hooks.PluginHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.ChunkyBorderHook;
-import io.github.niestrat99.advancedteleport.hooks.borders.VanillaBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.WorldBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.FactionsUUIDClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.GriefPreventionClaimHook;
@@ -17,6 +16,7 @@ import io.github.niestrat99.advancedteleport.hooks.imports.EssentialsHook;
 import io.github.niestrat99.advancedteleport.hooks.maps.DynmapHook;
 import io.github.niestrat99.advancedteleport.hooks.maps.SquaremapHook;
 import io.github.niestrat99.advancedteleport.hooks.particles.PlayerParticlesHook;
+import io.github.niestrat99.advancedteleport.rtp.RandomTPBorders;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
@@ -54,7 +54,6 @@ public final class PluginHookManager {
         // World border Plugins
         loadPlugin("worldborder", WorldBorderHook.class);
         loadPlugin("chunkyborder", ChunkyBorderHook.class);
-        loadPlugin("vanilla", VanillaBorderHook.class);
 
         // Particle plugins
         loadPlugin("playerparticles", PlayerParticlesHook.class);
@@ -130,19 +129,26 @@ public final class PluginHookManager {
     }
 
     @Contract(pure = true)
-    public double[] getRandomCoords(@NotNull final World world) {
-        return getPluginHooks(BorderPlugin.class, true)
-                .filter(plugin -> plugin.canUse(world))
-                .findFirst()
-                .map(
-                        hook ->
-                                new double[] {
-                                    hook.getMinX(world),
-                                    hook.getMaxX(world),
-                                    hook.getMinZ(world),
-                                    hook.getMaxZ(world)
-                                })
-                .orElse(null);
+    public RandomTPBorders getBorders(@NotNull final World world) {
+
+        RandomTPBorders border = null;
+        for (BorderPlugin hook : getPluginHooks(BorderPlugin.class, true).toList()) {
+            if (!hook.canUse(world)) continue;
+            RandomTPBorders otherBorder = new RandomTPBorders(
+                    hook.getMinX(world),
+                    hook.getMaxX(world),
+                    hook.getMinZ(world),
+                    hook.getMaxZ(world)
+            );
+
+            if (border == null) {
+                border = otherBorder;
+            } else {
+                border = border.minimal(otherBorder);
+            }
+        }
+
+        return border;
     }
 
     @Contract(pure = true)

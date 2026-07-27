@@ -1,10 +1,10 @@
-package io.github.niestrat99.advancedteleport.managers;
+package io.github.niestrat99.advancedteleport.rtp;
 
 import com.google.common.collect.Sets;
 
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.papermc.lib.PaperLib;
 
 import org.bukkit.Bukkit;
@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -29,7 +30,6 @@ public class RTPManager {
     private static HashMap<UUID, Queue<Location>> locQueue;
 
     public static void init() {
-        locQueue = new HashMap<>();
         if (!PaperLib.isPaper()) {
             CoreClass.debug("Server is not using Paper, cannot initialise RTPManager.");
             return;
@@ -44,6 +44,8 @@ public class RTPManager {
                 .info(
                         "Preparing random teleportation locations. "
                                 + "If your server performance or memory suffers, please set `use-rapid-response` to false in the config.yml file.");
+
+        locQueue = new HashMap<>();
 
         try {
             getPreviousLocations();
@@ -75,8 +77,52 @@ public class RTPManager {
         if (queue == null || queue.isEmpty()) {
             return addLocation(world, true, 0);
         } else {
-            return CompletableFuture.completedFuture(queue.poll());
+            Location loc = queue.poll();
+            return isLocationInBorders(loc) ? CompletableFuture.completedFuture(queue.poll())
+                    : addLocation(world, true, 0);
         }
+    }
+
+    /**
+     * Used to check if certain coordinates still lay within the borders.
+     */
+    public static void checkLocationsInBorder() {
+
+        if (!isInitialised()) return;
+
+        // Go through each world and location
+        for (UUID worldUUID : locQueue.keySet()) {
+
+            Queue<Location> pendingRandomLocs = locQueue.get(worldUUID);
+            Iterator<Location> pendingRandomLocsIt = pendingRandomLocs.iterator();
+            while (pendingRandomLocsIt.hasNext()) { // bruh i'm gonna hit a concurrent modification exception silly billy
+                Location location = pendingRandomLocsIt.next();
+
+                // Replace the location if it's now outside the borders
+                if (!isLocationInBorders(location)) {
+                    pendingRandomLocs.remove(location);
+                    CoreClass.debug("Location " + CoreClass.getShortLocation(location) + " now sits outside of the " +
+                            "world's borders, picking a new one...");
+
+                    addLocation(location.getWorld(), false, 0)
+                            .thenAccept(
+                                    newLoc -> {
+                                        if (newLoc == null) return;
+                                        pendingRandomLocs.add(newLoc);
+                                        locQueue.put(location.getWorld().getUID(), pendingRandomLocs);
+                                    });
+                }
+            }
+        }
+    }
+
+    private static boolean isLocationInBorders(final @NotNull Location location) {
+
+        RandomTPBorders borders = CoordinateGenerator.getBorders(location.getWorld());
+
+        // Check the coordinates
+        return location.getX() > borders.minX() && location.getX() < borders.maxX()
+                && location.getZ() > borders.minZ() && location.getZ() < borders.maxZ();
     }
 
     public static Location getLocationUrgently(World world) {
@@ -91,7 +137,8 @@ public class RTPManager {
         if (queue == null || queue.isEmpty()) {
             return null;
         } else {
-            return queue.remove();
+            Location loc = queue.poll();
+            return isLocationInBorders(loc) ? loc : null;
         }
     }
 
@@ -112,14 +159,16 @@ public class RTPManager {
                 && locQueue.get(world.getUID()).size()
                         > MainConfig.get().PREPARED_LOCATIONS_LIMIT.get()) {
             Location loc = locQueue.get(world.getUID()).poll();
-            if (!PluginHookManager.get().isClaimed(loc)) {
-                CoreClass.debug("Area is not claimed - returning as valid location");
-                return CompletableFuture.completedFuture(loc);
+            if (loc != null) {
+                if (!PluginHookManager.get().isClaimed(loc)) {
+                    CoreClass.debug("Area is not claimed - returning as valid location");
+                    return CompletableFuture.completedFuture(loc);
+                }
             }
         }
 
         // Generate the coordinates.
-        Location location = RandomCoords.generateCoords(world);
+        Location location = CoordinateGenerator.generateCoords(world);
 
         if (location == null) {
             return CompletableFuture.completedFuture(null);

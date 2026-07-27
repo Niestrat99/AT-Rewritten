@@ -74,8 +74,8 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<ConfigSection> X;
     public ConfigOption<ConfigSection> Z;
     public ConfigOption<Boolean> RAPID_RESPONSE;
-    public ConfigOption<Boolean> USE_VANILLA_BORDER;
-    public ConfigOption<Boolean> USE_PLUGIN_BORDERS;
+    public ConfigOption<Boolean> SYNC_VANILLA_BORDER;
+    public ConfigOption<Boolean> SYNC_PLUGIN_BORDERS;
     public ConfigOption<Boolean> PROTECT_CLAIM_LOCATIONS;
     public ConfigOption<Integer> PREPARED_LOCATIONS_LIMIT;
     public ConfigOption<List<String>> IGNORE_WORLD_GENS;
@@ -611,12 +611,13 @@ public final class MainConfig extends ATConfig {
                 IMPORTANT NOTE - this feature only works on the Paper server type and any of its forks. It is not considered safe to use on Spigot or Bukkit.\
                 """);
         addDefault(
-                "use-vanilla-border",
+                "sync-vanilla-border",
                 false,
-                "Whether the plugin should use the Vanilla world border as a viable "
-                        + "option for managing /tpr boundaries.");
+                "Whether the plugin should sync its /tpr boundaries with the Vanilla world border."
+                        + "\nThis does not need to be enabled to respect a smaller Vanilla world border - the plugin" +
+                        "will automatically adjust to smaller world borders if required.");
         addDefault(
-                "use-plugin-borders",
+                "sync-plugin-borders",
                 true,
                 "Whether the plugin should use plugin world borders for managing /tpr "
                         + "boundaries.\n"
@@ -1063,6 +1064,9 @@ public final class MainConfig extends ATConfig {
         moveTo(
                 "permissions.allow-admin-perms-as-defaults",
                 "allow-admin-permissions-as-default-perms");
+
+        moveTo("use-vanilla-border", "sync-vanilla-border");
+        moveTo("use-plugin-borders", "sync-plugin-borders");
     }
 
     @Override
@@ -1154,8 +1158,8 @@ public final class MainConfig extends ATConfig {
         X = new ConfigOption<>("x");
         Z = new ConfigOption<>("z");
         RAPID_RESPONSE = new ConfigOption<>("use-rapid-response");
-        USE_VANILLA_BORDER = new ConfigOption<>("use-vanilla-border");
-        USE_PLUGIN_BORDERS = new ConfigOption<>("use-plugin-borders");
+        SYNC_VANILLA_BORDER = new ConfigOption<>("sync-vanilla-border");
+        SYNC_PLUGIN_BORDERS = new ConfigOption<>("sync-plugin-borders");
         PROTECT_CLAIM_LOCATIONS = new ConfigOption<>("protect-claim-locations");
         PREPARED_LOCATIONS_LIMIT = new ConfigOption<>("prepared-locations-limit");
         IGNORE_WORLD_GENS = new ConfigOption<>("ignore-world-generators");
