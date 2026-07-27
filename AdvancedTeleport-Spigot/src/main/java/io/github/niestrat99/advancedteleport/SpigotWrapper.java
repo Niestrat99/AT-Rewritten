@@ -3,8 +3,10 @@ package io.github.niestrat99.advancedteleport;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import io.github.niestrat99.advancedteleport.adventure.BungeeComponentSerializer;
+import io.github.niestrat99.advancedteleport.commands.DummyTpHereOffline;
 import io.github.niestrat99.advancedteleport.listeners.SpigotSignChangeListener;
 import io.github.niestrat99.advancedteleport.listeners.SpigotSignOpenListener;
+import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.update.UpdateChecker;
 import io.github.slimjar.app.builder.ApplicationBuilder;
 import io.github.slimjar.logging.ProcessLogger;
@@ -65,6 +67,10 @@ public class SpigotWrapper extends CoreAdvancedTeleport {
     public void onEnable() {
         instance = this;
         super.onEnable();
+
+        // TODO forces this to disable, but would like a nicer solution permanently
+        CommandManager.register("tpofflinehere", new DummyTpHereOffline());
+        CommandManager.syncCommands();
     }
 
     @Override

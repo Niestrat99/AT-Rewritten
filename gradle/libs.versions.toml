@@ -1,6 +1,6 @@
 [versions]
 paperlib = "1.0.7"
-adventure = "5.1.0"
+adventure = "5.2.0"
 examination = "1.3.0"
 configuration = "v2.0.0-rc.3"
 annotations = "24.0.0"
