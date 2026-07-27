@@ -3,9 +3,11 @@ package io.github.niestrat99.advancedteleport;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import io.github.niestrat99.advancedteleport.commands.TpHereOffline;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.listeners.PaperSignChangeListener;
 import io.github.niestrat99.advancedteleport.listeners.PaperSignOpenListener;
+import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.update.SpigetUpdateChecker;
 import io.github.niestrat99.advancedteleport.update.UpdateChecker;
 import net.kyori.adventure.key.Key;
@@ -57,6 +59,9 @@ public class PaperWrapper extends CoreAdvancedTeleport {
     public void onEnable() {
         instance = this;
         super.onEnable();
+
+        CommandManager.register("tpofflinehere", new TpHereOffline());
+        CommandManager.syncCommands();
     }
 
     @Override

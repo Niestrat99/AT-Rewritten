@@ -1,10 +1,8 @@
-package io.github.niestrat99.advancedteleport.commands.teleport;
+package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
-import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
-import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
+import io.github.niestrat99.advancedteleport.tpoffline.PlayerDataReader;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -33,10 +31,10 @@ public final class TpHereOffline extends TeleportATCommand implements PlayerComm
         }
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            NBTReader.setLocation(
+            PlayerDataReader.setLocation(
                     args[0],
                     player.getLocation(),
-                    new NBTReader.NBTCallback<>() {
+                    new PlayerDataReader.NBTCallback<>() {
                         @Override
                         public void onSuccess(Boolean data) {
                             Bukkit.getScheduler()

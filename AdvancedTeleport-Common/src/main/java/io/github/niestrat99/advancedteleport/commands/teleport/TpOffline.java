@@ -1,17 +1,15 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
-import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.utilities.nbt.NBTReader;
 import io.papermc.lib.PaperLib;
 
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -35,28 +33,21 @@ public final class TpOffline extends TeleportATCommand implements PlayerCommand 
             Bukkit.getServer().dispatchCommand(sender, "tpo " + args[0]);
             return true;
         }
-        NBTReader.getLocation(
-                args[0],
-                new NBTReader.NBTCallback<>() {
-                    @Override
-                    public void onSuccess(Location data) {
-                        Bukkit.getScheduler()
-                                .runTask(
-                                        CoreAdvancedTeleport.getInstance().getPlugin(),
-                                        () -> {
-                                            PaperLib.teleportAsync((Player) sender, data);
-                                            CustomMessages.sendMessage(
-                                                    sender,
-                                                    "Teleport.teleportedToOfflinePlayer",
-                                                    Placeholder.unparsed("player", args[0]));
-                                        });
-                    }
 
-                    @Override
-                    public void onFail(@NotNull final Component message) {
-                        CustomMessages.sendMessage(sender, message);
-                    }
-                });
+        OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
+        Location location = player.getLocation();
+        if (location == null) {
+            CustomMessages.sendMessage(sender,
+                            "Error.noOfflineLocation",
+                            Placeholder.unparsed("player", args[0]));
+            return true;
+        }
+
+        PaperLib.teleportAsync((Player) sender, location);  // TODO use proper method
+        CustomMessages.sendMessage(
+                sender,
+                "Teleport.teleportedToOfflinePlayer",
+                Placeholder.unparsed("player", args[0]));
         return true;
     }
 
