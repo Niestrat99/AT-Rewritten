@@ -49,7 +49,6 @@ public class CommandManager {
         register("tpunblock", new TpUnblock());
         register("tpyes", new TpYes());
         register("tpoffline", new TpOffline());
-        register("tpofflinehere", new TpHereOffline());
 
         register("home", new HomeCommand());
         register("sethome", new SetHomeCommand());
@@ -83,7 +82,7 @@ public class CommandManager {
         syncCommands();
     }
 
-    private static void register(String name, ATCommand atCommand) {
+    public static void register(String name, ATCommand atCommand) {
         PluginCommand command = Bukkit.getPluginCommand("advancedteleport:" + name);
         CoreAdvancedTeleport.debug("Fetching " + command + " - " + command);
         if (command == null) command = atCommands.get(name);
@@ -199,7 +198,7 @@ public class CommandManager {
         return null;
     }
 
-    private static void syncCommands() {
+    public static void syncCommands() {
 
         try {
             Method method = Bukkit.getServer().getClass().getDeclaredMethod("syncCommands");
