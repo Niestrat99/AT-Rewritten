@@ -9,6 +9,7 @@ import io.github.niestrat99.advancedteleport.hooks.PluginHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.ChunkyBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.VanillaBorderHook;
 import io.github.niestrat99.advancedteleport.hooks.borders.WorldBorderHook;
+import io.github.niestrat99.advancedteleport.hooks.claims.FactionsUUIDClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.GriefPreventionClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.LandsClaimHook;
 import io.github.niestrat99.advancedteleport.hooks.claims.WorldGuardClaimHook;
@@ -22,6 +23,7 @@ import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,6 +63,7 @@ public final class PluginHookManager {
         loadPlugin("worldguard", WorldGuardClaimHook.class);
         loadPlugin("lands", LandsClaimHook.class);
         loadPlugin("griefprevention", GriefPreventionClaimHook.class);
+        loadPlugin("factionsuuid", FactionsUUIDClaimHook.class);
 
         loadPlugin("squaremap", SquaremapHook.class);
         loadPlugin("dynmap", DynmapHook.class);
@@ -154,6 +157,15 @@ public final class PluginHookManager {
                     CoreClass.debug("Claim result for " + hook.pluginName() + ": " + result);
                     return result;
                 });
+    }
+
+    @Contract(pure = true)
+    public boolean canAccess(final @NotNull Player player, final @NotNull Location location) {
+        return getPluginHooks(ClaimPlugin.class, true)
+                .filter(plugin -> plugin.canUse(location.getWorld()))
+                .filter(hook -> !hook.canAccess(player, location))
+                .toList()
+                .isEmpty();
     }
 
     @Contract(pure = true)

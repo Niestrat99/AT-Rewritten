@@ -7,6 +7,7 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Location;
@@ -29,6 +30,13 @@ public final class SetWarpCommand extends AbstractWarpCommand implements PlayerC
         if (!canProceed(sender)) return true;
 
         Player player = (Player) sender;
+
+        // If the player can't set a home here, tell them
+        if (!PluginHookManager.get().canAccess(player, player.getLocation())
+                && !player.hasPermission("at.admin.setwarp.bypass.location")) {
+            CustomMessages.sendMessage(sender, "Error.cantSetWarpLoc");
+            return true;
+        }
 
         if (args.length == 0) {
             ATPlayer atPlayer = ATPlayer.getPlayer(player);

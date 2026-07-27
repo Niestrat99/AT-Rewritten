@@ -6,6 +6,7 @@ import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
 
+import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -75,6 +76,13 @@ public class ConditionChecker {
                         + CoreClass.getShortLocation(toLoc)
                         + " using command "
                         + command);
+
+        // Check if the player can teleport to that location if it's claimed
+        if (!teleportingPlayer.hasPermission("at.admin.bypass.claims")) {
+            if (MainConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() || command != null) {
+                if (!PluginHookManager.get().canAccess(teleportingPlayer, toLoc)) return "Error.canTPToLoc";
+            }
+        }
 
         // Check if the player is too far away
         if (MainConfig.get().ENABLE_DISTANCE_LIMITATIONS.get()

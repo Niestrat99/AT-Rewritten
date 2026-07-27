@@ -87,6 +87,10 @@ repositories {
         name = "PlayerParticles"
         content { includeGroup("dev.esophose") }
     }
+
+    maven("https://ci.ender.zone/plugin/repository/everything/") {
+        name = "FactionsUUID"
+    }
 }
 
 dependencies {
@@ -114,6 +118,7 @@ dependencies {
     compileOnly(libs.hook.playerparticles)
     compileOnly(libs.hook.worldguard)
     compileOnly(libs.hook.squaremap)
+    compileOnly(libs.hook.factionsuuid)
     compileOnly(libs.hook.dynmap) {
         artifact { // Uses wrong jar if not specified
             name = "dynmap-api"
@@ -246,7 +251,7 @@ bukkit {
     main = "io.github.niestrat99.advancedteleport.CoreClass"
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
 
-    softDepend = listOf("Vault", "Ultimate_Economy", "ConfigurationMaster", "WorldBorder", "ChunkyBorder", "floodgate", "Lands", "WorldGuard", "GriefProtection", "dynmap", "squaremap", "PlayerParticles")
+    softDepend = listOf("Vault", "Ultimate_Economy", "ConfigurationMaster", "WorldBorder", "ChunkyBorder", "floodgate", "Lands", "WorldGuard", "GriefProtection", "dynmap", "squaremap", "PlayerParticles", "Factions")
     loadBefore = listOf("Essentials", "EssentialsSpawn")
 
     commands {

@@ -7,6 +7,7 @@ import me.angeschossen.lands.api.LandsIntegration;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -41,5 +42,14 @@ public final class LandsClaimHook
         return lands.getLandByChunk(location.getWorld(),
                 Math.floorDiv(location.getBlockX(), 16),
                 Math.floorDiv(location.getBlockZ(), 16)) != null;
+    }
+
+    @Override
+    public boolean canAccess(@NotNull Player player, @NotNull Location location) {
+        final var chunk = location.getChunk();
+        final var land = lands.getLandByChunk(chunk.getWorld(), chunk.getX(), chunk.getZ());
+        if (land == null) return true;
+
+        return land.isTrusted(player.getUniqueId());
     }
 }
