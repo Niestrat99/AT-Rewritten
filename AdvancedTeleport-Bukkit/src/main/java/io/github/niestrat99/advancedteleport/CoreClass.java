@@ -4,6 +4,7 @@ import io.github.niestrat99.advancedteleport.config.ATConfig;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.GUIConfig;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.hooks.worldguard.FlagHandler;
 import io.github.niestrat99.advancedteleport.listeners.*;
 import io.github.niestrat99.advancedteleport.listeners.paper.PaperLegacySignListener;
 import io.github.niestrat99.advancedteleport.listeners.paper.PaperSignChangeListener;
@@ -52,6 +53,7 @@ public final class CoreClass extends JavaPlugin {
             task -> Bukkit.getScheduler().runTask(CoreClass.getInstance(), task);
     private static Permission perms;
     private Object[] updateInfo;
+    private boolean isWorldGuardAvailable;
 
     private static final Pattern OLD_VERSION_PATTERN = Pattern.compile("\\d\\.(\\d+)(?:\\.\\d+)?");
     private static final Pattern NEW_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.\\d+|-(?:snapshot|rc|pre)-\\d+)?");
@@ -68,6 +70,14 @@ public final class CoreClass extends JavaPlugin {
             getLogger().severe("Failed to load libraries!");
             getLogger().throwing(CoreClass.class.getName(), "onLoad", err);
             Bukkit.getPluginManager().disablePlugin(this);
+        }
+
+        // Wakey wakey
+        try {
+            FlagHandler.init();
+            this.isWorldGuardAvailable = true;
+        } catch (NoClassDefFoundError ignored) {
+            this.isWorldGuardAvailable = false;
         }
     }
 
@@ -360,5 +370,9 @@ public final class CoreClass extends JavaPlugin {
 
     public Object[] getUpdateInfo() {
         return updateInfo;
+    }
+
+    public boolean isWorldGuardAvailable() {
+        return this.isWorldGuardAvailable;
     }
 }

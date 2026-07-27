@@ -419,6 +419,7 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Error.randomLocFailed",
                 "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
+        addDefault("Error.notAwaitingConfirmation", "<prefix> <gray>You don't need to confirm any teleportation! If you're headed towards a dangerous place, we'll let you know.");
 
         addDefault("Error.commandUse", "<aqua>Usage: <gray><usage>");
         addDefault("Error.rtpManagerNotUsed", "<prefix> <gray>The RTP-Cache is not being used on the server.");
@@ -626,7 +627,11 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Info.mirrorSpawnSame",
                 "<prefix> <gray>The spawns for <aqua><from></aqua> and <aqua><spawn></aqua> already to go the same place! Don't worry :)");
-
+        addDefault(
+                "Info.dangerousArea",
+                "<prefix> <gray>WARNING: the area you are teleporting to has been marked as potentially unsafe, meaning you could die or lose your items.<br>" +
+                        "If you are happy to teleport to the location, please run the command <aqua>/tpconfirm</aqua>.");
+        addDefault("Info.confirmedTeleportation", "<prefix> <gray>You've confirmed the teleportation! Good luck out there.");
         addDefault("Info.clearEverything", "<prefix> <gray>The RTP-Cache has been cleared.");
         addDefault("Info.clearWorld", "<prefix> <gray>Cache for world <aqua><world></aqua> has been cleared.");
 
@@ -697,6 +702,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Descriptions.tploc", "Teleports you to a specific location.");
         addDefault("Descriptions.tpoffline", "Teleports you to an offline player.");
         addDefault("Descriptions.tpofflinehere", "Teleports an offline player to you.");
+        addDefault("Descriptions.tpconfirm", "Used to confirm if you wish to teleport to a dangerous zone.");
         addDefault("Descriptions.tpr", "Teleports you to a random location.");
         addDefault("Descriptions.warp", "Teleports you to a given warp point.");
         addDefault("Descriptions.warps", "Gives you a list of warps you can teleport to.");
@@ -781,6 +787,7 @@ public final class CustomMessages extends ATConfig {
                 "/tploc <x|~> <y|~> <z|~> [Yaw|~] [Pitch|~] [World|~] [Player] [precise|noflight]");
         addDefault("Usages.tpoffline", "/tpoffline <Player>");
         addDefault("Usages.tpofflinehere", "/tpofflinehere <Player>");
+        addDefault("Usages.tpconfirm", "/tpconfirm");
         addDefault("Usages.tpr", "/tpr [World]");
         addDefault("Usages.warp", "/warp <Warp>");
         addDefault("Usages.warps", "/warps");
