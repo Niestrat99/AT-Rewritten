@@ -336,8 +336,9 @@ public final class MainConfig extends ATConfig {
         addDefault("per-command-cost.spawn", "default", "Cost for /spawn");
         addDefault("per-command-cost.home", "default", "Cost for /home");
         addDefault("per-command-cost.back", "default", "Cost for /back");
-        // addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
-        // addDefault("pet-command-cost.setwarp", "default", "Cost for /setwarp");
+        addDefault("per-command-cost.sethome", "default", "Cost for /sethome");
+        addDefault("per-command-cost.setwarp", "default", "Cost for /setwarp");
+
         makeSectionLenient("custom-costs");
         addComment(
                 "custom-costs",
@@ -1301,6 +1302,15 @@ public final class MainConfig extends ATConfig {
                 return (T) instance.get(path);
             }
         }
+    }
+
+    public static class ConfigSectionOption<T> {
+
+        public ConfigSectionOption(String basePath, String defaultPath) {
+
+        }
+
+        public
     }
 
     public static class PerCommandOption<T> {

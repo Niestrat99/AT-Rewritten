@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.warp;
 
+import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
@@ -7,6 +8,7 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.Location;
@@ -44,17 +46,23 @@ public final class SetWarpCommand extends AbstractWarpCommand implements PlayerC
 
         Location warp = player.getLocation();
 
+        if (!PaymentManager.getInstance().canPay("setwarp", player, warp.getWorld()))
+            return true;
+
         if (!AdvancedTeleportAPI.isWarpSet(args[0])) {
             AdvancedTeleportAPI.setWarp(args[0], player, warp)
                     .whenComplete(
-                            (result, err) ->
-                                    CustomMessages.failableContextualPath(
-                                            sender,
-                                            player.getUniqueId(),
-                                            "Info.setWarp",
-                                            "Error.setWarpFail",
-                                            err,
-                                            Placeholder.unparsed("warp", result.getName())));
+                            (result, err) -> {
+
+                                if (err != null) {
+                                    CustomMessages.sendMessage(sender, "Error.setWarpFail", Placeholder.unparsed("warp", result.getName()));
+                                    CoreAdvancedTeleport.getInstance().getPlugin().getLogger().throwing("SetWarpCommand", "onCommand", err);
+                                    return;
+                                }
+
+                                PaymentManager.getInstance().withdraw("setwarp", player, warp.getWorld());
+                                CustomMessages.sendMessage(sender, "Info.setWarp", Placeholder.unparsed("warp", result.getName()));
+                            });
         } else {
             CustomMessages.sendMessage(
                     sender, "Error.warpAlreadySet", Placeholder.unparsed("warp", args[0]));

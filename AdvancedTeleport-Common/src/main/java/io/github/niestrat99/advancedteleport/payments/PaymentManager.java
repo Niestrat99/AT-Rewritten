@@ -33,6 +33,7 @@ public class PaymentManager {
         addCommand("warp", MainConfig.get().COSTS.WARP.get());
         addCommand("home", MainConfig.get().COSTS.HOME.get());
         addCommand("back", MainConfig.get().COSTS.BACK.get());
+        addCommand("setwarp", MainConfig.get().);
     }
 
     private void addCommand(String command, Object value) {

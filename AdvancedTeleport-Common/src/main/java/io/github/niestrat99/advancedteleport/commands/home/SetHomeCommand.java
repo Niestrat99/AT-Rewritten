@@ -1,5 +1,6 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
+import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
@@ -7,6 +8,7 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 
+import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.bukkit.OfflinePlayer;
@@ -99,18 +101,28 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
             return;
         }
 
+        if (!PaymentManager.getInstance().canPay("sethome", sender, sender.getWorld()))
+            return;
+
         // Attempt to add the home.
         atPlayer.addHome(homeName, sender.getLocation(), sender)
                 .whenComplete(
-                        (ignored, err) ->
-                                CustomMessages.failableContextualPath(
-                                        sender,
-                                        target,
-                                        "Info.setHome",
-                                        "Error.setHomeFail",
-                                        err,
-                                        Placeholder.unparsed("home", homeName),
-                                        Placeholder.unparsed("player", playerName)));
+                        (ignored, err) -> {
+
+                            if (err != null) {
+                                CustomMessages.sendMessage(sender, "Error.setHomeFail");
+                                CoreAdvancedTeleport.getInstance().getPlugin().getLogger().throwing("SetHomeCommand", "setHome", err);
+                                return;
+                            }
+
+                            PaymentManager.getInstance().withdraw("sethome", sender, sender.getWorld());
+                            CustomMessages.sendMessage(sender, CustomMessages.contextualPath(
+                                    sender,
+                                    target,
+                                    "Info.setHome"),
+                                    Placeholder.unparsed("home", homeName),
+                                    Placeholder.unparsed("player", playerName));
+                        });
     }
 
     @Override
