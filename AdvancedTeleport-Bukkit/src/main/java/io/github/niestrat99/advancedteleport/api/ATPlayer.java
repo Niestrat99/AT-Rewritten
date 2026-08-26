@@ -42,6 +42,7 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 /**
  * A wrapper class used to represent a player. An ATPlayer stores information such as their homes,
@@ -159,9 +160,6 @@ public class ATPlayer {
             return;
         }
 
-        if (!PaymentManager.getInstance().canPay(command, player, event.getToLocation().getWorld()))
-            return;
-
         // If the cooldown is to be applied after request or accept (they are the same in the case
         // of /tpr), apply it now
         String cooldownConfig = MainConfig.get().APPLY_COOLDOWN_AFTER.get();
@@ -173,51 +171,72 @@ public class ATPlayer {
 
         // If there's a movement timer, apply it - otherwise, teleport them immediately
         if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
+            if (!PaymentManager.getInstance().canPay(command, player, event.getToLocation().getWorld()))
+                return;
             MovementManager.createMovementTimer(
                     player,
                     event.getToLocation(),
                     command,
                     teleportMsg,
-                    warmUp,
-                    Placeholder.unparsed("home", event.getLocName()),
-                    Placeholder.unparsed("warp", event.getLocName()));
+                    event.getLocName(),
+                    warmUp);
         } else {
-            ParticleManager.onPreTeleport(player, command);
-
-            //
-            teleportWithOptions(
-                            player,
-                            event.getToLocation(),
-                            PlayerTeleportEvent.TeleportCause.COMMAND)
-                    .whenComplete(
-                            (result, err) -> {
-
-                                // If we didn't succeed, let the player know.
-                                if (!result) {
-                                    CustomMessages.sendMessage(player, "Error.teleportFailed");
-                                    return;
-                                }
-
-                                // Let the player know they have been teleported and withdraw any
-                                // money.
-                                CustomMessages.sendMessage(
-                                        player,
-                                        teleportMsg,
-                                        Placeholder.unparsed("home", event.getLocName()),
-                                        Placeholder.unparsed("warp", event.getLocName()));
-                                PaymentManager.getInstance().withdraw(command, player, event.getToLocation().getWorld());
-                                InvulnerabilityManager.createInvulnerability(player, getInvulnerability(command, event.getToLocation().getWorld()));
-                                ParticleManager.onPostTeleport(player, command);
-
-                                if (MainConfig.get()
-                                        .APPLY_COOLDOWN_AFTER
-                                        .get()
-                                        .equalsIgnoreCase("teleport")) {
-                                    CooldownManager.addToCooldown(
-                                            command, player, event.getToLocation().getWorld());
-                                }
-                            });
+            teleport(player, command, event.getLocName(), teleportMsg, event.getPotentialToLocation());
         }
+    }
+
+    public static void teleport(Player player,
+                                String command,
+                                String locName,
+                                String teleportMsg,
+                                Supplier<Location> location) {
+        teleport(player, player, command, locName, teleportMsg, location);
+    }
+
+    public static void teleport(Player player,
+                                Player payingPlayer,
+                                String command,
+                                String locName,
+                                String teleportMsg,
+                                Supplier<Location> location) {
+        Location finalLoc = location.get();
+        if (!PaymentManager.getInstance().canPay(command, payingPlayer, finalLoc.getWorld()))
+            return;
+        ParticleManager.onPreTeleport(player, command);
+
+        //
+        teleportWithOptions(
+                player,
+                finalLoc,
+                PlayerTeleportEvent.TeleportCause.COMMAND)
+                .whenComplete(
+                        (result, err) -> {
+
+                            // If we didn't succeed, let the player know.
+                            if (!result) {
+                                CustomMessages.sendMessage(player, "Error.teleportFailed");
+                                return;
+                            }
+
+                            // Let the player know they have been teleported and withdraw any
+                            // money.
+                            CustomMessages.sendMessage(
+                                    player,
+                                    teleportMsg,
+                                    Placeholder.unparsed("home", locName),
+                                    Placeholder.unparsed("warp", locName));
+                            PaymentManager.getInstance().withdraw(command, player, finalLoc.getWorld());
+                            InvulnerabilityManager.createInvulnerability(player, ATPlayer.getPlayer(player).getInvulnerability(command, finalLoc.getWorld()));
+                            ParticleManager.onPostTeleport(player, command);
+
+                            if (MainConfig.get()
+                                    .APPLY_COOLDOWN_AFTER
+                                    .get()
+                                    .equalsIgnoreCase("teleport")) {
+                                CooldownManager.addToCooldown(
+                                        command, player, finalLoc.getWorld());
+                            }
+                        });
     }
 
     @ApiStatus.Internal

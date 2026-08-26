@@ -6,15 +6,17 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Supplier;
+
 /** Fired when a player is teleporting using AT. */
 public final class ATTeleportEvent extends CancellableATEvent {
 
     private static final HandlerList handlers = new HandlerList();
     private final @NotNull Player player;
-    private final @NotNull Location fromLoc;
+    private final @NotNull Supplier<@NotNull Location> fromLoc;
     private final @NotNull TeleportType type;
     private final @NotNull String locName;
-    private @NotNull Location toLoc;
+    private @NotNull Supplier<@NotNull Location> toLoc;
 
     @Contract(pure = true)
     public ATTeleportEvent(
@@ -23,11 +25,21 @@ public final class ATTeleportEvent extends CancellableATEvent {
             @NotNull final Location fromLoc,
             @NotNull final String locName,
             @NotNull final TeleportType type) {
+        this(player, () -> toLoc, () -> fromLoc, locName, type);
+    }
+
+    public ATTeleportEvent(
+            @NotNull final Player player,
+            @NotNull final Supplier<Location> toLoc,
+            @NotNull final Supplier<Location> fromLoc,
+            @NotNull final String locName,
+            @NotNull final TeleportType type) {
         this.player = player;
         this.toLoc = toLoc;
         this.fromLoc = fromLoc;
         this.locName = locName;
         this.type = type;
+
     }
 
     @Contract(pure = true)
@@ -43,17 +55,22 @@ public final class ATTeleportEvent extends CancellableATEvent {
 
     @Contract(pure = true)
     public @NotNull Location getFromLocation() {
-        return fromLoc;
+        return fromLoc.get();
     }
 
     @Contract(pure = true)
     public @NotNull Location getToLocation() {
+        return toLoc.get();
+    }
+
+    @Contract(pure = true)
+    public @NotNull Supplier<Location> getPotentialToLocation() {
         return toLoc;
     }
 
     @Contract(pure = true)
     public void setToLocation(@NotNull final Location toLoc) {
-        this.toLoc = toLoc;
+        this.toLoc = () -> toLoc;
     }
 
     @Contract(pure = true)

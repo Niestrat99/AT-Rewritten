@@ -4,10 +4,8 @@ import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -15,13 +13,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class MovementManager implements Listener {
 
@@ -111,16 +109,33 @@ public class MovementManager implements Listener {
             Location location,
             String command,
             String message,
-            int warmUp,
-            TagResolver... placeholders) {
+            String locName,
+            int warmUp) {
         createMovementTimer(
                 teleportingPlayer,
                 location,
                 command,
                 message,
+                locName,
                 warmUp,
+                teleportingPlayer);
+    }
+
+    public static void createMovementTimer(
+            Player teleportingPlayer,
+            Supplier<Location> location,
+            String command,
+            String message,
+            String locName,
+            int warmUp) {
+        createMovementTimer(
                 teleportingPlayer,
-                placeholders);
+                location,
+                command,
+                message,
+                locName,
+                warmUp,
+                teleportingPlayer);
     }
 
     public static void createMovementTimer(
@@ -128,9 +143,27 @@ public class MovementManager implements Listener {
             Location location,
             String command,
             String message,
+            String locName,
             int warmUp,
-            Player payingPlayer,
-            TagResolver... placeholders) {
+            Player payingPlayer) {
+        createMovementTimer(
+                teleportingPlayer,
+                () -> location,
+                command,
+                message,
+                locName,
+                warmUp,
+                payingPlayer);
+    }
+
+    public static void createMovementTimer(
+            Player teleportingPlayer,
+            Supplier<Location> location,
+            String command,
+            String message,
+            String locName,
+            int warmUp,
+            Player payingPlayer) {
         UUID uuid = teleportingPlayer.getUniqueId();
 
         // When this config is enabled the teleporting player will receive a blindness effect until
@@ -149,45 +182,7 @@ public class MovementManager implements Listener {
                 new ImprovedRunnable(command) {
                     @Override
                     public void run() {
-
-                        // If the player can't pay for the
-                        if (!PaymentManager.getInstance()
-                                .canPay(command, payingPlayer, location.getWorld())) return;
-                        ParticleManager.onPreTeleport(teleportingPlayer, command);
-
-                        ATPlayer.teleportWithOptions(
-                                        teleportingPlayer,
-                                        location,
-                                        PlayerTeleportEvent.TeleportCause.COMMAND)
-                                .whenComplete((result, err) -> {
-
-                                    // If we didn't succeed, let the player know.
-                                    if (!result) {
-                                        CustomMessages.sendMessage(teleportingPlayer, "Error.teleportFailed");
-                                        return;
-                                    }
-
-
-                                    CustomMessages.sendMessage(teleportingPlayer, message, placeholders);
-                                    PaymentManager.getInstance().withdraw(command, payingPlayer, location.getWorld());
-                                    ParticleManager.onPostTeleport(teleportingPlayer, command);
-                                    InvulnerabilityManager.createInvulnerability(
-                                            teleportingPlayer,
-                                            ATPlayer.getPlayer(teleportingPlayer)
-                                                    .getInvulnerability(command, location.getWorld()));
-
-                                    // If the cooldown is to be applied after only after a
-                                    // teleport takes place,
-                                    // apply it now
-                                    if (MainConfig.get()
-                                            .APPLY_COOLDOWN_AFTER
-                                            .get()
-                                            .equalsIgnoreCase("teleport")) {
-                                        CooldownManager.addToCooldown(
-                                                command, payingPlayer, location.getWorld());
-                                    }
-                                });
-
+                        ATPlayer.teleport(teleportingPlayer, payingPlayer, command, message, locName, location);
                         movement.remove(uuid);
                     }
                 };
