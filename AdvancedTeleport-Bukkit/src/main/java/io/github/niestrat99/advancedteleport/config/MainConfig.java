@@ -67,6 +67,7 @@ public final class MainConfig extends ATConfig {
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS;
     public PerCommandOption<Integer> DISTANCE_LIMITS;
     public ConfigOption<ConfigSection> CUSTOM_DISTANCE_LIMITS;
+    public ConfigOption<ConfigSection> WARP_DISTANCE_OVERRIDES;
     public ConfigOption<Boolean> ENABLE_TELEPORT_LIMITATIONS;
     public ConfigOption<Boolean> MONITOR_ALL_TELEPORTS_LIMITS;
     public ConfigOption<ConfigSection> WORLD_RULES;
@@ -495,6 +496,18 @@ public final class MainConfig extends ATConfig {
                 The key (vip-distance) and group name (VIP) do not have to be different, this is just an example.
                 You can also add at.member.distance.300000, but this is more efficient if you find permissions lag. To make it per-command, use at.member.distance.<command>.vip-distance. To make it per-world, use at.member.distance.<world>.vip-distance.
                 To combine the two, you can use at.member.distance.<command>.<world>.vip-distance.\
+                """);
+
+        makeSectionLenient("warp-distance-overrides");
+        addComment(
+                "warp-distance-overrides",
+                """
+                Set a specific distance limit for individual warps.
+                Use -1 to remove the distance limit entirely for that warp.
+                Example:
+                warp-distance-overrides:
+                  caverns: -1
+                  temple: 5000\
                 """);
 
         addSection("Teleportation Limitations");
@@ -1145,6 +1158,7 @@ public final class MainConfig extends ATConfig {
                 new PerCommandOption<>(
                         "per-command-distance-limitations", "maximum-teleport-distance");
         CUSTOM_DISTANCE_LIMITS = new ConfigOption<>("custom-distance-limitations");
+        WARP_DISTANCE_OVERRIDES = new ConfigOption<>("warp-distance-overrides");
 
         ENABLE_TELEPORT_LIMITATIONS = new ConfigOption<>("enable-teleport-limitations");
         MONITOR_ALL_TELEPORTS_LIMITS = new ConfigOption<>("monitor-all-teleports-limitations");

@@ -166,7 +166,8 @@ public class TeleportTrackingManager implements Listener {
                         e.getFromLocation(),
                         e.getToLocation(),
                         e.getType().getName(),
-                        e.getPlayer());
+                        e.getPlayer(),
+                        e.getLocName());
         if (result != null) {
             CustomMessages.sendMessage(
                     e.getPlayer(),
