@@ -1,48 +1,53 @@
 [versions]
 paperlib = "1.0.7"
-adventure = "4.15.0"
-adventure-platform = "4.2.0"
+adventure = "5.2.0"
 examination = "1.3.0"
-configuration = "v2.0.0-rc.2"
-annotations = "23.0"
+configuration = "v2.0.0-rc.3"
+annotations = "24.0.0"
 authlib = "2.3.31"
 bstats = "3.0.0"
+json = "1.1.1"
+
+spigot = "26.2-R0.1-SNAPSHOT"
+paper = "26.2.build.+"
 
 vault = "1.7"
-essentials = "2.18.2"
-essentials-spawn = "2.16.1"
+essentials = "2.21.2"
+essentials-spawn = "2.21.2"
 worldborder = "v2.1.2"
 chunkyborder = "52034550ef"
-floodgate = "2.2.2-SNAPSHOT"
-lands = "6.26.18"
+floodgate = "2.2.5-SNAPSHOT"
+lands = "7.25.4"
 griefprevention = "16.18"
-playerparticles = "8.8"
-worldguard = "7.0.7"
+playerparticles = "8.12"
+worldguard = "7.0.17"
 squaremap = "1.1.3"
 dynmap = "3.4"
 
-hangar = "0.0.5"
-slimjar = "1.6.1"
-shadow = "7.1.2"
-pluginYML = "0.6.0"
+hangar = "0.1.4"
+slimjar = "2.1.9"
+shadow = "9.5.1"
 factionsuuid = "1.6.9.5-U0.6.40"
 
 [libraries]
 paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
 configuration = { module = "com.github.thatsmusic99:ConfigurationMaster-API", version.ref = "configuration" }
 annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+json = { module = "com.googlecode.json-simple:json-simple", version.ref = "json" }
 
 adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
 adventure-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+adventure-key = { module = "net.kyori:adventure-key", version.ref = "adventure" }
 adventure-nbt = { module = "net.kyori:adventure-nbt", version.ref = "adventure" }
-adventure-platform-bukkit = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platform" }
+adventure-text-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
+adventure-text-serializer-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "adventure" }
 adventure-text-serializer-plain = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "adventure" }
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 kyori-examination = { module = "net.kyori:examination-api", version.ref = "examination" }
 
 hook-vault = { module = "net.milkbowl.vault:VaultAPI", version.ref = "vault" }
-hook-essentials = { module = "net.ess3:EssentialsX", version.ref = "essentials" }
-hook-essentials-spawn = { module = "net.ess3:EssentialsXSpawn", version.ref = "essentials-spawn" }
+hook-essentials = { module = "net.essentialsx:EssentialsX", version.ref = "essentials" }
+hook-essentials-spawn = { module = "net.essentialsx:EssentialsXSpawn", version.ref = "essentials-spawn" }
 hook-worldborder = { module = "com.github.PryPurity:WorldBorder", version.ref = "worldborder" }
 hook-chunkyborder = { module = "com.github.pop4959:ChunkyBorder", version.ref = "chunkyborder" }
 hook-authlib = { module = "com.mojang:authlib", version.ref = "authlib" }
@@ -53,17 +58,22 @@ hook-playerparticles = { module = "dev.esophose:playerparticles", version.ref = 
 hook-worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 hook-squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
 hook-dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
-hook-slimjar = { module = "dev.racci.slimjar:slimjar", version.ref = "slimjar" }
+hook-slimjar = { module = "de.crazydev22:slimjar", version.ref = "slimjar" }
 hook-factionsuuid = { module = "com.massivecraft:Factions", version.ref = "factionsuuid" }
 
+paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
+spigot = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
 
 [plugins]
 hangar = { id = "io.papermc.hangar-publish-plugin", version.ref = "hangar" }
-slimjar = { id = "dev.racci.slimjar", version.ref = "slimjar" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+slimjar = { id = "de.crazydev22.slimjar", version.ref = "slimjar" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 
-minecraft-pluginYML = { id = "net.minecrell.plugin-yml.bukkit", version.ref = "pluginYML" }
-minecraft-runPaper = "xyz.jpenilla.run-paper:2.1.0"
+minecraft-runPaper = "xyz.jpenilla.run-paper:3.0.2"
 
 [bundles]
-adventure = ["adventure-api", "adventure-minimessage", "adventure-nbt", "adventure-text-serializer-plain"]
+adventure = ["adventure-api", "adventure-minimessage", "adventure-key", "adventure-nbt", "adventure-text-serializer-gson",
+    "adventure-text-serializer-legacy", "adventure-text-serializer-plain"]
+bukkit = ["hook-vault", "hook-essentials", "hook-essentials-spawn", "hook-worldborder", "hook-chunkyborder",
+    "hook-floodgate", "hook-squaremap", "hook-griefprevention", "hook-lands", "hook-playerparticles", "hook-worldguard"]
+code = ["annotations"]
