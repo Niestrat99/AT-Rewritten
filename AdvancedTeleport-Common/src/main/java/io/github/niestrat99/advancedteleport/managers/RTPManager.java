@@ -1,19 +1,10 @@
 package io.github.niestrat99.advancedteleport.managers;
 
 import com.google.common.collect.Sets;
-
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
 import io.papermc.lib.PaperLib;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,6 +13,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.jetbrains.annotations.Nullable;
 
 public class RTPManager {
 
@@ -39,7 +36,8 @@ public class RTPManager {
             return;
         }
 
-        CoreAdvancedTeleport.getInstance().getPlugin()
+        CoreAdvancedTeleport.getInstance()
+                .getPlugin()
                 .getLogger()
                 .info(
                         "Preparing random teleportation locations. "
@@ -48,11 +46,10 @@ public class RTPManager {
         try {
             getPreviousLocations();
         } catch (IOException e) {
-            CoreAdvancedTeleport.getInstance().getPlugin()
+            CoreAdvancedTeleport.getInstance()
+                    .getPlugin()
                     .getLogger()
-                    .severe(
-                            "Failed to load previous RTP locations, generating new ones: "
-                                    + e.getMessage());
+                    .severe("Failed to load previous RTP locations, generating new ones: " + e.getMessage());
         }
         for (World loadedWorld : Bukkit.getWorlds()) {
             loadWorldData(loadedWorld);
@@ -65,13 +62,11 @@ public class RTPManager {
 
     public static CompletableFuture<Location> getNextAvailableLocation(World world) {
         final Queue<Location> queue = locQueue.get(world.getUID());
-        addLocation(world, false, 0)
-                .thenAccept(
-                        location -> {
-                            if (location == null) return;
-                            queue.add(location);
-                            locQueue.put(world.getUID(), queue);
-                        });
+        addLocation(world, false, 0).thenAccept(location -> {
+            if (location == null) return;
+            queue.add(location);
+            locQueue.put(world.getUID(), queue);
+        });
         if (queue == null || queue.isEmpty()) {
             return addLocation(world, true, 0);
         } else {
@@ -81,13 +76,11 @@ public class RTPManager {
 
     public static Location getLocationUrgently(World world) {
         Queue<Location> queue = locQueue.get(world.getUID());
-        addLocation(world, false, 0)
-                .thenAccept(
-                        location -> {
-                            if (location == null) return;
-                            queue.add(location);
-                            locQueue.put(world.getUID(), queue);
-                        });
+        addLocation(world, false, 0).thenAccept(location -> {
+            if (location == null) return;
+            queue.add(location);
+            locQueue.put(world.getUID(), queue);
+        });
         if (queue == null || queue.isEmpty()) {
             return null;
         } else {
@@ -136,10 +129,9 @@ public class RTPManager {
 
                             // If we're in the Nether, do a binary jump, otherwise get the highest
                             // block.
-                            Block block =
-                                    world.getEnvironment().equals(World.Environment.NETHER)
-                                            ? doBinaryJump(world, coords)
-                                            : world.getHighestBlockAt(coords[0], coords[1]);
+                            Block block = world.getEnvironment().equals(World.Environment.NETHER)
+                                    ? doBinaryJump(world, coords)
+                                    : world.getHighestBlockAt(coords[0], coords[1]);
 
                             // If it's a valid location, return it. If not, try again unless the
                             // plugin has exhausted its attempts.
@@ -204,14 +196,14 @@ public class RTPManager {
                 // Get the material
                 currentMat = subTempLocation.add(0, jumpAmount, 0).getBlock().getType();
             } else {
-                currentMat = subTempLocation.subtract(0, jumpAmount, 0).getBlock().getType();
+                currentMat =
+                        subTempLocation.subtract(0, jumpAmount, 0).getBlock().getType();
             }
             tempLoc = subTempLocation.clone();
 
             if (currentMat != Material.AIR) {
                 if (subTempLocation.add(0, 1, 0).getBlock().getType() == Material.AIR
-                        && subTempLocation.clone().add(0, 1, 0).getBlock().getType()
-                                == Material.AIR) {
+                        && subTempLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR) {
                     return subTempLocation.add(0.5, -1, 0.5).getBlock();
                 } else {
                     up = true;
@@ -240,14 +232,11 @@ public class RTPManager {
         int size = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>()).size();
 
         for (int i = size; i < MainConfig.get().PREPARED_LOCATIONS_LIMIT.get(); i++) {
-            addLocation(world, false, 0)
-                    .thenAccept(
-                            location -> {
-                                Queue<Location> queue =
-                                        locQueue.getOrDefault(world.getUID(), new ArrayDeque<>());
-                                queue.add(location);
-                                locQueue.put(world.getUID(), queue);
-                            });
+            addLocation(world, false, 0).thenAccept(location -> {
+                Queue<Location> queue = locQueue.getOrDefault(world.getUID(), new ArrayDeque<>());
+                queue.add(location);
+                locQueue.put(world.getUID(), queue);
+            });
         }
     }
 
@@ -261,7 +250,8 @@ public class RTPManager {
 
     public static void getPreviousLocations() throws IOException {
         CoreAdvancedTeleport.debug("Loading previously discovered locations.");
-        File rtpLocsFile = new File(CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder(), "rtp-locations.csv");
+        File rtpLocsFile =
+                new File(CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder(), "rtp-locations.csv");
         if (!rtpLocsFile.exists()) {
             CoreAdvancedTeleport.debug("Not loading previous locations - rtp-locations.csv does not exist.");
             return;
@@ -273,12 +263,9 @@ public class RTPManager {
                 String[] data = currentLine.split(",");
                 UUID worldUUID = UUID.fromString(data[0]);
                 World world = Bukkit.getWorld(worldUUID);
-                double[] loc =
-                        new double[] {
-                            Double.parseDouble(data[1]),
-                            Double.parseDouble(data[2]),
-                            Double.parseDouble(data[3])
-                        };
+                double[] loc = new double[] {
+                    Double.parseDouble(data[1]), Double.parseDouble(data[2]), Double.parseDouble(data[3])
+                };
                 final Location location = new Location(world, loc[0], loc[1], loc[2]);
                 Queue<Location> queue = locQueue.getOrDefault(worldUUID, new ArrayDeque<>());
                 queue.add(location);
@@ -293,21 +280,15 @@ public class RTPManager {
     }
 
     public static void saveLocations() throws IOException {
-        File rtpLocsFile = new File(CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder(), "rtp-locations.csv");
+        File rtpLocsFile =
+                new File(CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder(), "rtp-locations.csv");
         if (!rtpLocsFile.exists()) rtpLocsFile.createNewFile();
         BufferedWriter writer = new BufferedWriter(new FileWriter(rtpLocsFile));
         for (UUID worldUUID : locQueue.keySet()) {
             Queue<Location> locations = locQueue.get(worldUUID);
             while (locations.peek() != null) {
                 Location loc = locations.poll();
-                String locLine =
-                        worldUUID.toString()
-                                + ","
-                                + loc.getX()
-                                + ","
-                                + loc.getY()
-                                + ","
-                                + loc.getZ();
+                String locLine = worldUUID.toString() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
                 writer.write(locLine);
                 writer.write("\n");
             }

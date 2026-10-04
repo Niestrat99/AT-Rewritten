@@ -4,9 +4,10 @@ import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.function.Supplier;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,10 +17,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.HashMap;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 public class MovementManager implements Listener {
 
@@ -59,12 +56,10 @@ public class MovementManager implements Listener {
     }
 
     private static boolean willCancelTimer(PlayerMoveEvent event) {
-        boolean cancelOnRotate =
-                MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()
-                        && !event.getPlayer().hasPermission("at.admin.bypass.rotation");
-        boolean cancelOnMove =
-                MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get()
-                        && !event.getPlayer().hasPermission("at.admin.bypass.movement");
+        boolean cancelOnRotate = MainConfig.get().CANCEL_WARM_UP_ON_ROTATION.get()
+                && !event.getPlayer().hasPermission("at.admin.bypass.rotation");
+        boolean cancelOnMove = MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get()
+                && !event.getPlayer().hasPermission("at.admin.bypass.movement");
 
         boolean cancelled = false;
 
@@ -105,20 +100,8 @@ public class MovementManager implements Listener {
     }
 
     public static void createMovementTimer(
-            Player teleportingPlayer,
-            Location location,
-            String command,
-            String message,
-            String locName,
-            int warmUp) {
-        createMovementTimer(
-                teleportingPlayer,
-                location,
-                command,
-                message,
-                locName,
-                warmUp,
-                teleportingPlayer);
+            Player teleportingPlayer, Location location, String command, String message, String locName, int warmUp) {
+        createMovementTimer(teleportingPlayer, location, command, message, locName, warmUp, teleportingPlayer);
     }
 
     public static void createMovementTimer(
@@ -128,14 +111,7 @@ public class MovementManager implements Listener {
             String message,
             String locName,
             int warmUp) {
-        createMovementTimer(
-                teleportingPlayer,
-                location,
-                command,
-                message,
-                locName,
-                warmUp,
-                teleportingPlayer);
+        createMovementTimer(teleportingPlayer, location, command, message, locName, warmUp, teleportingPlayer);
     }
 
     public static void createMovementTimer(
@@ -146,14 +122,7 @@ public class MovementManager implements Listener {
             String locName,
             int warmUp,
             Player payingPlayer) {
-        createMovementTimer(
-                teleportingPlayer,
-                () -> location,
-                command,
-                message,
-                locName,
-                warmUp,
-                payingPlayer);
+        createMovementTimer(teleportingPlayer, () -> location, command, message, locName, warmUp, payingPlayer);
     }
 
     public static void createMovementTimer(
@@ -170,22 +139,20 @@ public class MovementManager implements Listener {
         // it gets teleported.
         if (MainConfig.get().BLINDNESS_ON_WARMUP.get()) {
             teleportingPlayer.addPotionEffect(
-                    new PotionEffect(
-                            PotionEffectType.BLINDNESS, warmUp * 20 + 20, 0, false, false));
+                    new PotionEffect(PotionEffectType.BLINDNESS, warmUp * 20 + 20, 0, false, false));
         }
 
         // Apply the plugin particles.
         ParticleManager.applyParticles(teleportingPlayer, command);
 
         // Starts the movement checker.
-        ImprovedRunnable movementTimer =
-                new ImprovedRunnable(command) {
-                    @Override
-                    public void run() {
-                        ATPlayer.teleport(teleportingPlayer, payingPlayer, command, message, locName, location);
-                        movement.remove(uuid);
-                    }
-                };
+        ImprovedRunnable movementTimer = new ImprovedRunnable(command) {
+            @Override
+            public void run() {
+                ATPlayer.teleport(teleportingPlayer, payingPlayer, command, message, locName, location);
+                movement.remove(uuid);
+            }
+        };
         movement.put(uuid, movementTimer);
         movementTimer.runTaskLater(CoreAdvancedTeleport.getInstance().getPlugin(), warmUp * 20L);
         if ((MainConfig.get().CANCEL_WARM_UP_ON_MOVEMENT.get()

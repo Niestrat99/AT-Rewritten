@@ -13,10 +13,8 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -60,13 +58,14 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
                     Placeholder.unparsed("player", args[0]),
                     Placeholder.unparsed(
                             "world",
-                            target == null ? "<No Such World>" : target.getWorld().getName()));
+                            target == null
+                                    ? "<No Such World>"
+                                    : target.getWorld().getName()));
             return true;
         }
         if (PaymentManager.getInstance().canPay("tpa", player, target.getWorld())) {
             int requestLifetime = MainConfig.get().REQUEST_LIFETIME.get();
-            TeleportRequestEvent event =
-                    new TeleportRequestEvent(target, player, TeleportRequestType.TPA);
+            TeleportRequestEvent event = new TeleportRequestEvent(target, player, TeleportRequestType.TPA);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 // Cannot send request
@@ -76,8 +75,7 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
             CustomMessages.sendMessage(
                     sender,
                     "Info.requestSent",
-                    Placeholder.parsed(
-                            "player", MiniMessage.miniMessage().escapeTags(target.getName())),
+                    Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(target.getName())),
                     Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
                     Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
 
@@ -92,36 +90,30 @@ public final class Tpa extends TeleportATCommand implements TimedATCommand {
                 CustomMessages.sendMessage(
                         target,
                         "Info.tpaRequestReceived",
-                        Placeholder.parsed(
-                                "player", MiniMessage.miniMessage().escapeTags(sender.getName())),
+                        Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(sender.getName())),
                         Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
                         Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
             }
 
             CoreAdvancedTeleport.playSound("tpa", "received", target);
 
-            BukkitRunnable run =
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
+            BukkitRunnable run = new BukkitRunnable() {
+                @Override
+                public void run() {
 
-                            // Get the teleport request
-                            TeleportRequest request =
-                                    TeleportRequest.getRequestByReqAndResponder(target, player);
-                            if (request == null) return;
+                    // Get the teleport request
+                    TeleportRequest request = TeleportRequest.getRequestByReqAndResponder(target, player);
+                    if (request == null) return;
 
-                            if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                                CustomMessages.sendMessage(
-                                        sender,
-                                        "Error.requestExpired",
-                                        Placeholder.unparsed("player", target.getName()));
-                            }
-                            TeleportRequest.removeRequest(request);
-                        }
-                    };
+                    if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                        CustomMessages.sendMessage(
+                                sender, "Error.requestExpired", Placeholder.unparsed("player", target.getName()));
+                    }
+                    TeleportRequest.removeRequest(request);
+                }
+            };
             run.runTaskLater(CoreAdvancedTeleport.getInstance().getPlugin(), requestLifetime * 20L); // 60 seconds
-            TeleportRequest request =
-                    new TeleportRequest(player, target, run, TeleportRequestType.TPA);
+            TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPA);
             // Creates a new teleport request.
             TeleportRequest.addRequest(request);
             // If the cooldown is to be applied after request, apply it now

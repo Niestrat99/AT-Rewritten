@@ -9,9 +9,8 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,8 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public final class TpAll extends TeleportATCommand implements PlayerCommand {
 
@@ -36,9 +33,7 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
         int cooldown = CooldownManager.secondsLeftOnCooldown("tpahere", player);
         if (cooldown > 0) {
             CustomMessages.sendMessage(
-                    sender,
-                    "Error.onCooldown",
-                    Placeholder.unparsed("time", String.valueOf(cooldown)));
+                    sender, "Error.onCooldown", Placeholder.unparsed("time", String.valueOf(cooldown)));
             return true;
         }
         int players = 0;
@@ -56,17 +51,14 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
                     Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
                     Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
 
-            BukkitRunnable run =
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            TeleportRequest.removeRequest(
-                                    TeleportRequest.getRequestByReqAndResponder(target, player));
-                        }
-                    };
+            BukkitRunnable run = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target, player));
+                }
+            };
             run.runTaskLater(CoreAdvancedTeleport.getInstance().getPlugin(), requestLifetime * 20L); // 60 seconds
-            TeleportRequest request =
-                    new TeleportRequest(player, target, run, TeleportRequestType.TPAHERE);
+            TeleportRequest request = new TeleportRequest(player, target, run, TeleportRequestType.TPAHERE);
             // Creates a new teleport request.
             TeleportRequest.addRequest(request);
             // Cooldown for tpall is always applied after request
@@ -74,9 +66,7 @@ public final class TpAll extends TeleportATCommand implements PlayerCommand {
         }
         if (players > 0) {
             CustomMessages.sendMessage(
-                    player,
-                    "Info.tpallRequestSent",
-                    Placeholder.unparsed("amount", String.valueOf(players)));
+                    player, "Info.tpallRequestSent", Placeholder.unparsed("amount", String.valueOf(players)));
         } else {
             CustomMessages.sendMessage(player, "Error.noRequestsSent");
         }

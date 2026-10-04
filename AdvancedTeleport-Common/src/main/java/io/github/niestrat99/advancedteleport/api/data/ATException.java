@@ -1,13 +1,12 @@
 package io.github.niestrat99.advancedteleport.api.data;
 
+import java.util.concurrent.CompletableFuture;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.CompletableFuture;
 
 public class ATException extends Exception {
     @Nullable private final transient CommandSender sender;
@@ -19,9 +18,7 @@ public class ATException extends Exception {
 
     @Contract(pure = true)
     protected ATException(@Nullable final CommandSender sender, @Nullable final String message) {
-        super(
-                "Context [%s] | Message [%s]"
-                        .formatted(sender == null ? "null" : sender.getName(), message));
+        super("Context [%s] | Message [%s]".formatted(sender == null ? "null" : sender.getName(), message));
         this.sender = sender;
     }
 
@@ -47,8 +44,7 @@ public class ATException extends Exception {
     }
 
     @Contract(value = "_, _ -> new", pure = true)
-    public static @NotNull ATException failed(
-            @Nullable final CommandSender sender, @NotNull final String message) {
+    public static @NotNull ATException failed(@Nullable final CommandSender sender, @NotNull final String message) {
         return new ATException(sender, message);
     }
 

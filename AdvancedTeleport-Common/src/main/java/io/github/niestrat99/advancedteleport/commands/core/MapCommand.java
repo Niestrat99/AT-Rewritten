@@ -3,8 +3,11 @@ package io.github.niestrat99.advancedteleport.commands.core;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.commands.core.map.*;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,11 +15,6 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 public final class MapCommand extends SubATCommand {
 
@@ -65,18 +63,18 @@ public final class MapCommand extends SubATCommand {
         boolean result = subATCommand.onCommand(sender, command, s, Arrays.copyOfRange(args, 1, args.length));
 
         if (!result) {
-            CustomMessages.sendMessage(sender, "Error.commandUse",
-                    Placeholder.unparsed("usage", CustomMessages.asString("Usages.Subcommands.map." + args[0].toLowerCase())));
+            CustomMessages.sendMessage(
+                    sender,
+                    "Error.commandUse",
+                    Placeholder.unparsed(
+                            "usage", CustomMessages.asString("Usages.Subcommands.map." + args[0].toLowerCase())));
         }
         return true;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String[] args) {
+            @NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
         List<String> results = new ArrayList<>();
         if (args.length == 1) {
@@ -93,7 +91,6 @@ public final class MapCommand extends SubATCommand {
         SubATCommand subATCommand = subMapCommands.get(args[0].toLowerCase());
         if (subATCommand == null) return results;
 
-        return subATCommand.onTabComplete(
-                sender, command, s, Arrays.copyOfRange(args, 1, args.length));
+        return subATCommand.onTabComplete(sender, command, s, Arrays.copyOfRange(args, 1, args.length));
     }
 }

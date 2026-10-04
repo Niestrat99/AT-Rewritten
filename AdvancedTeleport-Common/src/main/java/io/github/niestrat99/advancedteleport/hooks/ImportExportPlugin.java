@@ -1,18 +1,15 @@
 package io.github.niestrat99.advancedteleport.hooks;
 
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
-
+import java.util.logging.Level;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.logging.Level;
-
 public abstract class ImportExportPlugin<P extends Plugin, R> extends PluginHook<P, R> {
 
     @Contract(pure = true)
-    protected ImportExportPlugin(
-            @Nullable final String pluginName, @Nullable final Class<R> providerClazz) {
+    protected ImportExportPlugin(@Nullable final String pluginName, @Nullable final Class<R> providerClazz) {
         super(pluginName, providerClazz);
     }
 

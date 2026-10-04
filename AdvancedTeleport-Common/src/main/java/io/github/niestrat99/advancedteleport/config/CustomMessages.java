@@ -2,19 +2,23 @@ package io.github.niestrat99.advancedteleport.config;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
-
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.NamedLocation;
 import io.github.niestrat99.advancedteleport.api.data.ATException;
-import io.github.niestrat99.advancedteleport.utilities.Pair;
-import io.github.niestrat99.advancedteleport.utilities.minimessage.PartialComponent;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
+import io.github.niestrat99.advancedteleport.utilities.Pair;
 import io.github.niestrat99.advancedteleport.utilities.PermissionUtil;
+import io.github.niestrat99.advancedteleport.utilities.minimessage.PartialComponent;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import io.github.thatsmusic99.configurationmaster.impl.CMConfigSection;
-
+import java.time.Duration;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
@@ -25,7 +29,6 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
-
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -36,13 +39,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 // TODO: Load all components on initialization and reload and formatRaw at that point.
 public final class CustomMessages extends ATConfig {
 
@@ -50,7 +46,9 @@ public final class CustomMessages extends ATConfig {
     private static HashMap<CommandSender, BukkitRunnable> titleManager;
     private static HashMap<CommandSender, BukkitRunnable> actionBarManager;
     private static HashMap<CommandSender, BukkitRunnable> soundManager;
+
     @NotNull private static ImmutableMap<String, PartialComponent> messageCache = ImmutableMap.of();
+
     @NotNull private static ImmutableSortedSet<String> prefixes = ImmutableSortedSet.of();
 
     public CustomMessages() throws Exception {
@@ -73,8 +71,7 @@ public final class CustomMessages extends ATConfig {
     public void addDefaults() {
 
         // Add notice
-        addComment(
-                """
+        addComment("""
                 This messages file uses MiniMessage formatting, a new form of message formatting for newer versions of MC.
                 More information about this formatting can be found here: https://docs.advntr.dev/minimessage/format.html#\s
                 If you prefer to use the Legacy Code format (i.e. &a, &b, etc.) then you can still use that format.
@@ -83,14 +80,10 @@ public final class CustomMessages extends ATConfig {
                 """);
 
         makeSectionLenient("Common");
-        addDefault(
-                "Common.prefixes",
-                List.of("<aqua>↑</aqua> <dark_gray>»</dark_gray>"),
-                """
+        addDefault("Common.prefixes", List.of("<aqua>↑</aqua> <dark_gray>»</dark_gray>"), """
             The prefixes for messages, the first element of this list will be usable as <prefix>,
             with each element after that being usable as <prefix:index> with index being the items index in the list.
-            """
-                        .trim());
+            """.trim());
         addDefault("Common.timeFormat.full", "<days><hours><minutes><seconds>");
         addDefault("Common.timeFormat.days.singular", "<days> day, ");
         addDefault("Common.timeFormat.days.plural", "<days> days, ");
@@ -123,15 +116,9 @@ public final class CustomMessages extends ATConfig {
                 10,
                 "How many seconds (in ticks) the header should take to fade out.");
         addExample("Teleport.eventBeforeTP_title.0", "<gray><b>Teleporting...");
-        addExample(
-                "Teleport.eventBeforeTP_title.20",
-                "<aqua>></aqua> <gray><b>Teleporting...</b></gray> <aqua><");
-        addExample(
-                "Teleport.eventBeforeTP_title.40",
-                "<aqua>>></aqua> <gray><b>Teleporting...</b></gray> <aqua><<");
-        addExample(
-                "Teleport.eventBeforeTP_title.60",
-                "<aqua>>>> <b><yellow>Teleported!</yellow></b> <aqua><<<");
+        addExample("Teleport.eventBeforeTP_title.20", "<aqua>></aqua> <gray><b>Teleporting...</b></gray> <aqua><");
+        addExample("Teleport.eventBeforeTP_title.40", "<aqua>>></aqua> <gray><b>Teleporting...</b></gray> <aqua><<");
+        addExample("Teleport.eventBeforeTP_title.60", "<aqua>>>> <b><yellow>Teleported!</yellow></b> <aqua><<<");
         addExample("Teleport.eventBeforeTP_subtitle.0", "<aqua>Please do not move!");
         addExample("Teleport.eventBeforeTP_subtitle.60", "");
 
@@ -139,38 +126,23 @@ public final class CustomMessages extends ATConfig {
                 "Teleport.eventBeforeTPMovementAllowed",
                 "<prefix> <gray>Teleporting in <aqua><countdown-formatted></aqua>!");
         addDefault("Teleport.eventTeleport", "<prefix> <gray>Teleporting...");
-        addDefault(
-                "Teleport.eventMovement",
-                "<prefix> <gray>Teleport has been cancelled due to movement.");
-        addDefault(
-                "Teleport.eventDamage",
-                "<prefix> <gray>Teleport has been cancelled due to damage being taken.");
+        addDefault("Teleport.eventMovement", "<prefix> <gray>Teleport has been cancelled due to movement.");
+        addDefault("Teleport.eventDamage", "<prefix> <gray>Teleport has been cancelled due to damage being taken.");
         addDefault("Teleport.eventMovement_title.length", 60);
         addDefault("Teleport.eventMovement_title.fade-in", 0);
         addDefault("Teleport.eventMovement_title.fade-out", 10);
         addDefault("Teleport.eventMovement_title.0", "<yellow><b>! <red>Cancelled</red> !");
         addDefault("Teleport.teleportingToSpawn", "<prefix> <gray>Teleporting you to spawn!");
         addDefault("Teleport.teleporting", "<prefix> <gray>Teleporting to <aqua><player></aqua>!");
-        addDefault(
-                "Teleport.teleportingToHome", "<prefix> <gray>Teleporting to <aqua><home></aqua>!");
+        addDefault("Teleport.teleportingToHome", "<prefix> <gray>Teleporting to <aqua><home></aqua>!");
         addDefault(
                 "Teleport.teleportingToHomeOther",
                 "<prefix> <gray>Teleporting to <aqua><player></aqua>'s home, <aqua><home></aqua>!");
-        addDefault(
-                "Teleport.teleportingToWarp",
-                "<prefix> <gray>Teleporting you to <aqua><warp></aqua>!");
-        addDefault(
-                "Teleport.teleportingPlayerToSelf",
-                "<prefix> <gray>Teleporting <aqua><player></aqua> to you!");
-        addDefault(
-                "Teleport.teleportingSelfToPlayer",
-                "<prefix> <gray>Teleporting you to <aqua><player></aqua>!");
-        addDefault(
-                "Teleport.teleportingToRandomPlace",
-                "<prefix> <gray>Teleporting you to a random place!");
-        addDefault(
-                "Teleport.teleportingToLastLoc",
-                "<prefix> <gray>Teleporting to your last location!");
+        addDefault("Teleport.teleportingToWarp", "<prefix> <gray>Teleporting you to <aqua><warp></aqua>!");
+        addDefault("Teleport.teleportingPlayerToSelf", "<prefix> <gray>Teleporting <aqua><player></aqua> to you!");
+        addDefault("Teleport.teleportingSelfToPlayer", "<prefix> <gray>Teleporting you to <aqua><player></aqua>!");
+        addDefault("Teleport.teleportingToRandomPlace", "<prefix> <gray>Teleporting you to a random place!");
+        addDefault("Teleport.teleportingToLastLoc", "<prefix> <gray>Teleporting to your last location!");
         addDefault(
                 "Teleport.teleportedToOfflinePlayer",
                 "<prefix> <gray>Teleported to offline player <aqua><player></aqua>!");
@@ -179,64 +151,42 @@ public final class CustomMessages extends ATConfig {
                 "<prefix> <gray>Teleported offline player <aqua><player></aqua> to your location!");
 
         makeSectionLenient("Error");
-        addDefault(
-                "Error.noPermission",
-                "<prefix> <gray>You do not have permission to use this command!");
-        addDefault(
-                "Error.noPermissionSign",
-                "<prefix> <gray>You do not have permission to make this sign!");
+        addDefault("Error.noPermission", "<prefix> <gray>You do not have permission to use this command!");
+        addDefault("Error.noPermissionSign", "<prefix> <gray>You do not have permission to make this sign!");
         addDefault("Error.featureDisabled", "<prefix> <gray>This feature has been disabled!");
         addDefault("Error.noRequests", "<prefix> <gray>You do not have any pending requests!");
-        addDefault(
-                "Error.tpOff", "<prefix> <aqua><player> <gray>has their teleportation disabled!");
-        addDefault(
-                "Error.tpBlock",
-                "<prefix> <aqua><player> <gray>has blocked you from sending requests to them!");
+        addDefault("Error.tpOff", "<prefix> <aqua><player> <gray>has their teleportation disabled!");
+        addDefault("Error.tpBlock", "<prefix> <aqua><player> <gray>has blocked you from sending requests to them!");
         addDefault("Error.alreadyOn", "<prefix> <gray>Your teleport requests are already enabled!");
-        addDefault(
-                "Error.alreadyOff", "<prefix> <gray>Your teleport requests are already disabled!");
+        addDefault("Error.alreadyOff", "<prefix> <gray>Your teleport requests are already disabled!");
         addDefault("Error.alreadyBlocked", "<prefix> <gray>This player is already blocked!");
         addDefault("Error.neverBlocked", "<prefix> <gray>This player was never blocked!");
         addDefault(
                 "Error.onCooldown",
                 "<prefix> <gray>Please wait another <aqua><time-formatted></aqua> to use this command!");
+        addDefault("Error.requestSentToSelf", "<prefix> <gray>You can't send a request to yourself!");
+        addDefault("Error.noSuchPlayer", "<prefix> <gray>The player is either currently offline or doesn't exist!");
         addDefault(
-                "Error.requestSentToSelf", "<prefix> <gray>You can't send a request to yourself!");
-        addDefault(
-                "Error.noSuchPlayer",
-                "<prefix> <gray>The player is either currently offline or doesn't exist!");
-        addDefault(
-                "Error.alreadySentRequest",
-                "<prefix> <gray>You've already sent a request to <aqua><player></aqua>!");
+                "Error.alreadySentRequest", "<prefix> <gray>You've already sent a request to <aqua><player></aqua>!");
         addDefault("Error.notEnoughGeneral", """
             <prefix> <gray>You cannot afford to teleport there!
             <prefix> <gray>You need <aqua><cost></aqua>!
         """);
 
-        addDefault(
-                "Error.notEnoughEXP",
-                """
+        addDefault("Error.notEnoughEXP", """
             <prefix> <gray>You do not have enough EXP Levels to teleport there!
             <prefix> <gray>You need at least <aqua><levels></aqua> EXP levels!
-        """
-                        .trim());
-        addDefault(
-                "Error.notEnoughEXPPoints",
-                """
+        """.trim());
+        addDefault("Error.notEnoughEXPPoints", """
             <prefix> <gray>You do not have enough EXP Points to teleport there!
             <prefix> <gray>You need at least <aqua><points></aqua> EXP points!
-        """
-                        .trim());
-        addDefault(
-                "Error.notEnoughMoney",
-                """
+        """.trim());
+        addDefault("Error.notEnoughMoney", """
             <prefix> <gray>You do not have enough money to teleport there!
             <prefix> <gray>You need at least <aqua><amount></aqua>!
-        """
-                        .trim());
+        """.trim());
         addDefault(
-                "Error.requestExpired",
-                "<prefix> <gray>Your teleport request to <aqua><player></aqua> has expired!");
+                "Error.requestExpired", "<prefix> <gray>Your teleport request to <aqua><player></aqua> has expired!");
         addDefault("Error.noPlayerInput", "<prefix> <gray>You must include a player name!");
         addDefault("Error.blockSelf", "<prefix> <gray>You can't block yourself!");
         addDefault(
@@ -247,59 +197,38 @@ public final class CustomMessages extends ATConfig {
         addDefault("Error.noHomeInput", "<prefix> <gray>You have to include a home name!");
         addDefault("Error.noSuchHome", "<prefix> <gray>This home doesn't exist!");
         addDefault("Error.noBedHome", "<prefix> <gray>You don't have any bed spawn set!");
-        addDefault(
-                "Error.noBedHomeOther",
-                "<prefix> <aqua><player></aqua> <gray>doesn't have a bed spawn set!");
+        addDefault("Error.noBedHomeOther", "<prefix> <aqua><player></aqua> <gray>doesn't have a bed spawn set!");
         addDefault("Error.reachedHomeLimit", "<prefix> <gray>You can't set any more homes!");
-        addDefault(
-                "Error.homeAlreadySet",
-                "<prefix> <gray>You already have a home called <aqua><home></aqua>!");
-        addDefault("Error.cantSetHomeLoc",
-                "<prefix> <gray>You can't set a home here!");
+        addDefault("Error.homeAlreadySet", "<prefix> <gray>You already have a home called <aqua><home></aqua>!");
+        addDefault("Error.cantSetHomeLoc", "<prefix> <gray>You can't set a home here!");
         addDefault("Error.noWarpInput", "<prefix> <gray>You have to include the warp's name!");
         addDefault("Error.noSuchWarp", "<prefix> <gray>That warp doesn't exist!");
-        addDefault(
-                "Error.warpAlreadySet",
-                "<prefix> <gray>There is already a warp called <aqua><warp></aqua>!");
-        addDefault("Error.cantSetWarpLoc",
-                "<prefix> <gray>You can't set a warp here!");
+        addDefault("Error.warpAlreadySet", "<prefix> <gray>There is already a warp called <aqua><warp></aqua>!");
+        addDefault("Error.cantSetWarpLoc", "<prefix> <gray>You can't set a warp here!");
         addDefault("Error.noSuchWorld", "<prefix> <gray>That world doesn't exist!");
-        addDefault("Error.worldUnloaded",
-                "<prefix> <gray>Sorry, the destination world either doesn't exist or isn't loaded. Please tell a server admin!");
         addDefault(
-                "Error.noLocation",
-                "<prefix> <gray>You don't have any location to teleport back to!");
+                "Error.worldUnloaded",
+                "<prefix> <gray>Sorry, the destination world either doesn't exist or isn't loaded. Please tell a server admin!");
+        addDefault("Error.noLocation", "<prefix> <gray>You don't have any location to teleport back to!");
         addDefault("Error.notAPlayer", "<prefix> <gray>You must be a player to run this command!");
         addDefault("Error.noHomes", "<prefix> <gray>You haven't got any homes!");
-        addDefault(
-                "Error.noHomesOther", "<prefix> <aqua><player></aqua> <gray>hasn't got any homes!");
+        addDefault("Error.noHomesOther", "<prefix> <aqua><player></aqua> <gray>hasn't got any homes!");
         addDefault(
                 "Error.tooFarAway",
                 "<prefix> <gray>The teleport destination is too far away so you can not teleport there!");
         addDefault("Error.noRequestsSent", "<prefix> <gray>Couldn't send a request to anyone :(");
-        addDefault(
-                "Error.onCountdown",
-                "<prefix> <gray>You can't use this command whilst waiting to teleport!");
-        addDefault(
-                "Error.noPermissionWarp", "<prefix> <gray>You can't warp to <aqua><warp></aqua>!");
-        addDefault(
-                "Error.cantTPToWorld", "<prefix> <gray>You can't randomly teleport in that world!");
-        addDefault(
-                "Error.cantTPToWorldLim",
-                "<prefix> <gray>You can't teleport to <aqua><world></aqua>!");
-        addDefault(
-                "Error.cantTPToLoc",
-                "<prefix> <gray>You can't teleport to that location!");
+        addDefault("Error.onCountdown", "<prefix> <gray>You can't use this command whilst waiting to teleport!");
+        addDefault("Error.noPermissionWarp", "<prefix> <gray>You can't warp to <aqua><warp></aqua>!");
+        addDefault("Error.cantTPToWorld", "<prefix> <gray>You can't randomly teleport in that world!");
+        addDefault("Error.cantTPToWorldLim", "<prefix> <gray>You can't teleport to <aqua><world></aqua>!");
+        addDefault("Error.cantTPToLoc", "<prefix> <gray>You can't teleport to that location!");
         addDefault("Error.tooFewArguments", "<prefix> <gray>Too few arguments!");
         addDefault("Error.invalidArgs", "<prefix> <gray>Invalid arguments!");
         addDefault("Error.noOthersToTP", "<prefix> <gray>There are no players for you to teleport!");
         addDefault(
-                "Error.cantTPToPlayer",
-                "<prefix> <gray>You can't request a teleportation to <aqua><player></aqua>!");
+                "Error.cantTPToPlayer", "<prefix> <gray>You can't request a teleportation to <aqua><player></aqua>!");
         addDefault("Error.noWarps", "<prefix> <gray>There are no warps as of currently!");
-        addDefault(
-                "Error.noAccessHome",
-                "<prefix> <gray>You cannot access <aqua><home></aqua> as of currently!");
+        addDefault("Error.noAccessHome", "<prefix> <gray>You cannot access <aqua><home></aqua> as of currently!");
         addDefault(
                 "Error.moveHomeFail",
                 "<prefix> <gray>The home has been moved but the data has not been stored successfully. The plugin will try to fix this itself.");
@@ -325,90 +254,59 @@ public final class CustomMessages extends ATConfig {
                 "Error.homesNotLoaded",
                 "<prefix> <gray>Homes for this player haven't loaded yet, please wait a little bit (even just a second) before trying this again!");
         addDefault(
-                "Error.noOfflineLocation",
-                "<prefix> <gray>No offline location was found for <aqua><player></aqua>!");
+                "Error.noOfflineLocation", "<prefix> <gray>No offline location was found for <aqua><player></aqua>!");
         addDefault(
                 "Error.failedOfflineTeleport",
                 "<prefix> <gray>Failed to teleport to offline player <aqua><player></aqua>!");
         addDefault(
                 "Error.failedOfflineTeleportHere",
                 "<prefix> <gray>Failed to teleport offline player <aqua><player></aqua> to your location!");
-        addDefault(
-                "Error.alreadySearching",
-                "<prefix> <gray>Already searching for a location to teleport to!");
-        addDefault(
-                "Error.mirrorSpawnNoArguments",
-                "<prefix> <gray>No worlds/spawn points have been specified!");
+        addDefault("Error.alreadySearching", "<prefix> <gray>Already searching for a location to teleport to!");
+        addDefault("Error.mirrorSpawnNoArguments", "<prefix> <gray>No worlds/spawn points have been specified!");
         addDefault(
                 "Error.mirrorSpawnLackOfArguments",
                 "<prefix> <gray>You must be a player to only specify one world - please specify a world and a spawnpoint to mirror players to!");
-        addDefault(
-                "Error.noSuchSpawn",
-                "<prefix> <gray>There is no such spawn called <aqua><spawn></aqua>!");
+        addDefault("Error.noSuchSpawn", "<prefix> <gray>There is no such spawn called <aqua><spawn></aqua>!");
         addDefault(
                 "Error.cannotSetMainSpawn",
                 "<prefix> <gray>You can only make existing spawnpoints into the main spawnpoint rather than create new ones!");
         addDefault(
                 "Error.cannotSetMainSpawnConsole",
                 "<prefix> <gray>You can only make existing spawnpoints into the main spawnpoint rather than create new ones since you are not a player!");
-        addDefault(
-                "Error.nonAlphanumericSpawn",
-                "<prefix> <gray>Spawnpoints need to be alphanumeric!");
-        addDefault(
-                "Error.removeSpawnNoArgs",
-                "<prefix> <gray>You have to specify a spawnpoint to remove!");
-        addDefault(
-                "Error.noSuchPlugin",
-                "<prefix> <gray>This plugin is not supported for importing/exporting yet!");
+        addDefault("Error.nonAlphanumericSpawn", "<prefix> <gray>Spawnpoints need to be alphanumeric!");
+        addDefault("Error.removeSpawnNoArgs", "<prefix> <gray>You have to specify a spawnpoint to remove!");
+        addDefault("Error.noSuchPlugin", "<prefix> <gray>This plugin is not supported for importing/exporting yet!");
         addDefault(
                 "Error.cantImport",
                 "<prefix> <gray>Can't import plugin data from <aqua><plugin></aqua> (make sure it's enabled and by the correct authors)!");
         addDefault(
                 "Error.cantExport",
                 "<prefix> <gray>Can't export plugin data from <aqua><plugin></aqua> (make sure it's enabled and by the correct authors)!");
-        addDefault(
-                "Error.noPluginSpecified",
-                "<prefix> <gray>You need to specify a plugin to import/export from!");
-        addDefault(
-                "Error.invalidOption",
-                "<prefix> <gray>That is not a valid option to import/export!");
-        addDefault(
-                "Error.notEnoughItems",
-                """
+        addDefault("Error.noPluginSpecified", "<prefix> <gray>You need to specify a plugin to import/export from!");
+        addDefault("Error.invalidOption", "<prefix> <gray>That is not a valid option to import/export!");
+        addDefault("Error.notEnoughItems", """
             <prefix> <gray>You do not have enough items to teleport there!
             <prefix> <gray>You need at least <aqua><amount></aqua> <type>(s)!
-        """
-                        .trim());
+        """.trim());
         addDefault(
                 "Error.mirrorSpawnFail",
                 "<prefix> <gray>Failed to mirror <aqua><from></aqua>'s spawnpoint to <aqua><spawn></aqua>!");
+        addDefault("Error.removeSpawnFail", "<prefix> <gray>Failed to remove the spawnpoint <aqua><spawn></aqua>!");
+        addDefault("Error.setMainSpawnFail", "<prefix> <gray>Failed to set the main spawnpoint <aqua><spawn></aqua>!");
+        addDefault("Error.blockFail", "<prefix> <gray>Failed to save the block against <aqua><player></aqua>!");
         addDefault(
-                "Error.removeSpawnFail",
-                "<prefix> <gray>Failed to remove the spawnpoint <aqua><spawn></aqua>!");
-        addDefault(
-                "Error.setMainSpawnFail",
-                "<prefix> <gray>Failed to set the main spawnpoint <aqua><spawn></aqua>!");
-        addDefault(
-                "Error.blockFail",
-                "<prefix> <gray>Failed to save the block against <aqua><player></aqua>!");
-        addDefault(
-                "Error.unblockFail",
-                "<prefix> <gray>Failed to save the block removal against <aqua><player></aqua>!");
+                "Error.unblockFail", "<prefix> <gray>Failed to save the block removal against <aqua><player></aqua>!");
         addDefault(
                 "Error.noParticlePlugins",
                 "<prefix> <gray>There are no particle plugins on this server! You need at least one (PlayerParticles) to use this command.");
-        addDefault(
-                "Error.notEnoughArgs",
-                "<prefix> <gray>You haven't specified enough arguments to run this command!");
+        addDefault("Error.notEnoughArgs", "<prefix> <gray>You haven't specified enough arguments to run this command!");
         addDefault(
                 "Error.failedMapIconUpdate",
                 "<prefix> <gray>Failed to update the map icon! Please check the console for more information.");
 
         addDefault("Error.setWarpFail", "<prefix> <gray>Failed to set the warp <warp>!");
         addDefault("Error.teleportFailed", "<prefix> <gray>Sorry, we couldn't teleport you :(");
-        addDefault(
-                "Error.randomLocFailed",
-                "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
+        addDefault("Error.randomLocFailed", "<prefix> <gray>Sorry, we couldn't find a location to teleport you to :(");
 
         addDefault("Error.commandUse", "<aqua>Usage: <gray><usage>");
         addDefault("Error.rtpManagerNotUsed", "<prefix> <gray>The RTP-Cache is not being used on the server.");
@@ -417,56 +315,39 @@ public final class CustomMessages extends ATConfig {
         addDefault("Info.tpOff", "<prefix> <gray>Successfully disabled teleport requests!");
         addDefault("Info.tpOn", "<prefix> <gray>Successfully enabled teleport requests!");
         addDefault(
-                "Info.tpAdminOff",
-                "<prefix> <gray>Successfully disabled teleport requests for <aqua><player></aqua>!");
+                "Info.tpAdminOff", "<prefix> <gray>Successfully disabled teleport requests for <aqua><player></aqua>!");
         addDefault(
-                "Info.tpAdminOn",
-                "<prefix> <gray>Successfully enabled teleport requests for <aqua><player></aqua>!");
+                "Info.tpAdminOn", "<prefix> <gray>Successfully enabled teleport requests for <aqua><player></aqua>!");
         // TODO: Possible "Common" components for the hover and click events?
-        addDefault(
-                "Info.requestSent",
-                """
+        addDefault("Info.requestSent", """
             <prefix> <gray>Successfully sent request to <aqua><player></aqua>!
             <prefix> <gray>They've got <aqua><lifetime></aqua> to respond!
             <prefix> <gray>To cancel the request use <aqua>/tpcancel</aqua> to cancel it.
 
                                 <click:run_command:'/tpcancel <player>'><hover:show_text:'<red>Click here to cancel the request.'><gray><bold>[CANCEL]</hover></click>
-        """
-                        .stripIndent());
-        addDefault(
-                "Info.tpaRequestReceived",
-                """
+        """.stripIndent());
+        addDefault("Info.tpaRequestReceived", """
             <prefix> <gray>The player <aqua><player></aqua> wants to teleport to you!
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime></aqua> to respond to it!
 
                                 <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</hover></click>             <click:run_command:'/tpano <player>'><hover:show_text:'<red>Click here to deny the request.'><red><bold>[DENY]</red></bold></hover></click>
-        """
-                        .stripIndent());
-        addDefault(
-                "Info.tpaRequestHere",
-                """
+        """.stripIndent());
+        addDefault("Info.tpaRequestHere", """
             <prefix> <gray>The player <aqua><player></aqua> wants to teleport you to them!
             <prefix> <gray>If you want to accept it, use <aqua>/tpayes</aqua>, but if not, use <aqua>/tpano</aqua>.
             <prefix> <gray>You've got <aqua><lifetime-formatted></aqua> to respond to it!
 
                               <click:run_command:'/tpayes <player>'><hover:show_text:'<green>Click here to accept the request.'><green><bold>[ACCEPT]</bold></hover></click>             <click:run_command:'/tpano <player>'><hover:show_text:'<red>Click here to deny the request.'><red><bold>[DENY]</red></bold></hover></click>
-        """
-                        .stripIndent());
+        """.stripIndent());
         addDefault("Info.blockPlayer", "<prefix> <aqua><player> <gray>has been blocked.");
         addDefault("Info.tpCancel", "<prefix> <gray>You have cancelled your teleport request.");
-        addDefault(
-                "Info.tpCancelResponder",
-                "<prefix> <aqua><player> <gray>has cancelled their teleport request.");
+        addDefault("Info.tpCancelResponder", "<prefix> <aqua><player> <gray>has cancelled their teleport request.");
         addDefault(
                 "Info.multipleRequestsCancel",
                 "<prefix> <gray>You have multiple teleport requests pending! Click one of the following to cancel:");
-        addDefault(
-                "Info.multipleRequestsIndex",
-                "<prefix> <click:run_command:'{command} {player}'><player></click>");
-        addDefault(
-                "Info.multipleRequestsList",
-                "<prefix> <gray>Do /tpalist <Page Number> To check other requests.");
+        addDefault("Info.multipleRequestsIndex", "<prefix> <click:run_command:'{command} {player}'><player></click>");
+        addDefault("Info.multipleRequestsList", "<prefix> <gray>Do /tpalist <Page Number> To check other requests.");
         addDefault(
                 "Info.multipleRequestAccept",
                 "<prefix> <gray>You have multiple teleport requests pending! Click one of the following to accept:");
@@ -481,9 +362,7 @@ public final class CustomMessages extends ATConfig {
                 "Info.requestDisplaced",
                 "<prefix> <gray>Your request has been cancelled because <aqua><player></aqua> got another request!");
 
-        addDefault(
-                "Info.deletedHome",
-                "<prefix> <gray>Successfully deleted the home <aqua><home></aqua>!");
+        addDefault("Info.deletedHome", "<prefix> <gray>Successfully deleted the home <aqua><home></aqua>!");
         addDefault(
                 "Info.deletedHomeOther",
                 "<prefix> <gray>Successfully deleted the home <aqua><home></aqua> for <aqua><player></aqua>!");
@@ -493,28 +372,17 @@ public final class CustomMessages extends ATConfig {
                 "<prefix> <gray>Successfully set the home <aqua><home></aqua> for <aqua><player></aqua>!");
         addDefault("Info.setSpawn", "<prefix> <gray>Successfully set the spawnpoint!");
         addDefault("Info.setWarp", "<prefix> <gray>Successfully set the warp <aqua><warp></aqua>!");
+        addDefault("Info.deletedWarp", "<prefix> <gray>Successfully deleted the warp <aqua><warp></aqua>!");
+        addDefault("Info.purgeWarpsWorld", "<prefix> <gray>Successfully purged warps in <aqua><world></aqua>!");
         addDefault(
-                "Info.deletedWarp",
-                "<prefix> <gray>Successfully deleted the warp <aqua><warp></aqua>!");
-        addDefault(
-                "Info.purgeWarpsWorld",
-                "<prefix> <gray>Successfully purged warps in <aqua><world></aqua>!");
-        addDefault(
-                "Info.purgeWarpsCreator",
-                "<prefix> <gray>Successfully purged warps created by <aqua><player></aqua>!");
-        addDefault(
-                "Info.purgeHomesWorld",
-                "<prefix> <gray>Successfully purged homes in <aqua><world></aqua>!");
+                "Info.purgeWarpsCreator", "<prefix> <gray>Successfully purged warps created by <aqua><player></aqua>!");
+        addDefault("Info.purgeHomesWorld", "<prefix> <gray>Successfully purged homes in <aqua><world></aqua>!");
         addDefault(
                 "Info.purgeHomesCreator",
                 "<prefix> <gray>Successfully purged homes created for <aqua><player></aqua>!");
         addDefault("Info.searching", "<prefix> <gray>Searching for a location...");
-        addDefault(
-                "Info.unblockPlayer",
-                "<prefix> <gray>Successfully unblocked <aqua><player></aqua>!");
-        addDefault(
-                "Info.reloadingConfig",
-                "<prefix> <gray>Reloading <aqua>AdvancedTeleport</aqua>'s config...");
+        addDefault("Info.unblockPlayer", "<prefix> <gray>Successfully unblocked <aqua><player></aqua>!");
+        addDefault("Info.reloadingConfig", "<prefix> <gray>Reloading <aqua>AdvancedTeleport</aqua>'s config...");
         addDefault("Info.reloadedConfig", "<prefix> <gray>Finished reloading the config!");
         addDefault("Info.warps", "<aqua><bold>Warps <dark_gray>» <reset>");
         addDefault("Info.homes", "<aqua><bold>Homes <dark_gray>» <reset>");
@@ -544,12 +412,8 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Info.teleportedToLocOther",
                 "<prefix> <gray>Successfully teleported <aqua><player></aqua> to <aqua><x></aqua>, <aqua><y></aqua>, <aqua><z></aqua>! (Yaw: <aqua><yaw></aqua>, Pitch: <aqua><pitch></aqua>, World: <aqua><world></aqua>)");
-        addDefault(
-                "Info.movedWarp",
-                "<prefix> <gray>Moved <aqua><warp></aqua> to your current location!");
-        addDefault(
-                "Info.movedHome",
-                "<prefix> <gray>Moved home <aqua><home></aqua> to your current location!");
+        addDefault("Info.movedWarp", "<prefix> <gray>Moved <aqua><warp></aqua> to your current location!");
+        addDefault("Info.movedHome", "<prefix> <gray>Moved home <aqua><home></aqua> to your current location!");
         addDefault(
                 "Info.movedHomeOther",
                 "<prefix> <gray>Moved <aqua><player>'s </aqua> home <aqua><home></aqua> to your location!");
@@ -557,9 +421,7 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Info.setAndMadeMainHome",
                 "<prefix> <gray>Set <aqua><home></aqua> at your current location and made it your main home!");
-        addDefault(
-                "Info.setMainHomeOther",
-                "<prefix> <gray>Made <aqua><home> <player></aqua>'s main home!");
+        addDefault("Info.setMainHomeOther", "<prefix> <gray>Made <aqua><home> <player></aqua>'s main home!");
         addDefault(
                 "Info.setAndMadeMainHomeOther",
                 "<prefix> <gray>Set <aqua><home></aqua> for <aqua><player></aqua> at your current location and made it their main home!");
@@ -569,29 +431,18 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Info.setMainSpawn",
                 "<prefix> <gray>Set the main spawnpoint to <aqua><spawn></aqua>! All players will teleport there if there are no overriding spawns/permissions.");
-        addDefault(
-                "Info.removedSpawn", "<prefix> <gray>Removed the spawnpoint <aqua><spawn></aqua>!");
+        addDefault("Info.removedSpawn", "<prefix> <gray>Removed the spawnpoint <aqua><spawn></aqua>!");
         addDefault("Info.setSpawnSpecial", "<prefix> <gray>Set spawnpoint <aqua><spawn></aqua>!");
+        addDefault("Info.importStarted", "<prefix> <gray>Starting import from <aqua><plugin></aqua>...");
+        addDefault("Info.importFinished", "<prefix> <gray>Finished import from <aqua><plugin></aqua>!");
+        addDefault("Info.exportStarted", "<prefix> <gray>Starting export to <aqua><plugin></aqua>...");
+        addDefault("Info.exportFinished", "<prefix> <gray>Finished export to <aqua><plugin></aqua>!");
         addDefault(
-                "Info.importStarted",
-                "<prefix> <gray>Starting import from <aqua><plugin></aqua>...");
-        addDefault(
-                "Info.importFinished",
-                "<prefix> <gray>Finished import from <aqua><plugin></aqua>!");
-        addDefault(
-                "Info.exportStarted", "<prefix> <gray>Starting export to <aqua><plugin></aqua>...");
-        addDefault(
-                "Info.exportFinished", "<prefix> <gray>Finished export to <aqua><plugin></aqua>!");
-        addDefault(
-                "Info.paymentItems",
-                "<prefix> <gray>You have paid <aqua><amount> <type>(s)</aqua> for that teleport!");
-        addDefault(
-                "Info.updateInfo",
-                """
+                "Info.paymentItems", "<prefix> <gray>You have paid <aqua><amount> <type>(s)</aqua> for that teleport!");
+        addDefault("Info.updateInfo", """
             <prefix> <hover:show_text:'<aqua>Current Version <dark_gray>» <gray><version>
             <aqua>New Version <dark_gray>» <gray><new-version>
-            <aqua>Title <dark_gray>» <gray><title>'><click:open_url:'https://www.spigotmc.org/resources/advancedteleport.64139/'><gray>AdvancedTeleport has an update available! Click/hover over this text for more information.</click></hover>"""
-                        .trim());
+            <aqua>Title <dark_gray>» <gray><title>'><click:open_url:'https://www.spigotmc.org/resources/advancedteleport.64139/'><gray>AdvancedTeleport has an update available! Click/hover over this text for more information.</click></hover>""".trim());
         addDefault(
                 "Info.defaultParticlesUpdated",
                 "<prefix> <gray>The default waiting particles have been set to your current particle setup!");
@@ -622,9 +473,7 @@ public final class CustomMessages extends ATConfig {
 
         addDefault("Tooltip.homes", "<prefix> <gray>Teleports you to your home: <aqua><home>");
         addDefault("Tooltip.warps", "<prefix> <gray>Teleports you to warp: <aqua><warp>");
-        addDefault(
-                "Tooltip.location",
-                """
+        addDefault("Tooltip.location", """
 
             <aqua>X <dark_gray>» <gray><x>
             <aqua>Y <dark_gray>» <gray><y>
@@ -636,9 +485,7 @@ public final class CustomMessages extends ATConfig {
                 "<aqua>・．<gray>━━━━━━━━━━━</gray> <dark_gray>❰</dark_gray> <bold>Advanced Teleport</bold> <gray><current_page>/<total_pages> <dark_gray>❱</dark_gray> <gray>━━━━━━━━━━━</gray>．・");
         addDefault("Menu.Help.option", "<dark_gray>» <aqua><usage></aqua> ~ <gray><description>");
 
-        addDefault(
-                "Descriptions.Subcommands.help",
-                "Sends the help menu, providing a full list of commands.");
+        addDefault("Descriptions.Subcommands.help", "Sends the help menu, providing a full list of commands.");
         addDefault("Descriptions.Subcommands.info", "Sends information regarding the plugin.");
         addDefault(
                 "Descriptions.Subcommands.import",
@@ -652,9 +499,7 @@ public final class CustomMessages extends ATConfig {
         addDefault(
                 "Descriptions.Subcommands.map.sethovertooltip",
                 "Sets the tooltip of an AT icon in a map plugin when it is hovered over.");
-        addDefault(
-                "Descriptions.Subcommands.map.seticon",
-                "Sets the image of an AT icon in a map plugin.");
+        addDefault("Descriptions.Subcommands.map.seticon", "Sets the image of an AT icon in a map plugin.");
         addDefault(
                 "Descriptions.Subcommands.map.setsize",
                 "Sets the size of an AT icon in a map plugin (excluding Dynmap).");
@@ -667,23 +512,16 @@ public final class CustomMessages extends ATConfig {
         addDefault("Descriptions.tpyes", "Accepts a player's teleport request.");
         addDefault("Descriptions.tpno", "Declines a player's teleport request.");
         addDefault("Descriptions.tpcancel", "Cancels your teleport request to a player.");
-        addDefault(
-                "Descriptions.toggletp",
-                "Either stops or allows players to send teleport requests to you.");
+        addDefault("Descriptions.toggletp", "Either stops or allows players to send teleport requests to you.");
         addDefault("Descriptions.tpon", "Allows players to send teleport requests to you.");
         addDefault("Descriptions.tpoff", "Stops players from sending teleport requests to you.");
-        addDefault(
-                "Descriptions.tpblock",
-                "Stops a specific player from sending teleport requests to you.");
-        addDefault(
-                "Descriptions.tpunblock",
-                "Allows a blocked player to send you teleport requests again.");
+        addDefault("Descriptions.tpblock", "Stops a specific player from sending teleport requests to you.");
+        addDefault("Descriptions.tpunblock", "Allows a blocked player to send you teleport requests again.");
         addDefault("Descriptions.back", "Teleports you to your previous location.");
         addDefault("Descriptions.tpalist", "Lists all of your current teleport requests.");
         addDefault("Descriptions.tpo", "Instantly teleports you to a player.");
         addDefault("Descriptions.tpohere", "Instantly teleports a player to you.");
-        addDefault(
-                "Descriptions.tpall", "Sends a teleport request to everyone in the server to you.");
+        addDefault("Descriptions.tpall", "Sends a teleport request to everyone in the server to you.");
         addDefault("Descriptions.tploc", "Teleports you to a specific location.");
         addDefault("Descriptions.tpoffline", "Teleports you to an offline player.");
         addDefault("Descriptions.tpofflinehere", "Teleports an offline player to you.");
@@ -695,9 +533,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Descriptions.movewarp", "Moves a warp to a new location.");
         addDefault("Descriptions.spawn", "Teleports you to the spawnpoint.");
         addDefault("Descriptions.setspawn", "Sets a spawn with a name when specified.");
-        addDefault(
-                "Descriptions.mirrorspawn",
-                "Redirects people using /spawn in one world to another spawn point.");
+        addDefault("Descriptions.mirrorspawn", "Redirects people using /spawn in one world to another spawn point.");
         addDefault(
                 "Descriptions.setmainspawn",
                 "Sets a specified spawnpoint to become the main spawnpoint. If it does not exist, it will be created if you have /setspawn permissions.");
@@ -709,47 +545,30 @@ public final class CustomMessages extends ATConfig {
         addDefault("Descriptions.sethome", "Sets a home at your current location.");
         addDefault("Descriptions.delhome", "Deletes a home.");
         addDefault("Descriptions.movehome", "Moves a home to a new location.");
-        addDefault(
-                "Descriptions.setmainhome",
-                "Sets a home at your location or makes an existing one your main home.");
-        addDefault(
-                "Descriptions.purge",
-                "Removes all warps or homes for the specified player or world.");
+        addDefault("Descriptions.setmainhome", "Sets a home at your location or makes an existing one your main home.");
+        addDefault("Descriptions.purge", "Removes all warps or homes for the specified player or world.");
         addDefault(
                 "Descriptions.particles",
                 "Ports your current particle selection to the default waiting particles configuration, or a command one.");
 
         addDefault("Usages.Subcommands.help", "/at help [Category|Page]");
         addDefault("Usages.Subcommands.info", "/at info");
-        addDefault(
-                "Usages.Subcommands.import",
-                "/at import <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
-        addDefault(
-                "Usages.Subcommands.export",
-                "/at export <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
-        addDefault(
-                "Usages.Subcommands.purge",
-                "/at purge <Homes|Warps> <Player|World> <Player Name|World Name>");
+        addDefault("Usages.Subcommands.import", "/at import <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
+        addDefault("Usages.Subcommands.export", "/at export <Plugin> [All|Homes|LastLocs|Warps|Spawns|Players]");
+        addDefault("Usages.Subcommands.purge", "/at purge <Homes|Warps> <Player|World> <Player Name|World Name>");
         addDefault("Usages.Subcommands.reload", "/at reload");
         addDefault("Usages.Subcommands.clearcache", "/at clearcache [World]");
-        addDefault(
-                "Usages.Subcommands.particles",
-                "/at particles [Tpa|Tpahere|Home|Tpr|Warp|Spawn|Back]");
+        addDefault("Usages.Subcommands.particles", "/at particles [Tpa|Tpahere|Home|Tpr|Warp|Spawn|Back]");
         addDefault(
                 "Usages.Subcommands.map.setclicktooltip",
                 "/at map setclicktooltip <Home|Warp|Spawn> [Home Owner] <Tooltip>");
         addDefault(
                 "Usages.Subcommands.map.sethovertooltip",
                 "/at map sethovertooltip <Home|Warp|Spawn> [Home Owner] <Tooltip>");
+        addDefault("Usages.Subcommands.map.seticon", "/at map seticon <Home|Warp|Spawn> [Home Owner] <Image Name>");
+        addDefault("Usages.Subcommands.map.setsize", "/at map setsize <Home|Warp|Spawn> [Home Owner] <Image Size>");
         addDefault(
-                "Usages.Subcommands.map.seticon",
-                "/at map seticon <Home|Warp|Spawn> [Home Owner] <Image Name>");
-        addDefault(
-                "Usages.Subcommands.map.setsize",
-                "/at map setsize <Home|Warp|Spawn> [Home Owner] <Image Size>");
-        addDefault(
-                "Usages.Subcommands.map.setvisible",
-                "/at map setvisible <Home|Warp|Spawn> [Home Owner] <true|false>");
+                "Usages.Subcommands.map.setvisible", "/at map setvisible <Home|Warp|Spawn> [Home Owner] <true|false>");
         addDefault("Usages.at", "/at <Command>");
         addDefault("Usages.tpa", "/tpa <Player>");
         addDefault("Usages.tpahere", "/tpahere <Player>");
@@ -766,9 +585,7 @@ public final class CustomMessages extends ATConfig {
         addDefault("Usages.tpo", "/tpo <Player>");
         addDefault("Usages.tpohere", "/tpohere <Player>");
         addDefault("Usages.tpall", "/tpall");
-        addDefault(
-                "Usages.tploc",
-                "/tploc <x|~> <y|~> <z|~> [Yaw|~] [Pitch|~] [World|~] [Player] [precise|noflight]");
+        addDefault("Usages.tploc", "/tploc <x|~> <y|~> <z|~> [Yaw|~] [Pitch|~] [World|~] [Player] [precise|noflight]");
         addDefault("Usages.tpoffline", "/tpoffline <Player>");
         addDefault("Usages.tpofflinehere", "/tpofflinehere <Player>");
         addDefault("Usages.tpr", "/tpr [World]");
@@ -805,24 +622,18 @@ public final class CustomMessages extends ATConfig {
         addDefault("Signs.warp", "<blue><bold>[Warp]</bold></blue>");
         addDefault("Signs.warps", "<blue><bold>[Warps]</bold></blue>");
 
-        addFormsDefault(
-                "tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");
+        addFormsDefault("tpahere", "TPAHere Request", "Select a player to send a TPAHere request to.");
         addFormsDefault("tpa", "TPA Request", "Select a player to send a TPA request to.");
-        addFormsDefault(
-                "tpa-received", "TPA Request", "The player <player> wants to teleport to you!");
+        addFormsDefault("tpa-received", "TPA Request", "The player <player> wants to teleport to you!");
         addDefault("Forms.tpa-received-accept", "Accept");
         addDefault("Forms.tpa-received-deny", "Deny");
-        addFormsDefault(
-                "tpahere-received",
-                "TPAHere Request",
-                "The player <player> wants you to teleport to them!");
+        addFormsDefault("tpahere-received", "TPAHere Request", "The player <player> wants you to teleport to them!");
         addDefault("Forms.tpahere-received-accept", "Accept");
         addDefault("Forms.tpahere-received-deny", "Deny");
         addFormsDefault("home", "Homes", "Select a home to teleport to.");
         addFormsDefault("sethome", "Set Home", "Enter a home name.");
         addFormsDefault("delhome", "Delete Home", "Select the home to delete.");
-        addFormsDefault(
-                "setmainhome", "Set Main Home", "Enter an existing home name or a new one.");
+        addFormsDefault("setmainhome", "Set Main Home", "Enter an existing home name or a new one.");
         addFormsDefault("movehome", "Move Home", "Choose the home to be moved.");
         addFormsDefault("warp", "Warps", "Select a warp to teleport to.");
         addFormsDefault("delwarp", "Delete Warp", "Select a warp to delete.");
@@ -832,8 +643,7 @@ public final class CustomMessages extends ATConfig {
         addFormsDefault("tpunblock", "Unblock Player", "Select a player to unblock.");
         addFormsDefault("tpcancel", "Cancel TP Request", "Select a request to cancel.");
         addFormsDefault("tpo", "Teleport", "Select a player to teleport to.");
-        addFormsDefault(
-                "tpohere", "Teleport Here", "Select a player to teleport to your location.");
+        addFormsDefault("tpohere", "Teleport Here", "Select a player to teleport to your location.");
     }
 
     @Override
@@ -852,15 +662,15 @@ public final class CustomMessages extends ATConfig {
      * @throws IllegalArgumentException If the given path doesn't exist or if the placeholders
      *     aren't in pairs.
      */
-    public static @NotNull Component get(
-            @NotNull final String path, @Nullable final TagResolver... placeholders)
+    public static @NotNull Component get(@NotNull final String path, @Nullable final TagResolver... placeholders)
             throws IllegalArgumentException {
         return getWithInstantReplace(path, new ArrayList<>(), Arrays.asList(placeholders));
     }
 
-    public static @NotNull Component getWithInstantReplace(@NotNull final String path,
-                                                           @NotNull final List<Pair<String, String>> instantPlaceholders,
-                                                           @NotNull final List<TagResolver> placeholders) {
+    public static @NotNull Component getWithInstantReplace(
+            @NotNull final String path,
+            @NotNull final List<Pair<String, String>> instantPlaceholders,
+            @NotNull final List<TagResolver> placeholders) {
 
         if (config == null) throw new IllegalStateException("Config not initialized");
 
@@ -876,13 +686,11 @@ public final class CustomMessages extends ATConfig {
         return get(path, placeholders);
     }
 
-    public static @NotNull Component translate(
-            @NotNull final String text, @NotNull final TagResolver... placeholders) {
+    public static @NotNull Component translate(@NotNull final String text, @NotNull final TagResolver... placeholders) {
         return MiniMessage.miniMessage().deserialize(translateLegacy(text), placeholders);
     }
 
-    public static @NotNull String asString(
-            @NotNull final String path, @Nullable final TagResolver... placeholders) {
+    public static @NotNull String asString(@NotNull final String path, @Nullable final TagResolver... placeholders) {
         return PlainTextComponentSerializer.plainText().serialize(get(path, placeholders));
     }
 
@@ -899,13 +707,10 @@ public final class CustomMessages extends ATConfig {
             handleSpecialMessage(
                     player,
                     path + "_actionbar",
-                    (content -> CoreAdvancedTeleport.getInstance().sendActionBar(player, translate(content, placeholders))),
+                    (content ->
+                            CoreAdvancedTeleport.getInstance().sendActionBar(player, translate(content, placeholders))),
                     actionBarManager);
-            handleSpecialMessage(
-                    player,
-                    path + "_sound",
-                    (sound -> sendSound(player, sound, mainPath)),
-                    soundManager);
+            handleSpecialMessage(player, path + "_sound", (sound -> sendSound(player, sound, mainPath)), soundManager);
 
             @Nullable ConfigSection titles = config.getConfigSection(path + "_title");
             @Nullable ConfigSection subtitles = config.getConfigSection(path + "_subtitle");
@@ -913,10 +718,7 @@ public final class CustomMessages extends ATConfig {
 
                 // Debug
                 CoreAdvancedTeleport.debug(
-                        "Found special message format - titles: "
-                                + titles
-                                + ", subtitles: "
-                                + subtitles);
+                        "Found special message format - titles: " + titles + ", subtitles: " + subtitles);
 
                 // Fade in, stay, out
                 int[] titleInfo = new int[] {0, 0, 0};
@@ -928,57 +730,45 @@ public final class CustomMessages extends ATConfig {
                 }
 
                 // Handle t
-                BukkitRunnable titleRunnable =
-                        new BukkitRunnable() {
+                BukkitRunnable titleRunnable = new BukkitRunnable() {
 
-                            private int current = 0;
-                            private @Nullable Component previousTitle = null;
-                            private @Nullable Component previousSubtitle = null;
+                    private int current = 0;
+                    private @Nullable Component previousTitle = null;
+                    private @Nullable Component previousSubtitle = null;
 
-                            @Override
-                            public void run() {
-                                if (current == titleInfo[1] || titleManager.get(player) != this) {
-                                    cancel();
-                                    return;
-                                }
+                    @Override
+                    public void run() {
+                        if (current == titleInfo[1] || titleManager.get(player) != this) {
+                            cancel();
+                            return;
+                        }
 
-                                String title = null;
-                                String subtitle = null;
+                        String title = null;
+                        String subtitle = null;
 
-                                if (titles != null)
-                                    title = titles.getString(String.valueOf(current));
-                                if (subtitles != null)
-                                    subtitle = subtitles.getString(String.valueOf(current));
+                        if (titles != null) title = titles.getString(String.valueOf(current));
+                        if (subtitles != null) subtitle = subtitles.getString(String.valueOf(current));
 
-                                CoreAdvancedTeleport.getInstance().sendTitle(player,Title.title(
-                                                        title == null
-                                                                ? (previousTitle == null
-                                                                        ? Component.empty()
-                                                                        : previousTitle)
-                                                                : (previousTitle =
-                                                                        translate(
-                                                                                title,
-                                                                                placeholders)),
-                                                        subtitle == null
-                                                                ? (previousSubtitle == null
-                                                                        ? Component.empty()
-                                                                        : previousSubtitle)
-                                                                : (previousSubtitle =
-                                                                        translate(
-                                                                                subtitle,
-                                                                                placeholders)),
-                                                        Title.Times.times(
-                                                                Duration.ofMillis(
-                                                                        titleInfo[0] * 50L),
-                                                                Duration.ofMillis(
-                                                                        (titleInfo[1] - current)
-                                                                                * 50L),
-                                                                Duration.ofMillis(
-                                                                        titleInfo[2] * 50L))));
+                        CoreAdvancedTeleport.getInstance()
+                                .sendTitle(
+                                        player,
+                                        Title.title(
+                                                title == null
+                                                        ? (previousTitle == null ? Component.empty() : previousTitle)
+                                                        : (previousTitle = translate(title, placeholders)),
+                                                subtitle == null
+                                                        ? (previousSubtitle == null
+                                                                ? Component.empty()
+                                                                : previousSubtitle)
+                                                        : (previousSubtitle = translate(subtitle, placeholders)),
+                                                Title.Times.times(
+                                                        Duration.ofMillis(titleInfo[0] * 50L),
+                                                        Duration.ofMillis((titleInfo[1] - current) * 50L),
+                                                        Duration.ofMillis(titleInfo[2] * 50L))));
 
-                                current++;
-                            }
-                        };
+                        current++;
+                    }
+                };
 
                 titleManager.put(player, titleRunnable);
                 titleRunnable.runTaskTimer(CoreAdvancedTeleport.getInstance().getPlugin(), 1, 1);
@@ -992,10 +782,7 @@ public final class CustomMessages extends ATConfig {
         var component = Component.text();
         if (config.get(path) instanceof List) {
             config.getStringList(path)
-                    .forEach(
-                            line ->
-                                    component.append(
-                                            translate(preProcess.apply(line), placeholders)));
+                    .forEach(line -> component.append(translate(preProcess.apply(line), placeholders)));
         } else if (config.getString(path) != null && !config.getString(path).isEmpty())
             component.append(get(path, placeholders));
 
@@ -1004,8 +791,7 @@ public final class CustomMessages extends ATConfig {
     }
 
     @Contract(pure = true)
-    public static void sendMessage(@NotNull final CommandSender sender,
-                                   @NotNull final Component component) {
+    public static void sendMessage(@NotNull final CommandSender sender, @NotNull final Component component) {
         CoreAdvancedTeleport.getInstance().sendMessage(sender, component.asComponent());
     }
 
@@ -1032,19 +818,13 @@ public final class CustomMessages extends ATConfig {
 
     @Contract(pure = true)
     public static @NotNull String contextualPath(
-            @NotNull final CommandSender sender,
-            @NotNull final UUID target,
-            @NotNull final String path) {
-        return sender instanceof OfflinePlayer player && player.getUniqueId() == target
-                ? path
-                : (path + "Other");
+            @NotNull final CommandSender sender, @NotNull final UUID target, @NotNull final String path) {
+        return sender instanceof OfflinePlayer player && player.getUniqueId() == target ? path : (path + "Other");
     }
 
     @Contract(pure = true)
     public static @NotNull String contextualPath(
-            @NotNull final CommandSender sender,
-            @NotNull final OfflinePlayer target,
-            @NotNull final String path) {
+            @NotNull final CommandSender sender, @NotNull final OfflinePlayer target, @NotNull final String path) {
         return contextualPath(sender, target.getUniqueId(), path);
     }
 
@@ -1102,29 +882,24 @@ public final class CustomMessages extends ATConfig {
     @ApiStatus.Internal // TODO: I think this works, need to double check
     @Contract(pure = true)
     public static @NotNull HoverEventSource<Component> locationBasedTooltip(
-            @NotNull final CommandSender sender,
-            @NotNull final NamedLocation location,
-            @NotNull final String path) {
-        final var tooltipBuilder =
-                Component.text()
-                        .append(
-                                CustomMessages.get(
-                                        "Tooltip." + path,
-                                        Placeholder.unparsed("home", location.getName()),
-                                        Placeholder.unparsed("warp", location.getName())));
+            @NotNull final CommandSender sender, @NotNull final NamedLocation location, @NotNull final String path) {
+        final var tooltipBuilder = Component.text()
+                .append(CustomMessages.get(
+                        "Tooltip." + path,
+                        Placeholder.unparsed("home", location.getName()),
+                        Placeholder.unparsed("warp", location.getName())));
 
         if (PermissionUtil.hasPermissionOrStar(sender, "at.member." + path + ".location")) {
-            tooltipBuilder.append(
-                    CustomMessages.get(
-                            "Tooltip.location",
-                            Placeholder.unparsed(
-                                    "x", String.valueOf(location.getLocation().getBlockX())),
-                            Placeholder.unparsed(
-                                    "y", String.valueOf(location.getLocation().getBlockY())),
-                            Placeholder.unparsed(
-                                    "z", String.valueOf(location.getLocation().getBlockZ())),
-                            Placeholder.unparsed(
-                                    "world", location.getLocation().getWorld().getName())));
+            tooltipBuilder.append(CustomMessages.get(
+                    "Tooltip.location",
+                    Placeholder.unparsed(
+                            "x", String.valueOf(location.getLocation().getBlockX())),
+                    Placeholder.unparsed(
+                            "y", String.valueOf(location.getLocation().getBlockY())),
+                    Placeholder.unparsed(
+                            "z", String.valueOf(location.getLocation().getBlockZ())),
+                    Placeholder.unparsed(
+                            "world", location.getLocation().getWorld().getName())));
         }
 
         return tooltipBuilder.build().asHoverEvent();
@@ -1138,9 +913,7 @@ public final class CustomMessages extends ATConfig {
             @NotNull final Function<T, Component> componentSupplier) {
         return Component.join(
                 JoinConfiguration.newlines(),
-                pages.getContentsInPage(page).stream()
-                        .map(componentSupplier)
-                        .toList() // TODO: Ensure order is correct
+                pages.getContentsInPage(page).stream().map(componentSupplier).toList() // TODO: Ensure order is correct
                 );
     }
 
@@ -1192,13 +965,12 @@ public final class CustomMessages extends ATConfig {
             } else keys.add(rootKey);
         }
 
-        keys.forEach(
-                key -> {
-                    final var rawValue = this.get(key, this.defaults.get(key));
-                    final var component = PartialComponent.of(translateLegacy(rawValue.toString()));
-                    component.formatRaw(prefixes);
-                    cacheBuilder.put(key, component);
-                });
+        keys.forEach(key -> {
+            final var rawValue = this.get(key, this.defaults.get(key));
+            final var component = PartialComponent.of(translateLegacy(rawValue.toString()));
+            component.formatRaw(prefixes);
+            cacheBuilder.put(key, component);
+        });
 
         messageCache = cacheBuilder.build();
     }
@@ -1224,30 +996,29 @@ public final class CustomMessages extends ATConfig {
         ConfigSection section = config.getConfigSection(id);
 
         // Create the BukkitRunnable
-        BukkitRunnable runnable =
-                new BukkitRunnable() {
+        BukkitRunnable runnable = new BukkitRunnable() {
 
-                    private final Queue<String> times = new ArrayDeque<>(section.getKeys(false));
-                    private int current = 0;
+            private final Queue<String> times = new ArrayDeque<>(section.getKeys(false));
+            private int current = 0;
 
-                    @Override
-                    public void run() {
+            @Override
+            public void run() {
 
-                        // If the times queue is empty stop there
-                        if (times.isEmpty() || runnableTracker.get(player) != this) {
-                            cancel();
-                            return;
-                        }
+                // If the times queue is empty stop there
+                if (times.isEmpty() || runnableTracker.get(player) != this) {
+                    cancel();
+                    return;
+                }
 
-                        // If the next element is equal to the current timer, use that
-                        if (!String.valueOf(current++).equals(times.peek())) return;
+                // If the next element is equal to the current timer, use that
+                if (!String.valueOf(current++).equals(times.peek())) return;
 
-                        // Get the message to be sent and send it
-                        String content = section.getString(times.poll());
-                        if (content == null) return;
-                        consumer.accept(content);
-                    }
-                };
+                // Get the message to be sent and send it
+                String content = section.getString(times.poll());
+                if (content == null) return;
+                consumer.accept(content);
+            }
+        };
 
         // Add it to the hashmap and run it
         runnableTracker.put(player, runnable);
@@ -1255,8 +1026,7 @@ public final class CustomMessages extends ATConfig {
     }
 
     @Contract(pure = true)
-    private static void sendSound(
-            @NotNull final Player player, @NotNull final String sound, @NotNull final String id) {
+    private static void sendSound(@NotNull final Player player, @NotNull final String sound, @NotNull final String id) {
 
         // Set default variables
         float volume = 1.0f;
@@ -1292,7 +1062,9 @@ public final class CustomMessages extends ATConfig {
         final var minutesPart = getTimePart(minutes, "minutes");
         final var secondsPart = getTimePart(secondsRemain, "seconds");
 
-        return getComponent("Common.timeFormat.full", Placeholder.component("days", daysPart),
+        return getComponent(
+                "Common.timeFormat.full",
+                Placeholder.component("days", daysPart),
                 Placeholder.component("hours", hoursPart),
                 Placeholder.component("minutes", minutesPart),
                 Placeholder.component("seconds", secondsPart));
@@ -1303,9 +1075,11 @@ public final class CustomMessages extends ATConfig {
 
         final var placeholder = Placeholder.parsed(type, String.valueOf(value));
 
-        return value < 1 ? Component.empty() : value == 1 ?
-                getComponent("Common.timeFormat." + type + ".singular", placeholder)
-                : getComponent("Common.timeFormat." + type + ".plural", placeholder);
+        return value < 1
+                ? Component.empty()
+                : value == 1
+                        ? getComponent("Common.timeFormat." + type + ".singular", placeholder)
+                        : getComponent("Common.timeFormat." + type + ".plural", placeholder);
     }
 
     /**
@@ -1359,9 +1133,7 @@ public final class CustomMessages extends ATConfig {
         for (int i = 0; i < format.length(); i++) {
 
             // If a component isn't being built but we're gonna start one, let's begin
-            if (!building
-                    && format.charAt(i) == '['
-                    && (i == 0 || !(format.charAt(i - 1) == '\\'))) {
+            if (!building && format.charAt(i) == '[' && (i == 0 || !(format.charAt(i - 1) == '\\'))) {
                 startTextPointer = i + 1;
                 building = true;
                 continue;
@@ -1442,12 +1214,7 @@ public final class CustomMessages extends ATConfig {
 
             // Add the hovertext
             if (!hoverText.isEmpty()) {
-                component =
-                        "<hover:show_text:'"
-                                + String.join("\n", hoverText)
-                                + "'>"
-                                + component
-                                + "</hover>";
+                component = "<hover:show_text:'" + String.join("\n", hoverText) + "'>" + component + "</hover>";
             }
 
             result.append(component);

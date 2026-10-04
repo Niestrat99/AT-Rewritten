@@ -27,8 +27,7 @@ public final class HomeCreateEvent extends TrackableATEvent {
         super(creator);
 
         if (name.isEmpty()) throw new IllegalArgumentException("The home name must not be empty.");
-        if (!location.isWorldLoaded())
-            throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
 
         this.player = player;
         this.name = name;
@@ -85,8 +84,7 @@ public final class HomeCreateEvent extends TrackableATEvent {
      */
     @Contract(pure = true)
     public void setLocation(@NotNull final Location location) throws IllegalStateException {
-        if (!location.isWorldLoaded())
-            throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
         this.location = location;
     }
 

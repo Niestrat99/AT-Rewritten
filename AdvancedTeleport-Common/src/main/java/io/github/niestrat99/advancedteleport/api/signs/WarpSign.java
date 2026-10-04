@@ -1,18 +1,17 @@
 package io.github.niestrat99.advancedteleport.api.signs;
 
+import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.warp.WarpCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class WarpSign extends ATSign {
 
@@ -22,11 +21,11 @@ public class WarpSign extends ATSign {
 
     @Override
     public void onInteract(@NotNull Sign sign, @NotNull Player player) {
-        
-	boolean contains = AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1));
-	CoreAdvancedTeleport.debug("Warp " + sign.getLine(1) + " exists: " + contains);
 
-	if (!contains) return;
+        boolean contains = AdvancedTeleportAPI.getWarps().containsKey(sign.getLine(1));
+        CoreAdvancedTeleport.debug("Warp " + sign.getLine(1) + " exists: " + contains);
+
+        if (!contains) return;
         WarpCommand.warp(AdvancedTeleportAPI.getWarps().get(sign.getLine(1)), player, true);
     }
 

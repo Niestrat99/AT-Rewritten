@@ -1,15 +1,14 @@
 package io.github.niestrat99.advancedteleport.commands.home;
 
 import com.google.common.collect.ImmutableCollection;
-
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATFloodgatePlayer;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-
 import io.github.niestrat99.advancedteleport.utilities.PermissionUtil;
+import java.util.logging.Level;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
@@ -17,14 +16,11 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.logging.Level;
 
 public final class HomesCommand extends AbstractHomeCommand {
 
@@ -38,31 +34,44 @@ public final class HomesCommand extends AbstractHomeCommand {
 
         if (args.length > 0 && sender.hasPermission("at.admin.homes")) {
             CoreAdvancedTeleport.debug("Admin player has requested the homes of " + args[0] + " - fetching...");
-            ATPlayer.getPlayerFuture(args[0]).whenCompleteAsync((player, err) -> {
+            ATPlayer.getPlayerFuture(args[0])
+                    .whenCompleteAsync(
+                            (player, err) -> {
+                                CoreAdvancedTeleport.debug("Player fetched.");
 
-                CoreAdvancedTeleport.debug("Player fetched.");
+                                if (err != null) {
+                                    CoreAdvancedTeleport.getInstance()
+                                            .getPlugin()
+                                            .getLogger()
+                                            .log(Level.SEVERE, "Failed to fetch player " + args[0], err);
+                                    return;
+                                }
 
-                if (err != null) {
-                    CoreClass.getInstance().getLogger().log(Level.SEVERE, "Failed to fetch player " + args[0], err);
-                    return;
-                }
+                                CoreAdvancedTeleport.debug("No errors after fetching.");
 
-                CoreAdvancedTeleport.debug("No errors after fetching.");
+                                player.getHomesAsync()
+                                        .whenCompleteAsync(
+                                                (homes, err2) -> {
+                                                    CoreAdvancedTeleport.debug("Homes of " + args[0] + " fetched.");
 
-                player.getHomesAsync().whenCompleteAsync((homes, err2) -> {
+                                                    if (err2 != null) {
+                                                        CoreAdvancedTeleport.getInstance()
+                                                                .getPlugin()
+                                                                .getLogger()
+                                                                .log(
+                                                                        Level.SEVERE,
+                                                                        "Failed to fetch homes for player " + args[0],
+                                                                        err2);
+                                                        return;
+                                                    }
 
-                    CoreAdvancedTeleport.debug("Homes of " + args[0] + " fetched.");
+                                                    CoreAdvancedTeleport.debug("No errors after fetching homes.");
 
-                    if (err2 != null) {
-                        CoreAdvancedTeleport.getInstance().getPlugin().getLogger().log(Level.SEVERE, "Failed to fetch homes for player " + args[0], err2);
-                        return;
-                    }
-
-                    CoreAdvancedTeleport.debug("No errors after fetching homes.");
-
-                    getHomes(sender, player.getOfflinePlayer(), homes.values());
-                }, CoreAdvancedTeleport.sync);
-            }, CoreAdvancedTeleport.sync);
+                                                    getHomes(sender, player.getOfflinePlayer(), homes.values());
+                                                },
+                                                CoreAdvancedTeleport.sync);
+                            },
+                            CoreAdvancedTeleport.sync);
             return true;
         }
 
@@ -72,15 +81,17 @@ public final class HomesCommand extends AbstractHomeCommand {
         }
 
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-        atPlayer.getHomesAsync().whenCompleteAsync((homes, err) -> {
+        atPlayer.getHomesAsync()
+                .whenCompleteAsync(
+                        (homes, err) -> {
+                            if (err != null) {
+                                err.printStackTrace();
+                                return;
+                            }
 
-            if (err != null) {
-                err.printStackTrace();
-                return;
-            }
-
-            getHomes(sender, player, homes.values());
-        }, CoreAdvancedTeleport.sync);
+                            getHomes(sender, player, homes.values());
+                        },
+                        CoreAdvancedTeleport.sync);
         return true;
     }
 
@@ -109,59 +120,39 @@ public final class HomesCommand extends AbstractHomeCommand {
                         sender,
                         CustomMessages.contextualPath(sender, target, "Error.noHomes"),
                         Placeholder.unparsed("player", target.getName()) // TODO: DisplayName
-                );
+                        );
             }
             return;
         }
 
-        final TextComponent body = (TextComponent) Component.join(JoinConfiguration.commas(true),
-                homes.stream().map(home ->
-                                new Object[] {home,
-                                        atPlayer.canAccessHome(home)
-                                                || PermissionUtil
-                                                .hasPermissionOrStar(
-                                                        sender,
-                                                        "at.admin.homes")
-                                }) // How the fuck do you associate a value
+        final TextComponent body = (TextComponent) Component.join(
+                JoinConfiguration.commas(true),
+                homes.stream()
+                        .map(home -> new Object[] {
+                            home,
+                            atPlayer.canAccessHome(home) || PermissionUtil.hasPermissionOrStar(sender, "at.admin.homes")
+                        }) // How the fuck do you associate a value
                         // like a pair in java?
-                        .map(
-                                pair -> {
-                                    final var home = (Home) pair[0];
-                                    final var canAccess = (boolean) pair[1];
-                                    final var baseComponent =
-                                            Component.text(home.getName())
-                                                    .hoverEvent(
-                                                            CustomMessages
-                                                                    .locationBasedTooltip(
-                                                                            sender,
-                                                                            home,
-                                                                            "homes"));
+                        .map(pair -> {
+                            final var home = (Home) pair[0];
+                            final var canAccess = (boolean) pair[1];
+                            final var baseComponent = Component.text(home.getName())
+                                    .hoverEvent(CustomMessages.locationBasedTooltip(sender, home, "homes"));
 
-                                    CoreAdvancedTeleport.debug("Processing home: " + home.getName() + ", " + canAccess);
+                            CoreAdvancedTeleport.debug("Processing home: " + home.getName() + ", " + canAccess);
 
-                                    if (!canAccess) {
-                                        if (!MainConfig.get()
-                                                .HIDE_HOMES_IF_DENIED
-                                                .get())
-                                            return Component
-                                                    .empty(); // TODO: Make sure
-                                        // this doesn't cause
-                                        // an extra comma.
-                                        return baseComponent
-                                                .color(NamedTextColor.GRAY)
-                                                .decorate(TextDecoration.ITALIC);
-                                    }
+                            if (!canAccess) {
+                                if (!MainConfig.get().HIDE_HOMES_IF_DENIED.get())
+                                    return Component.empty(); // TODO: Make sure
+                                // this doesn't cause
+                                // an extra comma.
+                                return baseComponent.color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC);
+                            }
 
-                                    return baseComponent.clickEvent(
-                                            ClickEvent.runCommand(
-                                                    "/advancedteleport:home "
-                                                            + (sender == target
-                                                            ? ""
-                                                            : target
-                                                            .getName()
-                                                            + " ")
-                                                            + home.getName()));
-                                })
+                            return baseComponent.clickEvent(ClickEvent.runCommand("/advancedteleport:home "
+                                    + (sender == target ? "" : target.getName() + " ")
+                                    + home.getName()));
+                        })
                         .toList());
         CoreAdvancedTeleport.debug("Message text built.");
 
@@ -173,7 +164,7 @@ public final class HomesCommand extends AbstractHomeCommand {
                     sender,
                     CustomMessages.contextualPath(sender, target, "Error.noHomes"),
                     Placeholder.unparsed("player", target.getName()) // TODO: DisplayName
-            );
+                    );
         }
     }
 }

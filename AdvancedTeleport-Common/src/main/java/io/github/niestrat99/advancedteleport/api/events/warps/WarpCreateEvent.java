@@ -17,14 +17,11 @@ public final class WarpCreateEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public WarpCreateEvent(
-            @NotNull final String name,
-            @Nullable final CommandSender sender,
-            @NotNull final Location location)
+            @NotNull final String name, @Nullable final CommandSender sender, @NotNull final Location location)
             throws IllegalArgumentException, IllegalStateException {
         super(sender);
         if (name.isEmpty()) throw new IllegalArgumentException("The warp name must not be empty.");
-        if (!location.isWorldLoaded())
-            throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
 
         this.name = name;
         this.location = location;
@@ -73,8 +70,7 @@ public final class WarpCreateEvent extends TrackableATEvent {
      */
     @Contract(pure = true)
     public void setLocation(@NotNull final Location location) throws IllegalStateException {
-        if (!location.isWorldLoaded())
-            throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
         this.location = location;
     }
 

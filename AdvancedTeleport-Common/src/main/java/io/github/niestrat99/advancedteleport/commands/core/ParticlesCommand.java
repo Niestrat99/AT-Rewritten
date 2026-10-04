@@ -6,21 +6,18 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
 import io.github.niestrat99.advancedteleport.managers.ParticleManager;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 
 public final class ParticlesCommand extends SubATCommand {
 
@@ -41,7 +38,10 @@ public final class ParticlesCommand extends SubATCommand {
         }
 
         // If there aren't any particle plugins to use, stop there.
-        if (PluginHookManager.get().getPluginHooks(ParticlesPlugin.class).findAny().isEmpty()) {
+        if (PluginHookManager.get()
+                .getPluginHooks(ParticlesPlugin.class)
+                .findAny()
+                .isEmpty()) {
             CustomMessages.sendMessage(sender, "Error.noParticlePlugins");
             return true;
         }
@@ -70,8 +70,7 @@ public final class ParticlesCommand extends SubATCommand {
                 return true;
             }
             MainConfig.get().set("waiting-particles." + type, data);
-            CustomMessages.sendMessage(
-                    sender, "Info.specificParticlesUpdated", Placeholder.unparsed("type", type));
+            CustomMessages.sendMessage(sender, "Info.specificParticlesUpdated", Placeholder.unparsed("type", type));
         }
 
         // Then save the config.

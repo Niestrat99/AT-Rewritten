@@ -25,8 +25,7 @@ public final class PreviousLocationChangeEvent extends CancellableATEvent {
             @NotNull final Location newLocation,
             @Nullable final Location oldLocation)
             throws IllegalArgumentException {
-        if (!newLocation.isWorldLoaded())
-            throw new IllegalStateException("The new location's world is not loaded.");
+        if (!newLocation.isWorldLoaded()) throw new IllegalStateException("The new location's world is not loaded.");
         this.player = player;
         this.newLocation = newLocation;
         this.oldLocation = oldLocation;

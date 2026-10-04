@@ -3,19 +3,17 @@ package io.github.niestrat99.advancedteleport.managers;
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
 
 public class CooldownManager {
 
@@ -28,11 +26,7 @@ public class CooldownManager {
         for (ATRunnable runnable : list) {
             if (runnable.uuid.toString().equals(player.getUniqueId().toString())) {
                 return (int)
-                        Math.ceil(
-                                (runnable.startingTime
-                                                + runnable.ms * 1000
-                                                - System.currentTimeMillis())
-                                        / 1000.0);
+                        Math.ceil((runnable.startingTime + runnable.ms * 1000 - System.currentTimeMillis()) / 1000.0);
             }
         }
         return 0;
@@ -41,9 +35,7 @@ public class CooldownManager {
     public static void addToCooldown(String command, Player player, World toWorld) {
         List<ATRunnable> list = cooldown.get(getKey(command));
         ATPlayer atPlayer = ATPlayer.getPlayer(player);
-        list.add(
-                new ATRunnable(
-                        player.getUniqueId(), atPlayer.getCooldown(command, toWorld), command));
+        list.add(new ATRunnable(player.getUniqueId(), atPlayer.getCooldown(command, toWorld), command));
         cooldown.put(getKey(command), list);
     }
 
@@ -56,8 +48,7 @@ public class CooldownManager {
         if (MainConfig.get().APPLY_COOLDOWN_TO_ALL_COMMANDS.get()) {
             cooldown.put("all", new ArrayList<>());
         } else {
-            for (String command :
-                    Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
+            for (String command : Arrays.asList("tpa", "tpahere", "tpr", "warp", "spawn", "home", "back")) {
                 cooldown.put(command, new ArrayList<>());
             }
         }

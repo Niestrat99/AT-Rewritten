@@ -5,26 +5,22 @@ import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.hooks.PluginHook;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public final class ImportCommand extends SubATCommand {
 
     static @Nullable ImportExportPlugin<?, ?> getImportExportPlugin(
             @NotNull final CommandSender sender, @NotNull final String @NotNull [] args) {
         String pluginStr = args[0].toLowerCase();
-        final var plugin =
-                PluginHookManager.get().getPluginHook(pluginStr, ImportExportPlugin.class);
+        final var plugin = PluginHookManager.get().getPluginHook(pluginStr, ImportExportPlugin.class);
 
         if (plugin == null) {
             CustomMessages.sendMessage(sender, "Error.noSuchPlugin");
@@ -32,8 +28,7 @@ public final class ImportCommand extends SubATCommand {
         }
 
         if (!plugin.canImport()) {
-            CustomMessages.sendMessage(
-                    sender, "Error.cantImport", Placeholder.unparsed("plugin", args[0]));
+            CustomMessages.sendMessage(sender, "Error.cantImport", Placeholder.unparsed("plugin", args[0]));
             return null;
         }
 
@@ -71,10 +66,7 @@ public final class ImportCommand extends SubATCommand {
                 return false;
             }
         }
-        CustomMessages.sendMessage(
-                sender,
-                "Info.importFinished",
-                Placeholder.unparsed("plugin", args[0]));
+        CustomMessages.sendMessage(sender, "Info.importFinished", Placeholder.unparsed("plugin", args[0]));
 
         return true;
     }
@@ -88,19 +80,16 @@ public final class ImportCommand extends SubATCommand {
         List<String> possibilities = new ArrayList<>();
 
         if (args.length == 1) {
-            possibilities.addAll(
-                    PluginHookManager.get()
-                            .getPluginHooks(ImportExportPlugin.class)
-                            .map(PluginHook::pluginName)
-                            .toList());
+            possibilities.addAll(PluginHookManager.get()
+                    .getPluginHooks(ImportExportPlugin.class)
+                    .map(PluginHook::pluginName)
+                    .toList());
         }
 
         if (args.length == 2) {
-            possibilities.addAll(
-                    Arrays.asList("all", "homes", "lastlocs", "warps", "spawns", "players"));
+            possibilities.addAll(Arrays.asList("all", "homes", "lastlocs", "warps", "spawns", "players"));
         }
 
-        return StringUtil.copyPartialMatches(
-                args[args.length - 1], possibilities, new ArrayList<>());
+        return StringUtil.copyPartialMatches(args[args.length - 1], possibilities, new ArrayList<>());
     }
 }

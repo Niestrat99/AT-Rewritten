@@ -5,16 +5,14 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.limitations.LimitationsManager;
-
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ConditionChecker {
 
@@ -44,8 +42,7 @@ public class ConditionChecker {
 
         // Check if the distance/worlds are a limit
         // if someone removes this for uk and germany that would be great
-        String teleportLims =
-                canTeleport(player.getLocation(), target.getLocation(), command, player);
+        String teleportLims = canTeleport(player.getLocation(), target.getLocation(), command, player);
         if (teleportLims != null) return teleportLims;
         ATPlayer atTarget = ATPlayer.getPlayer(target);
 
@@ -57,8 +54,7 @@ public class ConditionChecker {
 
         // If a request has already been sent
         if (command.equalsIgnoreCase("tpa") || command.equalsIgnoreCase("tpahere")) {
-            if (TeleportRequest.getRequestByReqAndResponder(target, player) != null)
-                return "Error.alreadySentRequest";
+            if (TeleportRequest.getRequestByReqAndResponder(target, player) != null) return "Error.alreadySentRequest";
         }
         return null;
     }
@@ -69,19 +65,17 @@ public class ConditionChecker {
     }
 
     public static @Nullable String canTeleport(
-            Location fromLoc, Location toLoc, String command, Player teleportingPlayer,
-            @Nullable String locName) {
+            Location fromLoc, Location toLoc, String command, Player teleportingPlayer, @Nullable String locName) {
 
         // Use debug print
-        CoreAdvancedTeleport.debug(
-                "Requested to see if "
-                        + teleportingPlayer.getName()
-                        + " can teleport from "
-                        + CoreAdvancedTeleport.getShortLocation(fromLoc)
-                        + " to "
-                        + CoreAdvancedTeleport.getShortLocation(toLoc)
-                        + " using command "
-                        + command);
+        CoreAdvancedTeleport.debug("Requested to see if "
+                + teleportingPlayer.getName()
+                + " can teleport from "
+                + CoreAdvancedTeleport.getShortLocation(fromLoc)
+                + " to "
+                + CoreAdvancedTeleport.getShortLocation(toLoc)
+                + " using command "
+                + command);
 
         // Check if the player can teleport to that location if it's claimed
         if (!teleportingPlayer.hasPermission("at.admin.bypass.claims")) {
@@ -102,10 +96,8 @@ public class ConditionChecker {
         // Check if the player is able to teleport between/within worlds
         if (MainConfig.get().ENABLE_TELEPORT_LIMITATIONS.get()
                 && !teleportingPlayer.hasPermission("at.admin.bypass.teleport-limit")) {
-            CoreAdvancedTeleport.debug(
-                    "Teleportation limits are enabled and the player is not bypassing them.");
-            if (!MainConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null)
-                return null;
+            CoreAdvancedTeleport.debug("Teleportation limits are enabled and the player is not bypassing them.");
+            if (!MainConfig.get().MONITOR_ALL_TELEPORTS_LIMITS.get() && command == null) return null;
             if (!LimitationsManager.canTeleport(teleportingPlayer, toLoc, command)) {
                 return "Error.cantTPToWorldLim";
             }

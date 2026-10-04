@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.events.spawn;
 
-import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
@@ -51,8 +51,7 @@ public final class SwitchMainSpawnEvent extends TrackableATEvent {
      * @param newMainSpawn the new main spawn question.
      */
     @Contract(pure = true)
-    public void setNewMainSpawn(@Nullable final Spawn newMainSpawn)
-            throws IllegalArgumentException {
+    public void setNewMainSpawn(@Nullable final Spawn newMainSpawn) throws IllegalArgumentException {
         this.newMainSpawn = newMainSpawn;
     }
 

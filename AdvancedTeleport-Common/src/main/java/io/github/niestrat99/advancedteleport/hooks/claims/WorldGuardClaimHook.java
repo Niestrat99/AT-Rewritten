@@ -6,17 +6,14 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
-
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
-
+import java.util.Optional;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 public final class WorldGuardClaimHook extends ClaimPlugin<Plugin, WorldGuard> {
 
@@ -52,6 +49,7 @@ public final class WorldGuardClaimHook extends ClaimPlugin<Plugin, WorldGuard> {
     @Override
     public boolean canAccess(@NotNull Player player, @NotNull Location location) {
         RegionQuery query = container.createQuery();
-        return query.testState(BukkitAdapter.adapt(location), WorldGuardPlugin.inst().wrapPlayer(player), Flags.ENTRY);
+        return query.testState(
+                BukkitAdapter.adapt(location), WorldGuardPlugin.inst().wrapPlayer(player), Flags.ENTRY);
     }
 }

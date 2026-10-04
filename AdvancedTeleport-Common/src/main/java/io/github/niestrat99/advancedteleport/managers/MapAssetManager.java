@@ -4,10 +4,6 @@ import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.sql.*;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,6 +15,8 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class MapAssetManager {
 
@@ -35,14 +33,20 @@ public class MapAssetManager {
 
         // If it doesn't exist, try creating it
         if (!mapAssetsFolder.exists() && !mapAssetsFolder.mkdirs()) {
-            CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Failed to create the map-assets folder.");
+            CoreAdvancedTeleport.getInstance()
+                    .getPlugin()
+                    .getLogger()
+                    .warning("Failed to create the map-assets folder.");
             return;
         }
 
         // Register default images
-        registerImage("warp_default", CoreAdvancedTeleport.getInstance().getPlugin().getResource("warp-default.png"));
-        registerImage("home_default", CoreAdvancedTeleport.getInstance().getPlugin().getResource("home-default.png"));
-        registerImage("spawn_default", CoreAdvancedTeleport.getInstance().getPlugin().getResource("spawn-default.png"));
+        registerImage(
+                "warp_default", CoreAdvancedTeleport.getInstance().getPlugin().getResource("warp-default.png"));
+        registerImage(
+                "home_default", CoreAdvancedTeleport.getInstance().getPlugin().getResource("home-default.png"));
+        registerImage(
+                "spawn_default", CoreAdvancedTeleport.getInstance().getPlugin().getResource("spawn-default.png"));
 
         // Register extra images
         String[] fileNames = mapAssetsFolder.list();
@@ -55,7 +59,8 @@ public class MapAssetManager {
             try {
                 stream = new FileInputStream(file);
             } catch (FileNotFoundException e) {
-                CoreAdvancedTeleport.getInstance().getPlugin()
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
                         .getLogger()
                         .warning("Failed to find the file " + fileName + "!");
                 continue;
@@ -89,8 +94,7 @@ public class MapAssetManager {
         return idFetcher.thenApplyAsync(id -> IconInfo.fromSQL(id, type), CoreAdvancedTeleport.async);
     }
 
-    public record IconInfo(
-            String imageKey, int size, boolean shown, String clickTooltip, String hoverTooltip) {
+    public record IconInfo(String imageKey, int size, boolean shown, String clickTooltip, String hoverTooltip) {
 
         public static @Nullable IconInfo fromSQL(int id, IconType type) {
 
@@ -108,11 +112,7 @@ public class MapAssetManager {
                 String hoverTooltip = sql.get("map_hover_tooltip", type.section.getHoverTooltip());
 
                 return new IconInfo(
-                        imageKey,
-                        Integer.parseInt(size),
-                        Boolean.parseBoolean(shown),
-                        clickTooltip,
-                        hoverTooltip);
+                        imageKey, Integer.parseInt(size), Boolean.parseBoolean(shown), clickTooltip, hoverTooltip);
 
             } catch (SQLException exception) {
                 exception.printStackTrace();
@@ -126,8 +126,7 @@ public class MapAssetManager {
 
         private @NotNull String get(String key, String defaultOpt) throws SQLException {
             return Objects.requireNonNullElse(
-                    MetadataSQLManager.get().getValue(connection, id, type.name(), key),
-                    defaultOpt);
+                    MetadataSQLManager.get().getValue(connection, id, type.name(), key), defaultOpt);
         }
     }
 

@@ -4,16 +4,14 @@ import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
 import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.jetbrains.annotations.NotNull;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class SQLManager {
 
@@ -23,12 +21,10 @@ public abstract class SQLManager {
     public SQLManager() {
         tablePrefix = MainConfig.get().TABLE_PREFIX.get();
         if (!tablePrefix.matches("^[_A-Za-z0-9]+$")) {
-            CoreAdvancedTeleport.getInstance().getPlugin()
+            CoreAdvancedTeleport.getInstance()
+                    .getPlugin()
                     .getLogger()
-                    .warning(
-                            "Table prefix "
-                                    + tablePrefix
-                                    + " is not alphanumeric. Using advancedtp...");
+                    .warning("Table prefix " + tablePrefix + " is not alphanumeric. Using advancedtp...");
             tablePrefix = "advancedtp";
         }
         try (Connection ignored = implementConnection()) {
@@ -44,20 +40,18 @@ public abstract class SQLManager {
         if (MainConfig.get().USE_MYSQL.get()) {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
-                String url =
-                        String.format(
-                                "jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
-                                MainConfig.get().MYSQL_HOST.get(),
-                                MainConfig.get().MYSQL_PORT.get(),
-                                MainConfig.get().MYSQL_DATABASE.get(),
-                                MainConfig.get().USE_SSL.get(),
-                                MainConfig.get().AUTO_RECONNECT.get(),
-                                MainConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get());
-                connection =
-                        DriverManager.getConnection(
-                                url,
-                                MainConfig.get().USERNAME.get(),
-                                MainConfig.get().PASSWORD.get());
+                String url = String.format(
+                        "jdbc:mysql://%s:%d/%s?useSSL=%b&autoReconnect=%b&allowPublicKeyRetrieval=%b",
+                        MainConfig.get().MYSQL_HOST.get(),
+                        MainConfig.get().MYSQL_PORT.get(),
+                        MainConfig.get().MYSQL_DATABASE.get(),
+                        MainConfig.get().USE_SSL.get(),
+                        MainConfig.get().AUTO_RECONNECT.get(),
+                        MainConfig.get().ALLOW_PUBLIC_KEY_RETRIEVAL.get());
+                connection = DriverManager.getConnection(
+                        url,
+                        MainConfig.get().USERNAME.get(),
+                        MainConfig.get().PASSWORD.get());
                 usingSqlite = false;
                 return connection;
             } catch (ClassNotFoundException | SQLException e) {
@@ -76,9 +70,8 @@ public abstract class SQLManager {
         // Load JDBC
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection connection =
-                    DriverManager.getConnection(
-                            "jdbc:sqlite:" + CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder() + "/data.db");
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:"
+                    + CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder() + "/data.db");
             usingSqlite = true;
             return connection;
         } catch (ClassNotFoundException | SQLException e) {
@@ -88,7 +81,8 @@ public abstract class SQLManager {
     }
 
     public static void runAsync(Runnable runnable) {
-        Bukkit.getScheduler().runTaskAsynchronously(CoreAdvancedTeleport.getInstance().getPlugin(), runnable);
+        Bukkit.getScheduler()
+                .runTaskAsynchronously(CoreAdvancedTeleport.getInstance().getPlugin(), runnable);
     }
 
     public static String getTablePrefix() {
@@ -109,13 +103,11 @@ public abstract class SQLManager {
         statement.executeUpdate();
     }
 
-    protected synchronized PreparedStatement prepareStatement(Connection connection, String sql)
-            throws SQLException {
+    protected synchronized PreparedStatement prepareStatement(Connection connection, String sql) throws SQLException {
         return connection.prepareStatement(sql);
     }
 
-    protected void prepareLocation(
-            @NotNull Location location, int startingIndex, PreparedStatement statement)
+    protected void prepareLocation(@NotNull Location location, int startingIndex, PreparedStatement statement)
             throws SQLException {
         statement.setDouble(startingIndex++, location.getX());
         statement.setDouble(startingIndex++, location.getY());
@@ -125,8 +117,7 @@ public abstract class SQLManager {
         statement.setString(startingIndex, location.getWorld().getName());
     }
 
-    protected @NotNull Location getLocation(ResultSet set)
-            throws SQLException, UnloadedWorldException {
+    protected @NotNull Location getLocation(ResultSet set) throws SQLException, UnloadedWorldException {
 
         // Get base coordinates
         double x = set.getDouble("x");

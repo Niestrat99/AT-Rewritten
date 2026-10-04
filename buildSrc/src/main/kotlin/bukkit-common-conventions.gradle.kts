@@ -6,6 +6,7 @@ plugins {
     id("java-library")
     id("de.eldoria.plugin-yml.bukkit")
     alias(libs.plugins.shadow)
+    alias(libs.plugins.spotless)
 }
 
 dependencies {
@@ -423,5 +424,19 @@ bukkit {
                 "at.member.homes.unlimited" to true
             )
         }
+    }
+}
+
+spotless {
+    java {
+        removeUnusedImports()
+        forbidModuleImports()
+        shortenFullyQualifiedTypes() // replaces fully-qualified type names with simple names + imports
+
+        palantirJavaFormat()
+
+        tableTestFormatter()
+
+        formatAnnotations()
     }
 }

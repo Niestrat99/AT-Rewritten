@@ -12,10 +12,8 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.payments.PaymentManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -58,7 +56,9 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
                     Placeholder.unparsed("player", args[0]),
                     Placeholder.unparsed(
                             "world",
-                            target == null ? "<No Such World>" : target.getWorld().getName()));
+                            target == null
+                                    ? "<No Such World>"
+                                    : target.getWorld().getName()));
             return true;
         }
         if (PaymentManager.getInstance().canPay("tpahere", player, player.getWorld())) {
@@ -66,8 +66,7 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
             CustomMessages.sendMessage(
                     sender,
                     "Info.requestSent",
-                    Placeholder.parsed(
-                            "player", MiniMessage.miniMessage().escapeTags(target.getName())),
+                    Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(target.getName())),
                     Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
                     Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
             CoreAdvancedTeleport.playSound("tpahere", "sent", player);
@@ -80,36 +79,26 @@ public final class TpaHere extends TeleportATCommand implements TimedATCommand {
                 CustomMessages.sendMessage(
                         target,
                         "Info.tpaRequestHere",
-                        Placeholder.parsed(
-                                "player", MiniMessage.miniMessage().escapeTags(sender.getName())),
+                        Placeholder.parsed("player", MiniMessage.miniMessage().escapeTags(sender.getName())),
                         Placeholder.unparsed("lifetime", String.valueOf(requestLifetime)),
                         Placeholder.component("lifetime-formatted", CustomMessages.toTime(requestLifetime)));
             }
             CoreAdvancedTeleport.playSound("tpahere", "received", target);
 
-            BukkitRunnable run =
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
-                                CustomMessages.sendMessage(
-                                        sender,
-                                        "Error.requestExpired",
-                                        Placeholder.unparsed("player", target.getName()));
+            BukkitRunnable run = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (MainConfig.get().NOTIFY_ON_EXPIRE.get()) {
+                        CustomMessages.sendMessage(
+                                sender, "Error.requestExpired", Placeholder.unparsed("player", target.getName()));
 
-                                TeleportRequest.removeRequest(
-                                        TeleportRequest.getRequestByReqAndResponder(
-                                                target, player));
-                            }
-                        }
-                    };
+                        TeleportRequest.removeRequest(TeleportRequest.getRequestByReqAndResponder(target, player));
+                    }
+                }
+            };
             run.runTaskLater(CoreAdvancedTeleport.getInstance().getPlugin(), requestLifetime * 20L); // 60 seconds
-            TeleportRequest request =
-                    new TeleportRequest(
-                            player,
-                            target,
-                            run,
-                            TeleportRequestType.TPAHERE); // Creates a new teleport request.
+            TeleportRequest request = new TeleportRequest(
+                    player, target, run, TeleportRequestType.TPAHERE); // Creates a new teleport request.
             TeleportRequest.addRequest(request);
             // If the cooldown is to be applied after request or accept (they are the same in the
             // case of

@@ -6,15 +6,13 @@ import io.github.niestrat99.advancedteleport.payments.types.ItemsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.LevelsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.PointsPayment;
 import io.github.niestrat99.advancedteleport.payments.types.VaultPayment;
-
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 public class PaymentManager {
 
@@ -52,18 +50,19 @@ public class PaymentManager {
                     CoreAdvancedTeleport.debug("Payment " + rawPayment + " did not have a payment formed.");
                     continue;
                 }
-                CoreAdvancedTeleport.debug("Payment " + rawPayment + " for " + command + " was parsed as a " + payment.getClass().getSimpleName());
+                CoreAdvancedTeleport.debug("Payment " + rawPayment + " for " + command + " was parsed as a "
+                        + payment.getClass().getSimpleName());
                 addPayment(payment.getId(), payment, payments);
             } catch (Exception | NoClassDefFoundError e) {
-                CoreAdvancedTeleport.getInstance().getPlugin()
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
                         .getLogger()
-                        .warning(
-                                "Failed to parse payment "
-                                        + rawPayment
-                                        + " for command "
-                                        + command
-                                        + "! Error message: "
-                                        + e.getMessage());
+                        .warning("Failed to parse payment "
+                                + rawPayment
+                                + " for command "
+                                + command
+                                + "! Error message: "
+                                + e.getMessage());
             }
         }
         teleportCosts.put(command, payments);
@@ -83,8 +82,7 @@ public class PaymentManager {
                 if (plugin != null && Material.getMaterial(plugin) != null) {
                     return ItemsPayment.getFromString(rawPayment);
                 }
-                return new VaultPayment(
-                        payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
+                return new VaultPayment(payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
             }
             return null;
         }
@@ -108,16 +106,14 @@ public class PaymentManager {
                 }
 
                 // Otherwise, resort to that
-                return new VaultPayment(
-                        payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
+                return new VaultPayment(payment, plugin == null ? null : plugin.substring(0, plugin.length() - 1));
             } else {
                 return ItemsPayment.getFromString(rawPayment);
             }
         }
     }
 
-    private void addPayment(
-            String type, Payment payment, HashMap<String, Payment> currentPayMethods) {
+    private void addPayment(String type, Payment payment, HashMap<String, Payment> currentPayMethods) {
         if (type.equalsIgnoreCase("levels")) {
             if (currentPayMethods.containsKey("exp")) {
                 PointsPayment existingPayment = (PointsPayment) currentPayMethods.get("exp");
@@ -130,12 +126,11 @@ public class PaymentManager {
         } else if (type.equalsIgnoreCase("item")) {
             if (payment == null) return;
             ItemsPayment itemsPayment = (ItemsPayment) payment;
-            if (currentPayMethods.containsKey("item_" + itemsPayment.getMaterial().name())) {
-                ItemsPayment otherPayment =
-                        (ItemsPayment)
-                                currentPayMethods.get("item_" + itemsPayment.getMaterial().name());
-                otherPayment.setPaymentAmount(
-                        otherPayment.getPaymentAmount() + itemsPayment.getPaymentAmount());
+            if (currentPayMethods.containsKey(
+                    "item_" + itemsPayment.getMaterial().name())) {
+                ItemsPayment otherPayment = (ItemsPayment) currentPayMethods.get(
+                        "item_" + itemsPayment.getMaterial().name());
+                otherPayment.setPaymentAmount(otherPayment.getPaymentAmount() + itemsPayment.getPaymentAmount());
                 currentPayMethods.put("item_" + itemsPayment.getMaterial().name(), otherPayment);
             } else {
                 currentPayMethods.put("item_" + itemsPayment.getMaterial().name(), itemsPayment);
@@ -143,8 +138,7 @@ public class PaymentManager {
         } else {
             if (currentPayMethods.containsKey(type)) {
                 Payment existingPayment = currentPayMethods.get(type);
-                existingPayment.setPaymentAmount(
-                        payment.getPaymentAmount() + existingPayment.getPaymentAmount());
+                existingPayment.setPaymentAmount(payment.getPaymentAmount() + existingPayment.getPaymentAmount());
             } else {
                 currentPayMethods.put(type, payment);
             }
@@ -157,7 +151,8 @@ public class PaymentManager {
 
     // Method used to check if a player can pay for using a command
     public boolean canPay(String command, Player player, World toWorld) {
-        CoreAdvancedTeleport.debug("Verifying that " + player.getName() + " can pay to run " + command + " into " + toWorld.getName());
+        CoreAdvancedTeleport.debug(
+                "Verifying that " + player.getName() + " can pay to run " + command + " into " + toWorld.getName());
         if (player.hasPermission("at.admin.bypass.payment")) {
             CoreAdvancedTeleport.debug(player.getName() + " has at.admin.bypass.payment - not checking payments.");
             return true;
@@ -188,8 +183,7 @@ public class PaymentManager {
             if (!hasPermission(player, "at.member.cost." + key)
                     && !hasPermission(player, "at.member.cost." + command + "." + key)
                     && !hasPermission(player, "at.member.cost." + worldName + "." + key)
-                    && !hasPermission(player,
-                            "at.member.cost." + command + "." + worldName + "." + key)) continue;
+                    && !hasPermission(player, "at.member.cost." + command + "." + worldName + "." + key)) continue;
             String rawPayment = customCosts.getString(key);
             if (rawPayment == null) continue;
             Payment payment = parsePayment(rawPayment);

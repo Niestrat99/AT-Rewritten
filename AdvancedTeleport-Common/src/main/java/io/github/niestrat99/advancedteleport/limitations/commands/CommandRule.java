@@ -1,12 +1,11 @@
 package io.github.niestrat99.advancedteleport.limitations.commands;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /** Represents a teleportation rule controlled by the command. */
 public abstract class CommandRule {
@@ -38,6 +37,5 @@ public abstract class CommandRule {
      * @param toLoc the destination location.
      * @return true if the player can teleport to the destination location, false if not.
      */
-    public abstract boolean canTeleport(
-            @NotNull final Player player, @NotNull final Location toLoc);
+    public abstract boolean canTeleport(@NotNull final Player player, @NotNull final Location toLoc);
 }

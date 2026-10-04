@@ -2,6 +2,8 @@ package io.github.niestrat99.advancedteleport;
 
 import io.github.niestrat99.advancedteleport.update.AvailableUpdate;
 import io.github.niestrat99.advancedteleport.update.UpdateChecker;
+import java.net.MalformedURLException;
+import java.util.concurrent.CompletableFuture;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
@@ -12,9 +14,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.net.MalformedURLException;
-import java.util.concurrent.CompletableFuture;
 
 public interface IAdvancedTeleport {
 
@@ -29,9 +28,7 @@ public interface IAdvancedTeleport {
     void registerCommands();
 
     CompletableFuture<Boolean> teleportWithOptions(
-            @NotNull Player player,
-            @NotNull Location location,
-            @NotNull PlayerTeleportEvent.TeleportCause cause);
+            @NotNull Player player, @NotNull Location location, @NotNull PlayerTeleportEvent.TeleportCause cause);
 
     void playSound(@NotNull Player player, @NotNull String rawSound, float volume, float pitch);
 

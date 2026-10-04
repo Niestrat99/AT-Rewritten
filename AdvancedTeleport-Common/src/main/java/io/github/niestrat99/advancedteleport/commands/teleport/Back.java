@@ -7,7 +7,9 @@ import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.DistanceLimiter;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,10 +18,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 public final class Back extends TeleportATCommand implements TimedATCommand {
 
@@ -79,15 +77,14 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
                     if (!material.name().equals("LAVA")
                             && !IS_AIR_OR_WATER.test(material)
                             && IS_AIR_OR_WATER.test(
-                            t.clone().add(0.0, 1.0, 0.0).getBlock().getType())
+                                    t.clone().add(0.0, 1.0, 0.0).getBlock().getType())
                             && IS_AIR_OR_WATER.test(
-                            t.clone().add(0.0, 2.0, 0.0).getBlock().getType())) {
-                        possiblelocs.add(
-                                new Location(
-                                        loc.getWorld(),
-                                        loc.getBlockX() - dx + 0.5,
-                                        loc.getBlockY() - dy + 1.0,
-                                        loc.getBlockZ() - dz + 0.5));
+                                    t.clone().add(0.0, 2.0, 0.0).getBlock().getType())) {
+                        possiblelocs.add(new Location(
+                                loc.getWorld(),
+                                loc.getBlockX() - dx + 0.5,
+                                loc.getBlockY() - dy + 1.0,
+                                loc.getBlockZ() - dz + 0.5));
                     }
                 }
             }
@@ -120,8 +117,7 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
         // The total count of operations in a worstcase is 128
 
         // If the distance limiter is in effect and it's too far, stop there
-        if (!DistanceLimiter.canTeleport(
-                        player.getLocation(), loc, "back", ATPlayer.getPlayer(player))
+        if (!DistanceLimiter.canTeleport(player.getLocation(), loc, "back", ATPlayer.getPlayer(player))
                 && !player.hasPermission("at.admin.bypass.distance-limit")) {
             CustomMessages.sendMessage(player, "Error.tooFarAway");
             return true;
@@ -129,12 +125,7 @@ public final class Back extends TeleportATCommand implements TimedATCommand {
 
         // Call the event
         ATTeleportEvent event =
-                new ATTeleportEvent(
-                        player,
-                        loc,
-                        player.getLocation(),
-                        "back",
-                        ATTeleportEvent.TeleportType.BACK);
+                new ATTeleportEvent(player, loc, player.getLocation(), "back", ATTeleportEvent.TeleportType.BACK);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return true;
 

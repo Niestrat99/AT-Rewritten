@@ -20,20 +20,18 @@ import io.github.niestrat99.advancedteleport.hooks.particles.PlayerParticlesHook
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
-
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("rawtypes")
 public final class PluginHookManager {
@@ -68,23 +66,17 @@ public final class PluginHookManager {
         loadPlugin("squaremap", SquaremapHook.class);
         loadPlugin("dynmap", DynmapHook.class);
 
-        getPluginHooks(MapPlugin.class, true)
-                .forEach(
-                        mapPlugin -> {
-                            mapPlugin.enable();
-                            addIcons(
-                                    MainConfig.get().MAP_WARPS.isEnabled(),
-                                    WarpSQLManager.get().getWarpsBulk(),
-                                    mapPlugin::addWarp);
-                            addIcons(
-                                    MainConfig.get().MAP_HOMES.isEnabled(),
-                                    HomeSQLManager.get().getHomesBulk(),
-                                    mapPlugin::addHome);
-                            addIcons(
-                                    MainConfig.get().MAP_SPAWNS.isEnabled(),
-                                    SpawnSQLManager.get().getSpawns(),
-                                    mapPlugin::addSpawn);
-                        });
+        getPluginHooks(MapPlugin.class, true).forEach(mapPlugin -> {
+            mapPlugin.enable();
+            addIcons(
+                    MainConfig.get().MAP_WARPS.isEnabled(), WarpSQLManager.get().getWarpsBulk(), mapPlugin::addWarp);
+            addIcons(
+                    MainConfig.get().MAP_HOMES.isEnabled(), HomeSQLManager.get().getHomesBulk(), mapPlugin::addHome);
+            addIcons(
+                    MainConfig.get().MAP_SPAWNS.isEnabled(),
+                    SpawnSQLManager.get().getSpawns(),
+                    mapPlugin::addSpawn);
+        });
     }
 
     @Contract(pure = true)
@@ -107,20 +99,16 @@ public final class PluginHookManager {
     }
 
     @Contract(pure = true)
-    public <H extends PluginHook> @Nullable H getPluginHook(
-            @NotNull final String name, @NotNull final Class<H> clazz) {
+    public <H extends PluginHook> @Nullable H getPluginHook(@NotNull final String name, @NotNull final Class<H> clazz) {
         final var plugin = activePluginHooks.get(name);
         if (plugin == null) return null;
         if (!clazz.isInstance(plugin)) return null;
         return clazz.cast(plugin);
     }
 
-    private void loadPlugin(
-            @NotNull final String name, @NotNull final Class<? extends PluginHook> clazz) {
+    private void loadPlugin(@NotNull final String name, @NotNull final Class<? extends PluginHook> clazz) {
         try {
-            activePluginHooks.put(
-                    name,
-                    clazz.getConstructor().newInstance());
+            activePluginHooks.put(name, clazz.getConstructor().newInstance());
         } catch (NoSuchMethodException | IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException
@@ -134,14 +122,9 @@ public final class PluginHookManager {
         return getPluginHooks(BorderPlugin.class, true)
                 .filter(plugin -> plugin.canUse(world))
                 .findFirst()
-                .map(
-                        hook ->
-                                new double[] {
-                                    hook.getMinX(world),
-                                    hook.getMaxX(world),
-                                    hook.getMinZ(world),
-                                    hook.getMaxZ(world)
-                                })
+                .map(hook ->
+                        new double[] {hook.getMinX(world), hook.getMaxX(world), hook.getMinZ(world), hook.getMaxZ(world)
+                        })
                 .orElse(null);
     }
 

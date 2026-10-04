@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.api;
 
 import com.google.common.collect.ImmutableMap;
-
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.data.CancelledEventException;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
@@ -18,9 +17,12 @@ import io.github.niestrat99.advancedteleport.sql.BlocklistManager;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
-
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -29,17 +31,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
-
-import java.lang.ref.WeakReference;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
 
 /**
  * A wrapper class used to represent a player. An ATPlayer stores information such as their homes,
@@ -67,53 +64,33 @@ public class ATPlayer {
 
     /** Internal use only. */
     @ApiStatus.Internal
-    public ATPlayer(
-            @NotNull final OfflinePlayer player,
-            @NotNull final String name,
-            @NotNull final UUID uuid) {
+    public ATPlayer(@NotNull final OfflinePlayer player, @NotNull final String name, @NotNull final UUID uuid) {
         this.player = new WeakReference<>(player);
         this.uuid = uuid;
         this.name = name;
 
         // Set up homes data
-        this.homes =
-                new PendingData<>(
-                        CompletableFuture.supplyAsync(
-                                        () -> HomeSQLManager.get().getHomes(uuid.toString()),
-                                        CoreAdvancedTeleport.async)
-                                .thenApplyAsync(
-                                        list -> list,
-                                        CoreAdvancedTeleport.async));
+        this.homes = new PendingData<>(CompletableFuture.supplyAsync(
+                        () -> HomeSQLManager.get().getHomes(uuid.toString()), CoreAdvancedTeleport.async)
+                .thenApplyAsync(list -> list, CoreAdvancedTeleport.async));
 
         // Set up the main home data
-        this.mainHome =
-                new PendingData<>(
-                        CompletableFuture.supplyAsync(
-                                        () -> PlayerSQLManager.get().getMainHome(name),
-                                        CoreAdvancedTeleport.async)
-                                .thenApplyAsync(
-                                        home -> {
-                                            reorganiseHomes();
-                                            return home;
-                                        },
-                                        CoreAdvancedTeleport.async));
+        this.mainHome = new PendingData<>(CompletableFuture.supplyAsync(
+                        () -> PlayerSQLManager.get().getMainHome(name), CoreAdvancedTeleport.async)
+                .thenApplyAsync(
+                        home -> {
+                            reorganiseHomes();
+                            return home;
+                        },
+                        CoreAdvancedTeleport.async));
 
         // Get blocked users
-        this.blockedUsers =
-                new PendingData<>(
-                        CompletableFuture.supplyAsync(
-                                () -> BlocklistManager.get().getBlockedPlayers(uuid.toString()),
-                                CoreAdvancedTeleport.async));
-        this.previousLoc =
-                new PendingData<>(
-                        CompletableFuture.supplyAsync(
-                                () -> PlayerSQLManager.get().getPreviousLocation(name),
-                                CoreAdvancedTeleport.async));
-        this.isTeleportationEnabled =
-                new PendingData<>(
-                        CompletableFuture.supplyAsync(
-                                () -> PlayerSQLManager.get().isTeleportationOn(uuid),
-                                CoreAdvancedTeleport.async));
+        this.blockedUsers = new PendingData<>(CompletableFuture.supplyAsync(
+                () -> BlocklistManager.get().getBlockedPlayers(uuid.toString()), CoreAdvancedTeleport.async));
+        this.previousLoc = new PendingData<>(CompletableFuture.supplyAsync(
+                () -> PlayerSQLManager.get().getPreviousLocation(name), CoreAdvancedTeleport.async));
+        this.isTeleportationEnabled = new PendingData<>(CompletableFuture.supplyAsync(
+                () -> PlayerSQLManager.get().isTeleportationOn(uuid), CoreAdvancedTeleport.async));
 
         players.put(name.toLowerCase(), this);
     }
@@ -144,9 +121,7 @@ public class ATPlayer {
 
     @ApiStatus.Internal
     public void teleport(
-            @NotNull final ATTeleportEvent event,
-            @NotNull final String command,
-            @NotNull final String teleportMsg) {
+            @NotNull final ATTeleportEvent event, @NotNull final String command, @NotNull final String teleportMsg) {
         Player player = event.getPlayer();
         int warmUp = getWarmUp(command, event.getToLocation().getWorld());
         if (event.isCancelled()) return;
@@ -161,79 +136,64 @@ public class ATPlayer {
         // of /tpr), apply it now
         String cooldownConfig = MainConfig.get().APPLY_COOLDOWN_AFTER.get();
 
-        if (cooldownConfig.equalsIgnoreCase("request")
-                || cooldownConfig.equalsIgnoreCase("accept")) {
+        if (cooldownConfig.equalsIgnoreCase("request") || cooldownConfig.equalsIgnoreCase("accept")) {
             CooldownManager.addToCooldown(command, player, event.getToLocation().getWorld());
         }
 
         // If there's a movement timer, apply it - otherwise, teleport them immediately
         if (warmUp > 0 && !player.hasPermission("at.admin.bypass.timer")) {
-            if (!PaymentManager.getInstance().canPay(command, player, event.getToLocation().getWorld()))
-                return;
+            if (!PaymentManager.getInstance()
+                    .canPay(command, player, event.getToLocation().getWorld())) return;
             MovementManager.createMovementTimer(
-                    player,
-                    event.getToLocation(),
-                    command,
-                    teleportMsg,
-                    event.getLocName(),
-                    warmUp);
+                    player, event.getToLocation(), command, teleportMsg, event.getLocName(), warmUp);
         } else {
             teleport(player, command, event.getLocName(), teleportMsg, event.getPotentialToLocation());
         }
     }
 
-    public static void teleport(Player player,
-                                String command,
-                                String locName,
-                                String teleportMsg,
-                                Supplier<Location> location) {
+    public static void teleport(
+            Player player, String command, String locName, String teleportMsg, Supplier<Location> location) {
         teleport(player, player, command, locName, teleportMsg, location);
     }
 
-    public static void teleport(Player player,
-                                Player payingPlayer,
-                                String command,
-                                String locName,
-                                String teleportMsg,
-                                Supplier<Location> location) {
+    public static void teleport(
+            Player player,
+            Player payingPlayer,
+            String command,
+            String locName,
+            String teleportMsg,
+            Supplier<Location> location) {
         Location finalLoc = location.get();
-        if (!PaymentManager.getInstance().canPay(command, payingPlayer, finalLoc.getWorld()))
-            return;
+        if (!PaymentManager.getInstance().canPay(command, payingPlayer, finalLoc.getWorld())) return;
         ParticleManager.onPreTeleport(player, command);
 
-            //
-            CoreAdvancedTeleport.getInstance().teleportWithOptions(
+        //
+        CoreAdvancedTeleport.getInstance()
+                .teleportWithOptions(player, finalLoc, PlayerTeleportEvent.TeleportCause.COMMAND)
+                .whenComplete((result, err) -> {
+
+                    // If we didn't succeed, let the player know.
+                    if (!result) {
+                        CustomMessages.sendMessage(player, "Error.teleportFailed");
+                        return;
+                    }
+
+                    // Let the player know they have been teleported and withdraw any
+                    // money.
+                    CustomMessages.sendMessage(
                             player,
-                            finalLoc,
-                            PlayerTeleportEvent.TeleportCause.COMMAND)
-                    .whenComplete(
-                            (result, err) -> {
+                            teleportMsg,
+                            Placeholder.unparsed("home", locName),
+                            Placeholder.unparsed("warp", locName));
+                    PaymentManager.getInstance().withdraw(command, player, finalLoc.getWorld());
+                    InvulnerabilityManager.createInvulnerability(
+                            player, ATPlayer.getPlayer(player).getInvulnerability(command, finalLoc.getWorld()));
+                    ParticleManager.onPostTeleport(player, command);
 
-                            // If we didn't succeed, let the player know.
-                            if (!result) {
-                                CustomMessages.sendMessage(player, "Error.teleportFailed");
-                                return;
-                            }
-
-                            // Let the player know they have been teleported and withdraw any
-                            // money.
-                            CustomMessages.sendMessage(
-                                    player,
-                                    teleportMsg,
-                                    Placeholder.unparsed("home", locName),
-                                    Placeholder.unparsed("warp", locName));
-                            PaymentManager.getInstance().withdraw(command, player, finalLoc.getWorld());
-                            InvulnerabilityManager.createInvulnerability(player, ATPlayer.getPlayer(player).getInvulnerability(command, finalLoc.getWorld()));
-                            ParticleManager.onPostTeleport(player, command);
-
-                            if (MainConfig.get()
-                                    .APPLY_COOLDOWN_AFTER
-                                    .get()
-                                    .equalsIgnoreCase("teleport")) {
-                                CooldownManager.addToCooldown(
-                                        command, player, finalLoc.getWorld());
-                            }
-                        });
+                    if (MainConfig.get().APPLY_COOLDOWN_AFTER.get().equalsIgnoreCase("teleport")) {
+                        CooldownManager.addToCooldown(command, player, finalLoc.getWorld());
+                    }
+                });
     }
 
     /**
@@ -288,9 +248,7 @@ public class ATPlayer {
                 event -> {
                     this.isTeleportationEnabled.data = event.isEnabled();
                     return CompletableFuture.runAsync(
-                            () ->
-                                    PlayerSQLManager.get()
-                                            .setTeleportationOn(uuid, teleportationEnabled),
+                            () -> PlayerSQLManager.get().setTeleportationOn(uuid, teleportationEnabled),
                             CoreAdvancedTeleport.async);
                 });
     }
@@ -351,27 +309,17 @@ public class ATPlayer {
      * @param reason the reason the player has been blocked. Can be null.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public @NotNull CompletableFuture<Void> blockUser(
-            @NotNull final UUID otherUUID, @Nullable final String reason) {
+    public @NotNull CompletableFuture<Void> blockUser(@NotNull final UUID otherUUID, @Nullable final String reason) {
 
         // Add it to the internal data store
         blockedUsers
                 .getData()
-                .thenApplyAsync(
-                        list ->
-                                list.put(
-                                        otherUUID,
-                                        new BlockInfo(
-                                                uuid,
-                                                otherUUID,
-                                                reason,
-                                                System.currentTimeMillis())));
+                .thenApplyAsync(list ->
+                        list.put(otherUUID, new BlockInfo(uuid, otherUUID, reason, System.currentTimeMillis())));
 
         // Add the entry to the SQL database.
         return CompletableFuture.runAsync(
-                () ->
-                        BlocklistManager.get()
-                                .blockUser(uuid.toString(), otherUUID.toString(), reason),
+                () -> BlocklistManager.get().blockUser(uuid.toString(), otherUUID.toString(), reason),
                 CoreAdvancedTeleport.async);
     }
 
@@ -432,8 +380,7 @@ public class ATPlayer {
      * @param location the location of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public @NotNull CompletableFuture<Void> addHome(
-            @NotNull final String name, @NotNull final Location location) {
+    public @NotNull CompletableFuture<Void> addHome(@NotNull final String name, @NotNull final Location location) {
         return addHome(name, location, getPlayer(), true);
     }
 
@@ -446,9 +393,7 @@ public class ATPlayer {
      * @return a completable future of whether the action failed or succeeded.
      */
     public @NotNull CompletableFuture<Void> addHome(
-            @NotNull final String name,
-            @NotNull final Location location,
-            @NotNull final Player creator) {
+            @NotNull final String name, @NotNull final Location location, @NotNull final Player creator) {
         return addHome(name, location, creator, true);
     }
 
@@ -471,23 +416,20 @@ public class ATPlayer {
         if (hasHome(name)) return moveHome(name, location);
 
         return AdvancedTeleportAPI.validateEvent(
-                new HomeCreateEvent(getOfflinePlayer(), name, location, creator),
-                event -> {
-                    homes.getData()
-                            .thenApplyAsync(
-                                    list -> {
-                                        list.put(
-                                                name,
-                                                new Home(
-                                                        event.getPlayer().getUniqueId(),
-                                                        event.getName(),
-                                                        event.getLocation(),
-                                                        System.currentTimeMillis(),
-                                                        System.currentTimeMillis()));
+                new HomeCreateEvent(getOfflinePlayer(), name, location, creator), event -> {
+                    homes.getData().thenApplyAsync(list -> {
+                        list.put(
+                                name,
+                                new Home(
+                                        event.getPlayer().getUniqueId(),
+                                        event.getName(),
+                                        event.getLocation(),
+                                        System.currentTimeMillis(),
+                                        System.currentTimeMillis()));
 
-                                        homes.data = list;
-                                        return list;
-                                    });
+                        homes.data = list;
+                        return list;
+                    });
 
                     return CompletableFuture.runAsync(
                             () -> HomeSQLManager.get().addHome(location, uuid, name, async),
@@ -512,8 +454,7 @@ public class ATPlayer {
      * @param newLocation the new location of the home.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public @NotNull CompletableFuture<Void> moveHome(
-            @NotNull final String name, @NotNull final Location newLocation) {
+    public @NotNull CompletableFuture<Void> moveHome(@NotNull final String name, @NotNull final Location newLocation) {
         return moveHome(name, newLocation, null);
     }
 
@@ -525,9 +466,7 @@ public class ATPlayer {
      * @return a completable future of whether the action failed or succeeded.
      */
     public @NotNull CompletableFuture<Void> moveHome(
-            @NotNull final String name,
-            @NotNull final Location newLocation,
-            @Nullable final CommandSender sender) {
+            @NotNull final String name, @NotNull final Location newLocation, @Nullable final CommandSender sender) {
         return this.homes
                 .getData()
                 .thenApplyAsync(
@@ -535,8 +474,7 @@ public class ATPlayer {
                             Home home = homes.get(name);
                             if (home == null)
                                 throw new NullPointerException(
-                                        "Context [%s] | Message [%s]"
-                                                .formatted(sender, "Missing home: " + name));
+                                        "Context [%s] | Message [%s]".formatted(sender, "Missing home: " + name));
 
                             return home;
                         },
@@ -564,23 +502,25 @@ public class ATPlayer {
     public @NotNull CompletableFuture<Void> removeHome(
             @NotNull final String name, @Nullable final CommandSender sender) {
         return homes.getData()
-                .thenApplyAsync(list -> {
+                .thenApplyAsync(
+                        list -> {
                             Home home = list.get(name);
                             if (home == null) return null;
 
                             HomeDeleteEvent event = new HomeDeleteEvent(home, sender);
-                            if (!event.callEvent())
-                                throw new RuntimeException(CancelledEventException.of(event));
+                            if (!event.callEvent()) throw new RuntimeException(CancelledEventException.of(event));
 
                             list.remove(event.getHome().getName());
                             homes.data = list;
                             return event.getHome();
-                }, CoreAdvancedTeleport.sync).thenAcceptAsync(home -> {
-
+                        },
+                        CoreAdvancedTeleport.sync)
+                .thenAcceptAsync(
+                        home -> {
                             if (home == null) return;
                             HomeSQLManager.get().removeHome(uuid, home.getName());
-
-                }, CoreAdvancedTeleport.async);
+                        },
+                        CoreAdvancedTeleport.async);
     }
 
     /**
@@ -658,16 +598,12 @@ public class ATPlayer {
                             Home home = list.get(name);
                             if (home == null)
                                 throw new NullPointerException(
-                                        "Context [%s] | Message [%s]"
-                                                .formatted(sender, "Missing home: " + name));
+                                        "Context [%s] | Message [%s]".formatted(sender, "Missing home: " + name));
 
                             reorganiseHomes();
 
-                            SwitchMainHomeEvent event =
-                                    new SwitchMainHomeEvent(
-                                            mainHome.data == null ? null : list.get(mainHome.data),
-                                            home,
-                                            sender);
+                            SwitchMainHomeEvent event = new SwitchMainHomeEvent(
+                                    mainHome.data == null ? null : list.get(mainHome.data), home, sender);
                             if (!event.callEvent()) return;
 
                             this.mainHome.data = event.getNewMainHome().getName();
@@ -680,34 +616,23 @@ public class ATPlayer {
 
     private void reorganiseHomes() {
 
-        this.homes
-                .getData()
-                .thenAcceptAsync(
-                        homes -> {
-                            final var homesList = homes;
+        this.homes.getData().thenAcceptAsync(homes -> {
+            final var homesList = homes;
 
-                            this.mainHome
-                                    .getData()
-                                    .thenAcceptAsync(
-                                            mainHome -> {
-                                                if (!homesList.containsKey(mainHome)) return;
+            this.mainHome.getData().thenAcceptAsync(mainHome -> {
+                if (!homesList.containsKey(mainHome)) return;
 
-                                                final var tempHomes =
-                                                        new LinkedHashMap<String, Home>();
+                final var tempHomes = new LinkedHashMap<String, Home>();
 
-                                                tempHomes.put(mainHome, homesList.get(mainHome));
-                                                homesList.keySet().stream()
-                                                        .filter(home -> !home.equals(mainHome))
-                                                        .forEach(
-                                                                home ->
-                                                                        tempHomes.put(
-                                                                                home,
-                                                                                homes.get(home)));
+                tempHomes.put(mainHome, homesList.get(mainHome));
+                homesList.keySet().stream()
+                        .filter(home -> !home.equals(mainHome))
+                        .forEach(home -> tempHomes.put(home, homes.get(home)));
 
-                                                this.homes.data = tempHomes;
-                                                this.mainHome.data = mainHome;
-                                            });
-                        });
+                this.homes.data = tempHomes;
+                this.mainHome.data = mainHome;
+            });
+        });
     }
 
     /**
@@ -730,8 +655,7 @@ public class ATPlayer {
         // Player is offline, we'll assume an admin is getting the homes
         if (getPlayer() == null) return -1;
         for (PermissionAttachmentInfo permission : getPlayer().getEffectivePermissions()) {
-            if (permission.getValue()
-                    && permission.getPermission().startsWith("at.member.homes.")) {
+            if (permission.getValue() && permission.getPermission().startsWith("at.member.homes.")) {
 
                 // Get the permission and all data following the base permission
                 String perm = permission.getPermission();
@@ -743,8 +667,7 @@ public class ATPlayer {
                     String[] data = endNode.split("\\.");
 
                     // Make sure it's in the same world
-                    if (data[0].equals(getPlayer().getWorld().getName())
-                            && data[1].matches("^\\d+$")) {
+                    if (data[0].equals(getPlayer().getWorld().getName()) && data[1].matches("^\\d+$")) {
                         int homes = Integer.parseInt(data[1]);
 
                         // If there isn't already a world limit overriding this one, make it do so.
@@ -784,9 +707,13 @@ public class ATPlayer {
     @Range(from = 0, to = Integer.MAX_VALUE)
     @Contract(pure = true)
     public int getInvulnerability(@NotNull final String command, @NotNull final World destinationWorld) {
-        return determineValue("at.member.invulnerability",
+        return determineValue(
+                "at.member.invulnerability",
                 command,
-                MainConfig.get().COMMAND_INVULNERABILITY_DURATIONS.valueOf(command).get(),
+                MainConfig.get()
+                        .COMMAND_INVULNERABILITY_DURATIONS
+                        .valueOf(command)
+                        .get(),
                 MainConfig.get().CUSTOM_INVULNERABILITY_DURATIONS.get(),
                 destinationWorld,
                 Math::max);
@@ -817,8 +744,7 @@ public class ATPlayer {
 
     @Range(from = 0, to = Integer.MAX_VALUE)
     @Contract(pure = true)
-    public int getDistanceLimitation(
-            @Nullable final String command, @NotNull final World destinationWorld) {
+    public int getDistanceLimitation(@Nullable final String command, @NotNull final World destinationWorld) {
         return determineValue(
                 "at.member.distance",
                 command,
@@ -867,10 +793,7 @@ public class ATPlayer {
             if (!getPlayer().hasPermission(permission + "." + key)
                     && !getPlayer().hasPermission(permission + "." + command + "." + key)
                     && !getPlayer().hasPermission(permission + "." + worldName + "." + key)
-                    && !getPlayer()
-                            .hasPermission(
-                                    permission + "." + command + "." + worldName + "." + key))
-                continue;
+                    && !getPlayer().hasPermission(permission + "." + command + "." + worldName + "." + key)) continue;
 
             // Make sure there's only one value
             cooldowns.clear();
@@ -1001,10 +924,10 @@ public class ATPlayer {
         // a Floodgate player
         if (MainConfig.get().USE_FLOODGATE_FORMS.get()
                 && PluginHookManager.get().floodgateEnabled()) {
-            org.geysermc.floodgate.api.FloodgateApi api =
-                    org.geysermc.floodgate.api.FloodgateApi.getInstance();
+            FloodgateApi api = FloodgateApi.getInstance();
             if (api == null) {
-                CoreAdvancedTeleport.getInstance().getPlugin()
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
                         .getLogger()
                         .severe(
                                 "Detected the floodgate plugin, but it seems to be out of date. Please use floodgate v2.");
@@ -1072,8 +995,7 @@ public class ATPlayer {
 
         // Create the player object on an alternative thread
         return AdvancedTeleportAPI.getOfflinePlayer(name)
-                .thenApplyAsync(
-                        player -> new ATPlayer(player, name, player.getUniqueId()), CoreAdvancedTeleport.sync);
+                .thenApplyAsync(player -> new ATPlayer(player, name, player.getUniqueId()), CoreAdvancedTeleport.sync);
     }
 
     public static void relog(@NotNull Player player) {
@@ -1121,18 +1043,12 @@ public class ATPlayer {
      * @param previousLoc the new previous location to use.
      * @return a completable future of whether the action failed or succeeded.
      */
-    public @NotNull CompletableFuture<Void> setPreviousLocation(
-            @NotNull final Location previousLoc) {
+    public @NotNull CompletableFuture<Void> setPreviousLocation(@NotNull final Location previousLoc) {
         return AdvancedTeleportAPI.validateEvent(
-                new PreviousLocationChangeEvent(
-                        getOfflinePlayer(), previousLoc, this.previousLoc.data),
-                event -> {
+                new PreviousLocationChangeEvent(getOfflinePlayer(), previousLoc, this.previousLoc.data), event -> {
                     this.previousLoc.data = event.getNewLocation();
-                    return CompletableFuture.runAsync(
-                            () ->
-                                    PlayerSQLManager.get()
-                                            .setPreviousLocation(
-                                                    getOfflinePlayer().getName(), previousLoc));
+                    return CompletableFuture.runAsync(() -> PlayerSQLManager.get()
+                            .setPreviousLocation(getOfflinePlayer().getName(), previousLoc));
                 });
     }
 

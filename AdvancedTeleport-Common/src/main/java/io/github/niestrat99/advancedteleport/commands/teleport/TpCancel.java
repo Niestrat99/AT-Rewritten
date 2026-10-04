@@ -9,11 +9,9 @@ import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -43,17 +41,13 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                         CustomMessages.sendMessage(sender, "Errors.noSuchPlayer");
                         return true;
                     }
-                    TeleportRequest request =
-                            TeleportRequest.getRequestByReqAndResponder(target, player);
+                    TeleportRequest request = TeleportRequest.getRequestByReqAndResponder(target, player);
                     if (request == null) {
                         CustomMessages.sendMessage(
-                                sender,
-                                "Error.noRequestsFromPlayer",
-                                Placeholder.unparsed("player", args[0]));
+                                sender, "Error.noRequestsFromPlayer", Placeholder.unparsed("player", args[0]));
                     } else {
                         TeleportCancelEvent event =
-                                new TeleportCancelEvent(
-                                        request.responder(), request.requester(), request.type());
+                                new TeleportCancelEvent(request.responder(), request.requester(), request.type());
                         Bukkit.getPluginManager().callEvent(event);
                         if (event.isCancelled()) {
                             // Could not be cancelled
@@ -64,11 +58,8 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                         CustomMessages.sendMessage(
                                 request.responder(),
                                 "Info.tpCancelResponder",
-                                Placeholder.unparsed(
-                                        "player",
-                                        player
-                                                .getDisplayName())); // TODO: Try use player
-                                                                     // DisplayName
+                                Placeholder.unparsed("player", player.getDisplayName())); // TODO: Try use player
+                        // DisplayName
                         request.destroy();
                     }
                     return true;
@@ -95,37 +86,31 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                         new PagedLists<>(TeleportRequest.getRequestsByRequester(player), 8);
                 CustomMessages.sendMessage(player, "Info.multipleRequestsCancel");
                 // Displays the first 8 requests
-                final var component =
-                        Component.join(
-                                JoinConfiguration.newlines(),
-                                requests.getContentsInPage(1).stream()
-                                        .map(
-                                                request ->
-                                                        CustomMessages.get(
-                                                                "Info.multipleRequestsIndex",
-                                                                Placeholder.unparsed(
-                                                                        "command", "/tpcancel"),
-                                                                Placeholder.unparsed(
-                                                                        "player",
-                                                                        request.requester()
-                                                                                .getName()) // TODO:
-                                                                                            // Try
-                                                                                            // use
-                                                                                            // player DisplayName
-                                                                ))
-                                        .toList() // TODO: Ensure order is correct
-                                );
+                final var component = Component.join(
+                        JoinConfiguration.newlines(),
+                        requests.getContentsInPage(1).stream()
+                                .map(request -> CustomMessages.get(
+                                        "Info.multipleRequestsIndex",
+                                        Placeholder.unparsed("command", "/tpcancel"),
+                                        Placeholder.unparsed(
+                                                "player", request.requester().getName()) // TODO:
+                                        // Try
+                                        // use
+                                        // player DisplayName
+                                        ))
+                                .toList() // TODO: Ensure order is correct
+                        );
 
                 if (requests.getTotalPages() > 1) {
                     CustomMessages.sendMessage(player, component);
                     CustomMessages.sendMessage(player, "Info.multipleRequestsList");
                 }
             } else {
-                TeleportRequest request = TeleportRequest.getRequestsByRequester(player).get(0);
+                TeleportRequest request =
+                        TeleportRequest.getRequestsByRequester(player).get(0);
 
                 TeleportCancelEvent event =
-                        new TeleportCancelEvent(
-                                request.requester(), request.requester(), request.type());
+                        new TeleportCancelEvent(request.requester(), request.requester(), request.type());
                 Bukkit.getPluginManager().callEvent(event);
                 if (event.isCancelled()) {
                     // Could not be cancelled
@@ -135,8 +120,7 @@ public final class TpCancel extends TeleportATCommand implements PlayerCommand {
                 CustomMessages.sendMessage(
                         request.responder(),
                         "Info.tpCancelResponder",
-                        Placeholder.unparsed(
-                                "player", player.getName()) // TODO: Try use player DisplayName
+                        Placeholder.unparsed("player", player.getName()) // TODO: Try use player DisplayName
                         );
                 CustomMessages.sendMessage(player, "Info.tpCancel");
 

@@ -3,9 +3,7 @@ package io.github.niestrat99.advancedteleport.commands;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.managers.MovementManager;
-
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +39,5 @@ public interface TimedATCommand extends PlayerCommand {
         return true;
     }
 
-    @NotNull
-    String getSection();
+    @NotNull String getSection();
 }

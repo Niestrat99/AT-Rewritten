@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.config;
 
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -35,10 +34,7 @@ public final class GUIConfig extends ATConfig {
                 "warps.warps.warpName1",
                 "This is an example icon in the GUI.\n"
                         + "The name - warpName1 - is the warp name used in /warp, e.g. /warp warpName1.");
-        addExample(
-                "warps.warps.warpName1.name",
-                "&aWarp Name 1",
-                "The display name for the warp's item in the GUI.");
+        addExample("warps.warps.warpName1.name", "&aWarp Name 1", "The display name for the warp's item in the GUI.");
         addExample(
                 "warps.warps.warpName1.item",
                 "DIAMOND_SWORD",
@@ -47,17 +43,9 @@ public final class GUIConfig extends ATConfig {
                         + "data-value: 1\n"
                         + "If you are using a player head item (SKULL_ITEM and data-value: 3 or PLAYER_HEAD in new versions), you can specify a texture:\n"
                         + "texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjQxNDQ5MDk3YjRiNzlhOWY2Y2FmNjM0NDQxOGYyMDM0ZGU0YmI5NzFmZWI3YThlNGFhY2JmYjkwNWFjZGNlZiJ9fX0=\n");
-        addExample(
-                "warps.warps.warpName1.tooltip",
-                Collections.singletonList("&7Teleports you to warpName1"));
-        addExample(
-                "warps.warps.warpName1.slot",
-                11,
-                "The slot (starting from 0) that the warp should appear in.");
-        addExample(
-                "warps.warps.warpName1.page",
-                0,
-                "The page (starting from 0) that the warp should appear in.");
+        addExample("warps.warps.warpName1.tooltip", Collections.singletonList("&7Teleports you to warpName1"));
+        addExample("warps.warps.warpName1.slot", 11, "The slot (starting from 0) that the warp should appear in.");
+        addExample("warps.warps.warpName1.page", 0, "The page (starting from 0) that the warp should appear in.");
         addExample(
                 "warps.warps.warpName1.hide-if-no-permission",
                 false,
@@ -65,9 +53,7 @@ public final class GUIConfig extends ATConfig {
 
         addExample("warps.warps.warpName2.name", "&7Warp Name 2");
         addExample("warps.warps.warpName2.item", "IRON_PICKAXE");
-        addExample(
-                "warps.warps.warpName2.tooltip",
-                Collections.singletonList("&7Teleports you to warpName2"));
+        addExample("warps.warps.warpName2.tooltip", Collections.singletonList("&7Teleports you to warpName2"));
         addExample("warps.warps.warpName2.slot", 13);
         addExample("warps.warps.warpName2.page", 0);
         addExample("warps.warps.warpName2.hide-if-no-permission", true);

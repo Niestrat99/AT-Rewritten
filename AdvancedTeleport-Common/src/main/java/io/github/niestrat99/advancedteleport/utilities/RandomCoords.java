@@ -3,14 +3,12 @@ package io.github.niestrat99.advancedteleport.utilities;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
-
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.jetbrains.annotations.Nullable;
 
 public class RandomCoords {
 
@@ -22,22 +20,15 @@ public class RandomCoords {
         return random.nextInt((int) Math.round(max - min) + 1) + min;
     }
 
-    public static @Nullable Location getRandCoords(
-            World world, double[] coords, int y, int attempt) {
+    public static @Nullable Location getRandCoords(World world, double[] coords, int y, int attempt) {
         if (attempt++ > 15) {
             return null;
         }
 
         Location loc =
-                new Location(
-                        world,
-                        getRandomCoords(coords[0], coords[1]),
-                        y,
-                        getRandomCoords(coords[2], coords[3]));
-        if (PluginHookManager.get()
-                .isClaimed(
-                        loc)) { // Should look into a limiter, so we don't get stuck in a loop
-                                // somehow
+                new Location(world, getRandomCoords(coords[0], coords[1]), y, getRandomCoords(coords[2], coords[3]));
+        if (PluginHookManager.get().isClaimed(loc)) { // Should look into a limiter, so we don't get stuck in a loop
+            // somehow
             return getRandCoords(world, coords, y, attempt);
         }
         return loc;
@@ -46,43 +37,29 @@ public class RandomCoords {
     public static @Nullable Location generateCoords(World world) {
         double[] coords = PluginHookManager.get().getRandomCoords(world);
         if (coords == null) {
-            coordCache.computeIfAbsent(
-                    world.getName(),
-                    k -> {
-                        ConfigSection x = MainConfig.get().X.get();
-                        ConfigSection z = MainConfig.get().Z.get();
+            coordCache.computeIfAbsent(world.getName(), k -> {
+                ConfigSection x = MainConfig.get().X.get();
+                ConfigSection z = MainConfig.get().Z.get();
 
-                        String xStr =
-                                x.contains(world.getName())
-                                        ? x.getString(world.getName())
-                                        : x.getString("default");
-                        String zStr =
-                                x.contains(world.getName())
-                                        ? z.getString(world.getName())
-                                        : z.getString("default");
+                String xStr = x.contains(world.getName()) ? x.getString(world.getName()) : x.getString("default");
+                String zStr = x.contains(world.getName()) ? z.getString(world.getName()) : z.getString("default");
 
-                        double[] coordsDouble = new double[4];
+                double[] coordsDouble = new double[4];
 
-                        if (xStr != null || zStr != null) {
-                            String[] xSplit =
-                                    xStr != null
-                                            ? xStr.split(";")
-                                            : zStr.split(
-                                                    ";"); // Use the Z coord if X isn't present for
-                                                          // some reason
-                            setArray(coordsDouble, xSplit, 1, 0);
+                if (xStr != null || zStr != null) {
+                    String[] xSplit =
+                            xStr != null ? xStr.split(";") : zStr.split(";"); // Use the Z coord if X isn't present for
+                    // some reason
+                    setArray(coordsDouble, xSplit, 1, 0);
 
-                            String[] zSplit =
-                                    zStr != null
-                                            ? zStr.split(";")
-                                            : xStr.split(
-                                                    ";"); // Use the X coord if Z isn't present for
-                                                          // some reason
-                            setArray(coordsDouble, zSplit, 3, 2);
-                        }
+                    String[] zSplit =
+                            zStr != null ? zStr.split(";") : xStr.split(";"); // Use the X coord if Z isn't present for
+                    // some reason
+                    setArray(coordsDouble, zSplit, 3, 2);
+                }
 
-                        return coordsDouble;
-                    });
+                return coordsDouble;
+            });
 
             coords = coordCache.get(world.getName());
         }

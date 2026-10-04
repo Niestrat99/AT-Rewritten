@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.limitations.worlds.list;
 
 import io.github.niestrat99.advancedteleport.limitations.worlds.WorldRule;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

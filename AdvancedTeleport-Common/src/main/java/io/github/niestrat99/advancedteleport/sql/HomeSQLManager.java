@@ -4,12 +4,6 @@ import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,6 +14,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class HomeSQLManager extends SQLManager {
 
@@ -37,42 +36,39 @@ public class HomeSQLManager extends SQLManager {
     @Override
     public void createTable() {
         Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreAdvancedTeleport.getInstance().getPlugin(),
-                        () -> {
-                            CoreAdvancedTeleport.debug(
-                                    "Creating table data for the home manager if it is not already set up.");
+                .runTaskAsynchronously(CoreAdvancedTeleport.getInstance().getPlugin(), () -> {
+                    CoreAdvancedTeleport.debug("Creating table data for the home manager if it is not already set up.");
 
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_homes "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "uuid_owner VARCHAR(256) NOT NULL, "
-                                                        + "home VARCHAR(256) NOT NULL,"
-                                                        + "x DOUBLE NOT NULL,"
-                                                        + "y DOUBLE NOT NULL,"
-                                                        + "z DOUBLE NOT NULL,"
-                                                        + "yaw FLOAT NOT NULL,"
-                                                        + "pitch FLOAT NOT NULL,"
-                                                        + "world VARCHAR(256) NOT NULL,"
-                                                        + "icon VARCHAR(256) DEFAULT 'GRASS_BLOCK' NOT NULL,"
-                                                        + "timestamp_created BIGINT NOT NULL,"
-                                                        + "timestamp_updated BIGINT NOT NULL)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreAdvancedTeleport.getInstance().getPlugin()
-                                        .getLogger()
-                                        .severe("Failed to create the homes table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
-                        });
+                    try (Connection connection = implementConnection()) {
+                        PreparedStatement createTable = prepareStatement(
+                                connection,
+                                "CREATE TABLE IF NOT EXISTS "
+                                        + tablePrefix
+                                        + "_homes "
+                                        + "(id INTEGER PRIMARY KEY "
+                                        + getStupidAutoIncrementThing()
+                                        + ", "
+                                        + "uuid_owner VARCHAR(256) NOT NULL, "
+                                        + "home VARCHAR(256) NOT NULL,"
+                                        + "x DOUBLE NOT NULL,"
+                                        + "y DOUBLE NOT NULL,"
+                                        + "z DOUBLE NOT NULL,"
+                                        + "yaw FLOAT NOT NULL,"
+                                        + "pitch FLOAT NOT NULL,"
+                                        + "world VARCHAR(256) NOT NULL,"
+                                        + "icon VARCHAR(256) DEFAULT 'GRASS_BLOCK' NOT NULL,"
+                                        + "timestamp_created BIGINT NOT NULL,"
+                                        + "timestamp_updated BIGINT NOT NULL)");
+                        executeUpdate(createTable);
+                    } catch (SQLException exception) {
+                        CoreAdvancedTeleport.getInstance()
+                                .getPlugin()
+                                .getLogger()
+                                .severe("Failed to create the homes table.");
+                        exception.printStackTrace();
+                    }
+                    transferOldData();
+                });
     }
 
     @Override
@@ -130,7 +126,8 @@ public class HomeSQLManager extends SQLManager {
         if (async) {
             Bukkit.getScheduler()
                     .runTaskAsynchronously(
-                            CoreAdvancedTeleport.getInstance().getPlugin(), () -> addHomePrivate(location, owner, name));
+                            CoreAdvancedTeleport.getInstance().getPlugin(),
+                            () -> addHomePrivate(location, owner, name));
         } else {
             addHomePrivate(location, owner, name);
         }
@@ -138,13 +135,12 @@ public class HomeSQLManager extends SQLManager {
 
     private void addHomePrivate(Location location, UUID owner, String name) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "INSERT INTO "
-                                    + tablePrefix
-                                    + "_homes (uuid_owner, home, x, y, z, yaw, pitch, world, "
-                                    + "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement statement = prepareStatement(
+                    connection,
+                    "INSERT INTO "
+                            + tablePrefix
+                            + "_homes (uuid_owner, home, x, y, z, yaw, pitch, world, "
+                            + "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             statement.setString(1, owner.toString());
             statement.setString(2, name);
             prepareLocation(location, 3, statement);
@@ -173,12 +169,9 @@ public class HomeSQLManager extends SQLManager {
         return CompletableFuture.supplyAsync(
                 () -> {
                     try (Connection connection = implementConnection()) {
-                        PreparedStatement statement =
-                                prepareStatement(
-                                        connection,
-                                        "SELECT id FROM "
-                                                + tablePrefix
-                                                + "_homes WHERE home = ? AND uuid_owner = ?;");
+                        PreparedStatement statement = prepareStatement(
+                                connection,
+                                "SELECT id FROM " + tablePrefix + "_homes WHERE home = ? AND uuid_owner = ?;");
                         statement.setString(1, name);
                         statement.setString(2, owner.toString());
                         ResultSet set = executeQuery(statement);
@@ -198,12 +191,8 @@ public class HomeSQLManager extends SQLManager {
         try (Connection connection = implementConnection()) {
 
             // Set up the SQL statement to remove the home
-            PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "DELETE FROM "
-                                    + tablePrefix
-                                    + "_homes WHERE uuid_owner = ? AND home = ?");
+            PreparedStatement statement = prepareStatement(
+                    connection, "DELETE FROM " + tablePrefix + "_homes WHERE uuid_owner = ? AND home = ?");
 
             statement.setString(1, owner.toString());
             statement.setString(2, name);
@@ -211,8 +200,7 @@ public class HomeSQLManager extends SQLManager {
 
         } catch (SQLException exception) {
             // If something went wrong through, add the failure to the data fail manager
-            DataFailManager.get()
-                    .addFailure(DataFailManager.Operation.DELETE_HOME, owner.toString(), name);
+            DataFailManager.get().addFailure(DataFailManager.Operation.DELETE_HOME, owner.toString(), name);
 
             // Throw an extra exception
             throw new RuntimeException(exception);
@@ -236,13 +224,12 @@ public class HomeSQLManager extends SQLManager {
 
     public void moveHomePrivate(Location newLocation, UUID owner, String name) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "UPDATE "
-                                    + tablePrefix
-                                    + "_homes SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, "
-                                    + "timestamp_updated = ? WHERE uuid_owner = ? AND home = ? ");
+            PreparedStatement statement = prepareStatement(
+                    connection,
+                    "UPDATE "
+                            + tablePrefix
+                            + "_homes SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, "
+                            + "timestamp_updated = ? WHERE uuid_owner = ? AND home = ? ");
 
             prepareLocation(newLocation, 1, statement);
             statement.setLong(7, System.currentTimeMillis());
@@ -268,9 +255,7 @@ public class HomeSQLManager extends SQLManager {
     public LinkedHashMap<String, Home> getHomes(String ownerUUID) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "SELECT * FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
+                    prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
             statement.setString(1, ownerUUID);
             ResultSet results = executeQuery(statement);
             // Create a list for all homes.
@@ -279,19 +264,18 @@ public class HomeSQLManager extends SQLManager {
             while (results.next()) {
 
                 // Create the home object
-                Home home =
-                        new Home(
-                                UUID.fromString(ownerUUID),
-                                results.getString("home"),
-                                new WorldlessLocation(
-                                        results.getString("world"),
-                                        results.getDouble("x"),
-                                        results.getDouble("y"),
-                                        results.getDouble("z"),
-                                        results.getFloat("yaw"),
-                                        results.getFloat("pitch")),
-                                results.getLong("timestamp_created"),
-                                results.getLong("timestamp_updated"));
+                Home home = new Home(
+                        UUID.fromString(ownerUUID),
+                        results.getString("home"),
+                        new WorldlessLocation(
+                                results.getString("world"),
+                                results.getDouble("x"),
+                                results.getDouble("y"),
+                                results.getDouble("z"),
+                                results.getFloat("yaw"),
+                                results.getFloat("pitch")),
+                        results.getLong("timestamp_created"),
+                        results.getLong("timestamp_updated"));
                 // Add it to the list.
                 homes.put(results.getString("home"), home);
             }
@@ -304,28 +288,20 @@ public class HomeSQLManager extends SQLManager {
 
     public void purgeHomes(String worldName) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "SELECT uuid_owner, home FROM "
-                                    + tablePrefix
-                                    + "_homes WHERE world = ?");
+            PreparedStatement statement = prepareStatement(
+                    connection, "SELECT uuid_owner, home FROM " + tablePrefix + "_homes WHERE world = ?");
             statement.setString(1, worldName);
 
             ResultSet set = statement.executeQuery();
 
             while (set.next()) {
-                OfflinePlayer player =
-                        Bukkit.getOfflinePlayer(UUID.fromString(set.getString("uuid_owner")));
-                if (player.getName() == null || !ATPlayer.isPlayerCached(player.getName()))
-                    continue;
+                OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(set.getString("uuid_owner")));
+                if (player.getName() == null || !ATPlayer.isPlayerCached(player.getName())) continue;
                 ATPlayer.getPlayer(player).removeHome(set.getString("home"));
             }
             set.close();
 
-            statement =
-                    prepareStatement(
-                            connection, "DELETE FROM " + tablePrefix + "_homes WHERE world = ?");
+            statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes WHERE world = ?");
             statement.setString(1, worldName);
 
             executeUpdate(statement);
@@ -341,9 +317,7 @@ public class HomeSQLManager extends SQLManager {
             if (player.getName() != null && ATPlayer.isPlayerCached(player.getName())) {
                 ATPlayer atPlayer = ATPlayer.getPlayer(player);
                 PreparedStatement statement =
-                        prepareStatement(
-                                connection,
-                                "SELECT home FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
+                        prepareStatement(connection, "SELECT home FROM " + tablePrefix + "_homes WHERE uuid_owner = ?");
                 statement.setString(1, owner.toString());
 
                 ResultSet set = statement.executeQuery();
@@ -355,9 +329,7 @@ public class HomeSQLManager extends SQLManager {
             }
 
             PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "DELETE FROM " + tablePrefix + "_homes " + "WHERE uuid_owner = ?");
+                    prepareStatement(connection, "DELETE FROM " + tablePrefix + "_homes " + "WHERE uuid_owner = ?");
             statement.setString(1, owner.toString());
 
             executeUpdate(statement);
@@ -373,8 +345,7 @@ public class HomeSQLManager extends SQLManager {
 
                         // GOTTA CATCH 'EM ALL
                         PreparedStatement statement =
-                                prepareStatement(
-                                        connection, "SELECT * FROM " + tablePrefix + "_homes");
+                                prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_homes");
                         ResultSet set = executeQuery(statement);
 
                         // Get the list of homes
@@ -402,14 +373,12 @@ public class HomeSQLManager extends SQLManager {
                             long updatedTimestamp = set.getLong("timestamp_updated");
 
                             // Add the world
-                            homes.add(
-                                    new Home(
-                                            owner,
-                                            name,
-                                            new WorldlessLocation(
-                                                    worldStr, x, y, z, (float) yaw, (float) pitch),
-                                            createdTimestamp,
-                                            updatedTimestamp));
+                            homes.add(new Home(
+                                    owner,
+                                    name,
+                                    new WorldlessLocation(worldStr, x, y, z, (float) yaw, (float) pitch),
+                                    createdTimestamp,
+                                    updatedTimestamp));
                         }
                         return homes;
                     } catch (SQLException ex) {

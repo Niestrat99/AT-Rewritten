@@ -5,12 +5,6 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.WorldlessLocation;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class WarpSQLManager extends SQLManager {
 
@@ -37,43 +35,41 @@ public class WarpSQLManager extends SQLManager {
     @Override
     public void createTable() {
         Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreAdvancedTeleport.getInstance().getPlugin(),
-                        () -> {
-                            try (Connection connection = implementConnection()) {
+                .runTaskAsynchronously(CoreAdvancedTeleport.getInstance().getPlugin(), () -> {
+                    try (Connection connection = implementConnection()) {
 
-                                CoreAdvancedTeleport.debug(
-                                        "Creating table data for the warps manager if it is not already set up.");
+                        CoreAdvancedTeleport.debug(
+                                "Creating table data for the warps manager if it is not already set up.");
 
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_warps "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "warp VARCHAR(256) NOT NULL,"
-                                                        + "uuid_creator VARCHAR(256), "
-                                                        + "x DOUBLE NOT NULL,"
-                                                        + "y DOUBLE NOT NULL,"
-                                                        + "z DOUBLE NOT NULL,"
-                                                        + "yaw FLOAT NOT NULL,"
-                                                        + "pitch FLOAT NOT NULL,"
-                                                        + "world VARCHAR(256) NOT NULL,"
-                                                        + "price VARCHAR(256),"
-                                                        + "timestamp_created BIGINT NOT NULL,"
-                                                        + "timestamp_updated BIGINT NOT NULL)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreAdvancedTeleport.getInstance().getPlugin()
-                                        .getLogger()
-                                        .severe("Failed to create the warps table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
-                        });
+                        PreparedStatement createTable = prepareStatement(
+                                connection,
+                                "CREATE TABLE IF NOT EXISTS "
+                                        + tablePrefix
+                                        + "_warps "
+                                        + "(id INTEGER PRIMARY KEY "
+                                        + getStupidAutoIncrementThing()
+                                        + ", "
+                                        + "warp VARCHAR(256) NOT NULL,"
+                                        + "uuid_creator VARCHAR(256), "
+                                        + "x DOUBLE NOT NULL,"
+                                        + "y DOUBLE NOT NULL,"
+                                        + "z DOUBLE NOT NULL,"
+                                        + "yaw FLOAT NOT NULL,"
+                                        + "pitch FLOAT NOT NULL,"
+                                        + "world VARCHAR(256) NOT NULL,"
+                                        + "price VARCHAR(256),"
+                                        + "timestamp_created BIGINT NOT NULL,"
+                                        + "timestamp_updated BIGINT NOT NULL)");
+                        executeUpdate(createTable);
+                    } catch (SQLException exception) {
+                        CoreAdvancedTeleport.getInstance()
+                                .getPlugin()
+                                .getLogger()
+                                .severe("Failed to create the warps table.");
+                        exception.printStackTrace();
+                    }
+                    transferOldData();
+                });
     }
 
     @Override
@@ -99,14 +95,13 @@ public class WarpSQLManager extends SQLManager {
             // For each warp that appears...
             String world = warpSection.getString("world");
             if (world == null) continue;
-            Location location =
-                    new WorldlessLocation(
-                            world,
-                            warpSection.getDouble("x"),
-                            warpSection.getDouble("y"),
-                            warpSection.getDouble("z"),
-                            (float) warpSection.getDouble("yaw"),
-                            (float) warpSection.getDouble("pitch"));
+            Location location = new WorldlessLocation(
+                    world,
+                    warpSection.getDouble("x"),
+                    warpSection.getDouble("y"),
+                    warpSection.getDouble("z"),
+                    (float) warpSection.getDouble("yaw"),
+                    (float) warpSection.getDouble("pitch"));
             Warp warpObj = new Warp(null, warp, location, -1, -1);
             addWarp(warpObj);
             NamedLocationManager.get().registerWarp(warpObj);
@@ -117,8 +112,7 @@ public class WarpSQLManager extends SQLManager {
 
     private void addWarps() {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement =
-                    prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
+            PreparedStatement statement = prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
             ResultSet results = executeQuery(statement);
             // For each warp...
             while (results.next()) {
@@ -126,19 +120,18 @@ public class WarpSQLManager extends SQLManager {
                 // Create the warp object and it'll register itself.
                 String creator = results.getString("uuid_creator");
                 NamedLocationManager.get()
-                        .registerWarp(
-                                new Warp(
-                                        creator == null ? null : UUID.fromString(creator),
-                                        results.getString("warp"),
-                                        new WorldlessLocation(
-                                                results.getString("world"),
-                                                results.getDouble("x"),
-                                                results.getDouble("y"),
-                                                results.getDouble("z"),
-                                                results.getFloat("yaw"),
-                                                results.getFloat("pitch")),
-                                        results.getLong("timestamp_created"),
-                                        results.getLong("timestamp_updated")));
+                        .registerWarp(new Warp(
+                                creator == null ? null : UUID.fromString(creator),
+                                results.getString("warp"),
+                                new WorldlessLocation(
+                                        results.getString("world"),
+                                        results.getDouble("x"),
+                                        results.getDouble("y"),
+                                        results.getDouble("z"),
+                                        results.getFloat("yaw"),
+                                        results.getFloat("pitch")),
+                                results.getLong("timestamp_created"),
+                                results.getLong("timestamp_updated")));
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -152,13 +145,12 @@ public class WarpSQLManager extends SQLManager {
         long created = warp.getCreatedTime();
         long updated = warp.getUpdatedTime();
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "INSERT INTO "
-                                    + tablePrefix
-                                    + "_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, "
-                                    + "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement statement = prepareStatement(
+                    connection,
+                    "INSERT INTO "
+                            + tablePrefix
+                            + "_warps (warp, uuid_creator, x, y, z, yaw, pitch, world, "
+                            + "timestamp_created, timestamp_updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             statement.setString(1, name);
             statement.setString(2, creator == null ? null : creator.toString());
@@ -193,8 +185,7 @@ public class WarpSQLManager extends SQLManager {
     public void removeWarp(String name) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement =
-                    prepareStatement(
-                            connection, "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
+                    prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE warp = ?");
             statement.setString(1, name);
             executeUpdate(statement);
         } catch (SQLException exception) {
@@ -205,13 +196,12 @@ public class WarpSQLManager extends SQLManager {
 
     public void moveWarp(Location newLocation, String name) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "UPDATE "
-                                    + tablePrefix
-                                    + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, "
-                                    + "timestamp_updated = ? WHERE warp = ?");
+            PreparedStatement statement = prepareStatement(
+                    connection,
+                    "UPDATE "
+                            + tablePrefix
+                            + "_warps SET x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, "
+                            + "timestamp_updated = ? WHERE warp = ?");
 
             prepareLocation(newLocation, 1, statement);
             statement.setLong(7, System.currentTimeMillis());
@@ -239,8 +229,7 @@ public class WarpSQLManager extends SQLManager {
     public int getWarpIdSync(String name) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement =
-                    prepareStatement(
-                            connection, "SELECT id FROM " + tablePrefix + "_warps WHERE warp = ?;");
+                    prepareStatement(connection, "SELECT id FROM " + tablePrefix + "_warps WHERE warp = ?;");
             statement.setString(1, name);
             ResultSet set = executeQuery(statement);
             if (set.next()) {
@@ -255,9 +244,7 @@ public class WarpSQLManager extends SQLManager {
     public void purgeWarps(String worldName) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "SELECT warp FROM " + tablePrefix + "_warps WHERE world = ?");
+                    prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE world = ?");
             statement.setString(1, worldName);
 
             ResultSet set = statement.executeQuery();
@@ -267,9 +254,7 @@ public class WarpSQLManager extends SQLManager {
             }
             set.close();
 
-            statement =
-                    prepareStatement(
-                            connection, "DELETE FROM " + tablePrefix + "_warps WHERE world = ?");
+            statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE world = ?");
             statement.setString(1, worldName);
 
             executeUpdate(statement);
@@ -281,9 +266,7 @@ public class WarpSQLManager extends SQLManager {
     public void purgeWarps(UUID creatorID) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "SELECT warp FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
+                    prepareStatement(connection, "SELECT warp FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
             statement.setString(1, creatorID.toString());
 
             ResultSet set = statement.executeQuery();
@@ -293,10 +276,7 @@ public class WarpSQLManager extends SQLManager {
             }
             set.close();
 
-            statement =
-                    prepareStatement(
-                            connection,
-                            "DELETE FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
+            statement = prepareStatement(connection, "DELETE FROM " + tablePrefix + "_warps WHERE uuid_creator = ?");
             statement.setString(1, creatorID.toString());
 
             executeUpdate(statement);
@@ -310,8 +290,7 @@ public class WarpSQLManager extends SQLManager {
                 () -> {
                     try (Connection connection = implementConnection()) {
                         PreparedStatement statement =
-                                prepareStatement(
-                                        connection, "SELECT * FROM " + tablePrefix + "_warps");
+                                prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_warps");
                         ResultSet results = executeQuery(statement);
                         List<Warp> warps = new ArrayList<>();
                         // For each warp...
@@ -319,19 +298,18 @@ public class WarpSQLManager extends SQLManager {
 
                             // Create the warp object and it'll register itself.
                             String creator = results.getString("uuid_creator");
-                            warps.add(
-                                    new Warp(
-                                            creator == null ? null : UUID.fromString(creator),
-                                            results.getString("warp"),
-                                            new WorldlessLocation(
-                                                    results.getString("world"),
-                                                    results.getDouble("x"),
-                                                    results.getDouble("y"),
-                                                    results.getDouble("z"),
-                                                    results.getFloat("yaw"),
-                                                    results.getFloat("pitch")),
-                                            results.getLong("timestamp_created"),
-                                            results.getLong("timestamp_updated")));
+                            warps.add(new Warp(
+                                    creator == null ? null : UUID.fromString(creator),
+                                    results.getString("warp"),
+                                    new WorldlessLocation(
+                                            results.getString("world"),
+                                            results.getDouble("x"),
+                                            results.getDouble("y"),
+                                            results.getDouble("z"),
+                                            results.getFloat("yaw"),
+                                            results.getFloat("pitch")),
+                                    results.getLong("timestamp_created"),
+                                    results.getLong("timestamp_updated")));
                         }
                         return warps;
                     } catch (SQLException exception) {

@@ -2,11 +2,13 @@ package io.github.niestrat99.advancedteleport.hooks.maps;
 
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.Home;
-import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.managers.MapAssetManager;
-
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
@@ -17,10 +19,6 @@ import org.dynmap.markers.MarkerSet;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.UUID;
 
 public final class DynmapHook extends MapPlugin<Plugin, Void> {
 
@@ -41,15 +39,12 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
     public void enable() {
         CoreAdvancedTeleport.getInstance().getPlugin().getLogger().info("Found Dynmap, hooking...");
         icons = new HashMap<>();
-        this.plugin()
-                .map(DynmapAPI.class::cast)
-                .ifPresent(
-                        api -> {
-                            markerAPI = api.getMarkerAPI(); // TODO NPE
-                            warpsMarker = getSet("advancedteleport_warps", "Warps");
-                            homesMarker = getSet("advancedteleport_homes", "Homes");
-                            spawnsMarker = getSet("advancedteleport_spawns", "Spawns");
-                        });
+        this.plugin().map(DynmapAPI.class::cast).ifPresent(api -> {
+            markerAPI = api.getMarkerAPI(); // TODO NPE
+            warpsMarker = getSet("advancedteleport_warps", "Warps");
+            homesMarker = getSet("advancedteleport_homes", "Homes");
+            spawnsMarker = getSet("advancedteleport_spawns", "Spawns");
+        });
     }
 
     @Override
@@ -92,8 +87,7 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
 
     @Override
     public void removeHome(@NotNull final Home home) {
-        removeMarker(
-                "advancedteleport_home_" + home.getOwner() + "_" + home.getName(), homesMarker);
+        removeMarker("advancedteleport_home_" + home.getOwner() + "_" + home.getName(), homesMarker);
     }
 
     @Override
@@ -190,18 +184,15 @@ public final class DynmapHook extends MapPlugin<Plugin, Void> {
         addMarker(name, displayName, type, owner, set, location);
     }
 
-    public void updateIcon(
-            @NotNull String id, @NotNull MapAssetManager.IconType type, @Nullable UUID owner) {
+    public void updateIcon(@NotNull String id, @NotNull MapAssetManager.IconType type, @Nullable UUID owner) {
 
-        MarkerSet set =
-                (type == MapAssetManager.IconType.SPAWN
-                        ? spawnsMarker
-                        : (type == MapAssetManager.IconType.HOME ? homesMarker : warpsMarker));
-        String name =
-                "advancedteleport_"
-                        + type.name().toLowerCase()
-                        + "_"
-                        + (type == MapAssetManager.IconType.HOME ? owner + "_" + id : id);
+        MarkerSet set = (type == MapAssetManager.IconType.SPAWN
+                ? spawnsMarker
+                : (type == MapAssetManager.IconType.HOME ? homesMarker : warpsMarker));
+        String name = "advancedteleport_"
+                + type.name().toLowerCase()
+                + "_"
+                + (type == MapAssetManager.IconType.HOME ? owner + "_" + id : id);
 
         if (set == null) return;
 

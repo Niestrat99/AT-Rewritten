@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.utilities.minimessage;
 
 import io.github.niestrat99.advancedteleport.utilities.Pair;
+import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -8,8 +9,6 @@ import net.kyori.adventure.text.minimessage.tag.PreProcess;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Supplier;
 
 public class AdventureUtils {
 
@@ -42,9 +41,12 @@ public class AdventureUtils {
     }
 
     public static Component cleanDeserialise(String input, TagResolver... placeholders) {
-        return MiniMessage.miniMessage().deserialize(input, placeholders).replaceText(
-                TextReplacementConfig.builder().match("</[a-zA-Z-_]+>").replacement("").build()
-        );
+        return MiniMessage.miniMessage()
+                .deserialize(input, placeholders)
+                .replaceText(TextReplacementConfig.builder()
+                        .match("</[a-zA-Z-_]+>")
+                        .replacement("")
+                        .build());
     }
 
     private record LazyStringReplacement(Supplier<?> supplier) implements PreProcess {

@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.events.spawn;
 
-import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
@@ -18,8 +18,7 @@ public class SpawnMoveEvent extends TrackableATEvent {
     private final @NotNull Spawn spawn;
     private @NotNull Location newLocation;
 
-    public SpawnMoveEvent(
-            @NotNull Spawn spawn, @NotNull Location newLocation, @Nullable CommandSender sender) {
+    public SpawnMoveEvent(@NotNull Spawn spawn, @NotNull Location newLocation, @Nullable CommandSender sender) {
         super(sender);
         this.spawn = spawn;
         this.newLocation = newLocation;

@@ -5,9 +5,9 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-
+import java.util.ArrayList;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,9 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class SetMainSpawn extends SpawnATCommand {
 
@@ -55,8 +52,7 @@ public final class SetMainSpawn extends SpawnATCommand {
                 // Set it
                 Location loc = ((Player) sender).getLocation();
                 AdvancedTeleportAPI.setSpawn(id, sender, loc)
-                        .thenAcceptAsync(
-                                newSpawn -> setMainSpawn(newSpawn, sender), CoreAdvancedTeleport.sync);
+                        .thenAcceptAsync(newSpawn -> setMainSpawn(newSpawn, sender), CoreAdvancedTeleport.sync);
             } else {
 
                 // Otherwise, stop them
@@ -65,7 +61,8 @@ public final class SetMainSpawn extends SpawnATCommand {
             return true;
         } else if (world && sender.hasPermission("at.admin.setspawn")) {
 
-            // If the spawn exists, then verify that it's a world (i.e. no args) - otherwise, don't move the spawnpoint over
+            // If the spawn exists, then verify that it's a world (i.e. no args) - otherwise, don't move the spawnpoint
+            // over
             Location loc = ((Player) sender).getLocation();
             AdvancedTeleportAPI.setSpawn(id, sender, loc)
                     .thenAcceptAsync(newSpawn -> setMainSpawn(newSpawn, sender), CoreAdvancedTeleport.sync);
@@ -88,9 +85,7 @@ public final class SetMainSpawn extends SpawnATCommand {
             @NotNull final Command command,
             @NotNull final String s,
             @NotNull final String[] args) {
-        if (sender.hasPermission("at.admin.setmainspawn")
-                && sender instanceof Player
-                && args.length == 1) {
+        if (sender.hasPermission("at.admin.setmainspawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
             StringUtil.copyPartialMatches(
                     args[0], AdvancedTeleportAPI.getSpawns().keySet(), spawns);
@@ -101,13 +96,11 @@ public final class SetMainSpawn extends SpawnATCommand {
 
     private void setMainSpawn(Spawn spawn, CommandSender sender) {
         AdvancedTeleportAPI.setMainSpawn(spawn, sender)
-                .whenComplete(
-                        (v, e) ->
-                                CustomMessages.failable(
-                                        sender,
-                                        "Info.setMainSpawn",
-                                        "Error.setMainSpawnFail",
-                                        e,
-                                        Placeholder.unparsed("spawn", spawn.getName())));
+                .whenComplete((v, e) -> CustomMessages.failable(
+                        sender,
+                        "Info.setMainSpawn",
+                        "Error.setMainSpawnFail",
+                        e,
+                        Placeholder.unparsed("spawn", spawn.getName())));
     }
 }

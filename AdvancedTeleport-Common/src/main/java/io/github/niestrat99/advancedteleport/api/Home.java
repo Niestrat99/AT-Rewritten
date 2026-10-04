@@ -2,16 +2,15 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.api.events.homes.HomeMoveEvent;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /** Represents a player's private teleportation point, known as a home. */
 public final class Home implements NamedLocation {
@@ -46,7 +45,9 @@ public final class Home implements NamedLocation {
             final long updatedTime) {
         this.name = name;
         this.owner = owner;
-        this.location = location instanceof WorldlessLocation ? location : new WorldlessLocation(location, location.getWorld().getName());
+        this.location = location instanceof WorldlessLocation
+                ? location
+                : new WorldlessLocation(location, location.getWorld().getName());
         this.createdTime = createdTime;
         this.updatedTime = updatedTime;
 
@@ -97,17 +98,15 @@ public final class Home implements NamedLocation {
             @NotNull final Location location, @Nullable final CommandSender sender) {
 
         // Validate the event
-        return AdvancedTeleportAPI.validateEvent(
-                new HomeMoveEvent(this, location, sender),
-                event -> {
-                    this.location = event.getLocation();
+        return AdvancedTeleportAPI.validateEvent(new HomeMoveEvent(this, location, sender), event -> {
+            this.location = event.getLocation();
 
-                    this.updatedTime = System.currentTimeMillis();
-                    this.updatedTimeFormatted = format.format(new Date(updatedTime));
+            this.updatedTime = System.currentTimeMillis();
+            this.updatedTimeFormatted = format.format(new Date(updatedTime));
 
-                    HomeSQLManager.get().moveHome(location, owner, name, false);
-                    return null;
-                });
+            HomeSQLManager.get().moveHome(location, owner, name, false);
+            return null;
+        });
     }
 
     /**

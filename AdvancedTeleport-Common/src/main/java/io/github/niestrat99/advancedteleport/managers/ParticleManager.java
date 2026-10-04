@@ -3,13 +3,11 @@ package io.github.niestrat99.advancedteleport.managers;
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.ParticlesPlugin;
-
+import java.util.Objects;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 public final class ParticleManager {
     private ParticleManager() {}
@@ -21,12 +19,12 @@ public final class ParticleManager {
                 .forEach(plugin -> plugin.applyParticles(player, command));
     }
 
-    public static void removeParticles(
-            @NotNull final Player player, @NotNull final String command) {
+    public static void removeParticles(@NotNull final Player player, @NotNull final String command) {
         if (!MainConfig.get().USE_PARTICLES.get()) return;
 
         // Check if using inbuilt particles
-        final var particle = MainConfig.get().TELEPORT_PARTICLES.valueOf(command).get();
+        final var particle =
+                MainConfig.get().TELEPORT_PARTICLES.valueOf(command).get();
         if (particle.equals("spark")) {
             doSpark(player, player.getLocation());
         }
@@ -44,8 +42,10 @@ public final class ParticleManager {
         onTeleport(player, command, MainConfig.get().POST_TELEPORT_PARTICLES);
     }
 
-    private static void onTeleport(@NotNull final Player player, @NotNull final String command,
-                                  @NotNull MainConfig.PerCommandOption<String> particlesOption) {
+    private static void onTeleport(
+            @NotNull final Player player,
+            @NotNull final String command,
+            @NotNull MainConfig.PerCommandOption<String> particlesOption) {
         if (!MainConfig.get().USE_PARTICLES.get()) return;
         removeParticles(player, command);
 
@@ -57,7 +57,9 @@ public final class ParticleManager {
         }
 
         applyParticles(player, command);
-        Bukkit.getServer().getScheduler().runTask(CoreAdvancedTeleport.getInstance().getPlugin(), () -> removeParticles(player, command));
+        Bukkit.getServer()
+                .getScheduler()
+                .runTask(CoreAdvancedTeleport.getInstance().getPlugin(), () -> removeParticles(player, command));
     }
 
     public static @Nullable String getData(@NotNull final Player player) {

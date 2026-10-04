@@ -1,12 +1,11 @@
 package io.github.niestrat99.advancedteleport.api.events;
 
+import java.util.function.Supplier;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Supplier;
 
 /** Fired when a player is teleporting using AT. */
 public final class ATTeleportEvent extends CancellableATEvent {
@@ -39,7 +38,6 @@ public final class ATTeleportEvent extends CancellableATEvent {
         this.fromLoc = fromLoc;
         this.locName = locName;
         this.type = type;
-
     }
 
     @Contract(pure = true)
@@ -94,9 +92,7 @@ public final class ATTeleportEvent extends CancellableATEvent {
         HOME(true, "home"),
         WARP(true, "warp"),
         SPAWN(true, "spawn"),
-        TPR(
-                false,
-                "tpr"), // It actually is restricted, but it handles this within the command instead
+        TPR(false, "tpr"), // It actually is restricted, but it handles this within the command instead
         BACK(true, "back"),
         TPLOC(false, "tploc");
 

@@ -4,7 +4,6 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -39,19 +38,15 @@ public final class ToggleTP extends TeleportATCommand implements PlayerCommand {
             //
             ATPlayer atPlayer = ATPlayer.getPlayer(target);
             if (atPlayer.isTeleportationEnabled()) {
-                atPlayer.setTeleportationEnabled(false, sender)
-                        .thenAcceptAsync(
-                                result -> {
-                                    CustomMessages.sendMessage(sender, "Info.tpAdminOff");
-                                    CustomMessages.sendMessage(target, "Info.tpOff");
-                                });
+                atPlayer.setTeleportationEnabled(false, sender).thenAcceptAsync(result -> {
+                    CustomMessages.sendMessage(sender, "Info.tpAdminOff");
+                    CustomMessages.sendMessage(target, "Info.tpOff");
+                });
             } else {
-                atPlayer.setTeleportationEnabled(true, sender)
-                        .thenAcceptAsync(
-                                result -> {
-                                    CustomMessages.sendMessage(sender, "Info.tpAdminOn");
-                                    CustomMessages.sendMessage(target, "Info.tpOn");
-                                });
+                atPlayer.setTeleportationEnabled(true, sender).thenAcceptAsync(result -> {
+                    CustomMessages.sendMessage(sender, "Info.tpAdminOn");
+                    CustomMessages.sendMessage(target, "Info.tpOn");
+                });
             }
             return true;
         }

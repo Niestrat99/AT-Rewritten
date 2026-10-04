@@ -10,6 +10,15 @@ import io.github.niestrat99.advancedteleport.listeners.PaperSignOpenListener;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.update.SpigetUpdateChecker;
 import io.github.niestrat99.advancedteleport.update.UpdateChecker;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 import net.kyori.adventure.sound.Sound;
@@ -30,16 +39,6 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
-
 public class PaperWrapper extends CoreAdvancedTeleport {
 
     private static final Pattern HEX_PATTERN = Pattern.compile("^[0-9a-fA-F]+$");
@@ -52,8 +51,7 @@ public class PaperWrapper extends CoreAdvancedTeleport {
     }
 
     @Override
-    public void onLoad() {
-    }
+    public void onLoad() {}
 
     @Override
     public void onEnable() {
@@ -85,10 +83,12 @@ public class PaperWrapper extends CoreAdvancedTeleport {
     }
 
     @Override
-    public CompletableFuture<Boolean> teleportWithOptions(@NotNull Player player, @NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause) {
+    public CompletableFuture<Boolean> teleportWithOptions(
+            @NotNull Player player, @NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause) {
 
         // If we should retain passengers and are able to do so
-        // https://jd.papermc.io/paper/1.21.11/io/papermc/paper/entity/TeleportFlag.EntityState.html#RETAIN_VEHICLE - slated for removal :(
+        // https://jd.papermc.io/paper/1.21.11/io/papermc/paper/entity/TeleportFlag.EntityState.html#RETAIN_VEHICLE -
+        // slated for removal :(
         if (!MainConfig.get().RETAIN_PASSENGERS.get() && !player.getPassengers().isEmpty()) {
             for (Entity passenger : player.getPassengers()) {
                 player.removePassenger(passenger);
@@ -96,7 +96,6 @@ public class PaperWrapper extends CoreAdvancedTeleport {
         }
 
         return player.teleportAsync(location, cause);
-
     }
 
     @Override
@@ -104,24 +103,28 @@ public class PaperWrapper extends CoreAdvancedTeleport {
         if (rawSound.matches(KeyPattern.NAMESPACE_PATTERN) || rawSound.matches(KeyPattern.VALUE_PATTERN)) {
             try {
 
-                player.playSound(
-                        Sound.sound(Key.key(rawSound), Sound.Source.NEUTRAL, volume, pitch));
+                player.playSound(Sound.sound(Key.key(rawSound), Sound.Source.NEUTRAL, volume, pitch));
             } catch (NoSuchMethodError | NoClassDefFoundError ignored) {
-                CoreAdvancedTeleport.getInstance().getPlugin()
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
                         .getLogger()
-                        .warning(
-                                "Sound " + rawSound + " could not be played: namespaces are not supported on your platform.");
+                        .warning("Sound " + rawSound
+                                + " could not be played: namespaces are not supported on your platform.");
             }
         } else {
             try {
-                CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Screaming snake case sounds (" + rawSound + ") are " +
-                        "deprecated in Paper - please switch to use the namespaced key format (e.g. minecraft:entity.player.levelup)");
-                player.playSound(player, org.bukkit.Sound.valueOf(rawSound), volume, pitch);
-            } catch (IllegalArgumentException ex) {
-                CoreAdvancedTeleport.getInstance().getPlugin()
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
                         .getLogger()
                         .warning(
-                                "Sound for " + rawSound + " could not be played: sound does not exist.");
+                                "Screaming snake case sounds (" + rawSound + ") are "
+                                        + "deprecated in Paper - please switch to use the namespaced key format (e.g. minecraft:entity.player.levelup)");
+                player.playSound(player, org.bukkit.Sound.valueOf(rawSound), volume, pitch);
+            } catch (IllegalArgumentException ex) {
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
+                        .getLogger()
+                        .warning("Sound for " + rawSound + " could not be played: sound does not exist.");
             }
         }
     }
@@ -139,7 +142,8 @@ public class PaperWrapper extends CoreAdvancedTeleport {
         } else {
             byte[] rawTexture = Base64.getDecoder().decode(texture.getBytes(StandardCharsets.UTF_8));
             JsonElement result = JsonParser.parseString(new String(rawTexture).toLowerCase());
-            String textureUrl = result.getAsJsonObject().getAsJsonObject("textures")
+            String textureUrl = result.getAsJsonObject()
+                    .getAsJsonObject("textures")
                     .getAsJsonObject("skin")
                     .getAsJsonObject("url")
                     .getAsString();
@@ -203,17 +207,15 @@ public class PaperWrapper extends CoreAdvancedTeleport {
 
         final var runnersField = scheduler.getClass().getDeclaredField("runners");
         runnersField.setAccessible(true);
-        final var runners =
-                (ConcurrentHashMap<Integer, ? extends BukkitTask>) runnersField.get(asyncScheduler);
+        final var runners = (ConcurrentHashMap<Integer, ? extends BukkitTask>) runnersField.get(asyncScheduler);
 
         runners.keySet().stream()
                 .map(runners::get)
                 .filter(runner -> runner.getOwner() == this)
-                .forEach(
-                        runner -> {
-                            runner.cancel();
-                            runners.remove(runner.getTaskId());
-                        });
+                .forEach(runner -> {
+                    runner.cancel();
+                    runners.remove(runner.getTaskId());
+                });
 
         runnersField.set(scheduler, runners);
     }

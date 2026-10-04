@@ -2,12 +2,13 @@ package io.github.niestrat99.advancedteleport.commands.spawn;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
-import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.SpawnATCommand;
 import io.github.niestrat99.advancedteleport.commands.TimedATCommand;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,9 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
 
@@ -45,13 +43,8 @@ public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
 
     public static void spawn(Player player, Spawn spawn) {
 
-        ATTeleportEvent event =
-                new ATTeleportEvent(
-                        player,
-                        spawn.getLocation(),
-                        player.getLocation(),
-                        "spawn",
-                        ATTeleportEvent.TeleportType.SPAWN);
+        ATTeleportEvent event = new ATTeleportEvent(
+                player, spawn.getLocation(), player.getLocation(), "spawn", ATTeleportEvent.TeleportType.SPAWN);
         Bukkit.getPluginManager().callEvent(event);
         ATPlayer.getPlayer(player).teleport(event, "spawn", "Teleport.teleportingToSpawn");
     }
@@ -67,9 +60,7 @@ public class SpawnCommand extends SpawnATCommand implements TimedATCommand {
             @NotNull final Command command,
             @NotNull final String s,
             @NotNull final String[] args) {
-        if (sender.hasPermission("at.admin.spawn")
-                && sender instanceof Player
-                && args.length == 1) {
+        if (sender.hasPermission("at.admin.spawn") && sender instanceof Player && args.length == 1) {
             List<String> spawns = new ArrayList<>();
             StringUtil.copyPartialMatches(
                     args[0], AdvancedTeleportAPI.getSpawns().keySet(), spawns);

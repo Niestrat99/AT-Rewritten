@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class SpawnPostCreateEvent extends Event {
 
     @NotNull private static final HandlerList handlers = new HandlerList();
+
     @NotNull private final Spawn spawn;
 
     public SpawnPostCreateEvent(@NotNull Spawn spawn) {

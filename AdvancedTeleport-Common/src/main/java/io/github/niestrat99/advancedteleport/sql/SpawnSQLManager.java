@@ -1,17 +1,9 @@
 package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
-import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.api.data.UnloadedWorldException;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,6 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SpawnSQLManager extends SQLManager {
 
@@ -38,43 +36,41 @@ public class SpawnSQLManager extends SQLManager {
     @Override
     public void createTable() {
         Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreAdvancedTeleport.getInstance().getPlugin(),
-                        () -> {
-                            CoreAdvancedTeleport.debug(
-                                    "Creating table data for the spawns manager if it is not already set up.");
+                .runTaskAsynchronously(CoreAdvancedTeleport.getInstance().getPlugin(), () -> {
+                    CoreAdvancedTeleport.debug(
+                            "Creating table data for the spawns manager if it is not already set up.");
 
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_spawns "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "spawn VARCHAR(256) NOT NULL, "
-                                                        + "uuid_creator VARCHAR(256), "
-                                                        + "x DOUBLE NOT NULL, "
-                                                        + "y DOUBLE NOT NULL, "
-                                                        + "z DOUBLE NOT NULL, "
-                                                        + "yaw FLOAT NOT NULL, "
-                                                        + "pitch FLOAT NOT NULL, "
-                                                        + "world VARCHAR(256) NOT NULL, "
-                                                        + "timestamp_created BIGINT NOT NULL, "
-                                                        + "timestamp_updated BIGINT NOT NULL)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreAdvancedTeleport.getInstance().getPlugin()
-                                        .getLogger()
-                                        .severe("Failed to create the spawns table.");
-                                exception.printStackTrace();
-                            }
-                            transferOldData();
+                    try (Connection connection = implementConnection()) {
+                        PreparedStatement createTable = prepareStatement(
+                                connection,
+                                "CREATE TABLE IF NOT EXISTS "
+                                        + tablePrefix
+                                        + "_spawns "
+                                        + "(id INTEGER PRIMARY KEY "
+                                        + getStupidAutoIncrementThing()
+                                        + ", "
+                                        + "spawn VARCHAR(256) NOT NULL, "
+                                        + "uuid_creator VARCHAR(256), "
+                                        + "x DOUBLE NOT NULL, "
+                                        + "y DOUBLE NOT NULL, "
+                                        + "z DOUBLE NOT NULL, "
+                                        + "yaw FLOAT NOT NULL, "
+                                        + "pitch FLOAT NOT NULL, "
+                                        + "world VARCHAR(256) NOT NULL, "
+                                        + "timestamp_created BIGINT NOT NULL, "
+                                        + "timestamp_updated BIGINT NOT NULL)");
+                        executeUpdate(createTable);
+                    } catch (SQLException exception) {
+                        CoreAdvancedTeleport.getInstance()
+                                .getPlugin()
+                                .getLogger()
+                                .severe("Failed to create the spawns table.");
+                        exception.printStackTrace();
+                    }
+                    transferOldData();
 
-                            NamedLocationManager.get().loadSpawnData();
-                        });
+                    NamedLocationManager.get().loadSpawnData();
+                });
     }
 
     @Override
@@ -122,7 +118,8 @@ public class SpawnSQLManager extends SQLManager {
             if (spawnName.equals(mainSpawn)) {
                 try (Connection connection = implementConnection()) {
                     int id = getSpawnIdSync(connection, spawnName);
-                    MetadataSQLManager.get().addMetadata(connection, String.valueOf(id), "SPAWN", "main_spawn", "true", true);
+                    MetadataSQLManager.get()
+                            .addMetadata(connection, String.valueOf(id), "SPAWN", "main_spawn", "true", true);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -134,15 +131,17 @@ public class SpawnSQLManager extends SQLManager {
     }
 
     public CompletableFuture<Void> addSpawn(@NotNull Spawn spawn) {
-        return CompletableFuture.runAsync(() -> addSpawn(
-                spawn.getName(),
-                spawn.getLocation().getWorld().getName(),
-                spawn.getCreatorUUID(),
-                spawn.getLocation().getX(),
-                spawn.getLocation().getY(),
-                spawn.getLocation().getZ(),
-                spawn.getLocation().getYaw(),
-                spawn.getLocation().getPitch()), CoreAdvancedTeleport.async);
+        return CompletableFuture.runAsync(
+                () -> addSpawn(
+                        spawn.getName(),
+                        spawn.getLocation().getWorld().getName(),
+                        spawn.getCreatorUUID(),
+                        spawn.getLocation().getX(),
+                        spawn.getLocation().getY(),
+                        spawn.getLocation().getZ(),
+                        spawn.getLocation().getYaw(),
+                        spawn.getLocation().getPitch()),
+                CoreAdvancedTeleport.async);
     }
 
     public void addSpawn(
@@ -160,16 +159,14 @@ public class SpawnSQLManager extends SQLManager {
 
         try (Connection connection = implementConnection()) {
 
-            PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "INSERT INTO "
-                                    + tablePrefix
-                                    + "_spawns "
-                                    + "(spawn, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?,?,?,?,?,?,?,?,?,?)");
+            PreparedStatement statement = prepareStatement(
+                    connection,
+                    "INSERT INTO "
+                            + tablePrefix
+                            + "_spawns "
+                            + "(spawn, uuid_creator, x, y, z, yaw, pitch, world, timestamp_created, timestamp_updated) VALUES (?,?,?,?,?,?,?,?,?,?)");
             statement.setString(1, name);
-            statement.setString(
-                    2, (creator == null ? null : creator.toString()));
+            statement.setString(2, (creator == null ? null : creator.toString()));
             statement.setDouble(3, x);
             statement.setDouble(4, y);
             statement.setDouble(5, z);
@@ -194,12 +191,7 @@ public class SpawnSQLManager extends SQLManager {
         try (Connection connection = implementConnection()) {
 
             PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "DELETE FROM "
-                                    + tablePrefix
-                                    + "_spawns "
-                                    + "WHERE spawn = ?");
+                    prepareStatement(connection, "DELETE FROM " + tablePrefix + "_spawns " + "WHERE spawn = ?");
             statement.setString(1, name);
 
             executeUpdate(statement);
@@ -214,13 +206,12 @@ public class SpawnSQLManager extends SQLManager {
                 () -> {
                     try (Connection connection = implementConnection()) {
 
-                        PreparedStatement statement =
-                                prepareStatement(
-                                        connection,
-                                        "UPDATE "
-                                                + tablePrefix
-                                                + "_spawns SET "
-                                                + "x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_update = ? WHERE spawn = ?");
+                        PreparedStatement statement = prepareStatement(
+                                connection,
+                                "UPDATE "
+                                        + tablePrefix
+                                        + "_spawns SET "
+                                        + "x = ?, y = ?, z = ?, yaw = ?, pitch = ?, world = ?, timestamp_update = ? WHERE spawn = ?");
                         prepareLocation(spawn.getLocation(), 1, statement);
                         statement.setLong(7, spawn.getUpdatedTime());
                         statement.setString(8, spawn.getName());
@@ -242,8 +233,7 @@ public class SpawnSQLManager extends SQLManager {
                         List<Spawn> spawns = new ArrayList<>();
 
                         PreparedStatement statement =
-                                prepareStatement(
-                                        connection, "SELECT * FROM " + tablePrefix + "_spawns");
+                                prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_spawns");
 
                         // Get the result
                         ResultSet result = executeQuery(statement);
@@ -259,24 +249,23 @@ public class SpawnSQLManager extends SQLManager {
                                 long timestampCreated = result.getLong("timestamp_created");
                                 long timestampUpdated = result.getLong("timestamp_updated");
 
-                                Spawn spawn =
-                                        new Spawn(
-                                                name,
-                                                loc,
-                                                null,
-                                                uuid == null ? null : UUID.fromString(uuid),
-                                                timestampCreated,
-                                                timestampUpdated);
+                                Spawn spawn = new Spawn(
+                                        name,
+                                        loc,
+                                        null,
+                                        uuid == null ? null : UUID.fromString(uuid),
+                                        timestampCreated,
+                                        timestampUpdated);
 
                                 spawns.add(spawn);
                             } catch (UnloadedWorldException e) {
-                                CoreAdvancedTeleport.getInstance().getPlugin()
+                                CoreAdvancedTeleport.getInstance()
+                                        .getPlugin()
                                         .getLogger()
-                                        .warning(
-                                                "Failed to get the spawn for "
-                                                        + result.getString("spawn")
-                                                        + ": "
-                                                        + e.getMessage());
+                                        .warning("Failed to get the spawn for "
+                                                + result.getString("spawn")
+                                                + ": "
+                                                + e.getMessage());
                             }
                         }
 
@@ -291,8 +280,7 @@ public class SpawnSQLManager extends SQLManager {
 
     public int getSpawnIdSync(Connection connection, String name) throws SQLException {
         PreparedStatement statement =
-                prepareStatement(
-                        connection, "SELECT id FROM " + tablePrefix + "_spawns WHERE spawn = ?;");
+                prepareStatement(connection, "SELECT id FROM " + tablePrefix + "_spawns WHERE spawn = ?;");
         statement.setString(1, name);
         ResultSet set = executeQuery(statement);
         if (set.next()) {

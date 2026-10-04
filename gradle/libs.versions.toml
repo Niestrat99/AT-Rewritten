@@ -23,11 +23,12 @@ playerparticles = "8.12"
 worldguard = "7.0.17"
 squaremap = "1.1.3"
 dynmap = "3.4"
+factionsuuid = "4.4.0"
 
 hangar = "0.1.4"
 slimjar = "2.1.9"
 shadow = "9.5.1"
-factionsuuid = "1.6.9.5-U0.6.40"
+spotless = "8.10.3"
 
 [libraries]
 paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
@@ -59,7 +60,7 @@ hook-worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.r
 hook-squaremap = { module = "xyz.jpenilla:squaremap-api", version.ref = "squaremap" }
 hook-dynmap = { module = "us.dynmap:dynmap-api", version.ref = "dynmap" }
 hook-slimjar = { module = "de.crazydev22:slimjar", version.ref = "slimjar" }
-hook-factionsuuid = { module = "com.massivecraft:Factions", version.ref = "factionsuuid" }
+hook-factionsuuid = { module = "dev.kitteh:factions", version.ref = "factionsuuid" }
 
 paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
 spigot = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
@@ -68,6 +69,7 @@ spigot = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
 hangar = { id = "io.papermc.hangar-publish-plugin", version.ref = "hangar" }
 slimjar = { id = "de.crazydev22.slimjar", version.ref = "slimjar" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 
 minecraft-runPaper = "xyz.jpenilla.run-paper:3.0.2"
 
@@ -75,5 +77,6 @@ minecraft-runPaper = "xyz.jpenilla.run-paper:3.0.2"
 adventure = ["adventure-api", "adventure-minimessage", "adventure-key", "adventure-nbt", "adventure-text-serializer-gson",
     "adventure-text-serializer-legacy", "adventure-text-serializer-plain"]
 bukkit = ["hook-vault", "hook-essentials", "hook-essentials-spawn", "hook-worldborder", "hook-chunkyborder",
-    "hook-floodgate", "hook-squaremap", "hook-griefprevention", "hook-lands", "hook-playerparticles", "hook-worldguard"]
+    "hook-floodgate", "hook-squaremap", "hook-griefprevention", "hook-lands", "hook-playerparticles", "hook-worldguard",
+    "hook-factionsuuid"]
 code = ["annotations"]

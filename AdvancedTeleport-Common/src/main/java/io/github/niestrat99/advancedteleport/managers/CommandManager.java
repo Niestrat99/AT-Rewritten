@@ -11,22 +11,19 @@ import io.github.niestrat99.advancedteleport.commands.teleport.*;
 import io.github.niestrat99.advancedteleport.commands.warp.*;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
-import org.bukkit.Bukkit;
-import org.bukkit.command.*;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Bukkit;
+import org.bukkit.command.*;
 
 public class CommandManager {
 
     private static final LinkedHashMap<String, PluginCommand> atCommands = new LinkedHashMap<>();
     public static final LinkedHashMap<String, SubATCommand> subcommands = new LinkedHashMap<>();
-    public static final LinkedHashMap<String, PluginCommand> registeredCommands =
-            new LinkedHashMap<>();
+    public static final LinkedHashMap<String, PluginCommand> registeredCommands = new LinkedHashMap<>();
 
     public static void registerCommands() {
         register("at", new CoreCommand());
@@ -87,7 +84,10 @@ public class CommandManager {
         CoreAdvancedTeleport.debug("Fetching " + command + " - " + command);
         if (command == null) command = atCommands.get(name);
         if (command == null) {
-            CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Could not add command " + name + " - has it been set up properly?");
+            CoreAdvancedTeleport.getInstance()
+                    .getPlugin()
+                    .getLogger()
+                    .warning("Could not add command " + name + " - has it been set up properly?");
             return;
         }
 
@@ -125,7 +125,8 @@ public class CommandManager {
                         .runTaskLater(
                                 CoreAdvancedTeleport.getInstance().getPlugin(),
                                 () -> {
-                                    Iterator<String> commandIterator = commands.keySet().iterator();
+                                    Iterator<String> commandIterator =
+                                            commands.keySet().iterator();
                                     HashMap<String, Command> pendingChanges = new HashMap<>();
 
                                     // Ignore warning, can yield CME
@@ -135,7 +136,8 @@ public class CommandManager {
                                         if (parts.length < 2) continue;
                                         if (parts[1].equals(alias)) {
                                             if (parts[0].equals("advancedteleport")) continue;
-                                            CoreAdvancedTeleport.debug("Letting " + parts[0] + "'s " + alias + " take over...");
+                                            CoreAdvancedTeleport.debug(
+                                                    "Letting " + parts[0] + "'s " + alias + " take over...");
                                             pendingChanges.put(alias, commands.get(otherCmd));
                                             break;
                                         }
@@ -163,7 +165,9 @@ public class CommandManager {
             CommandExecutor usageExecutor = (sender, cmd, label, args) -> {
                 boolean result = atCommand.onCommand(sender, cmd, label, args);
                 if (!result) {
-                    CustomMessages.sendMessage(sender, "Error.commandUse",
+                    CustomMessages.sendMessage(
+                            sender,
+                            "Error.commandUse",
                             Placeholder.unparsed("usage", CustomMessages.asString("Usages." + name)));
                 }
                 return true;
@@ -172,7 +176,8 @@ public class CommandManager {
             command.setTabCompleter(atCommand);
         }
 
-        CoreAdvancedTeleport.debug(aliases + " has " + (command.isRegistered() ? "" : "not ") + "been registed successfully.");
+        CoreAdvancedTeleport.debug(
+                aliases + " has " + (command.isRegistered() ? "" : "not ") + "been registed successfully.");
 
         registeredCommands.put(name, command);
     }

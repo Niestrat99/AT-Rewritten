@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.limitations.commands.list;
 
 import io.github.niestrat99.advancedteleport.limitations.commands.CommandRule;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

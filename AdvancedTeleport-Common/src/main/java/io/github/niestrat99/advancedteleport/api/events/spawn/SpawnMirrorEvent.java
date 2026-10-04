@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.events.spawn;
 
-import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
@@ -17,9 +17,7 @@ public final class SpawnMirrorEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public SpawnMirrorEvent(
-            @NotNull final Spawn fromSpawn,
-            @Nullable final Spawn toSpawn,
-            @Nullable final CommandSender sender)
+            @NotNull final Spawn fromSpawn, @Nullable final Spawn toSpawn, @Nullable final CommandSender sender)
             throws IllegalArgumentException {
         super(sender);
 
@@ -70,8 +68,7 @@ public final class SpawnMirrorEvent extends TrackableATEvent {
     @Contract(pure = true)
     public void setDestinationSpawn(@NotNull final Spawn toSpawn) throws IllegalArgumentException {
         if (toSpawn == fromSpawn)
-            throw new IllegalArgumentException(
-                    "The source spawn and destination spawn must differ!");
+            throw new IllegalArgumentException("The source spawn and destination spawn must differ!");
 
         this.toSpawn = toSpawn;
     }

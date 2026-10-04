@@ -6,15 +6,14 @@ import com.earth2me.essentials.UserMap;
 import com.earth2me.essentials.Warps;
 import com.earth2me.essentials.commands.WarpNotFoundException;
 import com.earth2me.essentials.spawn.EssentialsSpawn;
-
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.*;
 import io.github.niestrat99.advancedteleport.hooks.ImportExportPlugin;
 import io.github.niestrat99.advancedteleport.sql.PlayerSQLManager;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-
-import net.ess3.api.InvalidWorldException;
-
+import java.io.File;
+import java.util.UUID;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -23,10 +22,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.util.UUID;
-import java.util.logging.Level;
 
 public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
 
@@ -43,11 +38,10 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         // Makes sure the plugin exists and because there's so many Ess clones out there, ensure
         // it's the right one
         return this.plugin()
-                .map(
-                        essentials -> {
-                            this.essentials = essentials;
-                            return true;
-                        })
+                .map(essentials -> {
+                    this.essentials = essentials;
+                    return true;
+                })
                 .orElse(false);
     }
 
@@ -70,11 +64,14 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
 
                     Location loc = user.getHome(home);
 
-                    ATPlayer.getPlayerFuture(user.getName()).thenAcceptAsync(player -> {
-                        if (!player.hasHome(home)) {
-                            player.addHome(home, loc, null, false);
-                        } else player.moveHome(home, loc);
-                    }, CoreAdvancedTeleport.sync);
+                    ATPlayer.getPlayerFuture(user.getName())
+                            .thenAcceptAsync(
+                                    player -> {
+                                        if (!player.hasHome(home)) {
+                                            player.addHome(home, loc, null, false);
+                                        } else player.moveHome(home, loc);
+                                    },
+                                    CoreAdvancedTeleport.sync);
                 }
             } catch (Exception ex) {
                 debug("Failed to export previous locations for UUID " + uuid.toString() + ":");
@@ -112,8 +109,7 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                     ATPlayer player = ATPlayer.getPlayer(user.getName());
                     player.setPreviousLocation(user.getLastLocation());
                 } else {
-                    PlayerSQLManager.get()
-                            .setPreviousLocation(user.getName(), user.getLastLocation());
+                    PlayerSQLManager.get().setPreviousLocation(user.getName(), user.getLastLocation());
                 }
             } catch (Exception ex) {
                 debug("Failed to export previous locations for UUID " + uuid.toString() + ":");
@@ -142,7 +138,10 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                     AdvancedTeleportAPI.setWarp(warp, Bukkit.getPlayer(uuid), loc);
                 }
             } catch (WarpNotFoundException ex) {
-                CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Failed to import warp " + warp + " from Essentials - apparently it does not exist.");
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
+                        .getLogger()
+                        .warning("Failed to import warp " + warp + " from Essentials - apparently it does not exist.");
             }
         }
         debug("Finished importing warps!");
@@ -158,10 +157,9 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         if (spawnPlugin == null || !spawnPlugin.isEnabled()) return;
 
         // Get the spawn.yml file - if it doesn't exist though, skip it
-        final var spawnFileEss =
-                this.plugin()
-                        .map(essentials -> new File(essentials.getDataFolder(), "spawn.yml"))
-                        .get();
+        final var spawnFileEss = this.plugin()
+                .map(essentials -> new File(essentials.getDataFolder(), "spawn.yml"))
+                .get();
         if (!spawnFileEss.exists() || !spawnFileEss.isFile()) {
             debug("Spawn file doesn't exist/wasn't found, skipping...");
             return;
@@ -202,13 +200,17 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                 } else {
 
                     // Otherwise, if it's a group spawn, add the AT permission to the group
-                    if (CoreAdvancedTeleport.getPerms() != null && CoreAdvancedTeleport.getPerms().hasGroupSupport()) {
+                    if (CoreAdvancedTeleport.getPerms() != null
+                            && CoreAdvancedTeleport.getPerms().hasGroupSupport()) {
                         CoreAdvancedTeleport.getPerms().groupAdd((String) null, key, "at.member.spawn." + key);
                         debug("Added at.member.spawn." + key + " to group " + key);
                     }
                 }
             } catch (Exception ex) {
-                CoreAdvancedTeleport.getInstance().getPlugin().getLogger().log(Level.WARNING, "Failed to import spawn " + key + "!", ex);
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
+                        .getLogger()
+                        .log(Level.WARNING, "Failed to import spawn " + key + "!", ex);
             }
         }
 
@@ -263,11 +265,14 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                 if (user == null) continue;
                 if (user.getName() == null) continue;
 
-                ATPlayer.getPlayerFuture(user.getName()).thenAcceptAsync(player -> {
-                    for (String home : player.getHomes().keySet()) {
-                        user.setHome(home, player.getHome(home).getLocation());
-                    }
-                }, CoreAdvancedTeleport.sync);
+                ATPlayer.getPlayerFuture(user.getName())
+                        .thenAcceptAsync(
+                                player -> {
+                                    for (String home : player.getHomes().keySet()) {
+                                        user.setHome(home, player.getHome(home).getLocation());
+                                    }
+                                },
+                                CoreAdvancedTeleport.sync);
 
             } catch (Exception ex) {
                 debug("Failed to export home data for UUID " + uuid.toString() + ":");
@@ -291,9 +296,12 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                 if (user == null) continue;
                 if (user.getName() == null) continue;
 
-                ATPlayer.getPlayerFuture(user.getName()).thenAcceptAsync(player -> {
-                    user.setLastLocation(player.getPreviousLocation());
-                }, CoreAdvancedTeleport.sync);
+                ATPlayer.getPlayerFuture(user.getName())
+                        .thenAcceptAsync(
+                                player -> {
+                                    user.setLastLocation(player.getPreviousLocation());
+                                },
+                                CoreAdvancedTeleport.sync);
 
             } catch (Exception ex) {
                 debug("Failed to export previous locations for UUID " + uuid.toString() + ":");
@@ -341,8 +349,7 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
         // Go through each group and spawn set
         for (Spawn atSpawn : AdvancedTeleportAPI.getSpawns().values()) {
             for (String group : CoreAdvancedTeleport.getPerms().getGroups()) {
-                if (!CoreAdvancedTeleport.getPerms().groupHas((World) null, group, atSpawn.getName()))
-                    continue;
+                if (!CoreAdvancedTeleport.getPerms().groupHas((World) null, group, atSpawn.getName())) continue;
                 spawnPlugin.setSpawn(atSpawn.getLocation(), group);
             }
         }
@@ -364,8 +371,10 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                 if (user == null) continue;
                 if (user.getName() == null) continue;
 
-                ATPlayer.getPlayerFuture(user.getName()).thenAcceptAsync(player ->
-                    user.setTeleportEnabled(player.isTeleportationEnabled()), CoreAdvancedTeleport.async);
+                ATPlayer.getPlayerFuture(user.getName())
+                        .thenAcceptAsync(
+                                player -> user.setTeleportEnabled(player.isTeleportationEnabled()),
+                                CoreAdvancedTeleport.async);
 
             } catch (Exception ex) {
                 debug("Failed to export player information for UUID " + uuid.toString() + ":");

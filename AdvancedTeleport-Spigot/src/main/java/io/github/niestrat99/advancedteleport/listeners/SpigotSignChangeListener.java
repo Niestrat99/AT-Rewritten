@@ -3,10 +3,8 @@ package io.github.niestrat99.advancedteleport.listeners;
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -40,18 +38,14 @@ public class SpigotSignChangeListener implements Listener {
 
         CoreAdvancedTeleport.debug("Is sign enabled: " + atSign.isEnabled());
         CoreAdvancedTeleport.debug(
-                "Does player have permission to create the sign: "
-                        + player.hasPermission(atSign.getAdminPermission()));
+                "Does player have permission to create the sign: " + player.hasPermission(atSign.getAdminPermission()));
         CoreAdvancedTeleport.debug(
-                "Can player create the sign regardless of permission: "
-                        + atSign.canCreate(event.getLines(), player));
+                "Can player create the sign regardless of permission: " + atSign.canCreate(event.getLines(), player));
 
         if (!atSign.isEnabled()) return;
         if (player.hasPermission(atSign.getAdminPermission())) {
             if (!atSign.canCreate(event.getLines(), player)) return;
-            event.setLine(
-                    0,
-                    LegacyComponentSerializer.legacySection().serialize(atSign.getDisplayName()));
+            event.setLine(0, LegacyComponentSerializer.legacySection().serialize(atSign.getDisplayName()));
         } else {
             CustomMessages.sendMessage(player, "Error.noPermissionSign");
             event.setCancelled(true);

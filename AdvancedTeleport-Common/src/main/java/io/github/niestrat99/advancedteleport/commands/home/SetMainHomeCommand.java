@@ -7,9 +7,7 @@ import io.github.niestrat99.advancedteleport.api.data.ATException;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -43,51 +41,40 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
                 && sender.hasPermission(getAdminPermission())
                 && !args[0].equalsIgnoreCase(sender.getName())) {
 
-            AdvancedTeleportAPI.getOfflinePlayer(args[0])
-                    .whenCompleteAsync(
-                            (target, err1) -> {
-                                ATPlayer atTarget = ATPlayer.getPlayer(target);
-                                String homeName = args[1];
+            AdvancedTeleportAPI.getOfflinePlayer(args[0]).whenCompleteAsync((target, err1) -> {
+                ATPlayer atTarget = ATPlayer.getPlayer(target);
+                String homeName = args[1];
 
-                                if (atTarget.hasHome(homeName)) {
-                                    atTarget.setMainHome(homeName, sender)
-                                            .whenCompleteAsync(
-                                                    (ignored, err) ->
-                                                            CustomMessages.failableContextualPath(
-                                                                    sender,
-                                                                    target,
-                                                                    "Info.setMainHome",
-                                                                    "Error.setMainHomeFail",
-                                                                    err,
-                                                                    Placeholder.unparsed(
-                                                                            "home", homeName),
-                                                                    Placeholder.unparsed(
-                                                                            "player", args[0])));
+                if (atTarget.hasHome(homeName)) {
+                    atTarget.setMainHome(homeName, sender)
+                            .whenCompleteAsync((ignored, err) -> CustomMessages.failableContextualPath(
+                                    sender,
+                                    target,
+                                    "Info.setMainHome",
+                                    "Error.setMainHomeFail",
+                                    err,
+                                    Placeholder.unparsed("home", homeName),
+                                    Placeholder.unparsed("player", args[0])));
 
-                                    return;
-                                }
+                    return;
+                }
 
-                                if (atPlayer.canSetMoreHomes()) {
-                                    addAndMaybeSetHome(sender, atTarget, player, homeName);
-                                    return;
-                                }
+                if (atPlayer.canSetMoreHomes()) {
+                    addAndMaybeSetHome(sender, atTarget, player, homeName);
+                    return;
+                }
 
-                                atTarget.setMainHome(homeName, sender)
-                                        .whenCompleteAsync(
-                                                (ignore, err) ->
-                                                        CustomMessages.failableContextualPath(
-                                                                sender,
-                                                                target,
-                                                                "Info.setMainHome",
-                                                                "Error.setMainHomeFail",
-                                                                err,
-                                                                Placeholder.unparsed(
-                                                                        "home", homeName),
-                                                                Placeholder.unparsed(
-                                                                        "player",
-                                                                        args[0]) // TODO: Displyname
-                                                                ));
-                            });
+                atTarget.setMainHome(homeName, sender)
+                        .whenCompleteAsync((ignore, err) -> CustomMessages.failableContextualPath(
+                                sender,
+                                target,
+                                "Info.setMainHome",
+                                "Error.setMainHomeFail",
+                                err,
+                                Placeholder.unparsed("home", homeName),
+                                Placeholder.unparsed("player", args[0]) // TODO: Displyname
+                                ));
+            });
             return true;
         }
 
@@ -100,17 +87,14 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
         } else {
             if (atPlayer.canAccessHome(home)) {
                 atPlayer.setMainHome(homeName, sender)
-                        .whenCompleteAsync(
-                                (ignored, err) ->
-                                        CustomMessages.failable(
-                                                sender,
-                                                "Info.setMainHome",
-                                                "Error.setMainHomeFail",
-                                                err,
-                                                Placeholder.unparsed("home", homeName)));
+                        .whenCompleteAsync((ignored, err) -> CustomMessages.failable(
+                                sender,
+                                "Info.setMainHome",
+                                "Error.setMainHomeFail",
+                                err,
+                                Placeholder.unparsed("home", homeName)));
             } else
-                CustomMessages.sendMessage(
-                        sender, "Error.noAccessHome", Placeholder.unparsed("home", home.getName()));
+                CustomMessages.sendMessage(sender, "Error.noAccessHome", Placeholder.unparsed("home", home.getName()));
         }
         return true;
     }
@@ -130,32 +114,22 @@ public final class SetMainHomeCommand extends AbstractHomeCommand implements Pla
             @NotNull final ATPlayer atTarget,
             @NotNull final Player player,
             @NotNull final String homeName) {
-        atTarget.addHome(homeName, player.getLocation(), player)
-                .whenCompleteAsync(
-                        (ignored, err) -> {
-                            if (err != null) {
-                                CustomMessages.sendMessage(
-                                        sender,
-                                        "Error.setHomeFail",
-                                        Placeholder.unparsed("home", homeName));
-                                if (!(err instanceof ATException)) err.printStackTrace();
-                                return;
-                            }
+        atTarget.addHome(homeName, player.getLocation(), player).whenCompleteAsync((ignored, err) -> {
+            if (err != null) {
+                CustomMessages.sendMessage(sender, "Error.setHomeFail", Placeholder.unparsed("home", homeName));
+                if (!(err instanceof ATException)) err.printStackTrace();
+                return;
+            }
 
-                            atTarget.setMainHome(homeName, sender)
-                                    .whenCompleteAsync(
-                                            (ignored2, err2) ->
-                                                    CustomMessages.failableContextualPath(
-                                                            sender,
-                                                            atTarget,
-                                                            "Info.setAndMadeMainHome",
-                                                            "Error.setMainHomeFail",
-                                                            err2,
-                                                            Placeholder.unparsed("home", homeName),
-                                                            Placeholder.unparsed(
-                                                                    "player",
-                                                                    atTarget.getPlayer()
-                                                                            .getName())));
-                        });
+            atTarget.setMainHome(homeName, sender)
+                    .whenCompleteAsync((ignored2, err2) -> CustomMessages.failableContextualPath(
+                            sender,
+                            atTarget,
+                            "Info.setAndMadeMainHome",
+                            "Error.setMainHomeFail",
+                            err2,
+                            Placeholder.unparsed("home", homeName),
+                            Placeholder.unparsed("player", atTarget.getPlayer().getName())));
+        });
     }
 }

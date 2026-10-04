@@ -1,5 +1,7 @@
 package io.github.niestrat99.advancedteleport.adventure;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -12,8 +14,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ChatVersion;
 import net.md_5.bungee.chat.VersionedComponentSerializer;
 import org.jetbrains.annotations.NotNull;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * A component serializer for BungeeCord's {@link BaseComponent}.
@@ -28,7 +28,12 @@ public final class BungeeComponentSerializer implements ComponentSerializer<Comp
         bind();
     }
 
-    private static final BungeeComponentSerializer MODERN = new BungeeComponentSerializer(GsonComponentSerializer.gson(), LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build());
+    private static final BungeeComponentSerializer MODERN = new BungeeComponentSerializer(
+            GsonComponentSerializer.gson(),
+            LegacyComponentSerializer.builder()
+                    .hexColors()
+                    .useUnusualXRepeatedCharacterHexFormat()
+                    .build());
 
     /**
      * Gets whether the component serializer has native support.
@@ -60,7 +65,8 @@ public final class BungeeComponentSerializer implements ComponentSerializer<Comp
      * @return a new serializer
      * @since 4.0.0
      */
-    public static BungeeComponentSerializer of(final GsonComponentSerializer serializer, final LegacyComponentSerializer legacySerializer) {
+    public static BungeeComponentSerializer of(
+            final GsonComponentSerializer serializer, final LegacyComponentSerializer legacySerializer) {
         if (serializer == null || legacySerializer == null) return null;
         return new BungeeComponentSerializer(serializer, legacySerializer);
     }
@@ -87,14 +93,15 @@ public final class BungeeComponentSerializer implements ComponentSerializer<Comp
     private final GsonComponentSerializer serializer;
     private final LegacyComponentSerializer legacySerializer;
 
-    private BungeeComponentSerializer(final GsonComponentSerializer serializer, final LegacyComponentSerializer legacySerializer) {
+    private BungeeComponentSerializer(
+            final GsonComponentSerializer serializer, final LegacyComponentSerializer legacySerializer) {
         this.serializer = serializer;
         this.legacySerializer = legacySerializer;
     }
 
     private static void bind() {
         try {
-            final Field gsonField = GsonInjections.field(net.md_5.bungee.chat.VersionedComponentSerializer.class, "gson");
+            final Field gsonField = GsonInjections.field(VersionedComponentSerializer.class, "gson");
             inject((Gson) gsonField.get(VersionedComponentSerializer.forVersion(ChatVersion.V1_21_5)));
         } catch (final Throwable error) {
             SUPPORTED = false;
@@ -102,7 +109,7 @@ public final class BungeeComponentSerializer implements ComponentSerializer<Comp
     }
 
     @Override
-    public @NotNull Component deserialize(final @NotNull BaseComponent@NotNull[] input) {
+    public @NotNull Component deserialize(final @NotNull BaseComponent @NotNull [] input) {
         requireNonNull(input, "input");
 
         if (input.length == 1 && input[0] instanceof BungeeComponentSerializer.AdapterComponent) {
@@ -113,11 +120,11 @@ public final class BungeeComponentSerializer implements ComponentSerializer<Comp
     }
 
     @Override
-    public @NotNull BaseComponent@NotNull[] serialize(final @NotNull Component component) {
+    public @NotNull BaseComponent @NotNull [] serialize(final @NotNull Component component) {
         requireNonNull(component, "component");
 
         if (SUPPORTED) {
-            return new BaseComponent[]{new BungeeComponentSerializer.AdapterComponent(component)};
+            return new BaseComponent[] {new BungeeComponentSerializer.AdapterComponent(component)};
         } else {
             return net.md_5.bungee.chat.ComponentSerializer.parse(this.serializer.serialize(component));
         }
@@ -147,7 +154,11 @@ public final class BungeeComponentSerializer implements ComponentSerializer<Comp
 
         @Override
         public void write(final JsonWriter out) throws IOException {
-            BungeeComponentSerializer.this.serializer.serializer().getAdapter(Component.class).write(out, this.component);
+            BungeeComponentSerializer.this
+                    .serializer
+                    .serializer()
+                    .getAdapter(Component.class)
+                    .write(out, this.component);
         }
     }
 }

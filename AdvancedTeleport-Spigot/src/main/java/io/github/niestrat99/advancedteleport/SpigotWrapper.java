@@ -7,9 +7,22 @@ import io.github.niestrat99.advancedteleport.commands.DummyTpHereOffline;
 import io.github.niestrat99.advancedteleport.listeners.SpigotSignChangeListener;
 import io.github.niestrat99.advancedteleport.listeners.SpigotSignOpenListener;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
+import io.github.niestrat99.advancedteleport.update.SpigetUpdateChecker;
 import io.github.niestrat99.advancedteleport.update.UpdateChecker;
 import io.github.slimjar.app.builder.ApplicationBuilder;
 import io.github.slimjar.logging.ProcessLogger;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.util.Base64;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 import net.kyori.adventure.key.KeyPattern;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -28,19 +41,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
-import java.util.Base64;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.regex.Pattern;
-
 public class SpigotWrapper extends CoreAdvancedTeleport {
 
     private static final Pattern HEX_PATTERN = Pattern.compile("^[0-9a-fA-F]+$");
@@ -49,7 +49,7 @@ public class SpigotWrapper extends CoreAdvancedTeleport {
 
     public SpigotWrapper(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.updateChecker = new io.github.niestrat99.advancedteleport.update.SpigetUpdateChecker();
+        this.updateChecker = new SpigetUpdateChecker();
     }
 
     @Override
@@ -82,7 +82,8 @@ public class SpigotWrapper extends CoreAdvancedTeleport {
     }
 
     @Override
-    public CompletableFuture<Boolean> teleportWithOptions(@NotNull Player player, @NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause) {
+    public CompletableFuture<Boolean> teleportWithOptions(
+            @NotNull Player player, @NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause cause) {
         return CompletableFuture.completedFuture(player.teleport(location, cause));
     }
 
@@ -96,20 +97,26 @@ public class SpigotWrapper extends CoreAdvancedTeleport {
             }
             Sound sound = Registry.SOUNDS.get(soundKey);
             if (sound == null) {
-                getPlugin().getLogger().warning("Sound " + rawSound + " does not exist and cannot be played to the player.");
+                getPlugin()
+                        .getLogger()
+                        .warning("Sound " + rawSound + " does not exist and cannot be played to the player.");
                 return;
             }
             player.playSound(player, sound, volume, pitch);
         } else {
             try {
-                CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Screaming snake case sounds (" + rawSound + ") are " +
-                        "deprecated in Spigot - please switch to use the namespaced key format (e.g. minecraft:entity.player.levelup)");
-                player.playSound(player, org.bukkit.Sound.valueOf(rawSound), volume, pitch);
-            } catch (IllegalArgumentException ex) {
-                CoreAdvancedTeleport.getInstance().getPlugin()
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
                         .getLogger()
                         .warning(
-                                "Sound for " + rawSound + " could not be played: sound does not exist.");
+                                "Screaming snake case sounds (" + rawSound + ") are "
+                                        + "deprecated in Spigot - please switch to use the namespaced key format (e.g. minecraft:entity.player.levelup)");
+                player.playSound(player, org.bukkit.Sound.valueOf(rawSound), volume, pitch);
+            } catch (IllegalArgumentException ex) {
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
+                        .getLogger()
+                        .warning("Sound for " + rawSound + " could not be played: sound does not exist.");
             }
         }
     }
@@ -127,7 +134,8 @@ public class SpigotWrapper extends CoreAdvancedTeleport {
         } else {
             byte[] rawTexture = Base64.getDecoder().decode(texture.getBytes(StandardCharsets.UTF_8));
             JsonElement result = JsonParser.parseString(new String(rawTexture).toLowerCase());
-            String textureUrl = result.getAsJsonObject().getAsJsonObject("textures")
+            String textureUrl = result.getAsJsonObject()
+                    .getAsJsonObject("textures")
                     .getAsJsonObject("skin")
                     .getAsJsonObject("url")
                     .getAsString();
@@ -135,7 +143,7 @@ public class SpigotWrapper extends CoreAdvancedTeleport {
         }
 
         profile.setTextures(textures);
-        meta.setOwnerProfile(profile);  // ?? why might it be null
+        meta.setOwnerProfile(profile); // ?? why might it be null
         item.setItemMeta(meta);
     }
 
@@ -147,7 +155,8 @@ public class SpigotWrapper extends CoreAdvancedTeleport {
 
     public void sendTitle(Player player, Title title) {
         LegacyComponentSerializer serializer = LegacyComponentSerializer.legacyAmpersand();
-        player.sendTitle(serializer.serialize(title.title()),
+        player.sendTitle(
+                serializer.serialize(title.title()),
                 serializer.serialize(title.subtitle()),
                 (int) (get(title.times()).fadeIn().toMillis() / 5),
                 (int) (get(title.times()).stay().toMillis() / 5),
@@ -171,27 +180,25 @@ public class SpigotWrapper extends CoreAdvancedTeleport {
     }
 
     private static Title.Times get(@Nullable Title.Times actual) {
-        return actual == null ? Title.Times.times(Duration.ofMillis(10 * 5), Duration.ofMillis(70 * 5), Duration.ofMillis(20 * 5)) : actual;
+        return actual == null
+                ? Title.Times.times(Duration.ofMillis(10 * 5), Duration.ofMillis(70 * 5), Duration.ofMillis(20 * 5))
+                : actual;
     }
 
     private void loadLibraries()
-            throws ReflectiveOperationException,
-            IOException,
-            URISyntaxException,
-            NoSuchAlgorithmException,
-            InterruptedException {
+            throws ReflectiveOperationException, IOException, URISyntaxException, NoSuchAlgorithmException,
+                    InterruptedException {
         ApplicationBuilder.appending("AT")
                 .downloadDirectoryPath(this.plugin.getDataFolder().toPath().resolve(".libs"))
-                .logger(
-                        new ProcessLogger() {
-                            @Override
-                            public void info(String s, Object... objects) {
-                                SpigotWrapper.this.plugin.getLogger().info(String.format(s, objects));
-                            }
+                .logger(new ProcessLogger() {
+                    @Override
+                    public void info(String s, Object... objects) {
+                        SpigotWrapper.this.plugin.getLogger().info(String.format(s, objects));
+                    }
 
-                            @Override
-                            public void debug(String message, Object... args) {}
-                        })
+                    @Override
+                    public void debug(String message, Object... args) {}
+                })
                 .build();
     }
 

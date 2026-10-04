@@ -18,9 +18,7 @@ public final class WarpMoveEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public WarpMoveEvent(
-            @NotNull final Warp warp,
-            @NotNull final Location location,
-            @Nullable final CommandSender sender) {
+            @NotNull final Warp warp, @NotNull final Location location, @Nullable final CommandSender sender) {
         super(sender);
         this.warp = warp;
         this.location = location;
@@ -55,8 +53,7 @@ public final class WarpMoveEvent extends TrackableATEvent {
      */
     @Contract(pure = true)
     public void setLocation(@NotNull final Location location) throws IllegalStateException {
-        if (!location.isWorldLoaded())
-            throw new IllegalStateException("The new location's world is not loaded.");
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The new location's world is not loaded.");
         this.location = location;
     }
 

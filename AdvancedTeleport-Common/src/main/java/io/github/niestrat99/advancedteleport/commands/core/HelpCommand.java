@@ -4,22 +4,19 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public final class HelpCommand extends SubATCommand {
 
@@ -40,7 +37,7 @@ public final class HelpCommand extends SubATCommand {
         if (args.length > 0) {
             switch (args[0].toLowerCase()) {
 
-                    // Warps
+                // Warps
                 case "warps" -> {
                     commands.add("warp");
                     commands.add("warps");
@@ -49,7 +46,7 @@ public final class HelpCommand extends SubATCommand {
                     commands.add("delwarp");
                 }
 
-                    // Teleportation
+                // Teleportation
                 case "teleporting" -> {
                     commands.add("back");
                     commands.add("toggletp");
@@ -72,7 +69,7 @@ public final class HelpCommand extends SubATCommand {
                     commands.add("tpyes");
                 }
 
-                    // Core commands
+                // Core commands
                 case "core" -> {
                     subcommands.add("import");
                     subcommands.add("help");
@@ -82,7 +79,7 @@ public final class HelpCommand extends SubATCommand {
                     subcommands.add("purge");
                 }
 
-                    // Home commands
+                // Home commands
                 case "homes" -> {
                     commands.add("delhome");
                     commands.add("home");
@@ -92,7 +89,7 @@ public final class HelpCommand extends SubATCommand {
                     commands.add("setmainhome");
                 }
 
-                    // Spawn commands
+                // Spawn commands
                 case "spawns" -> {
                     commands.add("mirrorspawn");
                     commands.add("removespawn");
@@ -101,7 +98,7 @@ public final class HelpCommand extends SubATCommand {
                     commands.add("spawn");
                 }
 
-                    // Map commands
+                // Map commands
                 case "map" -> {
                     subcommands.add("map.setclicktooltip");
                     subcommands.add("map.sethovertooltip");
@@ -110,7 +107,7 @@ public final class HelpCommand extends SubATCommand {
                     subcommands.add("map.setvisible");
                 }
 
-                    // Anything that just isn't what we expect, such as a number
+                // Anything that just isn't what we expect, such as a number
                 default -> {
                     if (args[0].matches("^\\d+$")) {
                         page = Integer.parseInt(args[0]);
@@ -119,9 +116,7 @@ public final class HelpCommand extends SubATCommand {
                     // Add everything
                     commands.addAll(CommandManager.registeredCommands.keySet());
                     subcommands.addAll(CommandManager.subcommands.keySet());
-                    MapCommand.getSubMapCommands()
-                            .keySet()
-                            .forEach(mapCommand -> subcommands.add("map." + mapCommand));
+                    MapCommand.getSubMapCommands().keySet().forEach(mapCommand -> subcommands.add("map." + mapCommand));
                 }
             }
 
@@ -135,9 +130,7 @@ public final class HelpCommand extends SubATCommand {
             // If no arguments were specified, add everything.
             commands.addAll(CommandManager.registeredCommands.keySet());
             subcommands.addAll(CommandManager.subcommands.keySet());
-            MapCommand.getSubMapCommands()
-                    .keySet()
-                    .forEach(mapCommand -> subcommands.add("map." + mapCommand));
+            MapCommand.getSubMapCommands().keySet().forEach(mapCommand -> subcommands.add("map." + mapCommand));
         }
 
         // Pick out ones the user has permission to.
@@ -148,8 +141,7 @@ public final class HelpCommand extends SubATCommand {
             if (pluginCommand == null) continue;
 
             // If there's no permission(?) or if the player has permission to the command, continue.
-            if (pluginCommand.getPermission() != null
-                    && !sender.hasPermission(pluginCommand.getPermission())) continue;
+            if (pluginCommand.getPermission() != null && !sender.hasPermission(pluginCommand.getPermission())) continue;
             possibleCommands.add(command);
         }
 
@@ -166,44 +158,33 @@ public final class HelpCommand extends SubATCommand {
             return true;
         }
 
-        final var helpHeader =
-                MiniMessage.miniMessage()
-                        .deserialize(
-                                CustomMessages.config.getString("Menu.Help.header"), // TODO: Do this better
-                                TagResolver.builder()
-                                        .tag(
-                                                "current_page",
-                                                Tag.preProcessParsed(String.valueOf(page)))
-                                        .tag(
-                                                "total_pages",
-                                                Tag.preProcessParsed(
-                                                        String.valueOf(
-                                                                commandList.getTotalPages())))
-                                        .build());
+        final var helpHeader = MiniMessage.miniMessage()
+                .deserialize(
+                        CustomMessages.config.getString("Menu.Help.header"), // TODO: Do this better
+                        TagResolver.builder()
+                                .tag("current_page", Tag.preProcessParsed(String.valueOf(page)))
+                                .tag("total_pages", Tag.preProcessParsed(String.valueOf(commandList.getTotalPages())))
+                                .build());
 
         CustomMessages.sendMessage(sender, helpHeader);
 
         for (final String command : commandList.getContentsInPage(page)) {
             var commandUsage = CustomMessages.getComponent("Usages." + command);
 
-            if (sender.hasPermission("at.admin." + command)
-                    || sender.hasPermission("at.admin." + command + ".other")) {
+            if (sender.hasPermission("at.admin." + command) || sender.hasPermission("at.admin." + command + ".other")) {
                 final var adminComponent = CustomMessages.getComponent("Usages-Admin." + command);
                 if (adminComponent != Component.empty()) commandUsage = adminComponent;
             }
 
             final var description = CustomMessages.getComponent("Descriptions." + command);
             // TODO: Use suppliers instead of computing above.
-            final var finalMessage =
-                    MiniMessage.miniMessage()
-                            .deserialize(
-                                    CustomMessages.config.getString("Menu.Help.option"),
-                                    TagResolver.builder()
-                                            .tag("usage", Tag.selfClosingInserting(commandUsage))
-                                            .tag(
-                                                    "description",
-                                                    Tag.selfClosingInserting(description))
-                                            .build());
+            final var finalMessage = MiniMessage.miniMessage()
+                    .deserialize(
+                            CustomMessages.config.getString("Menu.Help.option"),
+                            TagResolver.builder()
+                                    .tag("usage", Tag.selfClosingInserting(commandUsage))
+                                    .tag("description", Tag.selfClosingInserting(description))
+                                    .build());
 
             CustomMessages.sendMessage(sender, finalMessage);
         }
@@ -221,8 +202,6 @@ public final class HelpCommand extends SubATCommand {
         if (args.length != 1) return List.of();
 
         return StringUtil.copyPartialMatches(
-                args[0],
-                Arrays.asList("core", "homes", "map", "spawns", "teleporting", "warps"),
-                new ArrayList<>());
+                args[0], Arrays.asList("core", "homes", "map", "spawns", "teleporting", "warps"), new ArrayList<>());
     }
 }

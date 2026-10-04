@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
-public class DummyTpHereOffline extends TeleportATCommand{
+public class DummyTpHereOffline extends TeleportATCommand {
 
     @Override
     public @NotNull String getPermission() {
@@ -13,7 +13,8 @@ public class DummyTpHereOffline extends TeleportATCommand{
     }
 
     @Override
-    public boolean onCommand(@NonNull CommandSender sender, @NonNull Command command, @NonNull String label, @NonNull String[] args) {
+    public boolean onCommand(
+            @NonNull CommandSender sender, @NonNull Command command, @NonNull String label, @NonNull String[] args) {
         return false;
     }
 

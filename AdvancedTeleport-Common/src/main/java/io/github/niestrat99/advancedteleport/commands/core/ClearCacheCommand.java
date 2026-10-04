@@ -4,9 +4,9 @@ import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.managers.RTPManager;
-
+import java.util.ArrayList;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -15,17 +15,11 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ClearCacheCommand extends SubATCommand {
 
     @Override
     public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String[] args) {
+            @NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
         // If the RTP manager isn't set up, stop there
         if (!RTPManager.isInitialised()) {
@@ -39,13 +33,11 @@ public class ClearCacheCommand extends SubATCommand {
 
             // Reload the data
             Bukkit.getScheduler()
-                    .runTaskAsynchronously(
-                            CoreAdvancedTeleport.getInstance().getPlugin(),
-                            () -> {
-                                for (World world : Bukkit.getWorlds()) {
-                                    RTPManager.loadWorldData(world);
-                                }
-                            });
+                    .runTaskAsynchronously(CoreAdvancedTeleport.getInstance().getPlugin(), () -> {
+                        for (World world : Bukkit.getWorlds()) {
+                            RTPManager.loadWorldData(world);
+                        }
+                    });
 
             CustomMessages.sendMessage(sender, "Info.clearEverything");
             return true;
@@ -65,17 +57,13 @@ public class ClearCacheCommand extends SubATCommand {
         Bukkit.getScheduler()
                 .runTaskAsynchronously(
                         CoreAdvancedTeleport.getInstance().getPlugin(), () -> RTPManager.loadWorldData(world));
-        CustomMessages.sendMessage(
-                sender, "Info.clearWorld", Placeholder.unparsed("world", args[0]));
+        CustomMessages.sendMessage(sender, "Info.clearWorld", Placeholder.unparsed("world", args[0]));
         return true;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String s,
-            @NotNull String[] args) {
+            @NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
         // If we're on the first argument, set up a list of worlds
         List<String> results = new ArrayList<>();

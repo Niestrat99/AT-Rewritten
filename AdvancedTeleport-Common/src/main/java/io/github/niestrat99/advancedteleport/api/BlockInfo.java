@@ -1,14 +1,13 @@
 package io.github.niestrat99.advancedteleport.api;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.UUID;
 
 /** Represents */
 public final class BlockInfo {
@@ -21,10 +20,7 @@ public final class BlockInfo {
 
     @Contract(pure = true)
     public BlockInfo(
-            @NotNull final UUID receiver,
-            @NotNull final UUID blocked,
-            @Nullable final String reason,
-            final long time) {
+            @NotNull final UUID receiver, @NotNull final UUID blocked, @Nullable final String reason, final long time) {
         this.receiverUUID = receiver;
         this.blockedUUID = blocked;
         this.reason = reason;

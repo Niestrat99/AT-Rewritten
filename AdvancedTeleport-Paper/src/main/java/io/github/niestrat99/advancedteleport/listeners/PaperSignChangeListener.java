@@ -3,9 +3,7 @@ package io.github.niestrat99.advancedteleport.listeners;
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-
 import net.kyori.adventure.text.TextComponent;
-
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -24,8 +22,7 @@ public class PaperSignChangeListener implements Listener {
         final BlockState state = block.getState();
         final Player player = event.getPlayer();
 
-        CoreAdvancedTeleport.debug(
-                "SignChangeEvent fired, first of all, is it a sign?: " + (state instanceof Sign));
+        CoreAdvancedTeleport.debug("SignChangeEvent fired, first of all, is it a sign?: " + (state instanceof Sign));
 
         // Make sure it's a sign
         if (!(state instanceof Sign)) return;
@@ -41,9 +38,8 @@ public class PaperSignChangeListener implements Listener {
         if (atSign == null) return;
 
         CoreAdvancedTeleport.debug("Is the sign enabled?: " + atSign.isEnabled());
-        CoreAdvancedTeleport.debug(
-                "Does the player have permission to create the sign?: "
-                        + player.hasPermission(atSign.getAdminPermission()));
+        CoreAdvancedTeleport.debug("Does the player have permission to create the sign?: "
+                + player.hasPermission(atSign.getAdminPermission()));
 
         if (!atSign.isEnabled()) return;
         if (player.hasPermission(atSign.getAdminPermission())) {

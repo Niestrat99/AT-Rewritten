@@ -1,7 +1,6 @@
 package io.github.niestrat99.advancedteleport.payments.types;
 
 import io.github.niestrat99.advancedteleport.payments.Payment;
-
 import org.bukkit.entity.Player;
 
 public class LevelsPayment extends Payment {

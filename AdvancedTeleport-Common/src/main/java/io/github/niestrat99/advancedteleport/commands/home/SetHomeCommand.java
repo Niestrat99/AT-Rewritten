@@ -6,18 +6,15 @@ import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
+import java.util.ArrayList;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class SetHomeCommand extends AbstractHomeCommand implements PlayerCommand {
 
@@ -78,8 +75,7 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
         }
 
         // If the player can set more homes,
-        if (atPlayer.canSetMoreHomes()
-                || (MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
+        if (atPlayer.canSetMoreHomes() || (MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(args[0]))) {
             setHome(player, args[0]);
 
         } else {
@@ -102,23 +98,20 @@ public final class SetHomeCommand extends AbstractHomeCommand implements PlayerC
         // If the home with that name already exists, and we can't overwrite homes, let the player
         // know
         if (!MainConfig.get().OVERWRITE_SETHOME.get() && atPlayer.hasHome(homeName)) {
-            CustomMessages.sendMessage(
-                    sender, "Error.homeAlreadySet", Placeholder.unparsed("home", homeName));
+            CustomMessages.sendMessage(sender, "Error.homeAlreadySet", Placeholder.unparsed("home", homeName));
             return;
         }
 
         // Attempt to add the home.
         atPlayer.addHome(homeName, sender.getLocation(), sender)
-                .whenComplete(
-                        (ignored, err) ->
-                                CustomMessages.failableContextualPath(
-                                        sender,
-                                        target,
-                                        "Info.setHome",
-                                        "Error.setHomeFail",
-                                        err,
-                                        Placeholder.unparsed("home", homeName),
-                                        Placeholder.unparsed("player", playerName)));
+                .whenComplete((ignored, err) -> CustomMessages.failableContextualPath(
+                        sender,
+                        target,
+                        "Info.setHome",
+                        "Error.setHomeFail",
+                        err,
+                        Placeholder.unparsed("home", homeName),
+                        Placeholder.unparsed("player", playerName)));
     }
 
     @Override

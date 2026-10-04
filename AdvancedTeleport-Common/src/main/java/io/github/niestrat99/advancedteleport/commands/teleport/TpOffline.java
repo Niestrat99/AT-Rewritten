@@ -4,9 +4,7 @@ import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.papermc.lib.PaperLib;
-
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -37,17 +35,13 @@ public final class TpOffline extends TeleportATCommand implements PlayerCommand 
         OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
         Location location = player.getLocation();
         if (location == null) {
-            CustomMessages.sendMessage(sender,
-                            "Error.noOfflineLocation",
-                            Placeholder.unparsed("player", args[0]));
+            CustomMessages.sendMessage(sender, "Error.noOfflineLocation", Placeholder.unparsed("player", args[0]));
             return true;
         }
 
-        PaperLib.teleportAsync((Player) sender, location);  // TODO use proper method
+        PaperLib.teleportAsync((Player) sender, location); // TODO use proper method
         CustomMessages.sendMessage(
-                sender,
-                "Teleport.teleportedToOfflinePlayer",
-                Placeholder.unparsed("player", args[0]));
+                sender, "Teleport.teleportedToOfflinePlayer", Placeholder.unparsed("player", args[0]));
         return true;
     }
 

@@ -1,9 +1,9 @@
 package io.github.niestrat99.advancedteleport.commands;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-
+import java.util.ArrayList;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -11,9 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Represents the base implementation for a command in AT. */
 public abstract class ATCommand implements IATCommand {
@@ -44,8 +41,7 @@ public abstract class ATCommand implements IATCommand {
             @NotNull final String[] args) {
         final var checkVisibility = sender instanceof Player;
         final var players =
-                Bukkit.getOnlinePlayers()
-                        .stream() // TODO - see how performance intensive this is (love streams)
+                Bukkit.getOnlinePlayers().stream() // TODO - see how performance intensive this is (love streams)
                         .filter(player -> !checkVisibility || ((Player) sender).canSee(player))
                         .map(Player::getName)
                         .toList();

@@ -11,7 +11,13 @@ public class WorldlessLocation extends Location {
     private @NotNull String worldName;
 
     public WorldlessLocation(@NotNull Location location, @NotNull String worldName) {
-        super(location.getWorld(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        super(
+                location.getWorld(),
+                location.getX(),
+                location.getY(),
+                location.getZ(),
+                location.getYaw(),
+                location.getPitch());
         this.worldName = worldName;
     }
 

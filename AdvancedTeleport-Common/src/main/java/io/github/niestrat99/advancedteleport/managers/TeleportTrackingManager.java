@@ -3,16 +3,14 @@ package io.github.niestrat99.advancedteleport.managers;
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
+import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.api.Warp;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
-import io.github.niestrat99.advancedteleport.api.Spawn;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
-
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -42,7 +40,8 @@ public class TeleportTrackingManager implements Listener {
 
         // If the player hasn't played before and needs teleporting, go there
         boolean teleported = false;
-        if (!player.hasPlayedBefore() && MainConfig.get().TELEPORT_TO_SPAWN_FIRST.get()) {
+        if (!player.hasPlayedBefore()
+                && MainConfig.get().TELEPORT_TO_SPAWN_FIRST.get()) {
 
             final String name = MainConfig.get().FIRST_SPAWN_POINT.get();
             final Spawn spawn = AdvancedTeleportAPI.getSpawn(name);
@@ -55,13 +54,15 @@ public class TeleportTrackingManager implements Listener {
                 spawn(player, AdvancedTeleportAPI.getMainSpawn().getLocation());
                 teleported = true;
             } else {
-                CoreAdvancedTeleport.getInstance().getPlugin()
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
                         .getLogger()
                         .warning("First-join teleport point " + name + " does not exist.");
             }
         }
 
-        if (!player.hasPlayedBefore() && MainConfig.get().USE_RANDOM_LOCATION_FIRST_SPAWN_POINT.get()) {
+        if (!player.hasPlayedBefore()
+                && MainConfig.get().USE_RANDOM_LOCATION_FIRST_SPAWN_POINT.get()) {
 
             String worldName = MainConfig.get().FIRST_RANDOM_LOCATION_WORLD_NAME.get();
             if (worldName == null || worldName.isEmpty()) {
@@ -70,30 +71,44 @@ public class TeleportTrackingManager implements Listener {
                 }
             }
 
-            World targetWorld = worldName == null || worldName.isEmpty() ? player.getWorld() : Bukkit.getWorld(worldName);
+            World targetWorld =
+                    worldName == null || worldName.isEmpty() ? player.getWorld() : Bukkit.getWorld(worldName);
             if (targetWorld != null) {
 
                 teleported = true;
-                AdvancedTeleportAPI.getRandomLocation(targetWorld, player).whenCompleteAsync((result, err) -> {
+                AdvancedTeleportAPI.getRandomLocation(targetWorld, player)
+                        .whenCompleteAsync(
+                                (result, err) -> {
+                                    if (err != null) {
+                                        CoreAdvancedTeleport.getInstance()
+                                                .getPlugin()
+                                                .getLogger()
+                                                .warning("Failed to randomly teleport " + player.getName()
+                                                        + " on their first join! No location could be found.");
+                                        return;
+                                    }
 
-                    if (err != null) {
-                        CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Failed to randomly teleport " + player.getName()
-                                + " on their first join! No location could be found.");
-                        return;
-                    }
+                                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
+                                    spawn(player, result);
+                                    InvulnerabilityManager.createInvulnerability(
+                                            player, atPlayer.getInvulnerability("tpr", result.getWorld()));
+                                    ParticleManager.onPostTeleport(player, "tpr");
 
-                    ATPlayer atPlayer = ATPlayer.getPlayer(player);
-                    spawn(player, result);
-                    InvulnerabilityManager.createInvulnerability(player, atPlayer.getInvulnerability("tpr", result.getWorld()));
-                    ParticleManager.onPostTeleport(player, "tpr");
-
-                    if (MainConfig.get().USE_HOMES.get() && MainConfig.get().SET_RANDOM_FIRST_LOCATION_HOME.get()) {
-                        atPlayer.addHome("home", result);
-                    }
-                }, CoreAdvancedTeleport.sync);
+                                    if (MainConfig.get().USE_HOMES.get()
+                                            && MainConfig.get()
+                                                    .SET_RANDOM_FIRST_LOCATION_HOME
+                                                    .get()) {
+                                        atPlayer.addHome("home", result);
+                                    }
+                                },
+                                CoreAdvancedTeleport.sync);
             } else {
-                CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Failed to randomly teleport " + player.getName()
-                        + " on their first join! The target world (" + worldName + ") either doesn't exist or wasn't specified.");
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
+                        .getLogger()
+                        .warning("Failed to randomly teleport " + player.getName()
+                                + " on their first join! The target world (" + worldName
+                                + ") either doesn't exist or wasn't specified.");
             }
         }
 
@@ -108,21 +123,15 @@ public class TeleportTrackingManager implements Listener {
         Bukkit.getScheduler()
                 .runTaskLater(
                         CoreAdvancedTeleport.getInstance().getPlugin(),
-                        () ->
-                                CoreAdvancedTeleport.getInstance().teleportWithOptions(
-                                                player,
-                                                spawn,
-                                                PlayerTeleportEvent.TeleportCause.PLUGIN)
-                                        .whenComplete(
-                                                (result, err) -> {
-                                                    if (!result)
-                                                        CoreAdvancedTeleport.getInstance().getPlugin()
-                                                                .getLogger()
-                                                                .warning(
-                                                                        "Failed to teleport "
-                                                                                + player.getName()
-                                                                                + " on joining.");
-                                                }),
+                        () -> CoreAdvancedTeleport.getInstance()
+                                .teleportWithOptions(player, spawn, PlayerTeleportEvent.TeleportCause.PLUGIN)
+                                .whenComplete((result, err) -> {
+                                    if (!result)
+                                        CoreAdvancedTeleport.getInstance()
+                                                .getPlugin()
+                                                .getLogger()
+                                                .warning("Failed to teleport " + player.getName() + " on joining.");
+                                }),
                         10L);
     }
 
@@ -143,13 +152,18 @@ public class TeleportTrackingManager implements Listener {
             return;
         }
 
-        CoreAdvancedTeleport.debug("Testing to see if " + e.getPlayer().getName() + " can have their location changed via a " + e.getCause().name() + " teleport...");
+        CoreAdvancedTeleport.debug("Testing to see if " + e.getPlayer().getName()
+                + " can have their location changed via a " + e.getCause().name() + " teleport...");
 
         // If the player can /back to this location, then set their previous location to it
         if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
-                && MainConfig.get().BACK_TELEPORT_CAUSES.get().contains(e.getCause().name())) {
+                && MainConfig.get()
+                        .BACK_TELEPORT_CAUSES
+                        .get()
+                        .contains(e.getCause().name())) {
 
-            CoreAdvancedTeleport.debug(e.getPlayer().getName() + "'s back location has been updated to " + CoreAdvancedTeleport.getShortLocation(e.getFrom()));
+            CoreAdvancedTeleport.debug(e.getPlayer().getName() + "'s back location has been updated to "
+                    + CoreAdvancedTeleport.getShortLocation(e.getFrom()));
             ATPlayer.getPlayer(e.getPlayer()).setPreviousLocation(e.getFrom());
         }
     }
@@ -161,13 +175,8 @@ public class TeleportTrackingManager implements Listener {
         if (!e.getType().isRestricted()) return;
 
         // If the player can't teleport, stop there
-        String result =
-                ConditionChecker.canTeleport(
-                        e.getFromLocation(),
-                        e.getToLocation(),
-                        e.getType().getName(),
-                        e.getPlayer(),
-                        e.getLocName());
+        String result = ConditionChecker.canTeleport(
+                e.getFromLocation(), e.getToLocation(), e.getType().getName(), e.getPlayer(), e.getLocName());
         if (result != null) {
             CustomMessages.sendMessage(
                     e.getPlayer(),
@@ -185,12 +194,13 @@ public class TeleportTrackingManager implements Listener {
 
         // If the player can have their death location set, then set it
 
-        CoreAdvancedTeleport.debug("Testing to see if " + e.getEntity().getName() + " can have their location changed via death...");
+        CoreAdvancedTeleport.debug(
+                "Testing to see if " + e.getEntity().getName() + " can have their location changed via death...");
 
-        if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get()
-                && e.getEntity().hasPermission("at.member.back.death")) {
+        if (MainConfig.get().USE_BASIC_TELEPORT_FEATURES.get() && e.getEntity().hasPermission("at.member.back.death")) {
 
-            CoreAdvancedTeleport.debug(e.getEntity().getName() + "'s back (death) location has been updated to " + CoreAdvancedTeleport.getShortLocation(e.getEntity().getLocation()));
+            CoreAdvancedTeleport.debug(e.getEntity().getName() + "'s back (death) location has been updated to "
+                    + CoreAdvancedTeleport.getShortLocation(e.getEntity().getLocation()));
             ATPlayer.getPlayer(e.getEntity()).setPreviousLocation(e.getEntity().getLocation());
         }
     }
@@ -224,19 +234,16 @@ public class TeleportTrackingManager implements Listener {
         }
     }
 
-    private static boolean handleSpawn(
-            @NotNull PlayerRespawnEvent e, @NotNull String spawnCommand) {
+    private static boolean handleSpawn(@NotNull PlayerRespawnEvent e, @NotNull String spawnCommand) {
 
         // Get the base stuff
         final var atPlayer = ATPlayer.getPlayer(e.getPlayer());
         final var deathManagement = MainConfig.get().DEATH_MANAGEMENT.get();
-        final var operatingWorld =
-                (atPlayer.getPreviousLocation() == null
-                        ? (AdvancedTeleportAPI.getMainSpawn() == null
-                                ? Bukkit.getWorlds().get(0)
-                                : AdvancedTeleportAPI.getMainSpawn().getLocation().getWorld())
-                        : atPlayer.getPreviousLocation()
-                                .getWorld()); // this should really be tidier
+        final var operatingWorld = (atPlayer.getPreviousLocation() == null
+                ? (AdvancedTeleportAPI.getMainSpawn() == null
+                        ? Bukkit.getWorlds().get(0)
+                        : AdvancedTeleportAPI.getMainSpawn().getLocation().getWorld())
+                : atPlayer.getPreviousLocation().getWorld()); // this should really be tidier
 
         // If the default option is being used, check there - if it's invalid or such, stop there
         if (spawnCommand.equals("default")) {
@@ -274,7 +281,8 @@ public class TeleportTrackingManager implements Listener {
         if (spawnCommand.equals("spawn")) {
             final Spawn spawn = AdvancedTeleportAPI.getDestinationSpawn(operatingWorld, e.getPlayer());
             e.setRespawnLocation(spawn.getLocation());
-            CoreAdvancedTeleport.debug("Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(spawn.getLocation()));
+            CoreAdvancedTeleport.debug(
+                    "Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(spawn.getLocation()));
             return true;
         }
 
@@ -284,7 +292,9 @@ public class TeleportTrackingManager implements Listener {
             // If there's a main home, use that
             if (atPlayer.getMainHome() != null) {
                 e.setRespawnLocation(atPlayer.getMainHome().getLocation());
-                CoreAdvancedTeleport.debug("Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(atPlayer.getMainHome().getLocation()));
+                CoreAdvancedTeleport.debug("Respawn location set to: "
+                        + CoreAdvancedTeleport.getShortLocation(
+                                atPlayer.getMainHome().getLocation()));
                 return true;
             }
 
@@ -292,7 +302,8 @@ public class TeleportTrackingManager implements Listener {
             if (!atPlayer.getHomes().isEmpty()) {
                 final var home = atPlayer.getHomes().values().iterator().next();
                 e.setRespawnLocation(home.getLocation());
-                CoreAdvancedTeleport.debug("Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(home.getLocation()));
+                CoreAdvancedTeleport.debug(
+                        "Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(home.getLocation()));
                 return true;
             }
         }
@@ -316,16 +327,18 @@ public class TeleportTrackingManager implements Listener {
                 // If it exists, set it, otherwise, send a warning
                 if (warp != null) {
                     e.setRespawnLocation(warp.getLocation());
-                    CoreAdvancedTeleport.debug("Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(warp.getLocation()));
+                    CoreAdvancedTeleport.debug(
+                            "Respawn location set to: " + CoreAdvancedTeleport.getShortLocation(warp.getLocation()));
                     return true;
                 } else {
-                    CoreAdvancedTeleport.getInstance().getPlugin()
+                    CoreAdvancedTeleport.getInstance()
+                            .getPlugin()
                             .getLogger()
-                            .warning(
-                                    "Unknown warp " + warpName + " for death in " + operatingWorld);
+                            .warning("Unknown warp " + warpName + " for death in " + operatingWorld);
                 }
             } catch (IndexOutOfBoundsException ex) {
-                CoreAdvancedTeleport.getInstance().getPlugin()
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
                         .getLogger()
                         .warning("Malformed warp name for death in " + operatingWorld);
             }

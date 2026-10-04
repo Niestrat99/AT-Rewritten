@@ -2,15 +2,13 @@ package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
 public class DistanceLimiter {
 
-    public static boolean canTeleport(
-            Location loc1, Location loc2, String command, ATPlayer player) {
+    public static boolean canTeleport(Location loc1, Location loc2, String command, ATPlayer player) {
         return canTeleport(loc1, loc2, command, player, null);
     }
 

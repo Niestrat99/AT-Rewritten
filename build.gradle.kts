@@ -69,6 +69,8 @@ allprojects {
             name = "PlayerParticles"
             content { includeGroup("dev.esophose") }
         }
+
+        maven("https://dependency.download/releases")
     }
 }
 

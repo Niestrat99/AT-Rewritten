@@ -4,18 +4,14 @@ import io.github.niestrat99.advancedteleport.api.TeleportRequest;
 import io.github.niestrat99.advancedteleport.commands.PlayerCommand;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.PagedLists;
-
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public final class TpList extends TeleportATCommand implements PlayerCommand {
 
@@ -36,8 +32,7 @@ public final class TpList extends TeleportATCommand implements PlayerCommand {
         }
 
         if (args.length == 0) {
-            PagedLists<TeleportRequest> requests =
-                    new PagedLists<>(TeleportRequest.getRequests(player), 8);
+            PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequests(player), 8);
             sendWithHeader(1, requests, player);
 
             return true;
@@ -50,8 +45,7 @@ public final class TpList extends TeleportATCommand implements PlayerCommand {
         if (args[0].matches("^[0-9]+$")) {
             // args[0] is officially an int.
             int page = Integer.parseInt(args[0]);
-            PagedLists<TeleportRequest> requests =
-                    new PagedLists<>(TeleportRequest.getRequests(player), 8);
+            PagedLists<TeleportRequest> requests = new PagedLists<>(TeleportRequest.getRequests(player), 8);
             try {
                 sendWithHeader(page, requests, player);
             } catch (IllegalArgumentException ex) {
@@ -65,23 +59,16 @@ public final class TpList extends TeleportATCommand implements PlayerCommand {
     }
 
     private static void sendWithHeader(
-            final int page,
-            @NotNull final PagedLists<TeleportRequest> requests,
-            @NotNull final Player player) {
-        final var body =
-                CustomMessages.getPagesComponent(
-                        page,
-                        requests,
-                        request ->
-                                CustomMessages.get(
-                                        "Info.multipleRequestsIndex",
-                                        Placeholder.unparsed("command", "/tpayes"),
-                                        Placeholder.unparsed(
-                                                "player",
-                                                request.requester()
-                                                        .getName()) // TODO: Try use player
-                                                                    // DisplayName
-                                        ));
+            final int page, @NotNull final PagedLists<TeleportRequest> requests, @NotNull final Player player) {
+        final var body = CustomMessages.getPagesComponent(
+                page,
+                requests,
+                request -> CustomMessages.get(
+                        "Info.multipleRequestsIndex",
+                        Placeholder.unparsed("command", "/tpayes"),
+                        Placeholder.unparsed("player", request.requester().getName()) // TODO: Try use player
+                        // DisplayName
+                        ));
 
         CustomMessages.sendMessage(player, "Info.multipleRequestAccept");
         CustomMessages.sendMessage(player, body);

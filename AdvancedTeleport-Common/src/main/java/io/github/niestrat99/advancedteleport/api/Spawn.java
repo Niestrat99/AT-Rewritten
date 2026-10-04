@@ -7,6 +7,8 @@ import io.github.niestrat99.advancedteleport.api.events.spawn.SpawnRemoveEvent;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,15 +16,16 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
 public class Spawn implements NamedLocation {
 
     @NotNull private final String name;
+
     @Nullable private final UUID creator;
+
     @NotNull private Location location;
+
     @Nullable private Spawn mirroringSpawn;
+
     private final long createdTime;
     private long updatedTime;
 
@@ -42,7 +45,9 @@ public class Spawn implements NamedLocation {
             final long createdTime,
             final long updatedTime) {
         this.name = name;
-        this.location = location instanceof WorldlessLocation ? location : new WorldlessLocation(location, location.getWorld().getName());
+        this.location = location instanceof WorldlessLocation
+                ? location
+                : new WorldlessLocation(location, location.getWorld().getName());
         this.creator = creator;
         this.mirroringSpawn = mirroringSpawn;
 
@@ -61,23 +66,18 @@ public class Spawn implements NamedLocation {
     }
 
     @Contract(pure = true)
-    public CompletableFuture<Location> setLocation(
-            @NotNull Location location, @Nullable CommandSender sender) {
+    public CompletableFuture<Location> setLocation(@NotNull Location location, @Nullable CommandSender sender) {
 
         // If the event was cancelled, stop there
-        return AdvancedTeleportAPI.validateEvent(
-                new SpawnMoveEvent(this, location, sender),
-                event -> {
+        return AdvancedTeleportAPI.validateEvent(new SpawnMoveEvent(this, location, sender), event -> {
 
-                    // Set the location
-                    this.location = event.getNewLocation();
-                    this.updatedTime = System.currentTimeMillis();
+            // Set the location
+            this.location = event.getNewLocation();
+            this.updatedTime = System.currentTimeMillis();
 
-                    // Update in the database
-                    return SpawnSQLManager.get()
-                            .moveSpawn(this)
-                            .thenApplyAsync(result -> this.location);
-                });
+            // Update in the database
+            return SpawnSQLManager.get().moveSpawn(this).thenApplyAsync(result -> this.location);
+        });
     }
 
     @Contract(pure = true)
@@ -103,56 +103,51 @@ public class Spawn implements NamedLocation {
      * @return a completable future action of the new main spawn.
      */
     @Contract(pure = true)
-    public CompletableFuture<Spawn> setMirroringSpawn(
-            @Nullable Spawn mirroringSpawn, @Nullable CommandSender sender) {
+    public CompletableFuture<Spawn> setMirroringSpawn(@Nullable Spawn mirroringSpawn, @Nullable CommandSender sender) {
 
         // See if the event passes first
-        return AdvancedTeleportAPI.validateEvent(
-                new SpawnMirrorEvent(this, mirroringSpawn, sender),
-                event -> {
+        return AdvancedTeleportAPI.validateEvent(new SpawnMirrorEvent(this, mirroringSpawn, sender), event -> {
 
-                    // Set the mirroring spawn
-                    this.mirroringSpawn = event.getDestinationSpawn();
-                    this.updatedTime = System.currentTimeMillis();
+            // Set the mirroring spawn
+            this.mirroringSpawn = event.getDestinationSpawn();
+            this.updatedTime = System.currentTimeMillis();
 
-                    // If we're not in the spawns cache, add ourselves
-                    NamedLocationManager.get().addMirroredSpawn(getName(), this.mirroringSpawn);
+            // If we're not in the spawns cache, add ourselves
+            NamedLocationManager.get().addMirroredSpawn(getName(), this.mirroringSpawn);
 
-                    // Update it in the database
-                    return MetadataSQLManager.get()
-                            .mirrorSpawn(
-                                    this.getName(),
-                                    event.getDestinationSpawn() == null
-                                            ? null
-                                            : event.getDestinationSpawn().getName())
-                            .thenApplyAsync(result -> this.mirroringSpawn);
-                });
+            // Update it in the database
+            return MetadataSQLManager.get()
+                    .mirrorSpawn(
+                            this.getName(),
+                            event.getDestinationSpawn() == null
+                                    ? null
+                                    : event.getDestinationSpawn().getName())
+                    .thenApplyAsync(result -> this.mirroringSpawn);
+        });
     }
 
     @Contract(pure = true)
     public CompletableFuture<Void> delete(@Nullable CommandSender sender) {
 
         // See if the event passes first
-        return AdvancedTeleportAPI.validateEvent(
-                new SpawnRemoveEvent(this, sender),
-                event -> {
+        return AdvancedTeleportAPI.validateEvent(new SpawnRemoveEvent(this, sender), event -> {
 
-                    // If this is the main spawn, then remove that too
-                    if (AdvancedTeleportAPI.getMainSpawn() == this) {
-                        return AdvancedTeleportAPI.setMainSpawn(null, sender)
-                                .thenAcceptAsync(
-                                        nullSpawn -> {
-                                            NamedLocationManager.get().removeSpawn(this);
-                                            SpawnSQLManager.get().removeSpawn(name).join();
-                                        },
-                                        CoreAdvancedTeleport.async);
-                    }
+            // If this is the main spawn, then remove that too
+            if (AdvancedTeleportAPI.getMainSpawn() == this) {
+                return AdvancedTeleportAPI.setMainSpawn(null, sender)
+                        .thenAcceptAsync(
+                                nullSpawn -> {
+                                    NamedLocationManager.get().removeSpawn(this);
+                                    SpawnSQLManager.get().removeSpawn(name).join();
+                                },
+                                CoreAdvancedTeleport.async);
+            }
 
-                    // Remove the spawn
-                    NamedLocationManager.get().removeSpawn(this);
-                    return CompletableFuture.runAsync(
-                            () -> SpawnSQLManager.get().removeSpawn(name), CoreAdvancedTeleport.async);
-                });
+            // Remove the spawn
+            NamedLocationManager.get().removeSpawn(this);
+            return CompletableFuture.runAsync(
+                    () -> SpawnSQLManager.get().removeSpawn(name), CoreAdvancedTeleport.async);
+        });
     }
 
     @Contract(pure = true)

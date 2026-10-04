@@ -6,7 +6,11 @@
 package io.github.niestrat99.advancedteleport.utilities;
 
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
-
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -23,12 +27,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.regex.Pattern;
 
 public class IconMenu implements Listener, InventoryHolder {
 
@@ -212,13 +210,14 @@ public class IconMenu implements Listener, InventoryHolder {
         }
 
         public Icon withTexture(String texture) {
-            if (item.getType() == Material.PLAYER_HEAD
-                    && texture != null
-                    && !texture.isEmpty()) {
+            if (item.getType() == Material.PLAYER_HEAD && texture != null && !texture.isEmpty()) {
                 try {
                     CoreAdvancedTeleport.getInstance().setTexture(item, texture);
                 } catch (MalformedURLException e) {
-                    CoreAdvancedTeleport.getInstance().getPlugin().getLogger().warning("Failed to parse " + texture + " into a valid head texture.");
+                    CoreAdvancedTeleport.getInstance()
+                            .getPlugin()
+                            .getLogger()
+                            .warning("Failed to parse " + texture + " into a valid head texture.");
                 }
             }
             return this;

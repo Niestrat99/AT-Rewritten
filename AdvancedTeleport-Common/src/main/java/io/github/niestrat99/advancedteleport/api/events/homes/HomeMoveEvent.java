@@ -18,9 +18,7 @@ public class HomeMoveEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public HomeMoveEvent(
-            @NotNull final Home home,
-            @NotNull final Location location,
-            @Nullable final CommandSender sender) {
+            @NotNull final Home home, @NotNull final Location location, @Nullable final CommandSender sender) {
         super(sender);
         this.home = home;
         this.location = location;
@@ -53,8 +51,7 @@ public class HomeMoveEvent extends TrackableATEvent {
      */
     @Contract(pure = true)
     public void setLocation(@NotNull final Location location) {
-        if (!location.isWorldLoaded())
-            throw new IllegalStateException("The new location's world is not loaded.");
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The new location's world is not loaded.");
         this.location = location;
     }
 

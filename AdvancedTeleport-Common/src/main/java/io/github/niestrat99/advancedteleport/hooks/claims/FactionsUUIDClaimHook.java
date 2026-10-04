@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.hooks.claims;
 
-import com.massivecraft.factions.*;
-import com.massivecraft.factions.perms.Relation;
+import dev.kitteh.factions.*;
+import dev.kitteh.factions.permissible.Relation;
 import io.github.niestrat99.advancedteleport.hooks.ClaimPlugin;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -16,26 +16,26 @@ public class FactionsUUIDClaimHook extends ClaimPlugin<Plugin, FactionsPlugin> {
 
     @Override
     public boolean isClaimed(@NotNull Location location) {
-
-        // Check if there's a faction
-        final FLocation fLocation = new FLocation(location);
-        final Faction faction = Board.getInstance().getFactionAt(fLocation);
-        return faction != null;
+        return !isPublicZone(getFaction(location));
     }
 
     @Override
     public boolean canAccess(@NotNull Player player, @NotNull Location location) {
+        final Faction faction = getFaction(location);
+        if (isPublicZone(faction)) return true;
 
-        // Check if there's a faction
-        final FLocation fLocation = new FLocation(location);
-        final Faction faction = Board.getInstance().getFactionAt(fLocation);
-        if (faction == null) return true;
-        if (faction.isWilderness() || faction.isSafeZone() || faction.isWarZone()) return true;
-
-        // Check if the player has access
-        final FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-        final Relation relation = faction.getRelationTo(fPlayer);
+        final FPlayer fPlayer = FPlayers.fPlayers().get(player);
+        final Relation relation = faction.relationTo(fPlayer);
 
         return relation.isMember() || relation.isAlly() || relation.isTruce();
+    }
+
+    private Faction getFaction(@NotNull Location location) {
+        final FLocation fLocation = new FLocation(location);
+        return Board.board().factionAt(fLocation);
+    }
+
+    private boolean isPublicZone(Faction faction) {
+        return faction.isWilderness() || faction.isSafeZone() || faction.isWarZone();
     }
 }

@@ -1,15 +1,17 @@
 package io.github.niestrat99.advancedteleport.commands.teleport;
 
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
-import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.events.ATTeleportEvent;
 import io.github.niestrat99.advancedteleport.commands.TeleportATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.utilities.ConditionChecker;
-
 import io.github.niestrat99.advancedteleport.utilities.Pair;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.regex.Pattern;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,12 +23,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.regex.Pattern;
 
 public final class TpLoc extends TeleportATCommand {
 
@@ -79,12 +75,7 @@ public final class TpLoc extends TeleportATCommand {
         }
 
         ATTeleportEvent event =
-                new ATTeleportEvent(
-                        target,
-                        location,
-                        target.getLocation(),
-                        "",
-                        ATTeleportEvent.TeleportType.TPLOC);
+                new ATTeleportEvent(target, location, target.getLocation(), "", ATTeleportEvent.TeleportType.TPLOC);
         Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
             Location blockBelow = location.clone().add(0, -1, 0);
@@ -94,8 +85,8 @@ public final class TpLoc extends TeleportATCommand {
                     && blockBelow.getBlock().getType() == Material.AIR) {
                 target.setFlying(true);
             }
-            CoreAdvancedTeleport.getInstance().teleportWithOptions(
-                    target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
+            CoreAdvancedTeleport.getInstance()
+                    .teleportWithOptions(target, location, PlayerTeleportEvent.TeleportCause.COMMAND);
             if (sender != target) {
                 CustomMessages.sendMessage(
                         sender,
@@ -138,39 +129,32 @@ public final class TpLoc extends TeleportATCommand {
 
     @Override
     public List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String[] args) {
+            @NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> results = new ArrayList<>();
         if (sender instanceof Player player) {
             Location location = player.getLocation();
             switch (args.length) {
-                case 1 -> StringUtil.copyPartialMatches(
-                        args[0],
-                        Arrays.asList(
-                                String.valueOf(location.getX()),
-                                String.valueOf(location.getBlockX()),
-                                "~"),
-                        results);
-                case 2 -> StringUtil.copyPartialMatches(
-                        args[1],
-                        Arrays.asList(
-                                String.valueOf(location.getY()),
-                                String.valueOf(location.getBlockY()),
-                                "~"),
-                        results);
-                case 3 -> StringUtil.copyPartialMatches(
-                        args[2],
-                        Arrays.asList(
-                                String.valueOf(location.getZ()),
-                                String.valueOf(location.getBlockZ()),
-                                "~"),
-                        results);
-                case 4 -> StringUtil.copyPartialMatches(
-                        args[3], Arrays.asList(String.valueOf(location.getYaw()), "~"), results);
-                case 5 -> StringUtil.copyPartialMatches(
-                        args[4], Arrays.asList(String.valueOf(location.getPitch()), "~"), results);
+                case 1 ->
+                    StringUtil.copyPartialMatches(
+                            args[0],
+                            Arrays.asList(String.valueOf(location.getX()), String.valueOf(location.getBlockX()), "~"),
+                            results);
+                case 2 ->
+                    StringUtil.copyPartialMatches(
+                            args[1],
+                            Arrays.asList(String.valueOf(location.getY()), String.valueOf(location.getBlockY()), "~"),
+                            results);
+                case 3 ->
+                    StringUtil.copyPartialMatches(
+                            args[2],
+                            Arrays.asList(String.valueOf(location.getZ()), String.valueOf(location.getBlockZ()), "~"),
+                            results);
+                case 4 ->
+                    StringUtil.copyPartialMatches(
+                            args[3], Arrays.asList(String.valueOf(location.getYaw()), "~"), results);
+                case 5 ->
+                    StringUtil.copyPartialMatches(
+                            args[4], Arrays.asList(String.valueOf(location.getPitch()), "~"), results);
                 case 6 -> {
                     List<String> worlds = new ArrayList<>();
                     for (World world : Bukkit.getWorlds()) {
@@ -181,14 +165,12 @@ public final class TpLoc extends TeleportATCommand {
                 }
                 case 7 -> {
                     if (player.hasPermission("at.admin.tploc.others")) {
-                        StringUtil.copyPartialMatches(
-                                args[6], ConditionChecker.getPlayers(player), results);
+                        StringUtil.copyPartialMatches(args[6], ConditionChecker.getPlayers(player), results);
                     }
                 }
                 case 8 -> {
                     if (player.hasPermission("at.admin.tploc.safe-teleport")) {
-                        StringUtil.copyPartialMatches(
-                                args[7], Arrays.asList("precise", "noflight"), results);
+                        StringUtil.copyPartialMatches(args[7], Arrays.asList("precise", "noflight"), results);
                     }
                 }
             }
@@ -253,7 +235,8 @@ public final class TpLoc extends TeleportATCommand {
         return new Location(world, loc[0], loc[1], loc[2], yaw, pitch);
     }
 
-    private @Nullable Pair<Location, Player> getLocation(final @NotNull CommandSender sender, final @NotNull String[] args) {
+    private @Nullable Pair<Location, Player> getLocation(
+            final @NotNull CommandSender sender, final @NotNull String[] args) {
         if (args.length < 7) {
             CustomMessages.sendMessage(sender, "Error.tooFewArguments");
             return null;

@@ -9,7 +9,6 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.AcceptRequest;
 import io.github.niestrat99.advancedteleport.utilities.TeleportTests;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -28,8 +27,7 @@ public final class TpYes extends TeleportATCommand implements PlayerCommand {
         Player player = (Player) sender;
         TeleportRequest request = TeleportTests.teleportTests(player, args, "tpayes");
         if (request == null) return true;
-        TeleportAcceptEvent event =
-                new TeleportAcceptEvent(request.responder(), request.requester(), request.type());
+        TeleportAcceptEvent event = new TeleportAcceptEvent(request.responder(), request.requester(), request.type());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             // Could not accept request.
@@ -42,9 +40,7 @@ public final class TpYes extends TeleportATCommand implements PlayerCommand {
             CooldownManager.addToCooldown(
                     request.type() == TeleportRequestType.TPAHERE ? "tpahere" : "tpa",
                     request.requester(),
-                    (request.type() == TeleportRequestType.TPAHERE
-                                    ? request.requester()
-                                    : request.responder())
+                    (request.type() == TeleportRequestType.TPAHERE ? request.requester() : request.responder())
                             .getWorld());
         }
         return true;

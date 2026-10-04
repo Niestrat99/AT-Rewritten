@@ -17,9 +17,7 @@ public final class SwitchMainHomeEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public SwitchMainHomeEvent(
-            @Nullable final Home oldMainHome,
-            @NotNull final Home newMainHome,
-            @Nullable final CommandSender sender) {
+            @Nullable final Home oldMainHome, @NotNull final Home newMainHome, @Nullable final CommandSender sender) {
         super(sender);
         this.oldMainHome = oldMainHome;
         this.newMainHome = newMainHome;

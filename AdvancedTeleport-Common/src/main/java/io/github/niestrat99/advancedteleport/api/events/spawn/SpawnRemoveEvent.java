@@ -1,7 +1,7 @@
 package io.github.niestrat99.advancedteleport.api.events.spawn;
 
-import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import io.github.niestrat99.advancedteleport.api.Spawn;
+import io.github.niestrat99.advancedteleport.api.events.TrackableATEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public final class SpawnRemoveEvent extends TrackableATEvent {
 
     @NotNull private static final HandlerList handlers = new HandlerList();
+
     @NotNull private final Spawn spawn;
 
     @Contract(pure = true)

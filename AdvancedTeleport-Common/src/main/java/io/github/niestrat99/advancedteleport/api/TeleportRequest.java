@@ -2,15 +2,14 @@ package io.github.niestrat99.advancedteleport.api;
 
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import java.util.ArrayList;
+import java.util.List;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @param requester The player sending the request.
@@ -25,8 +24,7 @@ public record TeleportRequest(
     private static final List<TeleportRequest> requestList = new ArrayList<>();
 
     @Contract(pure = true)
-    public static @NotNull List<TeleportRequest> getRequestsByRequester(
-            @NotNull final Player requester) {
+    public static @NotNull List<TeleportRequest> getRequestsByRequester(@NotNull final Player requester) {
         return requestList.stream()
                 .filter(request -> request.requester().equals(requester))
                 .toList();
@@ -53,17 +51,14 @@ public record TeleportRequest(
 
         // Find the other request and displace it
         final var shouldNotify = MainConfig.get().NOTIFY_ON_EXPIRE.get();
-        getRequests(request.responder())
-                .forEach(
-                        otherRequest -> {
-                            otherRequest.destroy();
-                            if (!shouldNotify) return;
-                            CustomMessages.sendMessage(
-                                    otherRequest.requester(),
-                                    "Error.requestDisplaced",
-                                    Placeholder.unparsed(
-                                            "player", otherRequest.responder().getName()));
-                        });
+        getRequests(request.responder()).forEach(otherRequest -> {
+            otherRequest.destroy();
+            if (!shouldNotify) return;
+            CustomMessages.sendMessage(
+                    otherRequest.requester(),
+                    "Error.requestDisplaced",
+                    Placeholder.unparsed("player", otherRequest.responder().getName()));
+        });
 
         // Add the request
         requestList.add(request);

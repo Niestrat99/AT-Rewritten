@@ -3,16 +3,13 @@ package io.github.niestrat99.advancedteleport.payments.types;
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.payments.Payment;
-
+import java.util.Collection;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.milkbowl.vault.economy.Economy;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 public class VaultPayment extends Payment {
 
@@ -30,8 +27,7 @@ public class VaultPayment extends Payment {
         if (economyName == null) {
             RegisteredServiceProvider<Economy> provider =
                     Bukkit.getServicesManager().getRegistration(Economy.class);
-            if (provider == null)
-                throw new IllegalStateException("There is no economy provider registered.");
+            if (provider == null) throw new IllegalStateException("There is no economy provider registered.");
             economy = provider.getProvider();
             return;
         }
@@ -42,7 +38,8 @@ public class VaultPayment extends Payment {
         for (RegisteredServiceProvider<Economy> provider : economies) {
 
             // See if the one specified is the one declared in economyName.
-            CoreAdvancedTeleport.getInstance().getPlugin()
+            CoreAdvancedTeleport.getInstance()
+                    .getPlugin()
                     .getLogger()
                     .info("Checking " + provider.getPlugin().getName() + " against " + economyName);
             if (!provider.getPlugin().getName().equals(economyName)) continue;
@@ -52,8 +49,7 @@ public class VaultPayment extends Payment {
 
         // If no economy has been picked, we got a problem
         if (economy == null)
-            throw new IllegalStateException(
-                    "There is no economy provider for " + economyName + " registered.");
+            throw new IllegalStateException("There is no economy provider for " + economyName + " registered.");
     }
 
     @Override
@@ -96,9 +92,7 @@ public class VaultPayment extends Payment {
         boolean result = super.canPay(player);
         if (!result) {
             CustomMessages.sendMessage(
-                    player,
-                    "Error.notEnoughMoney",
-                    Placeholder.parsed("amount", economy.format(price)));
+                    player, "Error.notEnoughMoney", Placeholder.parsed("amount", economy.format(price)));
         }
         return result;
     }

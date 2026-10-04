@@ -9,15 +9,13 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.CommandManager;
 import io.github.niestrat99.advancedteleport.managers.CooldownManager;
 import io.github.niestrat99.advancedteleport.utilities.RandomCoords;
-
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.List;
 
 public final class ReloadCommand extends SubATCommand {
 
@@ -29,18 +27,14 @@ public final class ReloadCommand extends SubATCommand {
             @NotNull final String s,
             @NotNull final String[] args) {
         CustomMessages.sendMessage(sender, "Info.reloadingConfig");
-        for (ATConfig config :
-                Arrays.asList(MainConfig.get(), CustomMessages.config, GUIConfig.get())) {
+        for (ATConfig config : Arrays.asList(MainConfig.get(), CustomMessages.config, GUIConfig.get())) {
             try {
                 config.reload();
             } catch (Exception ex) {
-                CoreAdvancedTeleport.getInstance().getPlugin()
+                CoreAdvancedTeleport.getInstance()
+                        .getPlugin()
                         .getLogger()
-                        .warning(
-                                "Failed to load "
-                                        + config.getFile().getName()
-                                        + ": "
-                                        + ex.getMessage());
+                        .warning("Failed to load " + config.getFile().getName() + ": " + ex.getMessage());
                 ex.printStackTrace();
             }
         }

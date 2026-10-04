@@ -2,13 +2,6 @@ package io.github.niestrat99.advancedteleport.sql;
 
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.BlockInfo;
-
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,6 +10,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BlocklistManager extends SQLManager {
 
@@ -34,38 +32,36 @@ public class BlocklistManager extends SQLManager {
     @Override
     public void createTable() {
         Bukkit.getScheduler()
-                .runTaskAsynchronously(
-                        CoreAdvancedTeleport.getInstance().getPlugin(),
-                        () -> {
-                            CoreAdvancedTeleport.debug(
-                                    "Creating table data for the block list manager if it is not already set up.");
+                .runTaskAsynchronously(CoreAdvancedTeleport.getInstance().getPlugin(), () -> {
+                    CoreAdvancedTeleport.debug(
+                            "Creating table data for the block list manager if it is not already set up.");
 
-                            // Attempt to create the table.
-                            try (Connection connection = implementConnection()) {
-                                PreparedStatement createTable =
-                                        prepareStatement(
-                                                connection,
-                                                "CREATE TABLE IF NOT EXISTS "
-                                                        + tablePrefix
-                                                        + "_blocklist "
-                                                        + "(id INTEGER PRIMARY KEY "
-                                                        + getStupidAutoIncrementThing()
-                                                        + ", "
-                                                        + "uuid_receiver VARCHAR(256) NOT NULL, "
-                                                        + "uuid_blocked VARCHAR(256) NOT NULL,"
-                                                        + "timestamp BIGINT NOT NULL,"
-                                                        + "reason TEXT)");
-                                executeUpdate(createTable);
-                            } catch (SQLException exception) {
-                                CoreAdvancedTeleport.getInstance().getPlugin()
-                                        .getLogger()
-                                        .severe("Failed to create the blocklist table.");
-                                exception.printStackTrace();
-                            }
+                    // Attempt to create the table.
+                    try (Connection connection = implementConnection()) {
+                        PreparedStatement createTable = prepareStatement(
+                                connection,
+                                "CREATE TABLE IF NOT EXISTS "
+                                        + tablePrefix
+                                        + "_blocklist "
+                                        + "(id INTEGER PRIMARY KEY "
+                                        + getStupidAutoIncrementThing()
+                                        + ", "
+                                        + "uuid_receiver VARCHAR(256) NOT NULL, "
+                                        + "uuid_blocked VARCHAR(256) NOT NULL,"
+                                        + "timestamp BIGINT NOT NULL,"
+                                        + "reason TEXT)");
+                        executeUpdate(createTable);
+                    } catch (SQLException exception) {
+                        CoreAdvancedTeleport.getInstance()
+                                .getPlugin()
+                                .getLogger()
+                                .severe("Failed to create the blocklist table.");
+                        exception.printStackTrace();
+                    }
 
-                            // Transfer old data.
-                            transferOldData();
-                        });
+                    // Transfer old data.
+                    transferOldData();
+                });
     }
 
     @Override
@@ -74,7 +70,8 @@ public class BlocklistManager extends SQLManager {
         CoreAdvancedTeleport.debug("Transferring old blocklist data...");
 
         // Get the legacy blocklist file - if it doesn't exist, stop there.
-        File blocklistFile = new File(CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder(), "blocklist.yml");
+        File blocklistFile =
+                new File(CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder(), "blocklist.yml");
         if (!blocklistFile.exists()) {
             CoreAdvancedTeleport.debug("No blocklist data to import.");
             return;
@@ -99,63 +96,51 @@ public class BlocklistManager extends SQLManager {
         }
 
         // See if renaming was successful.
-        boolean renameResult =
-                blocklistFile.renameTo(
-                        new File(CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder(), "blocklist-backup.yml"));
+        boolean renameResult = blocklistFile.renameTo(
+                new File(CoreAdvancedTeleport.getInstance().getPlugin().getDataFolder(), "blocklist-backup.yml"));
         CoreAdvancedTeleport.debug(
-                renameResult
-                        ? "Successfully renamed the blocklist file."
-                        : "Failed to rename the blocklist file.");
+                renameResult ? "Successfully renamed the blocklist file." : "Failed to rename the blocklist file.");
     }
 
-    public void blockUser(
-            @NotNull String receiverUUID, @NotNull String blockedUUID, @Nullable String reason) {
+    public void blockUser(@NotNull String receiverUUID, @NotNull String blockedUUID, @Nullable String reason) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement;
             if (reason != null) {
-                statement =
-                        prepareStatement(
-                                connection,
-                                "INSERT INTO "
-                                        + tablePrefix
-                                        + "_blocklist (uuid_receiver, uuid_blocked, timestamp, reason) "
-                                        + "VALUES (?, ?, ?, ?)");
+                statement = prepareStatement(
+                        connection,
+                        "INSERT INTO "
+                                + tablePrefix
+                                + "_blocklist (uuid_receiver, uuid_blocked, timestamp, reason) "
+                                + "VALUES (?, ?, ?, ?)");
                 statement.setString(4, reason);
             } else {
-                statement =
-                        prepareStatement(
-                                connection,
-                                "INSERT INTO "
-                                        + tablePrefix
-                                        + "_blocklist (uuid_receiver, uuid_blocked, timestamp) VALUES "
-                                        + "(?, ?, ?)");
+                statement = prepareStatement(
+                        connection,
+                        "INSERT INTO "
+                                + tablePrefix
+                                + "_blocklist (uuid_receiver, uuid_blocked, timestamp) VALUES "
+                                + "(?, ?, ?)");
             }
             statement.setString(1, receiverUUID);
             statement.setString(2, blockedUUID);
             statement.setLong(3, System.currentTimeMillis());
             executeUpdate(statement);
         } catch (SQLException exception) {
-            DataFailManager.get()
-                    .addFailure(
-                            DataFailManager.Operation.ADD_BLOCK, receiverUUID, blockedUUID, reason);
+            DataFailManager.get().addFailure(DataFailManager.Operation.ADD_BLOCK, receiverUUID, blockedUUID, reason);
             throw new RuntimeException(exception);
         }
     }
 
     public void unblockUser(String receiverUUID, String blockedUUID) {
         try (Connection connection = implementConnection()) {
-            PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "DELETE FROM "
-                                    + tablePrefix
-                                    + "_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?");
+            PreparedStatement statement = prepareStatement(
+                    connection,
+                    "DELETE FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ? AND uuid_blocked = ?");
             statement.setString(1, receiverUUID);
             statement.setString(2, blockedUUID);
             executeUpdate(statement);
         } catch (SQLException exception) {
-            DataFailManager.get()
-                    .addFailure(DataFailManager.Operation.UNBLOCK, receiverUUID, blockedUUID);
+            DataFailManager.get().addFailure(DataFailManager.Operation.UNBLOCK, receiverUUID, blockedUUID);
             throw new RuntimeException(exception);
         }
     }
@@ -163,9 +148,7 @@ public class BlocklistManager extends SQLManager {
     public HashMap<UUID, BlockInfo> getBlockedPlayers(String receiverUUID) {
         try (Connection connection = implementConnection()) {
             PreparedStatement statement =
-                    prepareStatement(
-                            connection,
-                            "SELECT * FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ?");
+                    prepareStatement(connection, "SELECT * FROM " + tablePrefix + "_blocklist WHERE uuid_receiver = ?");
             statement.setString(1, receiverUUID);
             ResultSet results = executeQuery(statement);
             // Create a list for all blocked players.
@@ -173,12 +156,11 @@ public class BlocklistManager extends SQLManager {
             // For each blocked player...
             while (results.next()) {
                 // Create the BI object.
-                BlockInfo blockInfo =
-                        new BlockInfo(
-                                UUID.fromString(receiverUUID),
-                                UUID.fromString(results.getString("uuid_blocked")),
-                                results.getString("reason"),
-                                results.getLong("timestamp"));
+                BlockInfo blockInfo = new BlockInfo(
+                        UUID.fromString(receiverUUID),
+                        UUID.fromString(results.getString("uuid_blocked")),
+                        results.getString("reason"),
+                        results.getLong("timestamp"));
                 // Add it to the list.
                 blockedPlayers.put(blockInfo.getBlockedUUID(), blockInfo);
             }

@@ -2,11 +2,9 @@ package io.github.niestrat99.advancedteleport.config;
 
 import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.thatsmusic99.configurationmaster.api.ConfigFile;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class ATConfig extends ConfigFile {
 

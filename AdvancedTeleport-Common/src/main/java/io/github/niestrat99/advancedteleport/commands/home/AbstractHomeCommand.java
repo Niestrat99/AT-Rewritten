@@ -4,17 +4,15 @@ import io.github.niestrat99.advancedteleport.api.ATPlayer;
 import io.github.niestrat99.advancedteleport.api.Home;
 import io.github.niestrat99.advancedteleport.commands.ATCommand;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public abstract class AbstractHomeCommand extends ATCommand {
 
@@ -29,8 +27,7 @@ public abstract class AbstractHomeCommand extends ATCommand {
         if (player.hasPermission(getAdminPermission()) && !args[0].isEmpty() && args.length == 2) {
             final var atTarget = ATPlayer.getPlayer(args[0]);
             if (atTarget == null) return Collections.emptyList();
-            return StringUtil.copyPartialMatches(
-                    args[1], atTarget.getHomes().keySet(), new ArrayList<>());
+            return StringUtil.copyPartialMatches(args[1], atTarget.getHomes().keySet(), new ArrayList<>());
         }
 
         if (args.length == 1) {

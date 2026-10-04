@@ -7,7 +7,6 @@ import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEven
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.hooks.MapPlugin;
 import io.github.niestrat99.advancedteleport.managers.PluginHookManager;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -21,9 +20,7 @@ public class MapEventListeners implements Listener {
 
         // Add the warp to each map plugin.
         Warp warp = event.getWarp();
-        PluginHookManager.get()
-                .getPluginHooks(MapPlugin.class, true)
-                .forEach(mapPlugin -> mapPlugin.addWarp(warp));
+        PluginHookManager.get().getPluginHooks(MapPlugin.class, true).forEach(mapPlugin -> mapPlugin.addWarp(warp));
     }
 
     @EventHandler

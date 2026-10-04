@@ -17,7 +17,8 @@ public class PaperSignOpenListener implements NewListener {
     public void onPlayerSignOpen(final @NotNull PlayerOpenSignEvent event) {
 
         // If they're not interacting or sneaking, ignore
-        CoreAdvancedTeleport.debug("Sign open event detected, cause: " + event.getCause().name());
+        CoreAdvancedTeleport.debug(
+                "Sign open event detected, cause: " + event.getCause().name());
         if (event.getCause() != PlayerOpenSignEvent.Cause.INTERACT) return;
 
         // Check the clicked side
@@ -41,9 +42,12 @@ public class PaperSignOpenListener implements NewListener {
 
         // If the player can't use the sign or is editing it as an admin, just ignore
         CoreAdvancedTeleport.debug("Is the sign enabled?: " + sign.isEnabled());
-        CoreAdvancedTeleport.debug("Can the player use the sign?: " + event.getPlayer().hasPermission(sign.getRequiredPermission()));
-        CoreAdvancedTeleport.debug("Is the player trying to edit the sign?: " + event.getPlayer().isSneaking());
-        CoreAdvancedTeleport.debug("Is the player able to edit the sign?: " + event.getPlayer().hasPermission(sign.getAdminPermission()));
+        CoreAdvancedTeleport.debug(
+                "Can the player use the sign?: " + event.getPlayer().hasPermission(sign.getRequiredPermission()));
+        CoreAdvancedTeleport.debug(
+                "Is the player trying to edit the sign?: " + event.getPlayer().isSneaking());
+        CoreAdvancedTeleport.debug(
+                "Is the player able to edit the sign?: " + event.getPlayer().hasPermission(sign.getAdminPermission()));
 
         if (!sign.isEnabled()) return false;
         if (!event.getPlayer().hasPermission(sign.getRequiredPermission())) return false;
@@ -53,12 +57,11 @@ public class PaperSignOpenListener implements NewListener {
 
         // If there's a cooldown in place, then check that
         int cooldown = CooldownManager.secondsLeftOnCooldown(sign.getName().toLowerCase(), event.getPlayer());
-        CoreAdvancedTeleport.debug("Cooldown found for " + event.getPlayer().getName() + " in " + sign.getName().toLowerCase() + ": " + cooldown);
+        CoreAdvancedTeleport.debug("Cooldown found for " + event.getPlayer().getName() + " in "
+                + sign.getName().toLowerCase() + ": " + cooldown);
         if (cooldown > 0) {
             CustomMessages.sendMessage(
-                    event.getPlayer(),
-                    "Error.onCooldown",
-                    Placeholder.unparsed("time", String.valueOf(cooldown)));
+                    event.getPlayer(), "Error.onCooldown", Placeholder.unparsed("time", String.valueOf(cooldown)));
             return true;
         }
 

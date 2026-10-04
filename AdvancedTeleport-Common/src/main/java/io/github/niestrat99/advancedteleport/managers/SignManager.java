@@ -1,15 +1,14 @@
 package io.github.niestrat99.advancedteleport.managers;
 
+import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
 import io.github.niestrat99.advancedteleport.api.ATSign;
 import io.github.niestrat99.advancedteleport.api.AdvancedTeleportAPI;
 import io.github.niestrat99.advancedteleport.api.signs.*;
-import io.github.niestrat99.advancedteleport.CoreAdvancedTeleport;
+import java.util.HashMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
 
 public class SignManager {
 
@@ -20,7 +19,7 @@ public class SignManager {
         instance = this;
 
         this.signs = new HashMap<>();
-	CoreAdvancedTeleport.debug("Sign manager initialised, registering signs...");
+        CoreAdvancedTeleport.debug("Sign manager initialised, registering signs...");
         AdvancedTeleportAPI.registerSign("warps", new WarpsSign());
         AdvancedTeleportAPI.registerSign("warp", new WarpSign());
         AdvancedTeleportAPI.registerSign("home", new HomeSign());
@@ -28,7 +27,7 @@ public class SignManager {
         AdvancedTeleportAPI.registerSign("bed", new BedSign());
         AdvancedTeleportAPI.registerSign("spawn", new SpawnSign());
         AdvancedTeleportAPI.registerSign("randomtp", new RandomTPSign());
-	CoreAdvancedTeleport.debug("Registered " + this.signs.size() + " signs.");
+        CoreAdvancedTeleport.debug("Registered " + this.signs.size() + " signs.");
     }
 
     public static SignManager get() {
@@ -37,7 +36,7 @@ public class SignManager {
 
     public void register(final @NotNull String name, final @NotNull ATSign sign) {
         this.signs.put(name, sign);
-	CoreAdvancedTeleport.debug("Registered " + name + " sign under " + sign);
+        CoreAdvancedTeleport.debug("Registered " + name + " sign under " + sign);
     }
 
     public @Nullable ATSign getSign(final @NotNull String name) {
@@ -45,12 +44,12 @@ public class SignManager {
     }
 
     public @Nullable ATSign getSignByFlatDisplayName(final @NotNull TextComponent component) {
-        CoreAdvancedTeleport.debug("Flat display name check for " + component + " - signs to check: " + this.signs.size());
+        CoreAdvancedTeleport.debug(
+                "Flat display name check for " + component + " - signs to check: " + this.signs.size());
         for (var sign : this.signs.values()) {
-            
-	    CoreAdvancedTeleport.debug("Display name for " + sign + ": " + sign.getDisplayName());
-	    if (!(sign.getDisplayName() instanceof TextComponent text)) continue;
-	    if (!text.content().equals(component.content())) continue;
+            CoreAdvancedTeleport.debug("Display name for " + sign + ": " + sign.getDisplayName());
+            if (!(sign.getDisplayName() instanceof TextComponent text)) continue;
+            if (!text.content().equals(component.content())) continue;
             return sign;
         }
 
@@ -58,8 +57,9 @@ public class SignManager {
     }
 
     public @Nullable ATSign getSignByDisplayName(final @NotNull Component component) {
-        CoreAdvancedTeleport.debug("Full display name check for " + component + " - signs to check: " + this.signs.size());
-        
+        CoreAdvancedTeleport.debug(
+                "Full display name check for " + component + " - signs to check: " + this.signs.size());
+
         // uggggghh
         for (var sign : this.signs.values()) {
             if (!hardEquals(sign.getDisplayName(), component)) continue;

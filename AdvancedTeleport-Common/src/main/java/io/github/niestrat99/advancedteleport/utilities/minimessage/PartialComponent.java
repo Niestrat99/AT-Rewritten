@@ -1,13 +1,12 @@
 package io.github.niestrat99.advancedteleport.utilities.minimessage;
 
 import io.github.niestrat99.advancedteleport.utilities.Pair;
+import java.util.List;
+import java.util.SortedSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.SortedSet;
 
 /**
  * A partial component is a wrapper around the MiniMessage format,
@@ -33,8 +32,9 @@ public class PartialComponent {
         return new PartialComponent(value);
     }
 
-    public Component get(final @NotNull List<Pair<String, String>> instantPlaceholders,
-                         final @NotNull List<TagResolver> placeholders) {
+    public Component get(
+            final @NotNull List<Pair<String, String>> instantPlaceholders,
+            final @NotNull List<TagResolver> placeholders) {
         if (placeholders.isEmpty() && instantPlaceholders.isEmpty()) {
             if (this.cache == null) this.cache = AdventureUtils.cleanDeserialise(this.value);
             return this.cache;

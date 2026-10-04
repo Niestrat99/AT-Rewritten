@@ -6,20 +6,17 @@ import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
 import io.github.niestrat99.advancedteleport.sql.HomeSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
-
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.util.StringUtil;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 public final class PurgeCommand extends SubATCommand {
 
@@ -58,26 +55,22 @@ public final class PurgeCommand extends SubATCommand {
 
             // Purge using the world name
             switch (args[0].toLowerCase()) {
-                case "homes" -> CompletableFuture.runAsync(
-                                () -> HomeSQLManager.get().purgeHomes(args[2]))
-                        .whenComplete(
-                                (v, err) ->
-                                        CustomMessages.failable(
-                                                sender,
-                                                "Info.purgeHomesWorld",
-                                                "Error.purgeHomesFail",
-                                                err,
-                                                Placeholder.unparsed("world", args[2])));
-                case "warps" -> CompletableFuture.runAsync(
-                                () -> WarpSQLManager.get().purgeWarps(args[2]))
-                        .whenComplete(
-                                (v, err) ->
-                                        CustomMessages.failable(
-                                                sender,
-                                                "Info.purgeWarpsWorld",
-                                                "Error.purgeWarpsFail",
-                                                err,
-                                                Placeholder.unparsed("world", args[2])));
+                case "homes" ->
+                    CompletableFuture.runAsync(() -> HomeSQLManager.get().purgeHomes(args[2]))
+                            .whenComplete((v, err) -> CustomMessages.failable(
+                                    sender,
+                                    "Info.purgeHomesWorld",
+                                    "Error.purgeHomesFail",
+                                    err,
+                                    Placeholder.unparsed("world", args[2])));
+                case "warps" ->
+                    CompletableFuture.runAsync(() -> WarpSQLManager.get().purgeWarps(args[2]))
+                            .whenComplete((v, err) -> CustomMessages.failable(
+                                    sender,
+                                    "Info.purgeWarpsWorld",
+                                    "Error.purgeWarpsFail",
+                                    err,
+                                    Placeholder.unparsed("world", args[2])));
             }
 
             return true;
@@ -90,34 +83,24 @@ public final class PurgeCommand extends SubATCommand {
 
                                 // Purge by creator
                                 switch (args[0].toLowerCase()) {
-                                    case "homes" -> CompletableFuture.runAsync(
-                                                    () ->
-                                                            HomeSQLManager.get()
-                                                                    .purgeHomes(
-                                                                            player.getUniqueId()))
-                                            .whenComplete(
-                                                    (v, err) ->
-                                                            CustomMessages.failable(
-                                                                    sender,
-                                                                    "Info.purgeHomesCreator",
-                                                                    "Error.purgeHomesFail",
-                                                                    err,
-                                                                    Placeholder.unparsed(
-                                                                            "player", args[2])));
-                                    case "warps" -> CompletableFuture.runAsync(
-                                                    () ->
-                                                            WarpSQLManager.get()
-                                                                    .purgeWarps(
-                                                                            player.getUniqueId()))
-                                            .whenComplete(
-                                                    (v, err) ->
-                                                            CustomMessages.failable(
-                                                                    sender,
-                                                                    "Info.purgeWarpsCreator",
-                                                                    "Error.purgeWarpsFail",
-                                                                    err,
-                                                                    Placeholder.unparsed(
-                                                                            "player", args[2])));
+                                    case "homes" ->
+                                        CompletableFuture.runAsync(() ->
+                                                        HomeSQLManager.get().purgeHomes(player.getUniqueId()))
+                                                .whenComplete((v, err) -> CustomMessages.failable(
+                                                        sender,
+                                                        "Info.purgeHomesCreator",
+                                                        "Error.purgeHomesFail",
+                                                        err,
+                                                        Placeholder.unparsed("player", args[2])));
+                                    case "warps" ->
+                                        CompletableFuture.runAsync(() ->
+                                                        WarpSQLManager.get().purgeWarps(player.getUniqueId()))
+                                                .whenComplete((v, err) -> CustomMessages.failable(
+                                                        sender,
+                                                        "Info.purgeWarpsCreator",
+                                                        "Error.purgeWarpsFail",
+                                                        err,
+                                                        Placeholder.unparsed("player", args[2])));
                                 }
                             },
                             CoreAdvancedTeleport.sync);
@@ -134,10 +117,8 @@ public final class PurgeCommand extends SubATCommand {
             @NotNull final String[] args) {
         // WHAT THE FUCK IS A YIELD EXPRESSION????
         return switch (args.length) {
-            case 1 -> StringUtil.copyPartialMatches(
-                    args[0], Arrays.asList("homes", "warps"), new ArrayList<>());
-            case 2 -> StringUtil.copyPartialMatches(
-                    args[1], Arrays.asList("player", "world"), new ArrayList<>());
+            case 1 -> StringUtil.copyPartialMatches(args[0], Arrays.asList("homes", "warps"), new ArrayList<>());
+            case 2 -> StringUtil.copyPartialMatches(args[1], Arrays.asList("player", "world"), new ArrayList<>());
             case 3 -> {
                 if (args[1].equalsIgnoreCase("player")) {
                     List<String> players = new ArrayList<>();

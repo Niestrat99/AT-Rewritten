@@ -17,17 +17,14 @@ public final class SpawnCreateEvent extends TrackableATEvent {
 
     @Contract(pure = true)
     public SpawnCreateEvent(
-            @NotNull final String name,
-            @Nullable final CommandSender sender,
-            @NotNull final Location location)
+            @NotNull final String name, @Nullable final CommandSender sender, @NotNull final Location location)
             throws IllegalArgumentException, IllegalStateException {
         super(sender);
 
         // Name checks
         if (name.isEmpty()) throw new IllegalArgumentException("The spawn name must not be empty.");
         // Location checks
-        if (!location.isWorldLoaded())
-            throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
 
         this.name = name;
         this.location = location;
@@ -76,8 +73,7 @@ public final class SpawnCreateEvent extends TrackableATEvent {
      */
     @Contract(pure = true)
     public void setLocation(@NotNull final Location location) throws IllegalStateException {
-        if (!location.isWorldLoaded())
-            throw new IllegalStateException("The location's world is not loaded.");
+        if (!location.isWorldLoaded()) throw new IllegalStateException("The location's world is not loaded.");
         this.location = location;
     }
 

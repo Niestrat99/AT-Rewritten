@@ -2,9 +2,7 @@ package io.github.niestrat99.advancedteleport.hooks.borders;
 
 import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.WorldBorder;
-
 import io.github.niestrat99.advancedteleport.hooks.BorderPlugin;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
@@ -24,11 +22,10 @@ public final class WorldBorderHook extends BorderPlugin<WorldBorder, Void> {
         if (!super.canUse(world)) return false;
 
         return this.plugin()
-                .map(
-                        plugin -> {
-                            worldBorder = plugin;
-                            return worldBorder.getWorldBorder(world.getName()) != null;
-                        })
+                .map(plugin -> {
+                    worldBorder = plugin;
+                    return worldBorder.getWorldBorder(world.getName()) != null;
+                })
                 .orElse(false);
     }
 

@@ -13,8 +13,7 @@ public interface NamedLocation {
      * @return the name of the location.
      */
     @Contract(pure = true)
-    @NotNull
-    String getName();
+    @NotNull String getName();
 
     /**
      * Gets the Bukkit location of the named location.
@@ -22,6 +21,5 @@ public interface NamedLocation {
      * @return the Bukkit location.
      */
     @Contract(pure = true)
-    @NotNull
-    Location getLocation();
+    @NotNull Location getLocation();
 }

@@ -9,13 +9,10 @@ import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.utilities.IconMenu;
 import io.github.niestrat99.advancedteleport.utilities.PermissionUtil;
 import io.github.thatsmusic99.configurationmaster.api.ConfigSection;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
-
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -51,12 +48,11 @@ public final class WarpsCommand extends ATCommand {
                 }
             }
             int pages = maxPage - minPage + 1;
-            IconMenu menu =
-                    new IconMenu(
-                            CustomMessages.asString("Info.warps"),
-                            GUIConfig.getWarpsMenuSlots(),
-                            pages,
-                            CoreAdvancedTeleport.getInstance().getPlugin());
+            IconMenu menu = new IconMenu(
+                    CustomMessages.asString("Info.warps"),
+                    GUIConfig.getWarpsMenuSlots(),
+                    pages,
+                    CoreAdvancedTeleport.getInstance().getPlugin());
 
             for (String warpName : warps.getKeys(false)) {
                 ConfigSection warp = warps.getConfigSection(warpName);
@@ -67,13 +63,9 @@ public final class WarpsCommand extends ATCommand {
                     menu.setIcon(
                             warp.getInteger("page"),
                             warp.getInteger("slot"),
-                            new IconMenu.Icon(
-                                            new ItemStack(
-                                                    Material.valueOf(warp.getString("item")),
-                                                    1,
-                                                    (byte) warp.getInteger("data-value")))
-                                    .withNameAndLore(
-                                            warp.getString("name"), warp.getStringList("tooltip"))
+                            new IconMenu.Icon(new ItemStack(Material.valueOf(warp.getString("item")), 1, (byte)
+                                            warp.getInteger("data-value")))
+                                    .withNameAndLore(warp.getString("name"), warp.getStringList("tooltip"))
                                     .withCommands("warp " + warpName)
                                     .withTexture("texture"));
                 }
@@ -85,74 +77,44 @@ public final class WarpsCommand extends ATCommand {
                     menu.setIcon(
                             i,
                             lastPage.getInteger("slot"),
-                            new IconMenu.Icon(
-                                            new ItemStack(
-                                                    Material.valueOf(lastPage.getString("item")),
-                                                    1,
-                                                    (byte) lastPage.getInteger("data-value")))
+                            new IconMenu.Icon(new ItemStack(Material.valueOf(lastPage.getString("item")), 1, (byte)
+                                            lastPage.getInteger("data-value")))
                                     .withTexture(lastPage.getString("texture"))
-                                    .withNameAndLore(
-                                            lastPage.getString("name"),
-                                            lastPage.getStringList("tooltip"))
-                                    .withHandler(
-                                            handler -> {
-                                                handler.setWillClose(false);
-                                                handler.setWillDestroy(false);
-                                                menu.openPreviousPage();
-                                            }));
+                                    .withNameAndLore(lastPage.getString("name"), lastPage.getStringList("tooltip"))
+                                    .withHandler(handler -> {
+                                        handler.setWillClose(false);
+                                        handler.setWillDestroy(false);
+                                        menu.openPreviousPage();
+                                    }));
                 }
                 if (i != pages - 1) {
                     ConfigSection nextPage = GUIConfig.getNextPageIcon();
                     menu.setIcon(
                             i,
                             nextPage.getInteger("slot"),
-                            new IconMenu.Icon(
-                                            new ItemStack(
-                                                    Material.valueOf(nextPage.getString("item")),
-                                                    1,
-                                                    (byte) nextPage.getInteger("data-value")))
+                            new IconMenu.Icon(new ItemStack(Material.valueOf(nextPage.getString("item")), 1, (byte)
+                                            nextPage.getInteger("data-value")))
                                     .withTexture(nextPage.getString("texture"))
-                                    .withNameAndLore(
-                                            nextPage.getString("name"),
-                                            nextPage.getStringList("tooltip"))
-                                    .withHandler(
-                                            handler -> {
-                                                handler.setWillClose(false);
-                                                handler.setWillDestroy(false);
-                                                menu.openNextPage();
-                                            }));
+                                    .withNameAndLore(nextPage.getString("name"), nextPage.getStringList("tooltip"))
+                                    .withHandler(handler -> {
+                                        handler.setWillClose(false);
+                                        handler.setWillDestroy(false);
+                                        menu.openNextPage();
+                                    }));
                 }
             }
             menu.open((Player) sender);
 
         } else {
-            final TextComponent body =
-                    (TextComponent)
-                            Component.join(
-                                    JoinConfiguration.commas(true),
-                                    AdvancedTeleportAPI.getWarps().values().stream()
-                                            .filter(
-                                                    warp ->
-                                                            PermissionUtil.hasPermissionOrStar(
-                                                                    sender,
-                                                                    "at.member.warp."
-                                                                            + warp.getName()
-                                                                                    .toLowerCase()))
-                                            .map(
-                                                    warp ->
-                                                            Component.text(warp.getName())
-                                                                    .clickEvent(
-                                                                            ClickEvent.runCommand(
-                                                                                    "/advancedteleport:warp "
-                                                                                            + warp
-                                                                                                    .getName()))
-                                                                    .hoverEvent(
-                                                                            CustomMessages
-                                                                                    .locationBasedTooltip(
-                                                                                            sender,
-                                                                                            warp,
-                                                                                            "warps")))
-                                            .toList());
+            final TextComponent body = (TextComponent) Component.join(
+                    JoinConfiguration.commas(true),
+                    AdvancedTeleportAPI.getWarps().values().stream()
+                            .filter(warp -> PermissionUtil.hasPermissionOrStar(
+                                    sender, "at.member.warp." + warp.getName().toLowerCase()))
+                            .map(warp -> Component.text(warp.getName())
+                                    .clickEvent(ClickEvent.runCommand("/advancedteleport:warp " + warp.getName()))
+                                    .hoverEvent(CustomMessages.locationBasedTooltip(sender, warp, "warps")))
+                            .toList());
 
             if (!body.content().isEmpty() || !body.children().isEmpty()) {
                 final var component = CustomMessages.getComponent("Info.warps").append(body);
