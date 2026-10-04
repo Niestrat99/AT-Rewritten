@@ -897,10 +897,6 @@ public final class CustomMessages extends ATConfig {
         return PlainTextComponentSerializer.plainText().serialize(get(path, placeholders));
     }
 
-    public static @NotNull String asString(@NotNull final String path) {
-        return asString(path, (TagResolver[]) null);
-    }
-
     public static void sendMessage(
             @NotNull final CommandSender sender,
             @NotNull String path,
