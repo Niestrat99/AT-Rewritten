@@ -24,6 +24,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.logging.Level;
+
 public final class HomesCommand extends AbstractHomeCommand {
 
     @Override
@@ -41,7 +43,7 @@ public final class HomesCommand extends AbstractHomeCommand {
                 CoreClass.debug("Player fetched.");
 
                 if (err != null) {
-                    CoreClass.getInstance().getLogger().throwing(HomesCommand.class.getName(), "onCommand", err);
+                    CoreClass.getInstance().getLogger().log(Level.SEVERE, "Failed to fetch player " + args[0], err);
                     return;
                 }
 
@@ -52,8 +54,7 @@ public final class HomesCommand extends AbstractHomeCommand {
                     CoreClass.debug("Homes of " + args[0] + " fetched.");
 
                     if (err2 != null) {
-                        CoreClass.getInstance().getLogger().throwing(HomesCommand.class.getName(),
-                                "onCommand", err2);
+                        CoreClass.getInstance().getLogger().log(Level.SEVERE, "Failed to fetch homes for player " + args[0], err2);
                         return;
                     }
 

@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
 
@@ -209,8 +210,7 @@ public final class EssentialsHook extends ImportExportPlugin<Essentials, Void> {
                     }
                 }
             } catch (Exception ex) {
-                CoreClass.getInstance().getLogger().warning("Failed to import spawn " + key + "!");
-                CoreClass.getInstance().getLogger().throwing(EssentialsHook.class.getName(), "importSpawn", ex);
+                CoreClass.getInstance().getLogger().log(Level.WARNING, "Failed to import spawn " + key + "!", ex);
             }
         }
 

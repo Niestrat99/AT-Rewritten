@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,8 +66,7 @@ public final class CoreClass extends JavaPlugin {
         try {
             loadLibraries();
         } catch (final Exception err) {
-            getLogger().severe("Failed to load libraries!");
-            getLogger().throwing(CoreClass.class.getName(), "onLoad", err);
+            getLogger().log(Level.SEVERE, "Failed to load libraries!", err);
             Bukkit.getPluginManager().disablePlugin(this);
         }
     }
@@ -78,8 +78,7 @@ public final class CoreClass extends JavaPlugin {
         try {
             hackTheMainFrame();
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            getLogger().warning("Failed to shut down async tasks.");
-            getLogger().throwing(CoreClass.class.getName(), "onDisable", e);
+            getLogger().log(Level.WARNING, "Failed to shut down async tasks.", e);
         }
 
         try {
