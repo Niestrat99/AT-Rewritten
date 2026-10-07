@@ -29,7 +29,7 @@ public abstract class BorderPlugin<P extends Plugin, R> extends PluginHook<P, R>
      * @return true if the plugin is enabled and there is a viable world border, false if not.
      */
     public boolean canUse(@NotNull final World world) {
-        return MainConfig.get().USE_PLUGIN_BORDERS.get() && this.pluginUsable();
+        return MainConfig.get().SYNC_PLUGIN_BORDERS.get() && this.pluginUsable();
     }
 
     /**

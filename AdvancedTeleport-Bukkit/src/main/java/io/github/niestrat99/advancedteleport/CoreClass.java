@@ -12,8 +12,9 @@ import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotLegacySignLi
 import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotSignChangeListener;
 import io.github.niestrat99.advancedteleport.listeners.spigot.SpigotSignOpenListener;
 import io.github.niestrat99.advancedteleport.managers.*;
+import io.github.niestrat99.advancedteleport.rtp.RTPManager;
 import io.github.niestrat99.advancedteleport.sql.*;
-import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
+import io.github.niestrat99.advancedteleport.rtp.RandomTPAlgorithms;
 import io.github.slimjar.app.builder.InjectingApplicationBuilder;
 import io.github.slimjar.logging.ProcessLogger;
 import io.papermc.lib.PaperLib;

@@ -3,7 +3,7 @@ package io.github.niestrat99.advancedteleport.commands.core;
 import io.github.niestrat99.advancedteleport.CoreClass;
 import io.github.niestrat99.advancedteleport.commands.SubATCommand;
 import io.github.niestrat99.advancedteleport.config.CustomMessages;
-import io.github.niestrat99.advancedteleport.managers.RTPManager;
+import io.github.niestrat99.advancedteleport.rtp.RTPManager;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 

@@ -9,13 +9,13 @@ import io.github.niestrat99.advancedteleport.api.events.warps.WarpCreateEvent;
 import io.github.niestrat99.advancedteleport.api.events.warps.WarpPostCreateEvent;
 import io.github.niestrat99.advancedteleport.config.MainConfig;
 import io.github.niestrat99.advancedteleport.managers.NamedLocationManager;
-import io.github.niestrat99.advancedteleport.managers.RTPManager;
+import io.github.niestrat99.advancedteleport.rtp.RTPManager;
 import io.github.niestrat99.advancedteleport.managers.SignManager;
 import io.github.niestrat99.advancedteleport.sql.MetadataSQLManager;
 import io.github.niestrat99.advancedteleport.sql.SpawnSQLManager;
 import io.github.niestrat99.advancedteleport.sql.WarpSQLManager;
 
-import io.github.niestrat99.advancedteleport.utilities.RandomTPAlgorithms;
+import io.github.niestrat99.advancedteleport.rtp.RandomTPAlgorithms;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
