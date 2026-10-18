@@ -6,4 +6,4 @@
 - [ ] Does the PR need documenting on the wiki? If not, remove this, otherwise, leave this unchecked until a respective
 PR has been made for the wiki.
 - [ ] Has the PR been tested? 
-- [ ] Do you consent to GitHub Copilot also reviewing your changes? An actual developer will review your changes first.
+- [ ] Was generative AI used for this PR? If so, what tools did you use and how were they used in this PR?
