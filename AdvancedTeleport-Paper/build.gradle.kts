@@ -35,6 +35,8 @@ dependencies {
 
     compileOnly(libs.paper)
     implementation(libs.adventure.nbt)
+    implementation(libs.bstats.bukkit)
+    implementation(libs.bstats.base)
 }
 
 bukkit.main = "io.github.niestrat99.advancedteleport.PaperAdvancedTeleport"

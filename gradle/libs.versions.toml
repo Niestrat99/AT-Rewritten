@@ -44,6 +44,7 @@ adventure-text-serializer-gson = { module = "net.kyori:adventure-text-serializer
 adventure-text-serializer-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "adventure" }
 adventure-text-serializer-plain = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "adventure" }
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+bstats-base = { module = "org.bstats:bstats-base", version.ref = "bstats" }
 kyori-examination = { module = "net.kyori:examination-api", version.ref = "examination" }
 
 hook-vault = { module = "net.milkbowl.vault:VaultAPI", version.ref = "vault" }

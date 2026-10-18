@@ -28,6 +28,9 @@ dependencies {
 
     implementation(project(":AdvancedTeleport-Paper"))
     implementation(project(":AdvancedTeleport-Common"))
+
+    implementation(libs.bstats.bukkit)
+    implementation(libs.bstats.base)
 }
 
 tasks{
@@ -40,6 +43,10 @@ tasks{
             include(project(":AdvancedTeleport-Spigot"))
             include(project(":AdvancedTeleport-Paper"))
             include(project(":AdvancedTeleport-Common"))
+            
+            project.configurations.implementation.get().dependencies.forEach {
+                include(dependency(it))
+            }
         }
     }
 }
