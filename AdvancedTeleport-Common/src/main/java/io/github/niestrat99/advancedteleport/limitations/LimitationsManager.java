@@ -26,11 +26,11 @@ public final class LimitationsManager {
                 + CoreAdvancedTeleport.getShortLocation(toLoc)
                 + " with command "
                 + command);
-        int commandResponse = commandMan.canTeleport(player, toLoc, command);
-        if (commandResponse == 0) {
+        LimitationResult commandResponse = commandMan.canTeleport(player, toLoc, command);
+        if (commandResponse == LimitationResult.NEUTRAL) {
             return worldMan.canTeleport(player, toLoc);
         } else {
-            return commandResponse == 1;
+            return commandResponse == LimitationResult.ALLOW;
         }
     }
 }

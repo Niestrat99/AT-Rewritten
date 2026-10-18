@@ -123,8 +123,8 @@ public class ATPlayer {
     public void teleport(
             @NotNull final ATTeleportEvent event, @NotNull final String command, @NotNull final String teleportMsg) {
         Player player = event.getPlayer();
-        int warmUp = getWarmUp(command, event.getToLocation().getWorld());
         if (event.isCancelled()) return;
+        int warmUp = getWarmUp(command, event.getToLocation().getWorld());
 
         // Check if the destination is loaded
         if (event.getToLocation().getWorld() == null) {

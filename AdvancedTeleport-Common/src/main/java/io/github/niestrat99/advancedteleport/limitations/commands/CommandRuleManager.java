@@ -1,6 +1,7 @@
 package io.github.niestrat99.advancedteleport.limitations.commands;
 
 import io.github.niestrat99.advancedteleport.config.MainConfig;
+import io.github.niestrat99.advancedteleport.limitations.LimitationResult;
 import io.github.niestrat99.advancedteleport.limitations.commands.list.IgnoreRule;
 import io.github.niestrat99.advancedteleport.limitations.commands.list.OverrideRule;
 import java.util.ArrayList;
@@ -35,16 +36,16 @@ public final class CommandRuleManager {
         this.rules.put(command, ruleList);
     }
 
-    public int canTeleport(@NotNull final Player player, @NotNull final Location toLoc, @NotNull final String command) {
+    public LimitationResult canTeleport(@NotNull final Player player, @NotNull final Location toLoc, @NotNull final String command) {
         final var commandRules = this.rules.get(command);
-        if (commandRules == null) return 0;
+        if (commandRules == null) return LimitationResult.NEUTRAL;
         for (CommandRule rule : commandRules) {
             if (rule instanceof IgnoreRule) {
-                if (!rule.canTeleport(player, toLoc)) return -1;
+                if (!rule.canTeleport(player, toLoc)) return LimitationResult.DENY;
             } else if (rule instanceof OverrideRule) {
-                if (rule.canTeleport(player, toLoc)) return 1;
+                if (rule.canTeleport(player, toLoc)) return LimitationResult.ALLOW;
             }
         }
-        return 0;
+        return LimitationResult.NEUTRAL;
     }
 }

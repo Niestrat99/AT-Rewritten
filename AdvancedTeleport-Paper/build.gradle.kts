@@ -107,6 +107,14 @@ tasks {
         runDirectory.set(rootDir.resolve(".run"))
         pluginJars(getJarFile())
     }
+
+    shadowJar {
+        dependencies {
+            project.configurations.implementation.get().dependencies.forEach {
+                include(dependency(it))
+            }
+        }
+    }
 }
 
 // Lead development use only.

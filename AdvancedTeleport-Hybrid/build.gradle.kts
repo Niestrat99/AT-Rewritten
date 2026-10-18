@@ -34,6 +34,14 @@ tasks{
     test {
         useJUnitPlatform()
     }
+
+    shadowJar {
+        dependencies {
+            include(project(":AdvancedTeleport-Spigot"))
+            include(project(":AdvancedTeleport-Paper"))
+            include(project(":AdvancedTeleport-Common"))
+        }
+    }
 }
 
 configurations.configureEach {

@@ -118,17 +118,13 @@ public abstract class SQLManager {
     }
 
     protected @NotNull Location getLocation(ResultSet set) throws SQLException, UnloadedWorldException {
-
-        // Get base coordinates
         double x = set.getDouble("x");
         double y = set.getDouble("y");
         double z = set.getDouble("z");
 
-        // Get rotation
         float yaw = set.getFloat("yaw");
         float pitch = set.getFloat("pitch");
 
-        // Get the world name
         String worldName = set.getString("world");
 
         return new WorldlessLocation(worldName, x, y, z, yaw, pitch);

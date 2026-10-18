@@ -14,11 +14,7 @@ public class MapEventListeners implements Listener {
 
     @EventHandler
     public void onWarpAdd(WarpPostCreateEvent event) {
-
-        // If warps aren't meant to be put on maps, stop there
         if (!MainConfig.get().MAP_WARPS.isEnabled()) return;
-
-        // Add the warp to each map plugin.
         Warp warp = event.getWarp();
         PluginHookManager.get().getPluginHooks(MapPlugin.class, true).forEach(mapPlugin -> mapPlugin.addWarp(warp));
     }
@@ -32,11 +28,7 @@ public class MapEventListeners implements Listener {
 
     @EventHandler
     public void onWarpMove(WarpMoveEvent event) {
-
-        // If warps aren't meant to be put on maps, stop there.
         if (!MainConfig.get().MAP_WARPS.isEnabled()) return;
-
-        // Move the warp accordingly.
         PluginHookManager.get()
                 .getPluginHooks(MapPlugin.class, true)
                 .forEach(mapPlugin -> mapPlugin.moveWarp(event.getWarp()));
